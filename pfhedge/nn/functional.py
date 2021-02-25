@@ -1,3 +1,5 @@
+from math import ceil
+
 import torch
 import torch.nn.functional as fn
 
@@ -179,9 +181,9 @@ def topp(input, p, dim=None, largest=True) -> (torch.Tensor, torch.LongTensor):
     indices=tensor([4, 3, 2]))
     """
     if dim is None:
-        return torch.topk(input, int(p * input.numel()), largest=largest)
+        return torch.topk(input, ceil(p * input.numel()), largest=largest)
     else:
-        return torch.topk(input, int(p * input.size()[dim]), dim=dim, largest=largest)
+        return torch.topk(input, ceil(p * input.size()[dim]), dim=dim, largest=largest)
 
 
 def expected_shortfall(input: torch.Tensor, p: float, dim=None) -> torch.Tensor:
