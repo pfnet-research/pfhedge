@@ -141,6 +141,8 @@ class Hedger(torch.nn.Module):
         self.features = [get_feature(feature) for feature in features]
         self.criterion = criterion
 
+        # This hook saves the hedger's previous output to an attribute `prev`.
+        # The attribute `prev` may be referred to by the feature `PrevHedge`.
         self.register_forward_hook(save_prev_output)
 
     def forward(self, input):
@@ -205,6 +207,11 @@ class Hedger(torch.nn.Module):
         # Settle the derivative's payoff.
         pnl -= derivative.payoff()
 
+        # Delete the attribute `prev` in case a hedger has a feature `PrevHedge` and
+        # one calls `compute_pnl` twice.
+        # If `prev` is not deleted, `prev` at the last time step in the first call
+        # would be referred to by `PrevHedge` at the first time step at the second call,
+        # which results in an unexpected output (while we expect zeros).
         if hasattr(self, "prev"):
             delattr(self, "prev")
 
