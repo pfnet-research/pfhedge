@@ -51,8 +51,8 @@ class BSEuropeanBinaryOption(BSModuleMixin):
             self.strike = strike
 
         if not self.call:
-            raise NotImplementedError(
-                f"{self.__class__.__name__} for a put option is not yet implemented."
+            raise ValueError(
+                f"{self.__class__.__name__} for a put option is not yet supported."
             )
 
     def extra_repr(self):
@@ -102,9 +102,7 @@ class BSEuropeanBinaryOption(BSModuleMixin):
         -------
         gamma : Tensor, shape (N, *)
         """
-        raise NotImplementedError(
-            f"gamma of {self.__class__.__name__} is not yet implemented."
-        )
+        raise ValueError(f"gamma of {self.__class__.__name__} is not yet supported.")
 
     def price(self, log_moneyness, expiry_time, volatility) -> torch.Tensor:
         """
@@ -149,6 +147,6 @@ class BSEuropeanBinaryOption(BSModuleMixin):
         -------
         implied_volatility : Tensor, shape (N, *)
         """
-        raise NotImplementedError(
-            f"implied volatility of {self.__class__.__name__} is not yet implemented."
+        raise ValueError(
+            f"implied volatility of {self.__class__.__name__} is not yet supported."
         )

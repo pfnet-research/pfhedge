@@ -26,13 +26,15 @@ class TestBSAmericanBinaryOption(_TestBSModule):
         m = BSAmericanBinaryOption(liability)
         assert repr(m) == "BSAmericanBinaryOption(strike=1.1)"
 
-        with pytest.raises(NotImplementedError):
+        with pytest.raises(ValueError):
+            # not yet supported
             liability = AmericanBinaryOption(BrownianStock(), strike=1.1, call=False)
             m = BSAmericanBinaryOption(liability)
             assert repr(m) == "BSAmericanBinaryOption(call=False, strike=1.1)"
 
     def test_error_put(self):
-        with pytest.raises(NotImplementedError):
+        with pytest.raises(ValueError):
+            # not yet supported
             liability = AmericanBinaryOption(BrownianStock(), call=False)
             BSAmericanBinaryOption(liability)
 
@@ -80,12 +82,14 @@ class TestBSAmericanBinaryOption(_TestBSModule):
         assert torch.allclose(result, expect, atol=1e-4)
 
     def test_gamma(self):
-        with pytest.raises(NotImplementedError):
+        with pytest.raises(ValueError):
+            # not yet supported
             m = BSAmericanBinaryOption()
             result = m.gamma(0.0, 1.0, 0.2).item()
             assert np.isclose(result, 1.9847627374)
 
-        with pytest.raises(NotImplementedError):
+        with pytest.raises(ValueError):
+            # not yet supported
             m = BSAmericanBinaryOption(call=False)
             result = m.gamma(0.0, 1.0, 0.2).item()
 
@@ -104,7 +108,8 @@ class TestBSAmericanBinaryOption(_TestBSModule):
         assert torch.allclose(result, expect, atol=1e-4)
 
     def test_implied_volatility(self):
-        with pytest.raises(NotImplementedError):
+        with pytest.raises(ValueError):
+            # not yet supported
             x = torch.tensor([[0.0, 0.1, 0.01], [0.0, 0.1, 0.02], [0.0, 0.1, 0.03]])
             m = BSAmericanBinaryOption()
             iv = m.implied_volatility(x[:, 0], x[:, 1], x[:, 2])

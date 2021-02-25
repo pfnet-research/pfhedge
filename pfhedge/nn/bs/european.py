@@ -101,7 +101,9 @@ class BSEuropeanOption(BSModuleMixin):
         gamma : Tensor, shape (N, *)
         """
         if not self.call:
-            raise NotImplementedError
+            raise ValueError(
+                f"{self.__class__.__name__} for a put option is not yet supported."
+            )
 
         s, t, v = map(torch.as_tensor, (log_moneyness, expiry_time, volatility))
         price = self.strike * torch.exp(s)

@@ -76,7 +76,8 @@ class TestBSLookbackOption(_TestBSModule):
         assert torch.allclose(result, expect, atol=1e-4)
 
     def test_put_notimplemented(self):
-        with pytest.raises(NotImplementedError):
+        with pytest.raises(ValueError):
+            # not yet supported
             BSLookbackOption(call=False)
 
     def test_shape(self):

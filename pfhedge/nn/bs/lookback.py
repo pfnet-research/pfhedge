@@ -52,8 +52,8 @@ class BSLookbackOption(BSModuleMixin):
             self.strike = strike
 
         if not self.call:
-            raise NotImplementedError(
-                f"{self.__class__.__name__} for a put option is not yet implemented."
+            raise ValueError(
+                f"{self.__class__.__name__} for a put option is not yet supported."
             )
 
     def extra_repr(self):

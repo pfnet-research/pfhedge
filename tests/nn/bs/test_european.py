@@ -63,7 +63,8 @@ class TestBSEuropeanOption(_TestBSModule):
         assert np.isclose(result, 1.9847627374)
 
         m = BSEuropeanOption(call=False)
-        with pytest.raises(NotImplementedError):
+        with pytest.raises(ValueError):
+            # not yet supported
             result = m.gamma(0.0, 1.0, 0.2).item()
 
     def test_price(self):
