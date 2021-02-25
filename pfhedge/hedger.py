@@ -32,11 +32,10 @@ class Hedger(torch.nn.Module):
     -----
     Returns the output of `model`.
 
-    Input : (N, *, H_in)
+    Input : (N, H_in)
         See `features` for input features.
-        Here, `*` means any number of additional dimensions and `H_in` is
-        the number of input features.
-    Output : (N, *, 1)
+        Here, `H_in` is the number of input features.
+    Output : (N, 1)
         The hedge ratio at the next time step.
 
     Examples
