@@ -143,7 +143,7 @@ class BSLookbackOption(BSModuleMixin):
 
         s = torch.log(prices / self.strike)
         m, t, v = map(torch.as_tensor, (max_log_moneyness, expiry_time, volatility))
-        m = torch.maximum(s, m)  # `s + epsilon` may be greater than `m`
+        m = torch.max(s, m)  # `s + epsilon` may be greater than `m`
 
         delta = self.delta(s, m, t, v, create_graph=True)
         gamma = torch.autograd.grad(

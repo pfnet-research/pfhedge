@@ -130,7 +130,7 @@ class Zero(Feature):
 
 class MaxMoneyness(Feature):
     """
-    Cumulative Maximum of moneyness.
+    Cumulative maximum of moneyness.
 
     Parameters
     ----------
