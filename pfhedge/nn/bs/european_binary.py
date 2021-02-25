@@ -1,6 +1,5 @@
 import torch
 
-# from ..._utils.bisect import bisect
 from ._base import BSModuleMixin
 
 
@@ -58,8 +57,6 @@ class BSEuropeanBinaryOption(BSModuleMixin):
 
     def extra_repr(self):
         params = []
-        # if not self.call:
-        #     params.append(f"call={self.call}")
         if self.strike != 1.0:
             params.append(f"strike={self.strike}")
         return ", ".join(params)
