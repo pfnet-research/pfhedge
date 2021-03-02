@@ -34,7 +34,7 @@ We hope PFHedge accelerates the research and development of Deep Hedging.
 
 ### Imperative Experiences
 
-* PFHedge is designed to be intuitive and imperative to streamline your reserch on Deep Hedging.
+* PFHedge is designed to be intuitive and imperative to streamline your research on Deep Hedging.
 * You can quickly build a `Hedger` and then `fit` and `price` derivatives right away.
 * You can easily tweak your model, risk measure, derivative, optimizer, and other setups on the fly.
 
