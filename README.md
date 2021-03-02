@@ -138,7 +138,7 @@ Now we train our `hedger` so that it minimizes the risk measure through hedging.
 
 The `hedger` is trained as follows.
 In each epoch, we generate Monte Carlo paths of the asset prices and let the `hedger` hedge the derivative by trading the stock.
-The hedger's risk measure (`EntropicRiskMeasure()` in our case) is computed from the resulting profit and loss distribution, and the parameters in the `model` is updated.
+The hedger's risk measure (`EntropicRiskMeasure()` in our case) is computed from the resulting profit and loss distribution, and the parameters in the `model` are updated.
 
 ```py
 hedger.fit(deriv, n_epochs=200, n_paths=10000)
