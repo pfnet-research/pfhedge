@@ -39,7 +39,7 @@ jobs:
       run: |
         python3 -m pip install --upgrade pip
         python3 -m pip install poetry
-        pip install torch==1.7.1+cpu https://download.pytorch.org/whl/torch_stable.html
+        pip install torch==1.7.1+cpu -f https://download.pytorch.org/whl/torch_stable.html
         pip install pytorch-pfn-extras tqdm
         poetry build 
         pip install $(find dist -name \*.whl)
