@@ -94,7 +94,7 @@ A `Hedger` in Deep Hedging is basically characterized by three elements:
 * **Model**: A hedger's model computes the hedge ratio at the next time step from input features.
     - `MultiLayerPerceptron`: [Multi-layer perceptron](https://en.wikipedia.org/wiki/Multilayer_perceptron).
     - `BlackScholes`: [Black-Scholes](https://en.wikipedia.org/wiki/Delta_neutral)' delta-hedging strategy.
-    - `WhalleyWilmott`: [Whalley-Wilmott](https://onlinelibrary.wiley.com/doi/abs/10.1111/1467-9965.00034?casa_token=QfAIYYp-4nkAAAAA:BTcEzWoxEtjblNcFyPMwkzuUAw68AMQ3Od7yWEIMr-Dvq_-BFtHMRKxyMwre2Q9WItT5VYOJc20OXzVG)'s asymptotically optimal strategy for small cost.
+    - `WhalleyWilmott`: [Whalley-Wilmott](https://onlinelibrary.wiley.com/doi/abs/10.1111/1467-9965.00034?casa_token=QfAIYYp-4nkAAAAA:BTcEzWoxEtjblNcFyPMwkzuUAw68AMQ3Od7yWEIMr-Dvq_-BFtHMRKxyMwre2Q9WItT5VYOJc20OXzVG)'s asymptotically optimal strategy for small costs.
     - Any PyTorch [`Module`](https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module) which you build.
 * **Criterion**: A hedger wishes to minimize their [risk measure](https://en.wikipedia.org/wiki/Risk_measure).
     - `EntropicRiskMeasure`: [Entropic Risk Measure](https://en.wikipedia.org/wiki/Entropic_risk_measure), a risk measure derived from [exponential utility](https://en.wikipedia.org/wiki/Exponential_utility).
