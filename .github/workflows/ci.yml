@@ -1,0 +1,96 @@
+name: CI
+
+env:
+  PROJECT_NAME: pfhedge
+
+on:
+  push:
+      branches:
+      - main
+      - release/*
+  pull_request:
+      branches:
+      - main
+      - release/*
+  workflow_dispatch:
+
+jobs:
+  Test:
+    name: Test
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ['3.6', '3.7', '3.8', '3.9']
+
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Setup Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install package
+      run: |
+        python3 -m pip install --upgrade pip
+        python3 -m pip install .
+        python3 -m pip install pytest pytest-cov codecov
+
+    - name: Run doctest
+      run: |
+        python3 -m pytest --doctest-modules ${PROJECT_NAME}
+      if: always()
+
+    - name: Run pytest
+      run: |
+        python3 -m pytest --cov=${PROJECT_NAME} tests
+      if: always()
+
+    - name: Upload codecov report
+      run: |
+        python3 -m codecov
+      if: ${{ matrix.python-version == '3.9' }}
+
+  Lint:
+    name: Lint
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ['3.9']
+
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Setup Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install linter
+      run: |
+        python3 -m pip install --upgrade pip
+        python3 -m pip install flake8 black isort
+      if: always()
+
+    - name: Run flake8
+      run: |
+        python3 -m flake8 ${PROJECT_NAME}
+      if: always()
+
+    - name: Run black
+      run: |
+        python3 -m black --check ${PROJECT_NAME}
+      if: always()
+
+    - name: Run isort
+      run: |
+        python3 -m isort --check --force-single-line-imports ${PROJECT_NAME}
+      if: always()
