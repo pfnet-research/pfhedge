@@ -13,7 +13,7 @@
 
 [**Deep Hedging**][deep-hedging-arxiv] is a deep learning-based framework to hedge financial derivatives.
 
-Hedging [financial derivatives](https://en.wikipedia.org/wiki/Derivative_(finance)) in the presence of market frictions (e.g. transaction cost) is a hard task.
+Hedging [financial derivatives](https://en.wikipedia.org/wiki/Derivative_(finance)) in the presence of market frictions (e.g., transaction cost) is a challenging task.
 In the absence of market frictions, the perfect hedge is accessible based on the [Black-Scholes model](https://en.wikipedia.org/wiki/Black%E2%80%93Scholes_model).
 The real market, in contrast, always involves frictions and thereby makes hedging optimization much more challenging.
 Since the analytic formulas (such as the [Black-Scholes formula](https://en.wikipedia.org/wiki/Black%E2%80%93Scholes_model#Black%E2%80%93Scholes_formula)) are no longer available in such a market, human traders may manually adjust model-based Greeks to hedge and price derivatives based on their experiences.
