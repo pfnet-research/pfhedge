@@ -46,7 +46,7 @@ We hope PFHedge accelerates the research and development of Deep Hedging.
 
 ### Effortless Extensions
 
-* Building new hedging models, derivatives, and features are designed to be straightforward.
+* You can build new hedging models, derivatives, and features with little glue code.
 * You can build new hedging models by just subclassing [`Module`](https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module).
 * You can quickly try out your own stochastic processes, derivatives, and input features.
 
