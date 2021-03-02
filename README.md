@@ -185,7 +185,7 @@ model = BlackScholes(deriv)
 hedger = Hedger(model, model.features())
 ```
 
-### Whalley-Wilmott's asymptotically optimal strategy for small cost
+### Whalley-Wilmott's asymptotically optimal strategy for small costs
 
 This strategy is proposed by [Whalley *et al.* 1997](https://onlinelibrary.wiley.com/doi/abs/10.1111/1467-9965.00034?casa_token=QfAIYYp-4nkAAAAA:BTcEzWoxEtjblNcFyPMwkzuUAw68AMQ3Od7yWEIMr-Dvq_-BFtHMRKxyMwre2Q9WItT5VYOJc20OXzVG) and is proved to be optimal for asymptotically small transaction cost.
 
