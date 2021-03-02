@@ -1,0 +1,110 @@
+import numpy as np
+import pytest
+import torch
+
+from pfhedge.features._getter import get_feature
+from pfhedge.instruments import BrownianStock
+from pfhedge.instruments import EuropeanBinaryOption
+from pfhedge.nn import BSEuropeanBinaryOption
+
+from ._base import _TestBSModule
+
+
+class TestBSEuropeanBinaryOption(_TestBSModule):
+    """
+    pfhedge.nn.bs.BSEuropeanBinaryOption
+    """
+
+    def setup_class(self):
+        torch.manual_seed(42)
+
+    def test_repr(self):
+        m = BSEuropeanBinaryOption()
+        assert repr(m) == "BSEuropeanBinaryOption()"
+
+        liability = EuropeanBinaryOption(BrownianStock(), strike=1.1)
+        m = BSEuropeanBinaryOption(liability)
+        assert repr(m) == "BSEuropeanBinaryOption(strike=1.1)"
+
+        with pytest.raises(ValueError):
+            # not yet supported
+            liability = EuropeanBinaryOption(BrownianStock(), strike=1.1, call=False)
+            m = BSEuropeanBinaryOption(liability)
+            assert repr(m) == "BSEuropeanBinaryOption(call=False, strike=1.1)"
+
+    def test_error_put(self):
+        with pytest.raises(ValueError):
+            # not yet supported
+            liability = EuropeanBinaryOption(BrownianStock(), call=False)
+            BSEuropeanBinaryOption(liability)
+
+    def test_features(self):
+        m = BSEuropeanBinaryOption()
+        assert m.features() == ["log_moneyness", "expiry_time", "volatility"]
+        _ = [get_feature(f) for f in m.features()]
+
+    def test_forward(self):
+        m = BSEuropeanBinaryOption()
+        x = torch.tensor([0.0, 0.1, 0.2]).reshape(1, -1)
+        result = m(x)
+        expect = torch.tensor(6.3047)
+        assert torch.allclose(result, expect, atol=1e-4)
+
+    def test_delta(self):
+        m = BSEuropeanBinaryOption()
+        result = m.delta(0.0, 0.1, 0.2)
+        expect = torch.tensor(6.3047)
+        assert torch.allclose(result, expect, atol=1e-4)
+
+    def test_gamma(self):
+        with pytest.raises(ValueError):
+            # not yet supported
+            m = BSEuropeanBinaryOption()
+            result = m.gamma(0.0, 1.0, 0.2).item()
+            assert np.isclose(result, 1.9847627374)
+
+        with pytest.raises(ValueError):
+            # not yet supported
+            m = BSEuropeanBinaryOption(call=False)
+            result = m.gamma(0.0, 1.0, 0.2).item()
+
+    def test_price(self):
+        m = BSEuropeanBinaryOption()
+
+        result = m.price(0.0, 0.1, 0.2)
+        expect = torch.tensor(0.4874)
+        assert torch.allclose(result, expect, atol=1e-4)
+
+        result = m.price(0.0001, 0.1, 0.2)
+        expect = torch.tensor(0.4880)
+        assert torch.allclose(result, expect, atol=1e-4)
+
+    def test_implied_volatility(self):
+        with pytest.raises(ValueError):
+            # not yet supported
+            x = torch.tensor([[0.0, 0.1, 0.01], [0.0, 0.1, 0.02], [0.0, 0.1, 0.03]])
+            m = BSEuropeanBinaryOption()
+            iv = m.implied_volatility(x[:, 0], x[:, 1], x[:, 2])
+
+            result = BSEuropeanBinaryOption().price(x[:, 0], x[:, 1], iv)
+            expect = x[:, 2]
+            assert torch.allclose(result, expect)
+
+    def test_example(self):
+        from pfhedge import Hedger
+        from pfhedge.instruments import BrownianStock
+        from pfhedge.instruments import EuropeanBinaryOption
+
+        deriv = EuropeanBinaryOption(BrownianStock())
+        model = BSEuropeanBinaryOption(deriv)
+        hedger = Hedger(model, model.features())
+        price = hedger.price(deriv)
+
+        assert torch.allclose(price, torch.tensor(0.5004), atol=1e-4)
+
+    def test_shape(self):
+        m = BSEuropeanBinaryOption()
+        self.assert_shape_delta(m)
+        # self.assert_shape_gamma(m)
+        self.assert_shape_price(m)
+        self.assert_shape_forward(m)
