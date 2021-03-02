@@ -24,7 +24,7 @@ By virtue of the high representability of a neural network and modern optimizati
 Indeed, the experiments in [Bühler *et al.* 18][deep-hedging-qf] and [Imaki *et al.* 21][NoTransactionBandNetwork] show high feasibility and scalability of Deep Hedging algorithms for options under transaction costs.
 
 Global investment banks are looking to [replace the Greeks-based manual hedging](https://www.risk.net/derivatives/6875321/deep-hedging-and-the-end-of-the-black-scholes-era) with Deep Hedging and [slash up to 80% of hedging costs](https://www.risk.net/derivatives/6691696/jp-morgan-turns-to-machine-learning-for-options-hedging).
-This is expected to be the "game-changer" in the trillion-dollar industry of derivatives.
+This could be the "game-changer" in the trillion-dollar industry of derivatives.
 
 PFHedge enables you to experience this revolutionary framework on your own.
 You can try, tweak, and delve into Deep Hedging algorithms based on PyTorch.
