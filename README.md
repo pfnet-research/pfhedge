@@ -54,7 +54,7 @@ We hope PFHedge accelerates the research and development of Deep Hedging.
 
 * PFHedge provides useful [`Module`](https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module)s for Deep Hedging in [`pfhedge.nn`](https://github.com/pfnet-research/pfhedge/tree/main/pfhedge/nn).
 * You can create [Black-Scholes' delta-hedging](https://en.wikipedia.org/wiki/Delta_neutral), [Whalley-Wilmott's strategy](https://onlinelibrary.wiley.com/doi/abs/10.1111/1467-9965.00034?casa_token=QfAIYYp-4nkAAAAA:BTcEzWoxEtjblNcFyPMwkzuUAw68AMQ3Od7yWEIMr-Dvq_-BFtHMRKxyMwre2Q9WItT5VYOJc20OXzVG), and so forth.
-* Common risk measures such as [entropic risk measure](https://en.wikipedia.org/wiki/Entropic_risk_measure) and [expected shortfall](https://en.wikipedia.org/wiki/Expected_shortfall) are available.
+* Common risk measures such as [an entropic risk measure](https://en.wikipedia.org/wiki/Entropic_risk_measure) and [an expected shortfall](https://en.wikipedia.org/wiki/Expected_shortfall) are available.
 
 ## Install
 
