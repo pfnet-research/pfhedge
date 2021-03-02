@@ -134,7 +134,7 @@ hedger
 
 ### Fit and Price
 
-Now we train our `hedger` so that they minimizes the risk measure through hedging.
+Now we train our `hedger` so that it minimizes the risk measure through hedging.
 
 The `hedger` is trained as follows.
 In each epoch, we generate Monte Carlo paths of the asset prices and let the `hedger` hedge the derivative by trading the stock.
