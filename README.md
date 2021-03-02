@@ -66,7 +66,7 @@ $ pip install pfhedge
 
 ### Prepare a Derivative to Hedge
 
-Financial instruments are devided into two types:
+Financial instruments can be classified into two types:
 
 * **`Primary` instruments**: A primary instrument is a basic financial instrument which is traded on a market and therefore their prices are accessible as the market prices. Examples include stocks, bonds, commodities, and currencies.
 * **`Derivative` instruments**: A derivative is a financial instrument whose payoff is contingent on a primary instrument. A (over-the-counter) derivative is not traded on the market and therefore the price is not directly accessible. Examples include [`EuropeanOption`](https://en.wikipedia.org/wiki/Option_style#American_and_European_options), [`LookbackOption`](https://en.wikipedia.org/wiki/Lookback_option), and so forth.
