@@ -6,7 +6,7 @@ authors = ["Shota Imaki <shota.imaki.0801@gmail.com>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.7.10"
+python = "^3.6.13"
 torch = "^1.7.1"
 pytorch-pfn-extras = "^0.3.2"
 tqdm = "^4.57.0"

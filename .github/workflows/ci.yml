@@ -8,10 +8,12 @@ on:
       branches:
       - main
       - release/*
+      - hotfix/*
   pull_request:
       branches:
       - main
       - release/*
+      - hotfix/*
   workflow_dispatch:
 
 jobs:
@@ -21,8 +23,9 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
+      max-parallel: 6
       matrix:
-        python-version: ['3.6', '3.7', '3.8', '3.9']
+        python-version: ['3.6', '3.7', '3.8']
 
     steps:
 
@@ -53,7 +56,7 @@ jobs:
     - name: Upload codecov report
       run: |
         python3 -m codecov
-      if: ${{ matrix.python-version == '3.9' }}
+      if: ${{ matrix.python-version == '3.8' }}
 
   Lint:
     name: Lint
