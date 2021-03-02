@@ -173,7 +173,7 @@ In this strategy, a hedger incessantly rebalances their portfolio and keeps it [
 The hedge-ratio at each time step is given by the Black-Scholes' delta.
 
 This strategy is the optimal one in the absence of cost.
-On the other hand, this strategy transacts too frequently and consume too much transaction cost.
+On the other hand, this strategy transacts too frequently and consumes too much transaction cost.
 
 ```py
 from pfhedge import Hedger
