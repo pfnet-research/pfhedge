@@ -17,11 +17,10 @@ class Hedger(torch.nn.Module):
     - model : torch.nn.Module
         Hedging model to compute the hedge ratio at the next time step from
         the input features at the current time step.
-        The input and output shapes should be `(N, *, H_in) -> (N, *, 1)`,
-        where `N` stands for the number of Monte Carlo paths of the underlier of
-        the derivative, `H_in` stands for the number of input features
-        (namely, `H_in = len(features)`),
-        and `*` means any number of additional dimensions.
+        The input and output shapes should be `(N, H_in) -> (N, 1)`,
+        where `N` stands for the number of Monte Carlo paths of the asset prices
+        and `H_in` stands for the number of input features
+        (namely, `H_in = len(features)`).
     - features : list[str|Feature]
         List of (names of) features to feed to model.
         See `sorted(pfhedge.features.FEATURES)` for valid options.
