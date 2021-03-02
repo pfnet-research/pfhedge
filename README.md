@@ -68,7 +68,7 @@ $ pip install pfhedge
 
 Financial instruments can be classified into two types:
 
-* **`Primary` instruments**: A primary instrument is a basic financial instrument which is traded on a market and therefore their prices are accessible as the market prices. Examples include stocks, bonds, commodities, and currencies.
+* **`Primary` instruments**: A primary instrument is a basic financial instrument that is traded on a market, and therefore their prices are accessible as the market prices. Examples include stocks, bonds, commodities, and currencies.
 * **`Derivative` instruments**: A derivative is a financial instrument whose payoff is contingent on a primary instrument. A (over-the-counter) derivative is not traded on the market and therefore the price is not directly accessible. Examples include [`EuropeanOption`](https://en.wikipedia.org/wiki/Option_style#American_and_European_options), [`LookbackOption`](https://en.wikipedia.org/wiki/Lookback_option), and so forth.
 
 We consider a `BrownianStock`, which is a stock following the [geometric Brownian motion](https://en.wikipedia.org/wiki/Geometric_Brownian_motion), and a [`EuropeanOption`](https://en.wikipedia.org/wiki/Option_style#American_and_European_options) which is contingent on it.
