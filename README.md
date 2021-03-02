@@ -205,7 +205,7 @@ hedger = Hedger(model, model.features())
 ### Your Own Module
 
 You can employ any [`Module`](https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module) you build as a hedging model.
-The input/output shapes is `(N, *, H_in) -> (N, *, 1)`, where `N` is the number of Monte Carlo paths of assets and `H_in` is the number of input features.
+The input/output shapes is `(N, H_in) -> (N, 1)`, where `N` is the number of Monte Carlo paths of assets and `H_in` is the number of input features.
 
 Here we show an example of **No-Transaction Band Network**, which is proposed in [Imaki *et al.* 21][NoTransactionBandNetwork].
 
@@ -224,7 +224,7 @@ class NoTransactionBandNet(torch.nn.Module):
         self.delta = BlackScholes(liability)
         self.mlp = MultiLayerPerceptron(out_features=2)
         self.clamp = Clamp()
-        
+
     def features(self):
         return self.delta.features() + ["prev_hedge"]
 
