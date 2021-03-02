@@ -27,7 +27,7 @@ Global investment banks are looking to [replace the Greeks-based manual hedging]
 This could be the "game-changer" in the trillion-dollar industry of derivatives.
 
 PFHedge enables you to experience this revolutionary framework on your own.
-You can try, tweak, and delve into Deep Hedging algorithms based on PyTorch.
+You can try, tweak, and delve into Deep Hedging algorithms using PyTorch.
 We hope PFHedge accelerates the research and development of Deep Hedging.
 
 ## Features
