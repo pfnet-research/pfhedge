@@ -249,7 +249,7 @@ hedger = Hedger(model, model.features())
 Any contributions to PFHedge are more than welcome!
 
 * [GitHub Issues](https://github.com/pfnet-research/pfhedge/issues): Bug reports, feature requests, and questions.
-* [Pull Requests][CONTRIBUTING.md]: Bug-fixes, feature implementations, and documentations updates.
+* [Pull Requests][CONTRIBUTING.md]: Bug-fixes, feature implementations, and documentation updates.
 
 This project is owned by [Preferred Networks](https://www.preferred.jp/en/) and maintained by [Shota Imaki](https://github.com/simaki).
 
