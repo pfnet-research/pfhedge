@@ -8,10 +8,12 @@ on:
       branches:
       - main
       - release/*
+      - hotfix/*
   pull_request:
       branches:
       - main
       - release/*
+      - hotfix/*
   workflow_dispatch:
 
 jobs:
