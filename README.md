@@ -190,7 +190,7 @@ hedger = Hedger(model, model.features())
 This strategy is proposed by [Whalley *et al.* 1997](https://onlinelibrary.wiley.com/doi/abs/10.1111/1467-9965.00034?casa_token=QfAIYYp-4nkAAAAA:BTcEzWoxEtjblNcFyPMwkzuUAw68AMQ3Od7yWEIMr-Dvq_-BFtHMRKxyMwre2Q9WItT5VYOJc20OXzVG) and is proved to be optimal for asymptotically small transaction cost.
 
 In this strategy, a hedger always maintains their hedge ratio in the range (called no-transaction band) while they never transact inside this range.
-This strategy is supposed to be optimal in the limit of small transaction cost, while suboptimal for large transaction cost.
+This strategy is supposed to be optimal in the limit of small transaction costs, while suboptimal for large transaction costs.
 
 ```py
 from pfhedge import Hedger
