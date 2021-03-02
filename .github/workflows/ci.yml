@@ -25,7 +25,7 @@ jobs:
     strategy:
       max-parallel: 6
       matrix:
-        python-version: ['3.7', '3.8']
+        python-version: ['3.6', '3.7', '3.8']
 
     steps:
 
@@ -40,11 +40,7 @@ jobs:
     - name: Install package
       run: |
         python3 -m pip install --upgrade pip
-        python3 -m pip install poetry
-        pip install torch==1.7.1+cpu -f https://download.pytorch.org/whl/torch_stable.html
-        pip install pytorch-pfn-extras tqdm
-        poetry build 
-        pip install $(find dist -name \*.whl)
+        python3 -m pip install .
         python3 -m pip install pytest pytest-cov codecov
 
     - name: Run doctest
@@ -60,7 +56,7 @@ jobs:
     - name: Upload codecov report
       run: |
         python3 -m codecov
-      if: ${{ matrix.python-version == '3.9' }}
+      if: ${{ matrix.python-version == '3.8' }}
 
   Lint:
     name: Lint
