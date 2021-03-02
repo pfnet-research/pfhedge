@@ -64,6 +64,8 @@ $ pip install pfhedge
 
 ## How to Use
 
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/pfnet-reseaarch/pfhedge/examples/example_readme.ipynb)
+
 ### Prepare a Derivative to Hedge
 
 Financial instruments can be classified into two types:
@@ -148,7 +150,6 @@ Once we have trained the `hedger`, we can evaluate the derivative price as utili
 
 ```py
 price = hedger.price(deriv)
-# tensor(0.0227)
 ```
 
 ## More Examples
@@ -179,13 +180,13 @@ On the other hand, this strategy transacts too frequently and consumes too much 
 from pfhedge import Hedger
 from pfhedge.nn import BlackScholes
 
-deriv = EuropeanOption(BrownianStock(c=1e-4))
+deriv = EuropeanOption(BrownianStock(cost=1e-4))
 
 model = BlackScholes(deriv)
 hedger = Hedger(model, model.features())
 ```
 
-### Whalley-Wilmott's asymptotically optimal strategy for small costs
+### Whalley-Wilmott's Asymptotically Optimal Strategy for Small Costs
 
 This strategy is proposed by [Whalley *et al.* 1997](https://onlinelibrary.wiley.com/doi/abs/10.1111/1467-9965.00034?casa_token=QfAIYYp-4nkAAAAA:BTcEzWoxEtjblNcFyPMwkzuUAw68AMQ3Od7yWEIMr-Dvq_-BFtHMRKxyMwre2Q9WItT5VYOJc20OXzVG) and is proved to be optimal for asymptotically small transaction costs.
 
@@ -196,7 +197,7 @@ This strategy is supposed to be optimal in the limit of small transaction costs,
 from pfhedge import Hedger
 from pfhedge.nn import WhalleyWilmott
 
-deriv = EuropeanOption(BrownianStock(c=1e-4))
+deriv = EuropeanOption(BrownianStock(cost=1e-4))
 
 model = WhalleyWilmott(deriv)
 hedger = Hedger(model, model.features())
