@@ -1,8 +1,8 @@
 from copy import deepcopy
 
 import torch
-from pytorch_pfn_extras.nn import LazyLinear
 from torch.nn import Identity
+from torch.nn import LazyLinear
 from torch.nn import ReLU
 
 
@@ -41,15 +41,15 @@ class MultiLayerPerceptron(torch.nn.ModuleList):
     >>> _ = m(torch.empty((1, 2)))  # lazily determine number of input features
     >>> m
     MultiLayerPerceptron(
-      (0): LazyLinear(in_features=2, out_features=32, bias=True)
+      (0): Linear(in_features=2, out_features=32, bias=True)
       (1): ReLU()
-      (2): LazyLinear(in_features=32, out_features=32, bias=True)
+      (2): Linear(in_features=32, out_features=32, bias=True)
       (3): ReLU()
-      (4): LazyLinear(in_features=32, out_features=32, bias=True)
+      (4): Linear(in_features=32, out_features=32, bias=True)
       (5): ReLU()
-      (6): LazyLinear(in_features=32, out_features=32, bias=True)
+      (6): Linear(in_features=32, out_features=32, bias=True)
       (7): ReLU()
-      (8): LazyLinear(in_features=32, out_features=1, bias=True)
+      (8): Linear(in_features=32, out_features=1, bias=True)
       (9): Identity()
     )
     >>> m(torch.randn((3, 2)))
@@ -69,9 +69,9 @@ class MultiLayerPerceptron(torch.nn.ModuleList):
         super().__init__()
 
         for _ in range(n_layers):
-            self.append(LazyLinear(None, n_units))
+            self.append(LazyLinear(n_units))
             self.append(deepcopy(activation))
-        self.append(LazyLinear(None, out_features))
+        self.append(LazyLinear(out_features))
         self.append(deepcopy(out_activation))
 
     def forward(self, input):
