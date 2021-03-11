@@ -57,11 +57,9 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
         assert torch.allclose(result, expect, atol=1e-4)
 
     def test_gamma(self):
-        with pytest.raises(ValueError):
-            # not yet supported
-            m = BSEuropeanBinaryOption()
-            result = m.gamma(0.0, 1.0, 0.2).item()
-            assert np.isclose(result, 1.9847627374)
+        m = BSEuropeanBinaryOption()
+        result = m.gamma(0.01, 1.0, 0.2).item()
+        assert np.isclose(result, -1.4645787477493286)
 
         with pytest.raises(ValueError):
             # not yet supported

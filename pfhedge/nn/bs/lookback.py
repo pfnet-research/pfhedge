@@ -114,11 +114,7 @@ class BSLookbackOption(BSModuleMixin):
 
     @torch.enable_grad()
     def gamma(
-        self,
-        log_moneyness,
-        max_log_moneyness,
-        expiry_time,
-        volatility,
+        self, log_moneyness, max_log_moneyness, expiry_time, volatility
     ) -> torch.Tensor:
         """
         Returns gamma of the derivative.
