@@ -72,6 +72,8 @@ class TestHedger:
         assert torch.allclose(result, expect)
 
     def test_shape(self):
+        torch.distributions.Distribution.set_default_validate_args(False)
+
         deriv = EuropeanOption(BrownianStock())
 
         N = 2
