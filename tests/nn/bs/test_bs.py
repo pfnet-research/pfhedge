@@ -36,6 +36,8 @@ class TestBlackScholes:
         # assert not m.call
 
     def test_shape(self):
+        torch.distributions.Distribution.set_default_validate_args(False)
+
         deriv = EuropeanOption(BrownianStock())
         m = BlackScholes(deriv)
 

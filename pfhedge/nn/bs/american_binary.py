@@ -1,5 +1,6 @@
 import torch
 
+from ..._utils.bisect import bisect
 from ._base import BSModuleMixin
 
 
@@ -77,9 +78,6 @@ class BSAmericanBinaryOption(BSModuleMixin):
             Time to expiry of the option.
         - volatility : Tensor, shape (N, *)
             Volatility of the underlying asset.
-        - create_graph : bool, default False
-            If True, graph of the derivative will be constructed.
-            This option is used to compute gamma.
 
         Returns
         -------
@@ -100,7 +98,10 @@ class BSAmericanBinaryOption(BSModuleMixin):
 
         return torch.where(m < 0, d, torch.zeros_like(d))
 
-    def gamma(self, *args, **kwargs) -> torch.Tensor:
+    @torch.enable_grad()
+    def gamma(
+        self, log_moneyness, max_log_moneyness, expiry_time, volatility
+    ) -> torch.Tensor:
         """
         Returns gamma of the derivative.
 
@@ -119,7 +120,19 @@ class BSAmericanBinaryOption(BSModuleMixin):
         -------
         gamma : Tensor, shape (N, *)
         """
-        raise ValueError(f"gamma of {self.__class__.__name__} is not yet supported.")
+        prices = self.strike * torch.exp(torch.as_tensor(log_moneyness))
+        prices = torch.Tensor.requires_grad_(prices)
+
+        s = torch.log(prices / self.strike)
+        m, t, v = map(torch.as_tensor, (max_log_moneyness, expiry_time, volatility))
+        m = torch.max(s, m)  # `s + epsilon` may be greater than `m`
+
+        delta = self.delta(s, m, t, v)
+        gamma = torch.autograd.grad(
+            delta, prices, grad_outputs=torch.ones_like(prices)
+        )[0]
+
+        return gamma
 
     def price(
         self, log_moneyness, max_log_moneyness, expiry_time, volatility
@@ -154,7 +167,9 @@ class BSAmericanBinaryOption(BSModuleMixin):
 
         return torch.where(m < 0, p, torch.ones_like(p))
 
-    def implied_volatility(self, *args, **kwargs) -> torch.Tensor:
+    def implied_volatility(
+        self, log_moneyness, max_log_moneyness, expiry_time, price, precision=1e-6
+    ) -> torch.Tensor:
         """
         Returns implied volatility of the derivative.
 
@@ -166,8 +181,8 @@ class BSAmericanBinaryOption(BSModuleMixin):
             Cumulative maximum of the log moneyness.
         - expiry_time : Tensor, shape (N, *)
             Time to expiry of the option.
-        - volatility : Tensor, shape (N, *)
-            Volatility of the underlying asset.
+        - price : Tensor, shape (N, *)
+            Price of the derivative.
         - precision : float, default 1e-6
             Computational precision of the implied volatility.
 
@@ -175,6 +190,8 @@ class BSAmericanBinaryOption(BSModuleMixin):
         -------
         implied_volatility : Tensor, shape (N, *)
         """
-        raise ValueError(
-            f"implied volatility of {self.__class__.__name__} is not yet supported."
+        s, m, t, p = map(
+            torch.as_tensor, (log_moneyness, max_log_moneyness, expiry_time, price)
         )
+        get_price = lambda volatility: self.price(s, m, t, volatility)
+        return bisect(get_price, p, lower=0.001, upper=1.000, precision=precision)

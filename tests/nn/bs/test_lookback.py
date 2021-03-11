@@ -63,11 +63,7 @@ class TestBSLookbackOption(_TestBSModule):
 
     def test_implied_volatility(self):
         x = torch.tensor(
-            [
-                [0.0, 0.0, 0.1, 0.01],
-                [0.0, 0.0, 0.1, 0.02],
-                [0.0, 0.0, 0.1, 0.03],
-            ]
+            [[0.0, 0.0, 0.1, 0.01], [0.0, 0.0, 0.1, 0.02], [0.0, 0.0, 0.1, 0.03]]
         )
         m = BSLookbackOption()
         iv = m.implied_volatility(x[:, 0], x[:, 1], x[:, 2], x[:, 3])
@@ -81,6 +77,8 @@ class TestBSLookbackOption(_TestBSModule):
             BSLookbackOption(call=False)
 
     def test_shape(self):
+        torch.distributions.Distribution.set_default_validate_args(False)
+
         m = BSLookbackOption()
         self.assert_shape_delta(m)
         self.assert_shape_gamma(m)

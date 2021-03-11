@@ -1,15 +1,14 @@
 [tool.poetry]
 name = "pfhedge"
-version = "0.0.1"
+version = "0.1.0"
 description = "Deep Hedging in PyTorch"
 authors = ["Shota Imaki <shota.imaki.0801@gmail.com>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.6.13"
-torch = "^1.7.1"
-pytorch-pfn-extras = "^0.3.2"
-tqdm = "^4.57.0"
+torch = "^1.8.0"
+tqdm = "^4.59.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.2"
