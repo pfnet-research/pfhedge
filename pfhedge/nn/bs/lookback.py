@@ -213,8 +213,8 @@ class BSLookbackOption(BSModuleMixin):
             Cumulative maximum of the log moneyness.
         - expiry_time : Tensor, shape (N, *)
             Time to expiry of the option.
-        - volatility : Tensor, shape (N, *)
-            Volatility of the underlying asset.
+        - price : Tensor, shape (N, *)
+            Price of the derivative.
         - precision : float, default 1e-6
             Computational precision of the implied volatility.
 
