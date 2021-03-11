@@ -1,5 +1,6 @@
 import torch
 
+from ..._utils.bisect import bisect
 from ._base import BSModuleMixin
 
 
@@ -154,7 +155,9 @@ class BSAmericanBinaryOption(BSModuleMixin):
 
         return torch.where(m < 0, p, torch.ones_like(p))
 
-    def implied_volatility(self, *args, **kwargs) -> torch.Tensor:
+    def implied_volatility(
+        self, log_moneyness, max_log_moneyness, expiry_time, price, precision=1e-6
+    ) -> torch.Tensor:
         """
         Returns implied volatility of the derivative.
 
@@ -166,8 +169,8 @@ class BSAmericanBinaryOption(BSModuleMixin):
             Cumulative maximum of the log moneyness.
         - expiry_time : Tensor, shape (N, *)
             Time to expiry of the option.
-        - volatility : Tensor, shape (N, *)
-            Volatility of the underlying asset.
+        - price : Tensor, shape (N, *)
+            Price of the derivative.
         - precision : float, default 1e-6
             Computational precision of the implied volatility.
 
@@ -175,6 +178,8 @@ class BSAmericanBinaryOption(BSModuleMixin):
         -------
         implied_volatility : Tensor, shape (N, *)
         """
-        raise ValueError(
-            f"implied volatility of {self.__class__.__name__} is not yet supported."
+        s, m, t, p = map(
+            torch.as_tensor, (log_moneyness, max_log_moneyness, expiry_time, price)
         )
+        get_price = lambda volatility: self.price(s, m, t, volatility)
+        return bisect(get_price, p, lower=0.001, upper=1.000, precision=precision)

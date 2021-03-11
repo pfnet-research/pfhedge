@@ -80,15 +80,14 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
         assert torch.allclose(result, expect, atol=1e-4)
 
     def test_implied_volatility(self):
-        with pytest.raises(ValueError):
-            # not yet supported
-            x = torch.tensor([[0.0, 0.1, 0.01], [0.0, 0.1, 0.02], [0.0, 0.1, 0.03]])
-            m = BSEuropeanBinaryOption()
-            iv = m.implied_volatility(x[:, 0], x[:, 1], x[:, 2])
+        # log_moneyness, expiry_time, price
+        x = torch.tensor([[-0.01, 0.1, 0.40], [-0.01, 0.1, 0.41], [-0.01, 0.1, 0.42]])
+        m = BSEuropeanBinaryOption()
+        iv = m.implied_volatility(x[:, 0], x[:, 1], x[:, 2])
 
-            result = BSEuropeanBinaryOption().price(x[:, 0], x[:, 1], iv)
-            expect = x[:, 2]
-            assert torch.allclose(result, expect)
+        result = BSEuropeanBinaryOption().price(x[:, 0], x[:, 1], iv)
+        expect = x[:, -1]
+        assert torch.allclose(result, expect)
 
     def test_example(self):
         from pfhedge import Hedger
