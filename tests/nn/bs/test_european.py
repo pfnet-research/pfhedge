@@ -97,6 +97,8 @@ class TestBSEuropeanOption(_TestBSModule):
         assert torch.allclose(price, torch.tensor(0.0221), atol=1e-4)
 
     def test_shape(self):
+        torch.distributions.Distribution.set_default_validate_args(False)
+
         m = BSEuropeanOption()
         self.assert_shape_delta(m)
         self.assert_shape_gamma(m)

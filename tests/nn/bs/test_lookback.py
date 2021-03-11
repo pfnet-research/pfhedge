@@ -81,6 +81,8 @@ class TestBSLookbackOption(_TestBSModule):
             BSLookbackOption(call=False)
 
     def test_shape(self):
+        torch.distributions.Distribution.set_default_validate_args(False)
+
         m = BSLookbackOption()
         self.assert_shape_delta(m)
         self.assert_shape_gamma(m)

@@ -37,6 +37,8 @@ class TestWhalleyWilmott:
         )
 
     def test_shape(self):
+        torch.distributions.Distribution.set_default_validate_args(False)
+
         deriv = EuropeanOption(BrownianStock())
         m = WhalleyWilmott(deriv)
 
