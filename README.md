@@ -21,7 +21,7 @@ Since the analytic formulas (such as the [Black-Scholes formula](https://en.wiki
 [Deep Hedging][deep-hedging-arxiv] is a ground-breaking framework to automate and optimize such hedging operations.
 In this framework, a neural network is trained to hedge derivatives so that it minimizes a proper [risk measure](https://en.wikipedia.org/wiki/Risk_measure).
 By virtue of the high representability of a neural network and modern optimization algorithms, one can expect to achieve the optimal hedge by training a neural network.
-Indeed, the experiments in [Bühler *et al.* 18][deep-hedging-qf] and [Imaki *et al.* 21][NoTransactionBandNetwork] show high feasibility and scalability of Deep Hedging algorithms for options under transaction costs.
+Indeed, the experiments in [Bühler *et al.* 18][deep-hedging-qf] and [Imaki *et al.* 21][ntb-network-arxiv] show high feasibility and scalability of Deep Hedging algorithms for options under transaction costs.
 
 Global investment banks are looking to [replace the Greeks-based manual hedging](https://www.risk.net/derivatives/6875321/deep-hedging-and-the-end-of-the-black-scholes-era) with Deep Hedging and [slash up to 80% of hedging costs](https://www.risk.net/derivatives/6691696/jp-morgan-turns-to-machine-learning-for-options-hedging).
 This could be the "game-changer" in the trillion-dollar industry of derivatives.
@@ -53,7 +53,7 @@ We hope PFHedge accelerates the research and development of Deep Hedging.
 ### Batteries Included
 
 * PFHedge provides useful [`Module`](https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module)s for Deep Hedging in [`pfhedge.nn`](https://github.com/pfnet-research/pfhedge/tree/main/pfhedge/nn).
-* You can create [Black-Scholes' delta-hedging](https://en.wikipedia.org/wiki/Delta_neutral), [Whalley-Wilmott's strategy](https://onlinelibrary.wiley.com/doi/abs/10.1111/1467-9965.00034?casa_token=QfAIYYp-4nkAAAAA:BTcEzWoxEtjblNcFyPMwkzuUAw68AMQ3Od7yWEIMr-Dvq_-BFtHMRKxyMwre2Q9WItT5VYOJc20OXzVG), and so forth.
+* You can create [Black-Scholes' delta-hedging](https://en.wikipedia.org/wiki/Delta_neutral), [Whalley-Wilmott's strategy][whalley-wilmott], and so forth.
 * Common risk measures such as [an entropic risk measure](https://en.wikipedia.org/wiki/Entropic_risk_measure) and [an expected shortfall](https://en.wikipedia.org/wiki/Expected_shortfall) are available.
 
 ## Install
@@ -96,7 +96,7 @@ A `Hedger` in Deep Hedging is basically characterized by three elements:
 * **Model**: A hedger's model computes the hedge ratio at the next time step from input features.
     - `MultiLayerPerceptron`: [Multi-layer perceptron](https://en.wikipedia.org/wiki/Multilayer_perceptron).
     - `BlackScholes`: [Black-Scholes](https://en.wikipedia.org/wiki/Delta_neutral)' delta-hedging strategy.
-    - `WhalleyWilmott`: [Whalley-Wilmott](https://onlinelibrary.wiley.com/doi/abs/10.1111/1467-9965.00034?casa_token=QfAIYYp-4nkAAAAA:BTcEzWoxEtjblNcFyPMwkzuUAw68AMQ3Od7yWEIMr-Dvq_-BFtHMRKxyMwre2Q9WItT5VYOJc20OXzVG)'s asymptotically optimal strategy for small costs.
+    - `WhalleyWilmott`: [Whalley-Wilmott][whalley-wilmott]'s asymptotically optimal strategy for small costs.
     - Any PyTorch [`Module`](https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module) which you build.
 * **Criterion**: A hedger wishes to minimize their [risk measure](https://en.wikipedia.org/wiki/Risk_measure).
     - `EntropicRiskMeasure`: [Entropic Risk Measure](https://en.wikipedia.org/wiki/Entropic_risk_measure), a risk measure derived from [exponential utility](https://en.wikipedia.org/wiki/Exponential_utility).
@@ -188,7 +188,7 @@ hedger = Hedger(model, model.features())
 
 ### Whalley-Wilmott's Asymptotically Optimal Strategy for Small Costs
 
-This strategy is proposed by [Whalley *et al.* 1997](https://onlinelibrary.wiley.com/doi/abs/10.1111/1467-9965.00034?casa_token=QfAIYYp-4nkAAAAA:BTcEzWoxEtjblNcFyPMwkzuUAw68AMQ3Od7yWEIMr-Dvq_-BFtHMRKxyMwre2Q9WItT5VYOJc20OXzVG) and is proved to be optimal for asymptotically small transaction costs.
+This strategy is proposed by [Whalley *et al.* 1997][whalley-wilmott] and is proved to be optimal for asymptotically small transaction costs.
 
 In this strategy, a hedger always maintains their hedge ratio in the range (called no-transaction band) while they never transact inside this range.
 This strategy is supposed to be optimal in the limit of small transaction costs, while suboptimal for large transaction costs.
@@ -208,7 +208,7 @@ hedger = Hedger(model, model.features())
 You can employ any [`Module`](https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module) you build as a hedging model.
 The input/output shapes is `(N, H_in) -> (N, 1)`, where `N` is the number of Monte Carlo paths of assets and `H_in` is the number of input features.
 
-Here we show an example of **No-Transaction Band Network**, which is proposed in [Imaki *et al.* 21][NoTransactionBandNetwork].
+Here we show an example of **No-Transaction Band Network**, which is proposed in [Imaki *et al.* 21][ntb-network-arxiv].
 
 ```py
 import torch
@@ -249,8 +249,8 @@ hedger = Hedger(model, model.features())
 
 Any contributions to PFHedge are more than welcome!
 
-* [GitHub Issues](https://github.com/pfnet-research/pfhedge/issues): Bug reports, feature requests, and questions.
-* [Pull Requests][CONTRIBUTING.md]: Bug-fixes, feature implementations, and documentation updates.
+* GitHub Issues: Bug reports, feature requests, and questions.
+* Pull Requests: Bug-fixes, feature implementations, and documentation updates.
 
 This project is owned by [Preferred Networks](https://www.preferred.jp/en/) and maintained by [Shota Imaki](https://github.com/simaki).
 
@@ -258,10 +258,12 @@ This project is owned by [Preferred Networks](https://www.preferred.jp/en/) and 
 
 * Hans Bühler, Lukas Gonon, Josef Teichmann and Ben Wood, "[Deep hedging][deep-hedging-qf]". Quantitative Finance, 2019, 19, 1271-1291. arXiv:[1609.05213][deep-hedging-arxiv] \[q-fin.CP\].
 * Hans Bühler, Lukas Gonon, Josef Teichmann, Ben Wood, Baranidharan Mohan and Jonathan Kochems, [Deep Hedging: Hedging Derivatives Under Generic Market Frictions Using Reinforcement Learning][deep-hedging-wp] (March 19, 2019). Swiss Finance Institute Research Paper No. 19-80.
-* Shota Imaki, Kentaro Imajo, Katsuya Ito, Kentaro Minami and Kei Nakagawa, "No-Transaction Band Network: A Neural Network Architecture for Efficient Deep Hedging".
+* Shota Imaki, Kentaro Imajo, Katsuya Ito, Kentaro Minami and Kei Nakagawa, "No-Transaction Band Network: A Neural Network Architecture for Efficient Deep Hedging". arXiv:[2103.01775][ntb-network-arxiv] \[q-fin.CP\].
 
 [deep-hedging-arxiv]: https://arxiv.org/abs/1802.03042
 [deep-hedging-qf]: https://www.tandfonline.com/doi/abs/10.1080/14697688.2019.1571683
 [deep-hedging-wp]: https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3355706
+[ntb-network-arxiv]: https://arxiv.org/abs/2103.01775
+[whalley-wilmott]: https://doi.org/10.1111/1467-9965.00034
 [NoTransactionBandNetwork]: https://github.com/pfnet-research/NoTransactionBandNetwork
 [CONTRIBUTING.md]: https://github.com/pfnet-research/pfhedge/blob/master/CONTRIBUTING.md
