@@ -90,8 +90,9 @@ jobs:
       if: always()
 
     - name: Run black
-      run: |
-        python3 -m black --check ${PROJECT_NAME}
+      uses: psf/black@stable
+      with:
+        args: ". --check"
       if: always()
 
     - name: Run isort
