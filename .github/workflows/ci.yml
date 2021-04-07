@@ -81,12 +81,7 @@ jobs:
     - name: Install linter
       run: |
         python3 -m pip install --upgrade pip
-        python3 -m pip install flake8 black isort
-      if: always()
-
-    - name: Run flake8
-      run: |
-        python3 -m flake8 ${PROJECT_NAME}
+        python3 -m pip install black isort
       if: always()
 
     - name: Run black
