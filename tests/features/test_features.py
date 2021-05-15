@@ -298,11 +298,7 @@ class TestMaxMoneyness(_TestFeature):
     def test(self, strike, log):
         liability = EuropeanOption(BrownianStock(), strike=strike)
         liability.underlier.prices = torch.tensor(
-            [
-                [1.0, 2.0, 3.0],
-                [2.0, 3.0, 2.0],
-                [1.5, 4.0, 1.0],
-            ]
+            [[1.0, 2.0, 3.0], [2.0, 3.0, 2.0], [1.5, 4.0, 1.0]]
         )
 
         f = MaxMoneyness(log=log).of(liability)
@@ -339,11 +335,7 @@ class TestMaxLogMoneyness(_TestFeature):
     def test(self, strike):
         liability = EuropeanOption(BrownianStock(), strike=strike)
         liability.underlier.prices = torch.tensor(
-            [
-                [1.0, 2.0, 3.0],
-                [2.0, 3.0, 2.0],
-                [1.5, 4.0, 1.0],
-            ]
+            [[1.0, 2.0, 3.0], [2.0, 3.0, 2.0], [1.5, 4.0, 1.0]]
         )
 
         f = MaxLogMoneyness().of(liability)
