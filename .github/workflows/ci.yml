@@ -19,78 +19,96 @@ on:
   workflow_dispatch:
 
 jobs:
-  Test:
+
+  test:
+
     name: Test
 
     runs-on: ubuntu-latest
 
     strategy:
-      max-parallel: 6
       matrix:
         python-version: ['3.6', '3.7', '3.8']
 
     steps:
 
-    - name: Checkout
-      uses: actions/checkout@v2
+    - uses: actions/checkout@v2
 
-    - name: Setup Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+    - uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Install package
+    - name: Install
       run: |
         python3 -m pip install --upgrade pip
         python3 -m pip install .
         python3 -m pip install pytest pytest-cov codecov
 
     - name: Run doctest
-      run: |
-        python3 -m pytest --doctest-modules ${PROJECT_NAME}
+      run: python3 -m pytest --doctest-modules ${PROJECT_NAME}
       if: always()
 
     - name: Run pytest
-      run: |
-        python3 -m pytest --cov=${PROJECT_NAME} tests
+      run: python3 -m pytest --cov=${PROJECT_NAME} tests
       if: always()
 
     - name: Upload codecov report
       uses: codecov/codecov-action@v1
       if: ${{ matrix.python-version == '3.8' }}
 
-  Lint:
+  lint:
+
     name: Lint
 
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        python-version: ['3.8']
+    outputs:
+      status: ${{ job.status }}
 
     steps:
 
-    - name: Checkout
-      uses: actions/checkout@v2
+    - uses: actions/checkout@v2
 
-    - name: Setup Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+    - uses: actions/setup-python@v2
+
+    - name: Lint (black)
+      uses: psf/black@21.5b1
+
+    - name: Format (isort)
+      uses: jamescurtin/isort-action@master
       with:
-        python-version: ${{ matrix.python-version }}
+        configuration: --check-only --diff --force-single-line
 
-    - name: Install linter
-      run: |
-        python3 -m pip install --upgrade pip
-        python3 -m pip install black isort
-      if: always()
+  format:
 
-    - name: Run black
-      uses: psf/black@stable
+    name: Format
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - uses: actions/checkout@v2
+
+    - uses: actions/setup-python@v2
+
+    - name: Format (black)
+      uses: psf/black@21.5b1
       with:
-        args: ". --check"
-      if: always()
+        options: '--skip-magic-trailing-comma'
 
-    - name: Run isort
-      run: |
-        python3 -m isort --check --force-single-line-imports ${PROJECT_NAME}
-      if: always()
+    - name: Format (black)
+      run: python -m pip install black && black .
+
+    - name: Format (isort)
+      uses: jamescurtin/isort-action@master
+      with:
+        configuration: '--force-single-line'
+
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v3
+      with:
+        author: GitHub Actions <action@github.com>
+        commit-message: format
+        delete-branch: true
+        branch-suffix: short-commit-hash
+        title: Automated Format
