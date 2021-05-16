@@ -64,7 +64,7 @@ $ pip install pfhedge
 
 ## How to Use
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/pfnet-reseaarch/pfhedge/examples/example_readme.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/pfnet-research/pfhedge/blob/main/examples/example_readme.ipynb)
 
 ### Prepare a Derivative to Hedge
 
