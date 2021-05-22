@@ -64,7 +64,7 @@ $ pip install pfhedge
 
 ## How to Use
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/pfnet-research/pfhedge/blob/main/examples/example_readme.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)][example-readme-colab]
 
 ### Prepare a Derivative to Hedge
 
@@ -267,3 +267,4 @@ This project is owned by [Preferred Networks](https://www.preferred.jp/en/) and 
 [whalley-wilmott]: https://doi.org/10.1111/1467-9965.00034
 [NoTransactionBandNetwork]: https://github.com/pfnet-research/NoTransactionBandNetwork
 [CONTRIBUTING.md]: https://github.com/pfnet-research/pfhedge/blob/master/CONTRIBUTING.md
+[example-readme-colab]: https://colab.research.google.com/github/pfnet-research/pfhedge/blob/main/examples/example_readme.ipynb

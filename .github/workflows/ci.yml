@@ -28,7 +28,7 @@ jobs:
 
     strategy:
       matrix:
-        python-version: ['3.6', '3.7', '3.8']
+        python-version: ['3.6', '3.7', '3.8', '3.9']
 
     steps:
 
@@ -84,6 +84,10 @@ jobs:
     name: Format
 
     runs-on: ubuntu-latest
+
+    needs: lint
+    
+    if: always() && needs.lint.outputs.status == 'failure'
 
     steps:
 
