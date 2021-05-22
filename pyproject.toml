@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "Deep Hedging in PyTorch"
 authors = ["Shota Imaki <shota.imaki.0801@gmail.com>"]
 license = "MIT"
+repository = "https://github.com/pfnet-research/pfhedge"
 
 [tool.poetry.dependencies]
 python = "^3.6.13"
@@ -14,32 +15,13 @@ tqdm = "^4.59.0"
 pytest = "^6.2.2"
 black = "^20.8b1"
 isort = "^5.7.0"
-flake8 = "^3.8.4"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.black]
-line-length = 88
-target-version = ['py37']
-include = '\.pyi?$'
-exclude = '''
-(
-  /(
-      \.eggs
-    | \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-  )/
-)
-'''
+skip-magic-trailing-comma = true
 
 [tool.isort]
 profile = 'black'

@@ -8,12 +8,12 @@ import torch
 import torch.nn.functional as fn
 
 sys.path.append("..")
-from pfhedge import Hedger  # noqa: E402
-from pfhedge.instruments import BrownianStock  # noqa: E402
-from pfhedge.instruments import EuropeanOption  # noqa: E402
-from pfhedge.nn import BlackScholes  # noqa: E402
-from pfhedge.nn import Clamp  # noqa: E402
-from pfhedge.nn import MultiLayerPerceptron  # noqa: E402
+from pfhedge import Hedger
+from pfhedge.instruments import BrownianStock
+from pfhedge.instruments import EuropeanOption
+from pfhedge.nn import BlackScholes
+from pfhedge.nn import Clamp
+from pfhedge.nn import MultiLayerPerceptron
 
 
 class NoTransactionBandNet(torch.nn.Module):

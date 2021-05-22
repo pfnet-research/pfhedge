@@ -7,15 +7,15 @@ import torch
 
 sys.path.append("..")
 
-from pfhedge import Hedger  # noqa: E402
-from pfhedge.features import LogMoneyness  # noqa: E402
-from pfhedge.features import ExpiryTime  # noqa: E402
-from pfhedge.features import Volatility  # noqa: E402
-from pfhedge.features import ModuleOutput  # noqa: E402
-from pfhedge.instruments import BrownianStock  # noqa: E402
-from pfhedge.instruments import EuropeanOption  # noqa: E402
-from pfhedge.nn import BlackScholes  # noqa: E402
-from pfhedge.nn import MultiLayerPerceptron  # noqa: E402
+from pfhedge import Hedger
+from pfhedge.features import ExpiryTime
+from pfhedge.features import LogMoneyness
+from pfhedge.features import ModuleOutput
+from pfhedge.features import Volatility
+from pfhedge.instruments import BrownianStock
+from pfhedge.instruments import EuropeanOption
+from pfhedge.nn import BlackScholes
+from pfhedge.nn import MultiLayerPerceptron
 
 if __name__ == "__main__":
     torch.manual_seed(42)

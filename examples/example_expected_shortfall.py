@@ -6,11 +6,11 @@ import torch
 
 sys.path.append("..")
 
-from pfhedge import Hedger  # noqa: E402
-from pfhedge.instruments import BrownianStock  # noqa: E402
-from pfhedge.instruments import EuropeanOption  # noqa: E402
+from pfhedge import Hedger
+from pfhedge.instruments import BrownianStock
+from pfhedge.instruments import EuropeanOption
 from pfhedge.nn import ExpectedShortfall
-from pfhedge.nn import MultiLayerPerceptron  # noqa: E402
+from pfhedge.nn import MultiLayerPerceptron
 
 if __name__ == "__main__":
     torch.manual_seed(42)
