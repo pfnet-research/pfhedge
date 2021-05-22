@@ -1,0 +1,38 @@
+name: Bump
+
+on:
+  create:
+    branches:
+  workflow_dispatch:
+
+jobs:
+
+  bump-and-pr:
+
+    name: Bump
+
+    runs-on: ubuntu-latest
+
+    if: contains(github.ref, 'release/')
+
+    steps:
+
+    - uses: actions/checkout@v2
+
+    - uses: actions/setup-python@v2
+
+    - name: Install poetry
+      run: pip install poetry
+
+    - name: Bump version
+      run: git branch --show-current | sed 's|release/||' | xargs poetry version | { printf '::set-output name=PR_TITLE::'; cat; }
+      id: bump
+
+    - name: Create pull request
+      uses: peter-evans/create-pull-request@v3
+      with:
+        author: GitHub Actions <action@github.com>
+        commit-message: bump version
+        delete-branch: true
+        branch-suffix: short-commit-hash
+        title: ${{ steps.bump.outputs.PR_TITLE }}
