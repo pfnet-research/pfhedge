@@ -1,5 +1,3 @@
-# flake8: noqa
-
 from .american_binary import AmericanBinaryOption
 from .european import EuropeanOption
 from .european_binary import EuropeanBinaryOption

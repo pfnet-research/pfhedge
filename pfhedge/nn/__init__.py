@@ -1,5 +1,3 @@
-# flake8: noqa
-
 from .bs.american_binary import BSAmericanBinaryOption
 from .bs.bs import BlackScholes
 from .bs.european import BSEuropeanOption

@@ -17,11 +17,7 @@ class TestLookbackOption:
     def test_payoff(self):
         liability = LookbackOption(BrownianStock(), strike=3.0)
         liability.underlier.prices = torch.tensor(
-            [
-                [1.0, 2.0, 3.0],
-                [2.0, 3.0, 2.0],
-                [1.5, 4.0, 1.0],
-            ]
+            [[1.0, 2.0, 3.0], [2.0, 3.0, 2.0], [1.5, 4.0, 1.0]]
         )
         # max [2.0, 4.0, 3.0]
         result = liability.payoff()
@@ -31,11 +27,7 @@ class TestLookbackOption:
     def test_payoff_put(self):
         liability = LookbackOption(BrownianStock(), strike=3.0, call=False)
         liability.underlier.prices = torch.tensor(
-            [
-                [3.0, 6.0, 3.0],
-                [2.0, 5.0, 4.0],
-                [2.5, 4.0, 5.0],
-            ]
+            [[3.0, 6.0, 3.0], [2.0, 5.0, 4.0], [2.5, 4.0, 5.0]]
         )
         # min [2.0, 4.0, 3.0]
         result = liability.payoff()

@@ -1,5 +1,3 @@
-# flake8: noqa
-
 from ._getter import FEATURES
 from ._getter import get_feature
 from .features import Barrier
