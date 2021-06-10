@@ -38,6 +38,15 @@ class EuropeanBinaryOption(Derivative):
         The strike price of the option.
     - maturity : float, default 30 / 365
         The maturity of the option.
+    - dtype : torch.device, optional
+        Desired device of returned tensor.
+        Default: If None, uses a global default (see `torch.set_default_tensor_type()`).
+    - device : torch.device, optional
+        Desired device of returned tensor.
+        Default: if None, uses the current device for the default tensor type
+        (see `torch.set_default_tensor_type()`).
+        `device` will be the CPU for CPU tensor types and
+        the current CUDA device for CUDA tensor types.
 
     Examples
     --------
@@ -57,12 +66,22 @@ class EuropeanBinaryOption(Derivative):
     tensor([1., 0.])
     """
 
-    def __init__(self, underlier, call=True, strike=1.0, maturity=30 / 365):
+    def __init__(
+        self,
+        underlier,
+        call=True,
+        strike=1.0,
+        maturity=30 / 365,
+        dtype=None,
+        device=None,
+    ):
         super().__init__()
         self.underlier = underlier
         self.call = call
         self.strike = strike
         self.maturity = maturity
+
+        self.to(dtype=dtype, device=device)
 
     def __repr__(self):
         params = [f"{self.underlier.__class__.__name__}(...)"]
