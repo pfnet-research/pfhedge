@@ -59,16 +59,11 @@ class BrownianStock(Primary):
 
     def __repr__(self):
         params = [f"volatility={self.volatility:.2e}"]
-
         if self.cost != 0.0:
             params.append(f"cost={self.cost:.2e}")
         params.append(f"dt={self.dt:.2e}")
-        if hasattr(self, "dtype") and self.dtype is not None:
-            params.append(f"dtype={self.dtype}")
-        if hasattr(self, "device") and self.device is not None:
-            params.append(f"device={self.device}")
-
-        return self.__class__.__name__ + f"({', '.join(params)})"
+        params += self.dinfo
+        return self.__class__.__name__ + "(" + ", ".join(params) + ")"
 
     def simulate(self, time_horizon, n_paths=1, init_price=1.0) -> None:
         """

@@ -61,12 +61,12 @@ class TestEuropeanBinaryOption:
 
     def test_repr(self):
         liability = EuropeanBinaryOption(BrownianStock(), maturity=1.0)
-        expect = "EuropeanBinaryOption(BrownianStock(...), maturity=1.00e+00)"
+        expect = (
+            "EuropeanBinaryOption(BrownianStock(...), strike=1.0, maturity=1.00e+00)"
+        )
         assert repr(liability) == expect
         liability = EuropeanBinaryOption(BrownianStock(), maturity=1.0, call=False)
-        expect = (
-            "EuropeanBinaryOption(BrownianStock(...), call=False, maturity=1.00e+00)"
-        )
+        expect = "EuropeanBinaryOption(BrownianStock(...), call=False, strike=1.0, maturity=1.00e+00)"
         assert repr(liability) == expect
         liability = EuropeanBinaryOption(BrownianStock(), maturity=1.0, strike=2.0)
         expect = (

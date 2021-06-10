@@ -46,10 +46,10 @@ class TestLookbackOption:
 
     def test_repr(self):
         liability = LookbackOption(BrownianStock(), maturity=1.0)
-        expect = "LookbackOption(BrownianStock(...), maturity=1.00e+00)"
+        expect = "LookbackOption(BrownianStock(...), strike=1.0, maturity=1.00e+00)"
         assert repr(liability) == expect
         liability = LookbackOption(BrownianStock(), maturity=1.0, call=False)
-        expect = "LookbackOption(BrownianStock(...), call=False, maturity=1.00e+00)"
+        expect = "LookbackOption(BrownianStock(...), call=False, strike=1.0, maturity=1.00e+00)"
         assert repr(liability) == expect
         liability = LookbackOption(BrownianStock(), maturity=1.0, strike=2.0)
         expect = "LookbackOption(BrownianStock(...), strike=2.0, maturity=1.00e+00)"

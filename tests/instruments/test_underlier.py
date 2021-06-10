@@ -23,7 +23,8 @@ class TestBrownianStock:
         )
         s = BrownianStock(dt=1 / 100, device="cuda:0")
         assert (
-            repr(s) == "BrownianStock(volatility=2.00e-01, dt=1.00e-02, device=cuda:0)"
+            repr(s)
+            == "BrownianStock(volatility=2.00e-01, dt=1.00e-02, device='cuda:0')"
         )
 
     @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
