@@ -62,11 +62,21 @@ class TestEuropeanOption:
 
     def test_repr(self):
         liability = EuropeanOption(BrownianStock(), maturity=1.0)
-        expect = "EuropeanOption(BrownianStock(...), maturity=1.00e+00)"
+        expect = "EuropeanOption(BrownianStock(...), strike=1.0, maturity=1.00e+00)"
         assert repr(liability) == expect
+
         liability = EuropeanOption(BrownianStock(), maturity=1.0, call=False)
-        expect = "EuropeanOption(BrownianStock(...), call=False, maturity=1.00e+00)"
+        expect = "EuropeanOption(BrownianStock(...), call=False, strike=1.0, maturity=1.00e+00)"
         assert repr(liability) == expect
+
         liability = EuropeanOption(BrownianStock(), maturity=1.0, strike=2.0)
         expect = "EuropeanOption(BrownianStock(...), strike=2.0, maturity=1.00e+00)"
+        assert repr(liability) == expect
+
+        liability = EuropeanOption(BrownianStock(), maturity=1.0)
+        liability.to(dtype=torch.float64, device="cuda:0")
+        expect = (
+            "EuropeanOption(BrownianStock(...), strike=1.0, maturity=1.00e+00,"
+            " dtype=torch.float64, device='cuda:0')"
+        )
         assert repr(liability) == expect
