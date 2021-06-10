@@ -64,11 +64,10 @@ class EuropeanOption(Derivative):
         params = [f"{self.underlier.__class__.__name__}(...)"]
         if not self.call:
             params.append(f"call={self.call}")
-        if self.strike != 1.0:
-            params.append(f"strike={self.strike}")
+        params.append(f"strike={self.strike}")
         params.append(f"maturity={self.maturity:.2e}")
-
-        return self.__class__.__name__ + f"({', '.join(params)})"
+        params += self.dinfo
+        return self.__class__.__name__ + "(" + ", ".join(params) + ")"
 
     def payoff(self):
         return european_payoff(
