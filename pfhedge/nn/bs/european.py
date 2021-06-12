@@ -23,6 +23,8 @@ class BSEuropeanOption(BSModuleMixin):
 
     Examples:
 
+        The `forward` method returns delta of the derivative.
+
         >>> from pfhedge.nn import BSEuropeanOption
         >>> m = BSEuropeanOption()
         >>> m.features()
@@ -36,7 +38,8 @@ class BSEuropeanOption(BSModuleMixin):
                 [0.5126],
                 [0.5752]])
 
-        One can instantiate it using a :class:`EuropeanOption`.
+        One can instantiate it using a
+        :class:`pfhedge.instruments.EuropeanOption`.
 
         >>> from pfhedge.instruments import BrownianStock
         >>> from pfhedge.instruments import EuropeanOption

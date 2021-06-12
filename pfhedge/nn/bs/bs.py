@@ -31,6 +31,7 @@ class BlackScholes(torch.nn.Module):
         One can instantiate Black-Scholes module by using a derivative.
         For example, one can instantiate :class:`BSEuropeanOption` using
         a :class:`pfhedge.instruments.EuropeanOption`.
+        The `forward` method returns delta of the derivative.
 
         >>> import torch
         >>> from pfhedge.instruments import BrownianStock

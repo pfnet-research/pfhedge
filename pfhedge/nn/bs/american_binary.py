@@ -23,6 +23,8 @@ class BSAmericanBinaryOption(BSModuleMixin):
 
     Examples:
 
+        The `forward` method returns delta of the derivative.
+
         >>> import torch
         >>> from pfhedge.nn import BSAmericanBinaryOption
         >>> m = BSAmericanBinaryOption(strike=1.0)
@@ -37,7 +39,8 @@ class BSAmericanBinaryOption(BSModuleMixin):
                 [0.0000],
                 [0.0000]])
 
-        One can instantiate it using an :class:`AmericanBinaryOption`.
+        One can instantiate it using an
+        :class:`pfhedge.instruments.AmericanBinaryOption`.
 
         >>> from pfhedge.instruments import BrownianStock
         >>> from pfhedge.instruments import AmericanBinaryOption
