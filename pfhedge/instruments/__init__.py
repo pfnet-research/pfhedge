@@ -1,3 +1,5 @@
+from ._base import Primary
+from ._base import Derivative
 from .american_binary import AmericanBinaryOption
 from .european import EuropeanOption
 from .european_binary import EuropeanBinaryOption

@@ -4,33 +4,26 @@ import torch
 
 
 class Instrument(abc.ABC):
-    """
-    Base class for all financial instruments.
-    """
+    """Base class for all financial instruments."""
 
     @abc.abstractmethod
     def simulate(self, time_horizon, n_paths=1, init_price=1.0) -> None:
-        """
-        Simulate time series of prices of itself (for a primary instrument)
+        """Simulate time series of prices of itself (for a primary instrument)
         or its underlier (for a derivative).
         """
 
     @abc.abstractmethod
     def to(self, *args, **kwargs):
-        """
-        Performs dtype and/or device conversion of the time series of prices.
+        """Performs dtype and/or device conversion of the time series of prices.
 
-        Parameters
-        ----------
-        - dtype : torch.dtype
-            Desired floating point type of the floating point values
-            of simulated time series.
-        - device : torch.device
-            Desired device of the values of simulated time series.
+        Parameters:
+            dtype (torch.dtype): Desired floating point type of the floating point
+                values of simulated time series.
+            device (torch.device): Desired device of the values of simulated time
+                series.
 
-        Returns
-        -------
-        self
+        Returns:
+            self
         """
 
     @property
@@ -42,10 +35,8 @@ class Instrument(abc.ABC):
         If `dtype` (`device`) is the one specified in default type,
         `dinfo` will not have the information of it.
 
-        Returns
-        -------
-        dinfo : list[str]
-            list of strings that tell `dtype` and `device` of `self`.
+        Returns:
+            list[str]
         """
         # Implementation here refers to the function `_str_intern` in `pytorch/_tensor_str.py`.
 
@@ -69,8 +60,7 @@ class Instrument(abc.ABC):
 
 
 class Primary(Instrument):
-    """
-    Base class for all primary instruments.
+    """Base class for all primary instruments.
 
     A primary instrument is a basic financial instrument which is traded on a market
     and therefore the price is accessible as the market price.
@@ -80,45 +70,34 @@ class Primary(Instrument):
     Derivatives are issued based on primary instruments
     (See `Derivative` class for details).
 
-    Attributes
-    ----------
-    - prices : Tensor, shape (N_STEPS, N_PATHS)
-        The prices of the instrument.
-        This attribute is supposed to set by a method `simulate()`.
-        Here, `N_STEPS` is the number of time steps and
-        `N_PATHS` is the number of simulated paths.
+    Attributes:
+        prices (Tensor): The prices of the instrument.
+            This attribute is supposed to set by a method `simulate()`.
+            Shape is (N_STEPS, N_PATHS) where `N_STEPS` is the number of time steps
+            and `N_PATHS` is the number of simulated paths.
     """
 
     @abc.abstractmethod
     def simulate(self, time_horizon, n_paths=1, init_price=1.0, **kwargs) -> None:
-        """
-        Simulate time series of prices and set an attribute `prices`.
+        """Simulate time series of prices and set an attribute `prices`.
 
-        Parameters
-        ----------
-        - time_horizon : float
-            The period of time to simulate the price.
-        - n_paths : int, default 1
-            The number of paths to simulate.
-        - init_price : float, default 1.0
-            The initial value of the prices.
+        Args:
+            time_horizon (float): The period of time to simulate the price.
+            n_paths (int, default=1): The number of paths to simulate.
+            init_price (float, default=1.0): The initial value of the prices.
         """
 
     def to(self, *args, **kwargs):
-        """
-        Performs dtype and/or device conversion of the time series of the prices.
+        """Performs dtype and/or device conversion of the time series of the prices.
 
-        Parameters
-        ----------
-        - dtype : torch.dtype
-            Desired floating point type of the floating point values
-            of simulated time series.
-        - device : torch.device
-            Desired device of the values of simulated time series.
+        Args:
+            dtype (torch.dtype): Desired floating point type of the floating point
+                values of simulated time series.
+            device (torch.device): Desired device of the values of simulated time
+                series.
 
-        Returns
-        -------
-        self
+        Returns:
+            self
         """
         device, dtype, *_ = torch._C._nn._parse_to(*args, **kwargs)
 
@@ -141,8 +120,7 @@ class Primary(Instrument):
 
 
 class Derivative(Instrument):
-    """
-    Base class for all derivatives.
+    """Base class for all derivatives.
 
     A derivative is a financial instrument whose payoff is contingent on
     a primary instrument (or a set of primary instruments).
@@ -154,11 +132,13 @@ class Derivative(Instrument):
     A derivative relies on primary assets (See `Primary` for details), such as
     stocks, bonds, commodities, and currencies.
 
-    Attributes
-    ----------
-    - underlier : Primary
-        The underlying asset on which the derivative's payoff relies.
+    Attributes:
+        underlier (:class:Primary): The underlying asset on which the derivative's
+            payoff relies.
     """
+
+    underlier: Primary
+    maturity: float
 
     @property
     def dtype(self) -> torch.dtype:
