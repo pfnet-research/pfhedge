@@ -3,13 +3,13 @@ from torch import Tensor
 
 
 def generate_brownian(
-    n_steps:int,
-    n_paths:int,
-    init_value:float=0.0,
-    volatility:float=0.2,
-    dt:float=1.0 / 365,
-    dtype:torch.dtype=None,
-    device:torch.device=None,
+    n_steps: int,
+    n_paths: int,
+    init_value: float = 0.0,
+    volatility: float = 0.2,
+    dt: float = 1.0 / 365,
+    dtype: torch.dtype = None,
+    device: torch.device = None,
 ) -> Tensor:
     """Returns time series following the Brownian motion.
 
@@ -53,13 +53,13 @@ def generate_brownian(
 
 
 def generate_geometric_brownian(
-    n_steps:int,
-    n_paths:int,
-    init_value:float=1.0,
-    volatility:float=0.2,
-    dt:float=1.0 / 365,
-    dtype:torch.dtype=None,
-    device:torch.device=None,
+    n_steps: int,
+    n_paths: int,
+    init_value: float = 1.0,
+    volatility: float = 0.2,
+    dt: float = 1.0 / 365,
+    dtype: torch.dtype = None,
+    device: torch.device = None,
 ) -> Tensor:
     """Returns time series following the geometric Brownian motion.
 
