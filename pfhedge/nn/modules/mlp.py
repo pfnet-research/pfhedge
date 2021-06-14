@@ -3,9 +3,9 @@ from copy import deepcopy
 import torch
 from torch.nn import Identity
 from torch.nn import LazyLinear
+from torch.nn import Module
 from torch.nn import ReLU
 from torch.nn import Sequential
-from torch.nn import Module
 
 
 class MultiLayerPerceptron(Sequential):
@@ -72,13 +72,13 @@ class MultiLayerPerceptron(Sequential):
 
     def __init__(
         self,
-        out_features:int=1,
-        n_layers:int=4,
+        out_features: int = 1,
+        n_layers: int = 4,
         n_units=32,
-        activation:Module=ReLU(),
-        out_activation:Module=Identity(),
+        activation: Module = ReLU(),
+        out_activation: Module = Identity(),
     ):
-        n_units = (n_units,)*n_layers if isinstance(n_units, int) else n_units
+        n_units = (n_units,) * n_layers if isinstance(n_units, int) else n_units
 
         layers = []
         for i in range(n_layers):
