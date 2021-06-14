@@ -3,7 +3,7 @@
 [![python](https://img.shields.io/pypi/pyversions/pfhedge.svg)](https://pypi.org/project/pfhedge)
 [![pypi](https://img.shields.io/pypi/v/pfhedge.svg)](https://pypi.org/project/pfhedge)
 [![CI](https://github.com/pfnet-research/pfhedge/workflows/CI/badge.svg)](https://github.com/pfnet-research/pfhedge/actions?query=workflow%3ACI)
-[![codecov](https://codecov.io/gh/pfnet-research/pfhedge/branch/master/graph/badge.svg)](https://codecov.io/gh/pfnet-research/pfhedge)
+[![codecov](https://codecov.io/gh/pfnet-research/pfhedge/branch/main/graph/badge.svg?token=GpXV1ldVCN)](https://codecov.io/gh/pfnet-research/pfhedge)
 [![downloads](https://img.shields.io/pypi/dm/pfhedge)](https://pypi.org/project/pfhedge)
 [![code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
