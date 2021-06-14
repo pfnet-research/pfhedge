@@ -1,47 +1,59 @@
 import torch
+from torch import Tensor
 
 from ..._utils.bisect import bisect
 from ._base import BSModuleMixin
 
 
 class BSEuropeanBinaryOption(BSModuleMixin):
+    """Black-Scholes formula for a European binary option.
+
+    Args:
+        derivative (:class:`pfhedge.instruments.EuropeanBinaryOption`. optional):
+            The derivative to get the Black-Scholes formula.
+        call (bool, default=True): Specifies whether the option is call or put.
+        strike (float, default=1.0): The strike price of the option.
+
+    Shape:
+        - Input: :math:`(N, *, 3)`, where :math:`*` means any number of additional dimensions.
+          See `features()` for input features.
+        - Output: :math:`(N, *, 1)` Delta of the derivative.
+          All but the last dimension are the same shape as the input.
+
+    .. seealso ::
+
+        - :class:`pfhedge.nn.BlackScholes`:
+          Initialize Black-Scholes formula module from a derivative.
+
+    Examples:
+
+        The `forward` method returns delta of the derivative.
+
+        >>> from pfhedge.nn import BSEuropeanBinaryOption
+        >>> m = BSEuropeanBinaryOption(strike=1.0)
+        >>> m.features()
+        ['log_moneyness', 'expiry_time', 'volatility']
+        >>> input = torch.tensor([
+        ...     [-0.01, 0.1, 0.2],
+        ...     [ 0.00, 0.1, 0.2],
+        ...     [ 0.01, 0.1, 0.2]])
+        >>> m(input)
+        tensor([[6.2576],
+                [6.3047],
+                [6.1953]])
+
+        One can instantiate it using an
+        :class:`pfhedge.instruments.EuropeanBinaryOption`.
+
+        >>> from pfhedge.instruments import BrownianStock
+        >>> from pfhedge.instruments import EuropeanBinaryOption
+        >>> deriv = EuropeanBinaryOption(BrownianStock(), strike=1.1)
+        >>> m = BSEuropeanBinaryOption(deriv)
+        >>> m
+        BSEuropeanBinaryOption(strike=1.1)
     """
-    Black-Scholes formula for a European binary option.
 
-    Parameters
-    ----------
-    - derivative : EuropeanBinaryOption
-        The derivative to get the Black-Scholes formula.
-    - call : bool, default True
-        Specify whether the option is call or put.
-    - strike : float, default 1.0
-        The strike price of the option.
-
-    Shape
-    -----
-    - Input : (N, *, 3)
-        See `features()` for input features.
-        Here, `*` means any number of additional dimensions.
-    - Output : (N, *, 1)
-        Delta of the derivative.
-        All but the last dimension are the same shape as the input.
-
-    Examples
-    --------
-    >>> m = BSEuropeanBinaryOption(strike=1.0)
-    >>> m.features()
-    ['log_moneyness', 'expiry_time', 'volatility']
-    >>> x = torch.tensor([
-    ...     [-0.01, 0.1, 0.2],
-    ...     [ 0.00, 0.1, 0.2],
-    ...     [ 0.01, 0.1, 0.2]])
-    >>> m(x)
-    tensor([[6.2576],
-            [6.3047],
-            [6.1953]])
-    """
-
-    def __init__(self, derivative=None, call=True, strike=1.0):
+    def __init__(self, derivative=None, call: bool = True, strike: float = 1.0):
         super().__init__()
 
         if derivative is not None:
@@ -62,31 +74,34 @@ class BSEuropeanBinaryOption(BSModuleMixin):
             params.append(f"strike={self.strike}")
         return ", ".join(params)
 
-    def features(self):
+    def features(self) -> list:
         return ["log_moneyness", "expiry_time", "volatility"]
 
     @torch.enable_grad()
     def delta(
-        self, log_moneyness, expiry_time, volatility, create_graph=False
-    ) -> torch.Tensor:
-        """
-        Returns delta of the derivative.
+        self,
+        log_moneyness: Tensor,
+        expiry_time: Tensor,
+        volatility: Tensor,
+        create_graph: bool = False,
+    ) -> Tensor:
+        """Returns delta of the derivative.
 
-        Parameters
-        ----------
-        - log_moneyness : Tensor, shape (N, *)
-            Log moneyness of the prices of the underlying asset.
-        - expiry_time : Tensor, shape (N, *)
-            Time to expiry of the option.
-        - volatility : Tensor, shape (N, *)
-            Volatility of the underlying asset.
-        - create_graph : bool, default False
-            If True, graph of the derivative will be constructed.
-            This option is used to compute gamma.
+        Args:
+            log_moneyness: (torch.Tensor): Log moneyness of the underlying asset.
+            expiry_time (torch.Tensor): Time to expiry of the option.
+            volatility (torch.Tensor): Volatility of the underlying asset.
+            create_graph (bool, default=False): If True, graph of the derivative will
+                be constructed. This option is used to compute gamma.
 
-        Returns
-        -------
-        delta : Tensor, shape (N, *)
+        Shape:
+            - log_moneyness: :math:`(N, *)`
+            - expiry_time: :math:`(N, *)`
+            - volatility: :math:`(N, *)`
+            - output: :math:`(N, *)`
+
+        Returns:
+            torch.Tensor
         """
         s, t, v = map(torch.as_tensor, (log_moneyness, expiry_time, volatility))
 
@@ -95,22 +110,24 @@ class BSEuropeanBinaryOption(BSModuleMixin):
         )
         return delta
 
-    def gamma(self, log_moneyness, expiry_time, volatility) -> torch.Tensor:
-        """
-        Returns gamma of the derivative.
+    def gamma(
+        self, log_moneyness: Tensor, expiry_time: Tensor, volatility: Tensor
+    ) -> Tensor:
+        """Returns gamma of the derivative.
 
-        Parameters
-        ----------
-        - log_moneyness : Tensor, shape (N, *)
-            Log moneyness of the prices of the underlying asset.
-        - expiry_time : Tensor, shape (N, *)
-            Time to expiry of the option.
-        - volatility : Tensor, shape (N, *)
-            Volatility of the underlying asset.
+        Args:
+            log_moneyness (torch.Tensor): Log moneyness of the underlying asset.
+            expiry_time (torch.Tensor): Time to expiry of the option.
+            volatility (torch.Tensor): Volatility of the underlying asset.
 
-        Returns
-        -------
-        gamma : Tensor, shape (N, *)
+        Shape:
+            - log_moneyness: :math:`(N, *)`
+            - expiry_time: :math:`(N, *)`
+            - volatility: :math:`(N, *)`
+            - output: :math:`(N, *)`
+
+        Returns:
+            torch.Tensor
         """
         prices = self.strike * torch.exp(torch.as_tensor(log_moneyness))
         prices = torch.Tensor.requires_grad_(prices)
@@ -125,22 +142,24 @@ class BSEuropeanBinaryOption(BSModuleMixin):
 
         return gamma
 
-    def price(self, log_moneyness, expiry_time, volatility) -> torch.Tensor:
-        """
-        Returns price of the derivative.
+    def price(
+        self, log_moneyness: Tensor, expiry_time: Tensor, volatility: Tensor
+    ) -> Tensor:
+        """Returns price of the derivative.
 
-        Parameters
-        ----------
-        - log_moneyness : Tensor, shape (N, *)
-            Log moneyness of the prices of the underlying asset.
-        - expiry_time : Tensor, shape (N, *)
-            Time to expiry of the option.
-        - volatility : Tensor, shape (N, *)
-            Volatility of the underlying asset.
+        Args:
+            log_moneyness (torch.Tensor): Log moneyness of the underlying asset.
+            expiry_time (torch.Tensor): Time to expiry of the option.
+            volatility (torch.Tensor): Volatility of the underlying asset.
 
-        Returns
-        -------
-        price : Tensor, shape (N, *)
+        Shape:
+            - log_moneyness: :math:`(N, *)`
+            - expiry_time: :math:`(N, *)`
+            - volatility: :math:`(N, *)`
+            - output: :math:`(N, *)`
+
+        Returns:
+            torch.Tensor
         """
         s, t, v = map(torch.as_tensor, (log_moneyness, expiry_time, volatility))
 
@@ -150,25 +169,28 @@ class BSEuropeanBinaryOption(BSModuleMixin):
         return price
 
     def implied_volatility(
-        self, log_moneyness, expiry_time, price, precision=1e-6
-    ) -> torch.Tensor:
+        self,
+        log_moneyness: Tensor,
+        expiry_time: Tensor,
+        price: Tensor,
+        precision: float = 1e-6,
+    ) -> Tensor:
         """
         Returns implied volatility of the derivative.
 
-        Parameters
-        ----------
-        - log_moneyness : Tensor, shape (N, *)
-            Log moneyness of the prices of the underlying asset.
-        - expiry_time : Tensor, shape (N, *)
-            Time to expiry of the option.
-        - price : Tensor, shape (N, *)
-            Price of the derivative.
-        - precision : float, default 1e-6
-            Computational precision of the implied volatility.
+        Args:
+            log_moneyness (torch.Tensor): Log moneyness of the underlying asset.
+            expiry_time (torch.Tensor): Time to expiry of the option.
+            price (torch.Tensor): Price of the derivative.
 
-        Returns
-        -------
-        implied_volatility : Tensor, shape (N, *)
+        Shape:
+            - log_moneyness: :math:`(N, *)`
+            - expiry_time: :math:`(N, *)`
+            - volatility: :math:`(N, *)`
+            - output: :math:`(N, *)`
+
+        Returns:
+            torch.Tensor
         """
         s, t, p = map(torch.as_tensor, (log_moneyness, expiry_time, price))
         get_price = lambda v: self.price(s, t, v)
