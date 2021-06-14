@@ -4,13 +4,10 @@ from ._base import Feature
 
 
 class Moneyness(Feature):
-    """
-    Moneyness of the underlying instrument of the derivative.
+    """Moneyness of the underlying instrument of the derivative.
 
-    Parameters
-    ----------
-    - log : bool, default False
-        If `True`, represents log moneyness.
+    Args:
+        log (bool, default=False): If `True`, represents log moneyness.
     """
 
     def __init__(self, log=False):
@@ -33,18 +30,14 @@ class Moneyness(Feature):
 
 
 class LogMoneyness(Moneyness):
-    """
-    Log moneyness of the underlying instrument of the derivative.
-    """
+    """Log moneyness of the underlying instrument of the derivative."""
 
     def __init__(self):
         super().__init__(log=True)
 
 
 class ExpiryTime(Feature):
-    """
-    Remaining time to the maturity of the derivative.
-    """
+    """Remaining time to the maturity of the derivative."""
 
     def __str__(self):
         return "expiry_time"
@@ -55,9 +48,7 @@ class ExpiryTime(Feature):
 
 
 class Volatility(Feature):
-    """
-    Volatility of the underlier of the derivative.
-    """
+    """Volatility of the underlier of the derivative. """
 
     def __str__(self):
         return "volatility"
@@ -68,9 +59,7 @@ class Volatility(Feature):
 
 
 class PrevHedge(Feature):
-    """
-    Previous holding of underlier.
-    """
+    """Previous holding of underlier."""
 
     def __str__(self):
         return "prev_hedge"
@@ -83,18 +72,15 @@ class PrevHedge(Feature):
 
 
 class Barrier(Feature):
-    """
-    A feature which signifies whether the price of the underlier have reached
+    """A feature which signifies whether the price of the underlier have reached
     the barrier. The output `1.0` means that the price have touched the barrier,
     and `0` otherwise.
 
-    Parameters
-    ----------
-    - barrier : float
-        The price level of the barrier.
-    - up : bool, default True
-        If `True`, signifies whether the price has exceeded the barrier upward.
-        If `False`, signifies whether the price has exceeded the barrier downward.
+    Args:
+        barrier (float): The price level of the barrier.
+        up (bool, default True): If `True`, signifies whether the price has exceeded
+            the barrier upward.
+            If `False`, signifies whether the price has exceeded the barrier downward.
     """
 
     def __init__(self, barrier, up=True):
@@ -117,9 +103,7 @@ class Barrier(Feature):
 
 
 class Zero(Feature):
-    """
-    A feature of which value is always zero.
-    """
+    """A feature of which value is always zero."""
 
     def __str__(self):
         return "zero"
@@ -129,13 +113,10 @@ class Zero(Feature):
 
 
 class MaxMoneyness(Feature):
-    """
-    Cumulative maximum of moneyness.
+    """Cumulative maximum of moneyness.
 
-    Parameters
-    ----------
-    - log : bool, default False
-        If `True`, represents log moneyness.
+    Args:
+        log (bool, default=False): If `True`, represents log moneyness.
     """
 
     def __init__(self, log=False):
@@ -162,62 +143,54 @@ class MaxMoneyness(Feature):
 
 
 class MaxLogMoneyness(MaxMoneyness):
-    """
-    Cumulative maximum of log Moneyness.
-    """
+    """Cumulative maximum of log Moneyness."""
 
     def __init__(self):
         super().__init__(log=True)
 
 
 class ModuleOutput(Feature, torch.nn.Module):
-    """
-    The feature computed as an output of a `torch.nn.Module`.
+    """The feature computed as an output of a `torch.nn.Module`.
 
-    Parameters
-    ----------
-    - module : torch.nn.Module
-        Module to compute the value of the feature.
-        The input and output shapes should be `(N, *, H_in) -> (N, *, 1)`,
-        where `N` stands for the number of Monte Carlo paths of the underlier of
-        the derivative, `H_in` stands for the number of input features
-        (namely, `H_in = len(features)`),
-        and `*` means any number of additional dimensions.
-    - features : list[Feature]
-        The input features to the module.
+    Args:
+        module (torch.nn.Module): Module to compute the value of the feature.
+            The input and output shapes should be `(N, *, H_in) -> (N, *, 1)`,
+            where `N` stands for the number of Monte Carlo paths of the underlier of
+            the derivative, `H_in` stands for the number of input features
+            (namely, `H_in = len(features)`),
+            and `*` means any number of additional dimensions.
+        features (list[Feature]): The input features to the module.
 
-    Examples
-    --------
-    >>> from torch.nn import Linear
-    >>> from pfhedge.instruments import BrownianStock
-    >>> from pfhedge.instruments import EuropeanOption
+    Examples:
 
-    >>> _ = torch.manual_seed(42)
-    >>> deriv = EuropeanOption(BrownianStock())
-    >>> deriv.simulate(n_paths=3)
-    >>> m = Linear(2, 1)
-    >>> f = ModuleOutput(m, [Moneyness(), ExpiryTime()]).of(deriv)
-    >>> f[0]
-    tensor([[...],
-            [...],
-            [...]], grad_fn=<AddmmBackward>)
-    >>> f
-    ModuleOutput(
-      features=['moneyness', 'expiry_time'],
-      (module): Linear(in_features=2, out_features=1, bias=True)
-    )
+        >>> from torch.nn import Linear
+        >>> from pfhedge.instruments import BrownianStock
+        >>> from pfhedge.instruments import EuropeanOption
+        >>> deriv = EuropeanOption(BrownianStock())
+        >>> deriv.simulate(n_paths=3)
+        >>> m = Linear(2, 1)
+        >>> f = ModuleOutput(m, [Moneyness(), ExpiryTime()]).of(deriv)
+        >>> f[0]
+        tensor([[...],
+                [...],
+                [...]], grad_fn=<AddmmBackward>)
+        >>> f
+        ModuleOutput(
+          features=['moneyness', 'expiry_time'],
+          (module): Linear(in_features=2, out_features=1, bias=True)
+        )
 
-    >>> from pfhedge.nn import BlackScholes
+        >>> from pfhedge.nn import BlackScholes
 
-    >>> _ = torch.manual_seed(42)
-    >>> deriv = EuropeanOption(BrownianStock())
-    >>> deriv.simulate(n_paths=3)
-    >>> m = BlackScholes(deriv)
-    >>> f = ModuleOutput(m, [LogMoneyness(), ExpiryTime(), Volatility()]).of(deriv)
-    >>> f[0]
-    tensor([[0.5114],
-            [0.5114],
-            [0.5114]])
+        >>> _ = torch.manual_seed(42)
+        >>> deriv = EuropeanOption(BrownianStock())
+        >>> deriv.simulate(n_paths=3)
+        >>> m = BlackScholes(deriv)
+        >>> f = ModuleOutput(m, [LogMoneyness(), ExpiryTime(), Volatility()]).of(deriv)
+        >>> f[0]
+        tensor([[...],
+                [...],
+                [...]])
     """
 
     def __init__(self, module, features):

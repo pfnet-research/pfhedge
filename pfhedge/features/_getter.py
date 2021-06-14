@@ -21,18 +21,13 @@ FEATURES = [
 
 
 def get_feature(feature):
-    """
-    Get feature from name.
+    """Get feature from name.
 
-    Parameters
-    ----------
-    - name : str or Feature
-        Name of feature.
+    Args:
+        name (str): Name of feature.
 
-    Returns
-    -------
-    feature : Feature
-        Feature.
+    Returns:
+        Feature
     """
     dict_features = {str(f): f for f in FEATURES}
 

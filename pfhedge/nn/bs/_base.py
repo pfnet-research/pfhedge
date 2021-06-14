@@ -2,75 +2,43 @@ import abc
 from inspect import signature
 
 import torch
+from torch import Tensor
+from torch.distributions.normal import Normal
+from torch.nn import Module
 
 
-class _Normal(torch.distributions.normal.Normal):
-    """
-    Creates a normal (also called Gaussian) distribution parameterized
-    by `loc` and `scale`.
-    It has `pdf` method to compute the probability density function.
+class BSModuleMixin(Module):
+    """A mixin class for Black-Scholes formula modules.
 
-    See `torch.distributions.normal.Normal` for details and other methods.
-    """
-
-    def pdf(self, value: torch.Tensor) -> torch.Tensor:
-        """
-        Returns the probability density function evaluated at value.
-
-        Parameters
-        ----------
-        - value : Tensor, shape (*)
-
-        Returns
-        -------
-        pdf : Tensor, shape (*)
-        """
-        return self.log_prob(value).exp()
-
-
-class BSModuleMixin(torch.nn.Module):
-    """
-    A mixin class for Black-Scholes formula modules.
-
-    Shape
-    -----
-    - Input : (N, *, H_in)
-        See `features()` for input features.
-        Here, `*` means any number of additional dimensions.
-    - Output : (N, *, 1)
-        Delta of the derivative.
-        All but the last dimension are the same shape as the input.
+    Shape:
+        - Input: :math:`(N, *, H_\\text{in})`, where :math:`*` means any number of
+          additional dimensions. See `features()` for input features.
+        - Output: :math:`(N, *, 1)`: All but the last dimension are the same shape
+          as the input.
     """
 
-    def forward(self, input) -> torch.Tensor:
-        """
-        Returns delta of the derivative.
+    def forward(self, input: Tensor) -> Tensor:
+        """Returns delta of the derivative.
 
-        Parameters
-        ----------
-        - input : torch.Tensor, shape (N, *, H_in)
-            The input tensor.
-            Features are concatenated along the last dimension.
+        Args:
+            input (torch.Tensor): The input tensor.  Features are concatenated along
+                the last dimension.
 
-        Returns
-        -------
-        output : torch.Tensor, shape (N, *, 1)
+        Returns:
+            torch.Tensor
         """
         return self.delta(*(input[..., [i]] for i in range(input.size()[-1])))
 
     @abc.abstractmethod
     def delta(*args, **kwargs) -> torch.Tensor:
-        """
-        Returns delta of the derivative.
+        """Returns delta of the derivative.
 
-        Returns
-        -------
-        delta : Tensor, shape (N, *)
+        Returns:
+            torch.Tensor
         """
 
     def features(self) -> list:
-        """
-        Returns a list of names of input features.
+        """Returns a list of names of input features.
 
         By default, this method infers the names of features from the signature of
         the `delta` method.
@@ -80,50 +48,42 @@ class BSModuleMixin(torch.nn.Module):
         return list(signature(self.delta).parameters.keys())
 
     @property
-    def N(self):
+    def N(self) -> Normal:
+        """Returns normal distribution with zero mean and unit standard deviation.
+
+        It is almost the same with `torch.distibution.normal.Normal(0, 1)`, but has
+        a method `pdf` which stands for the partial distribution function.
         """
-        Returns normal distribution with zero mean and unit standard deviation.
-        """
-        return _Normal(torch.tensor(0.0), torch.tensor(1.0))
+        normal = Normal(torch.tensor(0.0), torch.tensor(1.0))
+        setattr(normal, "pdf", lambda value: normal.log_prob(value).exp())
+        return normal
 
     @staticmethod
-    def d1(log_moneyness, expiry_time, volatility) -> torch.Tensor:
-        """
-        Returns `d1` in the Black-Scholes formula.
+    def d1(log_moneyness: Tensor, expiry_time: Tensor, volatility: Tensor) -> Tensor:
+        """Returns :math:`d_1` in the Black-Scholes formula.
 
-        Parameters
-        ----------
-        - log_moneyness : Tensor, shape (*)
-            Log moneyness of the underlying asset.
-        - expiry_time : Tensor, shape (*)
-            Time to expiry of the option.
-        - volatility : Tensor, shape (*)
-            Volatility of the underlying asset.
+        Args:
+            log_moneyness (Tensor): Log moneyness of the underlying asset.
+            expiry_time (Tensor): Time to expiry of the option.
+            volatility (Tensor): Volatility of the underlying asset.
 
-        Returns
-        -------
-        d1 : Tensor, shape (*)
+        Returns:
+            torch.Tensor
         """
         s, t, v = map(torch.as_tensor, (log_moneyness, expiry_time, volatility))
         return (s + (v ** 2 / 2) * t) / (v * torch.sqrt(t))
 
     @staticmethod
     def d2(log_moneyness, expiry_time, volatility) -> torch.Tensor:
-        """
-        Returns `d2` in the Black-Scholes formula.
+        """Returns :math:`d_2` in the Black-Scholes formula.
 
-        Parameters
-        ----------
-        - log_moneyness : Tensor, shape (*)
-            Log moneyness of the underlying asset.
-        - expiry_time : Tensor, shape (*)
-            Time to expiry of the option.
-        - volatility : Tensor, shape (*)
-            Volatility of the underlying asset.
+        Args:
+            log_moneyness (Tensor): Log moneyness of the underlying asset.
+            expiry_time (Tensor): Time to expiry of the option.
+            volatility (Tensor): Volatility of the underlying asset.
 
-        Returns
-        -------
-        d2 : Tensor, shape (*)
+        Returns:
+            torch.Tensor
         """
         s, t, v = map(torch.as_tensor, (log_moneyness, expiry_time, volatility))
         return (s - (v ** 2 / 2) * t) / (v * torch.sqrt(t))
