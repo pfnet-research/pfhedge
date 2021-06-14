@@ -269,8 +269,8 @@ is the number of input features. See <cite>features</cite> for input features.</
 <span class="go">  (criterion): EntropicRiskMeasure()</span>
 <span class="go">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">history</span> <span class="o">=</span> <span class="n">hedger</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">deriv</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">n_paths</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_epochs</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">hedger</span><span class="o">.</span><span class="n">compute_pnl</span><span class="p">(</span><span class="n">deriv</span><span class="p">,</span> <span class="n">n_paths</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
-<span class="go">tensor([..., ..., ..., ..., ...], grad_fn=&lt;SubBackward0&gt;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hedger</span><span class="o">.</span><span class="n">compute_pnl</span><span class="p">(</span><span class="n">deriv</span><span class="p">,</span> <span class="n">n_paths</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">tensor([..., ..., ...], grad_fn=&lt;SubBackward0&gt;)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hedger</span><span class="o">.</span><span class="n">price</span><span class="p">(</span><span class="n">deriv</span><span class="p">)</span>
 <span class="go">tensor(...)</span>
 </pre></div>

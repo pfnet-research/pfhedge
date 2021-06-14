@@ -233,7 +233,8 @@
 
 <span class="sd">    .. math ::</span>
 
-<span class="sd">        \\text{loss}(\\text{pnl}) = \\frac{1}{a} \\log(- E[u(\\text{pnl})]) \,,</span>
+<span class="sd">        \\text{loss}(\\text{pnl}) = \\frac{1}{a}</span>
+<span class="sd">        \\log(- \\mathrm{E}[u(\\text{pnl})]) \,,</span>
 <span class="sd">        \\quad</span>
 <span class="sd">        u(x) = -\\exp(-a x) \,.</span>
 
@@ -294,7 +295,7 @@
 
 <span class="sd">    .. math ::</span>
 
-<span class="sd">        \\text{loss}(\\text{pnl}) = -E[u(\\text{pnl})] \\,,</span>
+<span class="sd">        \\text{loss}(\\text{pnl}) = -\\mathrm{E}[u(\\text{pnl})] \\,,</span>
 <span class="sd">        \\quad</span>
 <span class="sd">        u(x) = -\\exp(-a x) \,.</span>
 
@@ -355,7 +356,7 @@
 
 <span class="sd">    .. math ::</span>
 
-<span class="sd">        \\text{loss}(\\text{pnl}) = -E[u(\\text{pnl})] \,,</span>
+<span class="sd">        \\text{loss}(\\text{pnl}) = -\\mathrm{E}[u(\\text{pnl})] \,,</span>
 <span class="sd">        \\quad</span>
 <span class="sd">        u(x) = \\begin{cases}</span>
 <span class="sd">        x^{1 - a} &amp; a \\neq 1 \\\\</span>
@@ -449,31 +450,31 @@
 
 <span class="sd">    The certainty equivalent is given by:</span>
 
-<span class="sd">        loss(X, w) = w - E[u(X + w)]</span>
+<span class="sd">    .. math ::</span>
+
+<span class="sd">        \\text{loss}(X, w) = w - \\mathrm{E}[u(X + w)]</span>
 
 <span class="sd">    Minimization of loss gives the optimized certainty equivalent.</span>
 
-<span class="sd">        rho_u(X) = inf_w loss(X, w)</span>
+<span class="sd">    .. math ::</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    - utility : torch.autograd.Function</span>
-<span class="sd">        Utility function.</span>
+<span class="sd">        \\rho_u(X) = \\inf_w \\text{loss}(X, w)</span>
 
-<span class="sd">    Attributes</span>
-<span class="sd">    ----------</span>
-<span class="sd">    - w : torch.nn.Parameter</span>
-<span class="sd">        Wealth.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        utility (`torch.autograd.Function`): Utility function.</span>
 
-<span class="sd">    Examples</span>
-<span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; _ = torch.manual_seed(42)</span>
-<span class="sd">    &gt;&gt;&gt; m = OCE(lambda x: 1 - torch.exp(-x))</span>
-<span class="sd">    &gt;&gt;&gt; pnl = torch.randn(10)</span>
-<span class="sd">    &gt;&gt;&gt; m(pnl)</span>
-<span class="sd">    tensor(0.0855, grad_fn=&lt;SubBackward0&gt;)</span>
-<span class="sd">    &gt;&gt;&gt; m.cash(pnl)</span>
-<span class="sd">    tensor(-0.0821)</span>
+<span class="sd">    Attributes:</span>
+<span class="sd">        w (torch.nn.Parameter): Represents wealth.</span>
+
+<span class="sd">    Examples:</span>
+
+<span class="sd">        &gt;&gt;&gt; _ = torch.manual_seed(42)</span>
+<span class="sd">        &gt;&gt;&gt; m = OCE(lambda x: 1 - torch.exp(-x))</span>
+<span class="sd">        &gt;&gt;&gt; pnl = torch.randn(10)</span>
+<span class="sd">        &gt;&gt;&gt; m(pnl)</span>
+<span class="sd">        tensor(0.0855, grad_fn=&lt;SubBackward0&gt;)</span>
+<span class="sd">        &gt;&gt;&gt; m.cash(pnl)</span>
+<span class="sd">        tensor(-0.0821)</span>
 <span class="sd">    """</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">utility</span><span class="p">):</span>

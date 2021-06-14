@@ -210,11 +210,11 @@
 <span class="sd">        BSEuropeanOption()</span>
 <span class="sd">        &gt;&gt;&gt; m.features()</span>
 <span class="sd">        ['log_moneyness', 'expiry_time', 'volatility']</span>
-<span class="sd">        &gt;&gt;&gt; x = torch.tensor([</span>
+<span class="sd">        &gt;&gt;&gt; input = torch.tensor([</span>
 <span class="sd">        ...     [-0.01, 0.1, 0.2],</span>
 <span class="sd">        ...     [ 0.00, 0.1, 0.2],</span>
 <span class="sd">        ...     [ 0.01, 0.1, 0.2]])</span>
-<span class="sd">        &gt;&gt;&gt; m(x)</span>
+<span class="sd">        &gt;&gt;&gt; m(input)</span>
 <span class="sd">        tensor([[0.4497],</span>
 <span class="sd">                [0.5126],</span>
 <span class="sd">                [0.5752]])</span>
@@ -229,11 +229,11 @@
 <span class="sd">        BSLookbackOption(strike=1.03)</span>
 <span class="sd">        &gt;&gt;&gt; m.features()</span>
 <span class="sd">        ['log_moneyness', 'max_log_moneyness', 'expiry_time', 'volatility']</span>
-<span class="sd">        &gt;&gt;&gt; x = torch.tensor([</span>
+<span class="sd">        &gt;&gt;&gt; input = torch.tensor([</span>
 <span class="sd">        ...     [-0.01, -0.01, 0.1, 0.2],</span>
 <span class="sd">        ...     [ 0.00,  0.00, 0.1, 0.2],</span>
 <span class="sd">        ...     [ 0.01,  0.01, 0.1, 0.2]])</span>
-<span class="sd">        &gt;&gt;&gt; m(x)</span>
+<span class="sd">        &gt;&gt;&gt; m(input)</span>
 <span class="sd">        tensor([[0.9208],</span>
 <span class="sd">                [1.0515],</span>
 <span class="sd">                [1.0515]])</span>
