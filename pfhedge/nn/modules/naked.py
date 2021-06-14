@@ -2,30 +2,26 @@ import torch
 
 
 class Naked(torch.nn.Module):
-    """
-    Returns a tensor filled with the scalar value zero.
+    """Returns a tensor filled with the scalar value zero.
 
-    Parameters
-    ----------
-    - out_features : int, default 1
-        Size of each output sample.
+    Args:
+        out_features (int, default=1): Size of each output sample.
 
-    Shape
-    -----
-    - Input : (N, *, H_in)
-        where where * means any number of
-        additional dimensions and `H_in = in_features`.
-    - Output : (N, *, H_out)
-        where all but the last dimension
-        are the same shape as the input and `H_out = out_features`.
+    Shape:
+        - Input: :math:`(N, *, H_{\\text{in}})`, where where * means any number of
+          additional dimensions and :math:`H_{\\text{in}})` is the number of input
+          features.
+        - Output: :math:`(N, *, H_{\\text{out}})`, where all but the last dimension
+          are the same shape as the input and :math:`H_{\\text{in}})` is
+          `out_features`.
 
-    Examples
-    --------
-    >>> m = Naked()
-    >>> input = torch.empty((2, 3))
-    >>> m(input)
-    tensor([[0.],
-            [0.]])
+    Examples:
+
+        >>> m = Naked()
+        >>> input = torch.empty((2, 3))
+        >>> m(input)
+        tensor([[0.],
+                [0.]])
     """
 
     def __init__(self, out_features=1):
