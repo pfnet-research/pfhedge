@@ -106,8 +106,8 @@ class Hedger(Module):
           (criterion): EntropicRiskMeasure()
         )
         >>> history = hedger.fit(deriv, verbose=False, n_paths=1, n_epochs=1)
-        >>> hedger.compute_pnl(deriv, n_paths=5)
-        tensor([..., ..., ..., ..., ...], grad_fn=<SubBackward0>)
+        >>> hedger.compute_pnl(deriv, n_paths=3)
+        tensor([..., ..., ...], grad_fn=<SubBackward0>)
         >>> hedger.price(deriv)
         tensor(...)
     """
