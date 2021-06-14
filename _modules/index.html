@@ -1,0 +1,220 @@
+<!doctype html>
+<html class="no-js">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" />
+
+    <meta name="generator" content="sphinx-3.5.4, furo 2021.04.11.beta34"/>
+        <title>Overview: module code - PFHedge documentation</title>
+      <link rel="stylesheet" href="../_static/styles/furo.css?digest=59ab60ac09ea94ccfe6deddff6d715cce948a6fc">
+    <link rel="stylesheet" href="../_static/pygments.css">
+    <link media="(prefers-color-scheme: dark)" rel="stylesheet" href="../_static/pygments_dark.css">
+    
+
+
+<style>
+  :root {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  --color-brand-primary: #0D318F;
+  --color-brand-content: #0D318F;
+  
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-brand-primary: #0D318F;
+  --color-brand-content: #0D318F;
+  
+    }
+  }
+
+  /* For allowing end-user-specific overrides */
+  .override-light {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  --color-brand-primary: #0D318F;
+  --color-brand-content: #0D318F;
+  
+  }
+  .override-dark {
+    --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-brand-primary: #0D318F;
+  --color-brand-content: #0D318F;
+  
+  }
+</style><link rel="stylesheet" href="../_static/styles/furo-extensions.css?digest=d391b54134226e4196576da3bdb6dddb7e05ba2b"></head>
+  <body dir="">
+    
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+      stroke-width="1.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke="none" d="M0 0h24v24H0z"/>
+      <line x1="4" y1="6" x2="20" y2="6" />
+      <line x1="10" y1="12" x2="20" y2="12" />
+      <line x1="6" y1="18" x2="20" y2="18" />
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+      class="feather feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+      class="feather feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">PFHedge  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  
+  <span class="sidebar-brand-text">PFHedge  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html">
+  <input class="sidebar-search" placeholder=Search name="q">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="../hedger.html">pfhedge.Hedger</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../nn.html">pfhedge.nn</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label for="toctree-checkbox-1"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.nn.BlackScholes.html">BlackScholes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.nn.BSAmericanBinaryOption.html">BSAmericanBinaryOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.nn.BSEuropeanOption.html">BSEuropeanOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.nn.BSEuropeanBinaryOption.html">BSEuropeanBinaryOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.nn.BSLookbackOption.html">BSLookbackOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.nn.WhalleyWilmott.html">WhalleyWilmott</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.nn.Clamp.html">Clamp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.nn.LeakyClamp.html">LeakyClamp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.nn.HedgeLoss.html">HedgeLoss</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.nn.EntropicLoss.html">EntropicLoss</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.nn.EntropicRiskMeasure.html">EntropicRiskMeasure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.nn.ExpectedShortfall.html">ExpectedShortfall</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.nn.IsoelasticLoss.html">IsoelasticLoss</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.nn.MultiLayerPerceptron.html">MultiLayerPerceptron</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.nn.Naked.html">Naked</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../nn.functional.html">pfhedge.nn.functional</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../instruments.html">pfhedge.instruments</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label for="toctree-checkbox-2"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.instruments.Primary.html">Primary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.instruments.Derivative.html">Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../stochastic.html">pfhedge.stochastic</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/pfnet-research/pfhedge">GitHub</a></li>
+</ul>
+
+</div>
+</div>
+      </div>
+      
+    </div>
+  </aside>
+  <main class="main">
+    <div class="content">
+      <article role="main">
+        <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+        </label>
+        <h1>All modules for which code is available</h1>
+<ul><li><a href="pfhedge/hedger.html">pfhedge.hedger</a></li>
+<li><a href="pfhedge/instruments/_base.html">pfhedge.instruments._base</a></li>
+<li><a href="pfhedge/instruments/american_binary.html">pfhedge.instruments.american_binary</a></li>
+<li><a href="pfhedge/instruments/european.html">pfhedge.instruments.european</a></li>
+<li><a href="pfhedge/instruments/european_binary.html">pfhedge.instruments.european_binary</a></li>
+<li><a href="pfhedge/instruments/lookback.html">pfhedge.instruments.lookback</a></li>
+<li><a href="pfhedge/instruments/underlier.html">pfhedge.instruments.underlier</a></li>
+<li><a href="pfhedge/nn/bs/american_binary.html">pfhedge.nn.bs.american_binary</a></li>
+<li><a href="pfhedge/nn/bs/bs.html">pfhedge.nn.bs.bs</a></li>
+<li><a href="pfhedge/nn/bs/european.html">pfhedge.nn.bs.european</a></li>
+<li><a href="pfhedge/nn/bs/european_binary.html">pfhedge.nn.bs.european_binary</a></li>
+<li><a href="pfhedge/nn/bs/lookback.html">pfhedge.nn.bs.lookback</a></li>
+<li><a href="pfhedge/nn/functional.html">pfhedge.nn.functional</a></li>
+<li><a href="pfhedge/nn/modules/clamp.html">pfhedge.nn.modules.clamp</a></li>
+<li><a href="pfhedge/nn/modules/loss.html">pfhedge.nn.modules.loss</a></li>
+<li><a href="pfhedge/nn/modules/mlp.html">pfhedge.nn.modules.mlp</a></li>
+<li><a href="pfhedge/nn/modules/naked.html">pfhedge.nn.modules.naked</a></li>
+<li><a href="pfhedge/nn/modules/ww.html">pfhedge.nn.modules.ww</a></li>
+<li><a href="pfhedge/stochastic/brownian.html">pfhedge.stochastic.brownian</a></li>
+</ul>
+      </article>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+
+        <div class="related-information">
+              Copyright &#169; 2021, Shota Imaki
+            |
+            Built with <a href="https://www.sphinx-doc.org/">Sphinx</a>
+              and
+              <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+              <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </main>
+</div>
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/scripts/main.js?digest=e931d09b2a40c1bb82b542effe772014573baf67"></script></body>
+</html>
