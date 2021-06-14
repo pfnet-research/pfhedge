@@ -65,7 +65,8 @@ class EntropicRiskMeasure(HedgeLoss):
 
     .. math ::
 
-        \\text{loss}(\\text{pnl}) = \\frac{1}{a} \\log(- E[u(\\text{pnl})]) \,,
+        \\text{loss}(\\text{pnl}) = \\frac{1}{a}
+        \\log(- \\mathrm{E}[u(\\text{pnl})]) \,,
         \\quad
         u(x) = -\\exp(-a x) \,.
 
@@ -126,7 +127,7 @@ class EntropicLoss(HedgeLoss):
 
     .. math ::
 
-        \\text{loss}(\\text{pnl}) = -E[u(\\text{pnl})] \\,,
+        \\text{loss}(\\text{pnl}) = -\\mathrm{E}[u(\\text{pnl})] \\,,
         \\quad
         u(x) = -\\exp(-a x) \,.
 
@@ -187,7 +188,7 @@ class IsoelasticLoss(HedgeLoss):
 
     .. math ::
 
-        \\text{loss}(\\text{pnl}) = -E[u(\\text{pnl})] \,,
+        \\text{loss}(\\text{pnl}) = -\\mathrm{E}[u(\\text{pnl})] \,,
         \\quad
         u(x) = \\begin{cases}
         x^{1 - a} & a \\neq 1 \\\\
@@ -281,31 +282,31 @@ class OCE(HedgeLoss):
 
     The certainty equivalent is given by:
 
-        loss(X, w) = w - E[u(X + w)]
+    .. math ::
+
+        \\text{loss}(X, w) = w - \\mathrm{E}[u(X + w)]
 
     Minimization of loss gives the optimized certainty equivalent.
 
-        rho_u(X) = inf_w loss(X, w)
+    .. math ::
 
-    Parameters
-    ----------
-    - utility : torch.autograd.Function
-        Utility function.
+        \\rho_u(X) = \\inf_w \\text{loss}(X, w)
 
-    Attributes
-    ----------
-    - w : torch.nn.Parameter
-        Wealth.
+    Args:
+        utility (`torch.autograd.Function`): Utility function.
 
-    Examples
-    --------
-    >>> _ = torch.manual_seed(42)
-    >>> m = OCE(lambda x: 1 - torch.exp(-x))
-    >>> pnl = torch.randn(10)
-    >>> m(pnl)
-    tensor(0.0855, grad_fn=<SubBackward0>)
-    >>> m.cash(pnl)
-    tensor(-0.0821)
+    Attributes:
+        w (torch.nn.Parameter): Represents wealth.
+
+    Examples:
+
+        >>> _ = torch.manual_seed(42)
+        >>> m = OCE(lambda x: 1 - torch.exp(-x))
+        >>> pnl = torch.randn(10)
+        >>> m(pnl)
+        tensor(0.0855, grad_fn=<SubBackward0>)
+        >>> m.cash(pnl)
+        tensor(-0.0821)
     """
 
     def __init__(self, utility):

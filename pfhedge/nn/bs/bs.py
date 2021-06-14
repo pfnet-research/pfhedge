@@ -42,11 +42,11 @@ class BlackScholes(torch.nn.Module):
         BSEuropeanOption()
         >>> m.features()
         ['log_moneyness', 'expiry_time', 'volatility']
-        >>> x = torch.tensor([
+        >>> input = torch.tensor([
         ...     [-0.01, 0.1, 0.2],
         ...     [ 0.00, 0.1, 0.2],
         ...     [ 0.01, 0.1, 0.2]])
-        >>> m(x)
+        >>> m(input)
         tensor([[0.4497],
                 [0.5126],
                 [0.5752]])
@@ -61,11 +61,11 @@ class BlackScholes(torch.nn.Module):
         BSLookbackOption(strike=1.03)
         >>> m.features()
         ['log_moneyness', 'max_log_moneyness', 'expiry_time', 'volatility']
-        >>> x = torch.tensor([
+        >>> input = torch.tensor([
         ...     [-0.01, -0.01, 0.1, 0.2],
         ...     [ 0.00,  0.00, 0.1, 0.2],
         ...     [ 0.01,  0.01, 0.1, 0.2]])
-        >>> m(x)
+        >>> m(input)
         tensor([[0.9208],
                 [1.0515],
                 [1.0515]])
