@@ -70,7 +70,6 @@ dtype=torch.float64, device='cuda:0')
         params.append(f"dt={self.dt:.2e}")
         params += self.dinfo
         return self.__class__.__name__ + "(" + ", ".join(params) + ")"
-
     def simulate(
         self, time_horizon: float, n_paths: int = 1, init_price: float = 1.0
     ) -> None:
