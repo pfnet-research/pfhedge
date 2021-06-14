@@ -32,7 +32,7 @@ class LookbackOption(Derivative):
 
     Args:
         underlier (:class:`Primary`): The underlying instrument of the option.
-        call (bool, default=True): Specify whether the option is call or put.
+        call (bool, default=True): Specifies whether the option is call or put.
         strike (float, default=1.0): The strike price of the option.
         maturity (float, default=30/365): The maturity of the option.
         dtype (torch.device, optional): Desired device of returned tensor.

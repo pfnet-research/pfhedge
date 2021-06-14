@@ -11,11 +11,11 @@ class BSEuropeanBinaryOption(BSModuleMixin):
     Args:
         derivative (:class:`pfhedge.instruments.EuropeanBinaryOption`. optional):
             The derivative to get the Black-Scholes formula.
-        call (bool, default=True): Specify whether the option is call or put.
+        call (bool, default=True): Specifies whether the option is call or put.
         strike (float, default=1.0): The strike price of the option.
 
     Shape:
-        - Input: :math:`(N, *, 3)`, where `*` means any number of additional dimensions.
+        - Input: :math:`(N, *, 3)`, where :math:`*` means any number of additional dimensions.
           See `features()` for input features.
         - Output: :math:`(N, *, 1)` Delta of the derivative.
           All but the last dimension are the same shape as the input.
@@ -33,11 +33,11 @@ class BSEuropeanBinaryOption(BSModuleMixin):
         >>> m = BSEuropeanBinaryOption(strike=1.0)
         >>> m.features()
         ['log_moneyness', 'expiry_time', 'volatility']
-        >>> x = torch.tensor([
+        >>> input = torch.tensor([
         ...     [-0.01, 0.1, 0.2],
         ...     [ 0.00, 0.1, 0.2],
         ...     [ 0.01, 0.1, 0.2]])
-        >>> m(x)
+        >>> m(input)
         tensor([[6.2576],
                 [6.3047],
                 [6.1953]])

@@ -11,12 +11,12 @@ class BSAmericanBinaryOption(BSModuleMixin):
     Args:
         derivative (:class:`pfhedge.instruments.AmericanBinaryOption`, optional):
             The derivative to get the Black-Scholes formula.
-        call (bool, default=True): Specify whether the option is call
+        call (bool, default=True): Specifies whether the option is call
             or put.
         strike (float, default=1.0): The strike price of the option.
 
     Shape:
-        - Input: :math:`(N, *, 4)`, where `*` means any number of additional
+        - Input: :math:`(N, *, 4)`, where :math:`*` means any number of additional
           dimensions. See `features()` for input features.
         - Output: :math:`(N, *, 1)`. Delta of the derivative.
           All but the last dimension are the same shape as the input.
@@ -34,11 +34,11 @@ class BSAmericanBinaryOption(BSModuleMixin):
         >>> m = BSAmericanBinaryOption(strike=1.0)
         >>> m.features()
         ['log_moneyness', 'max_log_moneyness', 'expiry_time', 'volatility']
-        >>> x = torch.tensor([
+        >>> input = torch.tensor([
         ...     [-0.01, -0.01, 0.1, 0.2],
         ...     [ 0.00,  0.00, 0.1, 0.2],
         ...     [ 0.01,  0.01, 0.1, 0.2]])
-        >>> m(x)
+        >>> m(input)
         tensor([[1.1285],
                 [0.0000],
                 [0.0000]])
@@ -54,7 +54,7 @@ class BSAmericanBinaryOption(BSModuleMixin):
         BSAmericanBinaryOption(strike=1.1)
     """
 
-    def __init__(self, derivative=None, call: bool = True, strike: bool = 1.0):
+    def __init__(self, derivative=None, call: bool = True, strike: float = 1.0):
         super().__init__()
 
         if derivative is not None:

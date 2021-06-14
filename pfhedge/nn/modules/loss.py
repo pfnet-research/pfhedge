@@ -22,7 +22,8 @@ class HedgeLoss(torch.nn.Module, ABC):
             input (torch.Tensor): The distribution of the profit and loss.
 
         Shape:
-            - Input: :math:`(N, *)` where, `*` means any number of additional dimensions.
+            - Input: :math:`(N, *)` where, :math:`*` means any number of additional
+              dimensions.
             - Output: :math:`(*)`
 
         Returns:
@@ -47,7 +48,8 @@ class HedgeLoss(torch.nn.Module, ABC):
             input (torch.Tensor): The distribution of the profit and loss.
 
         Shape:
-            - Input: :math:`(N, *)` where, `*` means any number of additional dimensions.
+            - Input: :math:`(N, *)` where, :math:`*` means any number of additional
+              dimensions.
             - Output: :math:`(*)`
 
         Returns:
@@ -166,7 +168,11 @@ class EntropicLoss(HedgeLoss):
 
         Args:
             input (torch.Tensor): The distribution of the profit and loss.
-                Here, `*` means any number of additional dimensions.
+
+        Shape:
+            - Input: :math:`(N, *)`, where :math:`*` means any number of additional
+            dimensions.
+            - Output: :math:`(*)`
 
         Returns:
             torch.Tensor

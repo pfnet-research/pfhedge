@@ -16,7 +16,7 @@ class WhalleyWilmott(torch.nn.Module):
         a (float, default=1.0): Risk aversion parameter in exponential utility.
 
     Shape:
-        - Input: :math:`(N, *, H_{\\text{in}})`.  Here, `*` means any number of
+        - Input: :math:`(N, *, H_{\\text{in}})`.  Here, :math:`*` means any number of
           additional dimensions and `H_in` is the number of input features.
           See `features()` for input features.
         - Output: :math:`(N, *, 1)`. The hedge ratio at the next time step.

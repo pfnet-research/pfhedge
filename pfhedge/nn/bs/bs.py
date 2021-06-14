@@ -20,7 +20,7 @@ class BlackScholes(torch.nn.Module):
             The derivative to get the Black-Scholes formula.
 
     Shape:
-        - Input : :math:`(N, *, H_{\\mathrm{in}})`, where `*` means any number of
+        - Input : :math:`(N, *, H_{\\mathrm{in}})`, where :math:`*` means any number of
           additional dimensions and :math:`H_{\\mathrm{in}}` is the number of input
           features. See `features()` for input features.
         - Output : :math:`(N, *, 1)`. All but the last dimension are the same shape

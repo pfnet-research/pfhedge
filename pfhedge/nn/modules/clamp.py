@@ -109,7 +109,7 @@ class Clamp(torch.nn.Module):
         \\text{output} = \\frac12 (\\min + \\max)
 
     Shape:
-        - input: :math:`(N, *)` where :math:`*` means any number of additional
+        - input: :math:`(N, *)`, where :math:`*` means any number of additional
           dimensions.
         - min: :math:`(N, *)`
         - max: :math:`(N, *)`
