@@ -1,6 +1,7 @@
 import abc
 
 import torch
+from torch import Tensor
 
 
 class Instrument(abc.ABC):
@@ -64,17 +65,16 @@ class Primary(Instrument):
 
     A primary instrument is a basic financial instrument which is traded on a market
     and therefore the price is accessible as the market price.
-
     Examples include stocks, bonds, commodities, and currencies.
 
     Derivatives are issued based on primary instruments
-    (See `Derivative` class for details).
+    (See :class:`Derivative` for details).
 
     Attributes:
-        prices (Tensor): The prices of the instrument.
-            This attribute is supposed to set by a method `simulate()`.
-            Shape is (N_STEPS, N_PATHS) where `N_STEPS` is the number of time steps
-            and `N_PATHS` is the number of simulated paths.
+        prices (torch.Tensor): The prices of the instrument.
+            This attribute is supposed to be set by a method `simulate()`.
+            Shape is :math:`(T, N)` where :math:`T` is the number of time steps
+            and :math:`N` is the number of simulated paths.
     """
 
     @abc.abstractmethod
@@ -126,14 +126,13 @@ class Derivative(Instrument):
     a primary instrument (or a set of primary instruments).
     A (over-the-counter) derivative is not traded on the market and therefore the price
     is not directly accessible.
-
     Examples include options and swaps.
 
-    A derivative relies on primary assets (See `Primary` for details), such as
+    A derivative relies on primary assets (See :class:`Primary` for details), such as
     stocks, bonds, commodities, and currencies.
 
     Attributes:
-        underlier (:class:Primary): The underlying asset on which the derivative's
+        underlier (:class:`Primary`): The underlying asset on which the derivative's
             payoff relies.
     """
 
@@ -152,43 +151,34 @@ class Derivative(Instrument):
         """
         Simulates time series of the underlier's prices.
 
-        Parameters
-        ----------
-        - n_paths : int
-            The number of paths to simulate.
-        - init_price : float
-            The initial value of the prices.
+        Args:
+            n_paths (int): The number of paths to simulate.
+            init_price (float): The initial value of the prices.
         """
         self.underlier.simulate(
             time_horizon=self.maturity, n_paths=n_paths, init_price=init_price, **kwargs
         )
 
     def to(self, *args, **kwargs):
-        """
-        Performs dtype and/or device conversion of the underlier.
+        """Performs dtype and/or device conversion of the time series of the prices.
 
-        Parameters
-        ----------
-        - dtype : torch.dtype
-            Desired floating point type of the floating point values
-            of simulated time series.
-        - device : torch.device
-            Desired device of the values of simulated time series.
+        Args:
+            dtype (torch.dtype): Desired floating point type of the floating point
+                values of simulated time series.
+            device (torch.device): Desired device of the values of simulated time
+                series.
 
-        Returns
-        -------
-        self
+        Returns:
+            self
         """
         self.underlier.to(*args, **kwargs)
         return self
 
     @abc.abstractmethod
-    def payoff(self) -> torch.Tensor:
-        """
-        Returns the payoffs of the derivative.
+    def payoff(self) -> Tensor:
+        """Returns the payoffs of the derivative.
         The payoffs is computed based on the prices of `underlier`.
 
-        Returns
-        -------
-        payoff : Tensor, shape (N_PATHS,)
+        Returns:
+            torch.Tensor
         """

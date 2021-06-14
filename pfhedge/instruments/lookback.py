@@ -34,7 +34,7 @@ class LookbackOption(Derivative):
         underlier (:class:`Primary`): The underlying instrument of the option.
         call (bool, default=True): Specify whether the option is call or put.
         strike (float, default=1.0): The strike price of the option.
-        maturity (float, default 30/365): The maturity of the option.
+        maturity (float, default=30/365): The maturity of the option.
         dtype (torch.device, optional): Desired device of returned tensor.
             Default: If None, uses a global default (see `torch.set_default_tensor_type()`).
         device (torch.device, optional): Desired device of returned tensor.
@@ -47,7 +47,7 @@ class LookbackOption(Derivative):
 
         >>> import torch
         >>> from pfhedge.instruments import BrownianStock
-
+        >>> from pfhedge.instruments import LookbackOption
         >>> _ = torch.manual_seed(42)
         >>> deriv = LookbackOption(BrownianStock(), maturity=5 / 365)
         >>> deriv.simulate(n_paths=2)

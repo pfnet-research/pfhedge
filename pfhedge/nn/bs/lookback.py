@@ -9,31 +9,48 @@ class BSLookbackOption(BSModuleMixin):
     """Black-Scholes formula for a lookback option with a fixed strike.
 
     Args:
-        derivative (:class:`LookbackOption`): The derivative to get
-            the Black-Scholes formula.
+        derivative (:class:`pfhedge.instruments.LookbackOption`, optional):
+            The derivative to get the Black-Scholes formula.
         call (bool, default=True): Specify whether the option is call or put.
         strike (float, default=1.0): The strike price of the option.
 
     Shape:
+        - Input: :math:`(N, *, 4)`, where `*` means any number of additional
+          dimensions.  See `features()` for input features.
+        - Output: :math:`(N, *, 1)`. Delta of the derivative.
+          All but the last dimension are the same shape as the input.
 
-    - Input: :math:`(N, *, 4)`. Here, `*` means any number of additional dimensions.
-      See `features()` for input features.
-    - Output: :math:`(N, *, 1)`. Delta of the derivative.
-      All but the last dimension are the same shape as the input.
+    .. seealso ::
 
-    Examples
-    --------
-    >>> m = BSLookbackOption()
-    >>> m.features()
-    ['log_moneyness', 'max_log_moneyness', 'expiry_time', 'volatility']
-    >>> x = torch.tensor([
-    ...     [-0.01, -0.01, 0.1, 0.2],
-    ...     [ 0.00,  0.00, 0.1, 0.2],
-    ...     [ 0.01,  0.01, 0.1, 0.2]])
-    >>> m(x)
-    tensor([[0.9208],
-            [1.0515],
-            [1.0515]])
+        - :class:`pfhedge.nn.BlackScholes`:
+          Initialize Black-Scholes formula module from a derivative.
+
+    Examples:
+
+        The `forward` method returns delta of the derivative.
+
+        >>> from pfhedge.nn import BSLookbackOption
+        >>> m = BSLookbackOption()
+        >>> m.features()
+        ['log_moneyness', 'max_log_moneyness', 'expiry_time', 'volatility']
+        >>> x = torch.tensor([
+        ...     [-0.01, -0.01, 0.1, 0.2],
+        ...     [ 0.00,  0.00, 0.1, 0.2],
+        ...     [ 0.01,  0.01, 0.1, 0.2]])
+        >>> m(x)
+        tensor([[0.9208],
+                [1.0515],
+                [1.0515]])
+
+        One can instantiate it using an
+        :class:`pfhedge.instruments.LookbackOption`.
+
+        >>> from pfhedge.instruments import BrownianStock
+        >>> from pfhedge.instruments import LookbackOption
+        >>> deriv = LookbackOption(BrownianStock(), strike=1.1)
+        >>> m = BSLookbackOption(deriv)
+        >>> m
+        BSLookbackOption(strike=1.1)
     """
 
     def __init__(self, derivative=None, call: bool = True, strike: float = 1.0):
@@ -72,11 +89,11 @@ class BSLookbackOption(BSModuleMixin):
         """Returns delta of the derivative.
 
         Args:
-            log_moneyness (Tensor): Log moneyness of the prices of the underlying
+            log_moneyness (torch.Tensor): Log moneyness of the prices of the underlying
                 asset.
-            max_log_moneyness (Tensor): Cumulative maximum of the log moneyness.
-            expiry_time (Tensor): Time to expiry of the option.
-            volatility (Tensor): Volatility of the underlying asset.
+            max_log_moneyness (torch.Tensor): Cumulative maximum of the log moneyness.
+            expiry_time (torch.Tensor): Time to expiry of the option.
+            volatility (torch.Tensor): Volatility of the underlying asset.
             create_graph (bool, default=False): If True, graph of the derivative
                 will be constructed. This option is used to compute gamma.
 
@@ -119,11 +136,11 @@ class BSLookbackOption(BSModuleMixin):
         """Returns gamma of the derivative.
 
         Args:
-            log_moneyness (Tensor): Log moneyness of the prices of the
+            log_moneyness (torch.Tensor): Log moneyness of the prices of the
                 underlying asset.
-            max_log_moneyness (Tensor): Cumulative maximum of the log moneyness.
-            expiry_time (Tensor): Time to expiry of the option.
-            volatility (Tensor):
+            max_log_moneyness (torch.Tensor): Cumulative maximum of the log moneyness.
+            expiry_time (torch.Tensor): Time to expiry of the option.
+            volatility (torch.Tensor):
                 Volatility of the underlying asset.
 
         Shape:
@@ -160,10 +177,10 @@ class BSLookbackOption(BSModuleMixin):
         """Returns price of the derivative.
 
         Args:
-            log_moneyness (Tensor): Log moneyness of the prices of the underlying asset.
-            max_log_moneyness (Tensor): Cumulative maximum of the log moneyness.
-            expiry_time (Tensor): Time to expiry of the option.
-            volatility (Tensor): Volatility of the underlying asset.
+            log_moneyness (torch.Tensor): Log moneyness of the prices of the underlying asset.
+            max_log_moneyness (torch.Tensor): Cumulative maximum of the log moneyness.
+            expiry_time (torch.Tensor): Time to expiry of the option.
+            volatility (torch.Tensor): Volatility of the underlying asset.
 
         Shape:
             - log_moneyness: :math:`(N, *)`
@@ -212,10 +229,10 @@ class BSLookbackOption(BSModuleMixin):
         """Returns implied volatility of the derivative.
 
         Args:
-            log_moneyness (Tensor): Log moneyness of the prices of the underlying asset.
-            max_log_moneyness (Tensor): Cumulative maximum of the log moneyness.
-            expiry_time (Tensor): Time to expiry of the option.
-            price (Tensor): Price of the derivative.
+            log_moneyness (torch.Tensor): Log moneyness of the prices of the underlying asset.
+            max_log_moneyness (torch.Tensor): Cumulative maximum of the log moneyness.
+            expiry_time (torch.Tensor): Time to expiry of the option.
+            price (torch.Tensor): Price of the derivative.
             precision (float, default=1e-6): Computational precision of the implied volatility.
 
         Shape:

@@ -16,11 +16,11 @@ class BlackScholes(torch.nn.Module):
     The `forward` method returns the Black-Scholes delta.
 
     Args:
-        derivative (:class:`Derivative`):
+        derivative (:class:`pfhedge.instruments.Derivative`):
             The derivative to get the Black-Scholes formula.
 
     Shape:
-        - Input : :math:`(N, *, H_{\\mathrm{in}})`. Here, `*` means any number of
+        - Input : :math:`(N, *, H_{\\mathrm{in}})`, where `*` means any number of
           additional dimensions and :math:`H_{\\mathrm{in}}` is the number of input
           features. See `features()` for input features.
         - Output : :math:`(N, *, 1)`. All but the last dimension are the same shape
@@ -33,9 +33,9 @@ class BlackScholes(torch.nn.Module):
         a :class:`pfhedge.instruments.EuropeanOption`.
         The `forward` method returns delta of the derivative.
 
-        >>> import torch
         >>> from pfhedge.instruments import BrownianStock
         >>> from pfhedge.instruments import EuropeanOption
+        >>> from pfhedge.nn import BlackScholes
         >>> deriv = EuropeanOption(BrownianStock())
         >>> m = BlackScholes(deriv)
         >>> m
@@ -54,8 +54,6 @@ class BlackScholes(torch.nn.Module):
         Instantiating :class:`BSLookbackOption` using a
         :class:`pfhedge.instruments.LookbackOption`.
 
-        >>> import torch
-        >>> from pfhedge.instruments import BrownianStock
         >>> from pfhedge.instruments import LookbackOption
         >>> deriv = LookbackOption(BrownianStock(), strike=1.03)
         >>> m = BlackScholes(deriv)

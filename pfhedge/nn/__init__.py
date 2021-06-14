@@ -8,6 +8,7 @@ from .modules.clamp import LeakyClamp
 from .modules.loss import EntropicLoss
 from .modules.loss import EntropicRiskMeasure
 from .modules.loss import ExpectedShortfall
+from .modules.loss import HedgeLoss
 from .modules.loss import IsoelasticLoss
 from .modules.mlp import MultiLayerPerceptron
 from .modules.naked import Naked
