@@ -48,7 +48,7 @@ class ExpiryTime(Feature):
 
 
 class Volatility(Feature):
-    """Volatility of the underlier of the derivative. """
+    """Volatility of the underlier of the derivative."""
 
     def __str__(self):
         return "volatility"
