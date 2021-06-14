@@ -73,6 +73,16 @@ autodoc_typehints = "none"
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 html_theme = "furo"
+html_theme_options = {
+    "light_css_variables": {
+        "color-brand-primary": "#0D318F",
+        "color-brand-content": "#0D318F",
+    },
+    "dark_css_variables": {
+        "color-brand-primary": "#0D318F",
+        "color-brand-content": "#0D318F",
+    },
+}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,

@@ -6,7 +6,7 @@ pfhedge.nn.functional
 
 .. currentmodule:: pfhedge.nn.functional
 
-Payoff functions
+Payoff Functions
 ----------------
 
 .. autofunction:: european_payoff
@@ -14,14 +14,14 @@ Payoff functions
 .. autofunction:: american_binary_payoff
 .. autofunction:: european_binary_payoff
 
-Utility functions
+Utility Functions
 -----------------
 
 .. autofunction:: exp_utility
 .. autofunction:: isoelastic_utility
 .. autofunction:: expected_shortfall
 
-Other functions
+Other Functions
 -----------------
 
 .. autofunction:: leaky_clamp

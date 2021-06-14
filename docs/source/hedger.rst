@@ -1,18 +1,15 @@
-.. currentmodule:: torch
+.. role:: hidden
+    :class: hidden-section
 
 pfhedge.Hedger
 ==============
 
 A :class:`pfhedge.Hedger` is a module to hedge and price derivatives.
 
+.. currentmodule:: pfhedge
+
 Hedger class reference
 ----------------------
 
-.. class:: Hedger()
-
-.. autosummary::
-    :toctree: generated
-    :nosignatures:
-
-    Hedger.__init__
-    Hedger.forward
+.. autoclass:: Hedger
+   :members:

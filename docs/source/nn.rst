@@ -4,11 +4,14 @@
 pfhedge.nn
 ==========
 
-These are the basic building blocks for graphs:
+`pfhedge.nn` provides `torch.nn.Module` that are useful for Deep Hedging.
+
+See `PyTorch Documentation <https://pytorch.org/docs/stable/generated/torch.nn.Module.html>`_
+for general usage of `torch.nn.Module`.
 
 .. currentmodule:: pfhedge
 
-Black-Scholes layers
+Black-Scholes Layers
 --------------------
 
 .. autosummary::
@@ -22,7 +25,7 @@ Black-Scholes layers
     nn.BSEuropeanBinaryOption
     nn.BSLookbackOption
 
-Whalley-Wilmott layers
+Whalley-Wilmott Layers
 ----------------------
 
 .. autosummary::
@@ -51,6 +54,7 @@ Loss Functions
     :nosignatures:
     :template: classtemplate.rst
 
+    nn.HedgeLoss
     nn.EntropicLoss
     nn.EntropicRiskMeasure
     nn.ExpectedShortfall
@@ -66,7 +70,7 @@ Multi Layer Perceptron
 
     nn.MultiLayerPerceptron
 
-Other layers
+Other Layers
 ------------
 
 .. autosummary::
