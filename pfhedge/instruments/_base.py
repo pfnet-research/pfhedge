@@ -17,7 +17,7 @@ class Instrument(abc.ABC):
     def to(self, *args, **kwargs):
         """Performs dtype and/or device conversion of the time series of prices.
 
-        Parameters:
+        Args:
             dtype (torch.dtype): Desired floating point type of the floating point
                 values of simulated time series.
             device (torch.device): Desired device of the values of simulated time

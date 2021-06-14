@@ -3,10 +3,12 @@ from copy import deepcopy
 import torch
 from torch.nn import Identity
 from torch.nn import LazyLinear
+from torch.nn import Module
 from torch.nn import ReLU
+from torch.nn import Sequential
 
 
-class MultiLayerPerceptron(torch.nn.ModuleList):
+class MultiLayerPerceptron(Sequential):
     """A feed-forward neural network.
 
     Number of input features is lazily determined.
@@ -14,7 +16,8 @@ class MultiLayerPerceptron(torch.nn.ModuleList):
     Args:
         out_features (int, default=1): Size of each output sample.
         n_layers (int, default=4): Number of hidden layers.
-        n_units (int, default=32): Number of units in each hidden layer.
+        n_units (int or tuple[int], default=32): Number of units in each hidden layer.
+            If `tuple[int]`, it specifies different number of units for each layer.
         activation (torch.nn.Module, default=torch.nn.ReLU()):
             Activation module of the hidden layers.
         out_activation (torch.nn.Module, default=torch.nn.Identity()):
@@ -30,6 +33,7 @@ class MultiLayerPerceptron(torch.nn.ModuleList):
 
     Examples:
 
+        >>> from pfhedge.nn import MultiLayerPerceptron
         >>> m = MultiLayerPerceptron()
         >>> _ = m(torch.empty((1, 2)))  # lazily determine the number of input features
         >>> m
@@ -50,26 +54,37 @@ class MultiLayerPerceptron(torch.nn.ModuleList):
         tensor([[...],
                 [...],
                 [...]], grad_fn=<AddmmBackward>)
+
+        Specify different number of layers for each layer:
+
+        >>> m = MultiLayerPerceptron(n_layers=2, n_units=(16, 32))
+        >>> _ = m(torch.empty(1, 1))
+        >>> m
+        MultiLayerPerceptron(
+          (0): Linear(in_features=1, out_features=16, bias=True)
+          (1): ReLU()
+          (2): Linear(in_features=16, out_features=32, bias=True)
+          (3): ReLU()
+          (4): Linear(in_features=32, out_features=1, bias=True)
+          (5): Identity()
+        )
     """
 
     def __init__(
         self,
-        out_features=1,
-        n_layers=4,
+        out_features: int = 1,
+        n_layers: int = 4,
         n_units=32,
-        activation=ReLU(),
-        out_activation=Identity(),
+        activation: Module = ReLU(),
+        out_activation: Module = Identity(),
     ):
-        super().__init__()
+        n_units = (n_units,) * n_layers if isinstance(n_units, int) else n_units
 
-        for _ in range(n_layers):
-            self.append(LazyLinear(n_units))
-            self.append(deepcopy(activation))
-        self.append(LazyLinear(out_features))
-        self.append(deepcopy(out_activation))
+        layers = []
+        for i in range(n_layers):
+            layers.append(LazyLinear(n_units[i]))
+            layers.append(deepcopy(activation))
+        layers.append(LazyLinear(out_features))
+        layers.append(deepcopy(out_activation))
 
-    def forward(self, input):
-        x = input
-        for layer in self:
-            x = layer(x)
-        return x
+        super().__init__(*layers)

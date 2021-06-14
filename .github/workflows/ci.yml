@@ -71,11 +71,9 @@ jobs:
 
     - uses: actions/setup-python@v2
 
-    - name: Lint (black)
-      uses: psf/black@21.5b1
+    - uses: psf/black@21.5b1
 
-    - name: Format (isort)
-      uses: jamescurtin/isort-action@master
+    - uses: jamescurtin/isort-action@master
       with:
         configuration: --check-only --diff --force-single-line
 
@@ -95,16 +93,11 @@ jobs:
 
     - uses: actions/setup-python@v2
 
-    - name: Format (black)
-      uses: psf/black@21.5b1
+    - uses: psf/black@21.5b1
       with:
         options: '--skip-magic-trailing-comma'
 
-    - name: Format (black)
-      run: python -m pip install black && black .
-
-    - name: Format (isort)
-      uses: jamescurtin/isort-action@master
+    - uses: jamescurtin/isort-action@master
       with:
         configuration: '--force-single-line'
 
