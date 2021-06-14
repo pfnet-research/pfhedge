@@ -5,76 +5,71 @@ from .clamp import Clamp
 
 
 class WhalleyWilmott(torch.nn.Module):
-    """
-    Initialize Whalley-Wilmott's hedging strategy of a derivative.
+    """Initialize Whalley-Wilmott's hedging strategy of a derivative.
+
     The `forward` method returns the next hedge ratio.
 
     This is the optimal hedging strategy for asymptotically small transaction cost.
 
-    See:
-    Whalley, A.E. and Wilmott, P., An asymptotic analysis of an optimal hedging model
-    for option pricing with transaction costs. Mathematical Finance, 1997, 7, 307–324.
+    Args:
+        derivative (:class:`pfhedge.instruments.Derivative`): Derivative to hedge.
+        a (float, default=1.0): Risk aversion parameter in exponential utility.
 
-    Parameters
-    ----------
-    - derivative : Derivative
-        Derivative to hedge.
-    - a : float, default 1.0
-        Risk aversion parameter in exponential utility.
+    Shape:
+        - Input: :math:`(N, *, H_{\\text{in}})`.  Here, `*` means any number of
+          additional dimensions and `H_in` is the number of input features.
+          See `features()` for input features.
+        - Output: :math:`(N, *, 1)`. The hedge ratio at the next time step.
 
-    Shape
-    -----
-    Input : (N, *, H_in)
-        See `features()` for input features.
-        Here, `*` means any number of additional dimensions and `H_in` is
-        the number of input features.
-    Output : (N, *, 1)
-        The hedge ratio at the next time step.
+    Examples:
 
-    Examples
-    --------
-    >>> from pfhedge.instruments import BrownianStock
-    >>> from pfhedge.instruments import EuropeanOption
-    >>> from pfhedge.instruments import LookbackOption
+        An example for :class:`pfhedge.instruments.EuropeanOption`.
 
-    European option:
-    >>> deriv = EuropeanOption(BrownianStock(cost=1e-5))
-    >>> m = WhalleyWilmott(deriv)
-    >>> m.features()
-    ['log_moneyness', 'expiry_time', 'volatility', 'prev_hedge']
-    >>> input = torch.tensor([
-    ...     [-0.05, 0.1, 0.2, 0.5],
-    ...     [-0.01, 0.1, 0.2, 0.5],
-    ...     [ 0.00, 0.1, 0.2, 0.5],
-    ...     [ 0.01, 0.1, 0.2, 0.5],
-    ...     [ 0.05, 0.1, 0.2, 0.5]])
-    >>> m(input)
-    tensor([[0.2946],
-            [0.5000],
-            [0.5000],
-            [0.5000],
-            [0.7284]])
+        >>> from pfhedge.nn import WhalleyWilmott
+        >>> from pfhedge.instruments import BrownianStock
+        >>> from pfhedge.instruments import EuropeanOption
+        >>> deriv = EuropeanOption(BrownianStock(cost=1e-5))
+        >>> m = WhalleyWilmott(deriv)
+        >>> m.features()
+        ['log_moneyness', 'expiry_time', 'volatility', 'prev_hedge']
+        >>> input = torch.tensor([
+        ...     [-0.05, 0.1, 0.2, 0.5],
+        ...     [-0.01, 0.1, 0.2, 0.5],
+        ...     [ 0.00, 0.1, 0.2, 0.5],
+        ...     [ 0.01, 0.1, 0.2, 0.5],
+        ...     [ 0.05, 0.1, 0.2, 0.5]])
+        >>> m(input)
+        tensor([[0.2946],
+                [0.5000],
+                [0.5000],
+                [0.5000],
+                [0.7284]])
 
-    European option with zero cost:
-    >>> deriv = EuropeanOption(BrownianStock())
-    >>> m = WhalleyWilmott(deriv)
-    >>> m.features()
-    ['log_moneyness', 'expiry_time', 'volatility', 'prev_hedge']
-    >>> input = torch.tensor([
-    ...     [-0.05, 0.1, 0.2, 0.5],
-    ...     [-0.01, 0.1, 0.2, 0.5],
-    ...     [ 0.00, 0.1, 0.2, 0.5],
-    ...     [ 0.01, 0.1, 0.2, 0.5],
-    ...     [ 0.05, 0.1, 0.2, 0.5]])
-    >>> m(input)
-    tensor([[0.2239],
-            [0.4497],
-            [0.5126],
-            [0.5752],
-            [0.7945]])
+        An example for :class:`pfhedge.instruments.EuropeanOption` without cost.
+
+        >>> deriv = EuropeanOption(BrownianStock())
+        >>> m = WhalleyWilmott(deriv)
+        >>> m.features()
+        ['log_moneyness', 'expiry_time', 'volatility', 'prev_hedge']
+        >>> input = torch.tensor([
+        ...     [-0.05, 0.1, 0.2, 0.5],
+        ...     [-0.01, 0.1, 0.2, 0.5],
+        ...     [ 0.00, 0.1, 0.2, 0.5],
+        ...     [ 0.01, 0.1, 0.2, 0.5],
+        ...     [ 0.05, 0.1, 0.2, 0.5]])
+        >>> m(input)
+        tensor([[0.2239],
+                [0.4497],
+                [0.5126],
+                [0.5752],
+                [0.7945]])
+
+    References:
+        - Whalley, A.E. and Wilmott, P., An asymptotic analysis of an optimal hedging model
+          for option pricing with transaction costs. Mathematical Finance, 1997, 7, 307–324.
     """
 
-    def __init__(self, derivative, a=1.0):
+    def __init__(self, derivative, a: float = 1.0):
         super().__init__()
         self.derivative = derivative
         self.a = a
@@ -94,19 +89,20 @@ class WhalleyWilmott(torch.nn.Module):
         delta = self.bs(input[..., :-1])
         width = self.width(input[..., :-1])
 
-        return self.clamp(prev_hedge, min_value=delta - width, max_value=delta + width)
+        return self.clamp(prev_hedge, min=delta - width, max=delta + width)
 
     def width(self, input) -> torch.Tensor:
-        """
-        Return half-width of the no-transaction band.
+        """Returns half-width of the no-transaction band.
 
-        Parameters
-        ----------
-        - input : Tensor, shape (N, *, H_in - 1)
+        Args:
+            input : Tensor
 
-        Returns
-        -------
-        width : Tensor, shape (N, *, 1)
+        Shape:
+            - Input: :math:`(N, *, H_{\\text{in}} - 1)`
+            - Output: :math:`(N, *, 1)`
+
+        Returns:
+            torch.Tensor
         """
         cost = self.derivative.underlier.cost
 

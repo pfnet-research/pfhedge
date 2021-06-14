@@ -1,0 +1,41 @@
+name: Doc
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - release/*
+  pull_request:
+    branches:
+      - main
+      - develop
+      - release/*
+  workflow_dispatch:
+
+jobs:
+
+  doc:
+
+    name: Doc
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - uses: actions/checkout@v2
+
+    - uses: actions/setup-python@v2
+
+    - run: pip install .
+
+    - run: pip install -r docs/requirements.txt
+
+    - run: cd docs && make html
+
+    - name: Deploy
+      uses: peaceiris/actions-gh-pages@v3
+      # if: github.ref == 'refs/heads/main'
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./docs/build/html
