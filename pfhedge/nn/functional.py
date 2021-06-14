@@ -10,7 +10,7 @@ def european_payoff(input: Tensor, call: bool = True, strike: float = 1.0) -> Te
 
     Args:
         input (torch.Tensor): The input tensor representing the price trajectory.
-        call (bool, default=True): Specify whether the option is call or put.
+        call (bool, default=True): Specifies whether the option is call or put.
         strike (float, default=1.0): The strike price of the option.
 
     Shape:
@@ -32,7 +32,7 @@ def lookback_payoff(input: Tensor, call: bool = True, strike: float = 1.0) -> Te
 
     Args:
         input (torch.Tensor): The input tensor representing the price trajectory.
-        call (bool, default=True): Specify whether the option is call or put.
+        call (bool, default=True): Specifies whether the option is call or put.
         strike (float, default=1.0): The strike price of the option.
 
     Shape:
@@ -57,7 +57,7 @@ def american_binary_payoff(
 
     Args:
         input (torch.Tensor): The input tensor representing the price trajectory.
-        call (bool, default=True): Specify whether the option is call or put.
+        call (bool, default=True): Specifies whether the option is call or put.
         strike (float, default=1.0): The strike price of the option.
 
     Shape:
@@ -82,7 +82,7 @@ def european_binary_payoff(
 
     Args:
         input (torch.Tensor): The input tensor representing the price trajectory.
-        call (bool, default=True): Specify whether the option is call or put.
+        call (bool, default=True): Specifies whether the option is call or put.
         strike (float, default=1.0): The strike price of the option.
 
     Shape:
@@ -133,7 +133,7 @@ def isoelastic_utility(input: Tensor, a: float = 0.5) -> Tensor:
 
     Args:
         input (torch.Tensor): The input tensor.
-        a (float, default=1.0): Relative risk aversion coefficient of the isoelastic
+        a (float, default=0.5): Relative risk aversion coefficient of the isoelastic
             utility.
 
     Returns:
