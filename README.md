@@ -185,7 +185,7 @@ from pfhedge.nn import BlackScholes
 deriv = EuropeanOption(BrownianStock(cost=1e-4))
 
 model = BlackScholes(deriv)
-hedger = Hedger(model, model.inputs())
+hedger = Hedger(model, inputs=model.inputs())
 ```
 
 ### Whalley-Wilmott's Asymptotically Optimal Strategy for Small Costs
@@ -202,7 +202,7 @@ from pfhedge.nn import WhalleyWilmott
 deriv = EuropeanOption(BrownianStock(cost=1e-4))
 
 model = WhalleyWilmott(deriv)
-hedger = Hedger(model, model.inputs())
+hedger = Hedger(model, inputs=model.inputs())
 ```
 
 ### Your Own Module
@@ -240,7 +240,7 @@ class NoTransactionBandNet(torch.nn.Module):
         lower = delta - fn.leaky_relu(width[:, [0]])
         upper = delta + fn.leaky_relu(width[:, [1]])
 
-        return self.clamp(prev_hedge, min_value=lower, max_value=upper)
+        return self.clamp(prev_hedge, min=lower, max=upper)
 
 
 model = NoTransactionBandNet()
