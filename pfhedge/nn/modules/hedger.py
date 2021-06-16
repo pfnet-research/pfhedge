@@ -115,10 +115,7 @@ class Hedger(Module):
     """
 
     def __init__(
-        self,
-        model: Module,
-        inputs: list,
-        criterion: HedgeLoss = EntropicRiskMeasure(),
+        self, model: Module, inputs: list, criterion: HedgeLoss = EntropicRiskMeasure()
     ):
         super().__init__()
 
