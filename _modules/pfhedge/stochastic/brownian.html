@@ -171,11 +171,11 @@
 
 
 <div class="viewcode-block" id="generate_brownian"><a class="viewcode-back" href="../../../stochastic.html#pfhedge.stochastic.generate_brownian">[docs]</a><span class="k">def</span> <span class="nf">generate_brownian</span><span class="p">(</span>
-    <span class="n">n_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">n_paths</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">n_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">init_value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
     <span class="n">volatility</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
-    <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="mi">365</span><span class="p">,</span>
+    <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">250</span><span class="p">,</span>
     <span class="n">dtype</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">dtype</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">device</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
@@ -184,11 +184,11 @@
 <span class="sd">    The drift of the time series is assumed to be vanishing.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        n_steps (int): The number of time steps.</span>
 <span class="sd">        n_paths (int): The number of simulated paths.</span>
+<span class="sd">        n_steps (int): The number of time steps.</span>
 <span class="sd">        init_value (float, default=0.0): The initial value of the time series.</span>
 <span class="sd">        volatility (float, default=0.2): The volatility of the Brownian motion.</span>
-<span class="sd">        dt (float, default=1/365): The intervals of the time steps.</span>
+<span class="sd">        dt (float, default=1/250): The intervals of the time steps.</span>
 <span class="sd">        dtype (torch.dtype, optional): The desired data type of returned tensor.</span>
 <span class="sd">            Default: If `None`, uses a global default</span>
 <span class="sd">            (see `torch.set_default_tensor_type()`).</span>
@@ -199,8 +199,8 @@
 <span class="sd">            for CUDA tensor types.</span>
 
 <span class="sd">    Shape:</span>
-<span class="sd">        - Output: :math:`(T, N)`, where :math:`T` is the number of time steps and</span>
-<span class="sd">          :math:`N` is the number of paths.</span>
+<span class="sd">        - Output: :math:`(N, T)`, where :math:`N` is the number of paths and</span>
+<span class="sd">          :math:`T` is the number of time steps.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        torch.Tensor</span>
@@ -208,24 +208,21 @@
 <span class="sd">    Examples:</span>
 
 <span class="sd">        &gt;&gt;&gt; _ = torch.manual_seed(42)</span>
-<span class="sd">        &gt;&gt;&gt; generate_brownian(5, 2)</span>
-<span class="sd">        tensor([[ 0.0000,  0.0000],</span>
-<span class="sd">                [ 0.0025,  0.0024],</span>
-<span class="sd">                [-0.0093,  0.0005],</span>
-<span class="sd">                [ 0.0138, -0.0062],</span>
-<span class="sd">                [ 0.0186, -0.0034]])</span>
+<span class="sd">        &gt;&gt;&gt; generate_brownian(2, 5)</span>
+<span class="sd">        tensor([[ 0.0000,  0.0016,  0.0046,  0.0075, -0.0067],</span>
+<span class="sd">                [ 0.0000,  0.0279,  0.0199,  0.0257,  0.0291]])</span>
 <span class="sd">    """</span>
-    <span class="n">randn</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">((</span><span class="n">n_steps</span><span class="p">,</span> <span class="n">n_paths</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
-    <span class="n">randn</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
-    <span class="k">return</span> <span class="n">init_value</span> <span class="o">+</span> <span class="n">volatility</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">randn</span><span class="p">)</span><span class="o">.</span><span class="n">sqrt</span><span class="p">()</span> <span class="o">*</span> <span class="n">randn</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
+    <span class="n">randn</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">((</span><span class="n">n_paths</span><span class="p">,</span> <span class="n">n_steps</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+    <span class="n">randn</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">return</span> <span class="n">init_value</span> <span class="o">+</span> <span class="n">volatility</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">randn</span><span class="p">)</span><span class="o">.</span><span class="n">sqrt</span><span class="p">()</span> <span class="o">*</span> <span class="n">randn</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="generate_geometric_brownian"><a class="viewcode-back" href="../../../stochastic.html#pfhedge.stochastic.generate_geometric_brownian">[docs]</a><span class="k">def</span> <span class="nf">generate_geometric_brownian</span><span class="p">(</span>
-    <span class="n">n_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">n_paths</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">n_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">init_value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
     <span class="n">volatility</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
-    <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="mi">365</span><span class="p">,</span>
+    <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">250</span><span class="p">,</span>
     <span class="n">dtype</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">dtype</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">device</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
@@ -238,7 +235,7 @@
 <span class="sd">        n_paths (int): The number of simulated paths.</span>
 <span class="sd">        init_value (float, default=0.0): The initial value of the time series.</span>
 <span class="sd">        volatility (float, default=0.2): The volatility of the Brownian motion.</span>
-<span class="sd">        dt (float, default=1/365): The intervals of the time steps.</span>
+<span class="sd">        dt (float, default=1/250): The intervals of the time steps.</span>
 <span class="sd">        dtype (torch.dtype, optional): The desired data type of returned tensor.</span>
 <span class="sd">            Default: If `None`, uses a global default</span>
 <span class="sd">            (see `torch.set_default_tensor_type()`).</span>
@@ -258,23 +255,20 @@
 <span class="sd">    Examples:</span>
 
 <span class="sd">        &gt;&gt;&gt; _ = torch.manual_seed(42)</span>
-<span class="sd">        &gt;&gt;&gt; generate_geometric_brownian(5, 2)</span>
-<span class="sd">        tensor([[1.0000, 1.0000],</span>
-<span class="sd">                [1.0024, 1.0024],</span>
-<span class="sd">                [0.9906, 1.0004],</span>
-<span class="sd">                [1.0137, 0.9936],</span>
-<span class="sd">                [1.0186, 0.9964]])</span>
+<span class="sd">        &gt;&gt;&gt; generate_geometric_brownian(2, 5)</span>
+<span class="sd">        tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930],</span>
+<span class="sd">                [1.0000, 1.0282, 1.0199, 1.0258, 1.0292]])</span>
 <span class="sd">    """</span>
     <span class="n">brownian</span> <span class="o">=</span> <span class="n">generate_brownian</span><span class="p">(</span>
-        <span class="n">n_steps</span><span class="o">=</span><span class="n">n_steps</span><span class="p">,</span>
         <span class="n">n_paths</span><span class="o">=</span><span class="n">n_paths</span><span class="p">,</span>
+        <span class="n">n_steps</span><span class="o">=</span><span class="n">n_steps</span><span class="p">,</span>
         <span class="n">init_value</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
         <span class="n">volatility</span><span class="o">=</span><span class="n">volatility</span><span class="p">,</span>
         <span class="n">dt</span><span class="o">=</span><span class="n">dt</span><span class="p">,</span>
         <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span>
         <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">t</span> <span class="o">=</span> <span class="n">dt</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_steps</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">brownian</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">dt</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_steps</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">brownian</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">init_value</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">brownian</span> <span class="o">-</span> <span class="p">(</span><span class="n">volatility</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">t</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span></div>
 </pre></div>
       </article>
@@ -286,7 +280,7 @@
         </div>
 
         <div class="related-information">
-              Copyright &#169; 2021, Shota Imaki
+              Copyright &#169; 2021, pfnet-research
             |
             Built with <a href="https://www.sphinx-doc.org/">Sphinx</a>
               and

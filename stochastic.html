@@ -171,17 +171,17 @@
 <h2>Brownian Motion<a class="headerlink" href="#brownian-motion" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
 <dt id="pfhedge.stochastic.generate_brownian">
-<code class="sig-prename descclassname"><span class="pre">pfhedge.stochastic.</span></code><code class="sig-name descname"><span class="pre">generate_brownian</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_steps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volatility</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0027397260273972603</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfhedge/stochastic/brownian.html#generate_brownian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.stochastic.generate_brownian" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">pfhedge.stochastic.</span></code><code class="sig-name descname"><span class="pre">generate_brownian</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_steps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volatility</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.004</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfhedge/stochastic/brownian.html#generate_brownian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.stochastic.generate_brownian" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns time series following the Brownian motion.</p>
 <p>The drift of the time series is assumed to be vanishing.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>n_steps</strong> (<em>int</em>) – The number of time steps.</p></li>
 <li><p><strong>n_paths</strong> (<em>int</em>) – The number of simulated paths.</p></li>
+<li><p><strong>n_steps</strong> (<em>int</em>) – The number of time steps.</p></li>
 <li><p><strong>init_value</strong> (<em>float</em><em>, </em><em>default=0.0</em>) – The initial value of the time series.</p></li>
 <li><p><strong>volatility</strong> (<em>float</em><em>, </em><em>default=0.2</em>) – The volatility of the Brownian motion.</p></li>
-<li><p><strong>dt</strong> (<em>float</em><em>, </em><em>default=1/365</em>) – The intervals of the time steps.</p></li>
+<li><p><strong>dt</strong> (<em>float</em><em>, </em><em>default=1/250</em>) – The intervals of the time steps.</p></li>
 <li><p><strong>dtype</strong> (<em>torch.dtype</em><em>, </em><em>optional</em>) – The desired data type of returned tensor.
 Default: If <cite>None</cite>, uses a global default
 (see <cite>torch.set_default_tensor_type()</cite>).</p></li>
@@ -195,8 +195,8 @@ for CUDA tensor types.</p></li>
 </dl>
 <dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
-<li><p>Output: <span class="math notranslate nohighlight">\((T, N)\)</span>, where <span class="math notranslate nohighlight">\(T\)</span> is the number of time steps and
-<span class="math notranslate nohighlight">\(N\)</span> is the number of paths.</p></li>
+<li><p>Output: <span class="math notranslate nohighlight">\((N, T)\)</span>, where <span class="math notranslate nohighlight">\(N\)</span> is the number of paths and
+<span class="math notranslate nohighlight">\(T\)</span> is the number of time steps.</p></li>
 </ul>
 </dd>
 </dl>
@@ -207,18 +207,15 @@ for CUDA tensor types.</p></li>
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">generate_brownian</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-<span class="go">tensor([[ 0.0000,  0.0000],</span>
-<span class="go">        [ 0.0025,  0.0024],</span>
-<span class="go">        [-0.0093,  0.0005],</span>
-<span class="go">        [ 0.0138, -0.0062],</span>
-<span class="go">        [ 0.0186, -0.0034]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">generate_brownian</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="go">tensor([[ 0.0000,  0.0016,  0.0046,  0.0075, -0.0067],</span>
+<span class="go">        [ 0.0000,  0.0279,  0.0199,  0.0257,  0.0291]])</span>
 </pre></div>
 </div>
 </dd></dl>
 <dl class="py function">
 <dt id="pfhedge.stochastic.generate_geometric_brownian">
-<code class="sig-prename descclassname"><span class="pre">pfhedge.stochastic.</span></code><code class="sig-name descname"><span class="pre">generate_geometric_brownian</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_steps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volatility</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0027397260273972603</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfhedge/stochastic/brownian.html#generate_geometric_brownian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.stochastic.generate_geometric_brownian" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">pfhedge.stochastic.</span></code><code class="sig-name descname"><span class="pre">generate_geometric_brownian</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_steps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volatility</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.004</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfhedge/stochastic/brownian.html#generate_geometric_brownian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.stochastic.generate_geometric_brownian" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns time series following the geometric Brownian motion.</p>
 <p>The drift of the time series is assumed to be vanishing.</p>
 <dl class="field-list simple">
@@ -228,7 +225,7 @@ for CUDA tensor types.</p></li>
 <li><p><strong>n_paths</strong> (<em>int</em>) – The number of simulated paths.</p></li>
 <li><p><strong>init_value</strong> (<em>float</em><em>, </em><em>default=0.0</em>) – The initial value of the time series.</p></li>
 <li><p><strong>volatility</strong> (<em>float</em><em>, </em><em>default=0.2</em>) – The volatility of the Brownian motion.</p></li>
-<li><p><strong>dt</strong> (<em>float</em><em>, </em><em>default=1/365</em>) – The intervals of the time steps.</p></li>
+<li><p><strong>dt</strong> (<em>float</em><em>, </em><em>default=1/250</em>) – The intervals of the time steps.</p></li>
 <li><p><strong>dtype</strong> (<em>torch.dtype</em><em>, </em><em>optional</em>) – The desired data type of returned tensor.
 Default: If <cite>None</cite>, uses a global default
 (see <cite>torch.set_default_tensor_type()</cite>).</p></li>
@@ -254,12 +251,9 @@ for CUDA tensor types.</p></li>
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">generate_geometric_brownian</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-<span class="go">tensor([[1.0000, 1.0000],</span>
-<span class="go">        [1.0024, 1.0024],</span>
-<span class="go">        [0.9906, 1.0004],</span>
-<span class="go">        [1.0137, 0.9936],</span>
-<span class="go">        [1.0186, 0.9964]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">generate_geometric_brownian</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="go">tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930],</span>
+<span class="go">        [1.0000, 1.0282, 1.0199, 1.0258, 1.0292]])</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -285,7 +279,7 @@ for CUDA tensor types.</p></li>
         </div>
 
         <div class="related-information">
-              Copyright &#169; 2021, Shota Imaki
+              Copyright &#169; 2021, pfnet-research
             |
             Built with <a href="https://www.sphinx-doc.org/">Sphinx</a>
               and

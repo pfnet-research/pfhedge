@@ -168,7 +168,7 @@
         <h1>Source code for pfhedge.nn.modules.ww</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">torch</span>
 
-<span class="kn">from</span> <span class="nn">..bs.bs</span> <span class="kn">import</span> <span class="n">BlackScholes</span>
+<span class="kn">from</span> <span class="nn">.bs.bs</span> <span class="kn">import</span> <span class="n">BlackScholes</span>
 <span class="kn">from</span> <span class="nn">.clamp</span> <span class="kn">import</span> <span class="n">Clamp</span>
 
 
@@ -186,7 +186,7 @@
 <span class="sd">    Shape:</span>
 <span class="sd">        - Input: :math:`(N, *, H_{\\text{in}})`.  Here, :math:`*` means any number of</span>
 <span class="sd">          additional dimensions and `H_in` is the number of input features.</span>
-<span class="sd">          See `features()` for input features.</span>
+<span class="sd">          See `inputs()` for the names of input features.</span>
 <span class="sd">        - Output: :math:`(N, *, 1)`. The hedge ratio at the next time step.</span>
 
 <span class="sd">    Examples:</span>
@@ -198,7 +198,7 @@
 <span class="sd">        &gt;&gt;&gt; from pfhedge.instruments import EuropeanOption</span>
 <span class="sd">        &gt;&gt;&gt; deriv = EuropeanOption(BrownianStock(cost=1e-5))</span>
 <span class="sd">        &gt;&gt;&gt; m = WhalleyWilmott(deriv)</span>
-<span class="sd">        &gt;&gt;&gt; m.features()</span>
+<span class="sd">        &gt;&gt;&gt; m.inputs()</span>
 <span class="sd">        ['log_moneyness', 'expiry_time', 'volatility', 'prev_hedge']</span>
 <span class="sd">        &gt;&gt;&gt; input = torch.tensor([</span>
 <span class="sd">        ...     [-0.05, 0.1, 0.2, 0.5],</span>
@@ -217,7 +217,7 @@
 
 <span class="sd">        &gt;&gt;&gt; deriv = EuropeanOption(BrownianStock())</span>
 <span class="sd">        &gt;&gt;&gt; m = WhalleyWilmott(deriv)</span>
-<span class="sd">        &gt;&gt;&gt; m.features()</span>
+<span class="sd">        &gt;&gt;&gt; m.inputs()</span>
 <span class="sd">        ['log_moneyness', 'expiry_time', 'volatility', 'prev_hedge']</span>
 <span class="sd">        &gt;&gt;&gt; input = torch.tensor([</span>
 <span class="sd">        ...     [-0.05, 0.1, 0.2, 0.5],</span>
@@ -245,8 +245,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">bs</span> <span class="o">=</span> <span class="n">BlackScholes</span><span class="p">(</span><span class="n">derivative</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">clamp</span> <span class="o">=</span> <span class="n">Clamp</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">bs</span><span class="o">.</span><span class="n">features</span><span class="p">()</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"prev_hedge"</span><span class="p">]</span>
+    <span class="k">def</span> <span class="nf">inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">bs</span><span class="o">.</span><span class="n">inputs</span><span class="p">()</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"prev_hedge"</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">extra_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">"a=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">a</span> <span class="o">!=</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">""</span>
@@ -289,7 +289,7 @@
         </div>
 
         <div class="related-information">
-              Copyright &#169; 2021, Shota Imaki
+              Copyright &#169; 2021, pfnet-research
             |
             Built with <a href="https://www.sphinx-doc.org/">Sphinx</a>
               and

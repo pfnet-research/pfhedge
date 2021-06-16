@@ -172,7 +172,7 @@
 <h2>Hedger class reference<a class="headerlink" href="#hedger-class-reference" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="pfhedge.Hedger">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pfhedge.</span></code><code class="sig-name descname"><span class="pre">Hedger</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criterion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">EntropicRiskMeasure()</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfhedge/hedger.html#Hedger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.Hedger" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pfhedge.</span></code><code class="sig-name descname"><span class="pre">Hedger</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criterion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">EntropicRiskMeasure()</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfhedge/nn/modules/hedger.html#Hedger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.Hedger" title="Permalink to this definition">¶</a></dt>
 <dd><p>A <cite>torch.nn.Module</cite> to hedge and price derivatives.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -182,8 +182,8 @@ next time step from the input features at the current time step.
 The input and output shapes should be <span class="math notranslate nohighlight">\((N, H_\text{in})\)</span> and
 <span class="math notranslate nohighlight">\((N, 1)\)</span> where <cite>N</cite> stands for the number of Monte Carlo paths
 of the asset prices and <cite>H_in</cite> stands for the number of input features
-(namely, <cite>H_in = len(features)</cite>).</p></li>
-<li><p><strong>features</strong> (<em>list</em><em>[</em><em>str|Feature</em><em>]</em>) – List of (names of) features to feed to model.
+(namely, <cite>H_in = len(inputs)</cite>).</p></li>
+<li><p><strong>inputs</strong> (<em>list</em><em>[</em><em>str|Feature</em><em>]</em>) – List of (names of) input features to feed to model.
 See <cite>sorted(pfhedge.features.FEATURES)</cite> for valid options.</p></li>
 <li><p><strong>criterion</strong> (<a class="reference internal" href="generated/pfhedge.nn.HedgeLoss.html#pfhedge.nn.HedgeLoss" title="pfhedge.nn.HedgeLoss"><em>HedgeLoss</em></a><em>, </em><em>default=EntropicRiskMeasure</em><em>(</em><em>)</em>) – Loss function to minimize by hedging.
 Default: <a class="reference internal" href="generated/pfhedge.nn.EntropicRiskMeasure.html#pfhedge.nn.EntropicRiskMeasure" title="pfhedge.nn.EntropicRiskMeasure"><code class="xref py py-class docutils literal notranslate"><span class="pre">pfhedge.nn.EntropicRiskMeasure()</span></code></a> .</p></li>
@@ -193,7 +193,8 @@ Default: <a class="reference internal" href="generated/pfhedge.nn.EntropicRiskMe
 <dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
 <li><p>Input: <span class="math notranslate nohighlight">\((N, H_{\text{in}})\)</span>, where, <span class="math notranslate nohighlight">\(H_{\text{in}}\)</span>
-is the number of input features. See <cite>features</cite> for input features.</p></li>
+is the number of input features. See <cite>inputs()</cite> for the names of input
+features.</p></li>
 <li><p>Output: <span class="math notranslate nohighlight">\((N, 1)\)</span>:</p></li>
 </ul>
 </dd>
@@ -205,10 +206,10 @@ is the number of input features. See <cite>features</cite> for input features.</
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">BlackScholes</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">deriv</span> <span class="o">=</span> <span class="n">EuropeanOption</span><span class="p">(</span><span class="n">BrownianStock</span><span class="p">(</span><span class="n">cost</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">BlackScholes</span><span class="p">(</span><span class="n">deriv</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">hedger</span> <span class="o">=</span> <span class="n">Hedger</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">features</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hedger</span> <span class="o">=</span> <span class="n">Hedger</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">inputs</span><span class="p">())</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hedger</span>
 <span class="go">Hedger(</span>
-<span class="go">  features=['log_moneyness', 'expiry_time', 'volatility'],</span>
+<span class="go">  inputs=['log_moneyness', 'expiry_time', 'volatility'],</span>
 <span class="go">  (model): BSEuropeanOption()</span>
 <span class="go">  (criterion): EntropicRiskMeasure()</span>
 <span class="go">)</span>
@@ -221,10 +222,10 @@ is the number of input features. See <cite>features</cite> for input features.</
 <p>Whalley-Wilmott’s no-transaction-band strategy.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">WhalleyWilmott</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">WhalleyWilmott</span><span class="p">(</span><span class="n">deriv</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">hedger</span> <span class="o">=</span> <span class="n">Hedger</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">features</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hedger</span> <span class="o">=</span> <span class="n">Hedger</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">inputs</span><span class="p">())</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hedger</span>
 <span class="go">Hedger(</span>
-<span class="go">  features=['log_moneyness', 'expiry_time', 'volatility', 'prev_hedge'],</span>
+<span class="go">  inputs=['log_moneyness', 'expiry_time', 'volatility', 'prev_hedge'],</span>
 <span class="go">  (model): WhalleyWilmott(</span>
 <span class="go">    (bs): BSEuropeanOption()</span>
 <span class="go">    (clamp): Clamp()</span>
@@ -253,7 +254,7 @@ is the number of input features. See <cite>features</cite> for input features.</
 <span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">hedger</span><span class="o">.</span><span class="n">compute_pnl</span><span class="p">(</span><span class="n">deriv</span><span class="p">,</span> <span class="n">n_paths</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># lazily derermine in_features</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hedger</span>
 <span class="go">Hedger(</span>
-<span class="go">  features=['moneyness', 'expiry_time', 'volatility'],</span>
+<span class="go">  inputs=['moneyness', 'expiry_time', 'volatility'],</span>
 <span class="go">  (model): MultiLayerPerceptron(</span>
 <span class="go">    (0): Linear(in_features=3, out_features=32, bias=True)</span>
 <span class="go">    (1): ReLU()</span>
@@ -277,7 +278,7 @@ is the number of input features. See <cite>features</cite> for input features.</
 </div>
 <dl class="py method">
 <dt id="pfhedge.Hedger.compute_loss">
-<code class="sig-name descname"><span class="pre">compute_loss</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">derivative</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_times</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_price</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_grad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfhedge/hedger.html#Hedger.compute_loss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.Hedger.compute_loss" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">compute_loss</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">derivative</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_times</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_price</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_grad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfhedge/nn/modules/hedger.html#Hedger.compute_loss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.Hedger.compute_loss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the loss of the profit and loss distribution after hedging.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -308,7 +309,7 @@ calculation to on or off.</p></li>
 </dd></dl>
 <dl class="py method">
 <dt id="pfhedge.Hedger.compute_pnl">
-<code class="sig-name descname"><span class="pre">compute_pnl</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">derivative</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_price</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfhedge/hedger.html#Hedger.compute_pnl"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.Hedger.compute_pnl" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">compute_pnl</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">derivative</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_price</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfhedge/nn/modules/hedger.html#Hedger.compute_pnl"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.Hedger.compute_pnl" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the profit and loss distribution after hedging.</p>
 <p>A hedger sells the derivative to its customer and obliges to settle the payoff
 at maturity. The dealer hedges the risk of this liability by trading
@@ -340,7 +341,7 @@ instrument of the derivative.</p></li>
 </dd></dl>
 <dl class="py method">
 <dt id="pfhedge.Hedger.fit">
-<code class="sig-name descname"><span class="pre">fit</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">derivative</span></em>, <em class="sig-param"><span class="pre">n_epochs=100</span></em>, <em class="sig-param"><span class="pre">n_paths=1000</span></em>, <em class="sig-param"><span class="pre">n_times=1</span></em>, <em class="sig-param"><span class="pre">optimizer=&lt;class</span> <span class="pre">'torch.optim.adam.Adam'&gt;</span></em>, <em class="sig-param"><span class="pre">init_price=1.0</span></em>, <em class="sig-param"><span class="pre">verbose=True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfhedge/hedger.html#Hedger.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.Hedger.fit" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">fit</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">derivative</span></em>, <em class="sig-param"><span class="pre">n_epochs=100</span></em>, <em class="sig-param"><span class="pre">n_paths=1000</span></em>, <em class="sig-param"><span class="pre">n_times=1</span></em>, <em class="sig-param"><span class="pre">optimizer=&lt;class</span> <span class="pre">'torch.optim.adam.Adam'&gt;</span></em>, <em class="sig-param"><span class="pre">init_price=1.0</span></em>, <em class="sig-param"><span class="pre">verbose=True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfhedge/nn/modules/hedger.html#Hedger.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.Hedger.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Train the hedging model to hedge the given derivative.</p>
 <p>It returns the trade history, that is, validation loss after each simulation.</p>
 <dl class="field-list simple">
@@ -395,13 +396,13 @@ standard output.</p></li>
 </dd></dl>
 <dl class="py method">
 <dt id="pfhedge.Hedger.forward">
-<code class="sig-name descname"><span class="pre">forward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfhedge/hedger.html#Hedger.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.Hedger.forward" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">forward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfhedge/nn/modules/hedger.html#Hedger.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.Hedger.forward" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the outout of <cite>model</cite>.</p>
 <p>The output is supposed to represent the hedge ratio at the next time step.</p>
 </dd></dl>
 <dl class="py method">
 <dt id="pfhedge.Hedger.price">
-<code class="sig-name descname"><span class="pre">price</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">derivative</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_times</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_price</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_grad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfhedge/hedger.html#Hedger.price"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.Hedger.price" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">price</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">derivative</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_times</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_price</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_grad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfhedge/nn/modules/hedger.html#Hedger.price"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.Hedger.price" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate the premium of the given derivative.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -461,7 +462,7 @@ calculation to on or off.</p></li>
         </div>
 
         <div class="related-information">
-              Copyright &#169; 2021, Shota Imaki
+              Copyright &#169; 2021, pfnet-research
             |
             Built with <a href="https://www.sphinx-doc.org/">Sphinx</a>
               and

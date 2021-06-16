@@ -210,7 +210,7 @@
 <span class="sd">        underlier (:class:`Primary`): The underlying instrument of the option.</span>
 <span class="sd">        call (bool, default=True): Specifies whether the option is call or put.</span>
 <span class="sd">        strike (float, default=1): The strike price of the option.</span>
-<span class="sd">        maturity (float, default=30/365): The maturity of the option.</span>
+<span class="sd">        maturity (float, default=20/250) The maturity of the option.</span>
 <span class="sd">        dtype (torch.dtype, optional): Desired device of returned tensor.</span>
 <span class="sd">            Default: If None, uses a global default (see `torch.set_default_tensor_type()`).</span>
 <span class="sd">        device (torch.device, optional): Desired device of returned tensor.</span>
@@ -225,16 +225,13 @@
 <span class="sd">        &gt;&gt;&gt; from pfhedge.instruments import BrownianStock</span>
 <span class="sd">        &gt;&gt;&gt; from pfhedge.instruments import EuropeanBinaryOption</span>
 <span class="sd">        &gt;&gt;&gt; _ = torch.manual_seed(42)</span>
-<span class="sd">        &gt;&gt;&gt; deriv = EuropeanBinaryOption(BrownianStock(), maturity=5 / 365)</span>
+<span class="sd">        &gt;&gt;&gt; deriv = EuropeanBinaryOption(BrownianStock(), maturity=5/250)</span>
 <span class="sd">        &gt;&gt;&gt; deriv.simulate(n_paths=2)</span>
 <span class="sd">        &gt;&gt;&gt; deriv.underlier.prices</span>
-<span class="sd">        tensor([[1.0000, 1.0000],</span>
-<span class="sd">                [1.0024, 1.0024],</span>
-<span class="sd">                [0.9906, 1.0004],</span>
-<span class="sd">                [1.0137, 0.9936],</span>
-<span class="sd">                [1.0186, 0.9964]])</span>
+<span class="sd">        tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930],</span>
+<span class="sd">                [1.0000, 1.0282, 1.0199, 1.0258, 1.0292]])</span>
 <span class="sd">        &gt;&gt;&gt; deriv.payoff()</span>
-<span class="sd">        tensor([1., 0.])</span>
+<span class="sd">        tensor([0., 1.])</span>
 <span class="sd">    """</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -242,7 +239,7 @@
         <span class="n">underlier</span><span class="p">,</span>
         <span class="n">call</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">strike</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
-        <span class="n">maturity</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">30</span> <span class="o">/</span> <span class="mi">365</span><span class="p">,</span>
+        <span class="n">maturity</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">20</span> <span class="o">/</span> <span class="mi">250</span><span class="p">,</span>
         <span class="n">dtype</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">dtype</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">device</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
@@ -277,7 +274,7 @@
         </div>
 
         <div class="related-information">
-              Copyright &#169; 2021, Shota Imaki
+              Copyright &#169; 2021, pfnet-research
             |
             Built with <a href="https://www.sphinx-doc.org/">Sphinx</a>
               and

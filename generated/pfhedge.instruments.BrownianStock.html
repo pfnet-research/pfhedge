@@ -169,7 +169,7 @@
 <h1>BrownianStock<a class="headerlink" href="#brownianstock" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="pfhedge.instruments.BrownianStock">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pfhedge.instruments.</span></code><code class="sig-name descname"><span class="pre">BrownianStock</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">volatility</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0027397260273972603</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/underlier.html#BrownianStock"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.BrownianStock" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pfhedge.instruments.</span></code><code class="sig-name descname"><span class="pre">BrownianStock</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">volatility</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.004</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/underlier.html#BrownianStock"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.BrownianStock" title="Permalink to this definition">¶</a></dt>
 <dd><p>A stock of which prices follow the geometric Brownian motion.</p>
 <p>The drift of the prices is assumed to be vanishing.</p>
 <dl class="field-list simple">
@@ -177,7 +177,7 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>volatility</strong> (<em>float</em><em>, </em><em>default=0.2</em>) – The volatility of the price.</p></li>
 <li><p><strong>cost</strong> (<em>float</em><em>, </em><em>default=0.0</em>) – The transaction cost rate.</p></li>
-<li><p><strong>dt</strong> (<em>float</em><em>, </em><em>default=1/365</em>) – The intervals of the time steps.</p></li>
+<li><p><strong>dt</strong> (<em>float</em><em>, </em><em>default=1/250</em>) – The intervals of the time steps.</p></li>
 <li><p><strong>dtype</strong> (<em>torch.device</em><em>, </em><em>optional</em>) – Desired device of returned tensor.
 Default: If None, uses a global default (see <cite>torch.set_default_tensor_type()</cite>).</p></li>
 <li><p><strong>device</strong> (<em>torch.device</em><em>, </em><em>optional</em>) – Desired device of returned tensor.
@@ -206,19 +206,16 @@ The shape is <span class="math notranslate nohighlight">\((T, N)\)</span>. Here,
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">BrownianStock</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span> <span class="o">=</span> <span class="n">BrownianStock</span><span class="p">(</span><span class="n">volatility</span><span class="o">=</span><span class="mf">0.20</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">time_horizon</span><span class="o">=</span><span class="mi">5</span> <span class="o">/</span> <span class="mi">365</span><span class="p">,</span> <span class="n">n_paths</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">time_horizon</span><span class="o">=</span><span class="mi">5</span> <span class="o">/</span> <span class="mi">250</span><span class="p">,</span> <span class="n">n_paths</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span><span class="o">.</span><span class="n">prices</span>
-<span class="go">tensor([[1.0000, 1.0000],</span>
-<span class="go">        [1.0024, 1.0024],</span>
-<span class="go">        [0.9906, 1.0004],</span>
-<span class="go">        [1.0137, 0.9936],</span>
-<span class="go">        [1.0186, 0.9964]])</span>
+<span class="go">tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930],</span>
+<span class="go">        [1.0000, 1.0282, 1.0199, 1.0258, 1.0292]])</span>
 </pre></div>
 </div>
 <p>Using custom <cite>dtype</cite> and <cite>device</cite>.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span> <span class="o">=</span> <span class="n">BrownianStock</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s2">"cuda:0"</span><span class="p">)</span>
-<span class="go">BrownianStock(volatility=2.00e-01, dt=2.74e-03, dtype=torch.float64, device='cuda:0')</span>
+<span class="go">BrownianStock(..., dtype=torch.float64, device='cuda:0')</span>
 </pre></div>
 </div>
 <dl class="py method">
@@ -268,7 +265,7 @@ The shape is <span class="math notranslate nohighlight">\((T, N)\)</span>. Here,
         </div>
 
         <div class="related-information">
-              Copyright &#169; 2021, Shota Imaki
+              Copyright &#169; 2021, pfnet-research
             |
             Built with <a href="https://www.sphinx-doc.org/">Sphinx</a>
               and

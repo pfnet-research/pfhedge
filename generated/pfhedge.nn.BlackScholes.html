@@ -169,7 +169,7 @@
 <h1>BlackScholes<a class="headerlink" href="#blackscholes" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="pfhedge.nn.BlackScholes">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pfhedge.nn.</span></code><code class="sig-name descname"><span class="pre">BlackScholes</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">derivative</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/bs/bs.html#BlackScholes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.BlackScholes" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pfhedge.nn.</span></code><code class="sig-name descname"><span class="pre">BlackScholes</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">derivative</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/bs/bs.html#BlackScholes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.BlackScholes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize Black-Scholes formula module from a derivative.</p>
 <p>The <cite>forward</cite> method returns the Black-Scholes delta.</p>
 <dl class="field-list simple">
@@ -181,7 +181,7 @@
 <dt>Shape:</dt><dd><ul class="simple">
 <li><p>Input : <span class="math notranslate nohighlight">\((N, *, H_{\mathrm{in}})\)</span>, where <span class="math notranslate nohighlight">\(*\)</span> means any number of
 additional dimensions and <span class="math notranslate nohighlight">\(H_{\mathrm{in}}\)</span> is the number of input
-features. See <cite>features()</cite> for input features.</p></li>
+features. See <cite>inputs()</cite> for the names of input features.</p></li>
 <li><p>Output : <span class="math notranslate nohighlight">\((N, *, 1)\)</span>. All but the last dimension are the same shape
 as the input.</p></li>
 </ul>
@@ -199,7 +199,7 @@ The <cite>forward</cite> method returns delta of the derivative.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">BlackScholes</span><span class="p">(</span><span class="n">deriv</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">m</span>
 <span class="go">BSEuropeanOption()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">features</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">inputs</span><span class="p">()</span>
 <span class="go">['log_moneyness', 'expiry_time', 'volatility']</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">input</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span>
 <span class="gp">... </span>    <span class="p">[</span><span class="o">-</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span>
@@ -218,7 +218,7 @@ The <cite>forward</cite> method returns delta of the derivative.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">BlackScholes</span><span class="p">(</span><span class="n">deriv</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">m</span>
 <span class="go">BSLookbackOption(strike=1.03)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">features</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">inputs</span><span class="p">()</span>
 <span class="go">['log_moneyness', 'max_log_moneyness', 'expiry_time', 'volatility']</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">input</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span>
 <span class="gp">... </span>    <span class="p">[</span><span class="o">-</span><span class="mf">0.01</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span>
@@ -260,7 +260,7 @@ The <cite>forward</cite> method returns delta of the derivative.</p>
         </div>
 
         <div class="related-information">
-              Copyright &#169; 2021, Shota Imaki
+              Copyright &#169; 2021, pfnet-research
             |
             Built with <a href="https://www.sphinx-doc.org/">Sphinx</a>
               and

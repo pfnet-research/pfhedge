@@ -181,8 +181,8 @@ Examples include stocks, bonds, commodities, and currencies.</p>
 <code class="sig-name descname"><span class="pre">prices</span></code><a class="headerlink" href="#pfhedge.instruments.Primary.prices" title="Permalink to this definition">¶</a></dt>
 <dd><p>The prices of the instrument.
 This attribute is supposed to be set by a method <cite>simulate()</cite>.
-Shape is <span class="math notranslate nohighlight">\((T, N)\)</span> where <span class="math notranslate nohighlight">\(T\)</span> is the number of time steps
-and <span class="math notranslate nohighlight">\(N\)</span> is the number of simulated paths.</p>
+Shape is <span class="math notranslate nohighlight">\((N, T)\)</span> where <span class="math notranslate nohighlight">\(N\)</span> is the number of simulated paths
+and <span class="math notranslate nohighlight">\(T\)</span> is the number of time steps.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>torch.Tensor</p>
@@ -251,7 +251,7 @@ series.</p></li>
         </div>
 
         <div class="related-information">
-              Copyright &#169; 2021, Shota Imaki
+              Copyright &#169; 2021, pfnet-research
             |
             Built with <a href="https://www.sphinx-doc.org/">Sphinx</a>
               and

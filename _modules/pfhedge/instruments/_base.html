@@ -241,8 +241,8 @@
 <span class="sd">    Attributes:</span>
 <span class="sd">        prices (torch.Tensor): The prices of the instrument.</span>
 <span class="sd">            This attribute is supposed to be set by a method `simulate()`.</span>
-<span class="sd">            Shape is :math:`(T, N)` where :math:`T` is the number of time steps</span>
-<span class="sd">            and :math:`N` is the number of simulated paths.</span>
+<span class="sd">            Shape is :math:`(N, T)` where :math:`N` is the number of simulated paths</span>
+<span class="sd">            and :math:`T` is the number of time steps.</span>
 <span class="sd">    """</span>
 
 <div class="viewcode-block" id="Primary.simulate"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.Primary.html#pfhedge.instruments.Primary.simulate">[docs]</a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -360,7 +360,7 @@
         </div>
 
         <div class="related-information">
-              Copyright &#169; 2021, Shota Imaki
+              Copyright &#169; 2021, pfnet-research
             |
             Built with <a href="https://www.sphinx-doc.org/">Sphinx</a>
               and

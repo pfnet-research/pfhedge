@@ -182,7 +182,7 @@
 <span class="sd">        strike (float, default=1.0): The strike price of the option.</span>
 
 <span class="sd">    Shape:</span>
-<span class="sd">        - input: :math:`(T, *)`, where, :math:`T` stands for the number of time steps and</span>
+<span class="sd">        - input: :math:`(*, T)`, where, :math:`T` stands for the number of time steps and</span>
 <span class="sd">          :math:`*` means any number of additional dimensions.</span>
 <span class="sd">        - output: :math:`(*)`</span>
 
@@ -190,9 +190,9 @@
 <span class="sd">        torch.Tensor</span>
 <span class="sd">    """</span>
     <span class="k">if</span> <span class="n">call</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">fn</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="nb">input</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">strike</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">fn</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="nb">input</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">strike</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">fn</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">strike</span> <span class="o">-</span> <span class="nb">input</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span></div>
+        <span class="k">return</span> <span class="n">fn</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">strike</span> <span class="o">-</span> <span class="nb">input</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span></div>
 
 
 <div class="viewcode-block" id="lookback_payoff"><a class="viewcode-back" href="../../../nn.functional.html#pfhedge.nn.functional.lookback_payoff">[docs]</a><span class="k">def</span> <span class="nf">lookback_payoff</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">call</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">strike</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
@@ -204,7 +204,7 @@
 <span class="sd">        strike (float, default=1.0): The strike price of the option.</span>
 
 <span class="sd">    Shape:</span>
-<span class="sd">        - input: :math:`(T, *)`, where, :math:`T` stands for the number of time steps and</span>
+<span class="sd">        - input: :math:`(*, T)`, where, :math:`T` stands for the number of time steps and</span>
 <span class="sd">          :math:`*` means any number of additional dimensions.</span>
 <span class="sd">        - output: :math:`(*)`</span>
 
@@ -212,9 +212,9 @@
 <span class="sd">        torch.Tensor</span>
 <span class="sd">    """</span>
     <span class="k">if</span> <span class="n">call</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">fn</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="nb">input</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="n">strike</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">fn</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="nb">input</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="n">strike</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">fn</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">strike</span> <span class="o">-</span> <span class="nb">input</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">fn</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">strike</span> <span class="o">-</span> <span class="nb">input</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="american_binary_payoff"><a class="viewcode-back" href="../../../nn.functional.html#pfhedge.nn.functional.american_binary_payoff">[docs]</a><span class="k">def</span> <span class="nf">american_binary_payoff</span><span class="p">(</span>
@@ -229,7 +229,7 @@
 <span class="sd">        strike (float, default=1.0): The strike price of the option.</span>
 
 <span class="sd">    Shape:</span>
-<span class="sd">        - input: :math:`(T, *)`, where, :math:`T` stands for the number of time steps and</span>
+<span class="sd">        - input: :math:`(*, T)`, where, :math:`T` stands for the number of time steps and</span>
 <span class="sd">          :math:`*` means any number of additional dimensions.</span>
 <span class="sd">        - output: :math:`(*)`</span>
 
@@ -237,9 +237,9 @@
 <span class="sd">        torch.Tensor</span>
 <span class="sd">    """</span>
     <span class="k">if</span> <span class="n">call</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">(</span><span class="nb">input</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;=</span> <span class="n">strike</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="nb">input</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;=</span> <span class="n">strike</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">(</span><span class="nb">input</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">values</span> <span class="o">&lt;=</span> <span class="n">strike</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="p">(</span><span class="nb">input</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">values</span> <span class="o">&lt;=</span> <span class="n">strike</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="european_binary_payoff"><a class="viewcode-back" href="../../../nn.functional.html#pfhedge.nn.functional.european_binary_payoff">[docs]</a><span class="k">def</span> <span class="nf">european_binary_payoff</span><span class="p">(</span>
@@ -254,7 +254,7 @@
 <span class="sd">        strike (float, default=1.0): The strike price of the option.</span>
 
 <span class="sd">    Shape:</span>
-<span class="sd">        - input: :math:`(T, *)`, where, :math:`T` stands for the number of time steps and</span>
+<span class="sd">        - input: :math:`(*, T)`, where, :math:`T` stands for the number of time steps and</span>
 <span class="sd">          :math:`*` means any number of additional dimensions.</span>
 <span class="sd">        - output: :math:`(*)`</span>
 
@@ -262,9 +262,9 @@
 <span class="sd">        torch.Tensor</span>
 <span class="sd">    """</span>
     <span class="k">if</span> <span class="n">call</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">(</span><span class="nb">input</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">strike</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="nb">input</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">strike</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">(</span><span class="nb">input</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">strike</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="p">(</span><span class="nb">input</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">strike</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="exp_utility"><a class="viewcode-back" href="../../../nn.functional.html#pfhedge.nn.functional.exp_utility">[docs]</a><span class="k">def</span> <span class="nf">exp_utility</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
@@ -418,7 +418,7 @@
         </div>
 
         <div class="related-information">
-              Copyright &#169; 2021, Shota Imaki
+              Copyright &#169; 2021, pfnet-research
             |
             Built with <a href="https://www.sphinx-doc.org/">Sphinx</a>
               and

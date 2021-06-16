@@ -178,7 +178,7 @@
 <span class="sd">    Args:</span>
 <span class="sd">        volatility (float, default=0.2): The volatility of the price.</span>
 <span class="sd">        cost (float, default=0.0): The transaction cost rate.</span>
-<span class="sd">        dt (float, default=1/365): The intervals of the time steps.</span>
+<span class="sd">        dt (float, default=1/250): The intervals of the time steps.</span>
 <span class="sd">        dtype (torch.device, optional): Desired device of returned tensor.</span>
 <span class="sd">            Default: If None, uses a global default (see `torch.set_default_tensor_type()`).</span>
 <span class="sd">        device (torch.device, optional): Desired device of returned tensor.</span>
@@ -199,27 +199,23 @@
 <span class="sd">        &gt;&gt;&gt; from pfhedge.instruments import BrownianStock</span>
 <span class="sd">        &gt;&gt;&gt; _ = torch.manual_seed(42)</span>
 <span class="sd">        &gt;&gt;&gt; stock = BrownianStock(volatility=0.20)</span>
-<span class="sd">        &gt;&gt;&gt; stock.simulate(time_horizon=5 / 365, n_paths=2)</span>
+<span class="sd">        &gt;&gt;&gt; stock.simulate(time_horizon=5 / 250, n_paths=2)</span>
 <span class="sd">        &gt;&gt;&gt; stock.prices</span>
-<span class="sd">        tensor([[1.0000, 1.0000],</span>
-<span class="sd">                [1.0024, 1.0024],</span>
-<span class="sd">                [0.9906, 1.0004],</span>
-<span class="sd">                [1.0137, 0.9936],</span>
-<span class="sd">                [1.0186, 0.9964]])</span>
+<span class="sd">        tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930],</span>
+<span class="sd">                [1.0000, 1.0282, 1.0199, 1.0258, 1.0292]])</span>
 
 <span class="sd">        Using custom `dtype` and `device`.</span>
 
 <span class="sd">        &gt;&gt;&gt; stock = BrownianStock()</span>
 <span class="sd">        &gt;&gt;&gt; stock.to(dtype=torch.float64, device="cuda:0")</span>
-<span class="sd">        BrownianStock(volatility=2.00e-01, dt=2.74e-03, \</span>
-<span class="sd">dtype=torch.float64, device='cuda:0')</span>
+<span class="sd">        BrownianStock(..., dtype=torch.float64, device='cuda:0')</span>
 <span class="sd">    """</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">volatility</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
         <span class="n">cost</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
-        <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="mi">365</span><span class="p">,</span>
+        <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">250</span><span class="p">,</span>
         <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">device</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
@@ -255,8 +251,8 @@
 <span class="sd">        """</span>
         <span class="n">n_steps</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">time_horizon</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">prices</span> <span class="o">=</span> <span class="n">generate_geometric_brownian</span><span class="p">(</span>
-            <span class="n">n_steps</span><span class="o">=</span><span class="n">n_steps</span><span class="p">,</span>
             <span class="n">n_paths</span><span class="o">=</span><span class="n">n_paths</span><span class="p">,</span>
+            <span class="n">n_steps</span><span class="o">=</span><span class="n">n_steps</span><span class="p">,</span>
             <span class="n">init_value</span><span class="o">=</span><span class="n">init_price</span><span class="p">,</span>
             <span class="n">volatility</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">volatility</span><span class="p">,</span>
             <span class="n">dt</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span>
@@ -273,7 +269,7 @@
         </div>
 
         <div class="related-information">
-              Copyright &#169; 2021, Shota Imaki
+              Copyright &#169; 2021, pfnet-research
             |
             Built with <a href="https://www.sphinx-doc.org/">Sphinx</a>
               and
