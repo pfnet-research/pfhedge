@@ -51,13 +51,13 @@ if __name__ == "__main__":
     deriv = EuropeanOption(BrownianStock(cost=1e-4))
 
     model = BlackScholes(deriv)
-    hedger_bs = Hedger(model, model.features())
+    hedger_bs = Hedger(model, model.inputs())
     hedger_bs
     print(">>> hedger_bs")
     print_as_comment(hedger_bs)
 
     model = WhalleyWilmott(deriv)
-    hedger_ww = Hedger(model, model.features())
+    hedger_ww = Hedger(model, model.inputs())
     hedger_ww
     print(">>> hedger_ww")
     print_as_comment(hedger_ww)

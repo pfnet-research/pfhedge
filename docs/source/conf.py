@@ -22,7 +22,7 @@ import pfhedge
 # -- Project information -----------------------------------------------------
 
 project = "PFHedge"
-copyright = "2021, Shota Imaki"
+copyright = "2021, pfnet-research"
 author = "Shota Imaki"
 
 # -- General configuration ---------------------------------------------------

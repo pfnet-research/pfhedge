@@ -4,11 +4,12 @@ from torch.nn import Module
 from torch.optim import Adam
 from tqdm import tqdm
 
-from ._utils.hook import save_prev_output
-from ._utils.operations import ensemble_mean
-from .features import get_feature
-from .nn import EntropicRiskMeasure
-from .nn import HedgeLoss
+from pfhedge._utils.hook import save_prev_output
+from pfhedge._utils.operations import ensemble_mean
+from pfhedge.features import get_feature
+
+from .loss import EntropicRiskMeasure
+from .loss import HedgeLoss
 
 
 class Hedger(Module):
@@ -20,8 +21,8 @@ class Hedger(Module):
             The input and output shapes should be :math:`(N, H_\\text{in})` and
             :math:`(N, 1)` where `N` stands for the number of Monte Carlo paths
             of the asset prices and `H_in` stands for the number of input features
-            (namely, `H_in = len(features)`).
-        features (list[str|Feature]): List of (names of) features to feed to model.
+            (namely, `H_in = len(inputs)`).
+        inputs (list[str|Feature]): List of (names of) input features to feed to model.
             See `sorted(pfhedge.features.FEATURES)` for valid options.
         criterion (HedgeLoss, default=EntropicRiskMeasure()):
             Loss function to minimize by hedging.
@@ -29,7 +30,8 @@ class Hedger(Module):
 
     Shape:
         - Input: :math:`(N, H_{\\text{in}})`, where, :math:`H_{\\text{in}}`
-          is the number of input features. See `features` for input features.
+          is the number of input features. See `inputs()` for the names of input
+          features.
         - Output: :math:`(N, 1)`:
 
     Examples:
@@ -42,10 +44,10 @@ class Hedger(Module):
         >>> from pfhedge.nn import BlackScholes
         >>> deriv = EuropeanOption(BrownianStock(cost=1e-4))
         >>> model = BlackScholes(deriv)
-        >>> hedger = Hedger(model, model.features())
+        >>> hedger = Hedger(model, model.inputs())
         >>> hedger
         Hedger(
-          features=['log_moneyness', 'expiry_time', 'volatility'],
+          inputs=['log_moneyness', 'expiry_time', 'volatility'],
           (model): BSEuropeanOption()
           (criterion): EntropicRiskMeasure()
         )
@@ -58,10 +60,10 @@ class Hedger(Module):
 
         >>> from pfhedge.nn import WhalleyWilmott
         >>> model = WhalleyWilmott(deriv)
-        >>> hedger = Hedger(model, model.features())
+        >>> hedger = Hedger(model, model.inputs())
         >>> hedger
         Hedger(
-          features=['log_moneyness', 'expiry_time', 'volatility', 'prev_hedge'],
+          inputs=['log_moneyness', 'expiry_time', 'volatility', 'prev_hedge'],
           (model): WhalleyWilmott(
             (bs): BSEuropeanOption()
             (clamp): Clamp()
@@ -90,7 +92,7 @@ class Hedger(Module):
         >>> _ = hedger.compute_pnl(deriv, n_paths=1)  # lazily derermine in_features
         >>> hedger
         Hedger(
-          features=['moneyness', 'expiry_time', 'volatility'],
+          inputs=['moneyness', 'expiry_time', 'volatility'],
           (model): MultiLayerPerceptron(
             (0): Linear(in_features=3, out_features=32, bias=True)
             (1): ReLU()
@@ -113,15 +115,12 @@ class Hedger(Module):
     """
 
     def __init__(
-        self,
-        model: Module,
-        features: list,
-        criterion: HedgeLoss = EntropicRiskMeasure(),
+        self, model: Module, inputs: list, criterion: HedgeLoss = EntropicRiskMeasure()
     ):
         super().__init__()
 
         self.model = model
-        self.features = [get_feature(feature) for feature in features]
+        self.inputs = [get_feature(i) for i in inputs]
         self.criterion = criterion
 
         # This hook saves the hedger's previous output to an attribute `prev`.
@@ -139,7 +138,7 @@ class Hedger(Module):
         params = []
         if not isinstance(self.model, torch.nn.Module):
             params.append(f"model={self.model.__name__},")
-        params.append(f"features={[str(f) for f in self.features]},")
+        params.append(f"inputs={[str(f) for f in self.inputs]},")
 
         return "\n".join(params)
 
@@ -167,29 +166,33 @@ class Hedger(Module):
         Returns:
             torch.Tensor
         """
-        self.features = [feature.of(derivative, self) for feature in self.features]
+        self.inputs = [feature.of(derivative, self) for feature in self.inputs]
 
         derivative.simulate(n_paths=n_paths, init_price=init_price)
-        cashflow = derivative.underlier.prices[1:] - derivative.underlier.prices[:-1]
+        # cashflow: shape (N, T - 1)
+        cashflow = (
+            derivative.underlier.prices[..., 1:] - derivative.underlier.prices[..., :-1]
+        )
 
-        self.prev = torch.zeros_like(derivative.underlier.prices[:1]).reshape(-1)
+        # prev: shape (N)
+        self.prev = torch.zeros_like(derivative.underlier.prices[..., :1]).reshape(-1)
         pnl = 0
 
         # Simulate hedging over time.
-        n_steps = derivative.underlier.prices.size()[0]
+        n_steps = derivative.underlier.prices.size(1)  # = T
         for i in range(n_steps - 1):
             prev_hedge = self.prev.reshape(-1)
 
             # Compute the hedge ratio at the next time step.
-            hedge = self(torch.cat([f[i] for f in self.features], 1)).reshape(-1)
+            hedge = self(torch.cat([f[i] for f in self.inputs], 1)).reshape(-1)
 
             # Receive profit and loss from the underlying asset.
-            pnl += hedge * cashflow[i]
+            pnl += hedge * cashflow[..., i]
             # Deduct transactoon cost.
             pnl -= (
                 derivative.underlier.cost
                 * torch.abs(hedge - prev_hedge)
-                * derivative.underlier.prices[i]
+                * derivative.underlier.prices[..., i]
             )
 
         # Settle the derivative's payoff.

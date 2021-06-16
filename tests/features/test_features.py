@@ -1,8 +1,8 @@
 import pytest
 import torch
 from torch.nn import Linear
+from torch.testing import assert_close
 
-from pfhedge import Hedger
 from pfhedge.features import Barrier
 from pfhedge.features import ExpiryTime
 from pfhedge.features import LogMoneyness
@@ -15,6 +15,7 @@ from pfhedge.features import Volatility
 from pfhedge.features import Zero
 from pfhedge.instruments import BrownianStock
 from pfhedge.instruments import EuropeanOption
+from pfhedge.nn import Hedger
 
 
 class _TestFeature:
@@ -32,24 +33,23 @@ class TestMoneyness(_TestFeature):
     @pytest.mark.parametrize("log", [True, False])
     def test(self, strike, log):
         liability = EuropeanOption(BrownianStock(), strike=strike)
-        liability.underlier.prices = torch.arange(1.0, 7.0).reshape(3, 2)
-        # tensor([[1., 2.],
-        #         [3., 4.],
-        #         [5., 6.]])
+        liability.underlier.prices = torch.arange(1.0, 7.0).reshape(2, 3)
+        # tensor([[1., 2., 3.],
+        #         [4., 5., 6.]])
         f = Moneyness(log=log).of(liability)
 
         result = f[0]
-        expect = torch.tensor([[1.0], [2.0]]) / strike
+        expect = torch.tensor([[1.0], [4.0]]) / strike
         expect = torch.log(expect) if log else expect
-        assert torch.allclose(result, expect)
+        assert_close(result, expect)
         result = f[1]
-        expect = torch.tensor([[3.0], [4.0]]) / strike
+        expect = torch.tensor([[2.0], [5.0]]) / strike
         expect = torch.log(expect) if log else expect
-        assert torch.allclose(result, expect)
+        assert_close(result, expect)
         result = f[2]
-        expect = torch.tensor([[5.0], [6.0]]) / strike
+        expect = torch.tensor([[3.0], [6.0]]) / strike
         expect = torch.log(expect) if log else expect
-        assert torch.allclose(result, expect)
+        assert_close(result, expect)
 
     def test_str(self):
         assert str(Moneyness()) == "moneyness"
@@ -69,24 +69,23 @@ class TestLogMoneyness(_TestFeature):
     @pytest.mark.parametrize("strike", [1.0, 2.0])
     def test(self, strike):
         liability = EuropeanOption(BrownianStock(), strike=strike)
-        liability.underlier.prices = torch.arange(1.0, 7.0).reshape(3, 2)
-        # tensor([[1., 2.],
-        #         [3., 4.],
-        #         [5., 6.]])
+        liability.underlier.prices = torch.arange(1.0, 7.0).reshape(2, 3)
+        # tensor([[1., 2., 3.],
+        #         [4., 5., 6.]])
         f = LogMoneyness().of(liability)
 
         result = f[0]
-        expect = torch.tensor([[1.0], [2.0]]) / strike
+        expect = torch.tensor([[1.0], [4.0]]) / strike
         expect = torch.log(expect)
-        assert torch.allclose(result, expect)
+        assert_close(result, expect)
         result = f[1]
-        expect = torch.tensor([[3.0], [4.0]]) / strike
+        expect = torch.tensor([[2.0], [5.0]]) / strike
         expect = torch.log(expect)
-        assert torch.allclose(result, expect)
+        assert_close(result, expect)
         result = f[2]
-        expect = torch.tensor([[5.0], [6.0]]) / strike
+        expect = torch.tensor([[3.0], [6.0]]) / strike
         expect = torch.log(expect)
-        assert torch.allclose(result, expect)
+        assert_close(result, expect)
 
     def test_str(self):
         assert str(LogMoneyness()) == "log_moneyness"
@@ -106,19 +105,19 @@ class TestExpiryTime(_TestFeature):
         maturity = 3 / 365
         dt = 1 / 365
         liability = EuropeanOption(BrownianStock(dt=dt), maturity=maturity)
-        liability.underlier.prices = torch.arange(1.0, 7.0).reshape(3, 2)
+        liability.underlier.prices = torch.empty(2, 3)
 
         f = ExpiryTime().of(liability)
 
         result = f[0]
         expect = torch.full((2, 1), 3 / 365)
-        assert torch.allclose(result, expect)
+        assert_close(result, expect)
         result = f[1]
         expect = torch.full((2, 1), 2 / 365)
-        assert torch.allclose(result, expect)
+        assert_close(result, expect)
         result = f[2]
         expect = torch.full((2, 1), 1 / 365)
-        assert torch.allclose(result, expect)
+        assert_close(result, expect)
 
     def test_str(self):
         assert str(ExpiryTime()) == "expiry_time"
@@ -137,19 +136,19 @@ class TestVolatility(_TestFeature):
     @pytest.mark.parametrize("volatility", [0.2, 0.1])
     def test(self, volatility):
         liability = EuropeanOption(BrownianStock(volatility=volatility))
-        liability.underlier.prices = torch.arange(1.0, 7.0).reshape(3, 2)
+        liability.underlier.prices = torch.empty(2, 3)
 
         f = Volatility().of(liability)
 
         result = f[0]
         expect = torch.full((2, 1), volatility)
-        assert torch.allclose(result, expect)
+        assert_close(result, expect)
         result = f[1]
         expect = torch.full((2, 1), volatility)
-        assert torch.allclose(result, expect)
+        assert_close(result, expect)
         result = f[2]
         expect = torch.full((2, 1), volatility)
-        assert torch.allclose(result, expect)
+        assert_close(result, expect)
 
     def test_str(self):
         assert str(Volatility()) == "volatility"
@@ -169,23 +168,23 @@ class TestPrevHedge(_TestFeature):
     def test(self, volatility):
         torch.manual_seed(42)
         liability = EuropeanOption(BrownianStock(volatility))
-        liability.underlier.prices = torch.arange(1.0, 7.0).reshape(3, 2)
+        liability.underlier.prices = torch.randn(2, 3)
         hedger = Hedger(Linear(2, 1), ["moneyness", "expiry_time"])
-        hedger.features = [feature.of(liability) for feature in hedger.features]
+        hedger.inputs = [feature.of(liability) for feature in hedger.inputs]
 
         f = PrevHedge().of(liability, hedger)
 
         result = f[0]
         expect = torch.zeros((2, 1))
-        assert torch.allclose(result, expect)
-        h = hedger(torch.cat([feature[0] for feature in hedger.features], 1))
+        assert_close(result, expect)
+        h = hedger(torch.cat([feature[0] for feature in hedger.inputs], 1))
         result = f[1]
         expect = h.reshape(-1, 1)
-        assert torch.allclose(result, expect)
-        h = hedger(torch.cat([feature[1] for feature in hedger.features], 1))
+        assert_close(result, expect)
+        h = hedger(torch.cat([feature[1] for feature in hedger.inputs], 1))
         result = f[2]
         expect = h.reshape(-1, 1)
-        assert torch.allclose(result, expect)
+        assert_close(result, expect)
 
     def test_str(self):
         assert str(PrevHedge()) == "prev_hedge"
@@ -193,57 +192,57 @@ class TestPrevHedge(_TestFeature):
 
 class TestBarrier(_TestFeature):
     """
-    pfhedge.features.Barrier
+    pfhedge.inputs.Barrier
     """
 
     def test(self):
         liability = EuropeanOption(BrownianStock())
         liability.underlier.prices = torch.tensor(
             [
-                [1.0, 2.0, 3.0, 1.0],
-                [1.5, 1.0, 4.0, 1.1],
-                [2.0, 1.0, 5.0, 1.2],
-                [3.0, 1.0, 6.0, 1.3],
+                [1.0, 1.5, 2.0, 3.0],
+                [2.0, 1.0, 1.0, 1.0],
+                [3.0, 4.0, 5.0, 6.0],
+                [1.0, 1.1, 1.2, 1.3],
             ]
         )
         f = Barrier(2.0, up=True).of(liability)
 
         result = f[0]
         expect = torch.tensor([0.0, 1.0, 1.0, 0.0]).reshape(-1, 1)
-        assert torch.allclose(result, expect)
+        assert_close(result, expect)
         result = f[1]
         expect = torch.tensor([0.0, 1.0, 1.0, 0.0]).reshape(-1, 1)
-        assert torch.allclose(result, expect)
+        assert_close(result, expect)
         result = f[2]
         expect = torch.tensor([1.0, 1.0, 1.0, 0.0]).reshape(-1, 1)
-        assert torch.allclose(result, expect)
+        assert_close(result, expect)
         result = f[3]
         expect = torch.tensor([1.0, 1.0, 1.0, 0.0]).reshape(-1, 1)
-        assert torch.allclose(result, expect)
+        assert_close(result, expect)
 
         liability = EuropeanOption(BrownianStock())
         liability.underlier.prices = torch.tensor(
             [
-                [3.0, 1.0, 6.0, 1.3],
-                [2.0, 1.0, 5.0, 1.2],
-                [1.5, 1.0, 4.0, 1.1],
-                [1.0, 2.0, 3.0, 1.0],
+                [3.0, 2.0, 1.5, 1.0],
+                [1.0, 1.0, 1.0, 2.0],
+                [6.0, 5.0, 4.0, 3.0],
+                [1.3, 1.2, 1.1, 1.0],
             ]
         )
         f = Barrier(2.0, up=False).of(liability)
 
         result = f[0]
         expect = torch.tensor([0.0, 1.0, 0.0, 1.0]).reshape(-1, 1)
-        assert torch.allclose(result, expect)
+        assert_close(result, expect)
         result = f[1]
         expect = torch.tensor([1.0, 1.0, 0.0, 1.0]).reshape(-1, 1)
-        assert torch.allclose(result, expect)
+        assert_close(result, expect)
         result = f[2]
         expect = torch.tensor([1.0, 1.0, 0.0, 1.0]).reshape(-1, 1)
-        assert torch.allclose(result, expect)
+        assert_close(result, expect)
         result = f[3]
         expect = torch.tensor([1.0, 1.0, 0.0, 1.0]).reshape(-1, 1)
-        assert torch.allclose(result, expect)
+        assert_close(result, expect)
 
     def test_repr(self):
         assert repr(Barrier(1.0, up=True)) == "Barrier(1.0, up=True)"
@@ -265,19 +264,19 @@ class TestZero(_TestFeature):
     def test(self):
         torch.manual_seed(42)
         liability = EuropeanOption(BrownianStock())
-        liability.underlier.prices = torch.arange(1.0, 7.0).reshape(3, 2)
+        liability.underlier.prices = torch.empty(2, 3)
 
         f = Zero().of(liability)
 
         result = f[0]
         expect = torch.zeros((2, 1))
-        assert torch.allclose(result, expect)
+        assert_close(result, expect)
         result = f[1]
         expect = torch.zeros((2, 1))
-        assert torch.allclose(result, expect)
+        assert_close(result, expect)
         result = f[2]
         expect = torch.zeros((2, 1))
-        assert torch.allclose(result, expect)
+        assert_close(result, expect)
 
     def test_str(self):
         assert str(Zero()) == "zero"
@@ -298,7 +297,7 @@ class TestMaxMoneyness(_TestFeature):
     def test(self, strike, log):
         liability = EuropeanOption(BrownianStock(), strike=strike)
         liability.underlier.prices = torch.tensor(
-            [[1.0, 2.0, 3.0], [2.0, 3.0, 2.0], [1.5, 4.0, 1.0]]
+            [[1.0, 2.0, 1.5], [2.0, 3.0, 4.0], [3.0, 2.0, 1.0]]
         )
 
         f = MaxMoneyness(log=log).of(liability)
@@ -306,15 +305,15 @@ class TestMaxMoneyness(_TestFeature):
         result = f[0]
         expect = torch.tensor([[1.0], [2.0], [3.0]]) / strike
         expect = torch.log(expect) if log else expect
-        assert torch.allclose(result, expect)
+        assert_close(result, expect)
         result = f[1]
         expect = torch.tensor([[2.0], [3.0], [3.0]]) / strike
         expect = torch.log(expect) if log else expect
-        assert torch.allclose(result, expect)
+        assert_close(result, expect)
         result = f[2]
         expect = torch.tensor([[2.0], [4.0], [3.0]]) / strike
         expect = torch.log(expect) if log else expect
-        assert torch.allclose(result, expect)
+        assert_close(result, expect)
 
     def test_str(self):
         assert str(MaxMoneyness()) == "max_moneyness"
@@ -335,7 +334,7 @@ class TestMaxLogMoneyness(_TestFeature):
     def test(self, strike):
         liability = EuropeanOption(BrownianStock(), strike=strike)
         liability.underlier.prices = torch.tensor(
-            [[1.0, 2.0, 3.0], [2.0, 3.0, 2.0], [1.5, 4.0, 1.0]]
+            [[1.0, 2.0, 1.5], [2.0, 3.0, 4.0], [3.0, 2.0, 1.0]]
         )
 
         f = MaxLogMoneyness().of(liability)
@@ -343,15 +342,15 @@ class TestMaxLogMoneyness(_TestFeature):
         result = f[0]
         expect = torch.tensor([[1.0], [2.0], [3.0]]) / strike
         expect = torch.log(expect)
-        assert torch.allclose(result, expect)
+        assert_close(result, expect)
         result = f[1]
         expect = torch.tensor([[2.0], [3.0], [3.0]]) / strike
         expect = torch.log(expect)
-        assert torch.allclose(result, expect)
+        assert_close(result, expect)
         result = f[2]
         expect = torch.tensor([[2.0], [4.0], [3.0]]) / strike
         expect = torch.log(expect)
-        assert torch.allclose(result, expect)
+        assert_close(result, expect)
 
     def test_str(self):
         assert str(MaxLogMoneyness()) == "max_log_moneyness"
@@ -373,13 +372,13 @@ class TestModelOutput(_TestFeature):
 
         result = f[0]
         expect = module(torch.cat([x1[0], x2[0]], 1))
-        assert torch.allclose(result, expect)
+        assert_close(result, expect)
         result = f[1]
         expect = module(torch.cat([x1[1], x2[1]], 1))
-        assert torch.allclose(result, expect)
+        assert_close(result, expect)
         result = f[2]
         expect = module(torch.cat([x1[2], x2[2]], 1))
-        assert torch.allclose(result, expect)
+        assert_close(result, expect)
 
     def test_repr(self):
         module = torch.nn.Linear(2, 1)
@@ -387,7 +386,7 @@ class TestModelOutput(_TestFeature):
         f = ModuleOutput(module, [x1, x2])
         expect = (
             "ModuleOutput(\n"
-            "  features=['moneyness', 'expiry_time'],\n"
+            "  inputs=['moneyness', 'expiry_time'],\n"
             "  (module): Linear(in_features=2, out_features=1, bias=True)\n"
             ")"
         )

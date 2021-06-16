@@ -1,6 +1,6 @@
 import torch
 
-from ..bs.bs import BlackScholes
+from .bs.bs import BlackScholes
 from .clamp import Clamp
 
 
@@ -18,7 +18,7 @@ class WhalleyWilmott(torch.nn.Module):
     Shape:
         - Input: :math:`(N, *, H_{\\text{in}})`.  Here, :math:`*` means any number of
           additional dimensions and `H_in` is the number of input features.
-          See `features()` for input features.
+          See `inputs()` for the names of input features.
         - Output: :math:`(N, *, 1)`. The hedge ratio at the next time step.
 
     Examples:
@@ -30,7 +30,7 @@ class WhalleyWilmott(torch.nn.Module):
         >>> from pfhedge.instruments import EuropeanOption
         >>> deriv = EuropeanOption(BrownianStock(cost=1e-5))
         >>> m = WhalleyWilmott(deriv)
-        >>> m.features()
+        >>> m.inputs()
         ['log_moneyness', 'expiry_time', 'volatility', 'prev_hedge']
         >>> input = torch.tensor([
         ...     [-0.05, 0.1, 0.2, 0.5],
@@ -49,7 +49,7 @@ class WhalleyWilmott(torch.nn.Module):
 
         >>> deriv = EuropeanOption(BrownianStock())
         >>> m = WhalleyWilmott(deriv)
-        >>> m.features()
+        >>> m.inputs()
         ['log_moneyness', 'expiry_time', 'volatility', 'prev_hedge']
         >>> input = torch.tensor([
         ...     [-0.05, 0.1, 0.2, 0.5],
@@ -77,8 +77,8 @@ class WhalleyWilmott(torch.nn.Module):
         self.bs = BlackScholes(derivative)
         self.clamp = Clamp()
 
-    def features(self):
-        return self.bs.features() + ["prev_hedge"]
+    def inputs(self):
+        return self.bs.inputs() + ["prev_hedge"]
 
     def extra_repr(self):
         return f"a={self.a}" if self.a != 1 else ""

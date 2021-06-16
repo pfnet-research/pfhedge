@@ -22,7 +22,8 @@ class Moneyness(Feature):
             return "moneyness"
 
     def __getitem__(self, i):
-        s = self.derivative.underlier.prices[i].reshape(-1, 1)
+        # spot price: shape (N, 1)
+        s = self.derivative.underlier.prices[..., i].reshape(-1, 1)
         output = s / self.derivative.strike
         if self.log:
             output = torch.log(output)
@@ -44,7 +45,7 @@ class ExpiryTime(Feature):
 
     def __getitem__(self, i):
         value = self.derivative.maturity - i * self.derivative.underlier.dt
-        return torch.full_like(self.derivative.underlier.prices.T[:, :1], value)
+        return torch.full_like(self.derivative.underlier.prices[:, :1], value)
 
 
 class Volatility(Feature):
@@ -55,7 +56,7 @@ class Volatility(Feature):
 
     def __getitem__(self, i):
         value = self.derivative.underlier.volatility
-        return torch.full_like(self.derivative.underlier.prices.T[:, :1], value)
+        return torch.full_like(self.derivative.underlier.prices[:, :1], value)
 
 
 class PrevHedge(Feature):
@@ -68,7 +69,8 @@ class PrevHedge(Feature):
         if hasattr(self.hedger, "prev"):
             return self.hedger.prev.reshape(-1, 1)
         else:
-            return torch.zeros_like(self.derivative.underlier.prices.T[:, :1])
+            # prices: shape (N, T)
+            return torch.zeros_like(self.derivative.underlier.prices[:, :1])
 
 
 class Barrier(Feature):
@@ -94,11 +96,16 @@ class Barrier(Feature):
 
     def __getitem__(self, i):
         if self.up:
-            touch_barrier = self.derivative.underlier.prices[: i + 1] >= self.barrier
+            # shape: (N, i)
+            touch_barrier = (
+                self.derivative.underlier.prices[..., : i + 1] >= self.barrier
+            )
         else:
-            touch_barrier = self.derivative.underlier.prices[: i + 1] <= self.barrier
-        return (
-            touch_barrier.any(dim=0).reshape(-1, 1).to(self.derivative.underlier.prices)
+            touch_barrier = (
+                self.derivative.underlier.prices[..., : i + 1] <= self.barrier
+            )
+        return touch_barrier.any(dim=-1, keepdim=True).to(
+            self.derivative.underlier.prices
         )
 
 
@@ -109,7 +116,7 @@ class Zero(Feature):
         return "zero"
 
     def __getitem__(self, i):
-        return torch.zeros_like(self.derivative.underlier.prices.T[:, :1])
+        return torch.zeros_like(self.derivative.underlier.prices[:, :1])
 
 
 class MaxMoneyness(Feature):
@@ -130,7 +137,11 @@ class MaxMoneyness(Feature):
             return "max_moneyness"
 
     def __getitem__(self, i):
-        s = self.derivative.underlier.prices[: i + 1].max(dim=0).values.reshape(-1, 1)
+        s = (
+            self.derivative.underlier.prices[..., : i + 1]
+            .max(dim=1, keepdim=True)
+            .values
+        )
         output = s / self.derivative.strike
         if self.log:
             output = torch.log(output)
@@ -157,9 +168,9 @@ class ModuleOutput(Feature, torch.nn.Module):
             The input and output shapes should be `(N, *, H_in) -> (N, *, 1)`,
             where `N` stands for the number of Monte Carlo paths of the underlier of
             the derivative, `H_in` stands for the number of input features
-            (namely, `H_in = len(features)`),
+            (namely, `H_in = len(inputs)`),
             and `*` means any number of additional dimensions.
-        features (list[Feature]): The input features to the module.
+        inputs (list[Feature]): The input features to the module.
 
     Examples:
 
@@ -176,7 +187,7 @@ class ModuleOutput(Feature, torch.nn.Module):
                 [...]], grad_fn=<AddmmBackward>)
         >>> f
         ModuleOutput(
-          features=['moneyness', 'expiry_time'],
+          inputs=['moneyness', 'expiry_time'],
           (module): Linear(in_features=2, out_features=1, bias=True)
         )
 
@@ -193,22 +204,22 @@ class ModuleOutput(Feature, torch.nn.Module):
                 [...]])
     """
 
-    def __init__(self, module, features):
+    def __init__(self, module, inputs):
         super().__init__()
 
         self.module = module
-        self.features = features
+        self.inputs = inputs
 
     def extra_repr(self):
-        return f"features={[str(f) for f in self.features]},"
+        return f"inputs={[str(f) for f in self.inputs]},"
 
     def forward(self, input):
         return self.module(input)
 
     def __getitem__(self, i):
-        return self(torch.cat([f[i] for f in self.features], 1))
+        return self(torch.cat([f[i] for f in self.inputs], 1))
 
     def of(self, derivative=None, hedger=None):
         super().of(derivative, hedger)
-        self.features = [feature.of(derivative, hedger) for feature in self.features]
+        self.inputs = [feature.of(derivative, hedger) for feature in self.inputs]
         return self

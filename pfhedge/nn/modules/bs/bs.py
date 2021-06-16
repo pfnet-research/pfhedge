@@ -1,9 +1,5 @@
 import torch
 
-from ...instruments import AmericanBinaryOption
-from ...instruments import EuropeanBinaryOption
-from ...instruments import EuropeanOption
-from ...instruments import LookbackOption
 from .american_binary import BSAmericanBinaryOption
 from .european import BSEuropeanOption
 from .european_binary import BSEuropeanBinaryOption
@@ -22,7 +18,7 @@ class BlackScholes(torch.nn.Module):
     Shape:
         - Input : :math:`(N, *, H_{\\mathrm{in}})`, where :math:`*` means any number of
           additional dimensions and :math:`H_{\\mathrm{in}}` is the number of input
-          features. See `features()` for input features.
+          features. See `inputs()` for the names of input features.
         - Output : :math:`(N, *, 1)`. All but the last dimension are the same shape
           as the input.
 
@@ -40,7 +36,7 @@ class BlackScholes(torch.nn.Module):
         >>> m = BlackScholes(deriv)
         >>> m
         BSEuropeanOption()
-        >>> m.features()
+        >>> m.inputs()
         ['log_moneyness', 'expiry_time', 'volatility']
         >>> input = torch.tensor([
         ...     [-0.01, 0.1, 0.2],
@@ -59,7 +55,7 @@ class BlackScholes(torch.nn.Module):
         >>> m = BlackScholes(deriv)
         >>> m
         BSLookbackOption(strike=1.03)
-        >>> m.features()
+        >>> m.inputs()
         ['log_moneyness', 'max_log_moneyness', 'expiry_time', 'volatility']
         >>> input = torch.tensor([
         ...     [-0.01, -0.01, 0.1, 0.2],
@@ -71,11 +67,13 @@ class BlackScholes(torch.nn.Module):
                 [1.0515]])
     """
 
+    inputs: list
+
     def __init__(self, derivative):
         self.__class__ = {
-            EuropeanOption: BSEuropeanOption,
-            LookbackOption: BSLookbackOption,
-            AmericanBinaryOption: BSAmericanBinaryOption,
-            EuropeanBinaryOption: BSEuropeanBinaryOption,
-        }[derivative.__class__]
+            "EuropeanOption": BSEuropeanOption,
+            "LookbackOption": BSLookbackOption,
+            "AmericanBinaryOption": BSAmericanBinaryOption,
+            "EuropeanBinaryOption": BSEuropeanBinaryOption,
+        }[derivative.__class__.__name__]
         self.__init__(derivative)

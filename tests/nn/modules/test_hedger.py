@@ -2,12 +2,13 @@ import pytest
 import torch
 from torch.nn import Identity
 from torch.nn import Linear
+from torch.testing import assert_close
 
-from pfhedge import Hedger
 from pfhedge.instruments import BrownianStock
 from pfhedge.instruments import EuropeanOption
 from pfhedge.nn import BlackScholes
 from pfhedge.nn import EntropicRiskMeasure
+from pfhedge.nn import Hedger
 from pfhedge.nn import MultiLayerPerceptron
 from pfhedge.nn import Naked
 from pfhedge.nn import WhalleyWilmott
@@ -32,7 +33,7 @@ class TestHedger:
         hedger = Hedger(Linear(2, 1), ["moneyness", "expiry_time"])
         assert repr(hedger) == (
             "Hedger(\n"
-            "  features=['moneyness', 'expiry_time'],\n"
+            "  inputs=['moneyness', 'expiry_time'],\n"
             "  (model): Linear(in_features=2, out_features=1, bias=True)\n"
             "  (criterion): EntropicRiskMeasure()\n"
             ")"
@@ -40,10 +41,10 @@ class TestHedger:
 
         liability = EuropeanOption(BrownianStock())
         model = BlackScholes(liability)
-        hedger = Hedger(model, model.features())
+        hedger = Hedger(model, model.inputs())
         assert repr(hedger) == (
             "Hedger(\n"
-            "  features=['log_moneyness', 'expiry_time', 'volatility'],\n"
+            "  inputs=['log_moneyness', 'expiry_time', 'volatility'],\n"
             "  (model): BSEuropeanOption()\n"
             "  (criterion): EntropicRiskMeasure()\n"
             ")"
@@ -53,7 +54,7 @@ class TestHedger:
         assert repr(hedger) == (
             "Hedger(\n"
             "  model=naked,\n"
-            "  features=['moneyness', 'expiry_time'],\n"
+            "  inputs=['moneyness', 'expiry_time'],\n"
             "  (criterion): EntropicRiskMeasure()\n"
             ")"
         )
@@ -65,11 +66,11 @@ class TestHedger:
 
         pnl = hedger.compute_pnl(deriv)
         payoff = deriv.payoff()
-        assert torch.allclose(pnl, -payoff)
+        assert_close(pnl, -payoff)
 
         result = hedger.compute_pnl(deriv)
         expect = -deriv.payoff()
-        assert torch.allclose(result, expect)
+        assert_close(result, expect)
 
     def test_shape(self):
         torch.distributions.Distribution.set_default_validate_args(False)
@@ -86,13 +87,13 @@ class TestHedger:
         assert m(x).size() == torch.Size((N, M_1, M_2, 1))
 
         model = BlackScholes(deriv)
-        m = Hedger(model, model.features())
-        x = torch.empty((N, M_1, M_2, len(model.features())))
+        m = Hedger(model, model.inputs())
+        x = torch.empty((N, M_1, M_2, len(model.inputs())))
         assert m(x).size() == torch.Size((N, M_1, M_2, 1))
 
         model = WhalleyWilmott(deriv)
-        m = Hedger(model, model.features())
-        x = torch.empty((N, M_1, M_2, len(model.features())))
+        m = Hedger(model, model.inputs())
+        x = torch.empty((N, M_1, M_2, len(model.inputs())))
         assert m(x).size() == torch.Size((N, M_1, M_2, 1))
 
         model = Naked()
@@ -107,4 +108,4 @@ class TestHedger:
 
         result = hedger.compute_loss(deriv)
         expect = EntropicRiskMeasure()(-deriv.payoff())
-        assert torch.allclose(result, expect)
+        assert_close(result, expect)

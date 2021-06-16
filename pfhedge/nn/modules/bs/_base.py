@@ -12,7 +12,7 @@ class BSModuleMixin(Module):
 
     Shape:
         - Input: :math:`(N, *, H_\\text{in})`, where :math:`*` means any number of
-          additional dimensions. See `features()` for input features.
+          additional dimensions. See `inputs()` for the names of input features.
         - Output: :math:`(N, *, 1)`: All but the last dimension are the same shape
           as the input.
     """
@@ -21,7 +21,7 @@ class BSModuleMixin(Module):
         """Returns delta of the derivative.
 
         Args:
-            input (torch.Tensor): The input tensor.  Features are concatenated along
+            input (torch.Tensor): The input tensor. Features are concatenated along
                 the last dimension.
 
         Returns:
@@ -37,7 +37,7 @@ class BSModuleMixin(Module):
             torch.Tensor
         """
 
-    def features(self) -> list:
+    def inputs(self) -> list:
         """Returns a list of names of input features.
 
         By default, this method infers the names of features from the signature of

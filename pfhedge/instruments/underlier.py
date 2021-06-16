@@ -10,7 +10,7 @@ class BrownianStock(Primary):
     Args:
         volatility (float, default=0.2): The volatility of the price.
         cost (float, default=0.0): The transaction cost rate.
-        dt (float, default=1/365): The intervals of the time steps.
+        dt (float, default=1/250): The intervals of the time steps.
         dtype (torch.device, optional): Desired device of returned tensor.
             Default: If None, uses a global default (see `torch.set_default_tensor_type()`).
         device (torch.device, optional): Desired device of returned tensor.
@@ -31,27 +31,23 @@ class BrownianStock(Primary):
         >>> from pfhedge.instruments import BrownianStock
         >>> _ = torch.manual_seed(42)
         >>> stock = BrownianStock(volatility=0.20)
-        >>> stock.simulate(time_horizon=5 / 365, n_paths=2)
+        >>> stock.simulate(time_horizon=5 / 250, n_paths=2)
         >>> stock.prices
-        tensor([[1.0000, 1.0000],
-                [1.0024, 1.0024],
-                [0.9906, 1.0004],
-                [1.0137, 0.9936],
-                [1.0186, 0.9964]])
+        tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930],
+                [1.0000, 1.0282, 1.0199, 1.0258, 1.0292]])
 
         Using custom `dtype` and `device`.
 
         >>> stock = BrownianStock()
         >>> stock.to(dtype=torch.float64, device="cuda:0")
-        BrownianStock(volatility=2.00e-01, dt=2.74e-03, \
-dtype=torch.float64, device='cuda:0')
+        BrownianStock(..., dtype=torch.float64, device='cuda:0')
     """
 
     def __init__(
         self,
         volatility: float = 0.2,
         cost: float = 0.0,
-        dt: float = 1.0 / 365,
+        dt: float = 1 / 250,
         dtype=None,
         device=None,
     ):
@@ -87,8 +83,8 @@ dtype=torch.float64, device='cuda:0')
         """
         n_steps = int(time_horizon / self.dt)
         self.prices = generate_geometric_brownian(
-            n_steps=n_steps,
             n_paths=n_paths,
+            n_steps=n_steps,
             init_value=init_price,
             volatility=self.volatility,
             dt=self.dt,

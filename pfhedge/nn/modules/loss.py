@@ -4,7 +4,8 @@ import torch
 from torch import Tensor
 from torch.nn import Parameter
 
-from ..._utils.bisect import bisect
+from pfhedge._utils.bisect import bisect
+
 from ..functional import exp_utility
 from ..functional import expected_shortfall
 from ..functional import isoelastic_utility

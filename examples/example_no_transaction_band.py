@@ -28,7 +28,7 @@ class NoTransactionBandNet(Module):
 
     Shape:
         - Input: :math:`(N, H_{\\text{in}})`, where :math:`(N, H_{\\text{in}})` is the
-        number of input features. See `features()` for input features.
+        number of input features. See `inputs()` for the names of input features.
         - Output: :math:`(N, 1)`.
 
     Examples:
@@ -39,7 +39,7 @@ class NoTransactionBandNet(Module):
 
         >>> deriv = EuropeanOption(BrownianStock(cost=1e-4))
         >>> m = NoTransactionBandNet(deriv)
-        >>> m.features()
+        >>> m.inputs()
         ['log_moneyness', 'expiry_time', 'volatility', 'prev_hedge']
         >>> input = torch.tensor([
         ...     [-0.05, 0.1, 0.2, 0.5],
@@ -62,8 +62,8 @@ class NoTransactionBandNet(Module):
         self.mlp = MultiLayerPerceptron(out_features=2)
         self.clamp = Clamp()
 
-    def features(self):
-        return self.bs.features() + ["prev_hedge"]
+    def inputs(self):
+        return self.bs.inputs() + ["prev_hedge"]
 
     def forward(self, input: Tensor) -> Tensor:
         prev_hedge = input[:, [-1]]
@@ -85,7 +85,7 @@ if __name__ == "__main__":
 
     # Create your hedger
     model = NoTransactionBandNet(deriv)
-    hedger = Hedger(model, model.features())
+    hedger = Hedger(model, model.inputs())
 
     # Fit and price
     hedger.fit(deriv, n_paths=10000, n_epochs=200)

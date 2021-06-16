@@ -3,7 +3,7 @@
 [![python](https://img.shields.io/pypi/pyversions/pfhedge.svg)](https://pypi.org/project/pfhedge)
 [![pypi](https://img.shields.io/pypi/v/pfhedge.svg)](https://pypi.org/project/pfhedge)
 [![CI](https://github.com/pfnet-research/pfhedge/workflows/CI/badge.svg)](https://github.com/pfnet-research/pfhedge/actions?query=workflow%3ACI)
-[![codecov](https://codecov.io/gh/pfnet-research/pfhedge/branch/master/graph/badge.svg)](https://codecov.io/gh/pfnet-research/pfhedge)
+[![codecov](https://codecov.io/gh/pfnet-research/pfhedge/branch/main/graph/badge.svg?token=GpXV1ldVCN)](https://codecov.io/gh/pfnet-research/pfhedge)
 [![downloads](https://img.shields.io/pypi/dm/pfhedge)](https://pypi.org/project/pfhedge)
 [![code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
@@ -111,7 +111,7 @@ from pfhedge import Hedger
 from pfhedge.nn import MultiLayerPerceptron
 
 model = MultiLayerPerceptron()
-hedger = Hedger(model, features=["log_moneyness", "expiry_time", "volatility", "prev_hedge"])
+hedger = Hedger(model, inputs=["log_moneyness", "expiry_time", "volatility", "prev_hedge"])
 ```
 
 The `hedger` is also a [`Module`](https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module).
@@ -119,7 +119,7 @@ The `hedger` is also a [`Module`](https://pytorch.org/docs/stable/generated/torc
 ```py
 hedger
 # Hedger(
-#   features=['log_moneyness', 'expiry_time', 'volatility', 'prev_hedge'],
+#   inputs=['log_moneyness', 'expiry_time', 'volatility', 'prev_hedge'],
 #   (model): MultiLayerPerceptron(
 #     (0): LazyLinear(in_features=None, out_features=32, bias=True)
 #     (1): ReLU()
@@ -185,7 +185,7 @@ from pfhedge.nn import BlackScholes
 deriv = EuropeanOption(BrownianStock(cost=1e-4))
 
 model = BlackScholes(deriv)
-hedger = Hedger(model, model.features())
+hedger = Hedger(model, inputs=model.inputs())
 ```
 
 ### Whalley-Wilmott's Asymptotically Optimal Strategy for Small Costs
@@ -202,7 +202,7 @@ from pfhedge.nn import WhalleyWilmott
 deriv = EuropeanOption(BrownianStock(cost=1e-4))
 
 model = WhalleyWilmott(deriv)
-hedger = Hedger(model, model.features())
+hedger = Hedger(model, inputs=model.inputs())
 ```
 
 ### Your Own Module
@@ -228,8 +228,8 @@ class NoTransactionBandNet(torch.nn.Module):
         self.mlp = MultiLayerPerceptron(out_features=2)
         self.clamp = Clamp()
 
-    def features(self):
-        return self.delta.features() + ["prev_hedge"]
+    def inputs(self):
+        return self.delta.inputs() + ["prev_hedge"]
 
     def forward(self, x):
         prev_hedge = x[:, [-1]]
@@ -240,11 +240,11 @@ class NoTransactionBandNet(torch.nn.Module):
         lower = delta - fn.leaky_relu(width[:, [0]])
         upper = delta + fn.leaky_relu(width[:, [1]])
 
-        return self.clamp(prev_hedge, min_value=lower, max_value=upper)
+        return self.clamp(prev_hedge, min=lower, max=upper)
 
 
 model = NoTransactionBandNet()
-hedger = Hedger(model, model.features())
+hedger = Hedger(model, inputs=model.inputs())
 ```
 
 ## Contribution

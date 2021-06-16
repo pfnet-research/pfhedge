@@ -11,10 +11,10 @@ test:
 
 .PHONY: lint
 lint:
-	@poetry run black --check --quiet .
+	@poetry run black --check --diff --quiet --skip-magic-trailing-comma .
 	@poetry run isort --check --force-single-line-imports --quiet .
 
 .PHONY: format
 format:
-	@poetry run black --quiet .
+	@poetry run black --quiet --skip-magic-trailing-comma .
 	@poetry run isort --force-single-line-imports --quiet .

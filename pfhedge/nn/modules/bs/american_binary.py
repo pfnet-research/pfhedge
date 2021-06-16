@@ -1,7 +1,8 @@
 import torch
 from torch import Tensor
 
-from ..._utils.bisect import bisect
+from pfhedge._utils.bisect import bisect
+
 from ._base import BSModuleMixin
 
 
@@ -17,7 +18,7 @@ class BSAmericanBinaryOption(BSModuleMixin):
 
     Shape:
         - Input: :math:`(N, *, 4)`, where :math:`*` means any number of additional
-          dimensions. See `features()` for input features.
+          dimensions. See `inputs()` for the names of input features.
         - Output: :math:`(N, *, 1)`. Delta of the derivative.
           All but the last dimension are the same shape as the input.
 
@@ -32,7 +33,7 @@ class BSAmericanBinaryOption(BSModuleMixin):
 
         >>> from pfhedge.nn import BSAmericanBinaryOption
         >>> m = BSAmericanBinaryOption(strike=1.0)
-        >>> m.features()
+        >>> m.inputs()
         ['log_moneyness', 'max_log_moneyness', 'expiry_time', 'volatility']
         >>> input = torch.tensor([
         ...     [-0.01, -0.01, 0.1, 0.2],
