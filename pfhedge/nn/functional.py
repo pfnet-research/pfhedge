@@ -14,7 +14,7 @@ def european_payoff(input: Tensor, call: bool = True, strike: float = 1.0) -> Te
         strike (float, default=1.0): The strike price of the option.
 
     Shape:
-        - input: :math:`(T, *)`, where, :math:`T` stands for the number of time steps and
+        - input: :math:`(*, T)`, where, :math:`T` stands for the number of time steps and
           :math:`*` means any number of additional dimensions.
         - output: :math:`(*)`
 
@@ -22,9 +22,9 @@ def european_payoff(input: Tensor, call: bool = True, strike: float = 1.0) -> Te
         torch.Tensor
     """
     if call:
-        return fn.relu(input[-1] - strike)
+        return fn.relu(input[..., -1] - strike)
     else:
-        return fn.relu(strike - input[-1])
+        return fn.relu(strike - input[..., -1])
 
 
 def lookback_payoff(input: Tensor, call: bool = True, strike: float = 1.0) -> Tensor:
@@ -36,7 +36,7 @@ def lookback_payoff(input: Tensor, call: bool = True, strike: float = 1.0) -> Te
         strike (float, default=1.0): The strike price of the option.
 
     Shape:
-        - input: :math:`(T, *)`, where, :math:`T` stands for the number of time steps and
+        - input: :math:`(*, T)`, where, :math:`T` stands for the number of time steps and
           :math:`*` means any number of additional dimensions.
         - output: :math:`(*)`
 
@@ -44,9 +44,9 @@ def lookback_payoff(input: Tensor, call: bool = True, strike: float = 1.0) -> Te
         torch.Tensor
     """
     if call:
-        return fn.relu(input.max(dim=0).values - strike)
+        return fn.relu(input.max(dim=-1).values - strike)
     else:
-        return fn.relu(strike - input.min(dim=0).values)
+        return fn.relu(strike - input.min(dim=-1).values)
 
 
 def american_binary_payoff(
@@ -61,7 +61,7 @@ def american_binary_payoff(
         strike (float, default=1.0): The strike price of the option.
 
     Shape:
-        - input: :math:`(T, *)`, where, :math:`T` stands for the number of time steps and
+        - input: :math:`(*, T)`, where, :math:`T` stands for the number of time steps and
           :math:`*` means any number of additional dimensions.
         - output: :math:`(*)`
 
@@ -69,9 +69,9 @@ def american_binary_payoff(
         torch.Tensor
     """
     if call:
-        return (input.max(dim=0).values >= strike).to(input)
+        return (input.max(dim=-1).values >= strike).to(input)
     else:
-        return (input.min(dim=0).values <= strike).to(input)
+        return (input.min(dim=-1).values <= strike).to(input)
 
 
 def european_binary_payoff(
@@ -86,7 +86,7 @@ def european_binary_payoff(
         strike (float, default=1.0): The strike price of the option.
 
     Shape:
-        - input: :math:`(T, *)`, where, :math:`T` stands for the number of time steps and
+        - input: :math:`(*, T)`, where, :math:`T` stands for the number of time steps and
           :math:`*` means any number of additional dimensions.
         - output: :math:`(*)`
 
@@ -94,9 +94,9 @@ def european_binary_payoff(
         torch.Tensor
     """
     if call:
-        return (input[-1] >= strike).to(input)
+        return (input[..., -1] >= strike).to(input)
     else:
-        return (input[-1] <= strike).to(input)
+        return (input[..., -1] <= strike).to(input)
 
 
 def exp_utility(input: Tensor, a: float = 1.0) -> Tensor:

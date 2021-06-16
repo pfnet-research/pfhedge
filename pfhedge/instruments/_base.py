@@ -73,8 +73,8 @@ class Primary(Instrument):
     Attributes:
         prices (torch.Tensor): The prices of the instrument.
             This attribute is supposed to be set by a method `simulate()`.
-            Shape is :math:`(T, N)` where :math:`T` is the number of time steps
-            and :math:`N` is the number of simulated paths.
+            Shape is :math:`(N, T)` where :math:`N` is the number of simulated paths
+            and :math:`T` is the number of time steps.
     """
 
     @abc.abstractmethod

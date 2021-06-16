@@ -18,7 +18,7 @@ class TestEuropeanBinaryOption:
         liability = EuropeanBinaryOption(BrownianStock(), strike=2.0)
         liability.underlier.prices = torch.tensor(
             [[1.0, 1.0, 1.0, 1.0], [3.0, 1.0, 1.0, 1.0], [1.9, 2.0, 2.1, 3.0]]
-        )
+        ).T
         result = liability.payoff()
         expect = torch.tensor([0.0, 1.0, 1.0, 1.0])
         assert torch.allclose(result, expect)
