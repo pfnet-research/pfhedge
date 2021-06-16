@@ -39,8 +39,8 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
 
     def test_features(self):
         m = BSEuropeanBinaryOption()
-        assert m.features() == ["log_moneyness", "expiry_time", "volatility"]
-        _ = [get_feature(f) for f in m.features()]
+        assert m.inputs() == ["log_moneyness", "expiry_time", "volatility"]
+        _ = [get_feature(f) for f in m.inputs()]
 
     def test_forward(self):
         m = BSEuropeanBinaryOption()
@@ -94,7 +94,7 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
 
         deriv = EuropeanBinaryOption(BrownianStock())
         model = BSEuropeanBinaryOption(deriv)
-        hedger = Hedger(model, model.features())
+        hedger = Hedger(model, model.inputs())
         result = hedger.price(deriv)
         expect = torch.tensor(0.5013)
         assert torch.allclose(result, expect, atol=1e-4)

@@ -17,12 +17,12 @@ def test_net():
 def test_bs():
     liability = EuropeanOption(BrownianStock(cost=1e-4))
     model = BlackScholes(liability)
-    hedger = Hedger(model, model.features())
+    hedger = Hedger(model, model.inputs())
     _ = hedger.price(liability)
 
 
 def test_ww():
     liability = EuropeanOption(BrownianStock(cost=1e-4))
     model = WhalleyWilmott(liability)
-    hedger = Hedger(model, model.features())
+    hedger = Hedger(model, model.inputs())
     _ = hedger.price(liability)

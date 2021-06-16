@@ -8,7 +8,7 @@ class _TestBSModule:
         N = 2
         M_1 = 10
         M_2 = 11
-        H_in = len(module.features())
+        H_in = len(module.inputs())
 
         x = torch.empty((N, H_in))
         out = method(*(x[..., i] for i in range(H_in)))
@@ -35,7 +35,7 @@ class _TestBSModule:
         N = 2
         M_1 = 10
         M_2 = 11
-        H_in = len(module.features())
+        H_in = len(module.inputs())
 
         x = torch.empty((N, H_in))
         out = module(x)

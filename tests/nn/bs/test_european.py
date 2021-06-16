@@ -27,8 +27,8 @@ class TestBSEuropeanOption(_TestBSModule):
 
     def test_features(self):
         m = BSEuropeanOption()
-        assert m.features() == ["log_moneyness", "expiry_time", "volatility"]
-        _ = [get_feature(f) for f in m.features()]
+        assert m.inputs() == ["log_moneyness", "expiry_time", "volatility"]
+        _ = [get_feature(f) for f in m.inputs()]
 
     def test_forward(self):
         m = BSEuropeanOption()
@@ -99,7 +99,7 @@ class TestBSEuropeanOption(_TestBSModule):
 
         liability = EuropeanOption(BrownianStock())
         model = BSEuropeanOption()
-        hedger = Hedger(model, model.features())
+        hedger = Hedger(model, model.inputs())
         price = hedger.price(liability)
         assert torch.allclose(price, torch.tensor(0.022), atol=1e-3)
 

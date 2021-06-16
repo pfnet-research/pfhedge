@@ -17,7 +17,7 @@ class BSEuropeanBinaryOption(BSModuleMixin):
 
     Shape:
         - Input: :math:`(N, *, 3)`, where :math:`*` means any number of additional dimensions.
-          See `features()` for input features.
+          See `inputs()` for the names of input features.
         - Output: :math:`(N, *, 1)` Delta of the derivative.
           All but the last dimension are the same shape as the input.
 
@@ -32,7 +32,7 @@ class BSEuropeanBinaryOption(BSModuleMixin):
 
         >>> from pfhedge.nn import BSEuropeanBinaryOption
         >>> m = BSEuropeanBinaryOption(strike=1.0)
-        >>> m.features()
+        >>> m.inputs()
         ['log_moneyness', 'expiry_time', 'volatility']
         >>> input = torch.tensor([
         ...     [-0.01, 0.1, 0.2],
@@ -75,7 +75,7 @@ class BSEuropeanBinaryOption(BSModuleMixin):
             params.append(f"strike={self.strike}")
         return ", ".join(params)
 
-    def features(self) -> list:
+    def inputs(self) -> list:
         return ["log_moneyness", "expiry_time", "volatility"]
 
     @torch.enable_grad()

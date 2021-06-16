@@ -19,7 +19,7 @@ if __name__ == "__main__":
 
     # Create your hedger
     model = BlackScholes(deriv)
-    hedger = Hedger(model, model.features())
+    hedger = Hedger(model, model.inputs())
 
     # Fit and price
     price = hedger.price(deriv, n_paths=10000)

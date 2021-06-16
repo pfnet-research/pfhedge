@@ -35,13 +35,13 @@ class TestBSLookbackOption(_TestBSModule):
 
     def test_features(self):
         m = BSLookbackOption()
-        assert m.features() == [
+        assert m.inputs() == [
             "log_moneyness",
             "max_log_moneyness",
             "expiry_time",
             "volatility",
         ]
-        _ = [get_feature(f) for f in m.features()]
+        _ = [get_feature(f) for f in m.inputs()]
 
     def test_price(self):
         m = BSLookbackOption(strike=1.03)
@@ -95,7 +95,7 @@ class TestBSLookbackOption(_TestBSModule):
 
         deriv = LookbackOption(BrownianStock(), strike=1.03)
         model = BSLookbackOption(deriv)
-        hedger = Hedger(model, model.features())
+        hedger = Hedger(model, model.inputs())
         price = hedger.price(deriv)
 
         assert torch.allclose(price, torch.tensor(0.0170), atol=1e-4)
