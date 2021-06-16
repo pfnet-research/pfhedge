@@ -1,9 +1,5 @@
 import torch
 
-from ...instruments import AmericanBinaryOption
-from ...instruments import EuropeanBinaryOption
-from ...instruments import EuropeanOption
-from ...instruments import LookbackOption
 from .american_binary import BSAmericanBinaryOption
 from .european import BSEuropeanOption
 from .european_binary import BSEuropeanBinaryOption
@@ -73,9 +69,9 @@ class BlackScholes(torch.nn.Module):
 
     def __init__(self, derivative):
         self.__class__ = {
-            EuropeanOption: BSEuropeanOption,
-            LookbackOption: BSLookbackOption,
-            AmericanBinaryOption: BSAmericanBinaryOption,
-            EuropeanBinaryOption: BSEuropeanBinaryOption,
-        }[derivative.__class__]
+            "EuropeanOption": BSEuropeanOption,
+            "LookbackOption": BSLookbackOption,
+            "AmericanBinaryOption": BSAmericanBinaryOption,
+            "EuropeanBinaryOption": BSEuropeanBinaryOption,
+        }[derivative.__class__.__name__]
         self.__init__(derivative)

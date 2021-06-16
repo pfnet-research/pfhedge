@@ -1,6 +1,6 @@
 import torch
 
-from ..bs.bs import BlackScholes
+from .bs.bs import BlackScholes
 from .clamp import Clamp
 
 

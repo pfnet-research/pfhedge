@@ -4,11 +4,12 @@ from torch.nn import Module
 from torch.optim import Adam
 from tqdm import tqdm
 
-from ._utils.hook import save_prev_output
-from ._utils.operations import ensemble_mean
-from .features import get_feature
-from .nn import EntropicRiskMeasure
-from .nn import HedgeLoss
+from pfhedge._utils.hook import save_prev_output
+from pfhedge._utils.operations import ensemble_mean
+from pfhedge.features import get_feature
+
+from .loss import EntropicRiskMeasure
+from .loss import HedgeLoss
 
 
 class Hedger(Module):

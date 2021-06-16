@@ -3,11 +3,11 @@ import torch
 from torch.nn import Identity
 from torch.nn import Linear
 
-from pfhedge import Hedger
 from pfhedge.instruments import BrownianStock
 from pfhedge.instruments import EuropeanOption
 from pfhedge.nn import BlackScholes
 from pfhedge.nn import EntropicRiskMeasure
+from pfhedge.nn import Hedger
 from pfhedge.nn import MultiLayerPerceptron
 from pfhedge.nn import Naked
 from pfhedge.nn import WhalleyWilmott

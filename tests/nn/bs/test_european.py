@@ -93,9 +93,9 @@ class TestBSEuropeanOption(_TestBSModule):
         assert torch.allclose(result, expect)
 
     def test_example(self):
-        from pfhedge import Hedger
         from pfhedge.instruments import BrownianStock
         from pfhedge.instruments import EuropeanOption
+        from pfhedge.nn import Hedger
 
         liability = EuropeanOption(BrownianStock())
         model = BSEuropeanOption()
