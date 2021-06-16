@@ -25,7 +25,7 @@ if __name__ == "__main__":
 
     # bs is a module that outputs Black-Scholes' delta
     bs = BlackScholes(deriv)
-    delta = ModuleOutput(bs, features=[LogMoneyness(), ExpiryTime(), Volatility()])
+    delta = ModuleOutput(bs, inputs=[LogMoneyness(), ExpiryTime(), Volatility()])
 
     # Create your hedger
     # Here `delta` is a feature that outputs Black-Scholes' delta

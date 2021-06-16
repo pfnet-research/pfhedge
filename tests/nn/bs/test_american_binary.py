@@ -39,13 +39,13 @@ class TestBSAmericanBinaryOption(_TestBSModule):
 
     def test_features(self):
         m = BSAmericanBinaryOption()
-        assert m.features() == [
+        assert m.inputs() == [
             "log_moneyness",
             "max_log_moneyness",
             "expiry_time",
             "volatility",
         ]
-        _ = [get_feature(f) for f in m.features()]
+        _ = [get_feature(f) for f in m.inputs()]
 
     def test_forward(self):
         m = BSAmericanBinaryOption()
@@ -130,7 +130,7 @@ class TestBSAmericanBinaryOption(_TestBSModule):
 
         deriv = AmericanBinaryOption(BrownianStock(), strike=1.03)
         model = BSAmericanBinaryOption(deriv)
-        hedger = Hedger(model, model.features())
+        hedger = Hedger(model, model.inputs())
         price = hedger.price(deriv)
 
         assert torch.allclose(price, torch.tensor(0.6003), atol=1e-3)

@@ -32,7 +32,7 @@ class TestHedger:
         hedger = Hedger(Linear(2, 1), ["moneyness", "expiry_time"])
         assert repr(hedger) == (
             "Hedger(\n"
-            "  features=['moneyness', 'expiry_time'],\n"
+            "  inputs=['moneyness', 'expiry_time'],\n"
             "  (model): Linear(in_features=2, out_features=1, bias=True)\n"
             "  (criterion): EntropicRiskMeasure()\n"
             ")"
@@ -40,10 +40,10 @@ class TestHedger:
 
         liability = EuropeanOption(BrownianStock())
         model = BlackScholes(liability)
-        hedger = Hedger(model, model.features())
+        hedger = Hedger(model, model.inputs())
         assert repr(hedger) == (
             "Hedger(\n"
-            "  features=['log_moneyness', 'expiry_time', 'volatility'],\n"
+            "  inputs=['log_moneyness', 'expiry_time', 'volatility'],\n"
             "  (model): BSEuropeanOption()\n"
             "  (criterion): EntropicRiskMeasure()\n"
             ")"
@@ -53,7 +53,7 @@ class TestHedger:
         assert repr(hedger) == (
             "Hedger(\n"
             "  model=naked,\n"
-            "  features=['moneyness', 'expiry_time'],\n"
+            "  inputs=['moneyness', 'expiry_time'],\n"
             "  (criterion): EntropicRiskMeasure()\n"
             ")"
         )
@@ -86,13 +86,13 @@ class TestHedger:
         assert m(x).size() == torch.Size((N, M_1, M_2, 1))
 
         model = BlackScholes(deriv)
-        m = Hedger(model, model.features())
-        x = torch.empty((N, M_1, M_2, len(model.features())))
+        m = Hedger(model, model.inputs())
+        x = torch.empty((N, M_1, M_2, len(model.inputs())))
         assert m(x).size() == torch.Size((N, M_1, M_2, 1))
 
         model = WhalleyWilmott(deriv)
-        m = Hedger(model, model.features())
-        x = torch.empty((N, M_1, M_2, len(model.features())))
+        m = Hedger(model, model.inputs())
+        x = torch.empty((N, M_1, M_2, len(model.inputs())))
         assert m(x).size() == torch.Size((N, M_1, M_2, 1))
 
         model = Naked()

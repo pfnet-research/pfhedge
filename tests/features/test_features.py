@@ -171,18 +171,18 @@ class TestPrevHedge(_TestFeature):
         liability = EuropeanOption(BrownianStock(volatility))
         liability.underlier.prices = torch.arange(1.0, 7.0).reshape(3, 2)
         hedger = Hedger(Linear(2, 1), ["moneyness", "expiry_time"])
-        hedger.features = [feature.of(liability) for feature in hedger.features]
+        hedger.inputs = [feature.of(liability) for feature in hedger.inputs]
 
         f = PrevHedge().of(liability, hedger)
 
         result = f[0]
         expect = torch.zeros((2, 1))
         assert torch.allclose(result, expect)
-        h = hedger(torch.cat([feature[0] for feature in hedger.features], 1))
+        h = hedger(torch.cat([feature[0] for feature in hedger.inputs], 1))
         result = f[1]
         expect = h.reshape(-1, 1)
         assert torch.allclose(result, expect)
-        h = hedger(torch.cat([feature[1] for feature in hedger.features], 1))
+        h = hedger(torch.cat([feature[1] for feature in hedger.inputs], 1))
         result = f[2]
         expect = h.reshape(-1, 1)
         assert torch.allclose(result, expect)
@@ -193,7 +193,7 @@ class TestPrevHedge(_TestFeature):
 
 class TestBarrier(_TestFeature):
     """
-    pfhedge.features.Barrier
+    pfhedge.inputs.Barrier
     """
 
     def test(self):
@@ -387,7 +387,7 @@ class TestModelOutput(_TestFeature):
         f = ModuleOutput(module, [x1, x2])
         expect = (
             "ModuleOutput(\n"
-            "  features=['moneyness', 'expiry_time'],\n"
+            "  inputs=['moneyness', 'expiry_time'],\n"
             "  (module): Linear(in_features=2, out_features=1, bias=True)\n"
             ")"
         )

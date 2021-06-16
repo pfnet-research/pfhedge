@@ -42,7 +42,7 @@ class TestBlackScholes:
         m = BlackScholes(deriv)
 
         N = 10
-        H_in = len(m.features())
+        H_in = len(m.inputs())
         M_1 = 12
         M_2 = 13
 

@@ -157,9 +157,9 @@ class ModuleOutput(Feature, torch.nn.Module):
             The input and output shapes should be `(N, *, H_in) -> (N, *, 1)`,
             where `N` stands for the number of Monte Carlo paths of the underlier of
             the derivative, `H_in` stands for the number of input features
-            (namely, `H_in = len(features)`),
+            (namely, `H_in = len(inputs)`),
             and `*` means any number of additional dimensions.
-        features (list[Feature]): The input features to the module.
+        inputs (list[Feature]): The input features to the module.
 
     Examples:
 
@@ -176,7 +176,7 @@ class ModuleOutput(Feature, torch.nn.Module):
                 [...]], grad_fn=<AddmmBackward>)
         >>> f
         ModuleOutput(
-          features=['moneyness', 'expiry_time'],
+          inputs=['moneyness', 'expiry_time'],
           (module): Linear(in_features=2, out_features=1, bias=True)
         )
 
@@ -193,22 +193,22 @@ class ModuleOutput(Feature, torch.nn.Module):
                 [...]])
     """
 
-    def __init__(self, module, features):
+    def __init__(self, module, inputs):
         super().__init__()
 
         self.module = module
-        self.features = features
+        self.inputs = inputs
 
     def extra_repr(self):
-        return f"features={[str(f) for f in self.features]},"
+        return f"inputs={[str(f) for f in self.inputs]},"
 
     def forward(self, input):
         return self.module(input)
 
     def __getitem__(self, i):
-        return self(torch.cat([f[i] for f in self.features], 1))
+        return self(torch.cat([f[i] for f in self.inputs], 1))
 
     def of(self, derivative=None, hedger=None):
         super().of(derivative, hedger)
-        self.features = [feature.of(derivative, hedger) for feature in self.features]
+        self.inputs = [feature.of(derivative, hedger) for feature in self.inputs]
         return self

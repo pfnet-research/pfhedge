@@ -43,7 +43,7 @@ class TestWhalleyWilmott:
         m = WhalleyWilmott(deriv)
 
         N = 10
-        H_in = len(m.features())
+        H_in = len(m.inputs())
         M_1 = 11
         M_2 = 12
 
