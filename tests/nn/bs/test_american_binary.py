@@ -1,5 +1,6 @@
 import pytest
 import torch
+from torch.testing import assert_close
 
 from pfhedge.features._getter import get_feature
 from pfhedge.instruments import AmericanBinaryOption
@@ -52,39 +53,39 @@ class TestBSAmericanBinaryOption(_TestBSModule):
 
         x = torch.tensor([-0.1, -0.1, 0.1, 0.2]).reshape(1, -1)
         result = m(x)
-        expect = torch.tensor(0.7819)
-        assert torch.allclose(result, expect, atol=1e-4)
+        expect = torch.full_like(result, 0.7819)
+        assert_close(result, expect, atol=1e-4, rtol=1e-4)
 
         x = torch.tensor([0.1, 0.1, 0.1, 0.2]).reshape(1, -1)
         result = m(x)
-        expect = torch.tensor(0.0)
-        assert torch.allclose(result, expect, atol=1e-4)
+        expect = torch.zeros_like(result)
+        assert_close(result, expect, atol=1e-4, rtol=1e-4)
 
         x = torch.tensor([-0.0001, -0.0001, 0.1, 0.2]).reshape(1, -1)
         result = m(x)
-        expect = torch.tensor(1.1531)
-        assert torch.allclose(result, expect, atol=1e-4)
+        expect = torch.full_like(result, 1.1531)
+        assert_close(result, expect, atol=1e-4, rtol=1e-4)
 
     def test_delta(self):
         m = BSAmericanBinaryOption()
 
         result = m.delta(-0.1, -0.1, 0.1, 0.2)  # s, m, t, v
         expect = torch.tensor(0.7819)
-        assert torch.allclose(result, expect, atol=1e-4)
+        assert_close(result, expect, atol=1e-4, rtol=1e-4)
 
         result = m.delta(0.1, 0.1, 0.1, 0.2)  # s, m, t, v
         expect = torch.tensor(0.0)
-        assert torch.allclose(result, expect, atol=1e-4)
+        assert_close(result, expect, atol=1e-4, rtol=1e-4)
 
         result = m.delta(-0.0001, -0.0001, 0.1, 0.2)  # s, m, t, v
         expect = torch.tensor(1.1531)
-        assert torch.allclose(result, expect, atol=1e-4)
+        assert_close(result, expect, atol=1e-4, rtol=1e-4)
 
     def test_gamma(self):
         m = BSAmericanBinaryOption()
         result = m.gamma(-0.01, -0.01, 1.0, 0.2)
         expect = torch.tensor(0.7618406414985657)
-        assert torch.allclose(result, expect)
+        assert_close(result, expect)
 
         with pytest.raises(ValueError):
             # not yet supported
@@ -95,15 +96,15 @@ class TestBSAmericanBinaryOption(_TestBSModule):
         m = BSAmericanBinaryOption()
         result = m.price(-0.1, -0.1, 0.1, 0.2)  # s, m, t, v
         expect = torch.tensor(0.5778)
-        assert torch.allclose(result, expect, atol=1e-4)
+        assert_close(result, expect, atol=1e-4, rtol=1e-4)
 
         result = m.price(-0.0001, -0.0001, 0.1, 0.2)  # s, m, t, v
         expect = torch.tensor(0.9995)
-        assert torch.allclose(result, expect, atol=1e-4)
+        assert_close(result, expect, atol=1e-4, rtol=1e-4)
 
         result = m.price(0.1, 0.1, 0.1, 0.2)  # s, m, t, v
         expect = torch.tensor(1.0)
-        assert torch.allclose(result, expect, atol=1e-4)
+        assert_close(result, expect, atol=1e-4, rtol=1e-4)
 
     def test_implied_volatility(self):
         # log_moneyness, max_log_moneyness, expiry_time, price
@@ -119,9 +120,7 @@ class TestBSAmericanBinaryOption(_TestBSModule):
 
         result = BSAmericanBinaryOption().price(x[:, 0], x[:, 1], x[:, 2], iv)
         expect = x[:, -1]
-        print(result)
-        print(expect)
-        assert torch.allclose(result, expect, atol=1e-4)
+        assert_close(result, expect, atol=1e-4, rtol=1e-4, check_stride=False)
 
     def test_example(self):
         from pfhedge.instruments import AmericanBinaryOption
@@ -133,7 +132,7 @@ class TestBSAmericanBinaryOption(_TestBSModule):
         hedger = Hedger(model, model.inputs())
         price = hedger.price(deriv)
 
-        assert torch.allclose(price, torch.tensor(0.62), atol=1e-2)
+        assert_close(price, torch.tensor(0.62), atol=1e-2, rtol=1e-4)
 
     def test_shape(self):
         torch.distributions.Distribution.set_default_validate_args(False)

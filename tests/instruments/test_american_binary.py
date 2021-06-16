@@ -1,5 +1,6 @@
 import pytest
 import torch
+from torch.testing import assert_close
 
 from pfhedge.instruments import AmericanBinaryOption
 from pfhedge.instruments import BrownianStock
@@ -21,7 +22,7 @@ class TestAmericanBinaryOption:
         ).T
         result = liability.payoff()
         expect = torch.tensor([0.0, 1.0, 1.0, 1.0])
-        assert torch.allclose(result, expect)
+        assert_close(result, expect)
 
         liability = AmericanBinaryOption(BrownianStock(), strike=1.0, call=False)
         liability.underlier.prices = torch.tensor(
@@ -29,7 +30,7 @@ class TestAmericanBinaryOption:
         ).T
         result = liability.payoff()
         expect = torch.tensor([0.0, 1.0, 1.0, 1.0])
-        assert torch.allclose(result, expect)
+        assert_close(result, expect)
 
     @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
     def test_dtype(self, dtype):

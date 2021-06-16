@@ -1,5 +1,6 @@
 import pytest
 import torch
+from torch.testing import assert_close
 
 from pfhedge.features._getter import get_feature
 from pfhedge.instruments import BrownianStock
@@ -34,38 +35,38 @@ class TestBSEuropeanOption(_TestBSModule):
         m = BSEuropeanOption()
         x = torch.tensor([0.0, 1.0, 0.2]).reshape(1, -1)
         result = m(x)
-        expect = torch.tensor(0.5398278962)
-        assert torch.allclose(result, expect)
+        expect = torch.full_like(result, 0.5398278962)
+        assert_close(result, expect)
 
         m = BSEuropeanOption(call=False)
         x = torch.tensor([0.0, 1.0, 0.2]).reshape(1, -1)
         result = m(x)
-        expect = torch.tensor(-0.4601721)
-        assert torch.allclose(result, expect)
+        expect = torch.full_like(result, -0.4601721)
+        assert_close(result, expect)
 
         liability = EuropeanOption(BrownianStock(), call=False)
         m = BSEuropeanOption(liability)
         x = torch.tensor([0.0, 1.0, 0.2]).reshape(1, -1)
         result = m(x)
-        expect = torch.tensor(-0.4601721)
-        assert torch.allclose(result, expect)
+        expect = torch.full_like(result, -0.4601721)
+        assert_close(result, expect)
 
     def test_delta(self):
         m = BSEuropeanOption()
         result = m.delta(0.0, 1.0, 0.2)
-        expect = torch.tensor(0.5398278962)
-        assert torch.allclose(result, expect)
+        expect = torch.full_like(result, 0.5398278962)
+        assert_close(result, expect)
 
         m = BSEuropeanOption(call=False)
         result = m.delta(0.0, 1.0, 0.2)
-        expect = torch.tensor(-0.4601721)
-        assert torch.allclose(result, expect)
+        expect = torch.full_like(result, -0.4601721)
+        assert_close(result, expect)
 
     def test_gamma(self):
         m = BSEuropeanOption()
         result = m.gamma(0.0, 1.0, 0.2)
-        expect = torch.tensor(1.9847627374)
-        assert torch.allclose(result, expect)
+        expect = torch.full_like(result, 1.9847627374)
+        assert_close(result, expect)
 
         m = BSEuropeanOption(call=False)
         with pytest.raises(ValueError):
@@ -75,13 +76,13 @@ class TestBSEuropeanOption(_TestBSModule):
     def test_price(self):
         m = BSEuropeanOption()
         result = m.price(0.0, 1.0, 0.2)
-        expect = torch.tensor(0.0796557924)
-        assert torch.allclose(result, expect)
+        expect = torch.full_like(result, 0.0796557924)
+        assert_close(result, expect)
 
         m = BSEuropeanOption(call=False)
         result = m.price(0.0, 1.0, 0.2)
-        expect = torch.tensor(0.0796557924)
-        assert torch.allclose(result, expect)
+        expect = torch.full_like(result, 0.0796557924)
+        assert_close(result, expect)
 
     def test_implied_volatility(self):
         x = torch.tensor([[0.0, 0.1, 0.01], [0.0, 0.1, 0.02], [0.0, 0.1, 0.03]])
@@ -90,7 +91,7 @@ class TestBSEuropeanOption(_TestBSModule):
 
         result = BSEuropeanOption().price(x[:, 0], x[:, 1], iv)
         expect = x[:, 2]
-        assert torch.allclose(result, expect)
+        assert_close(result, expect, check_stride=False)
 
     def test_example(self):
         from pfhedge.instruments import BrownianStock
@@ -100,8 +101,9 @@ class TestBSEuropeanOption(_TestBSModule):
         liability = EuropeanOption(BrownianStock())
         model = BSEuropeanOption()
         hedger = Hedger(model, model.inputs())
-        price = hedger.price(liability)
-        assert torch.allclose(price, torch.tensor(0.022), atol=1e-3)
+        result = hedger.price(liability)
+        expect = torch.tensor(0.022)
+        assert_close(result, expect, atol=1e-3, rtol=1e-3)
 
     def test_shape(self):
         torch.distributions.Distribution.set_default_validate_args(False)
