@@ -30,7 +30,7 @@ class EuropeanOption(Derivative):
         underlier (:class:`Primary`): The underlying instrument of the option.
         call (bool, default=True): Specifies whether the option is call or put.
         strike (float, default=1.0): The strike price of the option.
-        maturity (float, default=30/365): The maturity of the option.
+        maturity (float, default=20/250): The maturity of the option.
         dtype (torch.device, optional): Desired device of returned tensor.
             Default: If None, uses a global default (see `torch.set_default_tensor_type()`).
         device (torch.device, optional): Desired device of returned tensor.
@@ -45,23 +45,22 @@ class EuropeanOption(Derivative):
         >>> from pfhedge.instruments import BrownianStock
         >>> from pfhedge.instruments import EuropeanOption
         >>> _ = torch.manual_seed(42)
-        >>> deriv = EuropeanOption(BrownianStock(), maturity=5 / 365)
+        >>> deriv = EuropeanOption(BrownianStock(), maturity=5/250)
         >>> deriv.simulate(n_paths=2)
         >>> deriv.underlier.prices
         tensor([[1.0000, 1.0000],
-                [1.0024, 1.0024],
-                [0.9906, 1.0004],
-                [1.0137, 0.9936],
-                [1.0186, 0.9964]])
+                [1.0029, 1.0028],
+                [0.9887, 1.0004],
+                [1.0166, 0.9923],
+                [1.0225, 0.9956]])
         >>> deriv.payoff()
-        tensor([0.0186, 0.0000])
+        tensor([0.0225, 0.0000])
 
         Using custom `dtype` and `device`.
 
         >>> deriv = EuropeanOption(BrownianStock())
         >>> deriv.to(dtype=torch.float64, device="cuda:0")
-        EuropeanOption(BrownianStock(...), strike=1.0, maturity=8.22e-02, \
-dtype=torch.float64, device='cuda:0')
+        EuropeanOption(BrownianStock(...), ..., dtype=torch.float64, device='cuda:0')
     """
 
     def __init__(
@@ -69,7 +68,7 @@ dtype=torch.float64, device='cuda:0')
         underlier,
         call: bool = True,
         strike: float = 1.0,
-        maturity: float = 30 / 365,
+        maturity: float = 20 / 250,
         dtype=None,
         device=None,
     ):

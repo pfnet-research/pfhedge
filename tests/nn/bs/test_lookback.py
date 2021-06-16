@@ -45,19 +45,19 @@ class TestBSLookbackOption(_TestBSModule):
 
     def test_price(self):
         m = BSLookbackOption(strike=1.03)
-        s = np.log(1.00 / 1.03)
+        s = torch.tensor(1.00 / 1.03).log()
         result = m.price(s, s, 1.0, 0.2).item()
         assert np.isclose(result, 0.14, atol=1e-2)
 
     def test_delta(self):
         m = BSLookbackOption()
-        s = np.log(1.00 / 1.03)
+        s = torch.tensor(1.00 / 1.03).log()
         result = m.delta(s, s, 1.0, 0.2).item()
         assert np.isclose(result, 1.037, atol=1e-2)
 
     def test_gamma(self):
         m = BSLookbackOption()
-        s = np.log(1.00 / 1.03)
+        s = torch.tensor(1.00 / 1.03).log()
         result = m.gamma(s, s, 1.0, 0.2).item()
         assert np.isclose(result, 4.466, atol=0.8)
 
@@ -95,4 +95,4 @@ class TestBSLookbackOption(_TestBSModule):
         hedger = Hedger(model, model.features())
         price = hedger.price(deriv)
 
-        assert torch.allclose(price, torch.tensor(0.0177), atol=1e-4)
+        assert torch.allclose(price, torch.tensor(0.0170), atol=1e-4)

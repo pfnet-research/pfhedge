@@ -97,7 +97,7 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
         hedger = Hedger(model, model.features())
         price = hedger.price(deriv)
 
-        assert torch.allclose(price, torch.tensor(0.5004), atol=1e-4)
+        assert torch.allclose(price, torch.tensor(0.5013), atol=1e-4)
 
     def test_shape(self):
         torch.distributions.Distribution.set_default_validate_args(False)

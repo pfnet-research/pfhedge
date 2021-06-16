@@ -94,7 +94,7 @@ class TestBSEuropeanOption(_TestBSModule):
         model = BSEuropeanOption()
         hedger = Hedger(model, model.features())
         price = hedger.price(liability)
-        assert torch.allclose(price, torch.tensor(0.0221), atol=1e-4)
+        assert torch.allclose(price, torch.tensor(0.022), atol=1e-3)
 
     def test_shape(self):
         torch.distributions.Distribution.set_default_validate_args(False)
