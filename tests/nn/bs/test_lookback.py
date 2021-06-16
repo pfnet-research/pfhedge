@@ -89,9 +89,9 @@ class TestBSLookbackOption(_TestBSModule):
         self.assert_shape_forward(m)
 
     def test_example(self):
-        from pfhedge import Hedger
         from pfhedge.instruments import BrownianStock
         from pfhedge.instruments import LookbackOption
+        from pfhedge.nn import Hedger
 
         deriv = LookbackOption(BrownianStock(), strike=1.03)
         model = BSLookbackOption(deriv)

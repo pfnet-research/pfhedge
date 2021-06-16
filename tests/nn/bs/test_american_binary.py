@@ -124,9 +124,9 @@ class TestBSAmericanBinaryOption(_TestBSModule):
         assert torch.allclose(result, expect, atol=1e-4)
 
     def test_example(self):
-        from pfhedge import Hedger
         from pfhedge.instruments import AmericanBinaryOption
         from pfhedge.instruments import BrownianStock
+        from pfhedge.nn import Hedger
 
         deriv = AmericanBinaryOption(BrownianStock(), strike=1.03)
         model = BSAmericanBinaryOption(deriv)

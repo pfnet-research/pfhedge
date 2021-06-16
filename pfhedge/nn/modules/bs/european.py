@@ -1,7 +1,8 @@
 import torch
 from torch import Tensor
 
-from ..._utils.bisect import bisect
+from pfhedge._utils.bisect import bisect
+
 from ._base import BSModuleMixin
 
 

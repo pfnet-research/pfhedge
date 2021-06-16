@@ -2,7 +2,6 @@ import pytest
 import torch
 from torch.nn import Linear
 
-from pfhedge import Hedger
 from pfhedge.features import Barrier
 from pfhedge.features import ExpiryTime
 from pfhedge.features import LogMoneyness
@@ -15,6 +14,7 @@ from pfhedge.features import Volatility
 from pfhedge.features import Zero
 from pfhedge.instruments import BrownianStock
 from pfhedge.instruments import EuropeanOption
+from pfhedge.nn import Hedger
 
 
 class _TestFeature:
