@@ -98,4 +98,4 @@ class TestBSLookbackOption(_TestBSModule):
         hedger = Hedger(model, model.inputs())
         price = hedger.price(deriv)
 
-        assert torch.allclose(price, torch.tensor(0.0170), atol=1e-4)
+        assert torch.allclose(price, torch.tensor(0.017), atol=1e-3)

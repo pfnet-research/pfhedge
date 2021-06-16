@@ -32,22 +32,21 @@ class TestMoneyness(_TestFeature):
     @pytest.mark.parametrize("log", [True, False])
     def test(self, strike, log):
         liability = EuropeanOption(BrownianStock(), strike=strike)
-        liability.underlier.prices = torch.arange(1.0, 7.0).reshape(3, 2)
-        # tensor([[1., 2.],
-        #         [3., 4.],
-        #         [5., 6.]])
+        liability.underlier.prices = torch.arange(1.0, 7.0).reshape(2, 3)
+        # tensor([[1., 2., 3.],
+        #         [4., 5., 6.]])
         f = Moneyness(log=log).of(liability)
 
         result = f[0]
-        expect = torch.tensor([[1.0], [2.0]]) / strike
+        expect = torch.tensor([[1.0], [4.0]]) / strike
         expect = torch.log(expect) if log else expect
         assert torch.allclose(result, expect)
         result = f[1]
-        expect = torch.tensor([[3.0], [4.0]]) / strike
+        expect = torch.tensor([[2.0], [5.0]]) / strike
         expect = torch.log(expect) if log else expect
         assert torch.allclose(result, expect)
         result = f[2]
-        expect = torch.tensor([[5.0], [6.0]]) / strike
+        expect = torch.tensor([[3.0], [6.0]]) / strike
         expect = torch.log(expect) if log else expect
         assert torch.allclose(result, expect)
 
@@ -69,22 +68,21 @@ class TestLogMoneyness(_TestFeature):
     @pytest.mark.parametrize("strike", [1.0, 2.0])
     def test(self, strike):
         liability = EuropeanOption(BrownianStock(), strike=strike)
-        liability.underlier.prices = torch.arange(1.0, 7.0).reshape(3, 2)
-        # tensor([[1., 2.],
-        #         [3., 4.],
-        #         [5., 6.]])
+        liability.underlier.prices = torch.arange(1.0, 7.0).reshape(2, 3)
+        # tensor([[1., 2., 3.],
+        #         [4., 5., 6.]])
         f = LogMoneyness().of(liability)
 
         result = f[0]
-        expect = torch.tensor([[1.0], [2.0]]) / strike
+        expect = torch.tensor([[1.0], [4.0]]) / strike
         expect = torch.log(expect)
         assert torch.allclose(result, expect)
         result = f[1]
-        expect = torch.tensor([[3.0], [4.0]]) / strike
+        expect = torch.tensor([[2.0], [5.0]]) / strike
         expect = torch.log(expect)
         assert torch.allclose(result, expect)
         result = f[2]
-        expect = torch.tensor([[5.0], [6.0]]) / strike
+        expect = torch.tensor([[3.0], [6.0]]) / strike
         expect = torch.log(expect)
         assert torch.allclose(result, expect)
 
@@ -106,7 +104,7 @@ class TestExpiryTime(_TestFeature):
         maturity = 3 / 365
         dt = 1 / 365
         liability = EuropeanOption(BrownianStock(dt=dt), maturity=maturity)
-        liability.underlier.prices = torch.arange(1.0, 7.0).reshape(3, 2)
+        liability.underlier.prices = torch.empty(2, 3)
 
         f = ExpiryTime().of(liability)
 
@@ -137,7 +135,7 @@ class TestVolatility(_TestFeature):
     @pytest.mark.parametrize("volatility", [0.2, 0.1])
     def test(self, volatility):
         liability = EuropeanOption(BrownianStock(volatility=volatility))
-        liability.underlier.prices = torch.arange(1.0, 7.0).reshape(3, 2)
+        liability.underlier.prices = torch.empty(2, 3)
 
         f = Volatility().of(liability)
 
@@ -169,7 +167,7 @@ class TestPrevHedge(_TestFeature):
     def test(self, volatility):
         torch.manual_seed(42)
         liability = EuropeanOption(BrownianStock(volatility))
-        liability.underlier.prices = torch.arange(1.0, 7.0).reshape(3, 2)
+        liability.underlier.prices = torch.randn(2, 3)
         hedger = Hedger(Linear(2, 1), ["moneyness", "expiry_time"])
         hedger.inputs = [feature.of(liability) for feature in hedger.inputs]
 
@@ -200,10 +198,10 @@ class TestBarrier(_TestFeature):
         liability = EuropeanOption(BrownianStock())
         liability.underlier.prices = torch.tensor(
             [
-                [1.0, 2.0, 3.0, 1.0],
-                [1.5, 1.0, 4.0, 1.1],
-                [2.0, 1.0, 5.0, 1.2],
-                [3.0, 1.0, 6.0, 1.3],
+                [1.0, 1.5, 2.0, 3.0],
+                [2.0, 1.0, 1.0, 1.0],
+                [3.0, 4.0, 5.0, 6.0],
+                [1.0, 1.1, 1.2, 1.3],
             ]
         )
         f = Barrier(2.0, up=True).of(liability)
@@ -224,10 +222,10 @@ class TestBarrier(_TestFeature):
         liability = EuropeanOption(BrownianStock())
         liability.underlier.prices = torch.tensor(
             [
-                [3.0, 1.0, 6.0, 1.3],
-                [2.0, 1.0, 5.0, 1.2],
-                [1.5, 1.0, 4.0, 1.1],
-                [1.0, 2.0, 3.0, 1.0],
+                [3.0, 2.0, 1.5, 1.0],
+                [1.0, 1.0, 1.0, 2.0],
+                [6.0, 5.0, 4.0, 3.0],
+                [1.3, 1.2, 1.1, 1.0],
             ]
         )
         f = Barrier(2.0, up=False).of(liability)
@@ -265,7 +263,7 @@ class TestZero(_TestFeature):
     def test(self):
         torch.manual_seed(42)
         liability = EuropeanOption(BrownianStock())
-        liability.underlier.prices = torch.arange(1.0, 7.0).reshape(3, 2)
+        liability.underlier.prices = torch.empty(2, 3)
 
         f = Zero().of(liability)
 
@@ -298,7 +296,7 @@ class TestMaxMoneyness(_TestFeature):
     def test(self, strike, log):
         liability = EuropeanOption(BrownianStock(), strike=strike)
         liability.underlier.prices = torch.tensor(
-            [[1.0, 2.0, 3.0], [2.0, 3.0, 2.0], [1.5, 4.0, 1.0]]
+            [[1.0, 2.0, 1.5], [2.0, 3.0, 4.0], [3.0, 2.0, 1.0]]
         )
 
         f = MaxMoneyness(log=log).of(liability)
@@ -335,7 +333,7 @@ class TestMaxLogMoneyness(_TestFeature):
     def test(self, strike):
         liability = EuropeanOption(BrownianStock(), strike=strike)
         liability.underlier.prices = torch.tensor(
-            [[1.0, 2.0, 3.0], [2.0, 3.0, 2.0], [1.5, 4.0, 1.0]]
+            [[1.0, 2.0, 1.5], [2.0, 3.0, 4.0], [3.0, 2.0, 1.0]]
         )
 
         f = MaxLogMoneyness().of(liability)

@@ -33,18 +33,14 @@ class BrownianStock(Primary):
         >>> stock = BrownianStock(volatility=0.20)
         >>> stock.simulate(time_horizon=5 / 250, n_paths=2)
         >>> stock.prices
-        tensor([[1.0000, 1.0000],
-                [1.0029, 1.0028],
-                [0.9887, 1.0004],
-                [1.0166, 0.9923],
-                [1.0225, 0.9956]])
+        tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930],
+                [1.0000, 1.0282, 1.0199, 1.0258, 1.0292]])
 
         Using custom `dtype` and `device`.
 
         >>> stock = BrownianStock()
         >>> stock.to(dtype=torch.float64, device="cuda:0")
-        BrownianStock(volatility=2.00e-01, dt=4.00e-03, \
-dtype=torch.float64, device='cuda:0')
+        BrownianStock(..., dtype=torch.float64, device='cuda:0')
     """
 
     def __init__(
@@ -87,8 +83,8 @@ dtype=torch.float64, device='cuda:0')
         """
         n_steps = int(time_horizon / self.dt)
         self.prices = generate_geometric_brownian(
-            n_steps=n_steps,
             n_paths=n_paths,
+            n_steps=n_steps,
             init_value=init_price,
             volatility=self.volatility,
             dt=self.dt,
