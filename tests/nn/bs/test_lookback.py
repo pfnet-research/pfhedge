@@ -1,4 +1,3 @@
-import numpy as np
 import pytest
 import torch
 
@@ -28,10 +27,11 @@ class TestBSLookbackOption(_TestBSModule):
 
     def test_forward(self):
         m = BSLookbackOption()
-        s = np.log(1.00 / 1.03)
+        s = torch.tensor(1.00 / 1.03).log()
         x = torch.tensor([s, s, 1.0, 0.2]).reshape(1, -1)
-        result = m(x).item()
-        assert np.isclose(result, 1.037, atol=1e-2)
+        result = m(x)
+        expect = torch.tensor(1.037)
+        assert torch.allclose(result, expect, atol=1e-2)
 
     def test_features(self):
         m = BSLookbackOption()
@@ -45,21 +45,24 @@ class TestBSLookbackOption(_TestBSModule):
 
     def test_price(self):
         m = BSLookbackOption(strike=1.03)
-        s = np.log(1.00 / 1.03)
-        result = m.price(s, s, 1.0, 0.2).item()
-        assert np.isclose(result, 0.14, atol=1e-2)
+        s = torch.tensor(1.00 / 1.03).log()
+        result = m.price(s, s, torch.tensor(1.0), torch.tensor(0.2))
+        expect = torch.tensor(0.14)
+        assert torch.allclose(result, expect, atol=1e-2)
 
     def test_delta(self):
         m = BSLookbackOption()
-        s = np.log(1.00 / 1.03)
-        result = m.delta(s, s, 1.0, 0.2).item()
-        assert np.isclose(result, 1.037, atol=1e-2)
+        s = torch.tensor(1.00 / 1.03).log()
+        result = m.delta(s, s, torch.tensor(1.0), torch.tensor(0.2))
+        expect = torch.tensor(1.037)
+        assert torch.allclose(result, expect, atol=1e-2)
 
     def test_gamma(self):
         m = BSLookbackOption()
-        s = np.log(1.00 / 1.03)
-        result = m.gamma(s, s, 1.0, 0.2).item()
-        assert np.isclose(result, 4.466, atol=0.8)
+        s = torch.tensor(1.00 / 1.03).log()
+        result = m.gamma(s, s, torch.tensor(1.0), torch.tensor(0.2))
+        expect = torch.tensor(4.466)
+        assert torch.allclose(result, expect, atol=0.8)
 
     def test_implied_volatility(self):
         x = torch.tensor(
@@ -95,4 +98,4 @@ class TestBSLookbackOption(_TestBSModule):
         hedger = Hedger(model, model.features())
         price = hedger.price(deriv)
 
-        assert torch.allclose(price, torch.tensor(0.0177), atol=1e-4)
+        assert torch.allclose(price, torch.tensor(0.0170), atol=1e-4)

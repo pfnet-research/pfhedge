@@ -7,7 +7,7 @@ def generate_brownian(
     n_paths: int,
     init_value: float = 0.0,
     volatility: float = 0.2,
-    dt: float = 1.0 / 365,
+    dt: float = 1 / 250,
     dtype: torch.dtype = None,
     device: torch.device = None,
 ) -> Tensor:
@@ -20,7 +20,7 @@ def generate_brownian(
         n_paths (int): The number of simulated paths.
         init_value (float, default=0.0): The initial value of the time series.
         volatility (float, default=0.2): The volatility of the Brownian motion.
-        dt (float, default=1/365): The intervals of the time steps.
+        dt (float, default=1/250): The intervals of the time steps.
         dtype (torch.dtype, optional): The desired data type of returned tensor.
             Default: If `None`, uses a global default
             (see `torch.set_default_tensor_type()`).
@@ -42,10 +42,10 @@ def generate_brownian(
         >>> _ = torch.manual_seed(42)
         >>> generate_brownian(5, 2)
         tensor([[ 0.0000,  0.0000],
-                [ 0.0025,  0.0024],
-                [-0.0093,  0.0005],
-                [ 0.0138, -0.0062],
-                [ 0.0186, -0.0034]])
+                [ 0.0030,  0.0029],
+                [-0.0112,  0.0006],
+                [ 0.0167, -0.0075],
+                [ 0.0225, -0.0041]])
     """
     randn = torch.randn((n_steps, n_paths), dtype=dtype, device=device)
     randn[0] = 0.0
@@ -57,7 +57,7 @@ def generate_geometric_brownian(
     n_paths: int,
     init_value: float = 1.0,
     volatility: float = 0.2,
-    dt: float = 1.0 / 365,
+    dt: float = 1 / 250,
     dtype: torch.dtype = None,
     device: torch.device = None,
 ) -> Tensor:
@@ -70,7 +70,7 @@ def generate_geometric_brownian(
         n_paths (int): The number of simulated paths.
         init_value (float, default=0.0): The initial value of the time series.
         volatility (float, default=0.2): The volatility of the Brownian motion.
-        dt (float, default=1/365): The intervals of the time steps.
+        dt (float, default=1/250): The intervals of the time steps.
         dtype (torch.dtype, optional): The desired data type of returned tensor.
             Default: If `None`, uses a global default
             (see `torch.set_default_tensor_type()`).
@@ -92,10 +92,10 @@ def generate_geometric_brownian(
         >>> _ = torch.manual_seed(42)
         >>> generate_geometric_brownian(5, 2)
         tensor([[1.0000, 1.0000],
-                [1.0024, 1.0024],
-                [0.9906, 1.0004],
-                [1.0137, 0.9936],
-                [1.0186, 0.9964]])
+                [1.0029, 1.0028],
+                [0.9887, 1.0004],
+                [1.0166, 0.9923],
+                [1.0225, 0.9956]])
     """
     brownian = generate_brownian(
         n_steps=n_steps,

@@ -1,4 +1,3 @@
-import numpy as np
 import pytest
 import torch
 
@@ -34,47 +33,55 @@ class TestBSEuropeanOption(_TestBSModule):
     def test_forward(self):
         m = BSEuropeanOption()
         x = torch.tensor([0.0, 1.0, 0.2]).reshape(1, -1)
-        result = m(x).item()
-        assert np.isclose(result, 0.5398278962)
+        result = m(x)
+        expect = torch.tensor(0.5398278962)
+        assert torch.allclose(result, expect)
 
         m = BSEuropeanOption(call=False)
         x = torch.tensor([0.0, 1.0, 0.2]).reshape(1, -1)
-        result = m(x).item()
-        assert np.isclose(result, -0.4601721)
+        result = m(x)
+        expect = torch.tensor(-0.4601721)
+        assert torch.allclose(result, expect)
 
         liability = EuropeanOption(BrownianStock(), call=False)
         m = BSEuropeanOption(liability)
         x = torch.tensor([0.0, 1.0, 0.2]).reshape(1, -1)
-        result = m(x).item()
-        assert np.isclose(result, -0.4601721)
+        result = m(x)
+        expect = torch.tensor(-0.4601721)
+        assert torch.allclose(result, expect)
 
     def test_delta(self):
         m = BSEuropeanOption()
-        result = m.delta(0.0, 1.0, 0.2).item()
-        assert np.isclose(result, 0.5398278962)
+        result = m.delta(0.0, 1.0, 0.2)
+        expect = torch.tensor(0.5398278962)
+        assert torch.allclose(result, expect)
 
         m = BSEuropeanOption(call=False)
-        result = m.delta(0.0, 1.0, 0.2).item()
-        assert np.isclose(result, -0.4601721)
+        result = m.delta(0.0, 1.0, 0.2)
+        expect = torch.tensor(-0.4601721)
+        assert torch.allclose(result, expect)
 
     def test_gamma(self):
         m = BSEuropeanOption()
-        result = m.gamma(0.0, 1.0, 0.2).item()
-        assert np.isclose(result, 1.9847627374)
+        result = m.gamma(0.0, 1.0, 0.2)
+        expect = torch.tensor(1.9847627374)
+        assert torch.allclose(result, expect)
 
         m = BSEuropeanOption(call=False)
         with pytest.raises(ValueError):
             # not yet supported
-            result = m.gamma(0.0, 1.0, 0.2).item()
+            result = m.gamma(0.0, 1.0, 0.2)
 
     def test_price(self):
         m = BSEuropeanOption()
-        result = m.price(0.0, 1.0, 0.2).item()
-        assert np.isclose(result, 0.0796557924)
+        result = m.price(0.0, 1.0, 0.2)
+        expect = torch.tensor(0.0796557924)
+        assert torch.allclose(result, expect)
 
         m = BSEuropeanOption(call=False)
-        result = m.price(0.0, 1.0, 0.2).item()
-        assert np.isclose(result, 0.0796557924)
+        result = m.price(0.0, 1.0, 0.2)
+        expect = torch.tensor(0.0796557924)
+        assert torch.allclose(result, expect)
 
     def test_implied_volatility(self):
         x = torch.tensor([[0.0, 0.1, 0.01], [0.0, 0.1, 0.02], [0.0, 0.1, 0.03]])
@@ -94,7 +101,7 @@ class TestBSEuropeanOption(_TestBSModule):
         model = BSEuropeanOption()
         hedger = Hedger(model, model.features())
         price = hedger.price(liability)
-        assert torch.allclose(price, torch.tensor(0.0221), atol=1e-4)
+        assert torch.allclose(price, torch.tensor(0.022), atol=1e-3)
 
     def test_shape(self):
         torch.distributions.Distribution.set_default_validate_args(False)
