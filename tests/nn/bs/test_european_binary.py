@@ -1,4 +1,3 @@
-import numpy as np
 import pytest
 import torch
 
@@ -58,13 +57,14 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
 
     def test_gamma(self):
         m = BSEuropeanBinaryOption()
-        result = m.gamma(0.01, 1.0, 0.2).item()
-        assert np.isclose(result, -1.4645787477493286)
+        result = m.gamma(0.01, 1.0, 0.2)
+        expect = torch.tensor(-1.4645787477493286)
+        assert torch.allclose(result, expect)
 
         with pytest.raises(ValueError):
             # not yet supported
             m = BSEuropeanBinaryOption(call=False)
-            result = m.gamma(0.0, 1.0, 0.2).item()
+            result = m.gamma(0.0, 1.0, 0.2)
 
     def test_price(self):
         m = BSEuropeanBinaryOption()
@@ -95,9 +95,9 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
         deriv = EuropeanBinaryOption(BrownianStock())
         model = BSEuropeanBinaryOption(deriv)
         hedger = Hedger(model, model.features())
-        price = hedger.price(deriv)
-
-        assert torch.allclose(price, torch.tensor(0.5013), atol=1e-4)
+        result = hedger.price(deriv)
+        expect = torch.tensor(0.5013)
+        assert torch.allclose(result, expect, atol=1e-4)
 
     def test_shape(self):
         torch.distributions.Distribution.set_default_validate_args(False)
