@@ -1,5 +1,6 @@
 import pytest
 import torch
+from torch.testing import assert_close
 
 from pfhedge.features._getter import get_feature
 from pfhedge.instruments import BrownianStock
@@ -30,8 +31,8 @@ class TestBSLookbackOption(_TestBSModule):
         s = torch.tensor(1.00 / 1.03).log()
         x = torch.tensor([s, s, 1.0, 0.2]).reshape(1, -1)
         result = m(x)
-        expect = torch.tensor(1.037)
-        assert torch.allclose(result, expect, atol=1e-2)
+        expect = torch.full_like(result, 1.037)
+        assert_close(result, expect, atol=1e-2, rtol=1e-2)
 
     def test_features(self):
         m = BSLookbackOption()
@@ -48,21 +49,21 @@ class TestBSLookbackOption(_TestBSModule):
         s = torch.tensor(1.00 / 1.03).log()
         result = m.price(s, s, torch.tensor(1.0), torch.tensor(0.2))
         expect = torch.tensor(0.14)
-        assert torch.allclose(result, expect, atol=1e-2)
+        assert_close(result, expect, atol=1e-2, rtol=1e-2)
 
     def test_delta(self):
         m = BSLookbackOption()
         s = torch.tensor(1.00 / 1.03).log()
         result = m.delta(s, s, torch.tensor(1.0), torch.tensor(0.2))
         expect = torch.tensor(1.037)
-        assert torch.allclose(result, expect, atol=1e-2)
+        assert_close(result, expect, atol=1e-2, rtol=1e-2)
 
     def test_gamma(self):
         m = BSLookbackOption()
         s = torch.tensor(1.00 / 1.03).log()
         result = m.gamma(s, s, torch.tensor(1.0), torch.tensor(0.2))
         expect = torch.tensor(4.466)
-        assert torch.allclose(result, expect, atol=0.8)
+        assert_close(result, expect, atol=0.8, rtol=0.8)  # ?
 
     def test_implied_volatility(self):
         x = torch.tensor(
@@ -72,7 +73,9 @@ class TestBSLookbackOption(_TestBSModule):
         iv = m.implied_volatility(x[:, 0], x[:, 1], x[:, 2], x[:, 3])
         result = BSLookbackOption().price(x[:, 0], x[:, 1], x[:, 2], iv)
         expect = x[:, -1]
-        assert torch.allclose(result, expect, atol=1e-4)
+        print(result)
+        print(expect)
+        assert_close(result, expect, atol=1e-4, rtol=1e-4, check_stride=False)
 
     def test_put_notimplemented(self):
         with pytest.raises(ValueError):
@@ -98,4 +101,4 @@ class TestBSLookbackOption(_TestBSModule):
         hedger = Hedger(model, model.inputs())
         price = hedger.price(deriv)
 
-        assert torch.allclose(price, torch.tensor(0.017), atol=1e-3)
+        assert_close(price, torch.tensor(0.017), atol=1e-3, rtol=1e-3)

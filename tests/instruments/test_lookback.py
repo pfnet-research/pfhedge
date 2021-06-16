@@ -1,5 +1,6 @@
 import pytest
 import torch
+from torch.testing import assert_close
 
 from pfhedge.instruments import BrownianStock
 from pfhedge.instruments import LookbackOption
@@ -22,7 +23,7 @@ class TestLookbackOption:
         # max [2.0, 4.0, 3.0]
         result = liability.payoff()
         expect = torch.tensor([0.0, 1.0, 0.0])
-        assert torch.allclose(result, expect)
+        assert_close(result, expect)
 
     def test_payoff_put(self):
         liability = LookbackOption(BrownianStock(), strike=3.0, call=False)
@@ -32,7 +33,7 @@ class TestLookbackOption:
         # min [2.0, 4.0, 3.0]
         result = liability.payoff()
         expect = torch.tensor([1.0, 0.0, 0.0])
-        assert torch.allclose(result, expect)
+        assert_close(result, expect)
 
     @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
     def test_dtype(self, dtype):

@@ -2,6 +2,7 @@ import pytest
 import torch
 from torch.nn import Identity
 from torch.nn import Linear
+from torch.testing import assert_close
 
 from pfhedge.instruments import BrownianStock
 from pfhedge.instruments import EuropeanOption
@@ -65,11 +66,11 @@ class TestHedger:
 
         pnl = hedger.compute_pnl(deriv)
         payoff = deriv.payoff()
-        assert torch.allclose(pnl, -payoff)
+        assert_close(pnl, -payoff)
 
         result = hedger.compute_pnl(deriv)
         expect = -deriv.payoff()
-        assert torch.allclose(result, expect)
+        assert_close(result, expect)
 
     def test_shape(self):
         torch.distributions.Distribution.set_default_validate_args(False)
@@ -107,4 +108,4 @@ class TestHedger:
 
         result = hedger.compute_loss(deriv)
         expect = EntropicRiskMeasure()(-deriv.payoff())
-        assert torch.allclose(result, expect)
+        assert_close(result, expect)

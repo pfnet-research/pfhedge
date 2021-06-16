@@ -1,5 +1,6 @@
 import pytest
 import torch
+from torch.testing import assert_close
 
 from pfhedge.instruments import BrownianStock
 from pfhedge.instruments import EuropeanOption
@@ -21,7 +22,7 @@ class TestEuropeanOption:
         ).T
         result = liability.payoff()
         expect = torch.tensor([0.0, 0.0, 0.1, 1.0])
-        assert torch.allclose(result, expect)
+        assert_close(result, expect)
 
     @pytest.mark.parametrize("volatility", [0.20, 0.10])
     @pytest.mark.parametrize("strike", [1.0, 0.5, 2.0])
