@@ -69,7 +69,9 @@ Here is a minimal example to try out Deep Hedging.
 
     # Create your hedger
     model = MultiLayerPerceptron()
-    hedger = Hedger(model, inputs=["log_moneyness", "expiry_time", "volatility", "prev_hedge"])
+    hedger = Hedger(
+        model, inputs=["log_moneyness", "expiry_time", "volatility", "prev_hedge"]
+    )
 
     # Fit and price
     hedger.fit(deriv)

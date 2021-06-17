@@ -1,6 +1,7 @@
 # Here is a minimal example to try out Deep Hedging.
 
 import sys
+
 sys.path.append("..")
 
 if __name__ == "__main__":
@@ -14,7 +15,9 @@ if __name__ == "__main__":
 
     # Create your hedger
     model = MultiLayerPerceptron()
-    hedger = Hedger(model, inputs=["log_moneyness", "expiry_time", "volatility", "prev_hedge"])
+    hedger = Hedger(
+        model, inputs=["log_moneyness", "expiry_time", "volatility", "prev_hedge"]
+    )
 
     # Fit and price
     hedger.fit(deriv)
