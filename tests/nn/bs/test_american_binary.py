@@ -83,14 +83,24 @@ class TestBSAmericanBinaryOption(_TestBSModule):
 
     def test_gamma(self):
         m = BSAmericanBinaryOption()
-        result = m.gamma(-0.01, -0.01, 1.0, 0.2)
-        expect = torch.tensor(0.7618406414985657)
-        assert_close(result, expect)
+        result = m.gamma(
+            torch.tensor(-0.01),
+            torch.tensor(-0.01),
+            torch.tensor(1.0),
+            torch.tensor(0.2),
+        )
+        expect = torch.tensor(0.1757)
+        assert_close(result, expect, atol=1e-4, rtol=1e-4)
 
         with pytest.raises(ValueError):
             # not yet supported
             m = BSAmericanBinaryOption(call=False)
-            result = m.gamma(-0.01, -0.01, 1.0, 0.2)
+            result = m.gamma(
+                torch.tensor(-0.01),
+                torch.tensor(-0.01),
+                torch.tensor(1.0),
+                torch.tensor(0.2),
+            )
 
     def test_price(self):
         m = BSAmericanBinaryOption()

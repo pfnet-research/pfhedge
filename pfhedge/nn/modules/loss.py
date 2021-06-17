@@ -294,7 +294,7 @@ class OCE(HedgeLoss):
         \\rho_u(X) = \\inf_w \\text{loss}(X, w)
 
     Args:
-        utility (`torch.autograd.Function`): Utility function.
+        utility (callable): Utility function.
 
     Attributes:
         w (torch.nn.Parameter): Represents wealth.
