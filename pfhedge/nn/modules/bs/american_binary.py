@@ -163,8 +163,7 @@ class BSAmericanBinaryOption(BSModuleMixin):
         expiry_time: Tensor,
         volatility: Tensor,
     ) -> Tensor:
-        """
-        Returns price of the derivative.
+        """Returns price of the derivative.
 
         Args:
             log_moneyness (torch.Tensor): Log moneyness of the underlying asset.

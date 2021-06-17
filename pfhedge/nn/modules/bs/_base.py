@@ -30,7 +30,7 @@ class BSModuleMixin(Module):
         return self.delta(*(input[..., [i]] for i in range(input.size()[-1])))
 
     @abc.abstractmethod
-    def delta(*args, **kwargs) -> torch.Tensor:
+    def delta(*args, **kwargs) -> Tensor:
         """Returns delta of the derivative.
 
         Returns:
@@ -63,9 +63,9 @@ class BSModuleMixin(Module):
         """Returns :math:`d_1` in the Black-Scholes formula.
 
         Args:
-            log_moneyness (Tensor): Log moneyness of the underlying asset.
-            expiry_time (Tensor): Time to expiry of the option.
-            volatility (Tensor): Volatility of the underlying asset.
+            log_moneyness (torch.Tensor): Log moneyness of the underlying asset.
+            expiry_time (torch.Tensor): Time to expiry of the option.
+            volatility (torch.Tensor): Volatility of the underlying asset.
 
         Returns:
             torch.Tensor
@@ -74,13 +74,13 @@ class BSModuleMixin(Module):
         return (s + (v ** 2 / 2) * t) / (v * torch.sqrt(t))
 
     @staticmethod
-    def d2(log_moneyness, expiry_time, volatility) -> torch.Tensor:
+    def d2(log_moneyness: Tensor, expiry_time: Tensor, volatility: Tensor) -> Tensor:
         """Returns :math:`d_2` in the Black-Scholes formula.
 
         Args:
-            log_moneyness (Tensor): Log moneyness of the underlying asset.
-            expiry_time (Tensor): Time to expiry of the option.
-            volatility (Tensor): Volatility of the underlying asset.
+            log_moneyness (torch.Tensor): Log moneyness of the underlying asset.
+            expiry_time (torch.Tensor): Time to expiry of the option.
+            volatility (torch.Tensor): Volatility of the underlying asset.
 
         Returns:
             torch.Tensor

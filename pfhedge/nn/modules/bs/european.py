@@ -55,7 +55,7 @@ class BSEuropeanOption(BSModuleMixin):
         BSEuropeanOption(call=False)
     """
 
-    def __init__(self, derivative=None, call=True, strike=1.0):
+    def __init__(self, derivative=None, call: bool = True, strike: float = 1.0):
         super().__init__()
 
         if derivative is not None:
@@ -164,8 +164,7 @@ class BSEuropeanOption(BSModuleMixin):
     def implied_volatility(
         self, log_moneyness: Tensor, expiry_time: Tensor, price: Tensor, precision=1e-6
     ) -> Tensor:
-        """
-        Returns implied volatility of the derivative.
+        """Returns implied volatility of the derivative.
 
         Args:
             log_moneyness (torch.Tensor): Log moneyness of the underlying asset.

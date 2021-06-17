@@ -1,3 +1,5 @@
+import torch
+
 from ..stochastic import generate_geometric_brownian
 from ._base import Primary
 
@@ -48,8 +50,8 @@ class BrownianStock(Primary):
         volatility: float = 0.2,
         cost: float = 0.0,
         dt: float = 1 / 250,
-        dtype=None,
-        device=None,
+        dtype: torch.dtype = None,
+        device: torch.device = None,
     ):
         super().__init__()
 
@@ -70,8 +72,7 @@ class BrownianStock(Primary):
     def simulate(
         self, time_horizon: float, n_paths: int = 1, init_price: float = 1.0
     ) -> None:
-        """
-        Simulate time series of prices and set an attribute `prices`.
+        """Simulate time series of prices and set an attribute `prices`.
 
         Args:
             time_horizon (float): The period of time to simulate the price.

@@ -346,8 +346,7 @@ class Hedger(Module):
         init_price: float = 1.0,
         enable_grad: bool = False,
     ) -> Tensor:
-        """
-        Evaluate the premium of the given derivative.
+        """Evaluate the premium of the given derivative.
 
         Args:
             derivative (pfhedge.instuments.Derivative): The derivative to price.

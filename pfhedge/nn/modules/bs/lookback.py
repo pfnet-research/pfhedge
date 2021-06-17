@@ -105,7 +105,6 @@ class BSLookbackOption(BSModuleMixin):
             - volatility: :math:`(N, *)`
             - output: :math:`(N, *)`
 
-
         Returns:
             Tensor
         """
