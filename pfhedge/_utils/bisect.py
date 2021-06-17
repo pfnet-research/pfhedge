@@ -41,7 +41,7 @@ def bisect(
 
         Monotone decreasing function:
 
-        >>> function = lambda x: -torch.log(x)
+        >>> function = lambda input: -torch.log(input)
         >>> output = bisect(function, target, 0.01, 10.0)
         >>> output
         tensor([2.7183, 1.0000, 0.3679])
@@ -55,7 +55,7 @@ def bisect(
 
     if (function(lower) > function(upper)).all():
         # If decreasing function
-        mf = lambda x: -function(x)
+        mf = lambda input: -function(input)
         return bisect(mf, -target, lower, upper, precision=precision, abort=abort)
 
     lower = torch.full_like(target, lower)

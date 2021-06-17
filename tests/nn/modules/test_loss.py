@@ -9,25 +9,25 @@ from pfhedge.nn.modules.loss import OCE
 
 
 class _TestHedgeLoss:
-    def assert_nonincreasing(self, loss, x, a):
+    def assert_nonincreasing(self, loss, input, a):
         assert a > 0
-        ll = loss(x).item()
-        lu = loss(x + a).item()
+        ll = loss(input).item()
+        lu = loss(input + a).item()
         assert ll > lu
 
-    def assert_convex(self, loss, x1, x2, a):
-        ll = loss(a * x1 + (1 - a) * x2).item()
-        lu = (a * loss(x1) + (1 - a) * loss(x2)).item()
+    def assert_convex(self, loss, input1, input2, a):
+        ll = loss(a * input1 + (1 - a) * input2).item()
+        lu = (a * loss(input1) + (1 - a) * loss(input2)).item()
         assert ll < lu
 
-    def assert_cash_equivalent(self, loss, x, eta):
-        result = loss(x + eta)
-        expect = loss(x) - eta
+    def assert_cash_equivalent(self, loss, input, eta):
+        result = loss(input + eta)
+        expect = loss(input) - eta
         assert torch.isclose(result, expect)
 
-    def assert_cash(self, loss, x):
-        result = loss(x)
-        expect = loss(torch.full_like(x, loss.cash(x)))
+    def assert_cash(self, loss, input):
+        result = loss(input)
+        expect = loss(torch.full_like(input, loss.cash(input)))
         assert torch.isclose(result, expect)
 
     def assert_shape(self, loss):
@@ -37,21 +37,21 @@ class _TestHedgeLoss:
         M_1 = 10
         M_2 = 11
 
-        x = torch.randn((N,)).exp()  # impose > 0
-        out = loss(x)
+        input = torch.randn((N,)).exp()  # impose > 0
+        out = loss(input)
         assert out.size() == torch.Size([])
-        out = loss.cash(x)
+        out = loss.cash(input)
         assert out.size() == torch.Size([])
 
-        x = torch.randn((N, M_1)).exp()
-        out = loss(x)
+        input = torch.randn((N, M_1)).exp()
+        out = loss(input)
         assert out.size() == torch.Size((M_1,))
-        out = loss.cash(x)
+        out = loss.cash(input)
 
-        x = torch.randn((N, M_1, M_2)).exp()
-        out = loss(x)
+        input = torch.randn((N, M_1, M_2)).exp()
+        out = loss(input)
         assert out.size() == torch.Size((M_1, M_2))
-        out = loss.cash(x)
+        out = loss.cash(input)
         assert out.size() == torch.Size((M_1, M_2))
 
 
@@ -76,9 +76,9 @@ class TestEntropicRiskMeasure(_TestHedgeLoss):
     @pytest.mark.parametrize("a", [0.1, 0.5])
     def test_convex(self, n_paths, risk, a):
         loss = EntropicRiskMeasure(risk)
-        x1 = torch.randn(n_paths)
-        x2 = torch.randn(n_paths)
-        self.assert_convex(loss, x1, x2, a)
+        input1 = torch.randn(n_paths)
+        input2 = torch.randn(n_paths)
+        self.assert_convex(loss, input1, input2, a)
 
     @pytest.mark.parametrize("n_paths", [10, 100])
     @pytest.mark.parametrize("a", [1.0, 2.0, 3.0])
@@ -140,9 +140,9 @@ class TestEntropicLoss(_TestHedgeLoss):
     @pytest.mark.parametrize("a", [0.1, 0.5])
     def test_convex(self, n_paths, risk, a):
         loss = EntropicLoss(risk)
-        x1 = torch.randn(n_paths)
-        x2 = torch.randn(n_paths)
-        self.assert_convex(loss, x1, x2, a)
+        input1 = torch.randn(n_paths)
+        input2 = torch.randn(n_paths)
+        self.assert_convex(loss, input1, input2, a)
 
     @pytest.mark.parametrize("n_paths", [10, 100])
     @pytest.mark.parametrize("a", [1.0, 2.0, 3.0])
@@ -190,24 +190,24 @@ class TestIsoelasticLoss(_TestHedgeLoss):
     @pytest.mark.parametrize("a", [0.001, 1, 2])
     def test_nonincreasing(self, n_paths, risk, a):
         loss = IsoelasticLoss(risk)
-        x = torch.exp(torch.randn(n_paths))  # force positive
-        self.assert_nonincreasing(loss, x, a)
+        input = torch.exp(torch.randn(n_paths))  # force positive
+        self.assert_nonincreasing(loss, input, a)
 
     @pytest.mark.parametrize("n_paths", [1, 10, 100])
     @pytest.mark.parametrize("risk", [0.1, 0.5, 1.0])
     @pytest.mark.parametrize("a", [0.1, 0.5])
     def test_convex(self, n_paths, risk, a):
         loss = IsoelasticLoss(risk)
-        x1 = torch.exp(torch.randn(n_paths))
-        x2 = torch.exp(torch.randn(n_paths))
-        self.assert_convex(loss, x1, x2, a)
+        input1 = torch.exp(torch.randn(n_paths))
+        input2 = torch.exp(torch.randn(n_paths))
+        self.assert_convex(loss, input1, input2, a)
 
     @pytest.mark.parametrize("n_paths", [10, 100])
     @pytest.mark.parametrize("risk", [0.1, 0.5, 1.0])
     def test_cash(self, n_paths, risk):
         loss = IsoelasticLoss(risk)
-        x = torch.exp(torch.randn(n_paths))  # force positive
-        self.assert_cash(loss, x)
+        input = torch.exp(torch.randn(n_paths))  # force positive
+        self.assert_cash(loss, input)
 
     def test_error_a(self):
         with pytest.raises(ValueError):
@@ -242,24 +242,24 @@ class TestExpectedShortFall(_TestHedgeLoss):
     @pytest.mark.parametrize("a", [0.001, 1, 2])
     def test_nonincreasing(self, n_paths, p, a):
         loss = ExpectedShortfall(p)
-        x = torch.randn(n_paths)
-        self.assert_nonincreasing(loss, x, a)
+        input = torch.randn(n_paths)
+        self.assert_nonincreasing(loss, input, a)
 
     @pytest.mark.parametrize("n_paths", [100, 1000])
     @pytest.mark.parametrize("p", [0.1, 0.5, 0.9])
     @pytest.mark.parametrize("a", [0.1, 0.5])
     def test_convex(self, n_paths, p, a):
         loss = ExpectedShortfall(p)
-        x1 = torch.randn(n_paths)
-        x2 = torch.randn(n_paths)
-        self.assert_convex(loss, x1, x2, a)
+        input1 = torch.randn(n_paths)
+        input2 = torch.randn(n_paths)
+        self.assert_convex(loss, input1, input2, a)
 
     @pytest.mark.parametrize("n_paths", [100, 1000])
     @pytest.mark.parametrize("p", [0.1, 0.5, 0.9])
     def test_cash(self, n_paths, p):
         loss = ExpectedShortfall(p)
-        x = torch.randn(n_paths)
-        self.assert_cash(loss, x)
+        input = torch.randn(n_paths)
+        self.assert_cash(loss, input)
 
     @pytest.mark.parametrize("n_paths", [10, 100])
     @pytest.mark.parametrize("p", [0.1, 0.5, 0.9])
@@ -284,10 +284,10 @@ class TestExpectedShortFall(_TestHedgeLoss):
         k = int(n_paths * percentile)
         loss = ExpectedShortfall(percentile)
 
-        x = torch.randn(n_paths)
+        input = torch.randn(n_paths)
 
-        result = loss(x)
-        expect = -torch.mean(torch.tensor(sorted(x)[:k]))
+        result = loss(input)
+        expect = -torch.mean(torch.tensor(sorted(input)[:k]))
 
         assert torch.isclose(result, expect)
 
@@ -317,24 +317,24 @@ class TestOCE(_TestHedgeLoss):
 
     def test_fit(self):
         torch.manual_seed(42)
-        m = OCE(lambda x: 1 - torch.exp(-x))
+        m = OCE(lambda input: 1 - torch.exp(-input))
 
         self.train_oce(m)
 
-        x = torch.randn(10000)
+        input = torch.randn(10000)
 
-        result = m(x)
-        expect = torch.log(EntropicLoss()(x))
+        result = m(input)
+        expect = torch.log(EntropicLoss()(input))
 
         assert torch.isclose(result, expect, rtol=1e-02)
 
     def test_repr(self):
-        def exp_utility(x):
-            return 1 - torch.exp(-x)
+        def exp_utility(input):
+            return 1 - torch.exp(-input)
 
         loss = OCE(exp_utility)
         assert repr(loss) == "OCE(exp_utility, w=0.0)"
 
     def test_shape(self):
-        loss = OCE(lambda x: 1 - torch.exp(-x))
+        loss = OCE(lambda input: 1 - torch.exp(-input))
         self.assert_shape(loss)

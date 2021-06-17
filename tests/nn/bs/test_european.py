@@ -33,21 +33,21 @@ class TestBSEuropeanOption(_TestBSModule):
 
     def test_forward(self):
         m = BSEuropeanOption()
-        x = torch.tensor([0.0, 1.0, 0.2]).reshape(1, -1)
-        result = m(x)
+        input = torch.tensor([0.0, 1.0, 0.2]).reshape(1, -1)
+        result = m(input)
         expect = torch.full_like(result, 0.5398278962)
         assert_close(result, expect)
 
         m = BSEuropeanOption(call=False)
-        x = torch.tensor([0.0, 1.0, 0.2]).reshape(1, -1)
-        result = m(x)
+        input = torch.tensor([0.0, 1.0, 0.2]).reshape(1, -1)
+        result = m(input)
         expect = torch.full_like(result, -0.4601721)
         assert_close(result, expect)
 
         liability = EuropeanOption(BrownianStock(), call=False)
         m = BSEuropeanOption(liability)
-        x = torch.tensor([0.0, 1.0, 0.2]).reshape(1, -1)
-        result = m(x)
+        input = torch.tensor([0.0, 1.0, 0.2]).reshape(1, -1)
+        result = m(input)
         expect = torch.full_like(result, -0.4601721)
         assert_close(result, expect)
 
@@ -85,12 +85,12 @@ class TestBSEuropeanOption(_TestBSModule):
         assert_close(result, expect)
 
     def test_implied_volatility(self):
-        x = torch.tensor([[0.0, 0.1, 0.01], [0.0, 0.1, 0.02], [0.0, 0.1, 0.03]])
+        input = torch.tensor([[0.0, 0.1, 0.01], [0.0, 0.1, 0.02], [0.0, 0.1, 0.03]])
         m = BSEuropeanOption()
-        iv = m.implied_volatility(x[:, 0], x[:, 1], x[:, 2])
+        iv = m.implied_volatility(input[:, 0], input[:, 1], input[:, 2])
 
-        result = BSEuropeanOption().price(x[:, 0], x[:, 1], iv)
-        expect = x[:, 2]
+        result = BSEuropeanOption().price(input[:, 0], input[:, 1], iv)
+        expect = input[:, 2]
         assert_close(result, expect, check_stride=False)
 
     def test_example(self):

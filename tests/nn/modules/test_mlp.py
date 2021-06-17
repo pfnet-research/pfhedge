@@ -68,7 +68,6 @@ class TestMultiLayerPerceptron:
         m = MultiLayerPerceptron(H_in, H_out)
         assert m(input).size() == torch.Size((N, M_1, M_2, H_out))
 
-
     def test_shape_lazy(self):
         N = 10
         H_in = 11

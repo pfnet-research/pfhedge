@@ -51,18 +51,18 @@ class TestBSAmericanBinaryOption(_TestBSModule):
     def test_forward(self):
         m = BSAmericanBinaryOption()
 
-        x = torch.tensor([-0.1, -0.1, 0.1, 0.2]).reshape(1, -1)
-        result = m(x)
+        input = torch.tensor([-0.1, -0.1, 0.1, 0.2]).reshape(1, -1)
+        result = m(input)
         expect = torch.full_like(result, 0.7819)
         assert_close(result, expect, atol=1e-4, rtol=1e-4)
 
-        x = torch.tensor([0.1, 0.1, 0.1, 0.2]).reshape(1, -1)
-        result = m(x)
+        input = torch.tensor([0.1, 0.1, 0.1, 0.2]).reshape(1, -1)
+        result = m(input)
         expect = torch.zeros_like(result)
         assert_close(result, expect, atol=1e-4, rtol=1e-4)
 
-        x = torch.tensor([-0.0001, -0.0001, 0.1, 0.2]).reshape(1, -1)
-        result = m(x)
+        input = torch.tensor([-0.0001, -0.0001, 0.1, 0.2]).reshape(1, -1)
+        result = m(input)
         expect = torch.full_like(result, 1.1531)
         assert_close(result, expect, atol=1e-4, rtol=1e-4)
 
@@ -108,7 +108,7 @@ class TestBSAmericanBinaryOption(_TestBSModule):
 
     def test_implied_volatility(self):
         # log_moneyness, max_log_moneyness, expiry_time, price
-        x = torch.tensor(
+        input = torch.tensor(
             [
                 [-0.01, -0.01, 0.1, 0.5],
                 [-0.01, -0.01, 0.1, 0.6],
@@ -116,10 +116,12 @@ class TestBSAmericanBinaryOption(_TestBSModule):
             ]
         )
         m = BSAmericanBinaryOption()
-        iv = m.implied_volatility(x[:, 0], x[:, 1], x[:, 2], x[:, 3])
+        iv = m.implied_volatility(input[:, 0], input[:, 1], input[:, 2], input[:, 3])
 
-        result = BSAmericanBinaryOption().price(x[:, 0], x[:, 1], x[:, 2], iv)
-        expect = x[:, -1]
+        result = BSAmericanBinaryOption().price(
+            input[:, 0], input[:, 1], input[:, 2], iv
+        )
+        expect = input[:, -1]
         assert_close(result, expect, atol=1e-4, rtol=1e-4, check_stride=False)
 
     def test_example(self):
