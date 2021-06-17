@@ -124,7 +124,6 @@ class Hedger(Module):
         self.criterion = criterion
 
         # This hook saves the hedger's previous output to an attribute `prev`.
-        # The attribute `prev` may be referred to by the feature `PrevHedge`.
         self.register_forward_hook(save_prev_output)
 
     def forward(self, input: Tensor) -> Tensor:
@@ -174,14 +173,18 @@ class Hedger(Module):
             derivative.underlier.prices[..., 1:] - derivative.underlier.prices[..., :-1]
         )
 
-        # prev: shape (N)
-        self.prev = torch.zeros_like(derivative.underlier.prices[..., :1]).reshape(-1)
+        # prev_output: shape (N)
+        self.register_buffer(
+            "prev_output",
+            torch.zeros_like(derivative.underlier.prices[..., :1]),
+            persistent=False,
+        )
         pnl = 0
 
         # Simulate hedging over time.
         n_steps = derivative.underlier.prices.size(1)  # = T
         for i in range(n_steps - 1):
-            prev_hedge = self.prev.reshape(-1)
+            prev_hedge = self.get_buffer("prev_output").reshape(-1)
 
             # Compute the hedge ratio at the next time step.
             hedge = self(torch.cat([f[i] for f in self.inputs], 1)).reshape(-1)
@@ -198,13 +201,14 @@ class Hedger(Module):
         # Settle the derivative's payoff.
         pnl -= derivative.payoff()
 
-        # Delete the attribute `prev` in case a hedger has a feature `PrevHedge` and
-        # one calls `compute_pnl` twice.
-        # If `prev` is not deleted, `prev` at the last time step in the first call
-        # would be referred to by `PrevHedge` at the first time step at the second call,
+        # Delete the attribute `prev_output` in case a hedger has a feature
+        # `PrevHedge` and one calls `compute_pnl` twice.
+        # If `prev_output` is not deleted, `prev_output` at the last time step
+        # in the first call could be referred to by `PrevHedge` at the first
+        # time step at the second call,
         # which results in an unexpected output (while we expect zeros).
-        if hasattr(self, "prev"):
-            delattr(self, "prev")
+        if hasattr(self, "prev_output"):
+            delattr(self, "prev_output")
 
         return pnl
 

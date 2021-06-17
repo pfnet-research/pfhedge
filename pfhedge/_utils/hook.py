@@ -3,7 +3,7 @@ from torch.nn import Module
 
 
 def save_prev_output(module: Module, input: Tensor, output: Tensor) -> None:
-    """A hook to save previous output as an attribute `prev`.
+    """A hook to save previous output as a buffer named `prev_output`.
 
     Examples:
 
@@ -14,7 +14,7 @@ def save_prev_output(module: Module, input: Tensor, output: Tensor) -> None:
         >>> input = torch.randn(1, 3)
         >>> m(input)
         tensor([[-1.1647,  0.0244]], grad_fn=<AddmmBackward>)
-        >>> m.prev
+        >>> m.prev_output
         tensor([[-1.1647,  0.0244]], grad_fn=<AddmmBackward>)
     """
-    module.prev = output
+    module.register_buffer("prev_output", output, persistent=False)

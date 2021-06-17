@@ -67,7 +67,7 @@ class EntropicRiskMeasure(HedgeLoss):
     .. math ::
 
         \\text{loss}(\\text{pnl}) = \\frac{1}{a}
-        \\log(- \\mathrm{E}[u(\\text{pnl})]) \,,
+        \\log(- \\mathbf{E}[u(\\text{pnl})]) \,,
         \\quad
         u(x) = -\\exp(-a x) \,.
 
@@ -128,7 +128,7 @@ class EntropicLoss(HedgeLoss):
 
     .. math ::
 
-        \\text{loss}(\\text{pnl}) = -\\mathrm{E}[u(\\text{pnl})] \\,,
+        \\text{loss}(\\text{pnl}) = -\\mathbf{E}[u(\\text{pnl})] \\,,
         \\quad
         u(x) = -\\exp(-a x) \,.
 
@@ -173,7 +173,7 @@ class EntropicLoss(HedgeLoss):
 
         Shape:
             - Input: :math:`(N, *)`, where :math:`*` means any number of additional
-            dimensions.
+              dimensions.
             - Output: :math:`(*)`
 
         Returns:
@@ -189,7 +189,7 @@ class IsoelasticLoss(HedgeLoss):
 
     .. math ::
 
-        \\text{loss}(\\text{pnl}) = -\\mathrm{E}[u(\\text{pnl})] \,,
+        \\text{loss}(\\text{pnl}) = -\\mathbf{E}[u(\\text{pnl})] \,,
         \\quad
         u(x) = \\begin{cases}
         x^{1 - a} & a \\neq 1 \\\\
