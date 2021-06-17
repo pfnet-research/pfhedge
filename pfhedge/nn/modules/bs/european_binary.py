@@ -130,7 +130,7 @@ class BSEuropeanBinaryOption(BSModuleMixin):
         s = torch.log(prices / self.strike)
         t, v = map(torch.as_tensor, (expiry_time, volatility))
 
-        delta = self.delta(s, t, v, create_graph=True)
+        delta = self.delta(s, t, v)
         gamma = torch.autograd.grad(
             delta, prices, grad_outputs=torch.ones_like(prices)
         )[0]
