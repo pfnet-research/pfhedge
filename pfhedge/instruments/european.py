@@ -1,8 +1,10 @@
 import torch
 from torch import Tensor
 
+from pfhedge.instruments.european_binary import EuropeanBinaryOption
+
 from ..nn.functional import european_payoff
-from ._base import Derivative
+from .base import Derivative
 
 
 class EuropeanOption(Derivative):
@@ -39,6 +41,11 @@ class EuropeanOption(Derivative):
             (see `torch.set_default_tensor_type()`).
             `device` will be the CPU for CPU tensor types and
             the current CUDA device for CUDA tensor types.
+
+    Attributes:
+        dtype (torch.dtype): The dtype with which the simulated time-series are
+            represented.
+        device (torch.device): The device where the simulated time-series are.
 
     Examples:
 
@@ -91,3 +98,11 @@ class EuropeanOption(Derivative):
         return european_payoff(
             self.underlier.prices, call=self.call, strike=self.strike
         )
+
+
+# Assign docstrings so they appear in Sphinx documentation
+EuropeanOption.simulate = Derivative.simulate
+EuropeanOption.simulate.__doc__ = Derivative.simulate.__doc__
+EuropeanOption.to = Derivative.to
+EuropeanOption.to.__doc__ = Derivative.to.__doc__
+EuropeanOption.payoff.__doc__ = Derivative.payoff.__doc__

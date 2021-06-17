@@ -2,7 +2,7 @@ import torch
 from torch import Tensor
 
 from ..nn.functional import lookback_payoff
-from ._base import Derivative
+from .base import Derivative
 
 
 class LookbackOption(Derivative):
@@ -43,6 +43,11 @@ class LookbackOption(Derivative):
             (see `torch.set_default_tensor_type()`).
             `device` will be the CPU for CPU tensor types and
             the current CUDA device for CUDA tensor types.
+
+    Attributes:
+        dtype (torch.dtype): The dtype with which the simulated time-series are
+            represented.
+        device (torch.device): The device where the simulated time-series are.
 
     Examples:
 
@@ -89,3 +94,11 @@ class LookbackOption(Derivative):
         return lookback_payoff(
             self.underlier.prices, call=self.call, strike=self.strike
         )
+
+
+# Assign docstrings so they appear in Sphinx documentation
+LookbackOption.simulate = Derivative.simulate
+LookbackOption.simulate.__doc__ = Derivative.simulate.__doc__
+LookbackOption.to = Derivative.to
+LookbackOption.to.__doc__ = Derivative.to.__doc__
+LookbackOption.payoff.__doc__ = Derivative.payoff.__doc__

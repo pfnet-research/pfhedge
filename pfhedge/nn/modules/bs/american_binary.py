@@ -231,3 +231,10 @@ class BSAmericanBinaryOption(BSModuleMixin):
         )
         get_price = lambda volatility: self.price(s, m, t, volatility)
         return bisect(get_price, p, lower=0.001, upper=1.000, precision=precision)
+
+
+# Assign docstrings so they appear in Sphinx documentation
+BSAmericanBinaryOption.inputs = BSModuleMixin.inputs
+BSAmericanBinaryOption.inputs.__doc__ = BSModuleMixin.inputs.__doc__
+BSAmericanBinaryOption.forward = BSModuleMixin.forward
+BSAmericanBinaryOption.forward.__doc__ = BSModuleMixin.forward.__doc__
