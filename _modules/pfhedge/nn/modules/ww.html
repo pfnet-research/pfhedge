@@ -170,7 +170,7 @@
 <span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
 <span class="kn">from</span> <span class="nn">torch.nn</span> <span class="kn">import</span> <span class="n">Module</span>
 
-<span class="kn">from</span> <span class="nn">.bs.bs</span> <span class="kn">import</span> <span class="n">BlackScholes</span>
+<span class="kn">from</span> <span class="nn">.bs.black_scholes</span> <span class="kn">import</span> <span class="n">BlackScholes</span>
 <span class="kn">from</span> <span class="nn">.clamp</span> <span class="kn">import</span> <span class="n">Clamp</span>
 
 
@@ -247,8 +247,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">bs</span> <span class="o">=</span> <span class="n">BlackScholes</span><span class="p">(</span><span class="n">derivative</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">clamp</span> <span class="o">=</span> <span class="n">Clamp</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">bs</span><span class="o">.</span><span class="n">inputs</span><span class="p">()</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"prev_hedge"</span><span class="p">]</span>
+<div class="viewcode-block" id="WhalleyWilmott.inputs"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.WhalleyWilmott.html#pfhedge.nn.WhalleyWilmott.inputs">[docs]</a>    <span class="k">def</span> <span class="nf">inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="sd">"""Returns the names of input features.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">bs</span><span class="o">.</span><span class="n">inputs</span><span class="p">()</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"prev_hedge"</span><span class="p">]</span></div>
 
     <span class="k">def</span> <span class="nf">extra_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">"a=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">a</span> <span class="o">!=</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">""</span>
@@ -258,8 +263,10 @@
 
         <span class="n">delta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bs</span><span class="p">(</span><span class="nb">input</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
         <span class="n">width</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">(</span><span class="nb">input</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="nb">min</span> <span class="o">=</span> <span class="n">delta</span> <span class="o">-</span> <span class="n">width</span>
+        <span class="nb">max</span> <span class="o">=</span> <span class="n">delta</span> <span class="o">+</span> <span class="n">width</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="n">prev_hedge</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="n">delta</span> <span class="o">-</span> <span class="n">width</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="n">delta</span> <span class="o">+</span> <span class="n">width</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="n">prev_hedge</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="nb">max</span><span class="p">)</span>
 
 <div class="viewcode-block" id="WhalleyWilmott.width"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.WhalleyWilmott.html#pfhedge.nn.WhalleyWilmott.width">[docs]</a>    <span class="k">def</span> <span class="nf">width</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
         <span class="sd">"""Returns half-width of the no-transaction band.</span>

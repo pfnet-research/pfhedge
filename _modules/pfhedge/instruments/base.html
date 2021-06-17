@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <meta name="generator" content="sphinx-3.5.4, furo 2021.04.11.beta34"/>
-        <title>pfhedge.instruments._base - PFHedge documentation</title>
+        <title>pfhedge.instruments.base - PFHedge documentation</title>
       <link rel="stylesheet" href="../../../_static/styles/furo.css?digest=59ab60ac09ea94ccfe6deddff6d715cce948a6fc">
     <link rel="stylesheet" href="../../../_static/pygments.css">
     <link media="(prefers-color-scheme: dark)" rel="stylesheet" href="../../../_static/pygments_dark.css">
@@ -165,12 +165,15 @@
         <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
           <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
         </label>
-        <h1>Source code for pfhedge.instruments._base</h1><div class="highlight"><pre>
+        <h1>Source code for pfhedge.instruments.base</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span>
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TypeVar</span>
 
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
+
+<span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"T"</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">Instrument</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
@@ -185,7 +188,7 @@
 <span class="sd">        """</span>
 
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">to</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
         <span class="sd">"""Performs dtype and/or device conversion of the time series of prices.</span>
 
 <span class="sd">        Args:</span>
@@ -246,7 +249,14 @@
 <span class="sd">            This attribute is supposed to be set by a method `simulate()`.</span>
 <span class="sd">            Shape is :math:`(N, T)` where :math:`N` is the number of simulated paths</span>
 <span class="sd">            and :math:`T` is the number of time steps.</span>
+<span class="sd">        dtype (torch.dtype): The dtype with which the simulated time-series are</span>
+<span class="sd">            represented.</span>
+<span class="sd">        device (torch.device): The device where the simulated time-series are.</span>
 <span class="sd">    """</span>
+
+    <span class="n">prices</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>
+    <span class="n">dtype</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">dtype</span>
+    <span class="n">device</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span>
 
 <div class="viewcode-block" id="Primary.simulate"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.Primary.html#pfhedge.instruments.Primary.simulate">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span>
@@ -260,7 +270,7 @@
 <span class="sd">            init_price (float, default=1.0): The initial value of the prices.</span>
 <span class="sd">        """</span></div>
 
-<div class="viewcode-block" id="Primary.to"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.Primary.html#pfhedge.instruments.Primary.to">[docs]</a>    <span class="k">def</span> <span class="nf">to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Primary.to"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.Primary.html#pfhedge.instruments.Primary.to">[docs]</a>    <span class="k">def</span> <span class="nf">to</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
         <span class="sd">"""Performs dtype and/or device conversion of the time series of the prices.</span>
 
 <span class="sd">        Args:</span>
@@ -307,10 +317,12 @@
 <span class="sd">    Attributes:</span>
 <span class="sd">        underlier (:class:`Primary`): The underlying asset on which the derivative's</span>
 <span class="sd">            payoff relies.</span>
+<span class="sd">        dtype (torch.dtype): The dtype with which the simulated time-series are</span>
+<span class="sd">            represented.</span>
+<span class="sd">        device (torch.device): The device where the simulated time-series are.</span>
 <span class="sd">    """</span>
 
     <span class="n">underlier</span><span class="p">:</span> <span class="n">Primary</span>
-    <span class="n">maturity</span><span class="p">:</span> <span class="nb">float</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">dtype</span><span class="p">:</span>
@@ -321,8 +333,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">underlier</span><span class="o">.</span><span class="n">device</span>
 
 <div class="viewcode-block" id="Derivative.simulate"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.Derivative.html#pfhedge.instruments.Derivative.simulate">[docs]</a>    <span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_paths</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">init_price</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">"""</span>
-<span class="sd">        Simulates time series of the underlier's prices.</span>
+        <span class="sd">"""Simulates time series of the underlier's prices.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            n_paths (int): The number of paths to simulate.</span>
@@ -350,7 +361,10 @@
 <div class="viewcode-block" id="Derivative.payoff"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.Derivative.html#pfhedge.instruments.Derivative.payoff">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">payoff</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
         <span class="sd">"""Returns the payoffs of the derivative.</span>
-<span class="sd">        The payoffs is computed based on the prices of `underlier`.</span>
+
+<span class="sd">        Shape:</span>
+<span class="sd">            - Output: :math:`(N)` where :math:`N` stands for the number of simulated</span>
+<span class="sd">              paths.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            torch.Tensor</span>

@@ -178,8 +178,6 @@
     <span class="sd">"""Black-Scholes formula for an American Binary Option.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        derivative (:class:`pfhedge.instruments.AmericanBinaryOption`, optional):</span>
-<span class="sd">            The derivative to get the Black-Scholes formula.</span>
 <span class="sd">        call (bool, default=True): Specifies whether the option is call</span>
 <span class="sd">            or put.</span>
 <span class="sd">        strike (float, default=1.0): The strike price of the option.</span>
@@ -211,32 +209,39 @@
 <span class="sd">        tensor([[1.1285],</span>
 <span class="sd">                [0.0000],</span>
 <span class="sd">                [0.0000]])</span>
-
-<span class="sd">        One can instantiate it using an</span>
-<span class="sd">        :class:`pfhedge.instruments.AmericanBinaryOption`.</span>
-
-<span class="sd">        &gt;&gt;&gt; from pfhedge.instruments import BrownianStock</span>
-<span class="sd">        &gt;&gt;&gt; from pfhedge.instruments import AmericanBinaryOption</span>
-<span class="sd">        &gt;&gt;&gt; deriv = AmericanBinaryOption(BrownianStock(), strike=1.1)</span>
-<span class="sd">        &gt;&gt;&gt; m = BSAmericanBinaryOption(deriv)</span>
-<span class="sd">        &gt;&gt;&gt; m</span>
-<span class="sd">        BSAmericanBinaryOption(strike=1.1)</span>
 <span class="sd">    """</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">derivative</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">call</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">strike</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-
-        <span class="k">if</span> <span class="n">derivative</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">call</span> <span class="o">=</span> <span class="n">derivative</span><span class="o">.</span><span class="n">call</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">strike</span> <span class="o">=</span> <span class="n">derivative</span><span class="o">.</span><span class="n">strike</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">call</span> <span class="o">=</span> <span class="n">call</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">strike</span> <span class="o">=</span> <span class="n">strike</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">call</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">strike</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">call</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> for a put option is not yet supported."</span>
             <span class="p">)</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">call</span> <span class="o">=</span> <span class="n">call</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">strike</span> <span class="o">=</span> <span class="n">strike</span>
+
+<div class="viewcode-block" id="BSAmericanBinaryOption.from_derivative"><a class="viewcode-back" href="../../../../../generated/pfhedge.nn.BSAmericanBinaryOption.html#pfhedge.nn.BSAmericanBinaryOption.from_derivative">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_derivative</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">derivative</span><span class="p">):</span>
+        <span class="sd">"""Initialize a module from a derivative.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            derivative (:class:`pfhedge.instruments.AmericanBinaryOption`):</span>
+<span class="sd">                The derivative to get the Black-Scholes formula.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            BSAmericanBinaryOption</span>
+
+<span class="sd">        Examples:</span>
+
+<span class="sd">            &gt;&gt;&gt; from pfhedge.instruments import BrownianStock</span>
+<span class="sd">            &gt;&gt;&gt; from pfhedge.instruments import AmericanBinaryOption</span>
+<span class="sd">            &gt;&gt;&gt; deriv = AmericanBinaryOption(BrownianStock(), strike=1.1)</span>
+<span class="sd">            &gt;&gt;&gt; m = BSAmericanBinaryOption.from_derivative(deriv)</span>
+<span class="sd">            &gt;&gt;&gt; m</span>
+<span class="sd">            BSAmericanBinaryOption(strike=1.1)</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">call</span><span class="o">=</span><span class="n">derivative</span><span class="o">.</span><span class="n">call</span><span class="p">,</span> <span class="n">strike</span><span class="o">=</span><span class="n">derivative</span><span class="o">.</span><span class="n">strike</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">extra_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">[]</span>
@@ -394,6 +399,13 @@
         <span class="p">)</span>
         <span class="n">get_price</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">volatility</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">price</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">volatility</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">bisect</span><span class="p">(</span><span class="n">get_price</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="mf">1.000</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="n">precision</span><span class="p">)</span></div></div>
+
+
+<span class="c1"># Assign docstrings so they appear in Sphinx documentation</span>
+<span class="n">BSAmericanBinaryOption</span><span class="o">.</span><span class="n">inputs</span> <span class="o">=</span> <span class="n">BSModuleMixin</span><span class="o">.</span><span class="n">inputs</span>
+<span class="n">BSAmericanBinaryOption</span><span class="o">.</span><span class="n">inputs</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">BSModuleMixin</span><span class="o">.</span><span class="n">inputs</span><span class="o">.</span><span class="vm">__doc__</span>
+<span class="n">BSAmericanBinaryOption</span><span class="o">.</span><span class="n">forward</span> <span class="o">=</span> <span class="n">BSModuleMixin</span><span class="o">.</span><span class="n">forward</span>
+<span class="n">BSAmericanBinaryOption</span><span class="o">.</span><span class="n">forward</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">BSModuleMixin</span><span class="o">.</span><span class="n">forward</span><span class="o">.</span><span class="vm">__doc__</span>
 </pre></div>
       </article>
       <footer>

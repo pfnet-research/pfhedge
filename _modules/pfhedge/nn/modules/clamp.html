@@ -231,9 +231,7 @@
     <span class="k">def</span> <span class="nf">extra_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">"clamped_slope=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">clamped_slope</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">clamped_slope</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">""</span>
 
-<div class="viewcode-block" id="LeakyClamp.forward"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.LeakyClamp.html#pfhedge.nn.LeakyClamp.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">min_value</span><span class="p">:</span> <span class="n">Tensor</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">max_value</span><span class="p">:</span> <span class="n">Tensor</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+<div class="viewcode-block" id="LeakyClamp.forward"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.LeakyClamp.html#pfhedge.nn.LeakyClamp.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="nb">min</span><span class="p">:</span> <span class="n">Tensor</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">max</span><span class="p">:</span> <span class="n">Tensor</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
         <span class="sd">"""Clamp all elements in `input` into the range :math:`[\\min, \\max]`.</span>
 
 <span class="sd">        Args:</span>
@@ -251,9 +249,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            torch.Tensor</span>
 <span class="sd">        """</span>
-        <span class="k">return</span> <span class="n">leaky_clamp</span><span class="p">(</span>
-            <span class="nb">input</span><span class="p">,</span> <span class="n">min_value</span><span class="p">,</span> <span class="n">max_value</span><span class="p">,</span> <span class="n">clamped_slope</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">clamped_slope</span>
-        <span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">leaky_clamp</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="nb">max</span><span class="p">,</span> <span class="n">clamped_slope</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">clamped_slope</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="Clamp"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.Clamp.html#pfhedge.nn.Clamp">[docs]</a><span class="k">class</span> <span class="nc">Clamp</span><span class="p">(</span><span class="n">Module</span><span class="p">):</span>
@@ -325,7 +321,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            torch.Tensor</span>
 <span class="sd">        """</span>
-        <span class="k">return</span> <span class="n">clamp</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">clamp</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="nb">max</span><span class="p">)</span></div></div>
 </pre></div>
       </article>
       <footer>

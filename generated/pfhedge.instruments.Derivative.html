@@ -169,7 +169,7 @@
 <h1>Derivative<a class="headerlink" href="#derivative" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="pfhedge.instruments.Derivative">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pfhedge.instruments.</span></code><code class="sig-name descname"><span class="pre">Derivative</span></code><a class="reference internal" href="../_modules/pfhedge/instruments/_base.html#Derivative"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Derivative" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pfhedge.instruments.</span></code><code class="sig-name descname"><span class="pre">Derivative</span></code><a class="reference internal" href="../_modules/pfhedge/instruments/base.html#Derivative"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Derivative" title="Permalink to this definition">¶</a></dt>
 <dd><p>Base class for all derivatives.</p>
 <p>A derivative is a financial instrument whose payoff is contingent on
 a primary instrument (or a set of primary instruments).
@@ -189,11 +189,38 @@ payoff relies.</p>
 </dd>
 </dl>
 </dd></dl>
+<dl class="py attribute">
+<dt id="pfhedge.instruments.Derivative.dtype">
+<code class="sig-name descname"><span class="pre">dtype</span></code><a class="headerlink" href="#pfhedge.instruments.Derivative.dtype" title="Permalink to this definition">¶</a></dt>
+<dd><p>The dtype with which the simulated time-series are
+represented.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>torch.dtype</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt id="pfhedge.instruments.Derivative.device">
+<code class="sig-name descname"><span class="pre">device</span></code><a class="headerlink" href="#pfhedge.instruments.Derivative.device" title="Permalink to this definition">¶</a></dt>
+<dd><p>The device where the simulated time-series are.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>torch.device</p>
+</dd>
+</dl>
+</dd></dl>
 <dl class="py method">
 <dt id="pfhedge.instruments.Derivative.payoff">
-<em class="property"><span class="pre">abstract</span> </em><code class="sig-name descname"><span class="pre">payoff</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/_base.html#Derivative.payoff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Derivative.payoff" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the payoffs of the derivative.
-The payoffs is computed based on the prices of <cite>underlier</cite>.</p>
+<em class="property"><span class="pre">abstract</span> </em><code class="sig-name descname"><span class="pre">payoff</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/base.html#Derivative.payoff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Derivative.payoff" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the payoffs of the derivative.</p>
+<dl class="simple">
+<dt>Shape:</dt><dd><ul class="simple">
+<li><p>Output: <span class="math notranslate nohighlight">\((N)\)</span> where <span class="math notranslate nohighlight">\(N\)</span> stands for the number of simulated
+paths.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>torch.Tensor</p>
@@ -202,7 +229,7 @@ The payoffs is computed based on the prices of <cite>underlier</cite>.</p>
 </dd></dl>
 <dl class="py method">
 <dt id="pfhedge.instruments.Derivative.simulate">
-<code class="sig-name descname"><span class="pre">simulate</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_price</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/_base.html#Derivative.simulate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Derivative.simulate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">simulate</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_price</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/base.html#Derivative.simulate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Derivative.simulate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Simulates time series of the underlier’s prices.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -215,7 +242,7 @@ The payoffs is computed based on the prices of <cite>underlier</cite>.</p>
 </dd></dl>
 <dl class="py method">
 <dt id="pfhedge.instruments.Derivative.to">
-<code class="sig-name descname"><span class="pre">to</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/_base.html#Derivative.to"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Derivative.to" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">to</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/base.html#Derivative.to"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Derivative.to" title="Permalink to this definition">¶</a></dt>
 <dd><p>Performs dtype and/or device conversion of the time series of the prices.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -287,5 +314,6 @@ series.</p></li>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <script src="../_static/scripts/main.js?digest=e931d09b2a40c1bb82b542effe772014573baf67"></script></body>
 </html>

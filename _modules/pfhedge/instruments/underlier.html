@@ -169,7 +169,7 @@
 <span></span><span class="kn">import</span> <span class="nn">torch</span>
 
 <span class="kn">from</span> <span class="nn">..stochastic</span> <span class="kn">import</span> <span class="n">generate_geometric_brownian</span>
-<span class="kn">from</span> <span class="nn">._base</span> <span class="kn">import</span> <span class="n">Primary</span>
+<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">Primary</span>
 
 
 <div class="viewcode-block" id="BrownianStock"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.BrownianStock.html#pfhedge.instruments.BrownianStock">[docs]</a><span class="k">class</span> <span class="nc">BrownianStock</span><span class="p">(</span><span class="n">Primary</span><span class="p">):</span>
@@ -260,6 +260,11 @@
             <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span>
             <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">,</span>
         <span class="p">)</span></div></div>
+
+
+<span class="c1"># Assign docstrings so they appear in Sphinx documentation</span>
+<span class="n">BrownianStock</span><span class="o">.</span><span class="n">to</span> <span class="o">=</span> <span class="n">Primary</span><span class="o">.</span><span class="n">to</span>
+<span class="n">BrownianStock</span><span class="o">.</span><span class="n">to</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">Primary</span><span class="o">.</span><span class="n">to</span><span class="o">.</span><span class="vm">__doc__</span>
 </pre></div>
       </article>
       <footer>

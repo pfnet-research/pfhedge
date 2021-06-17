@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../../genindex.html" /><link rel="search" title="Search" href="../../../../../search.html" />
 
     <meta name="generator" content="sphinx-3.5.4, furo 2021.04.11.beta34"/>
-        <title>pfhedge.nn.modules.bs.bs - PFHedge documentation</title>
+        <title>pfhedge.nn.modules.bs.black_scholes - PFHedge documentation</title>
       <link rel="stylesheet" href="../../../../../_static/styles/furo.css?digest=59ab60ac09ea94ccfe6deddff6d715cce948a6fc">
     <link rel="stylesheet" href="../../../../../_static/pygments.css">
     <link media="(prefers-color-scheme: dark)" rel="stylesheet" href="../../../../../_static/pygments_dark.css">
@@ -165,7 +165,7 @@
         <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
           <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
         </label>
-        <h1>Source code for pfhedge.nn.modules.bs.bs</h1><div class="highlight"><pre>
+        <h1>Source code for pfhedge.nn.modules.bs.black_scholes</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">torch.nn</span> <span class="kn">import</span> <span class="n">Module</span>
 
@@ -201,10 +201,10 @@
 <span class="sd">        &gt;&gt;&gt; from pfhedge.instruments import BrownianStock</span>
 <span class="sd">        &gt;&gt;&gt; from pfhedge.instruments import EuropeanOption</span>
 <span class="sd">        &gt;&gt;&gt; from pfhedge.nn import BlackScholes</span>
-<span class="sd">        &gt;&gt;&gt; deriv = EuropeanOption(BrownianStock())</span>
+<span class="sd">        &gt;&gt;&gt; deriv = EuropeanOption(BrownianStock(), strike=1.1)</span>
 <span class="sd">        &gt;&gt;&gt; m = BlackScholes(deriv)</span>
 <span class="sd">        &gt;&gt;&gt; m</span>
-<span class="sd">        BSEuropeanOption()</span>
+<span class="sd">        BSEuropeanOption(strike=1.1)</span>
 <span class="sd">        &gt;&gt;&gt; m.inputs()</span>
 <span class="sd">        ['log_moneyness', 'expiry_time', 'volatility']</span>
 <span class="sd">        &gt;&gt;&gt; input = torch.tensor([</span>
@@ -238,14 +238,13 @@
 
     <span class="n">inputs</span><span class="p">:</span> <span class="nb">list</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">derivative</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">derivative</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span>
             <span class="s2">"EuropeanOption"</span><span class="p">:</span> <span class="n">BSEuropeanOption</span><span class="p">,</span>
             <span class="s2">"LookbackOption"</span><span class="p">:</span> <span class="n">BSLookbackOption</span><span class="p">,</span>
             <span class="s2">"AmericanBinaryOption"</span><span class="p">:</span> <span class="n">BSAmericanBinaryOption</span><span class="p">,</span>
             <span class="s2">"EuropeanBinaryOption"</span><span class="p">:</span> <span class="n">BSEuropeanBinaryOption</span><span class="p">,</span>
-        <span class="p">}[</span><span class="n">derivative</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">derivative</span><span class="p">)</span></div>
+        <span class="p">}[</span><span class="n">derivative</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">]</span><span class="o">.</span><span class="n">from_derivative</span><span class="p">(</span><span class="n">derivative</span><span class="p">)</span></div>
 </pre></div>
       </article>
       <footer>
