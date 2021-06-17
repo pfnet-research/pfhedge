@@ -1,3 +1,4 @@
+import torch
 from torch import Tensor
 
 from ..nn.functional import european_payoff
@@ -31,7 +32,7 @@ class EuropeanOption(Derivative):
         call (bool, default=True): Specifies whether the option is call or put.
         strike (float, default=1.0): The strike price of the option.
         maturity (float, default=20/250): The maturity of the option.
-        dtype (torch.device, optional): Desired device of returned tensor.
+        dtype (torch.dtype, optional): Desired device of returned tensor.
             Default: If None, uses a global default (see `torch.set_default_tensor_type()`).
         device (torch.device, optional): Desired device of returned tensor.
             Default: if None, uses the current device for the default tensor type
@@ -66,8 +67,8 @@ class EuropeanOption(Derivative):
         call: bool = True,
         strike: float = 1.0,
         maturity: float = 20 / 250,
-        dtype=None,
-        device=None,
+        dtype:torch.dtype=None,
+        device:torch.device=None,
     ):
         super().__init__()
         self.underlier = underlier

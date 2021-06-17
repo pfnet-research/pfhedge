@@ -1,3 +1,4 @@
+import torch
 from torch import Tensor
 
 from ..nn.functional import american_binary_payoff
@@ -74,8 +75,8 @@ class AmericanBinaryOption(Derivative):
         call: bool = True,
         strike: float = 1.0,
         maturity: float = 20 / 250,
-        dtype=None,
-        device=None,
+        dtype:torch.dtype=None,
+        device:torch.device=None,
     ):
         super().__init__()
         self.underlier = underlier

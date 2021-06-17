@@ -3,6 +3,7 @@ from abc import ABC
 import torch
 from torch import Tensor
 from torch.nn import Parameter
+from torch.nn import Module
 
 from pfhedge._utils.bisect import bisect
 
@@ -11,7 +12,7 @@ from ..functional import expected_shortfall
 from ..functional import isoelastic_utility
 
 
-class HedgeLoss(torch.nn.Module, ABC):
+class HedgeLoss(Module, ABC):
     """Base class for hedging criteria."""
 
     def forward(self, input: Tensor) -> Tensor:
@@ -90,7 +91,7 @@ class EntropicRiskMeasure(HedgeLoss):
         tensor(-2.0539)
     """
 
-    def __init__(self, a=1.0):
+    def __init__(self, a:float=1.0):
         if not a > 0:
             raise ValueError("Risk aversion coefficient should be positive.")
 
@@ -151,7 +152,7 @@ class EntropicLoss(HedgeLoss):
         tensor(-2.0539)
     """
 
-    def __init__(self, a=1.0):
+    def __init__(self, a:float=1.0):
         if not a > 0:
             raise ValueError("Risk aversion coefficient should be positive.")
 
@@ -222,7 +223,7 @@ class IsoelasticLoss(HedgeLoss):
         tensor(2.2134)
     """
 
-    def __init__(self, a):
+    def __init__(self, a:float):
         if not 0 < a <= 1:
             raise ValueError(
                 "Relative risk aversion coefficient should satisfy 0 < a <= 1."
@@ -234,7 +235,7 @@ class IsoelasticLoss(HedgeLoss):
     def extra_repr(self):
         return f"a={self.a}"
 
-    def forward(self, input):
+    def forward(self, input:Tensor)->Tensor:
         return -torch.mean(isoelastic_utility(input, a=self.a), dim=0)
 
 
@@ -260,7 +261,7 @@ class ExpectedShortfall(HedgeLoss):
         tensor(-2.5000)
     """
 
-    def __init__(self, p=0.1):
+    def __init__(self, p:float=0.1):
         if not 0 < p <= 1:
             raise ValueError("The quantile level should satisfy 0 < p <= 1.")
 
@@ -278,8 +279,7 @@ class ExpectedShortfall(HedgeLoss):
 
 
 class OCE(HedgeLoss):
-    """
-    Creates a criterion that measures the optimized certainty equivalent.
+    """Creates a criterion that measures the optimized certainty equivalent.
 
     The certainty equivalent is given by:
 
@@ -319,5 +319,5 @@ class OCE(HedgeLoss):
     def extra_repr(self):
         return self.utility.__name__ + f", w={self.w}"
 
-    def forward(self, input):
+    def forward(self, input:Tensor)->Tensor:
         return self.w - torch.mean(self.utility(input + self.w), dim=0)

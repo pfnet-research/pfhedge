@@ -1,4 +1,5 @@
 import torch
+from torch.nn import Module
 
 from .american_binary import BSAmericanBinaryOption
 from .european import BSEuropeanOption
@@ -6,7 +7,7 @@ from .european_binary import BSEuropeanBinaryOption
 from .lookback import BSLookbackOption
 
 
-class BlackScholes(torch.nn.Module):
+class BlackScholes(Module):
     """Initialize Black-Scholes formula module from a derivative.
 
     The `forward` method returns the Black-Scholes delta.

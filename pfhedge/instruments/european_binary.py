@@ -6,8 +6,7 @@ from ._base import Derivative
 
 
 class EuropeanBinaryOption(Derivative):
-    """
-    A European binary option.
+    """A European binary option.
 
     An American binary call option pays an unit amount of cash if and only if
     the underlying asset's price at maturity is equal or greater than the strike price.

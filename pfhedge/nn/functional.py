@@ -52,8 +52,7 @@ def lookback_payoff(input: Tensor, call: bool = True, strike: float = 1.0) -> Te
 def american_binary_payoff(
     input: Tensor, call: bool = True, strike: float = 1.0
 ) -> Tensor:
-    """
-    Returns the payoff of an American binary option.
+    """Returns the payoff of an American binary option.
 
     Args:
         input (torch.Tensor): The input tensor representing the price trajectory.
@@ -77,8 +76,7 @@ def american_binary_payoff(
 def european_binary_payoff(
     input: Tensor, call: bool = True, strike: float = 1.0
 ) -> Tensor:
-    """
-    Returns the payoff of a European binary option.
+    """Returns the payoff of a European binary option.
 
     Args:
         input (torch.Tensor): The input tensor representing the price trajectory.
@@ -182,7 +180,7 @@ def topp(input, p: float, dim: int = None, largest: bool = True):
         return torch.topk(input, ceil(p * input.size()[dim]), dim=dim, largest=largest)
 
 
-def expected_shortfall(input: torch.Tensor, p: float, dim=None) -> torch.Tensor:
+def expected_shortfall(input: Tensor, p: float, dim=None) -> Tensor:
     """Returns the expected shortfall of the given input tensor.
 
     Args:
