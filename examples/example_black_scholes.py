@@ -6,10 +6,10 @@ import torch
 
 sys.path.append("..")
 
-from pfhedge import Hedger
 from pfhedge.instruments import BrownianStock
 from pfhedge.instruments import EuropeanOption
 from pfhedge.nn import BlackScholes
+from pfhedge.nn import Hedger
 
 if __name__ == "__main__":
     torch.manual_seed(42)

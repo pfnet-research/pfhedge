@@ -7,7 +7,6 @@ import torch
 
 sys.path.append("..")
 
-from pfhedge import Hedger
 from pfhedge.features import ExpiryTime
 from pfhedge.features import LogMoneyness
 from pfhedge.features import ModuleOutput
@@ -15,6 +14,7 @@ from pfhedge.features import Volatility
 from pfhedge.instruments import BrownianStock
 from pfhedge.instruments import EuropeanOption
 from pfhedge.nn import BlackScholes
+from pfhedge.nn import Hedger
 from pfhedge.nn import MultiLayerPerceptron
 
 if __name__ == "__main__":

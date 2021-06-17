@@ -12,7 +12,7 @@ def test_bisect():
     roots = bisect(f, targets, -6.0, 6.0)
     assert_close(f(roots), targets, atol=1e-4, rtol=1e-4)
 
-    f = lambda x: -torch.sigmoid(x)
+    f = lambda input: -torch.sigmoid(input)
     targets = -torch.linspace(0.1, 0.9, 10)
     roots = bisect(f, targets, -6.0, 6.0)
     assert_close(f(roots), targets, atol=1e-4, rtol=1e-4)
@@ -22,7 +22,7 @@ def test_bisect():
     roots = bisect(f, targets, -6.0, 6.0, abort=100)
     assert_close(f(roots), targets, atol=1e-4, rtol=1e-4)
 
-    f = lambda x: -fn.tanhshrink(x)
+    f = lambda input: -fn.tanhshrink(input)
     targets = -torch.linspace(-0.4, 0.4, 10)
     roots = bisect(f, targets, -6.0, 6.0, abort=100)
     assert_close(f(roots), targets, atol=1e-4, rtol=1e-4)
@@ -32,7 +32,7 @@ def test_bisect():
     roots = bisect(f, targets, -6.0, 6.0, abort=100)
     assert_close(f(roots), targets, atol=1e-4, rtol=1e-4)
 
-    f = lambda x: -torch.tanh(x)
+    f = lambda input: -torch.tanh(input)
     targets = -torch.linspace(-0.9, 0.9, 10)
     roots = bisect(f, targets, -6.0, 6.0, abort=100)
     assert_close(f(roots), targets, atol=1e-4, rtol=1e-4)

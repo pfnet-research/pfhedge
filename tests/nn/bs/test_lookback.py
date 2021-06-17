@@ -29,8 +29,8 @@ class TestBSLookbackOption(_TestBSModule):
     def test_forward(self):
         m = BSLookbackOption()
         s = torch.tensor(1.00 / 1.03).log()
-        x = torch.tensor([s, s, 1.0, 0.2]).reshape(1, -1)
-        result = m(x)
+        input = torch.tensor([s, s, 1.0, 0.2]).reshape(1, -1)
+        result = m(input)
         expect = torch.full_like(result, 1.037)
         assert_close(result, expect, atol=1e-2, rtol=1e-2)
 
@@ -66,13 +66,13 @@ class TestBSLookbackOption(_TestBSModule):
         assert_close(result, expect, atol=0.8, rtol=0.8)  # ?
 
     def test_implied_volatility(self):
-        x = torch.tensor(
+        input = torch.tensor(
             [[0.0, 0.0, 0.1, 0.01], [0.0, 0.0, 0.1, 0.02], [0.0, 0.0, 0.1, 0.03]]
         )
         m = BSLookbackOption()
-        iv = m.implied_volatility(x[:, 0], x[:, 1], x[:, 2], x[:, 3])
-        result = BSLookbackOption().price(x[:, 0], x[:, 1], x[:, 2], iv)
-        expect = x[:, -1]
+        iv = m.implied_volatility(input[:, 0], input[:, 1], input[:, 2], input[:, 3])
+        result = BSLookbackOption().price(input[:, 0], input[:, 1], input[:, 2], iv)
+        expect = input[:, -1]
         print(result)
         print(expect)
         assert_close(result, expect, atol=1e-4, rtol=1e-4, check_stride=False)

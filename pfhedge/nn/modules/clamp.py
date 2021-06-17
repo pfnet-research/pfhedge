@@ -1,11 +1,12 @@
 import torch
 from torch import Tensor
+from torch.nn import Module
 
 from ..functional import clamp
 from ..functional import leaky_clamp
 
 
-class LeakyClamp(torch.nn.Module):
+class LeakyClamp(Module):
     """Leakily Clamp all elements in `input` into the range :math:`[\\min, \\max]`.
 
     The bounds :math:`\\min` and :math:`\\max` can be tensors.
@@ -87,7 +88,7 @@ class LeakyClamp(torch.nn.Module):
         )
 
 
-class Clamp(torch.nn.Module):
+class Clamp(Module):
     """Clamp all elements in `input` into the range :math:`[\\min, \\max]`.
 
     The bounds :math:`\\min` and :math:`\\max` can be tensors.

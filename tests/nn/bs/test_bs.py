@@ -46,11 +46,11 @@ class TestBlackScholes:
         M_1 = 12
         M_2 = 13
 
-        x = torch.empty((N, H_in))
-        assert m(x).size() == torch.Size((N, 1))
+        input = torch.empty((N, H_in))
+        assert m(input).size() == torch.Size((N, 1))
 
-        x = torch.empty((N, M_1, H_in))
-        assert m(x).size() == torch.Size((N, M_1, 1))
+        input = torch.empty((N, M_1, H_in))
+        assert m(input).size() == torch.Size((N, M_1, 1))
 
-        x = torch.empty((N, M_1, M_2, H_in))
-        assert m(x).size() == torch.Size((N, M_1, M_2, 1))
+        input = torch.empty((N, M_1, M_2, H_in))
+        assert m(input).size() == torch.Size((N, M_1, M_2, 1))

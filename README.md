@@ -107,7 +107,7 @@ A `Hedger` in Deep Hedging is basically characterized by three elements:
 We here use a multi-layer perceptron as our model.
 
 ```py
-from pfhedge import Hedger
+from pfhedge.nn import Hedger
 from pfhedge.nn import MultiLayerPerceptron
 
 model = MultiLayerPerceptron()
@@ -179,8 +179,8 @@ This strategy is the optimal one in the absence of cost.
 On the other hand, this strategy transacts too frequently and consumes too much transaction cost.
 
 ```py
-from pfhedge import Hedger
 from pfhedge.nn import BlackScholes
+from pfhedge.nn import Hedger
 
 deriv = EuropeanOption(BrownianStock(cost=1e-4))
 
@@ -196,7 +196,7 @@ In this strategy, a hedger always maintains their hedge ratio in the range (call
 This strategy is supposed to be optimal in the limit of small transaction costs, while suboptimal for large transaction costs.
 
 ```py
-from pfhedge import Hedger
+from pfhedge.nn import Hedger
 from pfhedge.nn import WhalleyWilmott
 
 deriv = EuropeanOption(BrownianStock(cost=1e-4))
@@ -215,32 +215,33 @@ Here we show an example of **No-Transaction Band Network**, which is proposed in
 ```py
 import torch
 import torch.nn.functional as fn
+from torch.nn import Module
 from pfhedge.nn import BlackScholes
 from pfhedge.nn import Clamp
 from pfhedge.nn import MultiLayerPerceptron
 
 
-class NoTransactionBandNet(torch.nn.Module):
-    def __init__(self, liability):
+class NoTransactionBandNet(Module):
+    def __init__(self, derivative):
         super().__init__()
 
-        self.delta = BlackScholes(liability)
+        self.delta = BlackScholes(derivative)
         self.mlp = MultiLayerPerceptron(out_features=2)
         self.clamp = Clamp()
 
     def inputs(self):
         return self.delta.inputs() + ["prev_hedge"]
 
-    def forward(self, x):
-        prev_hedge = x[:, [-1]]
+    def forward(self, input: Tensor) -> Tensor:
+        prev_hedge = input[:, [-1]]
 
-        delta = self.delta(x[:, :-1])
-        width = self.mlp(x[:, :-1])
+        delta = self.delta(input[:, :-1]).reshape(-1, 1)
+        width = self.mlp(input[:, :-1])
 
-        lower = delta - fn.leaky_relu(width[:, [0]])
-        upper = delta + fn.leaky_relu(width[:, [1]])
+        min = delta - fn.leaky_relu(width[:, [0]])
+        max = delta + fn.leaky_relu(width[:, [1]])
 
-        return self.clamp(prev_hedge, min=lower, max=upper)
+        return self.clamp(prev_hedge, min=min, max=max)
 
 
 model = NoTransactionBandNet()

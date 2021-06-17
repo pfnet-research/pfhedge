@@ -10,16 +10,16 @@ class _TestBSModule:
         M_2 = 11
         H_in = len(module.inputs())
 
-        x = torch.empty((N, H_in))
-        out = method(*(x[..., i] for i in range(H_in)))
+        input = torch.empty((N, H_in))
+        out = method(*(input[..., i] for i in range(H_in)))
         assert out.size() == torch.Size((N,))
 
-        x = torch.empty((N, M_1, H_in))
-        out = method(*(x[..., i] for i in range(H_in)))
+        input = torch.empty((N, M_1, H_in))
+        out = method(*(input[..., i] for i in range(H_in)))
         assert out.size() == torch.Size((N, M_1))
 
-        x = torch.empty((N, M_1, M_2, H_in))
-        out = method(*(x[..., i] for i in range(H_in)))
+        input = torch.empty((N, M_1, M_2, H_in))
+        out = method(*(input[..., i] for i in range(H_in)))
         assert out.size() == torch.Size((N, M_1, M_2))
 
     def assert_shape_delta(self, module):
@@ -37,14 +37,14 @@ class _TestBSModule:
         M_2 = 11
         H_in = len(module.inputs())
 
-        x = torch.empty((N, H_in))
-        out = module(x)
+        input = torch.empty((N, H_in))
+        out = module(input)
         assert out.size() == torch.Size((N, 1))
 
-        x = torch.empty((N, M_1, H_in))
-        out = module(x)
+        input = torch.empty((N, M_1, H_in))
+        out = module(input)
         assert out.size() == torch.Size((N, M_1, 1))
 
-        x = torch.empty((N, M_1, M_2, H_in))
-        out = module(x)
+        input = torch.empty((N, M_1, M_2, H_in))
+        out = module(input)
         assert out.size() == torch.Size((N, M_1, M_2, 1))

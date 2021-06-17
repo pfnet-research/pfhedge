@@ -1,19 +1,22 @@
-import abc
+from abc import ABC
+from abc import abstractmethod
 
 import torch
 from torch import Tensor
 
 
-class Instrument(abc.ABC):
+class Instrument(ABC):
     """Base class for all financial instruments."""
 
-    @abc.abstractmethod
-    def simulate(self, time_horizon, n_paths=1, init_price=1.0) -> None:
+    @abstractmethod
+    def simulate(
+        self, time_horizon: float, n_paths: int = 1, init_price: float = 1.0
+    ) -> None:
         """Simulate time series of prices of itself (for a primary instrument)
         or its underlier (for a derivative).
         """
 
-    @abc.abstractmethod
+    @abstractmethod
     def to(self, *args, **kwargs):
         """Performs dtype and/or device conversion of the time series of prices.
 
@@ -77,8 +80,10 @@ class Primary(Instrument):
             and :math:`T` is the number of time steps.
     """
 
-    @abc.abstractmethod
-    def simulate(self, time_horizon, n_paths=1, init_price=1.0, **kwargs) -> None:
+    @abstractmethod
+    def simulate(
+        self, time_horizon: float, n_paths: int = 1, init_price: float = 1.0, **kwargs
+    ) -> None:
         """Simulate time series of prices and set an attribute `prices`.
 
         Args:
@@ -147,7 +152,7 @@ class Derivative(Instrument):
     def device(self) -> torch.device:
         return self.underlier.device
 
-    def simulate(self, n_paths=1, init_price=1.0, **kwargs) -> None:
+    def simulate(self, n_paths: int = 1, init_price: float = 1.0, **kwargs) -> None:
         """
         Simulates time series of the underlier's prices.
 
@@ -174,7 +179,7 @@ class Derivative(Instrument):
         self.underlier.to(*args, **kwargs)
         return self
 
-    @abc.abstractmethod
+    @abstractmethod
     def payoff(self) -> Tensor:
         """Returns the payoffs of the derivative.
         The payoffs is computed based on the prices of `underlier`.

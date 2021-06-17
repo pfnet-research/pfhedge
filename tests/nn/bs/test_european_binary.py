@@ -45,8 +45,8 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
 
     def test_forward(self):
         m = BSEuropeanBinaryOption()
-        x = torch.tensor([0.0, 0.1, 0.2]).reshape(1, -1)
-        result = m(x)
+        input = torch.tensor([0.0, 0.1, 0.2]).reshape(1, -1)
+        result = m(input)
         expect = torch.full_like(result, 6.3047)
         assert_close(result, expect, atol=1e-4, rtol=1e-4)
 
@@ -80,12 +80,14 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
 
     def test_implied_volatility(self):
         # log_moneyness, expiry_time, price
-        x = torch.tensor([[-0.01, 0.1, 0.40], [-0.01, 0.1, 0.41], [-0.01, 0.1, 0.42]])
+        input = torch.tensor(
+            [[-0.01, 0.1, 0.40], [-0.01, 0.1, 0.41], [-0.01, 0.1, 0.42]]
+        )
         m = BSEuropeanBinaryOption()
-        iv = m.implied_volatility(x[:, 0], x[:, 1], x[:, 2])
+        iv = m.implied_volatility(input[:, 0], input[:, 1], input[:, 2])
 
-        result = BSEuropeanBinaryOption().price(x[:, 0], x[:, 1], iv)
-        expect = x[:, -1]
+        result = BSEuropeanBinaryOption().price(input[:, 0], input[:, 1], iv)
+        expect = input[:, -1]
         assert_close(result, expect, check_stride=False)
 
     def test_example(self):
