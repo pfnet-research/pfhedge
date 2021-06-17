@@ -1,6 +1,7 @@
 import torch
 from torch import Tensor
 
+import pfhedge.autogreek as autogreek
 from pfhedge._utils.bisect import bisect
 
 from ._base import BSModuleMixin
@@ -147,19 +148,14 @@ class BSAmericanBinaryOption(BSModuleMixin):
         Returns:
             torch.Tensor
         """
-        prices = self.strike * torch.exp(torch.as_tensor(log_moneyness))
-        prices = Tensor.requires_grad_(prices)
-
-        s = torch.log(prices / self.strike)
-        m, t, v = map(torch.as_tensor, (max_log_moneyness, expiry_time, volatility))
-        m = torch.max(s, m)  # `s + epsilon` may be greater than `m`
-
-        delta = self.delta(s, m, t, v)
-        gamma = torch.autograd.grad(
-            delta, prices, grad_outputs=torch.ones_like(prices)
-        )[0]
-
-        return gamma
+        return autogreek.gamma(
+            self.price,
+            strike=self.strike,
+            log_moneyness=log_moneyness,
+            max_log_moneyness=max_log_moneyness,
+            expiry_time=expiry_time,
+            volatility=volatility,
+        )
 
     def price(
         self,

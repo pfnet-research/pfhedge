@@ -58,14 +58,14 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
 
     def test_gamma(self):
         m = BSEuropeanBinaryOption()
-        result = m.gamma(0.01, 1.0, 0.2)
+        result = m.gamma(torch.tensor(0.01), torch.tensor(1.0), torch.tensor(0.2))
         expect = torch.tensor(-1.4645787477493286)
         assert_close(result, expect)
 
         with pytest.raises(ValueError):
             # not yet supported
             m = BSEuropeanBinaryOption(call=False)
-            result = m.gamma(0.0, 1.0, 0.2)
+            result = m.gamma(torch.tensor(0.0), torch.tensor(1.0), torch.tensor(0.2))
 
     def test_price(self):
         m = BSEuropeanBinaryOption()
