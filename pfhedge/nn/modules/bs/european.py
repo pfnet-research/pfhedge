@@ -55,7 +55,7 @@ class BSEuropeanOption(BSModuleMixin):
         BSEuropeanOption(call=False)
     """
 
-    def __init__(self, derivative=None, call:bool=True, strike:float=1.0):
+    def __init__(self, derivative=None, call: bool = True, strike: float = 1.0):
         super().__init__()
 
         if derivative is not None:

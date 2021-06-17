@@ -80,10 +80,7 @@ class BSEuropeanBinaryOption(BSModuleMixin):
 
     @torch.enable_grad()
     def delta(
-        self,
-        log_moneyness: Tensor,
-        expiry_time: Tensor,
-        volatility: Tensor,
+        self, log_moneyness: Tensor, expiry_time: Tensor, volatility: Tensor
     ) -> Tensor:
         """Returns delta of the derivative.
 

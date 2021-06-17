@@ -67,8 +67,8 @@ class EuropeanOption(Derivative):
         call: bool = True,
         strike: float = 1.0,
         maturity: float = 20 / 250,
-        dtype:torch.dtype=None,
-        device:torch.device=None,
+        dtype: torch.dtype = None,
+        device: torch.device = None,
     ):
         super().__init__()
         self.underlier = underlier

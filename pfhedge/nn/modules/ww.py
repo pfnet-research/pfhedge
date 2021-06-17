@@ -79,13 +79,13 @@ class WhalleyWilmott(Module):
         self.bs = BlackScholes(derivative)
         self.clamp = Clamp()
 
-    def inputs(self)->list:
+    def inputs(self) -> list:
         return self.bs.inputs() + ["prev_hedge"]
 
     def extra_repr(self):
         return f"a={self.a}" if self.a != 1 else ""
 
-    def forward(self, input:Tensor) -> Tensor:
+    def forward(self, input: Tensor) -> Tensor:
         prev_hedge = input[..., [-1]]
 
         delta = self.bs(input[..., :-1])
@@ -93,7 +93,7 @@ class WhalleyWilmott(Module):
 
         return self.clamp(prev_hedge, min=delta - width, max=delta + width)
 
-    def width(self, input:Tensor) -> Tensor:
+    def width(self, input: Tensor) -> Tensor:
         """Returns half-width of the no-transaction band.
 
         Args:

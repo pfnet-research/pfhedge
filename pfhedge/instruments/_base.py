@@ -9,13 +9,15 @@ class Instrument(ABC):
     """Base class for all financial instruments."""
 
     @abstractmethod
-    def simulate(self, time_horizon:float, n_paths:int=1, init_price:float=1.0) -> None:
+    def simulate(
+        self, time_horizon: float, n_paths: int = 1, init_price: float = 1.0
+    ) -> None:
         """Simulate time series of prices of itself (for a primary instrument)
         or its underlier (for a derivative).
         """
 
     @abstractmethod
-    def to(self, *args, **kwargs) :
+    def to(self, *args, **kwargs):
         """Performs dtype and/or device conversion of the time series of prices.
 
         Args:
@@ -79,7 +81,9 @@ class Primary(Instrument):
     """
 
     @abstractmethod
-    def simulate(self, time_horizon:float, n_paths:int=1, init_price:float=1.0, **kwargs) -> None:
+    def simulate(
+        self, time_horizon: float, n_paths: int = 1, init_price: float = 1.0, **kwargs
+    ) -> None:
         """Simulate time series of prices and set an attribute `prices`.
 
         Args:
@@ -148,7 +152,7 @@ class Derivative(Instrument):
     def device(self) -> torch.device:
         return self.underlier.device
 
-    def simulate(self, n_paths:int=1, init_price:float=1.0, **kwargs) -> None:
+    def simulate(self, n_paths: int = 1, init_price: float = 1.0, **kwargs) -> None:
         """
         Simulates time series of the underlier's prices.
 

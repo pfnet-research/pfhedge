@@ -74,7 +74,7 @@ class BSModuleMixin(Module):
         return (s + (v ** 2 / 2) * t) / (v * torch.sqrt(t))
 
     @staticmethod
-    def d2(log_moneyness:Tensor, expiry_time:Tensor, volatility:Tensor) -> Tensor:
+    def d2(log_moneyness: Tensor, expiry_time: Tensor, volatility: Tensor) -> Tensor:
         """Returns :math:`d_2` in the Black-Scholes formula.
 
         Args:

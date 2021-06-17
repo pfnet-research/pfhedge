@@ -1,4 +1,5 @@
 import torch
+
 from ..stochastic import generate_geometric_brownian
 from ._base import Primary
 
@@ -49,8 +50,8 @@ class BrownianStock(Primary):
         volatility: float = 0.2,
         cost: float = 0.0,
         dt: float = 1 / 250,
-        dtype:torch.dtype=None,
-        device:torch.device=None,
+        dtype: torch.dtype = None,
+        device: torch.device = None,
     ):
         super().__init__()
 

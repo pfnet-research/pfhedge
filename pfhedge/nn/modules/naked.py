@@ -26,11 +26,11 @@ class Naked(Module):
                 [0.]])
     """
 
-    def __init__(self, out_features:int=1):
+    def __init__(self, out_features: int = 1):
         super().__init__()
         self.out_features = out_features
 
-    def forward(self, input:Tensor)->Tensor:
+    def forward(self, input: Tensor) -> Tensor:
         return torch.cat(
             [torch.zeros_like(input[..., :1]) for _ in range(self.out_features)], -1
         )
