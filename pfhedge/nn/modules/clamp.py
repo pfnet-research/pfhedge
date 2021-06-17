@@ -63,9 +63,7 @@ class LeakyClamp(Module):
     def extra_repr(self):
         return f"clamped_slope={self.clamped_slope}" if self.clamped_slope != 0 else ""
 
-    def forward(
-        self, input: Tensor, min_value: Tensor = None, max_value: Tensor = None
-    ) -> Tensor:
+    def forward(self, input: Tensor, min: Tensor = None, max: Tensor = None) -> Tensor:
         """Clamp all elements in `input` into the range :math:`[\\min, \\max]`.
 
         Args:
@@ -83,9 +81,7 @@ class LeakyClamp(Module):
         Returns:
             torch.Tensor
         """
-        return leaky_clamp(
-            input, min_value, max_value, clamped_slope=self.clamped_slope
-        )
+        return leaky_clamp(input, min=min, max=max, clamped_slope=self.clamped_slope)
 
 
 class Clamp(Module):
@@ -157,4 +153,4 @@ class Clamp(Module):
         Returns:
             torch.Tensor
         """
-        return clamp(input, min, max)
+        return clamp(input, min=min, max=max)

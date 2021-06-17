@@ -1,8 +1,11 @@
 from abc import ABC
 from abc import abstractmethod
+from typing import TypeVar
 
 import torch
 from torch import Tensor
+
+T = TypeVar("T")
 
 
 class Instrument(ABC):
@@ -17,7 +20,7 @@ class Instrument(ABC):
         """
 
     @abstractmethod
-    def to(self, *args, **kwargs):
+    def to(self: T, *args, **kwargs) -> T:
         """Performs dtype and/or device conversion of the time series of prices.
 
         Args:
@@ -78,7 +81,14 @@ class Primary(Instrument):
             This attribute is supposed to be set by a method `simulate()`.
             Shape is :math:`(N, T)` where :math:`N` is the number of simulated paths
             and :math:`T` is the number of time steps.
+        dtype (torch.dtype): The dtype with which the simulated time-series are
+            represented.
+        device (torch.device): The device where the simulated time-series are.
     """
+
+    prices: torch.Tensor
+    dtype: torch.dtype
+    device: torch.device
 
     @abstractmethod
     def simulate(
@@ -92,7 +102,7 @@ class Primary(Instrument):
             init_price (float, default=1.0): The initial value of the prices.
         """
 
-    def to(self, *args, **kwargs):
+    def to(self: T, *args, **kwargs) -> T:
         """Performs dtype and/or device conversion of the time series of the prices.
 
         Args:
@@ -139,10 +149,12 @@ class Derivative(Instrument):
     Attributes:
         underlier (:class:`Primary`): The underlying asset on which the derivative's
             payoff relies.
+        dtype (torch.dtype): The dtype with which the simulated time-series are
+            represented.
+        device (torch.device): The device where the simulated time-series are.
     """
 
     underlier: Primary
-    maturity: float
 
     @property
     def dtype(self) -> torch.dtype:
@@ -153,8 +165,7 @@ class Derivative(Instrument):
         return self.underlier.device
 
     def simulate(self, n_paths: int = 1, init_price: float = 1.0, **kwargs) -> None:
-        """
-        Simulates time series of the underlier's prices.
+        """Simulates time series of the underlier's prices.
 
         Args:
             n_paths (int): The number of paths to simulate.
@@ -182,7 +193,10 @@ class Derivative(Instrument):
     @abstractmethod
     def payoff(self) -> Tensor:
         """Returns the payoffs of the derivative.
-        The payoffs is computed based on the prices of `underlier`.
+
+        Shape:
+            - Output: :math:`(N)` where :math:`N` stands for the number of simulated
+              paths.
 
         Returns:
             torch.Tensor

@@ -189,3 +189,10 @@ class BSEuropeanOption(BSModuleMixin):
         s, t, p = map(torch.as_tensor, (log_moneyness, expiry_time, price))
         get_price = lambda v: self.price(s, t, v)
         return bisect(get_price, p, lower=0.001, upper=1.000, precision=precision)
+
+
+# Assign docstrings so they appear in Sphinx documentation
+BSEuropeanOption.inputs = BSModuleMixin.inputs
+BSEuropeanOption.inputs.__doc__ = BSModuleMixin.inputs.__doc__
+BSEuropeanOption.forward = BSModuleMixin.forward
+BSEuropeanOption.forward.__doc__ = BSModuleMixin.forward.__doc__
