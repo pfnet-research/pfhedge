@@ -35,7 +35,6 @@ class NoTransactionBandNet(Module):
 
         >>> from pfhedge.instruments import BrownianStock
         >>> from pfhedge.instruments import EuropeanOption
-        >>> from pfhedge.instruments import LookbackOption
 
         >>> deriv = EuropeanOption(BrownianStock(cost=1e-4))
         >>> m = NoTransactionBandNet(deriv)
@@ -58,23 +57,23 @@ class NoTransactionBandNet(Module):
     def __init__(self, derivative):
         super().__init__()
 
-        self.bs = BlackScholes(derivative)
+        self.delta = BlackScholes(derivative)
         self.mlp = MultiLayerPerceptron(out_features=2)
         self.clamp = Clamp()
 
     def inputs(self):
-        return self.bs.inputs() + ["prev_hedge"]
+        return self.delta.inputs() + ["prev_hedge"]
 
     def forward(self, input: Tensor) -> Tensor:
         prev_hedge = input[:, [-1]]
 
-        delta = self.bs(input[:, :-1]).reshape(-1, 1)
+        delta = self.delta(input[:, :-1]).reshape(-1, 1)
         width = self.mlp(input[:, :-1])
 
-        lower = delta - fn.leaky_relu(width[:, [0]])
-        upper = delta + fn.leaky_relu(width[:, [1]])
+        min = delta - fn.leaky_relu(width[:, [0]])
+        max = delta + fn.leaky_relu(width[:, [1]])
 
-        return self.clamp(prev_hedge, min=lower, max=upper)
+        return self.clamp(prev_hedge, min=min, max=max)
 
 
 if __name__ == "__main__":
