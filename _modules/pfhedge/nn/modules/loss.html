@@ -147,6 +147,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../stochastic.html">pfhedge.stochastic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../autogreek.html">pfhedge.autogreek</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Development</span></p>
 <ul>
@@ -462,7 +463,7 @@
 <span class="sd">        \\rho_u(X) = \\inf_w \\text{loss}(X, w)</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        utility (`torch.autograd.Function`): Utility function.</span>
+<span class="sd">        utility (callable): Utility function.</span>
 
 <span class="sd">    Attributes:</span>
 <span class="sd">        w (torch.nn.Parameter): Represents wealth.</span>

@@ -39,7 +39,7 @@ API
    nn.functional
    instruments
    stochastic
-
+   autogreek
 
 Install
 -------

@@ -147,6 +147,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../stochastic.html">pfhedge.stochastic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../autogreek.html">pfhedge.autogreek</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Development</span></p>
 <ul>
@@ -169,6 +170,7 @@
 <span></span><span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
 
+<span class="kn">import</span> <span class="nn">pfhedge.autogreek</span> <span class="k">as</span> <span class="nn">autogreek</span>
 <span class="kn">from</span> <span class="nn">pfhedge._utils.bisect</span> <span class="kn">import</span> <span class="n">bisect</span>
 
 <span class="kn">from</span> <span class="nn">._base</span> <span class="kn">import</span> <span class="n">BSModuleMixin</span>
@@ -297,18 +299,13 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            torch.Tensor</span>
 <span class="sd">        """</span>
-        <span class="n">prices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">strike</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">log_moneyness</span><span class="p">))</span>
-        <span class="n">prices</span> <span class="o">=</span> <span class="n">Tensor</span><span class="o">.</span><span class="n">requires_grad_</span><span class="p">(</span><span class="n">prices</span><span class="p">)</span>
-
-        <span class="n">s</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">prices</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">strike</span><span class="p">)</span>
-        <span class="n">t</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">,</span> <span class="p">(</span><span class="n">expiry_time</span><span class="p">,</span> <span class="n">volatility</span><span class="p">))</span>
-
-        <span class="n">delta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
-        <span class="n">gamma</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">autograd</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span>
-            <span class="n">delta</span><span class="p">,</span> <span class="n">prices</span><span class="p">,</span> <span class="n">grad_outputs</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">prices</span><span class="p">)</span>
-        <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-
-        <span class="k">return</span> <span class="n">gamma</span></div>
+        <span class="k">return</span> <span class="n">autogreek</span><span class="o">.</span><span class="n">gamma</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">price</span><span class="p">,</span>
+            <span class="n">strike</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">strike</span><span class="p">,</span>
+            <span class="n">log_moneyness</span><span class="o">=</span><span class="n">log_moneyness</span><span class="p">,</span>
+            <span class="n">expiry_time</span><span class="o">=</span><span class="n">expiry_time</span><span class="p">,</span>
+            <span class="n">volatility</span><span class="o">=</span><span class="n">volatility</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
 <div class="viewcode-block" id="BSEuropeanBinaryOption.price"><a class="viewcode-back" href="../../../../../generated/pfhedge.nn.BSEuropeanBinaryOption.html#pfhedge.nn.BSEuropeanBinaryOption.price">[docs]</a>    <span class="k">def</span> <span class="nf">price</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">log_moneyness</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">expiry_time</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">volatility</span><span class="p">:</span> <span class="n">Tensor</span>
