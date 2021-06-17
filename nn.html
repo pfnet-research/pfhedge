@@ -2,7 +2,7 @@
 <html class="no-js">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="BlackScholes" href="generated/pfhedge.nn.BlackScholes.html" /><link rel="prev" title="pfhedge.Hedger" href="hedger.html" />
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Hedger" href="generated/pfhedge.nn.Hedger.html" /><link rel="prev" title="PFHedge Documentation" href="index.html" />
 
     <meta name="generator" content="sphinx-3.5.4, furo 2021.04.11.beta34"/>
         <title>pfhedge.nn - PFHedge documentation</title>
@@ -116,8 +116,8 @@
   <input type="hidden" name="area" value="default">
 </form><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="hedger.html">pfhedge.Hedger</a></li>
 <li class="toctree-l1 current has-children current-page"><a class="current reference internal" href="#">pfhedge.nn</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label for="toctree-checkbox-1"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.Hedger.html">Hedger</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.BlackScholes.html">BlackScholes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.BSAmericanBinaryOption.html">BSAmericanBinaryOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.BSEuropeanOption.html">BSEuropeanOption</a></li>
@@ -170,6 +170,20 @@
 <p><cite>pfhedge.nn</cite> provides <cite>torch.nn.Module</cite> that are useful for Deep Hedging.</p>
 <p>See <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html">PyTorch Documentation</a>
 for general usage of <cite>torch.nn.Module</cite>.</p>
+<div class="section" id="hedger-module">
+<h2>Hedger Module<a class="headerlink" href="#hedger-module" title="Permalink to this headline">¶</a></h2>
+<div class="table-wrapper"><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pfhedge.nn.Hedger.html#pfhedge.nn.Hedger" title="pfhedge.nn.Hedger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nn.Hedger</span></code></a></p></td>
+<td><p>A <cite>torch.nn.Module</cite> to hedge and price derivatives.</p></td>
+</tr>
+</tbody>
+</table></div>
+</div>
 <div class="section" id="black-scholes-layers">
 <h2>Black-Scholes Layers<a class="headerlink" href="#black-scholes-layers" title="Permalink to this headline">¶</a></h2>
 <div class="table-wrapper"><table class="longtable docutils align-default">
@@ -267,8 +281,8 @@ for general usage of <cite>torch.nn.Module</cite>.</p>
 </tbody>
 </table></div>
 </div>
-<div class="section" id="other-layers">
-<h2>Other Layers<a class="headerlink" href="#other-layers" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="other-modules">
+<h2>Other Modules<a class="headerlink" href="#other-modules" title="Permalink to this headline">¶</a></h2>
 <div class="table-wrapper"><table class="longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
@@ -287,23 +301,23 @@ for general usage of <cite>torch.nn.Module</cite>.</p>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="generated/pfhedge.nn.BlackScholes.html">
+          <a class="next-page" href="generated/pfhedge.nn.Hedger.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">BlackScholes</div>
+                <div class="title">Hedger</div>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="hedger.html">
+          <a class="prev-page" href="index.html">
               <svg><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">pfhedge.Hedger</div>
+                <div class="title">Home</div>
                 
               </div>
             </a>
@@ -338,12 +352,13 @@ for general usage of <cite>torch.nn.Module</cite>.</p>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">pfhedge.nn</a><ul>
+<li><a class="reference internal" href="#hedger-module">Hedger Module</a></li>
 <li><a class="reference internal" href="#black-scholes-layers">Black-Scholes Layers</a></li>
 <li><a class="reference internal" href="#whalley-wilmott-layers">Whalley-Wilmott Layers</a></li>
 <li><a class="reference internal" href="#nonlinear-activations">Nonlinear Activations</a></li>
 <li><a class="reference internal" href="#loss-functions">Loss Functions</a></li>
 <li><a class="reference internal" href="#multi-layer-perceptron">Multi Layer Perceptron</a></li>
-<li><a class="reference internal" href="#other-layers">Other Layers</a></li>
+<li><a class="reference internal" href="#other-modules">Other Modules</a></li>
 </ul>
 </li>
 </ul>

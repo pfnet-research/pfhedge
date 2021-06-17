@@ -35,7 +35,6 @@ API
 .. toctree::
    :maxdepth: 1
 
-   hedger
    nn
    nn.functional
    instruments
@@ -59,9 +58,9 @@ Here is a minimal example to try out Deep Hedging.
 
 .. code-block:: python
 
-    from pfhedge import Hedger
     from pfhedge.instruments import BrownianStock
     from pfhedge.instruments import EuropeanOption
+    from pfhedge.nn import Hedger
     from pfhedge.nn import MultiLayerPerceptron
 
     # Prepare a derivative to hedge
@@ -69,10 +68,12 @@ Here is a minimal example to try out Deep Hedging.
 
     # Create your hedger
     model = MultiLayerPerceptron()
-    hedger = Hedger(model, features=["log_moneyness", "expiry_time", "volatility", "prev_hedge"])
+    hedger = Hedger(
+        model, inputs=["log_moneyness", "expiry_time", "volatility", "prev_hedge"]
+    )
 
     # Fit and price
-    hedger.fit(deriv, n_epochs=200, n_paths=10000)
+    hedger.fit(deriv)
     price = hedger.price(deriv)
 
 Examples

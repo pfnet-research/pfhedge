@@ -2,7 +2,7 @@
 <html class="no-js">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="pfhedge.Hedger" href="hedger.html" />
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="pfhedge.nn" href="nn.html" />
 
     <meta name="generator" content="sphinx-3.5.4, furo 2021.04.11.beta34"/>
         <title>Home - PFHedge documentation</title>
@@ -116,8 +116,8 @@
   <input type="hidden" name="area" value="default">
 </form><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul>
-<li class="toctree-l1"><a class="reference internal" href="hedger.html">pfhedge.Hedger</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="nn.html">pfhedge.nn</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label for="toctree-checkbox-1"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.Hedger.html">Hedger</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.BlackScholes.html">BlackScholes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.BSAmericanBinaryOption.html">BSAmericanBinaryOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.BSEuropeanOption.html">BSEuropeanOption</a></li>
@@ -172,7 +172,6 @@
 <h2>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="hedger.html">pfhedge.Hedger</a></li>
 <li class="toctree-l1"><a class="reference internal" href="nn.html">pfhedge.nn</a></li>
 <li class="toctree-l1"><a class="reference internal" href="nn.functional.html">pfhedge.nn.functional</a></li>
 <li class="toctree-l1"><a class="reference internal" href="instruments.html">pfhedge.instruments</a></li>
@@ -190,9 +189,9 @@
 <h2>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
 <a class="reference external image-reference" href="https://colab.research.google.com/github/pfnet-research/pfhedge/blob/main/examples/example_readme.ipynb"><img alt="https://colab.research.google.com/assets/colab-badge.svg" src="https://colab.research.google.com/assets/colab-badge.svg"/></a>
 <p>Here is a minimal example to try out Deep Hedging.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pfhedge</span> <span class="kn">import</span> <span class="n">Hedger</span>
-<span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">BrownianStock</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">BrownianStock</span>
 <span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">EuropeanOption</span>
+<span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">Hedger</span>
 <span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">MultiLayerPerceptron</span>
 
 <span class="c1"># Prepare a derivative to hedge</span>
@@ -200,10 +199,12 @@
 
 <span class="c1"># Create your hedger</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">MultiLayerPerceptron</span><span class="p">()</span>
-<span class="n">hedger</span> <span class="o">=</span> <span class="n">Hedger</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="p">[</span><span class="s2">"log_moneyness"</span><span class="p">,</span> <span class="s2">"expiry_time"</span><span class="p">,</span> <span class="s2">"volatility"</span><span class="p">,</span> <span class="s2">"prev_hedge"</span><span class="p">])</span>
+<span class="n">hedger</span> <span class="o">=</span> <span class="n">Hedger</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="p">[</span><span class="s2">"log_moneyness"</span><span class="p">,</span> <span class="s2">"expiry_time"</span><span class="p">,</span> <span class="s2">"volatility"</span><span class="p">,</span> <span class="s2">"prev_hedge"</span><span class="p">]</span>
+<span class="p">)</span>
 
 <span class="c1"># Fit and price</span>
-<span class="n">hedger</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">deriv</span><span class="p">,</span> <span class="n">n_epochs</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">n_paths</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+<span class="n">hedger</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">deriv</span><span class="p">)</span>
 <span class="n">price</span> <span class="o">=</span> <span class="n">hedger</span><span class="o">.</span><span class="n">price</span><span class="p">(</span><span class="n">deriv</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -220,12 +221,12 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="hedger.html">
+          <a class="next-page" href="nn.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">pfhedge.Hedger</div>
+                <div class="title">pfhedge.nn</div>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>

@@ -116,8 +116,8 @@
   <input type="hidden" name="area" value="default">
 </form><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../hedger.html">pfhedge.Hedger</a></li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="../nn.html">pfhedge.nn</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label for="toctree-checkbox-1"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.Hedger.html">Hedger</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.BlackScholes.html">BlackScholes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.BSAmericanBinaryOption.html">BSAmericanBinaryOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.BSEuropeanOption.html">BSEuropeanOption</a></li>
@@ -173,7 +173,7 @@
 <dd><p>Creates a loss given by the negative of expected exponential utility.</p>
 <p>The loss of the profit-loss <cite>pnl</cite> is given by</p>
 <div class="math-wrapper"><div class="math notranslate nohighlight">
-\[\text{loss}(\text{pnl}) = -\mathrm{E}[u(\text{pnl})] \,,
+\[\text{loss}(\text{pnl}) = -\mathbf{E}[u(\text{pnl})] \,,
 \quad
 u(x) = -\exp(-a x) \,.\]</div></div>
 <dl class="field-list simple">
@@ -209,12 +209,12 @@ the given profit-loss distribution in terms of the loss.</p>
 <dd class="field-odd"><p><strong>input</strong> (<em>torch.Tensor</em>) – The distribution of the profit and loss.</p>
 </dd>
 </dl>
-<dl>
+<dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
-<li><p>Input: <span class="math notranslate nohighlight">\((N, *)\)</span>, where <span class="math notranslate nohighlight">\(*\)</span> means any number of additional</p></li>
+<li><p>Input: <span class="math notranslate nohighlight">\((N, *)\)</span>, where <span class="math notranslate nohighlight">\(*\)</span> means any number of additional
+dimensions.</p></li>
+<li><p>Output: <span class="math notranslate nohighlight">\((*)\)</span></p></li>
 </ul>
-<p>dimensions.
-- Output: <span class="math notranslate nohighlight">\((*)\)</span></p>
 </dd>
 </dl>
 <dl class="field-list simple">

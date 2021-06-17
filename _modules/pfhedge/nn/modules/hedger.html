@@ -116,8 +116,8 @@
   <input type="hidden" name="area" value="default">
 </form><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../../hedger.html">pfhedge.Hedger</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../../nn.html">pfhedge.nn</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label for="toctree-checkbox-1"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.nn.Hedger.html">Hedger</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.nn.BlackScholes.html">BlackScholes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.nn.BSAmericanBinaryOption.html">BSAmericanBinaryOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.nn.BSEuropeanOption.html">BSEuropeanOption</a></li>
@@ -180,7 +180,7 @@
 <span class="kn">from</span> <span class="nn">.loss</span> <span class="kn">import</span> <span class="n">HedgeLoss</span>
 
 
-<div class="viewcode-block" id="Hedger"><a class="viewcode-back" href="../../../../hedger.html#pfhedge.Hedger">[docs]</a><span class="k">class</span> <span class="nc">Hedger</span><span class="p">(</span><span class="n">Module</span><span class="p">):</span>
+<div class="viewcode-block" id="Hedger"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.Hedger.html#pfhedge.nn.Hedger">[docs]</a><span class="k">class</span> <span class="nc">Hedger</span><span class="p">(</span><span class="n">Module</span><span class="p">):</span>
     <span class="sd">"""A `torch.nn.Module` to hedge and price derivatives.</span>
 
 <span class="sd">    Args:</span>
@@ -292,10 +292,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">criterion</span> <span class="o">=</span> <span class="n">criterion</span>
 
         <span class="c1"># This hook saves the hedger's previous output to an attribute `prev`.</span>
-        <span class="c1"># The attribute `prev` may be referred to by the feature `PrevHedge`.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">register_forward_hook</span><span class="p">(</span><span class="n">save_prev_output</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Hedger.forward"><a class="viewcode-back" href="../../../../hedger.html#pfhedge.Hedger.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+<div class="viewcode-block" id="Hedger.forward"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.Hedger.html#pfhedge.nn.Hedger.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
         <span class="sd">"""Returns the outout of `model`.</span>
 
 <span class="sd">        The output is supposed to represent the hedge ratio at the next time step.</span>
@@ -310,7 +309,7 @@
 
         <span class="k">return</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Hedger.compute_pnl"><a class="viewcode-back" href="../../../../hedger.html#pfhedge.Hedger.compute_pnl">[docs]</a>    <span class="k">def</span> <span class="nf">compute_pnl</span><span class="p">(</span>
+<div class="viewcode-block" id="Hedger.compute_pnl"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.Hedger.html#pfhedge.nn.Hedger.compute_pnl">[docs]</a>    <span class="k">def</span> <span class="nf">compute_pnl</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">derivative</span><span class="p">,</span> <span class="n">n_paths</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">init_price</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
         <span class="sd">"""Returns the profit and loss distribution after hedging.</span>
@@ -342,14 +341,18 @@
             <span class="n">derivative</span><span class="o">.</span><span class="n">underlier</span><span class="o">.</span><span class="n">prices</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:]</span> <span class="o">-</span> <span class="n">derivative</span><span class="o">.</span><span class="n">underlier</span><span class="o">.</span><span class="n">prices</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="p">)</span>
 
-        <span class="c1"># prev: shape (N)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">prev</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">derivative</span><span class="o">.</span><span class="n">underlier</span><span class="o">.</span><span class="n">prices</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># prev_output: shape (N)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">register_buffer</span><span class="p">(</span>
+            <span class="s2">"prev_output"</span><span class="p">,</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">derivative</span><span class="o">.</span><span class="n">underlier</span><span class="o">.</span><span class="n">prices</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="mi">1</span><span class="p">]),</span>
+            <span class="n">persistent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="n">pnl</span> <span class="o">=</span> <span class="mi">0</span>
 
         <span class="c1"># Simulate hedging over time.</span>
         <span class="n">n_steps</span> <span class="o">=</span> <span class="n">derivative</span><span class="o">.</span><span class="n">underlier</span><span class="o">.</span><span class="n">prices</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># = T</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_steps</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
-            <span class="n">prev_hedge</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prev</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">prev_hedge</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_buffer</span><span class="p">(</span><span class="s2">"prev_output"</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 
             <span class="c1"># Compute the hedge ratio at the next time step.</span>
             <span class="n">hedge</span> <span class="o">=</span> <span class="bp">self</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">f</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="p">],</span> <span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
@@ -366,17 +369,18 @@
         <span class="c1"># Settle the derivative's payoff.</span>
         <span class="n">pnl</span> <span class="o">-=</span> <span class="n">derivative</span><span class="o">.</span><span class="n">payoff</span><span class="p">()</span>
 
-        <span class="c1"># Delete the attribute `prev` in case a hedger has a feature `PrevHedge` and</span>
-        <span class="c1"># one calls `compute_pnl` twice.</span>
-        <span class="c1"># If `prev` is not deleted, `prev` at the last time step in the first call</span>
-        <span class="c1"># would be referred to by `PrevHedge` at the first time step at the second call,</span>
+        <span class="c1"># Delete the attribute `prev_output` in case a hedger has a feature</span>
+        <span class="c1"># `PrevHedge` and one calls `compute_pnl` twice.</span>
+        <span class="c1"># If `prev_output` is not deleted, `prev_output` at the last time step</span>
+        <span class="c1"># in the first call could be referred to by `PrevHedge` at the first</span>
+        <span class="c1"># time step at the second call,</span>
         <span class="c1"># which results in an unexpected output (while we expect zeros).</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"prev"</span><span class="p">):</span>
-            <span class="nb">delattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"prev"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"prev_output"</span><span class="p">):</span>
+            <span class="nb">delattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"prev_output"</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">pnl</span></div>
 
-<div class="viewcode-block" id="Hedger.compute_loss"><a class="viewcode-back" href="../../../../hedger.html#pfhedge.Hedger.compute_loss">[docs]</a>    <span class="k">def</span> <span class="nf">compute_loss</span><span class="p">(</span>
+<div class="viewcode-block" id="Hedger.compute_loss"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.Hedger.html#pfhedge.nn.Hedger.compute_loss">[docs]</a>    <span class="k">def</span> <span class="nf">compute_loss</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">derivative</span><span class="p">,</span>
         <span class="n">n_paths</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
@@ -411,7 +415,7 @@
 
         <span class="k">return</span> <span class="n">mean_loss</span></div>
 
-<div class="viewcode-block" id="Hedger.fit"><a class="viewcode-back" href="../../../../hedger.html#pfhedge.Hedger.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span>
+<div class="viewcode-block" id="Hedger.fit"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.Hedger.html#pfhedge.nn.Hedger.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">derivative</span><span class="p">,</span>
         <span class="n">n_epochs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
@@ -502,7 +506,7 @@
 
         <span class="k">return</span> <span class="n">history</span></div>
 
-<div class="viewcode-block" id="Hedger.price"><a class="viewcode-back" href="../../../../hedger.html#pfhedge.Hedger.price">[docs]</a>    <span class="k">def</span> <span class="nf">price</span><span class="p">(</span>
+<div class="viewcode-block" id="Hedger.price"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.Hedger.html#pfhedge.nn.Hedger.price">[docs]</a>    <span class="k">def</span> <span class="nf">price</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">derivative</span><span class="p">,</span>
         <span class="n">n_paths</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
