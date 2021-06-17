@@ -6,9 +6,9 @@ import sys
 import torch
 
 sys.path.append("..")
-from pfhedge import Hedger
 from pfhedge.instruments import BrownianStock
 from pfhedge.instruments import EuropeanOption
+from pfhedge.nn import Hedger
 from pfhedge.nn import WhalleyWilmott
 
 if __name__ == "__main__":
