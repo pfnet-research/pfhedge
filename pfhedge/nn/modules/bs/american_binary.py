@@ -10,8 +10,6 @@ class BSAmericanBinaryOption(BSModuleMixin):
     """Black-Scholes formula for an American Binary Option.
 
     Args:
-        derivative (:class:`pfhedge.instruments.AmericanBinaryOption`, optional):
-            The derivative to get the Black-Scholes formula.
         call (bool, default=True): Specifies whether the option is call
             or put.
         strike (float, default=1.0): The strike price of the option.
@@ -43,32 +41,39 @@ class BSAmericanBinaryOption(BSModuleMixin):
         tensor([[1.1285],
                 [0.0000],
                 [0.0000]])
-
-        One can instantiate it using an
-        :class:`pfhedge.instruments.AmericanBinaryOption`.
-
-        >>> from pfhedge.instruments import BrownianStock
-        >>> from pfhedge.instruments import AmericanBinaryOption
-        >>> deriv = AmericanBinaryOption(BrownianStock(), strike=1.1)
-        >>> m = BSAmericanBinaryOption(deriv)
-        >>> m
-        BSAmericanBinaryOption(strike=1.1)
     """
 
-    def __init__(self, derivative=None, call: bool = True, strike: float = 1.0):
-        super().__init__()
-
-        if derivative is not None:
-            self.call = derivative.call
-            self.strike = derivative.strike
-        else:
-            self.call = call
-            self.strike = strike
-
-        if not self.call:
+    def __init__(self, call: bool = True, strike: float = 1.0):
+        if not call:
             raise ValueError(
                 f"{self.__class__.__name__} for a put option is not yet supported."
             )
+
+        super().__init__()
+        self.call = call
+        self.strike = strike
+
+    @classmethod
+    def from_derivative(cls, derivative):
+        """Initialize a module from a derivative.
+
+        Args:
+            derivative (:class:`pfhedge.instruments.AmericanBinaryOption`):
+                The derivative to get the Black-Scholes formula.
+
+        Returns:
+            BSAmericanBinaryOption
+
+        Examples:
+
+            >>> from pfhedge.instruments import BrownianStock
+            >>> from pfhedge.instruments import AmericanBinaryOption
+            >>> deriv = AmericanBinaryOption(BrownianStock(), strike=1.1)
+            >>> m = BSAmericanBinaryOption.from_derivative(deriv)
+            >>> m
+            BSAmericanBinaryOption(strike=1.1)
+        """
+        return cls(call=derivative.call, strike=derivative.strike)
 
     def extra_repr(self):
         params = []

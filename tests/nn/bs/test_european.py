@@ -22,8 +22,8 @@ class TestBSEuropeanOption(_TestBSModule):
         m = BSEuropeanOption()
         assert repr(m) == "BSEuropeanOption()"
 
-        liability = EuropeanOption(BrownianStock(), strike=1.1, call=False)
-        m = BSEuropeanOption(liability)
+        derivative = EuropeanOption(BrownianStock(), strike=1.1, call=False)
+        m = BSEuropeanOption.from_derivative(derivative)
         assert repr(m) == "BSEuropeanOption(call=False, strike=1.1)"
 
     def test_features(self):
@@ -44,8 +44,8 @@ class TestBSEuropeanOption(_TestBSModule):
         expect = torch.full_like(result, -0.4601721)
         assert_close(result, expect)
 
-        liability = EuropeanOption(BrownianStock(), call=False)
-        m = BSEuropeanOption(liability)
+        derivative = EuropeanOption(BrownianStock(), call=False)
+        m = BSEuropeanOption.from_derivative(derivative)
         input = torch.tensor([0.0, 1.0, 0.2]).reshape(1, -1)
         result = m(input)
         expect = torch.full_like(result, -0.4601721)
@@ -98,10 +98,10 @@ class TestBSEuropeanOption(_TestBSModule):
         from pfhedge.instruments import EuropeanOption
         from pfhedge.nn import Hedger
 
-        liability = EuropeanOption(BrownianStock())
+        derivative = EuropeanOption(BrownianStock())
         model = BSEuropeanOption()
         hedger = Hedger(model, model.inputs())
-        result = hedger.price(liability)
+        result = hedger.price(derivative)
         expect = torch.tensor(0.022)
         assert_close(result, expect, atol=1e-3, rtol=1e-3)
 

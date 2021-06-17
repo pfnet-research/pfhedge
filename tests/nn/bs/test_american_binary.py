@@ -22,21 +22,21 @@ class TestBSAmericanBinaryOption(_TestBSModule):
         m = BSAmericanBinaryOption()
         assert repr(m) == "BSAmericanBinaryOption()"
 
-        liability = AmericanBinaryOption(BrownianStock(), strike=1.1)
-        m = BSAmericanBinaryOption(liability)
+        derivative = AmericanBinaryOption(BrownianStock(), strike=1.1)
+        m = BSAmericanBinaryOption.from_derivative(derivative)
         assert repr(m) == "BSAmericanBinaryOption(strike=1.1)"
 
         with pytest.raises(ValueError):
             # not yet supported
-            liability = AmericanBinaryOption(BrownianStock(), strike=1.1, call=False)
-            m = BSAmericanBinaryOption(liability)
+            derivative = AmericanBinaryOption(BrownianStock(), strike=1.1, call=False)
+            m = BSAmericanBinaryOption.from_derivative(derivative)
             assert repr(m) == "BSAmericanBinaryOption(call=False, strike=1.1)"
 
     def test_error_put(self):
         with pytest.raises(ValueError):
             # not yet supported
-            liability = AmericanBinaryOption(BrownianStock(), call=False)
-            BSAmericanBinaryOption(liability)
+            derivative = AmericanBinaryOption(BrownianStock(), call=False)
+            BSAmericanBinaryOption.from_derivative(derivative)
 
     def test_features(self):
         m = BSAmericanBinaryOption()
