@@ -11,6 +11,16 @@ for general usage of `torch.nn.Module`.
 
 .. currentmodule:: pfhedge
 
+Hedger Module
+-------------
+
+.. autosummary::
+    :toctree: generated
+    :nosignatures:
+    :template: classtemplate.rst
+
+    nn.Hedger
+
 Black-Scholes Layers
 --------------------
 
@@ -70,8 +80,8 @@ Multi Layer Perceptron
 
     nn.MultiLayerPerceptron
 
-Other Layers
-------------
+Other Modules
+-------------
 
 .. autosummary::
     :toctree: generated
