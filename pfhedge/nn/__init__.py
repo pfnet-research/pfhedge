@@ -1,5 +1,5 @@
 from .modules.bs.american_binary import BSAmericanBinaryOption
-from .modules.bs.bs import BlackScholes
+from .modules.bs.black_scholes import BlackScholes
 from .modules.bs.european import BSEuropeanOption
 from .modules.bs.european_binary import BSEuropeanBinaryOption
 from .modules.bs.lookback import BSLookbackOption

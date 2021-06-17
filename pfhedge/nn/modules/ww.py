@@ -2,7 +2,7 @@ import torch
 from torch import Tensor
 from torch.nn import Module
 
-from .bs.bs import BlackScholes
+from .bs.black_scholes import BlackScholes
 from .clamp import Clamp
 
 

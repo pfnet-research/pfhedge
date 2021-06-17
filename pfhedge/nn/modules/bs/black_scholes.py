@@ -33,10 +33,10 @@ class BlackScholes(Module):
         >>> from pfhedge.instruments import BrownianStock
         >>> from pfhedge.instruments import EuropeanOption
         >>> from pfhedge.nn import BlackScholes
-        >>> deriv = EuropeanOption(BrownianStock())
+        >>> deriv = EuropeanOption(BrownianStock(), strike=1.1)
         >>> m = BlackScholes(deriv)
         >>> m
-        BSEuropeanOption()
+        BSEuropeanOption(strike=1.1)
         >>> m.inputs()
         ['log_moneyness', 'expiry_time', 'volatility']
         >>> input = torch.tensor([
@@ -70,11 +70,10 @@ class BlackScholes(Module):
 
     inputs: list
 
-    def __init__(self, derivative):
-        self.__class__ = {
+    def __new__(cls, derivative):
+        return {
             "EuropeanOption": BSEuropeanOption,
             "LookbackOption": BSLookbackOption,
             "AmericanBinaryOption": BSAmericanBinaryOption,
             "EuropeanBinaryOption": BSEuropeanBinaryOption,
-        }[derivative.__class__.__name__]
-        self.__init__(derivative)
+        }[derivative.__class__.__name__].from_derivative(derivative)

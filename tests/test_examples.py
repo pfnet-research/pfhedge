@@ -7,22 +7,22 @@ from pfhedge.nn import WhalleyWilmott
 
 
 def test_net():
-    liability = EuropeanOption(BrownianStock(cost=1e-4))
+    derivative = EuropeanOption(BrownianStock(cost=1e-4))
     model = MultiLayerPerceptron()
     hedger = Hedger(model, ["log_moneyness", "expiry_time", "volatility", "prev_hedge"])
-    _ = hedger.fit(liability, n_paths=100, n_epochs=10)
-    _ = hedger.price(liability)
+    _ = hedger.fit(derivative, n_paths=100, n_epochs=10)
+    _ = hedger.price(derivative)
 
 
 def test_bs():
-    liability = EuropeanOption(BrownianStock(cost=1e-4))
-    model = BlackScholes(liability)
+    derivative = EuropeanOption(BrownianStock(cost=1e-4))
+    model = BlackScholes(derivative)
     hedger = Hedger(model, model.inputs())
-    _ = hedger.price(liability)
+    _ = hedger.price(derivative)
 
 
 def test_ww():
-    liability = EuropeanOption(BrownianStock(cost=1e-4))
-    model = WhalleyWilmott(liability)
+    derivative = EuropeanOption(BrownianStock(cost=1e-4))
+    model = WhalleyWilmott(derivative)
     hedger = Hedger(model, model.inputs())
-    _ = hedger.price(liability)
+    _ = hedger.price(derivative)

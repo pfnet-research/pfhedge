@@ -22,8 +22,8 @@ class TestBSLookbackOption(_TestBSModule):
         m = BSLookbackOption()
         assert repr(m) == "BSLookbackOption()"
 
-        liability = LookbackOption(BrownianStock(), strike=1.1)
-        m = BSLookbackOption(liability)
+        derivative = LookbackOption(BrownianStock(), strike=1.1)
+        m = BSLookbackOption.from_derivative(derivative)
         assert repr(m) == "BSLookbackOption(strike=1.1)"
 
     def test_forward(self):

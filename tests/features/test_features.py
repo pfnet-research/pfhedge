@@ -19,9 +19,9 @@ from pfhedge.nn import Hedger
 
 
 class _TestFeature:
-    def assert_same_dtype(self, feature, liability, dtype):
-        liability.to(dtype).simulate()
-        assert feature.of(liability)[0].dtype == dtype
+    def assert_same_dtype(self, feature, derivative, dtype):
+        derivative.to(dtype).simulate()
+        assert feature.of(derivative)[0].dtype == dtype
 
 
 class TestMoneyness(_TestFeature):
@@ -32,11 +32,11 @@ class TestMoneyness(_TestFeature):
     @pytest.mark.parametrize("strike", [1.0, 2.0])
     @pytest.mark.parametrize("log", [True, False])
     def test(self, strike, log):
-        liability = EuropeanOption(BrownianStock(), strike=strike)
-        liability.underlier.prices = torch.arange(1.0, 7.0).reshape(2, 3)
+        derivative = EuropeanOption(BrownianStock(), strike=strike)
+        derivative.underlier.prices = torch.arange(1.0, 7.0).reshape(2, 3)
         # tensor([[1., 2., 3.],
         #         [4., 5., 6.]])
-        f = Moneyness(log=log).of(liability)
+        f = Moneyness(log=log).of(derivative)
 
         result = f[0]
         expect = torch.tensor([[1.0], [4.0]]) / strike
@@ -57,8 +57,8 @@ class TestMoneyness(_TestFeature):
 
     @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
     def test_dtype(self, dtype):
-        liability = EuropeanOption(BrownianStock())
-        self.assert_same_dtype(Moneyness(), liability, dtype)
+        derivative = EuropeanOption(BrownianStock())
+        self.assert_same_dtype(Moneyness(), derivative, dtype)
 
 
 class TestLogMoneyness(_TestFeature):
@@ -68,11 +68,11 @@ class TestLogMoneyness(_TestFeature):
 
     @pytest.mark.parametrize("strike", [1.0, 2.0])
     def test(self, strike):
-        liability = EuropeanOption(BrownianStock(), strike=strike)
-        liability.underlier.prices = torch.arange(1.0, 7.0).reshape(2, 3)
+        derivative = EuropeanOption(BrownianStock(), strike=strike)
+        derivative.underlier.prices = torch.arange(1.0, 7.0).reshape(2, 3)
         # tensor([[1., 2., 3.],
         #         [4., 5., 6.]])
-        f = LogMoneyness().of(liability)
+        f = LogMoneyness().of(derivative)
 
         result = f[0]
         expect = torch.tensor([[1.0], [4.0]]) / strike
@@ -92,8 +92,8 @@ class TestLogMoneyness(_TestFeature):
 
     @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
     def test_dtype(self, dtype):
-        liability = EuropeanOption(BrownianStock())
-        self.assert_same_dtype(LogMoneyness(), liability, dtype)
+        derivative = EuropeanOption(BrownianStock())
+        self.assert_same_dtype(LogMoneyness(), derivative, dtype)
 
 
 class TestExpiryTime(_TestFeature):
@@ -104,10 +104,10 @@ class TestExpiryTime(_TestFeature):
     def test(self):
         maturity = 3 / 365
         dt = 1 / 365
-        liability = EuropeanOption(BrownianStock(dt=dt), maturity=maturity)
-        liability.underlier.prices = torch.empty(2, 3)
+        derivative = EuropeanOption(BrownianStock(dt=dt), maturity=maturity)
+        derivative.underlier.prices = torch.empty(2, 3)
 
-        f = ExpiryTime().of(liability)
+        f = ExpiryTime().of(derivative)
 
         result = f[0]
         expect = torch.full((2, 1), 3 / 365)
@@ -124,8 +124,8 @@ class TestExpiryTime(_TestFeature):
 
     @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
     def test_dtype(self, dtype):
-        liability = EuropeanOption(BrownianStock())
-        self.assert_same_dtype(ExpiryTime(), liability, dtype)
+        derivative = EuropeanOption(BrownianStock())
+        self.assert_same_dtype(ExpiryTime(), derivative, dtype)
 
 
 class TestVolatility(_TestFeature):
@@ -135,10 +135,10 @@ class TestVolatility(_TestFeature):
 
     @pytest.mark.parametrize("volatility", [0.2, 0.1])
     def test(self, volatility):
-        liability = EuropeanOption(BrownianStock(volatility=volatility))
-        liability.underlier.prices = torch.empty(2, 3)
+        derivative = EuropeanOption(BrownianStock(volatility=volatility))
+        derivative.underlier.prices = torch.empty(2, 3)
 
-        f = Volatility().of(liability)
+        f = Volatility().of(derivative)
 
         result = f[0]
         expect = torch.full((2, 1), volatility)
@@ -155,8 +155,8 @@ class TestVolatility(_TestFeature):
 
     @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
     def test_dtype(self, dtype):
-        liability = EuropeanOption(BrownianStock())
-        self.assert_same_dtype(Volatility(), liability, dtype)
+        derivative = EuropeanOption(BrownianStock())
+        self.assert_same_dtype(Volatility(), derivative, dtype)
 
 
 class TestPrevHedge(_TestFeature):
@@ -167,12 +167,12 @@ class TestPrevHedge(_TestFeature):
     @pytest.mark.parametrize("volatility", [0.2, 0.1])
     def test(self, volatility):
         torch.manual_seed(42)
-        liability = EuropeanOption(BrownianStock(volatility))
-        liability.underlier.prices = torch.randn(2, 3)
+        derivative = EuropeanOption(BrownianStock(volatility))
+        derivative.underlier.prices = torch.randn(2, 3)
         hedger = Hedger(Linear(2, 1), ["moneyness", "expiry_time"])
-        hedger.inputs = [feature.of(liability) for feature in hedger.inputs]
+        hedger.inputs = [feature.of(derivative) for feature in hedger.inputs]
 
-        f = PrevHedge().of(liability, hedger)
+        f = PrevHedge().of(derivative, hedger)
 
         result = f[0]
         expect = torch.zeros((2, 1))
@@ -196,8 +196,8 @@ class TestBarrier(_TestFeature):
     """
 
     def test(self):
-        liability = EuropeanOption(BrownianStock())
-        liability.underlier.prices = torch.tensor(
+        derivative = EuropeanOption(BrownianStock())
+        derivative.underlier.prices = torch.tensor(
             [
                 [1.0, 1.5, 2.0, 3.0],
                 [2.0, 1.0, 1.0, 1.0],
@@ -205,7 +205,7 @@ class TestBarrier(_TestFeature):
                 [1.0, 1.1, 1.2, 1.3],
             ]
         )
-        f = Barrier(2.0, up=True).of(liability)
+        f = Barrier(2.0, up=True).of(derivative)
 
         result = f[0]
         expect = torch.tensor([0.0, 1.0, 1.0, 0.0]).reshape(-1, 1)
@@ -220,8 +220,8 @@ class TestBarrier(_TestFeature):
         expect = torch.tensor([1.0, 1.0, 1.0, 0.0]).reshape(-1, 1)
         assert_close(result, expect)
 
-        liability = EuropeanOption(BrownianStock())
-        liability.underlier.prices = torch.tensor(
+        derivative = EuropeanOption(BrownianStock())
+        derivative.underlier.prices = torch.tensor(
             [
                 [3.0, 2.0, 1.5, 1.0],
                 [1.0, 1.0, 1.0, 2.0],
@@ -229,7 +229,7 @@ class TestBarrier(_TestFeature):
                 [1.3, 1.2, 1.1, 1.0],
             ]
         )
-        f = Barrier(2.0, up=False).of(liability)
+        f = Barrier(2.0, up=False).of(derivative)
 
         result = f[0]
         expect = torch.tensor([0.0, 1.0, 0.0, 1.0]).reshape(-1, 1)
@@ -252,8 +252,8 @@ class TestBarrier(_TestFeature):
 
     @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
     def test_dtype(self, dtype):
-        liability = EuropeanOption(BrownianStock())
-        self.assert_same_dtype(Barrier(1.0), liability, dtype)
+        derivative = EuropeanOption(BrownianStock())
+        self.assert_same_dtype(Barrier(1.0), derivative, dtype)
 
 
 class TestZero(_TestFeature):
@@ -263,10 +263,10 @@ class TestZero(_TestFeature):
 
     def test(self):
         torch.manual_seed(42)
-        liability = EuropeanOption(BrownianStock())
-        liability.underlier.prices = torch.empty(2, 3)
+        derivative = EuropeanOption(BrownianStock())
+        derivative.underlier.prices = torch.empty(2, 3)
 
-        f = Zero().of(liability)
+        f = Zero().of(derivative)
 
         result = f[0]
         expect = torch.zeros((2, 1))
@@ -283,8 +283,8 @@ class TestZero(_TestFeature):
 
     @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
     def test_dtype(self, dtype):
-        liability = EuropeanOption(BrownianStock())
-        self.assert_same_dtype(Zero(), liability, dtype)
+        derivative = EuropeanOption(BrownianStock())
+        self.assert_same_dtype(Zero(), derivative, dtype)
 
 
 class TestMaxMoneyness(_TestFeature):
@@ -295,12 +295,12 @@ class TestMaxMoneyness(_TestFeature):
     @pytest.mark.parametrize("strike", [1.0, 2.0])
     @pytest.mark.parametrize("log", [True, False])
     def test(self, strike, log):
-        liability = EuropeanOption(BrownianStock(), strike=strike)
-        liability.underlier.prices = torch.tensor(
+        derivative = EuropeanOption(BrownianStock(), strike=strike)
+        derivative.underlier.prices = torch.tensor(
             [[1.0, 2.0, 1.5], [2.0, 3.0, 4.0], [3.0, 2.0, 1.0]]
         )
 
-        f = MaxMoneyness(log=log).of(liability)
+        f = MaxMoneyness(log=log).of(derivative)
 
         result = f[0]
         expect = torch.tensor([[1.0], [2.0], [3.0]]) / strike
@@ -321,8 +321,8 @@ class TestMaxMoneyness(_TestFeature):
 
     @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
     def test_dtype(self, dtype):
-        liability = EuropeanOption(BrownianStock())
-        self.assert_same_dtype(MaxMoneyness(), liability, dtype)
+        derivative = EuropeanOption(BrownianStock())
+        self.assert_same_dtype(MaxMoneyness(), derivative, dtype)
 
 
 class TestMaxLogMoneyness(_TestFeature):
@@ -332,12 +332,12 @@ class TestMaxLogMoneyness(_TestFeature):
 
     @pytest.mark.parametrize("strike", [1.0, 2.0])
     def test(self, strike):
-        liability = EuropeanOption(BrownianStock(), strike=strike)
-        liability.underlier.prices = torch.tensor(
+        derivative = EuropeanOption(BrownianStock(), strike=strike)
+        derivative.underlier.prices = torch.tensor(
             [[1.0, 2.0, 1.5], [2.0, 3.0, 4.0], [3.0, 2.0, 1.0]]
         )
 
-        f = MaxLogMoneyness().of(liability)
+        f = MaxLogMoneyness().of(derivative)
 
         result = f[0]
         expect = torch.tensor([[1.0], [2.0], [3.0]]) / strike
@@ -357,18 +357,18 @@ class TestMaxLogMoneyness(_TestFeature):
 
     @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
     def test_dtype(self, dtype):
-        liability = EuropeanOption(BrownianStock())
-        self.assert_same_dtype(MaxLogMoneyness(), liability, dtype)
+        derivative = EuropeanOption(BrownianStock())
+        self.assert_same_dtype(MaxLogMoneyness(), derivative, dtype)
 
 
 class TestModelOutput(_TestFeature):
     def test(self):
-        liability = EuropeanOption(BrownianStock())
-        liability.simulate()
+        derivative = EuropeanOption(BrownianStock())
+        derivative.simulate()
 
         module = torch.nn.Linear(2, 1)
         x1, x2 = Moneyness(), ExpiryTime()
-        f = ModuleOutput(module, [x1, x2]).of(liability)
+        f = ModuleOutput(module, [x1, x2]).of(derivative)
 
         result = f[0]
         expect = module(torch.cat([x1[0], x2[0]], 1))
@@ -394,7 +394,7 @@ class TestModelOutput(_TestFeature):
 
     @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
     def test_dtype(self, dtype):
-        liability = EuropeanOption(BrownianStock()).to(dtype)
-        m = Linear(2, 1).to(liability.dtype)
+        derivative = EuropeanOption(BrownianStock()).to(dtype)
+        m = Linear(2, 1).to(derivative.dtype)
         f = ModuleOutput(m, [Moneyness(), ExpiryTime()])
-        self.assert_same_dtype(f, liability, dtype)
+        self.assert_same_dtype(f, derivative, dtype)
