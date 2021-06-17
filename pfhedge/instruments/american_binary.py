@@ -2,7 +2,7 @@ import torch
 from torch import Tensor
 
 from ..nn.functional import american_binary_payoff
-from ._base import Derivative
+from .base import Derivative
 
 
 class AmericanBinaryOption(Derivative):
@@ -54,6 +54,11 @@ class AmericanBinaryOption(Derivative):
             `device` will be the CPU for CPU tensor types and
             the current CUDA device for CUDA tensor types.
 
+    Attributes:
+        dtype (torch.dtype): The dtype with which the simulated time-series are
+            represented.
+        device (torch.device): The device where the simulated time-series are.
+
     Examples:
 
         >>> import torch
@@ -98,3 +103,11 @@ class AmericanBinaryOption(Derivative):
         return american_binary_payoff(
             self.underlier.prices, call=self.call, strike=self.strike
         )
+
+
+# Assign docstrings so they appear in Sphinx documentation
+AmericanBinaryOption.simulate = Derivative.simulate
+AmericanBinaryOption.simulate.__doc__ = Derivative.simulate.__doc__
+AmericanBinaryOption.to = Derivative.to
+AmericanBinaryOption.to.__doc__ = Derivative.to.__doc__
+AmericanBinaryOption.payoff.__doc__ = Derivative.payoff.__doc__

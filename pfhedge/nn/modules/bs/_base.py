@@ -22,15 +22,15 @@ class BSModuleMixin(Module):
 
         Args:
             input (torch.Tensor): The input tensor. Features are concatenated along
-                the last dimension.
+                the last dimension. See `inputs()` for the names of the input features.
 
         Returns:
             torch.Tensor
         """
-        return self.delta(*(input[..., [i]] for i in range(input.size()[-1])))
+        return self.delta(*(input[..., [i]] for i in range(input.size(-1))))
 
     @abc.abstractmethod
-    def delta(*args, **kwargs) -> Tensor:
+    def delta(self, *args, **kwargs) -> Tensor:
         """Returns delta of the derivative.
 
         Returns:
@@ -38,12 +38,10 @@ class BSModuleMixin(Module):
         """
 
     def inputs(self) -> list:
-        """Returns a list of names of input features.
+        """Returns the names of input features.
 
-        By default, this method infers the names of features from the signature of
-        the `delta` method.
-        Please override this method if the signature is different from
-        the feature names.
+        Returns:
+            list
         """
         return list(signature(self.delta).parameters.keys())
 

@@ -1,7 +1,7 @@
 import torch
 
 from ..stochastic import generate_geometric_brownian
-from ._base import Primary
+from .base import Primary
 
 
 class BrownianStock(Primary):
@@ -92,3 +92,8 @@ class BrownianStock(Primary):
             dtype=self.dtype,
             device=self.device,
         )
+
+
+# Assign docstrings so they appear in Sphinx documentation
+BrownianStock.to = Primary.to
+BrownianStock.to.__doc__ = Primary.to.__doc__

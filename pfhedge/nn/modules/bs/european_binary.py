@@ -10,8 +10,6 @@ class BSEuropeanBinaryOption(BSModuleMixin):
     """Black-Scholes formula for a European binary option.
 
     Args:
-        derivative (:class:`pfhedge.instruments.EuropeanBinaryOption`. optional):
-            The derivative to get the Black-Scholes formula.
         call (bool, default=True): Specifies whether the option is call or put.
         strike (float, default=1.0): The strike price of the option.
 
@@ -42,32 +40,39 @@ class BSEuropeanBinaryOption(BSModuleMixin):
         tensor([[6.2576],
                 [6.3047],
                 [6.1953]])
-
-        One can instantiate it using an
-        :class:`pfhedge.instruments.EuropeanBinaryOption`.
-
-        >>> from pfhedge.instruments import BrownianStock
-        >>> from pfhedge.instruments import EuropeanBinaryOption
-        >>> deriv = EuropeanBinaryOption(BrownianStock(), strike=1.1)
-        >>> m = BSEuropeanBinaryOption(deriv)
-        >>> m
-        BSEuropeanBinaryOption(strike=1.1)
     """
 
-    def __init__(self, derivative=None, call: bool = True, strike: float = 1.0):
-        super().__init__()
-
-        if derivative is not None:
-            self.call = derivative.call
-            self.strike = derivative.strike
-        else:
-            self.call = call
-            self.strike = strike
-
-        if not self.call:
+    def __init__(self, call: bool = True, strike: float = 1.0):
+        if not call:
             raise ValueError(
                 f"{self.__class__.__name__} for a put option is not yet supported."
             )
+
+        super().__init__()
+        self.call = call
+        self.strike = strike
+
+    @classmethod
+    def from_derivative(cls, derivative):
+        """Initialize a module from a derivative.
+
+        Args:
+            derivative (:class:`pfhedge.instruments.EuropeanBinaryOption`):
+                The derivative to get the Black-Scholes formula.
+
+        Returns:
+            BSEuropeanBinaryOption
+
+        Examples:
+
+            >>> from pfhedge.instruments import BrownianStock
+            >>> from pfhedge.instruments import EuropeanBinaryOption
+            >>> deriv = EuropeanBinaryOption(BrownianStock(), strike=1.1)
+            >>> m = BSEuropeanBinaryOption.from_derivative(deriv)
+            >>> m
+            BSEuropeanBinaryOption(strike=1.1)
+        """
+        return cls(call=derivative.call, strike=derivative.strike)
 
     def extra_repr(self):
         params = []
@@ -189,3 +194,9 @@ class BSEuropeanBinaryOption(BSModuleMixin):
         s, t, p = map(torch.as_tensor, (log_moneyness, expiry_time, price))
         get_price = lambda v: self.price(s, t, v)
         return bisect(get_price, p, lower=0.001, upper=1.000, precision=precision)
+
+
+# Assign docstrings so they appear in Sphinx documentation
+BSEuropeanBinaryOption.inputs.__doc__ = BSModuleMixin.inputs.__doc__
+BSEuropeanBinaryOption.forward = BSModuleMixin.forward
+BSEuropeanBinaryOption.forward.__doc__ = BSModuleMixin.forward.__doc__

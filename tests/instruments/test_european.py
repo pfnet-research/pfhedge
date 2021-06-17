@@ -16,11 +16,11 @@ class TestEuropeanOption:
         torch.manual_seed(42)
 
     def test_payoff(self):
-        liability = EuropeanOption(BrownianStock(), strike=2.0)
-        liability.underlier.prices = torch.tensor(
+        derivative = EuropeanOption(BrownianStock(), strike=2.0)
+        derivative.underlier.prices = torch.tensor(
             [[1.0, 1.0, 1.0, 1.0], [1.0, 1.0, 1.0, 1.0], [1.9, 2.0, 2.1, 3.0]]
         ).T
-        result = liability.payoff()
+        result = derivative.payoff()
         expect = torch.tensor([0.0, 0.0, 0.1, 1.0])
         assert_close(result, expect)
 
@@ -47,37 +47,37 @@ class TestEuropeanOption:
 
     @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
     def test_dtype(self, dtype):
-        liability = EuropeanOption(BrownianStock(dtype=dtype))
-        assert liability.dtype == dtype
-        liability.simulate()
-        assert liability.payoff().dtype == dtype
+        derivative = EuropeanOption(BrownianStock(dtype=dtype))
+        assert derivative.dtype == dtype
+        derivative.simulate()
+        assert derivative.payoff().dtype == dtype
 
-        liability = EuropeanOption(BrownianStock()).to(dtype=dtype)
-        liability.simulate()
-        assert liability.payoff().dtype == dtype
+        derivative = EuropeanOption(BrownianStock()).to(dtype=dtype)
+        derivative.simulate()
+        assert derivative.payoff().dtype == dtype
 
     @pytest.mark.parametrize("device", ["cuda:0", "cuda:1"])
     def test_device(self, device):
-        liability = EuropeanOption(BrownianStock(device=device))
-        assert liability.device == torch.device(device)
+        derivative = EuropeanOption(BrownianStock(device=device))
+        assert derivative.device == torch.device(device)
 
     def test_repr(self):
-        liability = EuropeanOption(BrownianStock(), maturity=1.0)
+        derivative = EuropeanOption(BrownianStock(), maturity=1.0)
         expect = "EuropeanOption(BrownianStock(...), strike=1.0, maturity=1.00e+00)"
-        assert repr(liability) == expect
+        assert repr(derivative) == expect
 
-        liability = EuropeanOption(BrownianStock(), maturity=1.0, call=False)
+        derivative = EuropeanOption(BrownianStock(), maturity=1.0, call=False)
         expect = "EuropeanOption(BrownianStock(...), call=False, strike=1.0, maturity=1.00e+00)"
-        assert repr(liability) == expect
+        assert repr(derivative) == expect
 
-        liability = EuropeanOption(BrownianStock(), maturity=1.0, strike=2.0)
+        derivative = EuropeanOption(BrownianStock(), maturity=1.0, strike=2.0)
         expect = "EuropeanOption(BrownianStock(...), strike=2.0, maturity=1.00e+00)"
-        assert repr(liability) == expect
+        assert repr(derivative) == expect
 
-        liability = EuropeanOption(BrownianStock(), maturity=1.0)
-        liability.to(dtype=torch.float64, device="cuda:0")
+        derivative = EuropeanOption(BrownianStock(), maturity=1.0)
+        derivative.to(dtype=torch.float64, device="cuda:0")
         expect = (
             "EuropeanOption(BrownianStock(...), strike=1.0, maturity=1.00e+00,"
             " dtype=torch.float64, device='cuda:0')"
         )
-        assert repr(liability) == expect
+        assert repr(derivative) == expect

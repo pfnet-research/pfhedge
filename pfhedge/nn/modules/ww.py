@@ -2,7 +2,7 @@ import torch
 from torch import Tensor
 from torch.nn import Module
 
-from .bs.bs import BlackScholes
+from .bs.black_scholes import BlackScholes
 from .clamp import Clamp
 
 
@@ -80,6 +80,11 @@ class WhalleyWilmott(Module):
         self.clamp = Clamp()
 
     def inputs(self) -> list:
+        """Returns the names of input features.
+
+        Returns:
+            list
+        """
         return self.bs.inputs() + ["prev_hedge"]
 
     def extra_repr(self):
@@ -90,8 +95,10 @@ class WhalleyWilmott(Module):
 
         delta = self.bs(input[..., :-1])
         width = self.width(input[..., :-1])
+        min = delta - width
+        max = delta + width
 
-        return self.clamp(prev_hedge, min=delta - width, max=delta + width)
+        return self.clamp(prev_hedge, min=min, max=max)
 
     def width(self, input: Tensor) -> Tensor:
         """Returns half-width of the no-transaction band.

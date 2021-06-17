@@ -10,8 +10,6 @@ class BSLookbackOption(BSModuleMixin):
     """Black-Scholes formula for a lookback option with a fixed strike.
 
     Args:
-        derivative (:class:`pfhedge.instruments.LookbackOption`, optional):
-            The derivative to get the Black-Scholes formula.
         call (bool, default=True): Specifies whether the option is call or put.
         strike (float, default=1.0): The strike price of the option.
 
@@ -42,32 +40,39 @@ class BSLookbackOption(BSModuleMixin):
         tensor([[0.9208],
                 [1.0515],
                 [1.0515]])
-
-        One can instantiate it using an
-        :class:`pfhedge.instruments.LookbackOption`.
-
-        >>> from pfhedge.instruments import BrownianStock
-        >>> from pfhedge.instruments import LookbackOption
-        >>> deriv = LookbackOption(BrownianStock(), strike=1.1)
-        >>> m = BSLookbackOption(deriv)
-        >>> m
-        BSLookbackOption(strike=1.1)
     """
 
-    def __init__(self, derivative=None, call: bool = True, strike: float = 1.0):
-        super().__init__()
-
-        if derivative is not None:
-            self.call = derivative.call
-            self.strike = derivative.strike
-        else:
-            self.call = call
-            self.strike = strike
-
-        if not self.call:
+    def __init__(self, call: bool = True, strike: float = 1.0):
+        if not call:
             raise ValueError(
                 f"{self.__class__.__name__} for a put option is not yet supported."
             )
+
+        super().__init__()
+        self.call = call
+        self.strike = strike
+
+    @classmethod
+    def from_derivative(cls, derivative):
+        """Initialize a module from a derivative.
+
+        Args:
+            derivative (:class:`pfhedge.instruments.LookbackOption`):
+                The derivative to get the Black-Scholes formula.
+
+        Returns:
+            BSLookbackOption
+
+        Examples:
+
+            >>> from pfhedge.instruments import BrownianStock
+            >>> from pfhedge.instruments import LookbackOption
+            >>> deriv = LookbackOption(BrownianStock(), strike=1.1)
+            >>> m = BSLookbackOption.from_derivative(deriv)
+            >>> m
+            BSLookbackOption(strike=1.1)
+        """
+        return cls(call=derivative.call, strike=derivative.strike)
 
     def extra_repr(self):
         params = []
@@ -250,3 +255,9 @@ class BSLookbackOption(BSModuleMixin):
         )
         get_price = lambda volatility: self.price(s, m, t, volatility)
         return bisect(get_price, p, lower=0.001, upper=1.000, precision=precision)
+
+
+# Assign docstrings so they appear in Sphinx documentation
+BSLookbackOption.inputs.__doc__ = BSModuleMixin.inputs.__doc__
+BSLookbackOption.forward = BSModuleMixin.forward
+BSLookbackOption.forward.__doc__ = BSModuleMixin.forward.__doc__
