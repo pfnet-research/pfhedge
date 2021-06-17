@@ -56,14 +56,34 @@ class TestMultiLayerPerceptron:
         M_2 = 13
         H_out = 14
 
-        x = torch.empty((N, H_in))
-        m = MultiLayerPerceptron(H_out)
-        assert m(x).size() == torch.Size((N, H_out))
+        input = torch.empty((N, H_in))
+        m = MultiLayerPerceptron(H_in, H_out)
+        assert m(input).size() == torch.Size((N, H_out))
 
-        x = torch.empty((N, M_1, H_in))
-        m = MultiLayerPerceptron(H_out)
-        assert m(x).size() == torch.Size((N, M_1, H_out))
+        input = torch.empty((N, M_1, H_in))
+        m = MultiLayerPerceptron(H_in, H_out)
+        assert m(input).size() == torch.Size((N, M_1, H_out))
 
-        x = torch.empty((N, M_1, M_2, H_in))
-        m = MultiLayerPerceptron(H_out)
-        assert m(x).size() == torch.Size((N, M_1, M_2, H_out))
+        input = torch.empty((N, M_1, M_2, H_in))
+        m = MultiLayerPerceptron(H_in, H_out)
+        assert m(input).size() == torch.Size((N, M_1, M_2, H_out))
+
+
+    def test_shape_lazy(self):
+        N = 10
+        H_in = 11
+        M_1 = 12
+        M_2 = 13
+        H_out = 14
+
+        input = torch.empty((N, H_in))
+        m = MultiLayerPerceptron(out_features=H_out)
+        assert m(input).size() == torch.Size((N, H_out))
+
+        input = torch.empty((N, M_1, H_in))
+        m = MultiLayerPerceptron(out_features=H_out)
+        assert m(input).size() == torch.Size((N, M_1, H_out))
+
+        input = torch.empty((N, M_1, M_2, H_in))
+        m = MultiLayerPerceptron(out_features=H_out)
+        assert m(input).size() == torch.Size((N, M_1, M_2, H_out))
