@@ -173,7 +173,7 @@ class EntropicLoss(HedgeLoss):
 
         Shape:
             - Input: :math:`(N, *)`, where :math:`*` means any number of additional
-            dimensions.
+              dimensions.
             - Output: :math:`(*)`
 
         Returns:
