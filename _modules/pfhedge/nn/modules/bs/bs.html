@@ -167,6 +167,7 @@
         </label>
         <h1>Source code for pfhedge.nn.modules.bs.bs</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">torch.nn</span> <span class="kn">import</span> <span class="n">Module</span>
 
 <span class="kn">from</span> <span class="nn">.american_binary</span> <span class="kn">import</span> <span class="n">BSAmericanBinaryOption</span>
 <span class="kn">from</span> <span class="nn">.european</span> <span class="kn">import</span> <span class="n">BSEuropeanOption</span>
@@ -174,7 +175,7 @@
 <span class="kn">from</span> <span class="nn">.lookback</span> <span class="kn">import</span> <span class="n">BSLookbackOption</span>
 
 
-<div class="viewcode-block" id="BlackScholes"><a class="viewcode-back" href="../../../../../generated/pfhedge.nn.BlackScholes.html#pfhedge.nn.BlackScholes">[docs]</a><span class="k">class</span> <span class="nc">BlackScholes</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+<div class="viewcode-block" id="BlackScholes"><a class="viewcode-back" href="../../../../../generated/pfhedge.nn.BlackScholes.html#pfhedge.nn.BlackScholes">[docs]</a><span class="k">class</span> <span class="nc">BlackScholes</span><span class="p">(</span><span class="n">Module</span><span class="p">):</span>
     <span class="sd">"""Initialize Black-Scholes formula module from a derivative.</span>
 
 <span class="sd">    The `forward` method returns the Black-Scholes delta.</span>

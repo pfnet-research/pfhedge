@@ -168,12 +168,13 @@
         <h1>Source code for pfhedge.nn.modules.clamp</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
+<span class="kn">from</span> <span class="nn">torch.nn</span> <span class="kn">import</span> <span class="n">Module</span>
 
 <span class="kn">from</span> <span class="nn">..functional</span> <span class="kn">import</span> <span class="n">clamp</span>
 <span class="kn">from</span> <span class="nn">..functional</span> <span class="kn">import</span> <span class="n">leaky_clamp</span>
 
 
-<div class="viewcode-block" id="LeakyClamp"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.LeakyClamp.html#pfhedge.nn.LeakyClamp">[docs]</a><span class="k">class</span> <span class="nc">LeakyClamp</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+<div class="viewcode-block" id="LeakyClamp"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.LeakyClamp.html#pfhedge.nn.LeakyClamp">[docs]</a><span class="k">class</span> <span class="nc">LeakyClamp</span><span class="p">(</span><span class="n">Module</span><span class="p">):</span>
     <span class="sd">"""Leakily Clamp all elements in `input` into the range :math:`[\\min, \\max]`.</span>
 
 <span class="sd">    The bounds :math:`\\min` and :math:`\\max` can be tensors.</span>
@@ -255,7 +256,7 @@
         <span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="Clamp"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.Clamp.html#pfhedge.nn.Clamp">[docs]</a><span class="k">class</span> <span class="nc">Clamp</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+<div class="viewcode-block" id="Clamp"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.Clamp.html#pfhedge.nn.Clamp">[docs]</a><span class="k">class</span> <span class="nc">Clamp</span><span class="p">(</span><span class="n">Module</span><span class="p">):</span>
     <span class="sd">"""Clamp all elements in `input` into the range :math:`[\\min, \\max]`.</span>
 
 <span class="sd">    The bounds :math:`\\min` and :math:`\\max` can be tensors.</span>

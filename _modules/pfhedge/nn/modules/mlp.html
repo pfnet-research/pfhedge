@@ -171,6 +171,7 @@
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">torch.nn</span> <span class="kn">import</span> <span class="n">Identity</span>
 <span class="kn">from</span> <span class="nn">torch.nn</span> <span class="kn">import</span> <span class="n">LazyLinear</span>
+<span class="kn">from</span> <span class="nn">torch.nn</span> <span class="kn">import</span> <span class="n">Linear</span>
 <span class="kn">from</span> <span class="nn">torch.nn</span> <span class="kn">import</span> <span class="n">Module</span>
 <span class="kn">from</span> <span class="nn">torch.nn</span> <span class="kn">import</span> <span class="n">ReLU</span>
 <span class="kn">from</span> <span class="nn">torch.nn</span> <span class="kn">import</span> <span class="n">Sequential</span>
@@ -182,6 +183,11 @@
 <span class="sd">    Number of input features is lazily determined.</span>
 
 <span class="sd">    Args:</span>
+<span class="sd">        in_features (int, default=None): Size of each input sample.</span>
+<span class="sd">            If `None` (default), the number of input features will be</span>
+<span class="sd">            will be inferred from the `input.shape[-1]` after the first call to</span>
+<span class="sd">            `forward` is done. Also, before the first `forward` parameters in the</span>
+<span class="sd">            module are of `torch.nn.UninitializedParameter` class.</span>
 <span class="sd">        out_features (int, default=1): Size of each output sample.</span>
 <span class="sd">        n_layers (int, default=4): Number of hidden layers.</span>
 <span class="sd">        n_units (int or tuple[int], default=32): Number of units in each hidden layer.</span>
@@ -201,9 +207,27 @@
 
 <span class="sd">    Examples:</span>
 
+<span class="sd">        By default, `in_features` is lazily determined:</span>
+
 <span class="sd">        &gt;&gt;&gt; from pfhedge.nn import MultiLayerPerceptron</span>
 <span class="sd">        &gt;&gt;&gt; m = MultiLayerPerceptron()</span>
-<span class="sd">        &gt;&gt;&gt; _ = m(torch.empty((1, 2)))  # lazily determine the number of input features</span>
+<span class="sd">        &gt;&gt;&gt; m</span>
+<span class="sd">        MultiLayerPerceptron(</span>
+<span class="sd">          (0): LazyLinear(in_features=0, out_features=32, bias=True)</span>
+<span class="sd">          (1): ReLU()</span>
+<span class="sd">          (2): Linear(in_features=32, out_features=32, bias=True)</span>
+<span class="sd">          (3): ReLU()</span>
+<span class="sd">          (4): Linear(in_features=32, out_features=32, bias=True)</span>
+<span class="sd">          (5): ReLU()</span>
+<span class="sd">          (6): Linear(in_features=32, out_features=32, bias=True)</span>
+<span class="sd">          (7): ReLU()</span>
+<span class="sd">          (8): Linear(in_features=32, out_features=1, bias=True)</span>
+<span class="sd">          (9): Identity()</span>
+<span class="sd">        )</span>
+<span class="sd">        &gt;&gt;&gt; m(torch.empty(3, 2))</span>
+<span class="sd">        tensor([[...],</span>
+<span class="sd">                [...],</span>
+<span class="sd">                [...]], grad_fn=&lt;AddmmBackward&gt;)</span>
 <span class="sd">        &gt;&gt;&gt; m</span>
 <span class="sd">        MultiLayerPerceptron(</span>
 <span class="sd">          (0): Linear(in_features=2, out_features=32, bias=True)</span>
@@ -217,16 +241,10 @@
 <span class="sd">          (8): Linear(in_features=32, out_features=1, bias=True)</span>
 <span class="sd">          (9): Identity()</span>
 <span class="sd">        )</span>
-<span class="sd">        &gt;&gt;&gt; input = torch.randn((3, 2))</span>
-<span class="sd">        &gt;&gt;&gt; m(input)</span>
-<span class="sd">        tensor([[...],</span>
-<span class="sd">                [...],</span>
-<span class="sd">                [...]], grad_fn=&lt;AddmmBackward&gt;)</span>
 
 <span class="sd">        Specify different number of layers for each layer:</span>
 
-<span class="sd">        &gt;&gt;&gt; m = MultiLayerPerceptron(n_layers=2, n_units=(16, 32))</span>
-<span class="sd">        &gt;&gt;&gt; _ = m(torch.empty(1, 1))</span>
+<span class="sd">        &gt;&gt;&gt; m = MultiLayerPerceptron(1, 1, n_layers=2, n_units=(16, 32))</span>
 <span class="sd">        &gt;&gt;&gt; m</span>
 <span class="sd">        MultiLayerPerceptron(</span>
 <span class="sd">          (0): Linear(in_features=1, out_features=16, bias=True)</span>
@@ -240,6 +258,7 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
+        <span class="n">in_features</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">out_features</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
         <span class="n">n_layers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
         <span class="n">n_units</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
@@ -250,9 +269,13 @@
 
         <span class="n">layers</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_layers</span><span class="p">):</span>
-            <span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">LazyLinear</span><span class="p">(</span><span class="n">n_units</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">in_features</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">LazyLinear</span><span class="p">(</span><span class="n">n_units</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">_in_features</span> <span class="o">=</span> <span class="n">in_features</span> <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">n_units</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Linear</span><span class="p">(</span><span class="n">_in_features</span><span class="p">,</span> <span class="n">n_units</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
             <span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">activation</span><span class="p">))</span>
-        <span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">LazyLinear</span><span class="p">(</span><span class="n">out_features</span><span class="p">))</span>
+        <span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Linear</span><span class="p">(</span><span class="n">n_units</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">out_features</span><span class="p">))</span>
         <span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">out_activation</span><span class="p">))</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">layers</span><span class="p">)</span></div>

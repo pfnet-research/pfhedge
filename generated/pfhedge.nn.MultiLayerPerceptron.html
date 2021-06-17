@@ -169,12 +169,17 @@
 <h1>MultiLayerPerceptron<a class="headerlink" href="#multilayerperceptron" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="pfhedge.nn.MultiLayerPerceptron">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pfhedge.nn.</span></code><code class="sig-name descname"><span class="pre">MultiLayerPerceptron</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">out_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_layers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">ReLU()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_activation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Identity()</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/mlp.html#MultiLayerPerceptron"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.MultiLayerPerceptron" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pfhedge.nn.</span></code><code class="sig-name descname"><span class="pre">MultiLayerPerceptron</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_layers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">ReLU()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_activation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Identity()</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/mlp.html#MultiLayerPerceptron"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.MultiLayerPerceptron" title="Permalink to this definition">¶</a></dt>
 <dd><p>A feed-forward neural network.</p>
 <p>Number of input features is lazily determined.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>in_features</strong> (<em>int</em><em>, </em><em>default=None</em>) – Size of each input sample.
+If <cite>None</cite> (default), the number of input features will be
+will be inferred from the <cite>input.shape[-1]</cite> after the first call to
+<cite>forward</cite> is done. Also, before the first <cite>forward</cite> parameters in the
+module are of <cite>torch.nn.UninitializedParameter</cite> class.</p></li>
 <li><p><strong>out_features</strong> (<em>int</em><em>, </em><em>default=1</em>) – Size of each output sample.</p></li>
 <li><p><strong>n_layers</strong> (<em>int</em><em>, </em><em>default=4</em>) – Number of hidden layers.</p></li>
 <li><p><strong>n_units</strong> (<em>int</em><em> or </em><em>tuple</em><em>[</em><em>int</em><em>]</em><em>, </em><em>default=32</em>) – Number of units in each hidden layer.
@@ -196,9 +201,26 @@ are the same shape as the input and <span class="math notranslate nohighlight">\
 </dd>
 </dl>
 <p class="rubric">Examples</p>
+<p>By default, <cite>in_features</cite> is lazily determined:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">MultiLayerPerceptron</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">MultiLayerPerceptron</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">m</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)))</span>  <span class="c1"># lazily determine the number of input features</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span>
+<span class="go">MultiLayerPerceptron(</span>
+<span class="go">  (0): LazyLinear(in_features=0, out_features=32, bias=True)</span>
+<span class="go">  (1): ReLU()</span>
+<span class="go">  (2): Linear(in_features=32, out_features=32, bias=True)</span>
+<span class="go">  (3): ReLU()</span>
+<span class="go">  (4): Linear(in_features=32, out_features=32, bias=True)</span>
+<span class="go">  (5): ReLU()</span>
+<span class="go">  (6): Linear(in_features=32, out_features=32, bias=True)</span>
+<span class="go">  (7): ReLU()</span>
+<span class="go">  (8): Linear(in_features=32, out_features=1, bias=True)</span>
+<span class="go">  (9): Identity()</span>
+<span class="go">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+<span class="go">tensor([[...],</span>
+<span class="go">        [...],</span>
+<span class="go">        [...]], grad_fn=&lt;AddmmBackward&gt;)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">m</span>
 <span class="go">MultiLayerPerceptron(</span>
 <span class="go">  (0): Linear(in_features=2, out_features=32, bias=True)</span>
@@ -212,16 +234,10 @@ are the same shape as the input and <span class="math notranslate nohighlight">\
 <span class="go">  (8): Linear(in_features=32, out_features=1, bias=True)</span>
 <span class="go">  (9): Identity()</span>
 <span class="go">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">input</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
-<span class="go">tensor([[...],</span>
-<span class="go">        [...],</span>
-<span class="go">        [...]], grad_fn=&lt;AddmmBackward&gt;)</span>
 </pre></div>
 </div>
 <p>Specify different number of layers for each layer:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">MultiLayerPerceptron</span><span class="p">(</span><span class="n">n_layers</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">n_units</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">32</span><span class="p">))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">m</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">MultiLayerPerceptron</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n_layers</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">n_units</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">32</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">m</span>
 <span class="go">MultiLayerPerceptron(</span>
 <span class="go">  (0): Linear(in_features=1, out_features=16, bias=True)</span>

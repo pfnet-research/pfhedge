@@ -224,7 +224,7 @@ Initialize Black-Scholes formula module from a derivative.</p></li>
 </div>
 <dl class="py method">
 <dt id="pfhedge.nn.BSEuropeanBinaryOption.delta">
-<code class="sig-name descname"><span class="pre">delta</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_moneyness</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expiry_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volatility</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">create_graph</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/bs/european_binary.html#BSEuropeanBinaryOption.delta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.BSEuropeanBinaryOption.delta" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">delta</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_moneyness</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expiry_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volatility</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/bs/european_binary.html#BSEuropeanBinaryOption.delta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.BSEuropeanBinaryOption.delta" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns delta of the derivative.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -232,8 +232,6 @@ Initialize Black-Scholes formula module from a derivative.</p></li>
 <li><p><strong>log_moneyness</strong> – (torch.Tensor): Log moneyness of the underlying asset.</p></li>
 <li><p><strong>expiry_time</strong> (<em>torch.Tensor</em>) – Time to expiry of the option.</p></li>
 <li><p><strong>volatility</strong> (<em>torch.Tensor</em>) – Volatility of the underlying asset.</p></li>
-<li><p><strong>create_graph</strong> (<em>bool</em><em>, </em><em>default=False</em>) – If True, graph of the derivative will
-be constructed. This option is used to compute gamma.</p></li>
 </ul>
 </dd>
 </dl>

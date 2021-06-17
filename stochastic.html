@@ -221,8 +221,8 @@ for CUDA tensor types.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>n_steps</strong> (<em>int</em>) – The number of time steps.</p></li>
 <li><p><strong>n_paths</strong> (<em>int</em>) – The number of simulated paths.</p></li>
+<li><p><strong>n_steps</strong> (<em>int</em>) – The number of time steps.</p></li>
 <li><p><strong>init_value</strong> (<em>float</em><em>, </em><em>default=0.0</em>) – The initial value of the time series.</p></li>
 <li><p><strong>volatility</strong> (<em>float</em><em>, </em><em>default=0.2</em>) – The volatility of the Brownian motion.</p></li>
 <li><p><strong>dt</strong> (<em>float</em><em>, </em><em>default=1/250</em>) – The intervals of the time steps.</p></li>
@@ -239,7 +239,7 @@ for CUDA tensor types.</p></li>
 </dl>
 <dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
-<li><p>Output: <span class="math notranslate nohighlight">\((T, N)\)</span>, where <span class="math notranslate nohighlight">\(T\)</span> is the number of time steps and
+<li><p>Output: <span class="math notranslate nohighlight">\((N, T)\)</span>, where <span class="math notranslate nohighlight">\(T\)</span> is the number of time steps and
 <span class="math notranslate nohighlight">\(N\)</span> is the number of paths.</p></li>
 </ul>
 </dd>

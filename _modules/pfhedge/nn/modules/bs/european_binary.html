@@ -248,11 +248,7 @@
 
 <div class="viewcode-block" id="BSEuropeanBinaryOption.delta"><a class="viewcode-back" href="../../../../../generated/pfhedge.nn.BSEuropeanBinaryOption.html#pfhedge.nn.BSEuropeanBinaryOption.delta">[docs]</a>    <span class="nd">@torch</span><span class="o">.</span><span class="n">enable_grad</span><span class="p">()</span>
     <span class="k">def</span> <span class="nf">delta</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">log_moneyness</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
-        <span class="n">expiry_time</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
-        <span class="n">volatility</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
-        <span class="n">create_graph</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">log_moneyness</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">expiry_time</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">volatility</span><span class="p">:</span> <span class="n">Tensor</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
         <span class="sd">"""Returns delta of the derivative.</span>
 
@@ -260,8 +256,6 @@
 <span class="sd">            log_moneyness: (torch.Tensor): Log moneyness of the underlying asset.</span>
 <span class="sd">            expiry_time (torch.Tensor): Time to expiry of the option.</span>
 <span class="sd">            volatility (torch.Tensor): Volatility of the underlying asset.</span>
-<span class="sd">            create_graph (bool, default=False): If True, graph of the derivative will</span>
-<span class="sd">                be constructed. This option is used to compute gamma.</span>
 
 <span class="sd">        Shape:</span>
 <span class="sd">            - log_moneyness: :math:`(N, *)`</span>
@@ -299,12 +293,12 @@
 <span class="sd">            torch.Tensor</span>
 <span class="sd">        """</span>
         <span class="n">prices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">strike</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">log_moneyness</span><span class="p">))</span>
-        <span class="n">prices</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="o">.</span><span class="n">requires_grad_</span><span class="p">(</span><span class="n">prices</span><span class="p">)</span>
+        <span class="n">prices</span> <span class="o">=</span> <span class="n">Tensor</span><span class="o">.</span><span class="n">requires_grad_</span><span class="p">(</span><span class="n">prices</span><span class="p">)</span>
 
         <span class="n">s</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">prices</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">strike</span><span class="p">)</span>
         <span class="n">t</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">,</span> <span class="p">(</span><span class="n">expiry_time</span><span class="p">,</span> <span class="n">volatility</span><span class="p">))</span>
 
-        <span class="n">delta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">create_graph</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
         <span class="n">gamma</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">autograd</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span>
             <span class="n">delta</span><span class="p">,</span> <span class="n">prices</span><span class="p">,</span> <span class="n">grad_outputs</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">prices</span><span class="p">)</span>
         <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
@@ -344,8 +338,7 @@
         <span class="n">price</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
         <span class="n">precision</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-6</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">"""</span>
-<span class="sd">        Returns implied volatility of the derivative.</span>
+        <span class="sd">"""Returns implied volatility of the derivative.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            log_moneyness (torch.Tensor): Log moneyness of the underlying asset.</span>
