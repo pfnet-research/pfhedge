@@ -10,17 +10,17 @@ from pfhedge.nn.functional import topp
 
 
 def test_exp_utility():
-    x = torch.tensor([-1.0, 0.0, 1.0])
+    input = torch.tensor([-1.0, 0.0, 1.0])
 
-    result = exp_utility(x, 1.0)
+    result = exp_utility(input, 1.0)
     expect = torch.tensor([-2.7183, -1.0000, -0.3679])
     assert_close(result, expect, atol=1e-4, rtol=1e-4)
 
-    result = exp_utility(x, 2.0)
+    result = exp_utility(input, 2.0)
     expect = torch.tensor([-7.3891, -1.0000, -0.1353])
     assert_close(result, expect, atol=1e-4, rtol=1e-4)
 
-    result = exp_utility(x, 0.0)
+    result = exp_utility(input, 0.0)
     expect = torch.tensor([-1.0000, -1.0000, -1.0000])
     assert_close(result, expect, atol=1e-4, rtol=1e-4)
 
@@ -30,15 +30,15 @@ def test_exp_utility():
 def test_topp(p, largest):
     torch.manual_seed(42)
 
-    x = torch.randn(100)
+    input = torch.randn(100)
     k = int(p * 100)
 
-    result = topp(x, p, largest=largest).values
-    expect = torch.topk(x, k, largest=largest).values
+    result = topp(input, p, largest=largest).values
+    expect = torch.topk(input, k, largest=largest).values
     assert_close(result, expect)
 
-    result = topp(x, p, largest=largest).indices
-    expect = torch.topk(x, k, largest=largest).indices
+    result = topp(input, p, largest=largest).indices
+    expect = torch.topk(input, k, largest=largest).indices
     assert_close(result, expect)
 
 
@@ -50,9 +50,9 @@ def test_topp_error():
 
 
 def test_expected_shortfall():
-    x = torch.arange(1.0, 6.0)
+    input = torch.arange(1.0, 6.0)
 
-    result = expected_shortfall(x, 3 / 5)
+    result = expected_shortfall(input, 3 / 5)
     expect = torch.tensor(-2.0)
     assert_close(result, expect)
 

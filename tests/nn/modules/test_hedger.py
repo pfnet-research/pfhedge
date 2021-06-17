@@ -14,8 +14,8 @@ from pfhedge.nn import Naked
 from pfhedge.nn import WhalleyWilmott
 
 
-def naked(x):
-    return torch.zeros_like(x[:, :1])
+def naked(input):
+    return torch.zeros_like(input[:, :1])
 
 
 class TestHedger:
@@ -82,24 +82,24 @@ class TestHedger:
         M_2 = 6
         H_in = 3
 
-        x = torch.empty((N, M_1, M_2, H_in))
+        input = torch.empty((N, M_1, M_2, H_in))
         m = Hedger(MultiLayerPerceptron(), ["zero"])
-        assert m(x).size() == torch.Size((N, M_1, M_2, 1))
+        assert m(input).size() == torch.Size((N, M_1, M_2, 1))
 
         model = BlackScholes(deriv)
         m = Hedger(model, model.inputs())
-        x = torch.empty((N, M_1, M_2, len(model.inputs())))
-        assert m(x).size() == torch.Size((N, M_1, M_2, 1))
+        input = torch.empty((N, M_1, M_2, len(model.inputs())))
+        assert m(input).size() == torch.Size((N, M_1, M_2, 1))
 
         model = WhalleyWilmott(deriv)
         m = Hedger(model, model.inputs())
-        x = torch.empty((N, M_1, M_2, len(model.inputs())))
-        assert m(x).size() == torch.Size((N, M_1, M_2, 1))
+        input = torch.empty((N, M_1, M_2, len(model.inputs())))
+        assert m(input).size() == torch.Size((N, M_1, M_2, 1))
 
         model = Naked()
         m = Hedger(model, ["zero"])
-        x = torch.empty((N, M_1, M_2, 10))
-        assert m(x).size() == torch.Size((N, M_1, M_2, 1))
+        input = torch.empty((N, M_1, M_2, 10))
+        assert m(input).size() == torch.Size((N, M_1, M_2, 1))
 
     def test_compute_loss(self):
         torch.manual_seed(42)
