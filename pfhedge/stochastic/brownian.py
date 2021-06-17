@@ -63,8 +63,8 @@ def generate_geometric_brownian(
     The drift of the time series is assumed to be vanishing.
 
     Args:
-        n_steps (int): The number of time steps.
         n_paths (int): The number of simulated paths.
+        n_steps (int): The number of time steps.
         init_value (float, default=0.0): The initial value of the time series.
         volatility (float, default=0.2): The volatility of the Brownian motion.
         dt (float, default=1/250): The intervals of the time steps.
@@ -78,7 +78,7 @@ def generate_geometric_brownian(
             for CUDA tensor types.
 
     Shape:
-        - Output: :math:`(T, N)`, where :math:`T` is the number of time steps and
+        - Output: :math:`(N, T)`, where :math:`T` is the number of time steps and
           :math:`N` is the number of paths.
 
     Returns:

@@ -80,11 +80,7 @@ class BSEuropeanBinaryOption(BSModuleMixin):
 
     @torch.enable_grad()
     def delta(
-        self,
-        log_moneyness: Tensor,
-        expiry_time: Tensor,
-        volatility: Tensor,
-        create_graph: bool = False,
+        self, log_moneyness: Tensor, expiry_time: Tensor, volatility: Tensor
     ) -> Tensor:
         """Returns delta of the derivative.
 
@@ -92,8 +88,6 @@ class BSEuropeanBinaryOption(BSModuleMixin):
             log_moneyness: (torch.Tensor): Log moneyness of the underlying asset.
             expiry_time (torch.Tensor): Time to expiry of the option.
             volatility (torch.Tensor): Volatility of the underlying asset.
-            create_graph (bool, default=False): If True, graph of the derivative will
-                be constructed. This option is used to compute gamma.
 
         Shape:
             - log_moneyness: :math:`(N, *)`
@@ -131,12 +125,12 @@ class BSEuropeanBinaryOption(BSModuleMixin):
             torch.Tensor
         """
         prices = self.strike * torch.exp(torch.as_tensor(log_moneyness))
-        prices = torch.Tensor.requires_grad_(prices)
+        prices = Tensor.requires_grad_(prices)
 
         s = torch.log(prices / self.strike)
         t, v = map(torch.as_tensor, (expiry_time, volatility))
 
-        delta = self.delta(s, t, v, create_graph=True)
+        delta = self.delta(s, t, v)
         gamma = torch.autograd.grad(
             delta, prices, grad_outputs=torch.ones_like(prices)
         )[0]
@@ -176,8 +170,7 @@ class BSEuropeanBinaryOption(BSModuleMixin):
         price: Tensor,
         precision: float = 1e-6,
     ) -> Tensor:
-        """
-        Returns implied volatility of the derivative.
+        """Returns implied volatility of the derivative.
 
         Args:
             log_moneyness (torch.Tensor): Log moneyness of the underlying asset.
