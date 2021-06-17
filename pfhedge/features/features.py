@@ -66,8 +66,8 @@ class PrevHedge(Feature):
         return "prev_hedge"
 
     def __getitem__(self, i):
-        if hasattr(self.hedger, "prev"):
-            return self.hedger.prev.reshape(-1, 1)
+        if hasattr(self.hedger, "prev_output"):
+            return self.hedger.prev_output.reshape(-1, 1)
         else:
             # prices: shape (N, T)
             return torch.zeros_like(self.derivative.underlier.prices[:, :1])
