@@ -10,27 +10,27 @@ from pfhedge.nn import BSLookbackOption
 
 class TestBlackScholes:
     def test_init(self):
-        liability = EuropeanOption(BrownianStock())
-        m = BlackScholes(liability)
+        derivative = EuropeanOption(BrownianStock())
+        m = BlackScholes(derivative)
         assert m.__class__ == BSEuropeanOption
         assert m.strike == 1.0
         assert m.call
 
-        liability = EuropeanOption(BrownianStock(), strike=2.0, call=False)
-        m = BlackScholes(liability)
+        derivative = EuropeanOption(BrownianStock(), strike=2.0, call=False)
+        m = BlackScholes(derivative)
         assert m.__class__ == BSEuropeanOption
         assert m.strike == 2.0
         assert not m.call
 
-        liability = LookbackOption(BrownianStock())
-        m = BlackScholes(liability)
+        derivative = LookbackOption(BrownianStock())
+        m = BlackScholes(derivative)
         assert m.__class__ == BSLookbackOption
         assert m.strike == 1.0
         assert m.call
 
         # not implemented
-        # liability = LookbackOption(BrownianStock(), strike=2.0, call=False)
-        # m = BS(liability)
+        # derivative = LookbackOption(BrownianStock(), strike=2.0, call=False)
+        # m = BS(derivative)
         # assert m.__class__ == BSLookbackOption
         # assert m.strike == 2.0
         # assert not m.call

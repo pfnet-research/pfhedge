@@ -25,9 +25,9 @@ class TestHedger:
 
     def test_error_optimizer(self):
         hedger = Hedger(Linear(2, 1), ["moneyness", "expiry_time"])
-        liability = EuropeanOption(BrownianStock())
+        derivative = EuropeanOption(BrownianStock())
         with pytest.raises(TypeError):
-            hedger.fit(liability, optimizer=Identity)
+            hedger.fit(derivative, optimizer=Identity)
 
     def test_repr(self):
         hedger = Hedger(Linear(2, 1), ["moneyness", "expiry_time"])
@@ -39,8 +39,8 @@ class TestHedger:
             ")"
         )
 
-        liability = EuropeanOption(BrownianStock())
-        model = BlackScholes(liability)
+        derivative = EuropeanOption(BrownianStock())
+        model = BlackScholes(derivative)
         hedger = Hedger(model, model.inputs())
         assert repr(hedger) == (
             "Hedger(\n"

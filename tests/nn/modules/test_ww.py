@@ -8,8 +8,8 @@ from pfhedge.nn import WhalleyWilmott
 
 class TestWhalleyWilmott:
     def test_repr(self):
-        liability = EuropeanOption(BrownianStock())
-        m = WhalleyWilmott(liability)
+        derivative = EuropeanOption(BrownianStock())
+        m = WhalleyWilmott(derivative)
         assert repr(m) == (
             "WhalleyWilmott(\n"
             "  (bs): BSEuropeanOption()\n"
@@ -17,8 +17,8 @@ class TestWhalleyWilmott:
             ")"
         )
 
-        liability = EuropeanOption(BrownianStock())
-        m = WhalleyWilmott(liability, a=2)
+        derivative = EuropeanOption(BrownianStock())
+        m = WhalleyWilmott(derivative, a=2)
         assert repr(m) == (
             "WhalleyWilmott(\n"
             "  a=2\n"
@@ -27,8 +27,8 @@ class TestWhalleyWilmott:
             ")"
         )
 
-        liability = LookbackOption(BrownianStock())
-        m = WhalleyWilmott(liability)
+        derivative = LookbackOption(BrownianStock())
+        m = WhalleyWilmott(derivative)
         assert repr(m) == (
             "WhalleyWilmott(\n"
             "  (bs): BSLookbackOption()\n"
