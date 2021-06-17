@@ -174,7 +174,11 @@ class Hedger(Module):
         )
 
         # prev_output: shape (N)
-        self.register_buffer("prev_output", torch.zeros_like(derivative.underlier.prices[..., :1]), persistent=False)
+        self.register_buffer(
+            "prev_output",
+            torch.zeros_like(derivative.underlier.prices[..., :1]),
+            persistent=False,
+        )
         pnl = 0
 
         # Simulate hedging over time.
