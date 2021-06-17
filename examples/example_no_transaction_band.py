@@ -10,11 +10,11 @@ from torch import Tensor
 from torch.nn import Module
 
 sys.path.append("..")
-from pfhedge import Hedger
 from pfhedge.instruments import BrownianStock
 from pfhedge.instruments import EuropeanOption
 from pfhedge.nn import BlackScholes
 from pfhedge.nn import Clamp
+from pfhedge.nn import Hedger
 from pfhedge.nn import MultiLayerPerceptron
 
 

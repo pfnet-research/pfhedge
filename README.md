@@ -107,7 +107,7 @@ A `Hedger` in Deep Hedging is basically characterized by three elements:
 We here use a multi-layer perceptron as our model.
 
 ```py
-from pfhedge import Hedger
+from pfhedge.nn import Hedger
 from pfhedge.nn import MultiLayerPerceptron
 
 model = MultiLayerPerceptron()
@@ -179,8 +179,8 @@ This strategy is the optimal one in the absence of cost.
 On the other hand, this strategy transacts too frequently and consumes too much transaction cost.
 
 ```py
-from pfhedge import Hedger
 from pfhedge.nn import BlackScholes
+from pfhedge.nn import Hedger
 
 deriv = EuropeanOption(BrownianStock(cost=1e-4))
 
@@ -196,7 +196,7 @@ In this strategy, a hedger always maintains their hedge ratio in the range (call
 This strategy is supposed to be optimal in the limit of small transaction costs, while suboptimal for large transaction costs.
 
 ```py
-from pfhedge import Hedger
+from pfhedge.nn import Hedger
 from pfhedge.nn import WhalleyWilmott
 
 deriv = EuropeanOption(BrownianStock(cost=1e-4))

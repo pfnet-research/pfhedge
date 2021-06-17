@@ -27,7 +27,7 @@ if __name__ == "__main__":
 
     # --- Fit and price
 
-    from pfhedge import Hedger
+    from pfhedge.nn import Hedger
     from pfhedge.nn import MultiLayerPerceptron
 
     model = MultiLayerPerceptron()
