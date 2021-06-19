@@ -17,7 +17,7 @@ class TestLookbackOption:
 
     def test_payoff(self):
         derivative = LookbackOption(BrownianStock(), strike=3.0)
-        derivative.underlier.prices = torch.tensor(
+        derivative.underlier.spot = torch.tensor(
             [[1.0, 2.0, 3.0], [2.0, 3.0, 2.0], [1.5, 4.0, 1.0]]
         ).T
         # max [2.0, 4.0, 3.0]
@@ -27,7 +27,7 @@ class TestLookbackOption:
 
     def test_payoff_put(self):
         derivative = LookbackOption(BrownianStock(), strike=3.0, call=False)
-        derivative.underlier.prices = torch.tensor(
+        derivative.underlier.spot = torch.tensor(
             [[3.0, 6.0, 3.0], [2.0, 5.0, 4.0], [2.5, 4.0, 5.0]]
         ).T
         # min [2.0, 4.0, 3.0]

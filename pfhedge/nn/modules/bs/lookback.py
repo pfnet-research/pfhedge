@@ -97,8 +97,7 @@ class BSLookbackOption(BSModuleMixin):
         """Returns delta of the derivative.
 
         Args:
-            log_moneyness (torch.Tensor): Log moneyness of the prices of the underlying
-                asset.
+            log_moneyness (torch.Tensor): Log moneyness of the underlying asset.
             max_log_moneyness (torch.Tensor): Cumulative maximum of the log moneyness.
             expiry_time (torch.Tensor): Time to expiry of the option.
             volatility (torch.Tensor): Volatility of the underlying asset.
@@ -135,8 +134,7 @@ class BSLookbackOption(BSModuleMixin):
         """Returns gamma of the derivative.
 
         Args:
-            log_moneyness (torch.Tensor): Log moneyness of the prices of the
-                underlying asset.
+            log_moneyness (torch.Tensor): Log moneyness of the underlying asset.
             max_log_moneyness (torch.Tensor): Cumulative maximum of the log moneyness.
             expiry_time (torch.Tensor): Time to expiry of the option.
             volatility (torch.Tensor):
@@ -171,7 +169,7 @@ class BSLookbackOption(BSModuleMixin):
         """Returns price of the derivative.
 
         Args:
-            log_moneyness (torch.Tensor): Log moneyness of the prices of the underlying asset.
+            log_moneyness (torch.Tensor): Log moneyness of the underlying asset.
             max_log_moneyness (torch.Tensor): Cumulative maximum of the log moneyness.
             expiry_time (torch.Tensor): Time to expiry of the option.
             volatility (torch.Tensor): Volatility of the underlying asset.
@@ -223,7 +221,7 @@ class BSLookbackOption(BSModuleMixin):
         """Returns implied volatility of the derivative.
 
         Args:
-            log_moneyness (torch.Tensor): Log moneyness of the prices of the underlying asset.
+            log_moneyness (torch.Tensor): Log moneyness of the underlying asset.
             max_log_moneyness (torch.Tensor): Cumulative maximum of the log moneyness.
             expiry_time (torch.Tensor): Time to expiry of the option.
             price (torch.Tensor): Price of the derivative.

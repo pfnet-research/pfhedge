@@ -33,7 +33,7 @@ class TestMoneyness(_TestFeature):
     @pytest.mark.parametrize("log", [True, False])
     def test(self, strike, log):
         derivative = EuropeanOption(BrownianStock(), strike=strike)
-        derivative.underlier.prices = torch.arange(1.0, 7.0).reshape(2, 3)
+        derivative.underlier.spot = torch.arange(1.0, 7.0).reshape(2, 3)
         # tensor([[1., 2., 3.],
         #         [4., 5., 6.]])
         f = Moneyness(log=log).of(derivative)
@@ -69,7 +69,7 @@ class TestLogMoneyness(_TestFeature):
     @pytest.mark.parametrize("strike", [1.0, 2.0])
     def test(self, strike):
         derivative = EuropeanOption(BrownianStock(), strike=strike)
-        derivative.underlier.prices = torch.arange(1.0, 7.0).reshape(2, 3)
+        derivative.underlier.spot = torch.arange(1.0, 7.0).reshape(2, 3)
         # tensor([[1., 2., 3.],
         #         [4., 5., 6.]])
         f = LogMoneyness().of(derivative)
@@ -105,7 +105,7 @@ class TestExpiryTime(_TestFeature):
         maturity = 3 / 365
         dt = 1 / 365
         derivative = EuropeanOption(BrownianStock(dt=dt), maturity=maturity)
-        derivative.underlier.prices = torch.empty(2, 3)
+        derivative.underlier.spot = torch.empty(2, 3)
 
         f = ExpiryTime().of(derivative)
 
@@ -136,7 +136,7 @@ class TestVolatility(_TestFeature):
     @pytest.mark.parametrize("volatility", [0.2, 0.1])
     def test(self, volatility):
         derivative = EuropeanOption(BrownianStock(volatility=volatility))
-        derivative.underlier.prices = torch.empty(2, 3)
+        derivative.underlier.spot = torch.empty(2, 3)
 
         f = Volatility().of(derivative)
 
@@ -168,7 +168,7 @@ class TestPrevHedge(_TestFeature):
     def test(self, volatility):
         torch.manual_seed(42)
         derivative = EuropeanOption(BrownianStock(volatility))
-        derivative.underlier.prices = torch.randn(2, 3)
+        derivative.underlier.spot = torch.randn(2, 3)
         hedger = Hedger(Linear(2, 1), ["moneyness", "expiry_time"])
         hedger.inputs = [feature.of(derivative) for feature in hedger.inputs]
 
@@ -197,7 +197,7 @@ class TestBarrier(_TestFeature):
 
     def test(self):
         derivative = EuropeanOption(BrownianStock())
-        derivative.underlier.prices = torch.tensor(
+        derivative.underlier.spot = torch.tensor(
             [
                 [1.0, 1.5, 2.0, 3.0],
                 [2.0, 1.0, 1.0, 1.0],
@@ -221,7 +221,7 @@ class TestBarrier(_TestFeature):
         assert_close(result, expect)
 
         derivative = EuropeanOption(BrownianStock())
-        derivative.underlier.prices = torch.tensor(
+        derivative.underlier.spot = torch.tensor(
             [
                 [3.0, 2.0, 1.5, 1.0],
                 [1.0, 1.0, 1.0, 2.0],
@@ -264,7 +264,7 @@ class TestZero(_TestFeature):
     def test(self):
         torch.manual_seed(42)
         derivative = EuropeanOption(BrownianStock())
-        derivative.underlier.prices = torch.empty(2, 3)
+        derivative.underlier.spot = torch.empty(2, 3)
 
         f = Zero().of(derivative)
 
@@ -296,7 +296,7 @@ class TestMaxMoneyness(_TestFeature):
     @pytest.mark.parametrize("log", [True, False])
     def test(self, strike, log):
         derivative = EuropeanOption(BrownianStock(), strike=strike)
-        derivative.underlier.prices = torch.tensor(
+        derivative.underlier.spot = torch.tensor(
             [[1.0, 2.0, 1.5], [2.0, 3.0, 4.0], [3.0, 2.0, 1.0]]
         )
 
@@ -333,7 +333,7 @@ class TestMaxLogMoneyness(_TestFeature):
     @pytest.mark.parametrize("strike", [1.0, 2.0])
     def test(self, strike):
         derivative = EuropeanOption(BrownianStock(), strike=strike)
-        derivative.underlier.prices = torch.tensor(
+        derivative.underlier.spot = torch.tensor(
             [[1.0, 2.0, 1.5], [2.0, 3.0, 4.0], [3.0, 2.0, 1.0]]
         )
 
