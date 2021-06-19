@@ -7,9 +7,9 @@ from torch.optim import Adam
 from tqdm import tqdm
 
 from pfhedge._utils.hook import save_prev_output
+from pfhedge._utils.lazy import has_lazy
 from pfhedge._utils.operations import ensemble_mean
 from pfhedge.features import get_feature
-from pfhedge._utils.lazy import has_lazy
 
 from .loss import EntropicRiskMeasure
 from .loss import HedgeLoss
