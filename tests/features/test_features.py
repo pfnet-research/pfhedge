@@ -4,6 +4,7 @@ from torch.nn import Linear
 from torch.testing import assert_close
 
 from pfhedge.features import Barrier
+from pfhedge.features import Empty
 from pfhedge.features import ExpiryTime
 from pfhedge.features import LogMoneyness
 from pfhedge.features import MaxLogMoneyness
@@ -12,7 +13,7 @@ from pfhedge.features import ModuleOutput
 from pfhedge.features import Moneyness
 from pfhedge.features import PrevHedge
 from pfhedge.features import Volatility
-from pfhedge.features import Zero
+from pfhedge.features import Zeros
 from pfhedge.instruments import BrownianStock
 from pfhedge.instruments import EuropeanOption
 from pfhedge.nn import Hedger
@@ -256,9 +257,9 @@ class TestBarrier(_TestFeature):
         self.assert_same_dtype(Barrier(1.0), derivative, dtype)
 
 
-class TestZero(_TestFeature):
+class TestZeros(_TestFeature):
     """
-    pfhedge.features.Zero
+    pfhedge.features.Zeros
     """
 
     def test(self):
@@ -266,7 +267,7 @@ class TestZero(_TestFeature):
         derivative = EuropeanOption(BrownianStock())
         derivative.underlier.spot = torch.empty(2, 3)
 
-        f = Zero().of(derivative)
+        f = Zeros().of(derivative)
 
         result = f[0]
         expect = torch.zeros((2, 1))
@@ -279,12 +280,40 @@ class TestZero(_TestFeature):
         assert_close(result, expect)
 
     def test_str(self):
-        assert str(Zero()) == "zero"
+        assert str(Zeros()) == "zeros"
 
     @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
     def test_dtype(self, dtype):
         derivative = EuropeanOption(BrownianStock())
-        self.assert_same_dtype(Zero(), derivative, dtype)
+        self.assert_same_dtype(Zeros(), derivative, dtype)
+
+
+class TestEmpty(_TestFeature):
+    """
+    pfhedge.features.Zeros
+    """
+
+    def test(self):
+        torch.manual_seed(42)
+        derivative = EuropeanOption(BrownianStock())
+        derivative.underlier.spot = torch.empty(2, 3)
+
+        f = Empty().of(derivative)
+
+        result = f[0]
+        assert result.size() == torch.Size((2, 1))
+        result = f[1]
+        assert result.size() == torch.Size((2, 1))
+        result = f[2]
+        assert result.size() == torch.Size((2, 1))
+
+    def test_str(self):
+        assert str(Empty()) == "empty"
+
+    @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
+    def test_dtype(self, dtype):
+        derivative = EuropeanOption(BrownianStock())
+        self.assert_same_dtype(Empty(), derivative, dtype)
 
 
 class TestMaxMoneyness(_TestFeature):

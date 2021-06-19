@@ -72,7 +72,7 @@ class Hedger(Module):
         A naked position (never hedge at all).
 
         >>> from pfhedge.nn import Naked
-        >>> hedger = Hedger(Naked(), ["zero"])
+        >>> hedger = Hedger(Naked(), ["empty"])
 
         A strategy represented by a neural network (Deep Hedging).
 
@@ -310,7 +310,7 @@ class Hedger(Module):
             >>> from pfhedge.nn import MultiLayerPerceptron
             >>> from torch.optim import SGD
             >>> derivative = EuropeanOption(BrownianStock())
-            >>> hedger = Hedger(MultiLayerPerceptron(), ["zero"])
+            >>> hedger = Hedger(MultiLayerPerceptron(), ["empty"])
             >>> # Run a placeholder forward to initialize lazy parameters
             >>> _ = hedger.compute_pnl(derivative, n_paths=1)
             >>> _ = hedger.fit(
@@ -323,7 +323,7 @@ class Hedger(Module):
 
             >>> from torch.optim import Adadelta
             >>> derivative = EuropeanOption(BrownianStock())
-            >>> hedger = Hedger(MultiLayerPerceptron(), ["zero"])
+            >>> hedger = Hedger(MultiLayerPerceptron(), ["empty"])
             >>> _ = hedger.fit(
             ...     derivative,
             ...     optimizer=Adadelta,
