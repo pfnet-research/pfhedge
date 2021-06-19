@@ -83,7 +83,7 @@ from pfhedge.instruments import BrownianStock
 from pfhedge.instruments import EuropeanOption
 
 stock = BrownianStock(cost=1e-4)
-deriv = EuropeanOption(stock)
+derivative = EuropeanOption(stock)
 ```
 
 ### Create Your Hedger
@@ -145,13 +145,13 @@ In each epoch, we generate Monte Carlo paths of the asset prices and let the `he
 The hedger's risk measure (`EntropicRiskMeasure()` in our case) is computed from the resulting profit and loss distribution, and the parameters in the `model` are updated.
 
 ```py
-hedger.fit(deriv, n_epochs=200, n_paths=10000)
+hedger.fit(derivative, n_epochs=200, n_paths=10000)
 ```
 
 Once we have trained the `hedger`, we can evaluate the derivative price as utility indifference price (For details, see [Deep Hedging][deep-hedging-arxiv] and references therein).
 
 ```py
-price = hedger.price(deriv)
+price = hedger.price(derivative)
 ```
 
 ## More Examples
@@ -163,8 +163,8 @@ To employ the desired [`device`](https://pytorch.org/docs/stable/cuda.html#torch
 ```py
 device = torch.device("cuda:0")
 
-deriv = EuropeanOption(BrownianStock(cost=1e-4))
-deriv.to(device)
+derivative = EuropeanOption(BrownianStock(cost=1e-4))
+derivative.to(device)
 
 hedger = Hedger(...)
 hedger.to(device)
@@ -182,9 +182,9 @@ On the other hand, this strategy transacts too frequently and consumes too much 
 from pfhedge.nn import BlackScholes
 from pfhedge.nn import Hedger
 
-deriv = EuropeanOption(BrownianStock(cost=1e-4))
+derivative = EuropeanOption(BrownianStock(cost=1e-4))
 
-model = BlackScholes(deriv)
+model = BlackScholes(derivative)
 hedger = Hedger(model, inputs=model.inputs())
 ```
 
@@ -199,9 +199,9 @@ This strategy is supposed to be optimal in the limit of small transaction costs,
 from pfhedge.nn import Hedger
 from pfhedge.nn import WhalleyWilmott
 
-deriv = EuropeanOption(BrownianStock(cost=1e-4))
+derivative = EuropeanOption(BrownianStock(cost=1e-4))
 
-model = WhalleyWilmott(deriv)
+model = WhalleyWilmott(derivative)
 hedger = Hedger(model, inputs=model.inputs())
 ```
 
@@ -213,7 +213,6 @@ The input/output shapes is `(N, H_in) -> (N, 1)`, where `N` is the number of Mon
 Here we show an example of **No-Transaction Band Network**, which is proposed in [Imaki *et al.* 21][ntb-network-arxiv].
 
 ```py
-import torch
 import torch.nn.functional as fn
 from torch.nn import Module
 from pfhedge.nn import BlackScholes
@@ -246,6 +245,33 @@ class NoTransactionBandNet(Module):
 
 model = NoTransactionBandNet()
 hedger = Hedger(model, inputs=model.inputs())
+```
+
+### Autogreek
+
+A module [`pfhedge.autogreek`](https://pfnet-research.github.io/pfhedge/autogreek.html) provides functions implementing automatic evaluation of greeks using automatic differentiation.
+
+```py
+import pfhedge.autogreek as autogreek
+from pfhedge.instruments import BrownianStock
+from pfhedge.instruments import EuropeanOption
+from pfhedge.nn import Hedger
+from pfhedge.nn import WhalleyWilmott
+
+derivative = EuropeanOption(BrownianStock(cost=1e-4))
+
+model = WhalleyWilmott(derivative)
+hedger = Hedger(model, inputs=model.inputs())
+
+def pricer(spot):
+    return hedger.price(
+        derivative, n_paths=10000, init_state=(spot,), enable_grad=True
+    )
+
+delta = autogreek.delta(pricer, spot=torch.tensor(1.0))
+# tensor(0.5083)
+gamma = autogreek.gamma(pricer, spot=torch.tensor(1.0))
+# tensor(0.0965)
 ```
 
 ## Contribution
