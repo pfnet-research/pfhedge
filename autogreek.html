@@ -2,13 +2,13 @@
 <html class="no-js">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="pfhedge.stochastic" href="stochastic.html" />
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="pfhedge.stochastic" href="stochastic.html" />
 
-    <meta name="generator" content="sphinx-3.5.4, furo 2021.04.11.beta34"/>
+    <meta name="generator" content="sphinx-4.0.2, furo 2021.06.18.beta36"/>
         <title>pfhedge.autogreek - PFHedge documentation</title>
-      <link rel="stylesheet" href="_static/styles/furo.css?digest=59ab60ac09ea94ccfe6deddff6d715cce948a6fc">
+      <link rel="stylesheet" href="_static/styles/furo.css?digest=9b17055c4366e8b2949c66d6a9d8b0efe4dbaa60">
     <link rel="stylesheet" href="_static/pygments.css">
-    <link media="(prefers-color-scheme: dark)" rel="stylesheet" href="_static/pygments_dark.css">
     
 
 
@@ -45,7 +45,10 @@
   --color-brand-content: #0D318F;
   
   }
-</style><link rel="stylesheet" href="_static/styles/furo-extensions.css?digest=d391b54134226e4196576da3bdb6dddb7e05ba2b"></head>
+</style><link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css" />
+    <link media="(prefers-color-scheme: dark)" rel="stylesheet" href="_static/pygments_dark.css">
+    <link rel="stylesheet" href="_static/styles/furo-extensions.css?digest=ee12cdd73c4bbac24afec78d92c4afd7c2d8ea7f"></head>
   <body dir="">
     
 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
@@ -166,12 +169,12 @@
         <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
           <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
         </label>
-        <div class="section" id="pfhedge-autogreek">
+        <section id="pfhedge-autogreek">
 <h1>pfhedge.autogreek<a class="headerlink" href="#pfhedge-autogreek" title="Permalink to this headline">¶</a></h1>
-<p><cite>pfhedge.autogreek</cite> provides functions implementing automatic evaluation greeks, susceptibility of a derivative price to its input parameters.</p>
+<p><cite>pfhedge.autogreek</cite> provides functions implementing automatic evaluation of greeks (susceptibility of derivative price to its input parameters) using automatic differentiation.</p>
 <dl class="py function">
-<dt id="pfhedge.autogreek.delta">
-<code class="sig-prename descclassname"><span class="pre">pfhedge.autogreek.</span></code><code class="sig-name descname"><span class="pre">delta</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pricer</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">create_graph</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfhedge/autogreek.html#delta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.autogreek.delta" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pfhedge.autogreek.delta">
+<span class="sig-prename descclassname"><span class="pre">pfhedge.autogreek.</span></span><span class="sig-name descname"><span class="pre">delta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pricer</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">create_graph</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfhedge/autogreek.html#delta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.autogreek.delta" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes and returns delta of a derivative using automatic differentiation.</p>
 <p>Delta is a differentiation of a derivative price with respect to
 a price of underlying instrument.</p>
@@ -192,6 +195,7 @@ constructed, allowing to compute higher order derivative products.</p></li>
 <p>Delta of a European option can be evaluated as follows.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pfhedge.autogreek</span> <span class="k">as</span> <span class="nn">autogreek</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">BSEuropeanOption</span>
+<span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">pricer</span> <span class="o">=</span> <span class="n">BSEuropeanOption</span><span class="p">()</span><span class="o">.</span><span class="n">price</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">autogreek</span><span class="o">.</span><span class="n">delta</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">pricer</span><span class="p">,</span>
@@ -211,10 +215,31 @@ constructed, allowing to compute higher order derivative products.</p></li>
 <span class="go">tensor([0.5359, 0.5398, 0.5438])</span>
 </pre></div>
 </div>
+<p>One can evaluate greeks of a price computed by a hedger.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">BrownianStock</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">EuropeanOption</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">WhalleyWilmott</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">Hedger</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span> <span class="o">=</span> <span class="n">EuropeanOption</span><span class="p">(</span><span class="n">BrownianStock</span><span class="p">(</span><span class="n">cost</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">WhalleyWilmott</span><span class="p">(</span><span class="n">derivative</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hedger</span> <span class="o">=</span> <span class="n">Hedger</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">inputs</span><span class="p">())</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">pricer</span><span class="p">(</span><span class="n">spot</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">hedger</span><span class="o">.</span><span class="n">price</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="n">derivative</span><span class="p">,</span> <span class="n">init_state</span><span class="o">=</span><span class="p">(</span><span class="n">spot</span><span class="p">,),</span> <span class="n">enable_grad</span><span class="o">=</span><span class="kc">True</span>
+<span class="gp">... </span>    <span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">autogreek</span><span class="o">.</span><span class="n">delta</span><span class="p">(</span><span class="n">pricer</span><span class="p">,</span> <span class="n">spot</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="mf">1.0</span><span class="p">))</span>
+<span class="go">tensor(0.52...)</span>
+</pre></div>
+</div>
 </dd></dl>
 <dl class="py function">
-<dt id="pfhedge.autogreek.gamma">
-<code class="sig-prename descclassname"><span class="pre">pfhedge.autogreek.</span></code><code class="sig-name descname"><span class="pre">gamma</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pricer</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">create_graph</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfhedge/autogreek.html#gamma"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.autogreek.gamma" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pfhedge.autogreek.gamma">
+<span class="sig-prename descclassname"><span class="pre">pfhedge.autogreek.</span></span><span class="sig-name descname"><span class="pre">gamma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pricer</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">create_graph</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfhedge/autogreek.html#gamma"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.autogreek.gamma" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes and returns gamma of a derivative.</p>
 <p>Delta is a second-order differentiation of a derivative price with respect to
 a price of underlying instrument.</p>
@@ -228,16 +253,14 @@ constructed, allowing to compute higher order derivative products.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The greek of a derivative.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>torch.Tensor</p>
+<dd class="field-even"><p>torch.Tensor</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
 <p>Gamma of a European option can be evaluated as follows.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pfhedge.autogreek</span> <span class="k">as</span> <span class="nn">autogreek</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">BSEuropeanOption</span>
+<span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">pricer</span> <span class="o">=</span> <span class="n">BSEuropeanOption</span><span class="p">()</span><span class="o">.</span><span class="n">price</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">autogreek</span><span class="o">.</span><span class="n">gamma</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">pricer</span><span class="p">,</span>
@@ -259,7 +282,7 @@ constructed, allowing to compute higher order derivative products.</p></li>
 </pre></div>
 </div>
 </dd></dl>
-</div>
+</section>
 
       </article>
       <footer>
@@ -303,6 +326,7 @@ constructed, allowing to compute higher order derivative products.</p></li>
   </main>
 </div>
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>

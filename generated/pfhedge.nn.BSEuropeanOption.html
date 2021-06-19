@@ -2,13 +2,13 @@
 <html class="no-js">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="BSEuropeanBinaryOption" href="pfhedge.nn.BSEuropeanBinaryOption.html" /><link rel="prev" title="BSAmericanBinaryOption" href="pfhedge.nn.BSAmericanBinaryOption.html" />
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="BSEuropeanBinaryOption" href="pfhedge.nn.BSEuropeanBinaryOption.html" /><link rel="prev" title="BSAmericanBinaryOption" href="pfhedge.nn.BSAmericanBinaryOption.html" />
 
-    <meta name="generator" content="sphinx-3.5.4, furo 2021.04.11.beta34"/>
+    <meta name="generator" content="sphinx-4.0.2, furo 2021.06.18.beta36"/>
         <title>BSEuropeanOption - PFHedge documentation</title>
-      <link rel="stylesheet" href="../_static/styles/furo.css?digest=59ab60ac09ea94ccfe6deddff6d715cce948a6fc">
+      <link rel="stylesheet" href="../_static/styles/furo.css?digest=9b17055c4366e8b2949c66d6a9d8b0efe4dbaa60">
     <link rel="stylesheet" href="../_static/pygments.css">
-    <link media="(prefers-color-scheme: dark)" rel="stylesheet" href="../_static/pygments_dark.css">
     
 
 
@@ -45,7 +45,10 @@
   --color-brand-content: #0D318F;
   
   }
-</style><link rel="stylesheet" href="../_static/styles/furo-extensions.css?digest=d391b54134226e4196576da3bdb6dddb7e05ba2b"></head>
+</style><link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css" />
+    <link media="(prefers-color-scheme: dark)" rel="stylesheet" href="../_static/pygments_dark.css">
+    <link rel="stylesheet" href="../_static/styles/furo-extensions.css?digest=ee12cdd73c4bbac24afec78d92c4afd7c2d8ea7f"></head>
   <body dir="">
     
 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
@@ -166,11 +169,11 @@
         <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
           <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
         </label>
-        <div class="section" id="bseuropeanoption">
+        <section id="bseuropeanoption">
 <h1>BSEuropeanOption<a class="headerlink" href="#bseuropeanoption" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
-<dt id="pfhedge.nn.BSEuropeanOption">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pfhedge.nn.</span></code><code class="sig-name descname"><span class="pre">BSEuropeanOption</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">call</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strike</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/bs/european.html#BSEuropeanOption"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.BSEuropeanOption" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pfhedge.nn.BSEuropeanOption">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pfhedge.nn.</span></span><span class="sig-name descname"><span class="pre">BSEuropeanOption</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">call</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strike</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/bs/european.html#BSEuropeanOption"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.BSEuropeanOption" title="Permalink to this definition">¶</a></dt>
 <dd><p>Black-Scholes formula for a European option.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -213,8 +216,8 @@ Initialize Black-Scholes formula module from a derivative.</p></li>
 </pre></div>
 </div>
 <dl class="py method">
-<dt id="pfhedge.nn.BSEuropeanOption.delta">
-<code class="sig-name descname"><span class="pre">delta</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_moneyness</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expiry_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volatility</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/bs/european.html#BSEuropeanOption.delta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.BSEuropeanOption.delta" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pfhedge.nn.BSEuropeanOption.delta">
+<span class="sig-name descname"><span class="pre">delta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_moneyness</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expiry_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volatility</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/bs/european.html#BSEuropeanOption.delta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.BSEuropeanOption.delta" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns delta of the derivative.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -241,8 +244,8 @@ Initialize Black-Scholes formula module from a derivative.</p></li>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt id="pfhedge.nn.BSEuropeanOption.forward">
-<code class="sig-name descname"><span class="pre">forward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.nn.BSEuropeanOption.forward" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pfhedge.nn.BSEuropeanOption.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.nn.BSEuropeanOption.forward" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns delta of the derivative.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -255,8 +258,8 @@ the last dimension. See <cite>inputs()</cite> for the names of the input feature
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt id="pfhedge.nn.BSEuropeanOption.from_derivative">
-<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_derivative</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">derivative</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/bs/european.html#BSEuropeanOption.from_derivative"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.BSEuropeanOption.from_derivative" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pfhedge.nn.BSEuropeanOption.from_derivative">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">from_derivative</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">derivative</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/bs/european.html#BSEuropeanOption.from_derivative"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.BSEuropeanOption.from_derivative" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize a module from a derivative.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -277,8 +280,8 @@ the last dimension. See <cite>inputs()</cite> for the names of the input feature
 </div>
 </dd></dl>
 <dl class="py method">
-<dt id="pfhedge.nn.BSEuropeanOption.gamma">
-<code class="sig-name descname"><span class="pre">gamma</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_moneyness</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expiry_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volatility</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/bs/european.html#BSEuropeanOption.gamma"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.BSEuropeanOption.gamma" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pfhedge.nn.BSEuropeanOption.gamma">
+<span class="sig-name descname"><span class="pre">gamma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_moneyness</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expiry_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volatility</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/bs/european.html#BSEuropeanOption.gamma"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.BSEuropeanOption.gamma" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns gamma of the derivative.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -305,8 +308,8 @@ the last dimension. See <cite>inputs()</cite> for the names of the input feature
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt id="pfhedge.nn.BSEuropeanOption.implied_volatility">
-<code class="sig-name descname"><span class="pre">implied_volatility</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_moneyness</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expiry_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">price</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">precision</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/bs/european.html#BSEuropeanOption.implied_volatility"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.BSEuropeanOption.implied_volatility" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pfhedge.nn.BSEuropeanOption.implied_volatility">
+<span class="sig-name descname"><span class="pre">implied_volatility</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_moneyness</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expiry_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">price</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">precision</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/bs/european.html#BSEuropeanOption.implied_volatility"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.BSEuropeanOption.implied_volatility" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns implied volatility of the derivative.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -332,8 +335,8 @@ implied volatility.</p></li>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt id="pfhedge.nn.BSEuropeanOption.inputs">
-<code class="sig-name descname"><span class="pre">inputs</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.nn.BSEuropeanOption.inputs" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pfhedge.nn.BSEuropeanOption.inputs">
+<span class="sig-name descname"><span class="pre">inputs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.nn.BSEuropeanOption.inputs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the names of input features.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -342,8 +345,8 @@ implied volatility.</p></li>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt id="pfhedge.nn.BSEuropeanOption.price">
-<code class="sig-name descname"><span class="pre">price</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_moneyness</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expiry_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volatility</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/bs/european.html#BSEuropeanOption.price"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.BSEuropeanOption.price" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pfhedge.nn.BSEuropeanOption.price">
+<span class="sig-name descname"><span class="pre">price</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_moneyness</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expiry_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volatility</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/bs/european.html#BSEuropeanOption.price"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.BSEuropeanOption.price" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns price of the derivative.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -371,7 +374,7 @@ implied volatility.</p></li>
 </dl>
 </dd></dl>
 </dd></dl>
-</div>
+</section>
 
       </article>
       <footer>
@@ -423,9 +426,10 @@ implied volatility.</p></li>
   </main>
 </div>
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/scripts/main.js?digest=e931d09b2a40c1bb82b542effe772014573baf67"></script></body>
 </html>

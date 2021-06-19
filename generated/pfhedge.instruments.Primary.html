@@ -2,13 +2,13 @@
 <html class="no-js">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="BrownianStock" href="pfhedge.instruments.BrownianStock.html" /><link rel="prev" title="pfhedge.instruments" href="../instruments.html" />
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="BrownianStock" href="pfhedge.instruments.BrownianStock.html" /><link rel="prev" title="pfhedge.instruments" href="../instruments.html" />
 
-    <meta name="generator" content="sphinx-3.5.4, furo 2021.04.11.beta34"/>
+    <meta name="generator" content="sphinx-4.0.2, furo 2021.06.18.beta36"/>
         <title>Primary - PFHedge documentation</title>
-      <link rel="stylesheet" href="../_static/styles/furo.css?digest=59ab60ac09ea94ccfe6deddff6d715cce948a6fc">
+      <link rel="stylesheet" href="../_static/styles/furo.css?digest=9b17055c4366e8b2949c66d6a9d8b0efe4dbaa60">
     <link rel="stylesheet" href="../_static/pygments.css">
-    <link media="(prefers-color-scheme: dark)" rel="stylesheet" href="../_static/pygments_dark.css">
     
 
 
@@ -45,7 +45,10 @@
   --color-brand-content: #0D318F;
   
   }
-</style><link rel="stylesheet" href="../_static/styles/furo-extensions.css?digest=d391b54134226e4196576da3bdb6dddb7e05ba2b"></head>
+</style><link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css" />
+    <link media="(prefers-color-scheme: dark)" rel="stylesheet" href="../_static/pygments_dark.css">
+    <link rel="stylesheet" href="../_static/styles/furo-extensions.css?digest=ee12cdd73c4bbac24afec78d92c4afd7c2d8ea7f"></head>
   <body dir="">
     
 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
@@ -166,11 +169,11 @@
         <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
           <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
         </label>
-        <div class="section" id="primary">
+        <section id="primary">
 <h1>Primary<a class="headerlink" href="#primary" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
-<dt id="pfhedge.instruments.Primary">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pfhedge.instruments.</span></code><code class="sig-name descname"><span class="pre">Primary</span></code><a class="reference internal" href="../_modules/pfhedge/instruments/base.html#Primary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Primary" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pfhedge.instruments.Primary">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pfhedge.instruments.</span></span><span class="sig-name descname"><span class="pre">Primary</span></span><a class="reference internal" href="../_modules/pfhedge/instruments/base.html#Primary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Primary" title="Permalink to this definition">¶</a></dt>
 <dd><p>Base class for all primary instruments.</p>
 <p>A primary instrument is a basic financial instrument which is traded on a market
 and therefore the price is accessible as the market price.
@@ -178,21 +181,8 @@ Examples include stocks, bonds, commodities, and currencies.</p>
 <p>Derivatives are issued based on primary instruments
 (See <a class="reference internal" href="pfhedge.instruments.Derivative.html#pfhedge.instruments.Derivative" title="pfhedge.instruments.Derivative"><code class="xref py py-class docutils literal notranslate"><span class="pre">Derivative</span></code></a> for details).</p>
 <dl class="py attribute">
-<dt id="pfhedge.instruments.Primary.prices">
-<code class="sig-name descname"><span class="pre">prices</span></code><a class="headerlink" href="#pfhedge.instruments.Primary.prices" title="Permalink to this definition">¶</a></dt>
-<dd><p>The prices of the instrument.
-This attribute is supposed to be set by a method <cite>simulate()</cite>.
-Shape is <span class="math notranslate nohighlight">\((N, T)\)</span> where <span class="math notranslate nohighlight">\(N\)</span> is the number of simulated paths
-and <span class="math notranslate nohighlight">\(T\)</span> is the number of time steps.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>torch.Tensor</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt id="pfhedge.instruments.Primary.dtype">
-<code class="sig-name descname"><span class="pre">dtype</span></code><a class="headerlink" href="#pfhedge.instruments.Primary.dtype" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pfhedge.instruments.Primary.dtype">
+<span class="sig-name descname"><span class="pre">dtype</span></span><a class="headerlink" href="#pfhedge.instruments.Primary.dtype" title="Permalink to this definition">¶</a></dt>
 <dd><p>The dtype with which the simulated time-series are
 represented.</p>
 <dl class="field-list simple">
@@ -202,8 +192,8 @@ represented.</p>
 </dl>
 </dd></dl>
 <dl class="py attribute">
-<dt id="pfhedge.instruments.Primary.device">
-<code class="sig-name descname"><span class="pre">device</span></code><a class="headerlink" href="#pfhedge.instruments.Primary.device" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pfhedge.instruments.Primary.device">
+<span class="sig-name descname"><span class="pre">device</span></span><a class="headerlink" href="#pfhedge.instruments.Primary.device" title="Permalink to this definition">¶</a></dt>
 <dd><p>The device where the simulated time-series are.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -212,23 +202,27 @@ represented.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt id="pfhedge.instruments.Primary.simulate">
-<em class="property"><span class="pre">abstract</span> </em><code class="sig-name descname"><span class="pre">simulate</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_horizon</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_price</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/base.html#Primary.simulate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Primary.simulate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Simulate time series of prices and set an attribute <cite>prices</cite>.</p>
+<dt class="sig sig-object py" id="pfhedge.instruments.Primary.simulate">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">simulate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_horizon</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/base.html#Primary.simulate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Primary.simulate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simulate time series associated with the instrument and add them as buffers.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>n_paths</strong> (<em>int</em>) – The number of paths to simulate.</p></li>
 <li><p><strong>time_horizon</strong> (<em>float</em>) – The period of time to simulate the price.</p></li>
-<li><p><strong>n_paths</strong> (<em>int</em><em>, </em><em>default=1</em>) – The number of paths to simulate.</p></li>
-<li><p><strong>init_price</strong> (<em>float</em><em>, </em><em>default=1.0</em>) – The initial value of the prices.</p></li>
+<li><p><strong>init_state</strong> (<em>tuple</em><em>, </em><em>optional</em>) – The initial state of the instrument.
+If <cite>None</cite> (default), sensible default value is used.</p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt id="pfhedge.instruments.Primary.to">
-<code class="sig-name descname"><span class="pre">to</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/base.html#Primary.to"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Primary.to" title="Permalink to this definition">¶</a></dt>
-<dd><p>Performs dtype and/or device conversion of the time series of the prices.</p>
+<dt class="sig sig-object py" id="pfhedge.instruments.Primary.to">
+<span class="sig-name descname"><span class="pre">to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/base.html#Primary.to"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Primary.to" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs dtype and/or device conversion of the buffers associated to
+the instument.</p>
+<p>A <cite>torch.dtype</cite> and <cite>torch.device</cite> are inferred from the arguments of
+<cite>self.to(*args, **kwargs)</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -244,7 +238,7 @@ series.</p></li>
 </dl>
 </dd></dl>
 </dd></dl>
-</div>
+</section>
 
       </article>
       <footer>
@@ -296,9 +290,9 @@ series.</p></li>
   </main>
 </div>
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <script src="../_static/scripts/main.js?digest=e931d09b2a40c1bb82b542effe772014573baf67"></script></body>
 </html>

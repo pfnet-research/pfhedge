@@ -2,13 +2,13 @@
 <html class="no-js">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="EntropicLoss" href="pfhedge.nn.EntropicLoss.html" /><link rel="prev" title="LeakyClamp" href="pfhedge.nn.LeakyClamp.html" />
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="EntropicLoss" href="pfhedge.nn.EntropicLoss.html" /><link rel="prev" title="LeakyClamp" href="pfhedge.nn.LeakyClamp.html" />
 
-    <meta name="generator" content="sphinx-3.5.4, furo 2021.04.11.beta34"/>
+    <meta name="generator" content="sphinx-4.0.2, furo 2021.06.18.beta36"/>
         <title>HedgeLoss - PFHedge documentation</title>
-      <link rel="stylesheet" href="../_static/styles/furo.css?digest=59ab60ac09ea94ccfe6deddff6d715cce948a6fc">
+      <link rel="stylesheet" href="../_static/styles/furo.css?digest=9b17055c4366e8b2949c66d6a9d8b0efe4dbaa60">
     <link rel="stylesheet" href="../_static/pygments.css">
-    <link media="(prefers-color-scheme: dark)" rel="stylesheet" href="../_static/pygments_dark.css">
     
 
 
@@ -45,7 +45,10 @@
   --color-brand-content: #0D318F;
   
   }
-</style><link rel="stylesheet" href="../_static/styles/furo-extensions.css?digest=d391b54134226e4196576da3bdb6dddb7e05ba2b"></head>
+</style><link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css" />
+    <link media="(prefers-color-scheme: dark)" rel="stylesheet" href="../_static/pygments_dark.css">
+    <link rel="stylesheet" href="../_static/styles/furo-extensions.css?digest=ee12cdd73c4bbac24afec78d92c4afd7c2d8ea7f"></head>
   <body dir="">
     
 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
@@ -166,15 +169,15 @@
         <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
           <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
         </label>
-        <div class="section" id="hedgeloss">
+        <section id="hedgeloss">
 <h1>HedgeLoss<a class="headerlink" href="#hedgeloss" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
-<dt id="pfhedge.nn.HedgeLoss">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pfhedge.nn.</span></code><code class="sig-name descname"><span class="pre">HedgeLoss</span></code><a class="reference internal" href="../_modules/pfhedge/nn/modules/loss.html#HedgeLoss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.HedgeLoss" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pfhedge.nn.HedgeLoss">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pfhedge.nn.</span></span><span class="sig-name descname"><span class="pre">HedgeLoss</span></span><a class="reference internal" href="../_modules/pfhedge/nn/modules/loss.html#HedgeLoss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.HedgeLoss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Base class for hedging criteria.</p>
 <dl class="py method">
-<dt id="pfhedge.nn.HedgeLoss.cash">
-<code class="sig-name descname"><span class="pre">cash</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/loss.html#HedgeLoss.cash"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.HedgeLoss.cash" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pfhedge.nn.HedgeLoss.cash">
+<span class="sig-name descname"><span class="pre">cash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/loss.html#HedgeLoss.cash"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.HedgeLoss.cash" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the cash amount which is as preferable as
 the given profit-loss distribution in terms of the loss.</p>
 <p>The output <cite>cash</cite> is expected to satisfy the following relation:</p>
@@ -204,8 +207,8 @@ dimensions.</p></li>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt id="pfhedge.nn.HedgeLoss.forward">
-<code class="sig-name descname"><span class="pre">forward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/loss.html#HedgeLoss.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.HedgeLoss.forward" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pfhedge.nn.HedgeLoss.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/loss.html#HedgeLoss.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.HedgeLoss.forward" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the loss of the profit-loss distribution.</p>
 <p>This method should be overridden.</p>
 <dl class="field-list simple">
@@ -228,7 +231,7 @@ dimensions.</p></li>
 </dl>
 </dd></dl>
 </dd></dl>
-</div>
+</section>
 
       </article>
       <footer>
@@ -280,9 +283,10 @@ dimensions.</p></li>
   </main>
 </div>
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/scripts/main.js?digest=e931d09b2a40c1bb82b542effe772014573baf67"></script></body>
 </html>

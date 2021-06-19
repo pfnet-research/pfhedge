@@ -4,11 +4,10 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
-    <meta name="generator" content="sphinx-3.5.4, furo 2021.04.11.beta34"/>
+    <meta name="generator" content="sphinx-4.0.2, furo 2021.06.18.beta36"/>
         <title>pfhedge.instruments.base - PFHedge documentation</title>
-      <link rel="stylesheet" href="../../../_static/styles/furo.css?digest=59ab60ac09ea94ccfe6deddff6d715cce948a6fc">
+      <link rel="stylesheet" href="../../../_static/styles/furo.css?digest=9b17055c4366e8b2949c66d6a9d8b0efe4dbaa60">
     <link rel="stylesheet" href="../../../_static/pygments.css">
-    <link media="(prefers-color-scheme: dark)" rel="stylesheet" href="../../../_static/pygments_dark.css">
     
 
 
@@ -45,7 +44,10 @@
   --color-brand-content: #0D318F;
   
   }
-</style><link rel="stylesheet" href="../../../_static/styles/furo-extensions.css?digest=d391b54134226e4196576da3bdb6dddb7e05ba2b"></head>
+</style><link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css" />
+    <link media="(prefers-color-scheme: dark)" rel="stylesheet" href="../../../_static/pygments_dark.css">
+    <link rel="stylesheet" href="../../../_static/styles/furo-extensions.css?digest=ee12cdd73c4bbac24afec78d92c4afd7c2d8ea7f"></head>
   <body dir="">
     
 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
@@ -169,6 +171,7 @@
         <h1>Source code for pfhedge.instruments.base</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span>
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TypeVar</span>
 
 <span class="kn">import</span> <span class="nn">torch</span>
@@ -181,16 +184,26 @@
     <span class="sd">"""Base class for all financial instruments."""</span>
 
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">time_horizon</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">n_paths</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">init_price</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">"""Simulate time series of prices of itself (for a primary instrument)</span>
-<span class="sd">        or its underlier (for a derivative).</span>
+    <span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_paths</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">time_horizon</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">"""Simulate time series associated with the instrument itself</span>
+<span class="sd">        (for a primary instrument) or its underlier (for a derivative)</span>
+<span class="sd">        and add them as buffers.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            n_paths (int): The number of paths to simulate.</span>
+<span class="sd">            time_horizon (float): The period of time to simulate the price.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
 <span class="sd">        """</span>
 
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">to</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
-        <span class="sd">"""Performs dtype and/or device conversion of the time series of prices.</span>
+        <span class="sd">"""Performs dtype and/or device conversion of the buffers associated to</span>
+<span class="sd">        the instument.</span>
+
+<span class="sd">        A `torch.dtype` and `torch.device` are inferred from the arguments of</span>
+<span class="sd">        `self.to(*args, **kwargs)`.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            dtype (torch.dtype): Desired floating point type of the floating point</span>
@@ -246,43 +259,29 @@
 <span class="sd">    (See :class:`Derivative` for details).</span>
 
 <span class="sd">    Attributes:</span>
-<span class="sd">        prices (torch.Tensor): The prices of the instrument.</span>
-<span class="sd">            This attribute is supposed to be set by a method `simulate()`.</span>
-<span class="sd">            Shape is :math:`(N, T)` where :math:`N` is the number of simulated paths</span>
-<span class="sd">            and :math:`T` is the number of time steps.</span>
 <span class="sd">        dtype (torch.dtype): The dtype with which the simulated time-series are</span>
 <span class="sd">            represented.</span>
 <span class="sd">        device (torch.device): The device where the simulated time-series are.</span>
 <span class="sd">    """</span>
 
-    <span class="n">prices</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>
+    <span class="n">spot</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>
     <span class="n">dtype</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">dtype</span>
     <span class="n">device</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span>
 
 <div class="viewcode-block" id="Primary.simulate"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.Primary.html#pfhedge.instruments.Primary.simulate">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">time_horizon</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">n_paths</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">init_price</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">n_paths</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">time_horizon</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">init_state</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">tuple</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">"""Simulate time series of prices and set an attribute `prices`.</span>
+        <span class="sd">"""Simulate time series associated with the instrument and add them as buffers.</span>
 
 <span class="sd">        Args:</span>
+<span class="sd">            n_paths (int): The number of paths to simulate.</span>
 <span class="sd">            time_horizon (float): The period of time to simulate the price.</span>
-<span class="sd">            n_paths (int, default=1): The number of paths to simulate.</span>
-<span class="sd">            init_price (float, default=1.0): The initial value of the prices.</span>
+<span class="sd">            init_state (tuple, optional): The initial state of the instrument.</span>
+<span class="sd">                If `None` (default), sensible default value is used.</span>
 <span class="sd">        """</span></div>
 
 <div class="viewcode-block" id="Primary.to"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.Primary.html#pfhedge.instruments.Primary.to">[docs]</a>    <span class="k">def</span> <span class="nf">to</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
-        <span class="sd">"""Performs dtype and/or device conversion of the time series of the prices.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            dtype (torch.dtype): Desired floating point type of the floating point</span>
-<span class="sd">                values of simulated time series.</span>
-<span class="sd">            device (torch.device): Desired device of the values of simulated time</span>
-<span class="sd">                series.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            self</span>
-<span class="sd">        """</span>
         <span class="n">device</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n">_nn</span><span class="o">.</span><span class="n">_parse_to</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">dtype</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">dtype</span><span class="o">.</span><span class="n">is_floating_point</span><span class="p">:</span>
@@ -296,9 +295,9 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"device"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">device</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">device</span>
 
-        <span class="c1"># If prices have been already simulated, move it</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"prices"</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">prices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prices</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="c1"># If the buffers have been already simulated, move it</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"spot"</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spot</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span></div></div>
 
@@ -324,6 +323,7 @@
 <span class="sd">    """</span>
 
     <span class="n">underlier</span><span class="p">:</span> <span class="n">Primary</span>
+    <span class="n">maturity</span><span class="p">:</span> <span class="nb">float</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">dtype</span><span class="p">:</span>
@@ -333,29 +333,22 @@
     <span class="k">def</span> <span class="nf">device</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">underlier</span><span class="o">.</span><span class="n">device</span>
 
-<div class="viewcode-block" id="Derivative.simulate"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.Derivative.html#pfhedge.instruments.Derivative.simulate">[docs]</a>    <span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_paths</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">init_price</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">"""Simulates time series of the underlier's prices.</span>
+<div class="viewcode-block" id="Derivative.simulate"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.Derivative.html#pfhedge.instruments.Derivative.simulate">[docs]</a>    <span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">n_paths</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">init_state</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">tuple</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">"""Simulate time series associated with the underlier.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            n_paths (int): The number of paths to simulate.</span>
-<span class="sd">            init_price (float): The initial value of the prices.</span>
+<span class="sd">            init_state (tuple, optional): The initial state of the underlying</span>
+<span class="sd">                instrument. If `None` (default), sensible default values are used.</span>
+<span class="sd">            **kwargs: Other parameters passed to `self.underlier.simulate()`.</span>
 <span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">underlier</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span>
-            <span class="n">time_horizon</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">maturity</span><span class="p">,</span> <span class="n">n_paths</span><span class="o">=</span><span class="n">n_paths</span><span class="p">,</span> <span class="n">init_price</span><span class="o">=</span><span class="n">init_price</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+            <span class="n">n_paths</span><span class="o">=</span><span class="n">n_paths</span><span class="p">,</span> <span class="n">time_horizon</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">maturity</span><span class="p">,</span> <span class="n">init_state</span><span class="o">=</span><span class="n">init_state</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="Derivative.to"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.Derivative.html#pfhedge.instruments.Derivative.to">[docs]</a>    <span class="k">def</span> <span class="nf">to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">"""Performs dtype and/or device conversion of the time series of the prices.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            dtype (torch.dtype): Desired floating point type of the floating point</span>
-<span class="sd">                values of simulated time series.</span>
-<span class="sd">            device (torch.device): Desired device of the values of simulated time</span>
-<span class="sd">                series.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            self</span>
-<span class="sd">        """</span>
+<div class="viewcode-block" id="Derivative.to"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.Derivative.html#pfhedge.instruments.Derivative.to">[docs]</a>    <span class="k">def</span> <span class="nf">to</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">underlier</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span></div>
 
@@ -370,6 +363,10 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            torch.Tensor</span>
 <span class="sd">        """</span></div></div>
+
+
+<span class="n">Primary</span><span class="o">.</span><span class="n">to</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">Instrument</span><span class="o">.</span><span class="n">to</span><span class="o">.</span><span class="vm">__doc__</span>
+<span class="n">Derivative</span><span class="o">.</span><span class="n">to</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">Instrument</span><span class="o">.</span><span class="n">to</span><span class="o">.</span><span class="vm">__doc__</span>
 </pre></div>
       </article>
       <footer>
@@ -398,6 +395,7 @@
   </main>
 </div>
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
     <script src="../../../_static/jquery.js"></script>
     <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>

@@ -4,11 +4,10 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
-    <meta name="generator" content="sphinx-3.5.4, furo 2021.04.11.beta34"/>
+    <meta name="generator" content="sphinx-4.0.2, furo 2021.06.18.beta36"/>
         <title>pfhedge.instruments.underlier - PFHedge documentation</title>
-      <link rel="stylesheet" href="../../../_static/styles/furo.css?digest=59ab60ac09ea94ccfe6deddff6d715cce948a6fc">
+      <link rel="stylesheet" href="../../../_static/styles/furo.css?digest=9b17055c4366e8b2949c66d6a9d8b0efe4dbaa60">
     <link rel="stylesheet" href="../../../_static/pygments.css">
-    <link media="(prefers-color-scheme: dark)" rel="stylesheet" href="../../../_static/pygments_dark.css">
     
 
 
@@ -45,7 +44,10 @@
   --color-brand-content: #0D318F;
   
   }
-</style><link rel="stylesheet" href="../../../_static/styles/furo-extensions.css?digest=d391b54134226e4196576da3bdb6dddb7e05ba2b"></head>
+</style><link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css" />
+    <link media="(prefers-color-scheme: dark)" rel="stylesheet" href="../../../_static/pygments_dark.css">
+    <link rel="stylesheet" href="../../../_static/styles/furo-extensions.css?digest=ee12cdd73c4bbac24afec78d92c4afd7c2d8ea7f"></head>
   <body dir="">
     
 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
@@ -167,16 +169,18 @@
           <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
         </label>
         <h1>Source code for pfhedge.instruments.underlier</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">torch</span>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
 
 <span class="kn">from</span> <span class="nn">..stochastic</span> <span class="kn">import</span> <span class="n">generate_geometric_brownian</span>
 <span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">Primary</span>
 
 
 <div class="viewcode-block" id="BrownianStock"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.BrownianStock.html#pfhedge.instruments.BrownianStock">[docs]</a><span class="k">class</span> <span class="nc">BrownianStock</span><span class="p">(</span><span class="n">Primary</span><span class="p">):</span>
-    <span class="sd">"""A stock of which prices follow the geometric Brownian motion.</span>
+    <span class="sd">"""A stock of which spot prices follow the geometric Brownian motion.</span>
 
-<span class="sd">    The drift of the prices is assumed to be vanishing.</span>
+<span class="sd">    The drift of the spot prices is assumed to be vanishing.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        volatility (float, default=0.2): The volatility of the price.</span>
@@ -191,9 +195,9 @@
 <span class="sd">            the current CUDA device for CUDA tensor types.</span>
 
 <span class="sd">    Attributes:</span>
-<span class="sd">        prices (torch.Tensor): The prices of the instrument.</span>
-<span class="sd">            This attribute is supposed to set by a method `simulate()`.</span>
-<span class="sd">            The shape is :math:`(T, N)`. Here, :math:`T` is the number of time steps and</span>
+<span class="sd">        spot (torch.Tensor): The spot prices of the instrument.</span>
+<span class="sd">            This attribute is set by a method `simulate()`.</span>
+<span class="sd">            The shape is :math:`(T, N)`, where :math:`T` is the number of time steps and</span>
 <span class="sd">            :math:`N` is the number of simulated paths.</span>
 
 <span class="sd">    Examples:</span>
@@ -203,7 +207,7 @@
 <span class="sd">        &gt;&gt;&gt; _ = torch.manual_seed(42)</span>
 <span class="sd">        &gt;&gt;&gt; stock = BrownianStock(volatility=0.20)</span>
 <span class="sd">        &gt;&gt;&gt; stock.simulate(time_horizon=5 / 250, n_paths=2)</span>
-<span class="sd">        &gt;&gt;&gt; stock.prices</span>
+<span class="sd">        &gt;&gt;&gt; stock.spot</span>
 <span class="sd">        tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930],</span>
 <span class="sd">                [1.0000, 1.0282, 1.0199, 1.0258, 1.0292]])</span>
 
@@ -239,23 +243,34 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">+</span> <span class="s2">"("</span> <span class="o">+</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="o">+</span> <span class="s2">")"</span>
 
 <div class="viewcode-block" id="BrownianStock.simulate"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.BrownianStock.html#pfhedge.instruments.BrownianStock.simulate">[docs]</a>    <span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">time_horizon</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">n_paths</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">init_price</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">n_paths</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">time_horizon</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">20</span> <span class="o">/</span> <span class="mi">350</span><span class="p">,</span>
+        <span class="n">init_state</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">tuple</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">"""Simulate time series of prices and set an attribute `prices`.</span>
+        <span class="sd">"""Simulate the spot price and add it as a buffer named `spot`.</span>
+
+<span class="sd">        The shape of the spot is :math:`(N, T)`, where :math:`N` is the number of</span>
+<span class="sd">        simulated paths and :math:`T` is the number of time steps.</span>
+<span class="sd">        The number of time steps is determinded from `dt` and `time_horizon`.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            time_horizon (float): The period of time to simulate the price.</span>
 <span class="sd">            n_paths (int, default=1): The number of paths to simulate.</span>
-<span class="sd">            init_price (float, default=1.0): The initial value of the prices.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            None</span>
+<span class="sd">            time_horizon (float, default=20/250): The period of time to simulate the price.</span>
+<span class="sd">            init_state (tuple, optional): The initial state of the instrument.</span>
+<span class="sd">                `init_state` should be a 1-tuple `(spot,)`</span>
+<span class="sd">                where spot is the initial spot price.</span>
+<span class="sd">                If `None` (default), the default value `(1.0,)` is chosen.</span>
+<span class="sd">            **kwargs: Other parameters passed to `self.underlier.simulate()`.</span>
 <span class="sd">        """</span>
-        <span class="n">n_steps</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">time_horizon</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">prices</span> <span class="o">=</span> <span class="n">generate_geometric_brownian</span><span class="p">(</span>
+        <span class="k">if</span> <span class="n">init_state</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Default setting</span>
+            <span class="n">init_state</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">spot</span> <span class="o">=</span> <span class="n">generate_geometric_brownian</span><span class="p">(</span>
             <span class="n">n_paths</span><span class="o">=</span><span class="n">n_paths</span><span class="p">,</span>
-            <span class="n">n_steps</span><span class="o">=</span><span class="n">n_steps</span><span class="p">,</span>
-            <span class="n">init_value</span><span class="o">=</span><span class="n">init_price</span><span class="p">,</span>
+            <span class="n">n_steps</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">time_horizon</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">),</span>
+            <span class="n">init_value</span><span class="o">=</span><span class="n">init_state</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
             <span class="n">volatility</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">volatility</span><span class="p">,</span>
             <span class="n">dt</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span>
             <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span>
@@ -294,6 +309,7 @@
   </main>
 </div>
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
     <script src="../../../_static/jquery.js"></script>
     <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
