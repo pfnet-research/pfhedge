@@ -225,7 +225,7 @@ class BSLookbackOption(BSModuleMixin):
             max_log_moneyness (torch.Tensor): Cumulative maximum of the log moneyness.
             expiry_time (torch.Tensor): Time to expiry of the option.
             price (torch.Tensor): Price of the derivative.
-            precision (float, default=1e-6): Computational precision of the implied volatility.
+            precision (float, default=1e-6): Precision of the implied volatility.
 
         Shape:
             - log_moneyness: :math:`(N, *)`

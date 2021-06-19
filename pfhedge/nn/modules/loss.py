@@ -68,9 +68,9 @@ class EntropicRiskMeasure(HedgeLoss):
     .. math ::
 
         \\text{loss}(\\text{pnl}) = \\frac{1}{a}
-        \\log(- \\mathbf{E}[u(\\text{pnl})]) \,,
+        \\log(- \\mathbf{E}[u(\\text{pnl})]) \\,,
         \\quad
-        u(x) = -\\exp(-a x) \,.
+        u(x) = -\\exp(-a x) \\,.
 
     Args:
         a (float > 0, default=1.0): Risk aversion coefficient of the exponential
@@ -131,7 +131,7 @@ class EntropicLoss(HedgeLoss):
 
         \\text{loss}(\\text{pnl}) = -\\mathbf{E}[u(\\text{pnl})] \\,,
         \\quad
-        u(x) = -\\exp(-a x) \,.
+        u(x) = -\\exp(-a x) \\,.
 
     Args:
         a (float > 0, default=1.0): Risk aversion coefficient of the exponential
@@ -190,12 +190,12 @@ class IsoelasticLoss(HedgeLoss):
 
     .. math ::
 
-        \\text{loss}(\\text{pnl}) = -\\mathbf{E}[u(\\text{pnl})] \,,
+        \\text{loss}(\\text{pnl}) = -\\mathbf{E}[u(\\text{pnl})] \\,,
         \\quad
         u(x) = \\begin{cases}
         x^{1 - a} & a \\neq 1 \\\\
         \\log{x} & a = 1
-        \\end{cases} \,.
+        \\end{cases} \\,.
 
     Args:
         a (float): Relative risk aversion coefficient of the isoelastic utility.

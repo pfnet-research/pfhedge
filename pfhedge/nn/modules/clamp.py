@@ -1,4 +1,3 @@
-import torch
 from torch import Tensor
 from torch.nn import Module
 
@@ -42,6 +41,7 @@ class LeakyClamp(Module):
 
     Examples:
 
+        >>> import torch
         >>> from pfhedge.nn import LeakyClamp
         >>> m = LeakyClamp()
         >>> input = torch.linspace(-2, 12, 15) * 0.1
@@ -114,6 +114,7 @@ class Clamp(Module):
 
     Examples:
 
+        >>> import torch
         >>> from pfhedge.nn import Clamp
         >>> m = Clamp()
         >>> input = torch.linspace(-2, 12, 15) * 0.1

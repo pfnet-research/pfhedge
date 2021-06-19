@@ -14,8 +14,8 @@ def european_payoff(input: Tensor, call: bool = True, strike: float = 1.0) -> Te
         strike (float, default=1.0): The strike price of the option.
 
     Shape:
-        - input: :math:`(*, T)`, where, :math:`T` stands for the number of time steps and
-          :math:`*` means any number of additional dimensions.
+        - input: :math:`(*, T)`, where, :math:`T` stands for the number of time steps
+          and :math:`*` means any number of additional dimensions.
         - output: :math:`(*)`
 
     Returns:
@@ -36,8 +36,8 @@ def lookback_payoff(input: Tensor, call: bool = True, strike: float = 1.0) -> Te
         strike (float, default=1.0): The strike price of the option.
 
     Shape:
-        - input: :math:`(*, T)`, where, :math:`T` stands for the number of time steps and
-          :math:`*` means any number of additional dimensions.
+        - input: :math:`(*, T)`, where, :math:`T` stands for the number of time steps
+          and :math:`*` means any number of additional dimensions.
         - output: :math:`(*)`
 
     Returns:
@@ -60,8 +60,8 @@ def american_binary_payoff(
         strike (float, default=1.0): The strike price of the option.
 
     Shape:
-        - input: :math:`(*, T)`, where, :math:`T` stands for the number of time steps and
-          :math:`*` means any number of additional dimensions.
+        - input: :math:`(*, T)`, where, :math:`T` stands for the number of time steps
+          and :math:`*` means any number of additional dimensions.
         - output: :math:`(*)`
 
     Returns:
@@ -84,8 +84,8 @@ def european_binary_payoff(
         strike (float, default=1.0): The strike price of the option.
 
     Shape:
-        - input: :math:`(*, T)`, where, :math:`T` stands for the number of time steps and
-          :math:`*` means any number of additional dimensions.
+        - input: :math:`(*, T)`, where, :math:`T` stands for the number of time steps
+          and :math:`*` means any number of additional dimensions.
         - output: :math:`(*)`
 
     Returns:
@@ -104,7 +104,7 @@ def exp_utility(input: Tensor, a: float = 1.0) -> Tensor:
 
     .. math ::
 
-        u(x) = -\\exp(-a x) \,.
+        u(x) = -\\exp(-a x) \\,.
 
     Args:
         input (torch.Tensor): The input tensor.
@@ -127,7 +127,7 @@ def isoelastic_utility(input: Tensor, a: float = 0.5) -> Tensor:
         u(x) = \\begin{cases}
         x^{1 - a} & a \\neq 1 \\\\
         \\log{x} & a = 1
-        \\end{cases} \,.
+        \\end{cases} \\,.
 
     Args:
         input (torch.Tensor): The input tensor.

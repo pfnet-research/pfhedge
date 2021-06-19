@@ -1,6 +1,16 @@
 import torch
 
 from ._base import Feature
+from .functional import barrier
+from .functional import empty
+from .functional import expiry_time
+from .functional import log_moneyness
+from .functional import max_log_moneyness
+from .functional import max_moneyness
+from .functional import moneyness
+from .functional import prev_hedge
+from .functional import volatility
+from .functional import zeros
 
 
 class Moneyness(Feature):
@@ -22,12 +32,10 @@ class Moneyness(Feature):
             return "moneyness"
 
     def __getitem__(self, i):
-        # spot price: shape (N, 1)
-        s = self.derivative.underlier.spot[..., i].reshape(-1, 1)
-        output = s / self.derivative.strike
         if self.log:
-            output = torch.log(output)
-        return output
+            return log_moneyness(i, derivative=self.derivative)
+        else:
+            return moneyness(i, derivative=self.derivative)
 
 
 class LogMoneyness(Moneyness):
@@ -44,8 +52,7 @@ class ExpiryTime(Feature):
         return "expiry_time"
 
     def __getitem__(self, i):
-        value = self.derivative.maturity - i * self.derivative.underlier.dt
-        return torch.full_like(self.derivative.underlier.spot[:, :1], value)
+        return expiry_time(i, derivative=self.derivative)
 
 
 class Volatility(Feature):
@@ -55,8 +62,7 @@ class Volatility(Feature):
         return "volatility"
 
     def __getitem__(self, i):
-        value = self.derivative.underlier.volatility
-        return torch.full_like(self.derivative.underlier.spot[:, :1], value)
+        return volatility(i, derivative=self.derivative)
 
 
 class PrevHedge(Feature):
@@ -66,11 +72,7 @@ class PrevHedge(Feature):
         return "prev_hedge"
 
     def __getitem__(self, i):
-        if hasattr(self.hedger, "prev_output"):
-            return self.hedger.prev_output.reshape(-1, 1)
-        else:
-            # spot: shape (N, T)
-            return torch.zeros_like(self.derivative.underlier.spot[:, :1])
+        return prev_hedge(i, derivative=self.derivative, hedger=self.hedger)
 
 
 class Barrier(Feature):
@@ -79,40 +81,45 @@ class Barrier(Feature):
     and `0` otherwise.
 
     Args:
-        barrier (float): The price level of the barrier.
+        threshold (float): The price level of the barrier.
         up (bool, default True): If `True`, signifies whether the price has exceeded
             the barrier upward.
             If `False`, signifies whether the price has exceeded the barrier downward.
     """
 
-    def __init__(self, barrier, up=True):
+    def __init__(self, threshold, up=True):
         super().__init__()
 
-        self.barrier = barrier
+        self.threshold = threshold
         self.up = up
 
     def __repr__(self):
-        return self.__class__.__name__ + f"({self.barrier}, up={self.up})"
+        return self.__class__.__name__ + f"({self.threshold}, up={self.up})"
 
     def __getitem__(self, i):
-        if self.up:
-            # shape: (N, i)
-            touch_barrier = self.derivative.underlier.spot[..., : i + 1] >= self.barrier
-        else:
-            touch_barrier = self.derivative.underlier.spot[..., : i + 1] <= self.barrier
-        return touch_barrier.any(dim=-1, keepdim=True).to(
-            self.derivative.underlier.spot
+        return barrier(
+            i, derivative=self.derivative, threshold=self.threshold, up=self.up
         )
 
 
-class Zero(Feature):
+class Zeros(Feature):
     """A feature of which value is always zero."""
 
     def __str__(self):
-        return "zero"
+        return "zeros"
 
     def __getitem__(self, i):
-        return torch.zeros_like(self.derivative.underlier.spot[:, :1])
+        return zeros(i, derivative=self.derivative)
+
+
+class Empty(Feature):
+    """A feature of which value is always empty."""
+
+    def __str__(self):
+        return "empty"
+
+    def __getitem__(self, i):
+        return empty(i, derivative=self.derivative)
 
 
 class MaxMoneyness(Feature):
@@ -124,7 +131,6 @@ class MaxMoneyness(Feature):
 
     def __init__(self, log=False):
         self.log = log
-        self.moneyness = Moneyness(log=log)
 
     def __str__(self):
         if self.log:
@@ -133,16 +139,10 @@ class MaxMoneyness(Feature):
             return "max_moneyness"
 
     def __getitem__(self, i):
-        s = self.derivative.underlier.spot[..., : i + 1].max(dim=1, keepdim=True).values
-        output = s / self.derivative.strike
         if self.log:
-            output = torch.log(output)
-        return output
-
-    def of(self, derivative=None, hedger=None):
-        super().of(derivative)
-        self.moneyness.of(derivative=derivative, hedger=hedger)
-        return self
+            return max_log_moneyness(i, derivative=self.derivative)
+        else:
+            return max_moneyness(i, derivative=self.derivative)
 
 
 class MaxLogMoneyness(MaxMoneyness):

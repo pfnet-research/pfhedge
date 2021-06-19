@@ -7,6 +7,7 @@ from torch.optim import Adam
 from tqdm import tqdm
 
 from pfhedge._utils.hook import save_prev_output
+from pfhedge._utils.lazy import has_lazy
 from pfhedge._utils.operations import ensemble_mean
 from pfhedge.features import get_feature
 
@@ -72,14 +73,14 @@ class Hedger(Module):
         A naked position (never hedge at all).
 
         >>> from pfhedge.nn import Naked
-        >>> hedger = Hedger(Naked(), ["zero"])
+        >>> hedger = Hedger(Naked(), ["empty"])
 
         A strategy represented by a neural network (Deep Hedging).
 
         >>> from pfhedge.nn import MultiLayerPerceptron
         >>> model = MultiLayerPerceptron()
         >>> hedger = Hedger(model, ["moneyness", "expiry_time", "volatility"])
-        >>> _ = hedger.compute_pnl(derivative, n_paths=1)  # Lazily derermine in_features
+        >>> _ = hedger.compute_pnl(derivative, n_paths=1)  # Lazily materialize
         >>> hedger
         Hedger(
           inputs=['moneyness', 'expiry_time', 'volatility'],
@@ -310,7 +311,7 @@ class Hedger(Module):
             >>> from pfhedge.nn import MultiLayerPerceptron
             >>> from torch.optim import SGD
             >>> derivative = EuropeanOption(BrownianStock())
-            >>> hedger = Hedger(MultiLayerPerceptron(), ["zero"])
+            >>> hedger = Hedger(MultiLayerPerceptron(), ["empty"])
             >>> # Run a placeholder forward to initialize lazy parameters
             >>> _ = hedger.compute_pnl(derivative, n_paths=1)
             >>> _ = hedger.fit(
@@ -323,7 +324,7 @@ class Hedger(Module):
 
             >>> from torch.optim import Adadelta
             >>> derivative = EuropeanOption(BrownianStock())
-            >>> hedger = Hedger(MultiLayerPerceptron(), ["zero"])
+            >>> hedger = Hedger(MultiLayerPerceptron(), ["empty"])
             >>> _ = hedger.fit(
             ...     derivative,
             ...     optimizer=Adadelta,
@@ -331,8 +332,9 @@ class Hedger(Module):
             ...     verbose=False)
         """
         if isinstance(optimizer, type):
-            # Run a placeholder forward to initialize lazy parameters
-            _ = self.compute_pnl(derivative, n_paths=1)
+            if has_lazy(self):
+                # Run a placeholder forward to initialize lazy parameters
+                _ = self.compute_pnl(derivative, n_paths=1)
             optimizer = optimizer(self.model.parameters())
             if not isinstance(optimizer, torch.optim.Optimizer):
                 raise TypeError("optimizer is not torch.optim.Optimizer")

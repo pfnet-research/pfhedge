@@ -33,38 +33,38 @@ class TestBSEuropeanOption(_TestBSModule):
 
     def test_forward(self):
         m = BSEuropeanOption()
-        input = torch.tensor([0.0, 1.0, 0.2]).reshape(1, -1)
+        input = torch.tensor([[0.0, 1.0, 0.2]])
         result = m(input)
         expect = torch.full_like(result, 0.5398278962)
         assert_close(result, expect)
 
         m = BSEuropeanOption(call=False)
-        input = torch.tensor([0.0, 1.0, 0.2]).reshape(1, -1)
+        input = torch.tensor([[0.0, 1.0, 0.2]])
         result = m(input)
         expect = torch.full_like(result, -0.4601721)
         assert_close(result, expect)
 
         derivative = EuropeanOption(BrownianStock(), call=False)
         m = BSEuropeanOption.from_derivative(derivative)
-        input = torch.tensor([0.0, 1.0, 0.2]).reshape(1, -1)
+        input = torch.tensor([[0.0, 1.0, 0.2]])
         result = m(input)
         expect = torch.full_like(result, -0.4601721)
         assert_close(result, expect)
 
     def test_delta(self):
         m = BSEuropeanOption()
-        result = m.delta(0.0, 1.0, 0.2)
+        result = m.delta(torch.tensor(0.0), torch.tensor(1.0), torch.tensor(0.2))
         expect = torch.full_like(result, 0.5398278962)
         assert_close(result, expect)
 
         m = BSEuropeanOption(call=False)
-        result = m.delta(0.0, 1.0, 0.2)
+        result = m.delta(torch.tensor(0.0), torch.tensor(1.0), torch.tensor(0.2))
         expect = torch.full_like(result, -0.4601721)
         assert_close(result, expect)
 
     def test_gamma(self):
         m = BSEuropeanOption()
-        result = m.gamma(0.0, 1.0, 0.2)
+        result = m.gamma(torch.tensor(0.0), torch.tensor(1.0), torch.tensor(0.2))
         expect = torch.full_like(result, 1.9847627374)
         assert_close(result, expect)
 

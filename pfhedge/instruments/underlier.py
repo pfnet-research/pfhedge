@@ -16,7 +16,8 @@ class BrownianStock(Primary):
         cost (float, default=0.0): The transaction cost rate.
         dt (float, default=1/250): The intervals of the time steps.
         dtype (torch.device, optional): Desired device of returned tensor.
-            Default: If None, uses a global default (see `torch.set_default_tensor_type()`).
+            Default: If None, uses a global default
+            (see `torch.set_default_tensor_type()`).
         device (torch.device, optional): Desired device of returned tensor.
             Default: if None, uses the current device for the default tensor type
             (see `torch.set_default_tensor_type()`).
@@ -26,16 +27,16 @@ class BrownianStock(Primary):
     Attributes:
         spot (torch.Tensor): The spot prices of the instrument.
             This attribute is set by a method `simulate()`.
-            The shape is :math:`(T, N)`, where :math:`T` is the number of time steps and
+            The shape is :math:`(N, T)`, where :math:`T` is the number of time steps and
             :math:`N` is the number of simulated paths.
 
     Examples:
 
-        >>> import torch
         >>> from pfhedge.instruments import BrownianStock
+        >>>
         >>> _ = torch.manual_seed(42)
-        >>> stock = BrownianStock(volatility=0.20)
-        >>> stock.simulate(time_horizon=5 / 250, n_paths=2)
+        >>> stock = BrownianStock()
+        >>> stock.simulate(n_paths=2, time_horizon=5 / 250)
         >>> stock.spot
         tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930],
                 [1.0000, 1.0282, 1.0199, 1.0258, 1.0292]])
@@ -85,15 +86,24 @@ class BrownianStock(Primary):
 
         Args:
             n_paths (int, default=1): The number of paths to simulate.
-            time_horizon (float, default=20/250): The period of time to simulate the price.
+            time_horizon (float, default=20/250): The period of time to simulate
+                the price.
             init_state (tuple, optional): The initial state of the instrument.
                 `init_state` should be a 1-tuple `(spot,)`
                 where spot is the initial spot price.
                 If `None` (default), the default value `(1.0,)` is chosen.
-            **kwargs: Other parameters passed to `self.underlier.simulate()`.
+
+        Examples:
+
+            >>> _ = torch.manual_seed(42)
+            >>> stock = BrownianStock()
+            >>> stock.simulate(n_paths=2, time_horizon=5 / 250, init_state=(2.0,))
+            >>> stock.spot
+            tensor([[2.0000, 2.0031, 2.0089, 2.0146, 1.9860],
+                    [2.0000, 2.0565, 2.0398, 2.0516, 2.0584]])
         """
         if init_state is None:
-            # Default setting
+            # Default value
             init_state = (1.0,)
 
         self.spot = generate_geometric_brownian(

@@ -51,17 +51,17 @@ class TestBSAmericanBinaryOption(_TestBSModule):
     def test_forward(self):
         m = BSAmericanBinaryOption()
 
-        input = torch.tensor([-0.1, -0.1, 0.1, 0.2]).reshape(1, -1)
+        input = torch.tensor([[-0.1, -0.1, 0.1, 0.2]])
         result = m(input)
         expect = torch.full_like(result, 0.7819)
         assert_close(result, expect, atol=1e-4, rtol=1e-4)
 
-        input = torch.tensor([0.1, 0.1, 0.1, 0.2]).reshape(1, -1)
+        input = torch.tensor([[0.1, 0.1, 0.1, 0.2]])
         result = m(input)
         expect = torch.zeros_like(result)
         assert_close(result, expect, atol=1e-4, rtol=1e-4)
 
-        input = torch.tensor([-0.0001, -0.0001, 0.1, 0.2]).reshape(1, -1)
+        input = torch.tensor([[-0.0001, -0.0001, 0.1, 0.2]])
         result = m(input)
         expect = torch.full_like(result, 1.1531)
         assert_close(result, expect, atol=1e-4, rtol=1e-4)

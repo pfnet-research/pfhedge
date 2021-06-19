@@ -33,7 +33,8 @@ class EuropeanOption(Derivative):
         strike (float, default=1.0): The strike price of the option.
         maturity (float, default=20/250): The maturity of the option.
         dtype (torch.dtype, optional): Desired device of returned tensor.
-            Default: If None, uses a global default (see `torch.set_default_tensor_type()`).
+            Default: If None, uses a global default
+            (see `torch.set_default_tensor_type()`).
         device (torch.device, optional): Desired device of returned tensor.
             Default: if None, uses the current device for the default tensor type
             (see `torch.set_default_tensor_type()`).
@@ -63,7 +64,7 @@ class EuropeanOption(Derivative):
 
         >>> deriv = EuropeanOption(BrownianStock())
         >>> deriv.to(dtype=torch.float64, device="cuda:0")
-        EuropeanOption(BrownianStock(...), ..., dtype=torch.float64, device='cuda:0')
+        EuropeanOption(..., dtype=torch.float64, device='cuda:0')
     """
 
     def __init__(
