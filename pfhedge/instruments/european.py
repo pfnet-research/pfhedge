@@ -63,7 +63,7 @@ class EuropeanOption(Derivative):
 
         >>> deriv = EuropeanOption(BrownianStock())
         >>> deriv.to(dtype=torch.float64, device="cuda:0")
-        EuropeanOption(BrownianStock(...), ..., dtype=torch.float64, device='cuda:0')
+        EuropeanOption(..., dtype=torch.float64, device='cuda:0')
     """
 
     def __init__(
