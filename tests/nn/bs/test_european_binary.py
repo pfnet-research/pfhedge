@@ -45,7 +45,7 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
 
     def test_forward(self):
         m = BSEuropeanBinaryOption()
-        input = torch.tensor([0.0, 0.1, 0.2]).reshape(1, -1)
+        input = torch.tensor([[0.0, 0.1, 0.2]])
         result = m(input)
         expect = torch.full_like(result, 6.3047)
         assert_close(result, expect, atol=1e-4, rtol=1e-4)

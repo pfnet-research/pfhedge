@@ -29,7 +29,7 @@ class TestBSLookbackOption(_TestBSModule):
     def test_forward(self):
         m = BSLookbackOption()
         s = torch.tensor(1.00 / 1.03).log()
-        input = torch.tensor([s, s, 1.0, 0.2]).reshape(1, -1)
+        input = torch.tensor([[s, s, 1.0, 0.2]])
         result = m(input)
         expect = torch.full_like(result, 1.037)
         assert_close(result, expect, atol=1e-2, rtol=1e-2)
