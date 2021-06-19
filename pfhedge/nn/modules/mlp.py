@@ -40,6 +40,7 @@ class MultiLayerPerceptron(Sequential):
 
         By default, `in_features` is lazily determined:
 
+        >>> import torch
         >>> from pfhedge.nn import MultiLayerPerceptron
         >>> m = MultiLayerPerceptron()
         >>> m

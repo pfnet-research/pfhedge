@@ -29,6 +29,7 @@ class BlackScholes(Module):
         a :class:`pfhedge.instruments.EuropeanOption`.
         The `forward` method returns delta of the derivative.
 
+        >>> import torch
         >>> from pfhedge.instruments import BrownianStock
         >>> from pfhedge.instruments import EuropeanOption
         >>> from pfhedge.nn import BlackScholes

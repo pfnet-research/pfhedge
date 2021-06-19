@@ -26,6 +26,7 @@ class WhalleyWilmott(Module):
 
         An example for :class:`pfhedge.instruments.EuropeanOption`.
 
+        >>> import torch
         >>> from pfhedge.nn import WhalleyWilmott
         >>> from pfhedge.instruments import BrownianStock
         >>> from pfhedge.instruments import EuropeanOption
