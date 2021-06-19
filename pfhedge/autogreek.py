@@ -27,6 +27,7 @@ def delta(pricer, *, create_graph: bool = False, **kwargs) -> Tensor:
 
         >>> import pfhedge.autogreek as autogreek
         >>> from pfhedge.nn import BSEuropeanOption
+        >>>
         >>> pricer = BSEuropeanOption().price
         >>> autogreek.delta(
         ...     pricer,
@@ -44,6 +45,27 @@ def delta(pricer, *, create_graph: bool = False, **kwargs) -> Tensor:
         ...     volatility=torch.tensor([0.18, 0.20, 0.22]),
         ... )
         tensor([0.5359, 0.5398, 0.5438])
+
+        One can evaluate greeks of a price computed by a hedger.
+
+        >>> from pfhedge.instruments import BrownianStock
+        >>> from pfhedge.instruments import EuropeanOption
+        >>> from pfhedge.nn import WhalleyWilmott
+        >>> from pfhedge.nn import Hedger
+        >>>
+        >>> _ = torch.manual_seed(42)
+        >>>
+        >>> derivative = EuropeanOption(BrownianStock(cost=1e-4))
+        >>> model = WhalleyWilmott(derivative)
+        >>> hedger = Hedger(model, model.inputs())
+        >>>
+        >>> def pricer(spot):
+        ...     return hedger.price(
+        ...         derivative, init_state=(spot,), enable_grad=True
+        ...     )
+        >>>
+        >>> autogreek.delta(pricer, spot=torch.tensor(1.0))
+        tensor(0.52...)
     """
     if kwargs.get("strike") is None and kwargs.get("spot") is None:
         # Since delta does not depend on strike,
@@ -52,8 +74,9 @@ def delta(pricer, *, create_graph: bool = False, **kwargs) -> Tensor:
 
     spot = parse_spot(**kwargs).requires_grad_()
     kwargs["spot"] = spot
-    kwargs["moneyness"] = spot / kwargs["strike"]
-    kwargs["log_moneyness"] = (spot / kwargs["strike"]).log()
+    if "strike" in kwargs:
+        kwargs["moneyness"] = spot / kwargs["strike"]
+        kwargs["log_moneyness"] = (spot / kwargs["strike"]).log()
 
     # Delete parameters that are not in the signature of `pricer` to avoid
     # TypeError: <pricer> got an unexpected keyword argument '<parameter>'
@@ -61,6 +84,7 @@ def delta(pricer, *, create_graph: bool = False, **kwargs) -> Tensor:
         if parameter not in signature(pricer).parameters.keys():
             del kwargs[parameter]
 
+    assert spot.requires_grad
     price = pricer(**kwargs)
     return torch.autograd.grad(
         price,
@@ -83,7 +107,7 @@ def gamma(pricer, *, create_graph: bool = False, **kwargs) -> Tensor:
         **kwargs: Parameters passed to `pricer`.
 
     Returns:
-        torch.Tensor: The greek of a derivative.
+        torch.Tensor
 
     Examples:
 
@@ -91,6 +115,7 @@ def gamma(pricer, *, create_graph: bool = False, **kwargs) -> Tensor:
 
         >>> import pfhedge.autogreek as autogreek
         >>> from pfhedge.nn import BSEuropeanOption
+        >>>
         >>> pricer = BSEuropeanOption().price
         >>> autogreek.gamma(
         ...     pricer,
@@ -112,17 +137,11 @@ def gamma(pricer, *, create_graph: bool = False, **kwargs) -> Tensor:
     """
     spot = parse_spot(**kwargs).requires_grad_()
     kwargs["spot"] = spot
-    kwargs["moneyness"] = spot / kwargs["strike"]
-    kwargs["log_moneyness"] = (spot / kwargs["strike"]).log()
+    if "strike" in kwargs:
+        kwargs["moneyness"] = spot / kwargs["strike"]
+        kwargs["log_moneyness"] = (spot / kwargs["strike"]).log()
 
     tensor_delta = delta(pricer, create_graph=True, **kwargs).requires_grad_()
-
-    # Delete parameters that are not in the signature of `pricer` to avoid
-    # TypeError: <pricer> got an unexpected keyword argument '<parameter>'
-    for parameter in list(kwargs.keys()):
-        if parameter not in signature(pricer).parameters.keys():
-            del kwargs[parameter]
-
     return torch.autograd.grad(
         tensor_delta,
         inputs=spot,

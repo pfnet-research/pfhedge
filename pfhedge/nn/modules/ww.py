@@ -115,8 +115,8 @@ class WhalleyWilmott(Module):
         """
         cost = self.derivative.underlier.cost
 
-        price = self.derivative.strike * torch.exp(input[..., [0]])
-        gamma = self.bs.gamma(*(input[..., [i]] for i in range(input.size()[-1])))
+        price = self.derivative.strike * input[..., [0]].exp()
+        gamma = self.bs.gamma(*(input[..., [i]] for i in range(input.size(-1))))
         width = (cost * (3 / 2) * (gamma ** 2) * price / self.a) ** (1 / 3)
 
         return width

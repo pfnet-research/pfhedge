@@ -18,3 +18,7 @@ lint:
 format:
 	@poetry run black --quiet --skip-magic-trailing-comma .
 	@poetry run isort --force-single-line-imports --quiet .
+
+.PHONY: doc
+doc:
+	@cd docs && make html
