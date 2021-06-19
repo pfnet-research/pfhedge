@@ -17,7 +17,7 @@ class TestEuropeanOption:
 
     def test_payoff(self):
         derivative = EuropeanOption(BrownianStock(), strike=2.0)
-        derivative.underlier.prices = torch.tensor(
+        derivative.underlier.spot = torch.tensor(
             [[1.0, 1.0, 1.0, 1.0], [1.0, 1.0, 1.0, 1.0], [1.9, 2.0, 2.1, 3.0]]
         ).T
         result = derivative.payoff()
@@ -28,18 +28,18 @@ class TestEuropeanOption:
     @pytest.mark.parametrize("strike", [1.0, 0.5, 2.0])
     @pytest.mark.parametrize("maturity", [0.1, 1.0])
     @pytest.mark.parametrize("n_paths", [100])
-    @pytest.mark.parametrize("init_price", [1.0, 1.1, 0.9])
-    def test_parity(self, volatility, strike, maturity, n_paths, init_price):
+    @pytest.mark.parametrize("init_spot", [1.0, 1.1, 0.9])
+    def test_parity(self, volatility, strike, maturity, n_paths, init_spot):
         """
         Test put-call parity.
         """
         stock = BrownianStock(volatility)
         co = EuropeanOption(stock, strike=strike, maturity=maturity, call=True)
         po = EuropeanOption(stock, strike=strike, maturity=maturity, call=False)
-        co.simulate(n_paths=n_paths, init_price=init_price)
-        po.simulate(n_paths=n_paths, init_price=init_price)
+        co.simulate(n_paths=n_paths, init_state=(init_spot,))
+        po.simulate(n_paths=n_paths, init_state=(init_spot,))
 
-        s = stock.prices[..., -1]
+        s = stock.spot[..., -1]
         c = co.payoff()
         p = po.payoff()
 

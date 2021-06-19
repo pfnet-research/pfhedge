@@ -30,12 +30,12 @@ class TestBrownianStock:
     @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
     def test_dtype(self, dtype):
         s = BrownianStock(dtype=dtype)
-        s.simulate(1.0)
-        assert s.prices.dtype == dtype
+        s.simulate()
+        assert s.spot.dtype == dtype
 
         s = BrownianStock().to(dtype=dtype)
-        s.simulate(1.0)
-        assert s.prices.dtype == dtype
+        s.simulate()
+        assert s.spot.dtype == dtype
 
     def test_device(self):
         ...
@@ -52,11 +52,11 @@ class TestBrownianStock:
         assert s.dtype == torch.float64
 
         s = BrownianStock()
-        s.simulate(1.0)
+        s.simulate()
         s.to(dtype=torch.float32)
-        assert s.prices.dtype == torch.float32
+        assert s.spot.dtype == torch.float32
         s.to(dtype=torch.float64)
-        assert s.prices.dtype == torch.float64
+        assert s.spot.dtype == torch.float64
 
     def test_to_error(self):
         with pytest.raises(TypeError):
