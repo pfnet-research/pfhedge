@@ -14,7 +14,7 @@ def moneyness(i: int, derivative: "Derivative", hedger: Module = None) -> Tensor
     Returns:
         torch.Tensor
     """
-    s = derivative.underlier.spot[..., i].reshape(-1, 1)
+    s = derivative.underlier.spot[..., [i]]
     k = derivative.strike
     return s / k
 
@@ -35,7 +35,7 @@ def volatility(i, derivative, hedger=None) -> Tensor:
 
 def prev_hedge(i, derivative, hedger) -> Tensor:
     if hasattr(hedger, "prev_output"):
-        return hedger.prev_output.reshape(-1, 1)
+        return hedger.prev_output
     else:
         # spot: shape (N, T)
         return torch.zeros_like(derivative.underlier.spot[:, :1])
