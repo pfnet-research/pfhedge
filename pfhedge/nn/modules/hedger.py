@@ -1,3 +1,5 @@
+from typing import Optional
+
 import torch
 from torch import Tensor
 from torch.nn import Module
@@ -128,7 +130,7 @@ class Hedger(Module):
         return "\n".join(params)
 
     def compute_pnl(
-        self, derivative, n_paths: int = 1000, init_price: float = 1.0
+        self, derivative, n_paths: int = 1000, init_state: Optional[tuple] = None
     ) -> Tensor:
         """Returns the profit and loss distribution after hedging.
 
@@ -142,8 +144,9 @@ class Hedger(Module):
             derivative (pfhedge.instruments.Derivative): The derivative to hedge.
             n_paths (int, default=1000): The number of simulated price paths of the
                 underlying instrument.
-            init_price (float, default=1.0): The initial price of the underlying
+            init_state (tuple, optional): The initial price of the underlying
                 instrument of the derivative.
+                If `None` (default), sensible default value is used.
 
         Shape:
             - Output: :math:`(N)`, where :math:`N` is the number of paths.
@@ -165,22 +168,22 @@ class Hedger(Module):
         """
         self.inputs = [feature.of(derivative, self) for feature in self.inputs]
 
-        derivative.simulate(n_paths=n_paths, init_price=init_price)
+        derivative.simulate(n_paths=n_paths, init_state=init_state)
         # cashflow: shape (N, T - 1)
         cashflow = (
-            derivative.underlier.prices[..., 1:] - derivative.underlier.prices[..., :-1]
+            derivative.underlier.spot[..., 1:] - derivative.underlier.spot[..., :-1]
         )
 
         # prev_output: shape (N)
         self.register_buffer(
             "prev_output",
-            torch.zeros_like(derivative.underlier.prices[..., :1]),
+            torch.zeros_like(derivative.underlier.spot[..., :1]),
             persistent=False,
         )
         pnl = 0
 
         # Simulate hedging over time.
-        n_steps = derivative.underlier.prices.size(1)  # = T
+        n_steps = derivative.underlier.spot.size(1)  # = T
         for i in range(n_steps - 1):
             prev_hedge = self.get_buffer("prev_output").reshape(-1)
 
@@ -193,7 +196,7 @@ class Hedger(Module):
             pnl -= (
                 derivative.underlier.cost
                 * torch.abs(hedge - prev_hedge)
-                * derivative.underlier.prices[..., i]
+                * derivative.underlier.spot[..., i]
             )
 
         # Settle the derivative's payoff.
@@ -215,7 +218,7 @@ class Hedger(Module):
         derivative,
         n_paths: int = 1000,
         n_times: int = 1,
-        init_price: float = 1.0,
+        init_state: Optional[tuple] = None,
         enable_grad: bool = True,
     ) -> Tensor:
         """Returns the loss of the profit and loss distribution after hedging.
@@ -226,8 +229,9 @@ class Hedger(Module):
                 underlying instrument.
             n_times (int, default=1): If `n_times > 1`, returns the ensemble mean
                 of the losses computed through multiple simulations.
-            init_price (float, default=1.0): The initial price of the underlying
+            init_state (tuple, optional): The initial price of the underlying
                 instrument of the derivative.
+                If `None` (default), sensible default value is used.
             enable_grad (bool, default=True): Context-manager that sets gradient
                 calculation to on or off.
 
@@ -251,7 +255,7 @@ class Hedger(Module):
         """
         with torch.set_grad_enabled(enable_grad):
             loss = lambda: self.criterion(
-                self.compute_pnl(derivative, init_price=init_price, n_paths=n_paths)
+                self.compute_pnl(derivative, n_paths=n_paths, init_state=init_state)
             )
             mean_loss = ensemble_mean(loss, n_times=n_times)
 
@@ -264,7 +268,7 @@ class Hedger(Module):
         n_paths: int = 1000,
         n_times: int = 1,
         optimizer=Adam,
-        init_price: float = 1.0,
+        init_state: Optional[tuple] = None,
         verbose: bool = True,
     ) -> list:
         """Train the hedging model to hedge the given derivative.
@@ -280,8 +284,9 @@ class Hedger(Module):
                 the losses computed through multiple simulations.
             optimizer (torch.optim.Optimizer, default=Adam): The optimizer algorithm
                 to use.  It can be an instance or a class of `torch.optim.Optimizer`.
-            init_price (float, default=1.0): The initial price of the underlying
+            init_state (tuple, optional): The initial price of the underlying
                 instrument of the derivative.
+                If `None` (default), sensible default value is used.
             verbose (bool, default=True): If `True`, print progress of the training to
                 standard output.
 
@@ -332,9 +337,10 @@ class Hedger(Module):
             if not isinstance(optimizer, torch.optim.Optimizer):
                 raise TypeError("optimizer is not torch.optim.Optimizer")
 
-        compute_loss = lambda **kwargs: self.compute_loss(
-            derivative, n_paths=n_paths, init_price=init_price, **kwargs
-        )
+        def compute_loss(**kwargs):
+            return self.compute_loss(
+                derivative, n_paths=n_paths, init_state=init_state, **kwargs
+            )
 
         history = []
         progress = tqdm(range(n_epochs)) if verbose else range(n_epochs)
@@ -361,7 +367,7 @@ class Hedger(Module):
         derivative,
         n_paths: int = 1000,
         n_times: int = 1,
-        init_price: float = 1.0,
+        init_state: Optional[tuple] = None,
         enable_grad: bool = False,
     ) -> Tensor:
         """Evaluate the premium of the given derivative.
@@ -372,8 +378,9 @@ class Hedger(Module):
                 underlying instrument.
             n_times (int, default=1): If `n_times > 1`, returns the ensemble mean of
                 the losses computed through multiple simulations.
-            init_price (float, default=1.0): The initial price of the underlying
+            init_state (tuple, optional): The initial price of the underlying
                 instrument of the derivative.
+                If `None` (default), sensible default value is used.
             enable_grad (bool, default=False): Context-manager that sets gradient
                 calculation to on or off.
 
@@ -398,7 +405,7 @@ class Hedger(Module):
         with torch.set_grad_enabled(enable_grad):
             # Negative because selling
             price = lambda: -self.criterion.cash(
-                self.compute_pnl(derivative, init_price=init_price, n_paths=n_paths)
+                self.compute_pnl(derivative, n_paths=n_paths, init_state=init_state)
             )
             mean_price = ensemble_mean(price, n_times=n_times)
 

@@ -23,7 +23,7 @@ class Moneyness(Feature):
 
     def __getitem__(self, i):
         # spot price: shape (N, 1)
-        s = self.derivative.underlier.prices[..., i].reshape(-1, 1)
+        s = self.derivative.underlier.spot[..., i].reshape(-1, 1)
         output = s / self.derivative.strike
         if self.log:
             output = torch.log(output)
@@ -45,7 +45,7 @@ class ExpiryTime(Feature):
 
     def __getitem__(self, i):
         value = self.derivative.maturity - i * self.derivative.underlier.dt
-        return torch.full_like(self.derivative.underlier.prices[:, :1], value)
+        return torch.full_like(self.derivative.underlier.spot[:, :1], value)
 
 
 class Volatility(Feature):
@@ -56,7 +56,7 @@ class Volatility(Feature):
 
     def __getitem__(self, i):
         value = self.derivative.underlier.volatility
-        return torch.full_like(self.derivative.underlier.prices[:, :1], value)
+        return torch.full_like(self.derivative.underlier.spot[:, :1], value)
 
 
 class PrevHedge(Feature):
@@ -69,8 +69,8 @@ class PrevHedge(Feature):
         if hasattr(self.hedger, "prev_output"):
             return self.hedger.prev_output.reshape(-1, 1)
         else:
-            # prices: shape (N, T)
-            return torch.zeros_like(self.derivative.underlier.prices[:, :1])
+            # spot: shape (N, T)
+            return torch.zeros_like(self.derivative.underlier.spot[:, :1])
 
 
 class Barrier(Feature):
@@ -97,15 +97,11 @@ class Barrier(Feature):
     def __getitem__(self, i):
         if self.up:
             # shape: (N, i)
-            touch_barrier = (
-                self.derivative.underlier.prices[..., : i + 1] >= self.barrier
-            )
+            touch_barrier = self.derivative.underlier.spot[..., : i + 1] >= self.barrier
         else:
-            touch_barrier = (
-                self.derivative.underlier.prices[..., : i + 1] <= self.barrier
-            )
+            touch_barrier = self.derivative.underlier.spot[..., : i + 1] <= self.barrier
         return touch_barrier.any(dim=-1, keepdim=True).to(
-            self.derivative.underlier.prices
+            self.derivative.underlier.spot
         )
 
 
@@ -116,7 +112,7 @@ class Zero(Feature):
         return "zero"
 
     def __getitem__(self, i):
-        return torch.zeros_like(self.derivative.underlier.prices[:, :1])
+        return torch.zeros_like(self.derivative.underlier.spot[:, :1])
 
 
 class MaxMoneyness(Feature):
@@ -137,11 +133,7 @@ class MaxMoneyness(Feature):
             return "max_moneyness"
 
     def __getitem__(self, i):
-        s = (
-            self.derivative.underlier.prices[..., : i + 1]
-            .max(dim=1, keepdim=True)
-            .values
-        )
+        s = self.derivative.underlier.spot[..., : i + 1].max(dim=1, keepdim=True).values
         output = s / self.derivative.strike
         if self.log:
             output = torch.log(output)

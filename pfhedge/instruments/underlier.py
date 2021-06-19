@@ -1,3 +1,5 @@
+from typing import Optional
+
 import torch
 
 from ..stochastic import generate_geometric_brownian
@@ -5,9 +7,9 @@ from .base import Primary
 
 
 class BrownianStock(Primary):
-    """A stock of which prices follow the geometric Brownian motion.
+    """A stock of which spot prices follow the geometric Brownian motion.
 
-    The drift of the prices is assumed to be vanishing.
+    The drift of the spot prices is assumed to be vanishing.
 
     Args:
         volatility (float, default=0.2): The volatility of the price.
@@ -22,9 +24,9 @@ class BrownianStock(Primary):
             the current CUDA device for CUDA tensor types.
 
     Attributes:
-        prices (torch.Tensor): The prices of the instrument.
-            This attribute is supposed to set by a method `simulate()`.
-            The shape is :math:`(T, N)`. Here, :math:`T` is the number of time steps and
+        spot (torch.Tensor): The spot prices of the instrument.
+            This attribute is set by a method `simulate()`.
+            The shape is :math:`(T, N)`, where :math:`T` is the number of time steps and
             :math:`N` is the number of simulated paths.
 
     Examples:
@@ -34,7 +36,7 @@ class BrownianStock(Primary):
         >>> _ = torch.manual_seed(42)
         >>> stock = BrownianStock(volatility=0.20)
         >>> stock.simulate(time_horizon=5 / 250, n_paths=2)
-        >>> stock.prices
+        >>> stock.spot
         tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930],
                 [1.0000, 1.0282, 1.0199, 1.0258, 1.0292]])
 
@@ -70,23 +72,34 @@ class BrownianStock(Primary):
         return self.__class__.__name__ + "(" + ", ".join(params) + ")"
 
     def simulate(
-        self, time_horizon: float, n_paths: int = 1, init_price: float = 1.0
+        self,
+        n_paths: int = 1,
+        time_horizon: float = 20 / 350,
+        init_state: Optional[tuple] = None,
     ) -> None:
-        """Simulate time series of prices and set an attribute `prices`.
+        """Simulate the spot price and add it as a buffer named `spot`.
+
+        The shape of the spot is :math:`(N, T)`, where :math:`N` is the number of
+        simulated paths and :math:`T` is the number of time steps.
+        The number of time steps is determinded from `dt` and `time_horizon`.
 
         Args:
-            time_horizon (float): The period of time to simulate the price.
             n_paths (int, default=1): The number of paths to simulate.
-            init_price (float, default=1.0): The initial value of the prices.
-
-        Returns:
-            None
+            time_horizon (float, default=20/250): The period of time to simulate the price.
+            init_state (tuple, optional): The initial state of the instrument.
+                `init_state` should be a 1-tuple `(spot,)`
+                where spot is the initial spot price.
+                If `None` (default), the default value `(1.0,)` is chosen.
+            **kwargs: Other parameters passed to `self.underlier.simulate()`.
         """
-        n_steps = int(time_horizon / self.dt)
-        self.prices = generate_geometric_brownian(
+        if init_state is None:
+            # Default setting
+            init_state = (1.0,)
+
+        self.spot = generate_geometric_brownian(
             n_paths=n_paths,
-            n_steps=n_steps,
-            init_value=init_price,
+            n_steps=int(time_horizon / self.dt),
+            init_value=init_state[0],
             volatility=self.volatility,
             dt=self.dt,
             dtype=self.dtype,

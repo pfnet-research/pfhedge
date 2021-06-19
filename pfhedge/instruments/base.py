@@ -1,5 +1,6 @@
 from abc import ABC
 from abc import abstractmethod
+from typing import Optional
 from typing import TypeVar
 
 import torch
@@ -12,16 +13,26 @@ class Instrument(ABC):
     """Base class for all financial instruments."""
 
     @abstractmethod
-    def simulate(
-        self, time_horizon: float, n_paths: int = 1, init_price: float = 1.0
-    ) -> None:
-        """Simulate time series of prices of itself (for a primary instrument)
-        or its underlier (for a derivative).
+    def simulate(self, n_paths: int, time_horizon: float, **kwargs) -> None:
+        """Simulate time series associated with the instrument itself
+        (for a primary instrument) or its underlier (for a derivative)
+        and add them as buffers.
+
+        Args:
+            n_paths (int): The number of paths to simulate.
+            time_horizon (float): The period of time to simulate the price.
+
+        Returns:
+            None
         """
 
     @abstractmethod
     def to(self: T, *args, **kwargs) -> T:
-        """Performs dtype and/or device conversion of the time series of prices.
+        """Performs dtype and/or device conversion of the buffers associated to
+        the instument.
+
+        A `torch.dtype` and `torch.device` are inferred from the arguments of
+        `self.to(*args, **kwargs)`.
 
         Args:
             dtype (torch.dtype): Desired floating point type of the floating point
@@ -77,43 +88,29 @@ class Primary(Instrument):
     (See :class:`Derivative` for details).
 
     Attributes:
-        prices (torch.Tensor): The prices of the instrument.
-            This attribute is supposed to be set by a method `simulate()`.
-            Shape is :math:`(N, T)` where :math:`N` is the number of simulated paths
-            and :math:`T` is the number of time steps.
         dtype (torch.dtype): The dtype with which the simulated time-series are
             represented.
         device (torch.device): The device where the simulated time-series are.
     """
 
-    prices: torch.Tensor
+    spot: torch.Tensor
     dtype: torch.dtype
     device: torch.device
 
     @abstractmethod
     def simulate(
-        self, time_horizon: float, n_paths: int = 1, init_price: float = 1.0, **kwargs
+        self, n_paths: int, time_horizon: float, init_state: Optional[tuple] = None
     ) -> None:
-        """Simulate time series of prices and set an attribute `prices`.
+        """Simulate time series associated with the instrument and add them as buffers.
 
         Args:
+            n_paths (int): The number of paths to simulate.
             time_horizon (float): The period of time to simulate the price.
-            n_paths (int, default=1): The number of paths to simulate.
-            init_price (float, default=1.0): The initial value of the prices.
+            init_state (tuple, optional): The initial state of the instrument.
+                If `None` (default), sensible default value is used.
         """
 
     def to(self: T, *args, **kwargs) -> T:
-        """Performs dtype and/or device conversion of the time series of the prices.
-
-        Args:
-            dtype (torch.dtype): Desired floating point type of the floating point
-                values of simulated time series.
-            device (torch.device): Desired device of the values of simulated time
-                series.
-
-        Returns:
-            self
-        """
         device, dtype, *_ = torch._C._nn._parse_to(*args, **kwargs)
 
         if dtype is not None and not dtype.is_floating_point:
@@ -127,9 +124,9 @@ class Primary(Instrument):
         if not hasattr(self, "device") or device is not None:
             self.device = device
 
-        # If prices have been already simulated, move it
-        if hasattr(self, "prices"):
-            self.prices = self.prices.to(*args, **kwargs)
+        # If the buffers have been already simulated, move it
+        if hasattr(self, "spot"):
+            self.spot = self.spot.to(*args, **kwargs)
 
         return self
 
@@ -155,6 +152,7 @@ class Derivative(Instrument):
     """
 
     underlier: Primary
+    maturity: float
 
     @property
     def dtype(self) -> torch.dtype:
@@ -164,29 +162,22 @@ class Derivative(Instrument):
     def device(self) -> torch.device:
         return self.underlier.device
 
-    def simulate(self, n_paths: int = 1, init_price: float = 1.0, **kwargs) -> None:
-        """Simulates time series of the underlier's prices.
+    def simulate(
+        self, n_paths: int = 1, init_state: Optional[tuple] = None, **kwargs
+    ) -> None:
+        """Simulate time series associated with the underlier.
 
         Args:
             n_paths (int): The number of paths to simulate.
-            init_price (float): The initial value of the prices.
+            init_state (tuple, optional): The initial state of the underlying
+                instrument. If `None` (default), sensible default values are used.
+            **kwargs: Other parameters passed to `self.underlier.simulate()`.
         """
         self.underlier.simulate(
-            time_horizon=self.maturity, n_paths=n_paths, init_price=init_price, **kwargs
+            n_paths=n_paths, time_horizon=self.maturity, init_state=init_state, **kwargs
         )
 
-    def to(self, *args, **kwargs):
-        """Performs dtype and/or device conversion of the time series of the prices.
-
-        Args:
-            dtype (torch.dtype): Desired floating point type of the floating point
-                values of simulated time series.
-            device (torch.device): Desired device of the values of simulated time
-                series.
-
-        Returns:
-            self
-        """
+    def to(self: T, *args, **kwargs) -> T:
         self.underlier.to(*args, **kwargs)
         return self
 
@@ -201,3 +192,7 @@ class Derivative(Instrument):
         Returns:
             torch.Tensor
         """
+
+
+Primary.to.__doc__ = Instrument.to.__doc__
+Derivative.to.__doc__ = Instrument.to.__doc__

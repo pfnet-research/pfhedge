@@ -1,8 +1,6 @@
 import torch
 from torch import Tensor
 
-from pfhedge.instruments.european_binary import EuropeanBinaryOption
-
 from ..nn.functional import european_payoff
 from .base import Derivative
 
@@ -55,7 +53,7 @@ class EuropeanOption(Derivative):
         >>> _ = torch.manual_seed(42)
         >>> deriv = EuropeanOption(BrownianStock(), maturity=5/250)
         >>> deriv.simulate(n_paths=2)
-        >>> deriv.underlier.prices
+        >>> deriv.underlier.spot
         tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930],
                 [1.0000, 1.0282, 1.0199, 1.0258, 1.0292]])
         >>> deriv.payoff()
@@ -95,9 +93,7 @@ class EuropeanOption(Derivative):
         return self.__class__.__name__ + "(" + ", ".join(params) + ")"
 
     def payoff(self) -> Tensor:
-        return european_payoff(
-            self.underlier.prices, call=self.call, strike=self.strike
-        )
+        return european_payoff(self.underlier.spot, call=self.call, strike=self.strike)
 
 
 # Assign docstrings so they appear in Sphinx documentation
