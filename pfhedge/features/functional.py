@@ -4,8 +4,7 @@ from torch.nn import Module
 
 
 def moneyness(i: int, derivative: "Derivative", hedger: Module = None) -> Tensor:
-    """
-    Returns moneyness.
+    """Returns moneyness.
 
     Args:
         i (int): The index of time step.
