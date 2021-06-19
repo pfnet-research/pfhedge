@@ -16,7 +16,8 @@ class BrownianStock(Primary):
         cost (float, default=0.0): The transaction cost rate.
         dt (float, default=1/250): The intervals of the time steps.
         dtype (torch.device, optional): Desired device of returned tensor.
-            Default: If None, uses a global default (see `torch.set_default_tensor_type()`).
+            Default: If None, uses a global default
+            (see `torch.set_default_tensor_type()`).
         device (torch.device, optional): Desired device of returned tensor.
             Default: if None, uses the current device for the default tensor type
             (see `torch.set_default_tensor_type()`).
@@ -85,7 +86,8 @@ class BrownianStock(Primary):
 
         Args:
             n_paths (int, default=1): The number of paths to simulate.
-            time_horizon (float, default=20/250): The period of time to simulate the price.
+            time_horizon (float, default=20/250): The period of time to simulate
+                the price.
             init_state (tuple, optional): The initial state of the instrument.
                 `init_state` should be a 1-tuple `(spot,)`
                 where spot is the initial spot price.

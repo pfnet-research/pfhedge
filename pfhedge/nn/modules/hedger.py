@@ -79,7 +79,7 @@ class Hedger(Module):
         >>> from pfhedge.nn import MultiLayerPerceptron
         >>> model = MultiLayerPerceptron()
         >>> hedger = Hedger(model, ["moneyness", "expiry_time", "volatility"])
-        >>> _ = hedger.compute_pnl(derivative, n_paths=1)  # Lazily derermine in_features
+        >>> _ = hedger.compute_pnl(derivative, n_paths=1)  # Lazily materialize
         >>> hedger
         Hedger(
           inputs=['moneyness', 'expiry_time', 'volatility'],

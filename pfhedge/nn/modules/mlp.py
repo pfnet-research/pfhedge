@@ -1,6 +1,5 @@
 from copy import deepcopy
 
-import torch
 from torch.nn import Identity
 from torch.nn import LazyLinear
 from torch.nn import Linear

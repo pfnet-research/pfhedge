@@ -1,4 +1,3 @@
-import torch
 from torch.nn import Module
 
 from .american_binary import BSAmericanBinaryOption
