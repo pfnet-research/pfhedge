@@ -62,7 +62,7 @@ class TestHedger:
     def test_compute_pnl(self):
         torch.manual_seed(42)
         deriv = EuropeanOption(BrownianStock())
-        hedger = Hedger(Naked(), ["zero"])
+        hedger = Hedger(Naked(), ["empty"])
 
         pnl = hedger.compute_pnl(deriv)
         payoff = deriv.payoff()
@@ -83,7 +83,7 @@ class TestHedger:
         H_in = 3
 
         input = torch.empty((N, M_1, M_2, H_in))
-        m = Hedger(MultiLayerPerceptron(), ["zero"])
+        m = Hedger(MultiLayerPerceptron(), ["empty"])
         assert m(input).size() == torch.Size((N, M_1, M_2, 1))
 
         model = BlackScholes(deriv)
@@ -97,7 +97,7 @@ class TestHedger:
         assert m(input).size() == torch.Size((N, M_1, M_2, 1))
 
         model = Naked()
-        m = Hedger(model, ["zero"])
+        m = Hedger(model, ["empty"])
         input = torch.empty((N, M_1, M_2, 10))
         assert m(input).size() == torch.Size((N, M_1, M_2, 1))
 

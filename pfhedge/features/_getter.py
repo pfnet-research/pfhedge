@@ -1,4 +1,5 @@
 from ._base import Feature
+from .features import Empty
 from .features import ExpiryTime
 from .features import LogMoneyness
 from .features import MaxLogMoneyness
@@ -6,7 +7,7 @@ from .features import MaxMoneyness
 from .features import Moneyness
 from .features import PrevHedge
 from .features import Volatility
-from .features import Zero
+from .features import Zeros
 
 FEATURES = [
     ExpiryTime(),
@@ -16,7 +17,8 @@ FEATURES = [
     Moneyness(),
     PrevHedge(),
     Volatility(),
-    Zero(),
+    Zeros(),
+    Empty(),
 ]
 
 
