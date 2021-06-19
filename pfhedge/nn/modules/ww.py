@@ -1,4 +1,3 @@
-import torch
 from torch import Tensor
 from torch.nn import Module
 
@@ -27,6 +26,7 @@ class WhalleyWilmott(Module):
 
         An example for :class:`pfhedge.instruments.EuropeanOption`.
 
+        >>> import torch
         >>> from pfhedge.nn import WhalleyWilmott
         >>> from pfhedge.instruments import BrownianStock
         >>> from pfhedge.instruments import EuropeanOption
@@ -67,8 +67,9 @@ class WhalleyWilmott(Module):
                 [0.7945]])
 
     References:
-        - Whalley, A.E. and Wilmott, P., An asymptotic analysis of an optimal hedging model
-          for option pricing with transaction costs. Mathematical Finance, 1997, 7, 307–324.
+        - Whalley, A.E. and Wilmott, P., An asymptotic analysis of an optimal hedging
+          model for option pricing with transaction costs. Mathematical Finance,
+          1997, 7, 307–324.
     """
 
     def __init__(self, derivative, a: float = 1.0):

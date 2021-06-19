@@ -56,7 +56,8 @@ class Instrument(ABC):
         Returns:
             list[str]
         """
-        # Implementation here refers to the function `_str_intern` in `pytorch/_tensor_str.py`.
+        # Implementation here refers to the function `_str_intern` in
+        # `pytorch/_tensor_str.py`.
 
         dinfo = []
 
