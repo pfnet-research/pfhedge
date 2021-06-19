@@ -196,7 +196,8 @@ See <cite>inputs()</cite> for the names of input features.</p></li>
 </dl>
 <p class="rubric">Examples</p>
 <p>An example for <a class="reference internal" href="pfhedge.instruments.EuropeanOption.html#pfhedge.instruments.EuropeanOption" title="pfhedge.instruments.EuropeanOption"><code class="xref py py-class docutils literal notranslate"><span class="pre">pfhedge.instruments.EuropeanOption</span></code></a>.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">WhalleyWilmott</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">WhalleyWilmott</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">BrownianStock</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">EuropeanOption</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">deriv</span> <span class="o">=</span> <span class="n">EuropeanOption</span><span class="p">(</span><span class="n">BrownianStock</span><span class="p">(</span><span class="n">cost</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">))</span>
@@ -238,8 +239,9 @@ See <cite>inputs()</cite> for the names of input features.</p></li>
 </div>
 <p class="rubric">References</p>
 <ul class="simple">
-<li><p>Whalley, A.E. and Wilmott, P., An asymptotic analysis of an optimal hedging model
-for option pricing with transaction costs. Mathematical Finance, 1997, 7, 307–324.</p></li>
+<li><p>Whalley, A.E. and Wilmott, P., An asymptotic analysis of an optimal hedging
+model for option pricing with transaction costs. Mathematical Finance,
+1997, 7, 307–324.</p></li>
 </ul>
 <dl class="py method">
 <dt class="sig sig-object py" id="pfhedge.nn.WhalleyWilmott.inputs">

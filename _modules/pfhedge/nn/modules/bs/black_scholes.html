@@ -169,8 +169,7 @@
           <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
         </label>
         <h1>Source code for pfhedge.nn.modules.bs.black_scholes</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">from</span> <span class="nn">torch.nn</span> <span class="kn">import</span> <span class="n">Module</span>
+<span></span><span class="kn">from</span> <span class="nn">torch.nn</span> <span class="kn">import</span> <span class="n">Module</span>
 
 <span class="kn">from</span> <span class="nn">.american_binary</span> <span class="kn">import</span> <span class="n">BSAmericanBinaryOption</span>
 <span class="kn">from</span> <span class="nn">.european</span> <span class="kn">import</span> <span class="n">BSEuropeanOption</span>
@@ -201,6 +200,7 @@
 <span class="sd">        a :class:`pfhedge.instruments.EuropeanOption`.</span>
 <span class="sd">        The `forward` method returns delta of the derivative.</span>
 
+<span class="sd">        &gt;&gt;&gt; import torch</span>
 <span class="sd">        &gt;&gt;&gt; from pfhedge.instruments import BrownianStock</span>
 <span class="sd">        &gt;&gt;&gt; from pfhedge.instruments import EuropeanOption</span>
 <span class="sd">        &gt;&gt;&gt; from pfhedge.nn import BlackScholes</span>

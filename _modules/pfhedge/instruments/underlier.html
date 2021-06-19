@@ -187,7 +187,8 @@
 <span class="sd">        cost (float, default=0.0): The transaction cost rate.</span>
 <span class="sd">        dt (float, default=1/250): The intervals of the time steps.</span>
 <span class="sd">        dtype (torch.device, optional): Desired device of returned tensor.</span>
-<span class="sd">            Default: If None, uses a global default (see `torch.set_default_tensor_type()`).</span>
+<span class="sd">            Default: If None, uses a global default</span>
+<span class="sd">            (see `torch.set_default_tensor_type()`).</span>
 <span class="sd">        device (torch.device, optional): Desired device of returned tensor.</span>
 <span class="sd">            Default: if None, uses the current device for the default tensor type</span>
 <span class="sd">            (see `torch.set_default_tensor_type()`).</span>
@@ -197,16 +198,16 @@
 <span class="sd">    Attributes:</span>
 <span class="sd">        spot (torch.Tensor): The spot prices of the instrument.</span>
 <span class="sd">            This attribute is set by a method `simulate()`.</span>
-<span class="sd">            The shape is :math:`(T, N)`, where :math:`T` is the number of time steps and</span>
+<span class="sd">            The shape is :math:`(N, T)`, where :math:`T` is the number of time steps and</span>
 <span class="sd">            :math:`N` is the number of simulated paths.</span>
 
 <span class="sd">    Examples:</span>
 
-<span class="sd">        &gt;&gt;&gt; import torch</span>
 <span class="sd">        &gt;&gt;&gt; from pfhedge.instruments import BrownianStock</span>
+<span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt; _ = torch.manual_seed(42)</span>
-<span class="sd">        &gt;&gt;&gt; stock = BrownianStock(volatility=0.20)</span>
-<span class="sd">        &gt;&gt;&gt; stock.simulate(time_horizon=5 / 250, n_paths=2)</span>
+<span class="sd">        &gt;&gt;&gt; stock = BrownianStock()</span>
+<span class="sd">        &gt;&gt;&gt; stock.simulate(n_paths=2, time_horizon=5 / 250)</span>
 <span class="sd">        &gt;&gt;&gt; stock.spot</span>
 <span class="sd">        tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930],</span>
 <span class="sd">                [1.0000, 1.0282, 1.0199, 1.0258, 1.0292]])</span>
@@ -256,15 +257,24 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            n_paths (int, default=1): The number of paths to simulate.</span>
-<span class="sd">            time_horizon (float, default=20/250): The period of time to simulate the price.</span>
+<span class="sd">            time_horizon (float, default=20/250): The period of time to simulate</span>
+<span class="sd">                the price.</span>
 <span class="sd">            init_state (tuple, optional): The initial state of the instrument.</span>
 <span class="sd">                `init_state` should be a 1-tuple `(spot,)`</span>
 <span class="sd">                where spot is the initial spot price.</span>
 <span class="sd">                If `None` (default), the default value `(1.0,)` is chosen.</span>
-<span class="sd">            **kwargs: Other parameters passed to `self.underlier.simulate()`.</span>
+
+<span class="sd">        Examples:</span>
+
+<span class="sd">            &gt;&gt;&gt; _ = torch.manual_seed(42)</span>
+<span class="sd">            &gt;&gt;&gt; stock = BrownianStock()</span>
+<span class="sd">            &gt;&gt;&gt; stock.simulate(n_paths=2, time_horizon=5 / 250, init_state=(2.0,))</span>
+<span class="sd">            &gt;&gt;&gt; stock.spot</span>
+<span class="sd">            tensor([[2.0000, 2.0031, 2.0089, 2.0146, 1.9860],</span>
+<span class="sd">                    [2.0000, 2.0565, 2.0398, 2.0516, 2.0584]])</span>
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="n">init_state</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="c1"># Default setting</span>
+            <span class="c1"># Default value</span>
             <span class="n">init_state</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">spot</span> <span class="o">=</span> <span class="n">generate_geometric_brownian</span><span class="p">(</span>

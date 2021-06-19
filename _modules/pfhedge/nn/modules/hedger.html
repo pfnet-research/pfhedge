@@ -178,6 +178,7 @@
 <span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
 
 <span class="kn">from</span> <span class="nn">pfhedge._utils.hook</span> <span class="kn">import</span> <span class="n">save_prev_output</span>
+<span class="kn">from</span> <span class="nn">pfhedge._utils.lazy</span> <span class="kn">import</span> <span class="n">has_lazy</span>
 <span class="kn">from</span> <span class="nn">pfhedge._utils.operations</span> <span class="kn">import</span> <span class="n">ensemble_mean</span>
 <span class="kn">from</span> <span class="nn">pfhedge.features</span> <span class="kn">import</span> <span class="n">get_feature</span>
 
@@ -243,14 +244,14 @@
 <span class="sd">        A naked position (never hedge at all).</span>
 
 <span class="sd">        &gt;&gt;&gt; from pfhedge.nn import Naked</span>
-<span class="sd">        &gt;&gt;&gt; hedger = Hedger(Naked(), ["zero"])</span>
+<span class="sd">        &gt;&gt;&gt; hedger = Hedger(Naked(), ["empty"])</span>
 
 <span class="sd">        A strategy represented by a neural network (Deep Hedging).</span>
 
 <span class="sd">        &gt;&gt;&gt; from pfhedge.nn import MultiLayerPerceptron</span>
 <span class="sd">        &gt;&gt;&gt; model = MultiLayerPerceptron()</span>
 <span class="sd">        &gt;&gt;&gt; hedger = Hedger(model, ["moneyness", "expiry_time", "volatility"])</span>
-<span class="sd">        &gt;&gt;&gt; _ = hedger.compute_pnl(derivative, n_paths=1)  # Lazily derermine in_features</span>
+<span class="sd">        &gt;&gt;&gt; _ = hedger.compute_pnl(derivative, n_paths=1)  # Lazily materialize</span>
 <span class="sd">        &gt;&gt;&gt; hedger</span>
 <span class="sd">        Hedger(</span>
 <span class="sd">          inputs=['moneyness', 'expiry_time', 'volatility'],</span>
@@ -481,7 +482,7 @@
 <span class="sd">            &gt;&gt;&gt; from pfhedge.nn import MultiLayerPerceptron</span>
 <span class="sd">            &gt;&gt;&gt; from torch.optim import SGD</span>
 <span class="sd">            &gt;&gt;&gt; derivative = EuropeanOption(BrownianStock())</span>
-<span class="sd">            &gt;&gt;&gt; hedger = Hedger(MultiLayerPerceptron(), ["zero"])</span>
+<span class="sd">            &gt;&gt;&gt; hedger = Hedger(MultiLayerPerceptron(), ["empty"])</span>
 <span class="sd">            &gt;&gt;&gt; # Run a placeholder forward to initialize lazy parameters</span>
 <span class="sd">            &gt;&gt;&gt; _ = hedger.compute_pnl(derivative, n_paths=1)</span>
 <span class="sd">            &gt;&gt;&gt; _ = hedger.fit(</span>
@@ -494,7 +495,7 @@
 
 <span class="sd">            &gt;&gt;&gt; from torch.optim import Adadelta</span>
 <span class="sd">            &gt;&gt;&gt; derivative = EuropeanOption(BrownianStock())</span>
-<span class="sd">            &gt;&gt;&gt; hedger = Hedger(MultiLayerPerceptron(), ["zero"])</span>
+<span class="sd">            &gt;&gt;&gt; hedger = Hedger(MultiLayerPerceptron(), ["empty"])</span>
 <span class="sd">            &gt;&gt;&gt; _ = hedger.fit(</span>
 <span class="sd">            ...     derivative,</span>
 <span class="sd">            ...     optimizer=Adadelta,</span>
@@ -502,8 +503,9 @@
 <span class="sd">            ...     verbose=False)</span>
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
-            <span class="c1"># Run a placeholder forward to initialize lazy parameters</span>
-            <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_pnl</span><span class="p">(</span><span class="n">derivative</span><span class="p">,</span> <span class="n">n_paths</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">has_lazy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                <span class="c1"># Run a placeholder forward to initialize lazy parameters</span>
+                <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_pnl</span><span class="p">(</span><span class="n">derivative</span><span class="p">,</span> <span class="n">n_paths</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
             <span class="n">optimizer</span> <span class="o">=</span> <span class="n">optimizer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">())</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">Optimizer</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"optimizer is not torch.optim.Optimizer"</span><span class="p">)</span>

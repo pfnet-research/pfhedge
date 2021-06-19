@@ -171,7 +171,6 @@
         <h1>Source code for pfhedge.nn.modules.mlp</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
 
-<span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">torch.nn</span> <span class="kn">import</span> <span class="n">Identity</span>
 <span class="kn">from</span> <span class="nn">torch.nn</span> <span class="kn">import</span> <span class="n">LazyLinear</span>
 <span class="kn">from</span> <span class="nn">torch.nn</span> <span class="kn">import</span> <span class="n">Linear</span>
@@ -212,6 +211,7 @@
 
 <span class="sd">        By default, `in_features` is lazily determined:</span>
 
+<span class="sd">        &gt;&gt;&gt; import torch</span>
 <span class="sd">        &gt;&gt;&gt; from pfhedge.nn import MultiLayerPerceptron</span>
 <span class="sd">        &gt;&gt;&gt; m = MultiLayerPerceptron()</span>
 <span class="sd">        &gt;&gt;&gt; m</span>

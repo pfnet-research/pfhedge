@@ -169,8 +169,7 @@
           <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
         </label>
         <h1>Source code for pfhedge.nn.modules.ww</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
+<span></span><span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
 <span class="kn">from</span> <span class="nn">torch.nn</span> <span class="kn">import</span> <span class="n">Module</span>
 
 <span class="kn">from</span> <span class="nn">.bs.black_scholes</span> <span class="kn">import</span> <span class="n">BlackScholes</span>
@@ -198,6 +197,7 @@
 
 <span class="sd">        An example for :class:`pfhedge.instruments.EuropeanOption`.</span>
 
+<span class="sd">        &gt;&gt;&gt; import torch</span>
 <span class="sd">        &gt;&gt;&gt; from pfhedge.nn import WhalleyWilmott</span>
 <span class="sd">        &gt;&gt;&gt; from pfhedge.instruments import BrownianStock</span>
 <span class="sd">        &gt;&gt;&gt; from pfhedge.instruments import EuropeanOption</span>
@@ -238,8 +238,9 @@
 <span class="sd">                [0.7945]])</span>
 
 <span class="sd">    References:</span>
-<span class="sd">        - Whalley, A.E. and Wilmott, P., An asymptotic analysis of an optimal hedging model</span>
-<span class="sd">          for option pricing with transaction costs. Mathematical Finance, 1997, 7, 307–324.</span>
+<span class="sd">        - Whalley, A.E. and Wilmott, P., An asymptotic analysis of an optimal hedging</span>
+<span class="sd">          model for option pricing with transaction costs. Mathematical Finance,</span>
+<span class="sd">          1997, 7, 307–324.</span>
 <span class="sd">    """</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">derivative</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">):</span>

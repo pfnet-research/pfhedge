@@ -234,14 +234,14 @@ features.</p></li>
 </div>
 <p>A naked position (never hedge at all).</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">Naked</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">hedger</span> <span class="o">=</span> <span class="n">Hedger</span><span class="p">(</span><span class="n">Naked</span><span class="p">(),</span> <span class="p">[</span><span class="s2">"zero"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hedger</span> <span class="o">=</span> <span class="n">Hedger</span><span class="p">(</span><span class="n">Naked</span><span class="p">(),</span> <span class="p">[</span><span class="s2">"empty"</span><span class="p">])</span>
 </pre></div>
 </div>
 <p>A strategy represented by a neural network (Deep Hedging).</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">MultiLayerPerceptron</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">MultiLayerPerceptron</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hedger</span> <span class="o">=</span> <span class="n">Hedger</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="p">[</span><span class="s2">"moneyness"</span><span class="p">,</span> <span class="s2">"expiry_time"</span><span class="p">,</span> <span class="s2">"volatility"</span><span class="p">])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">hedger</span><span class="o">.</span><span class="n">compute_pnl</span><span class="p">(</span><span class="n">derivative</span><span class="p">,</span> <span class="n">n_paths</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># Lazily derermine in_features</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">hedger</span><span class="o">.</span><span class="n">compute_pnl</span><span class="p">(</span><span class="n">derivative</span><span class="p">,</span> <span class="n">n_paths</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># Lazily materialize</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hedger</span>
 <span class="go">Hedger(</span>
 <span class="go">  inputs=['moneyness', 'expiry_time', 'volatility'],</span>
@@ -396,7 +396,7 @@ standard output.</p></li>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">MultiLayerPerceptron</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torch.optim</span> <span class="kn">import</span> <span class="n">SGD</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span> <span class="o">=</span> <span class="n">EuropeanOption</span><span class="p">(</span><span class="n">BrownianStock</span><span class="p">())</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">hedger</span> <span class="o">=</span> <span class="n">Hedger</span><span class="p">(</span><span class="n">MultiLayerPerceptron</span><span class="p">(),</span> <span class="p">[</span><span class="s2">"zero"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hedger</span> <span class="o">=</span> <span class="n">Hedger</span><span class="p">(</span><span class="n">MultiLayerPerceptron</span><span class="p">(),</span> <span class="p">[</span><span class="s2">"empty"</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Run a placeholder forward to initialize lazy parameters</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">hedger</span><span class="o">.</span><span class="n">compute_pnl</span><span class="p">(</span><span class="n">derivative</span><span class="p">,</span> <span class="n">n_paths</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">hedger</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
@@ -409,7 +409,7 @@ standard output.</p></li>
 <p>One can also pass a class object of an optimizer.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torch.optim</span> <span class="kn">import</span> <span class="n">Adadelta</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span> <span class="o">=</span> <span class="n">EuropeanOption</span><span class="p">(</span><span class="n">BrownianStock</span><span class="p">())</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">hedger</span> <span class="o">=</span> <span class="n">Hedger</span><span class="p">(</span><span class="n">MultiLayerPerceptron</span><span class="p">(),</span> <span class="p">[</span><span class="s2">"zero"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hedger</span> <span class="o">=</span> <span class="n">Hedger</span><span class="p">(</span><span class="n">MultiLayerPerceptron</span><span class="p">(),</span> <span class="p">[</span><span class="s2">"empty"</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">hedger</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">derivative</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">optimizer</span><span class="o">=</span><span class="n">Adadelta</span><span class="p">,</span>

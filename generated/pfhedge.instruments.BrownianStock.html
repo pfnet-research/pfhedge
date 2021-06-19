@@ -183,7 +183,8 @@
 <li><p><strong>cost</strong> (<em>float</em><em>, </em><em>default=0.0</em>) – The transaction cost rate.</p></li>
 <li><p><strong>dt</strong> (<em>float</em><em>, </em><em>default=1/250</em>) – The intervals of the time steps.</p></li>
 <li><p><strong>dtype</strong> (<em>torch.device</em><em>, </em><em>optional</em>) – Desired device of returned tensor.
-Default: If None, uses a global default (see <cite>torch.set_default_tensor_type()</cite>).</p></li>
+Default: If None, uses a global default
+(see <cite>torch.set_default_tensor_type()</cite>).</p></li>
 <li><p><strong>device</strong> (<em>torch.device</em><em>, </em><em>optional</em>) – Desired device of returned tensor.
 Default: if None, uses the current device for the default tensor type
 (see <cite>torch.set_default_tensor_type()</cite>).
@@ -197,7 +198,7 @@ the current CUDA device for CUDA tensor types.</p></li>
 <span class="sig-name descname"><span class="pre">spot</span></span><a class="headerlink" href="#pfhedge.instruments.BrownianStock.spot" title="Permalink to this definition">¶</a></dt>
 <dd><p>The spot prices of the instrument.
 This attribute is set by a method <cite>simulate()</cite>.
-The shape is <span class="math notranslate nohighlight">\((T, N)\)</span>, where <span class="math notranslate nohighlight">\(T\)</span> is the number of time steps and
+The shape is <span class="math notranslate nohighlight">\((N, T)\)</span>, where <span class="math notranslate nohighlight">\(T\)</span> is the number of time steps and
 <span class="math notranslate nohighlight">\(N\)</span> is the number of simulated paths.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -206,11 +207,11 @@ The shape is <span class="math notranslate nohighlight">\((T, N)\)</span>, where
 </dl>
 </dd></dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">BrownianStock</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">BrownianStock</span>
+<span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span> <span class="o">=</span> <span class="n">BrownianStock</span><span class="p">(</span><span class="n">volatility</span><span class="o">=</span><span class="mf">0.20</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">time_horizon</span><span class="o">=</span><span class="mi">5</span> <span class="o">/</span> <span class="mi">250</span><span class="p">,</span> <span class="n">n_paths</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span> <span class="o">=</span> <span class="n">BrownianStock</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">n_paths</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">time_horizon</span><span class="o">=</span><span class="mi">5</span> <span class="o">/</span> <span class="mi">250</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span><span class="o">.</span><span class="n">spot</span>
 <span class="go">tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930],</span>
 <span class="go">        [1.0000, 1.0282, 1.0199, 1.0258, 1.0292]])</span>
@@ -233,15 +234,24 @@ The number of time steps is determinded from <cite>dt</cite> and <cite>time_hori
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>n_paths</strong> (<em>int</em><em>, </em><em>default=1</em>) – The number of paths to simulate.</p></li>
-<li><p><strong>time_horizon</strong> (<em>float</em><em>, </em><em>default=20/250</em>) – The period of time to simulate the price.</p></li>
+<li><p><strong>time_horizon</strong> (<em>float</em><em>, </em><em>default=20/250</em>) – The period of time to simulate
+the price.</p></li>
 <li><p><strong>init_state</strong> (<em>tuple</em><em>, </em><em>optional</em>) – The initial state of the instrument.
 <cite>init_state</cite> should be a 1-tuple <cite>(spot,)</cite>
 where spot is the initial spot price.
 If <cite>None</cite> (default), the default value <cite>(1.0,)</cite> is chosen.</p></li>
-<li><p><strong>**kwargs</strong> – Other parameters passed to <cite>self.underlier.simulate()</cite>.</p></li>
 </ul>
 </dd>
 </dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span> <span class="o">=</span> <span class="n">BrownianStock</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">n_paths</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">time_horizon</span><span class="o">=</span><span class="mi">5</span> <span class="o">/</span> <span class="mi">250</span><span class="p">,</span> <span class="n">init_state</span><span class="o">=</span><span class="p">(</span><span class="mf">2.0</span><span class="p">,))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span><span class="o">.</span><span class="n">spot</span>
+<span class="go">tensor([[2.0000, 2.0031, 2.0089, 2.0146, 1.9860],</span>
+<span class="go">        [2.0000, 2.0565, 2.0398, 2.0516, 2.0584]])</span>
+</pre></div>
+</div>
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pfhedge.instruments.BrownianStock.to">

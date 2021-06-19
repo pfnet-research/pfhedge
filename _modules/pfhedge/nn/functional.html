@@ -185,8 +185,8 @@
 <span class="sd">        strike (float, default=1.0): The strike price of the option.</span>
 
 <span class="sd">    Shape:</span>
-<span class="sd">        - input: :math:`(*, T)`, where, :math:`T` stands for the number of time steps and</span>
-<span class="sd">          :math:`*` means any number of additional dimensions.</span>
+<span class="sd">        - input: :math:`(*, T)`, where, :math:`T` stands for the number of time steps</span>
+<span class="sd">          and :math:`*` means any number of additional dimensions.</span>
 <span class="sd">        - output: :math:`(*)`</span>
 
 <span class="sd">    Returns:</span>
@@ -207,8 +207,8 @@
 <span class="sd">        strike (float, default=1.0): The strike price of the option.</span>
 
 <span class="sd">    Shape:</span>
-<span class="sd">        - input: :math:`(*, T)`, where, :math:`T` stands for the number of time steps and</span>
-<span class="sd">          :math:`*` means any number of additional dimensions.</span>
+<span class="sd">        - input: :math:`(*, T)`, where, :math:`T` stands for the number of time steps</span>
+<span class="sd">          and :math:`*` means any number of additional dimensions.</span>
 <span class="sd">        - output: :math:`(*)`</span>
 
 <span class="sd">    Returns:</span>
@@ -231,8 +231,8 @@
 <span class="sd">        strike (float, default=1.0): The strike price of the option.</span>
 
 <span class="sd">    Shape:</span>
-<span class="sd">        - input: :math:`(*, T)`, where, :math:`T` stands for the number of time steps and</span>
-<span class="sd">          :math:`*` means any number of additional dimensions.</span>
+<span class="sd">        - input: :math:`(*, T)`, where, :math:`T` stands for the number of time steps</span>
+<span class="sd">          and :math:`*` means any number of additional dimensions.</span>
 <span class="sd">        - output: :math:`(*)`</span>
 
 <span class="sd">    Returns:</span>
@@ -255,8 +255,8 @@
 <span class="sd">        strike (float, default=1.0): The strike price of the option.</span>
 
 <span class="sd">    Shape:</span>
-<span class="sd">        - input: :math:`(*, T)`, where, :math:`T` stands for the number of time steps and</span>
-<span class="sd">          :math:`*` means any number of additional dimensions.</span>
+<span class="sd">        - input: :math:`(*, T)`, where, :math:`T` stands for the number of time steps</span>
+<span class="sd">          and :math:`*` means any number of additional dimensions.</span>
 <span class="sd">        - output: :math:`(*)`</span>
 
 <span class="sd">    Returns:</span>
@@ -275,7 +275,7 @@
 
 <span class="sd">    .. math ::</span>
 
-<span class="sd">        u(x) = -\\exp(-a x) \,.</span>
+<span class="sd">        u(x) = -\\exp(-a x) \\,.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        input (torch.Tensor): The input tensor.</span>
@@ -298,7 +298,7 @@
 <span class="sd">        u(x) = \\begin{cases}</span>
 <span class="sd">        x^{1 - a} &amp; a \\neq 1 \\\\</span>
 <span class="sd">        \\log{x} &amp; a = 1</span>
-<span class="sd">        \\end{cases} \,.</span>
+<span class="sd">        \\end{cases} \\,.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        input (torch.Tensor): The input tensor.</span>

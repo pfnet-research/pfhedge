@@ -194,7 +194,8 @@ on the date of maturity.</p>
 <li><p><strong>strike</strong> (<em>float</em><em>, </em><em>default=1.0</em>) – The strike price of the option.</p></li>
 <li><p><strong>maturity</strong> (<em>float</em><em>, </em><em>default=20/250</em>) – The maturity of the option.</p></li>
 <li><p><strong>dtype</strong> (<em>torch.dtype</em><em>, </em><em>optional</em>) – Desired device of returned tensor.
-Default: If None, uses a global default (see <cite>torch.set_default_tensor_type()</cite>).</p></li>
+Default: If None, uses a global default
+(see <cite>torch.set_default_tensor_type()</cite>).</p></li>
 <li><p><strong>device</strong> (<em>torch.device</em><em>, </em><em>optional</em>) – Desired device of returned tensor.
 Default: if None, uses the current device for the default tensor type
 (see <cite>torch.set_default_tensor_type()</cite>).
@@ -241,7 +242,7 @@ represented.</p>
 <p>Using custom <cite>dtype</cite> and <cite>device</cite>.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">deriv</span> <span class="o">=</span> <span class="n">EuropeanOption</span><span class="p">(</span><span class="n">BrownianStock</span><span class="p">())</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">deriv</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s2">"cuda:0"</span><span class="p">)</span>
-<span class="go">EuropeanOption(BrownianStock(...), ..., dtype=torch.float64, device='cuda:0')</span>
+<span class="go">EuropeanOption(..., dtype=torch.float64, device='cuda:0')</span>
 </pre></div>
 </div>
 <dl class="py method">
