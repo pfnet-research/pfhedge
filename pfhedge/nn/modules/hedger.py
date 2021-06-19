@@ -7,6 +7,7 @@ from torch.optim import Adam
 from tqdm import tqdm
 
 from pfhedge._utils.hook import save_prev_output
+from pfhedge._utils.lazy import has_lazy
 from pfhedge._utils.operations import ensemble_mean
 from pfhedge.features import get_feature
 
@@ -331,8 +332,9 @@ class Hedger(Module):
             ...     verbose=False)
         """
         if isinstance(optimizer, type):
-            # Run a placeholder forward to initialize lazy parameters
-            _ = self.compute_pnl(derivative, n_paths=1)
+            if has_lazy(self):
+                # Run a placeholder forward to initialize lazy parameters
+                _ = self.compute_pnl(derivative, n_paths=1)
             optimizer = optimizer(self.model.parameters())
             if not isinstance(optimizer, torch.optim.Optimizer):
                 raise TypeError("optimizer is not torch.optim.Optimizer")
