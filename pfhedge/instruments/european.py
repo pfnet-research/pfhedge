@@ -51,19 +51,20 @@ class EuropeanOption(Derivative):
         >>> import torch
         >>> from pfhedge.instruments import BrownianStock
         >>> from pfhedge.instruments import EuropeanOption
+        >>>
         >>> _ = torch.manual_seed(42)
-        >>> deriv = EuropeanOption(BrownianStock(), maturity=5/250)
-        >>> deriv.simulate(n_paths=2)
-        >>> deriv.underlier.spot
+        >>> derivative = EuropeanOption(BrownianStock(), maturity=5/250)
+        >>> derivative.simulate(n_paths=2)
+        >>> derivative.underlier.spot
         tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930],
                 [1.0000, 1.0282, 1.0199, 1.0258, 1.0292]])
-        >>> deriv.payoff()
+        >>> derivative.payoff()
         tensor([0.0000, 0.0292])
 
         Using custom `dtype` and `device`.
 
-        >>> deriv = EuropeanOption(BrownianStock())
-        >>> deriv.to(dtype=torch.float64, device="cuda:0")
+        >>> derivative = EuropeanOption(BrownianStock())
+        >>> derivative.to(dtype=torch.float64, device="cuda:0")
         EuropeanOption(..., dtype=torch.float64, device='cuda:0')
     """
 

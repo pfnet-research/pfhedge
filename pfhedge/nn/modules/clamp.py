@@ -116,6 +116,7 @@ class Clamp(Module):
 
         >>> import torch
         >>> from pfhedge.nn import Clamp
+        >>>
         >>> m = Clamp()
         >>> input = torch.linspace(-2, 12, 15) * 0.1
         >>> input

@@ -29,6 +29,7 @@ class BSEuropeanOption(BSModuleMixin):
         The `forward` method returns delta of the derivative.
 
         >>> from pfhedge.nn import BSEuropeanOption
+        >>>
         >>> m = BSEuropeanOption()
         >>> m.inputs()
         ['log_moneyness', 'expiry_time', 'volatility']
@@ -62,8 +63,9 @@ class BSEuropeanOption(BSModuleMixin):
 
             >>> from pfhedge.instruments import BrownianStock
             >>> from pfhedge.instruments import EuropeanOption
-            >>> deriv = EuropeanOption(BrownianStock(), call=False)
-            >>> m = BSEuropeanOption.from_derivative(deriv)
+            >>>
+            >>> derivative = EuropeanOption(BrownianStock(), call=False)
+            >>> m = BSEuropeanOption.from_derivative(derivative)
             >>> m
             BSEuropeanOption(call=False)
         """

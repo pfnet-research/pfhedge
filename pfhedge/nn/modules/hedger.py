@@ -32,9 +32,8 @@ class Hedger(Module):
             Default: :class:`pfhedge.nn.EntropicRiskMeasure()` .
 
     Shape:
-        - Input: :math:`(N, H_{\\text{in}})`, where, :math:`H_{\\text{in}}`
-          is the number of input features.
-          features.
+        - Input: :math:`(N, H_{\\text{in}})` where :math:`H_{\\text{in}}` is
+          the number of input features.
         - Output: :math:`(N, 1)`
 
     Examples:
@@ -45,12 +44,13 @@ class Hedger(Module):
         >>> from pfhedge.instruments import EuropeanOption
         >>> from pfhedge.nn import BlackScholes
         >>> from pfhedge.nn import Hedger
+        >>>
         >>> derivative = EuropeanOption(BrownianStock(cost=1e-4))
         >>> model = BlackScholes(derivative)
         >>> hedger = Hedger(model, model.inputs())
         >>> hedger
         Hedger(
-          inputs=['log_moneyness', 'expiry_time', 'volatility'],
+          inputs=['log_moneyness', 'expiry_time', 'volatility']
           (model): BSEuropeanOption()
           (criterion): EntropicRiskMeasure()
         )
@@ -58,11 +58,12 @@ class Hedger(Module):
         Whalley-Wilmott's no-transaction-band strategy.
 
         >>> from pfhedge.nn import WhalleyWilmott
+        >>>
         >>> model = WhalleyWilmott(derivative)
         >>> hedger = Hedger(model, model.inputs())
         >>> hedger
         Hedger(
-          inputs=['log_moneyness', 'expiry_time', 'volatility', 'prev_hedge'],
+          inputs=['log_moneyness', 'expiry_time', 'volatility', 'prev_hedge']
           (model): WhalleyWilmott(
             (bs): BSEuropeanOption()
             (clamp): Clamp()
@@ -73,17 +74,19 @@ class Hedger(Module):
         A naked position (never hedge at all).
 
         >>> from pfhedge.nn import Naked
+        >>>
         >>> hedger = Hedger(Naked(), ["empty"])
 
         A strategy represented by a neural network (Deep Hedging).
 
         >>> from pfhedge.nn import MultiLayerPerceptron
+        >>>
         >>> model = MultiLayerPerceptron()
         >>> hedger = Hedger(model, ["moneyness", "expiry_time", "volatility"])
         >>> _ = hedger.compute_pnl(derivative, n_paths=1)  # Lazily materialize
         >>> hedger
         Hedger(
-          inputs=['moneyness', 'expiry_time', 'volatility'],
+          inputs=['moneyness', 'expiry_time', 'volatility']
           (model): MultiLayerPerceptron(
             (0): Linear(in_features=3, out_features=32, bias=True)
             (1): ReLU()
@@ -112,23 +115,17 @@ class Hedger(Module):
         self.inputs = [get_feature(i) for i in inputs]
         self.criterion = criterion
 
-        # This hook saves the hedger's previous output to an attribute `prev`.
         self.register_forward_hook(save_prev_output)
 
     def forward(self, input: Tensor) -> Tensor:
         """Returns the outout of `model`.
 
-        The output is supposed to represent the hedge ratio at the next time step.
+        The output represents the hedge ratio at the next time step.
         """
         return self.model(input)
 
     def extra_repr(self) -> str:
-        params = []
-        if not isinstance(self.model, torch.nn.Module):
-            params.append(f"model={self.model.__name__},")
-        params.append(f"inputs={[str(f) for f in self.inputs]},")
-
-        return "\n".join(params)
+        return "inputs=" + str([str(f) for f in self.inputs])
 
     def compute_pnl(
         self, derivative, n_paths: int = 1000, init_state: Optional[tuple] = None
@@ -161,13 +158,14 @@ class Hedger(Module):
             >>> from pfhedge.instruments import EuropeanOption
             >>> from pfhedge.nn import BlackScholes
             >>> from pfhedge.nn import Hedger
+            >>>
             >>> derivative = EuropeanOption(BrownianStock())
             >>> model = BlackScholes(derivative)
             >>> hedger = Hedger(model, model.inputs())
             >>> hedger.compute_pnl(derivative, n_paths=2)
             tensor([..., ...])
         """
-        self.inputs = [feature.of(derivative, self) for feature in self.inputs]
+        self.inputs = [f.of(derivative, self) for f in self.inputs]
 
         derivative.simulate(n_paths=n_paths, init_state=init_state)
         # cashflow: shape (N, T - 1)
@@ -299,6 +297,7 @@ class Hedger(Module):
             >>> from pfhedge.instruments import BrownianStock
             >>> from pfhedge.instruments import EuropeanOption
             >>> from pfhedge.nn import MultiLayerPerceptron
+            >>>
             >>> derivative = EuropeanOption(BrownianStock())
             >>> model = MultiLayerPerceptron()
             >>> hedger = Hedger(model, ["moneyness", "expiry_time", "volatility"])
@@ -310,13 +309,14 @@ class Hedger(Module):
             >>> from pfhedge.instruments import EuropeanOption
             >>> from pfhedge.nn import MultiLayerPerceptron
             >>> from torch.optim import SGD
+            >>>
             >>> derivative = EuropeanOption(BrownianStock())
             >>> hedger = Hedger(MultiLayerPerceptron(), ["empty"])
             >>> # Run a placeholder forward to initialize lazy parameters
             >>> _ = hedger.compute_pnl(derivative, n_paths=1)
             >>> _ = hedger.fit(
             ...     derivative,
-            ...     optimizer=SGD(hedger.model.parameters(), lr=0.1),
+            ...     optimizer=SGD(hedger.parameters(), lr=0.1),
             ...     n_epochs=1,
             ...     verbose=False)
 
@@ -324,6 +324,7 @@ class Hedger(Module):
 
             >>> from torch.optim import Adadelta
             >>> derivative = EuropeanOption(BrownianStock())
+            >>>
             >>> hedger = Hedger(MultiLayerPerceptron(), ["empty"])
             >>> _ = hedger.fit(
             ...     derivative,
@@ -398,6 +399,7 @@ class Hedger(Module):
             >>> from pfhedge.instruments import EuropeanOption
             >>> from pfhedge.nn import BlackScholes
             >>> from pfhedge.nn import Hedger
+            >>>
             >>> derivative = EuropeanOption(BrownianStock())
             >>> model = BlackScholes(derivative)
             >>> hedger = Hedger(model, model.inputs())

@@ -166,6 +166,8 @@ def topp(input, p: float, dim: int = None, largest: bool = True):
 
     Examples:
 
+        >>> from pfhedge.nn.functional import topp
+        >>>
         >>> input = torch.arange(1.0, 6.0)
         >>> input
         tensor([1., 2., 3., 4., 5.])
@@ -187,11 +189,11 @@ def expected_shortfall(input: Tensor, p: float, dim=None) -> Tensor:
         input (torch.Tensor): The input tensor.
         p (float): Quantile level.
         dim (int, optional): The dimension to sort along.
-        largest (bool, default=True): Controls whether to return largest or smallest
-            elements.
 
     Examples:
 
+        >>> from pfhedge.nn.functional import expected_shortfall
+        >>>
         >>> input = -torch.arange(1., 6.)
         >>> expected_shortfall(input, 3 / 5)
         tensor(4.)

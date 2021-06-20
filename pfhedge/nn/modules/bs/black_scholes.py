@@ -33,8 +33,9 @@ class BlackScholes(Module):
         >>> from pfhedge.instruments import BrownianStock
         >>> from pfhedge.instruments import EuropeanOption
         >>> from pfhedge.nn import BlackScholes
-        >>> deriv = EuropeanOption(BrownianStock(), strike=1.1)
-        >>> m = BlackScholes(deriv)
+        >>>
+        >>> derivative = EuropeanOption(BrownianStock(), strike=1.1)
+        >>> m = BlackScholes(derivative)
         >>> m
         BSEuropeanOption(strike=1.1)
         >>> m.inputs()
@@ -52,8 +53,9 @@ class BlackScholes(Module):
         :class:`pfhedge.instruments.LookbackOption`.
 
         >>> from pfhedge.instruments import LookbackOption
-        >>> deriv = LookbackOption(BrownianStock(), strike=1.03)
-        >>> m = BlackScholes(deriv)
+        >>>
+        >>> derivative = LookbackOption(BrownianStock(), strike=1.03)
+        >>> m = BlackScholes(derivative)
         >>> m
         BSLookbackOption(strike=1.03)
         >>> m.inputs()
