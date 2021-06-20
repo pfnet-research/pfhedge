@@ -18,12 +18,12 @@ if __name__ == "__main__":
     from pfhedge.instruments import EuropeanOption
 
     stock = BrownianStock(cost=1e-4)
-    deriv = EuropeanOption(stock)
+    derivative = EuropeanOption(stock)
 
     print(">>> stock")
     print_as_comment(stock)
-    print(">>> deriv")
-    print_as_comment(deriv)
+    print(">>> derivative")
+    print_as_comment(derivative)
 
     # --- Fit and price
 
@@ -37,8 +37,8 @@ if __name__ == "__main__":
     print(">>> hedger")
     print_as_comment(hedger)
 
-    hedger.fit(deriv)
-    price = hedger.price(deriv)
+    hedger.fit(derivative)
+    price = hedger.price(derivative)
 
     print(">>> price")
     print_as_comment(price)
@@ -48,22 +48,22 @@ if __name__ == "__main__":
     from pfhedge.nn import BlackScholes
     from pfhedge.nn import WhalleyWilmott
 
-    deriv = EuropeanOption(BrownianStock(cost=1e-4))
+    derivative = EuropeanOption(BrownianStock(cost=1e-4))
 
-    model = BlackScholes(deriv)
+    model = BlackScholes(derivative)
     hedger_bs = Hedger(model, model.inputs())
     hedger_bs
     print(">>> hedger_bs")
     print_as_comment(hedger_bs)
 
-    model = WhalleyWilmott(deriv)
+    model = WhalleyWilmott(derivative)
     hedger_ww = Hedger(model, model.inputs())
     hedger_ww
     print(">>> hedger_ww")
     print_as_comment(hedger_ww)
 
-    price_bs = hedger_bs.price(deriv)
-    price_ww = hedger_ww.price(deriv)
+    price_bs = hedger_bs.price(derivative)
+    price_ww = hedger_ww.price(derivative)
 
     print(">>> price_bs")
     print_as_comment(price_bs)

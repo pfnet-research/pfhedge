@@ -10,6 +10,7 @@ from .features import Volatility
 from .features import Zeros
 
 FEATURES = [
+    Empty(),
     ExpiryTime(),
     LogMoneyness(),
     MaxLogMoneyness(),
@@ -18,7 +19,6 @@ FEATURES = [
     PrevHedge(),
     Volatility(),
     Zeros(),
-    Empty(),
 ]
 
 
@@ -34,14 +34,14 @@ def get_feature(feature):
     dict_features = {str(f): f for f in FEATURES}
 
     if isinstance(feature, str):
-        f = dict_features.get(feature)
-        if f is None:
+        if feature not in dict_features:
             raise ValueError(
                 f"{feature} is not a valid value. "
                 "Use sorted(pfhedge.features.FEATURES) to get valid options."
             )
+        feature = dict_features[feature]
     else:
-        f = feature
+        # If `feature` is Feature object, pass it through.
         if not isinstance(feature, Feature):
             raise TypeError(f"{feature} is not an instance of Feature.")
-    return f
+    return feature

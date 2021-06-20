@@ -19,22 +19,22 @@ def test_bisect():
 
     f = fn.tanhshrink
     targets = torch.linspace(-0.4, 0.4, 10)
-    roots = bisect(f, targets, -6.0, 6.0, abort=100)
+    roots = bisect(f, targets, -6.0, 6.0, max_iter=100)
     assert_close(f(roots), targets, atol=1e-4, rtol=1e-4)
 
     f = lambda input: -fn.tanhshrink(input)
     targets = -torch.linspace(-0.4, 0.4, 10)
-    roots = bisect(f, targets, -6.0, 6.0, abort=100)
+    roots = bisect(f, targets, -6.0, 6.0, max_iter=100)
     assert_close(f(roots), targets, atol=1e-4, rtol=1e-4)
 
     f = torch.tanh
     targets = torch.linspace(-0.9, 0.9, 10)
-    roots = bisect(f, targets, -6.0, 6.0, abort=100)
+    roots = bisect(f, targets, -6.0, 6.0, max_iter=100)
     assert_close(f(roots), targets, atol=1e-4, rtol=1e-4)
 
     f = lambda input: -torch.tanh(input)
     targets = -torch.linspace(-0.9, 0.9, 10)
-    roots = bisect(f, targets, -6.0, 6.0, abort=100)
+    roots = bisect(f, targets, -6.0, 6.0, max_iter=100)
     assert_close(f(roots), targets, atol=1e-4, rtol=1e-4)
 
 
@@ -44,4 +44,4 @@ def test_bisect_error():
         bisect(f, torch.linspace(0.1, 0.9, 10), 6.0, -6.0)
 
     with pytest.raises(RuntimeError):
-        bisect(f, torch.linspace(0.1, 0.9, 10), -6.0, 6.0, precision=0.0, abort=100)
+        bisect(f, torch.linspace(0.1, 0.9, 10), -6.0, 6.0, precision=0.0, max_iter=100)

@@ -36,8 +36,8 @@ class NoTransactionBandNet(Module):
         >>> from pfhedge.instruments import BrownianStock
         >>> from pfhedge.instruments import EuropeanOption
 
-        >>> deriv = EuropeanOption(BrownianStock(cost=1e-4))
-        >>> m = NoTransactionBandNet(deriv)
+        >>> derivative = EuropeanOption(BrownianStock(cost=1e-4))
+        >>> m = NoTransactionBandNet(derivative)
         >>> m.inputs()
         ['log_moneyness', 'expiry_time', 'volatility', 'prev_hedge']
         >>> input = torch.tensor([
@@ -80,13 +80,13 @@ if __name__ == "__main__":
     torch.manual_seed(42)
 
     # Prepare a derivative to hedge
-    deriv = EuropeanOption(BrownianStock(cost=1e-4))
+    derivative = EuropeanOption(BrownianStock(cost=1e-4))
 
     # Create your hedger
-    model = NoTransactionBandNet(deriv)
+    model = NoTransactionBandNet(derivative)
     hedger = Hedger(model, model.inputs())
 
     # Fit and price
-    hedger.fit(deriv, n_paths=10000, n_epochs=200)
-    price = hedger.price(deriv, n_paths=10000)
+    hedger.fit(derivative, n_paths=10000, n_epochs=200)
+    price = hedger.price(derivative, n_paths=10000)
     print(f"Price={price:.5e}")

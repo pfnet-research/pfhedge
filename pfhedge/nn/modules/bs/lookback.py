@@ -30,6 +30,7 @@ class BSLookbackOption(BSModuleMixin):
         The `forward` method returns delta of the derivative.
 
         >>> from pfhedge.nn import BSLookbackOption
+        >>>
         >>> m = BSLookbackOption()
         >>> m.inputs()
         ['log_moneyness', 'max_log_moneyness', 'expiry_time', 'volatility']
@@ -68,8 +69,9 @@ class BSLookbackOption(BSModuleMixin):
 
             >>> from pfhedge.instruments import BrownianStock
             >>> from pfhedge.instruments import LookbackOption
-            >>> deriv = LookbackOption(BrownianStock(), strike=1.1)
-            >>> m = BSLookbackOption.from_derivative(deriv)
+            >>>
+            >>> derivative = LookbackOption(BrownianStock(), strike=1.1)
+            >>> m = BSLookbackOption.from_derivative(derivative)
             >>> m
             BSLookbackOption(strike=1.1)
         """

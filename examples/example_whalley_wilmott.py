@@ -15,12 +15,12 @@ if __name__ == "__main__":
     torch.manual_seed(42)
 
     # Prepare a derivative to hedge
-    deriv = EuropeanOption(BrownianStock(cost=1e-4))
+    derivative = EuropeanOption(BrownianStock(cost=1e-4))
 
     # Create your hedger
-    model = WhalleyWilmott(deriv)
+    model = WhalleyWilmott(derivative)
     hedger = Hedger(model, model.inputs())
 
     # Fit and price
-    price = hedger.price(deriv, n_paths=10000)
+    price = hedger.price(derivative, n_paths=10000)
     print(f"Price={price:.5e}")

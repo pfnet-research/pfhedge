@@ -11,7 +11,7 @@ if __name__ == "__main__":
     from pfhedge.nn import MultiLayerPerceptron
 
     # Prepare a derivative to hedge
-    deriv = EuropeanOption(BrownianStock(cost=1e-4))
+    derivative = EuropeanOption(BrownianStock(cost=1e-4))
 
     # Create your hedger
     model = MultiLayerPerceptron()
@@ -20,5 +20,5 @@ if __name__ == "__main__":
     )
 
     # Fit and price
-    hedger.fit(deriv)
-    price = hedger.price(deriv)
+    hedger.fit(derivative)
+    price = hedger.price(derivative)

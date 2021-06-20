@@ -83,6 +83,8 @@ class EntropicRiskMeasure(HedgeLoss):
 
     Examples:
 
+        >>> from pfhedge.nn import EntropicRiskMeasure
+        >>>
         >>> loss = EntropicRiskMeasure()
         >>> input = -torch.arange(4.0)
         >>> loss(input)
@@ -144,6 +146,8 @@ class EntropicLoss(HedgeLoss):
 
     Examples:
 
+        >>> from pfhedge.nn import EntropicLoss
+        >>>
         >>> loss = EntropicLoss()
         >>> input = -torch.arange(4.0)
         >>> loss(input)
@@ -208,6 +212,8 @@ class IsoelasticLoss(HedgeLoss):
 
     Examples:
 
+        >>> from pfhedge.nn import IsoelasticLoss
+        >>>
         >>> loss = IsoelasticLoss(0.5)
         >>> input = torch.arange(1.0, 5.0)
         >>> loss(input)
@@ -253,6 +259,8 @@ class ExpectedShortfall(HedgeLoss):
 
     Examples:
 
+        >>> from pfhedge.nn import ExpectedShortfall
+        >>>
         >>> loss = ExpectedShortfall(0.5)
         >>> input = -torch.arange(4.0)
         >>> loss(input)
@@ -301,6 +309,8 @@ class OCE(HedgeLoss):
 
     Examples:
 
+        >>> from pfhedge.nn.modules.loss import OCE
+        >>>
         >>> _ = torch.manual_seed(42)
         >>> m = OCE(lambda x: 1 - torch.exp(-x))
         >>> pnl = torch.randn(10)
