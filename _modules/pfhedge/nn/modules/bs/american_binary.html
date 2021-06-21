@@ -202,6 +202,7 @@
 <span class="sd">        The `forward` method returns delta of the derivative.</span>
 
 <span class="sd">        &gt;&gt;&gt; from pfhedge.nn import BSAmericanBinaryOption</span>
+<span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt; m = BSAmericanBinaryOption(strike=1.0)</span>
 <span class="sd">        &gt;&gt;&gt; m.inputs()</span>
 <span class="sd">        ['log_moneyness', 'max_log_moneyness', 'expiry_time', 'volatility']</span>
@@ -240,8 +241,9 @@
 
 <span class="sd">            &gt;&gt;&gt; from pfhedge.instruments import BrownianStock</span>
 <span class="sd">            &gt;&gt;&gt; from pfhedge.instruments import AmericanBinaryOption</span>
-<span class="sd">            &gt;&gt;&gt; deriv = AmericanBinaryOption(BrownianStock(), strike=1.1)</span>
-<span class="sd">            &gt;&gt;&gt; m = BSAmericanBinaryOption.from_derivative(deriv)</span>
+<span class="sd">            &gt;&gt;&gt;</span>
+<span class="sd">            &gt;&gt;&gt; derivative = AmericanBinaryOption(BrownianStock(), strike=1.1)</span>
+<span class="sd">            &gt;&gt;&gt; m = BSAmericanBinaryOption.from_derivative(derivative)</span>
 <span class="sd">            &gt;&gt;&gt; m</span>
 <span class="sd">            BSAmericanBinaryOption(strike=1.1)</span>
 <span class="sd">        """</span>

@@ -337,6 +337,8 @@
 
 <span class="sd">    Examples:</span>
 
+<span class="sd">        &gt;&gt;&gt; from pfhedge.nn.functional import topp</span>
+<span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt; input = torch.arange(1.0, 6.0)</span>
 <span class="sd">        &gt;&gt;&gt; input</span>
 <span class="sd">        tensor([1., 2., 3., 4., 5.])</span>
@@ -358,11 +360,11 @@
 <span class="sd">        input (torch.Tensor): The input tensor.</span>
 <span class="sd">        p (float): Quantile level.</span>
 <span class="sd">        dim (int, optional): The dimension to sort along.</span>
-<span class="sd">        largest (bool, default=True): Controls whether to return largest or smallest</span>
-<span class="sd">            elements.</span>
 
 <span class="sd">    Examples:</span>
 
+<span class="sd">        &gt;&gt;&gt; from pfhedge.nn.functional import expected_shortfall</span>
+<span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt; input = -torch.arange(1., 6.)</span>
 <span class="sd">        &gt;&gt;&gt; expected_shortfall(input, 3 / 5)</span>
 <span class="sd">        tensor(4.)</span>

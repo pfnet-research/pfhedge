@@ -254,6 +254,8 @@
 
 <span class="sd">    Examples:</span>
 
+<span class="sd">        &gt;&gt;&gt; from pfhedge.nn import EntropicRiskMeasure</span>
+<span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt; loss = EntropicRiskMeasure()</span>
 <span class="sd">        &gt;&gt;&gt; input = -torch.arange(4.0)</span>
 <span class="sd">        &gt;&gt;&gt; loss(input)</span>
@@ -315,6 +317,8 @@
 
 <span class="sd">    Examples:</span>
 
+<span class="sd">        &gt;&gt;&gt; from pfhedge.nn import EntropicLoss</span>
+<span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt; loss = EntropicLoss()</span>
 <span class="sd">        &gt;&gt;&gt; input = -torch.arange(4.0)</span>
 <span class="sd">        &gt;&gt;&gt; loss(input)</span>
@@ -379,6 +383,8 @@
 
 <span class="sd">    Examples:</span>
 
+<span class="sd">        &gt;&gt;&gt; from pfhedge.nn import IsoelasticLoss</span>
+<span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt; loss = IsoelasticLoss(0.5)</span>
 <span class="sd">        &gt;&gt;&gt; input = torch.arange(1.0, 5.0)</span>
 <span class="sd">        &gt;&gt;&gt; loss(input)</span>
@@ -424,6 +430,8 @@
 
 <span class="sd">    Examples:</span>
 
+<span class="sd">        &gt;&gt;&gt; from pfhedge.nn import ExpectedShortfall</span>
+<span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt; loss = ExpectedShortfall(0.5)</span>
 <span class="sd">        &gt;&gt;&gt; input = -torch.arange(4.0)</span>
 <span class="sd">        &gt;&gt;&gt; loss(input)</span>
@@ -472,6 +480,8 @@
 
 <span class="sd">    Examples:</span>
 
+<span class="sd">        &gt;&gt;&gt; from pfhedge.nn.modules.loss import OCE</span>
+<span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt; _ = torch.manual_seed(42)</span>
 <span class="sd">        &gt;&gt;&gt; m = OCE(lambda x: 1 - torch.exp(-x))</span>
 <span class="sd">        &gt;&gt;&gt; pnl = torch.randn(10)</span>

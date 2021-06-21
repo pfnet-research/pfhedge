@@ -201,8 +201,9 @@
 <span class="sd">        &gt;&gt;&gt; from pfhedge.nn import WhalleyWilmott</span>
 <span class="sd">        &gt;&gt;&gt; from pfhedge.instruments import BrownianStock</span>
 <span class="sd">        &gt;&gt;&gt; from pfhedge.instruments import EuropeanOption</span>
-<span class="sd">        &gt;&gt;&gt; deriv = EuropeanOption(BrownianStock(cost=1e-5))</span>
-<span class="sd">        &gt;&gt;&gt; m = WhalleyWilmott(deriv)</span>
+<span class="sd">        &gt;&gt;&gt; derivative = EuropeanOption(BrownianStock(cost=1e-5))</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; m = WhalleyWilmott(derivative)</span>
 <span class="sd">        &gt;&gt;&gt; m.inputs()</span>
 <span class="sd">        ['log_moneyness', 'expiry_time', 'volatility', 'prev_hedge']</span>
 <span class="sd">        &gt;&gt;&gt; input = torch.tensor([</span>
@@ -220,8 +221,8 @@
 
 <span class="sd">        An example for :class:`pfhedge.instruments.EuropeanOption` without cost.</span>
 
-<span class="sd">        &gt;&gt;&gt; deriv = EuropeanOption(BrownianStock())</span>
-<span class="sd">        &gt;&gt;&gt; m = WhalleyWilmott(deriv)</span>
+<span class="sd">        &gt;&gt;&gt; derivative = EuropeanOption(BrownianStock())</span>
+<span class="sd">        &gt;&gt;&gt; m = WhalleyWilmott(derivative)</span>
 <span class="sd">        &gt;&gt;&gt; m.inputs()</span>
 <span class="sd">        ['log_moneyness', 'expiry_time', 'volatility', 'prev_hedge']</span>
 <span class="sd">        &gt;&gt;&gt; input = torch.tensor([</span>
@@ -276,7 +277,7 @@
         <span class="sd">"""Returns half-width of the no-transaction band.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            input : Tensor</span>
+<span class="sd">            input (Tensor): The input tensor.</span>
 
 <span class="sd">        Shape:</span>
 <span class="sd">            - Input: :math:`(N, *, H_{\\text{in}} - 1)`</span>
@@ -287,9 +288,9 @@
 <span class="sd">        """</span>
         <span class="n">cost</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">derivative</span><span class="o">.</span><span class="n">underlier</span><span class="o">.</span><span class="n">cost</span>
 
-        <span class="n">price</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">derivative</span><span class="o">.</span><span class="n">strike</span> <span class="o">*</span> <span class="nb">input</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">exp</span><span class="p">()</span>
+        <span class="n">spot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">derivative</span><span class="o">.</span><span class="n">strike</span> <span class="o">*</span> <span class="nb">input</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">exp</span><span class="p">()</span>
         <span class="n">gamma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bs</span><span class="o">.</span><span class="n">gamma</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="nb">input</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">input</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">))))</span>
-        <span class="n">width</span> <span class="o">=</span> <span class="p">(</span><span class="n">cost</span> <span class="o">*</span> <span class="p">(</span><span class="mi">3</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">gamma</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">price</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="n">width</span> <span class="o">=</span> <span class="p">(</span><span class="n">cost</span> <span class="o">*</span> <span class="p">(</span><span class="mi">3</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">gamma</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">spot</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">width</span></div></div>
 </pre></div>

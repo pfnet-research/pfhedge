@@ -193,9 +193,8 @@ Default: <a class="reference internal" href="pfhedge.nn.EntropicRiskMeasure.html
 </dl>
 <dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
-<li><p>Input: <span class="math notranslate nohighlight">\((N, H_{\text{in}})\)</span>, where, <span class="math notranslate nohighlight">\(H_{\text{in}}\)</span>
-is the number of input features.
-features.</p></li>
+<li><p>Input: <span class="math notranslate nohighlight">\((N, H_{\text{in}})\)</span> where <span class="math notranslate nohighlight">\(H_{\text{in}}\)</span> is
+the number of input features.</p></li>
 <li><p>Output: <span class="math notranslate nohighlight">\((N, 1)\)</span></p></li>
 </ul>
 </dd>
@@ -206,12 +205,13 @@ features.</p></li>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">EuropeanOption</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">BlackScholes</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">Hedger</span>
+<span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span> <span class="o">=</span> <span class="n">EuropeanOption</span><span class="p">(</span><span class="n">BrownianStock</span><span class="p">(</span><span class="n">cost</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">BlackScholes</span><span class="p">(</span><span class="n">derivative</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hedger</span> <span class="o">=</span> <span class="n">Hedger</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">inputs</span><span class="p">())</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hedger</span>
 <span class="go">Hedger(</span>
-<span class="go">  inputs=['log_moneyness', 'expiry_time', 'volatility'],</span>
+<span class="go">  inputs=['log_moneyness', 'expiry_time', 'volatility']</span>
 <span class="go">  (model): BSEuropeanOption()</span>
 <span class="go">  (criterion): EntropicRiskMeasure()</span>
 <span class="go">)</span>
@@ -219,11 +219,12 @@ features.</p></li>
 </div>
 <p>Whalley-Wilmott’s no-transaction-band strategy.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">WhalleyWilmott</span>
+<span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">WhalleyWilmott</span><span class="p">(</span><span class="n">derivative</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hedger</span> <span class="o">=</span> <span class="n">Hedger</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">inputs</span><span class="p">())</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hedger</span>
 <span class="go">Hedger(</span>
-<span class="go">  inputs=['log_moneyness', 'expiry_time', 'volatility', 'prev_hedge'],</span>
+<span class="go">  inputs=['log_moneyness', 'expiry_time', 'volatility', 'prev_hedge']</span>
 <span class="go">  (model): WhalleyWilmott(</span>
 <span class="go">    (bs): BSEuropeanOption()</span>
 <span class="go">    (clamp): Clamp()</span>
@@ -234,17 +235,19 @@ features.</p></li>
 </div>
 <p>A naked position (never hedge at all).</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">Naked</span>
+<span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hedger</span> <span class="o">=</span> <span class="n">Hedger</span><span class="p">(</span><span class="n">Naked</span><span class="p">(),</span> <span class="p">[</span><span class="s2">"empty"</span><span class="p">])</span>
 </pre></div>
 </div>
 <p>A strategy represented by a neural network (Deep Hedging).</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">MultiLayerPerceptron</span>
+<span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">MultiLayerPerceptron</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hedger</span> <span class="o">=</span> <span class="n">Hedger</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="p">[</span><span class="s2">"moneyness"</span><span class="p">,</span> <span class="s2">"expiry_time"</span><span class="p">,</span> <span class="s2">"volatility"</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">hedger</span><span class="o">.</span><span class="n">compute_pnl</span><span class="p">(</span><span class="n">derivative</span><span class="p">,</span> <span class="n">n_paths</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># Lazily materialize</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hedger</span>
 <span class="go">Hedger(</span>
-<span class="go">  inputs=['moneyness', 'expiry_time', 'volatility'],</span>
+<span class="go">  inputs=['moneyness', 'expiry_time', 'volatility']</span>
 <span class="go">  (model): MultiLayerPerceptron(</span>
 <span class="go">    (0): Linear(in_features=3, out_features=32, bias=True)</span>
 <span class="go">    (1): ReLU()</span>
@@ -345,6 +348,7 @@ If <cite>None</cite> (default), sensible default value is used.</p></li>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">EuropeanOption</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">BlackScholes</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">Hedger</span>
+<span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span> <span class="o">=</span> <span class="n">EuropeanOption</span><span class="p">(</span><span class="n">BrownianStock</span><span class="p">())</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">BlackScholes</span><span class="p">(</span><span class="n">derivative</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hedger</span> <span class="o">=</span> <span class="n">Hedger</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">inputs</span><span class="p">())</span>
@@ -384,6 +388,7 @@ standard output.</p></li>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">BrownianStock</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">EuropeanOption</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">MultiLayerPerceptron</span>
+<span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span> <span class="o">=</span> <span class="n">EuropeanOption</span><span class="p">(</span><span class="n">BrownianStock</span><span class="p">())</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">MultiLayerPerceptron</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hedger</span> <span class="o">=</span> <span class="n">Hedger</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="p">[</span><span class="s2">"moneyness"</span><span class="p">,</span> <span class="s2">"expiry_time"</span><span class="p">,</span> <span class="s2">"volatility"</span><span class="p">])</span>
@@ -395,13 +400,14 @@ standard output.</p></li>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">EuropeanOption</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">MultiLayerPerceptron</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torch.optim</span> <span class="kn">import</span> <span class="n">SGD</span>
+<span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span> <span class="o">=</span> <span class="n">EuropeanOption</span><span class="p">(</span><span class="n">BrownianStock</span><span class="p">())</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hedger</span> <span class="o">=</span> <span class="n">Hedger</span><span class="p">(</span><span class="n">MultiLayerPerceptron</span><span class="p">(),</span> <span class="p">[</span><span class="s2">"empty"</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Run a placeholder forward to initialize lazy parameters</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">hedger</span><span class="o">.</span><span class="n">compute_pnl</span><span class="p">(</span><span class="n">derivative</span><span class="p">,</span> <span class="n">n_paths</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">hedger</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">derivative</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">optimizer</span><span class="o">=</span><span class="n">SGD</span><span class="p">(</span><span class="n">hedger</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.1</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="n">optimizer</span><span class="o">=</span><span class="n">SGD</span><span class="p">(</span><span class="n">hedger</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.1</span><span class="p">),</span>
 <span class="gp">... </span>    <span class="n">n_epochs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
@@ -409,6 +415,7 @@ standard output.</p></li>
 <p>One can also pass a class object of an optimizer.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">torch.optim</span> <span class="kn">import</span> <span class="n">Adadelta</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span> <span class="o">=</span> <span class="n">EuropeanOption</span><span class="p">(</span><span class="n">BrownianStock</span><span class="p">())</span>
+<span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hedger</span> <span class="o">=</span> <span class="n">Hedger</span><span class="p">(</span><span class="n">MultiLayerPerceptron</span><span class="p">(),</span> <span class="p">[</span><span class="s2">"empty"</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">hedger</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">derivative</span><span class="p">,</span>
@@ -422,7 +429,7 @@ standard output.</p></li>
 <dt class="sig sig-object py" id="pfhedge.nn.Hedger.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/hedger.html#Hedger.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.Hedger.forward" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the outout of <cite>model</cite>.</p>
-<p>The output is supposed to represent the hedge ratio at the next time step.</p>
+<p>The output represents the hedge ratio at the next time step.</p>
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pfhedge.nn.Hedger.price">
@@ -460,6 +467,7 @@ calculation to on or off.</p></li>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">EuropeanOption</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">BlackScholes</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">Hedger</span>
+<span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span> <span class="o">=</span> <span class="n">EuropeanOption</span><span class="p">(</span><span class="n">BrownianStock</span><span class="p">())</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">BlackScholes</span><span class="p">(</span><span class="n">derivative</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hedger</span> <span class="o">=</span> <span class="n">Hedger</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">inputs</span><span class="p">())</span>

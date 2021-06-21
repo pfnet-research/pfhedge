@@ -202,6 +202,7 @@ Initialize Black-Scholes formula module from a derivative.</p></li>
 <p class="rubric">Examples</p>
 <p>The <cite>forward</cite> method returns delta of the derivative.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">BSLookbackOption</span>
+<span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">BSLookbackOption</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">inputs</span><span class="p">()</span>
 <span class="go">['log_moneyness', 'max_log_moneyness', 'expiry_time', 'volatility']</span>
@@ -276,8 +277,9 @@ the last dimension. See <cite>inputs()</cite> for the names of the input feature
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">BrownianStock</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">LookbackOption</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">deriv</span> <span class="o">=</span> <span class="n">LookbackOption</span><span class="p">(</span><span class="n">BrownianStock</span><span class="p">(),</span> <span class="n">strike</span><span class="o">=</span><span class="mf">1.1</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">BSLookbackOption</span><span class="o">.</span><span class="n">from_derivative</span><span class="p">(</span><span class="n">deriv</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span> <span class="o">=</span> <span class="n">LookbackOption</span><span class="p">(</span><span class="n">BrownianStock</span><span class="p">(),</span> <span class="n">strike</span><span class="o">=</span><span class="mf">1.1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">BSLookbackOption</span><span class="o">.</span><span class="n">from_derivative</span><span class="p">(</span><span class="n">derivative</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">m</span>
 <span class="go">BSLookbackOption(strike=1.1)</span>
 </pre></div>
