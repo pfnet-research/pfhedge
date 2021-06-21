@@ -43,18 +43,18 @@ We hope PFHedge accelerates the research and development of Deep Hedging.
 ### Seamless Integration with [PyTorch](https://pytorch.org/)
 
 * PFHedge is built to be deeply integrated into [PyTorch](https://pytorch.org/).
-* Your Deep-Hedger can be built as a [`Module`](https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module) and trained by any [`Optimizer`](https://pytorch.org/docs/stable/optim.html).
+* Your Deep-Hedger can be built as a [`Module`](https://pytorch.org/docs/stable/generated/torch.nn.Module.html) and trained by any [`Optimizer`](https://pytorch.org/docs/stable/optim.html).
 * You can use GPUs to boost your hedging optimization (See below).
 
 ### Effortless Extensions
 
 * You can build new hedging models, derivatives, and features with little glue code.
-* You can build new hedging models by just subclassing [`Module`](https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module).
+* You can build new hedging models by just subclassing [`Module`](https://pytorch.org/docs/stable/generated/torch.nn.Module.html).
 * You can quickly try out your own stochastic processes, derivatives, and input features.
 
 ### Batteries Included
 
-* PFHedge provides useful [`Module`](https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module)s for Deep Hedging in [`pfhedge.nn`](https://github.com/pfnet-research/pfhedge/tree/main/pfhedge/nn).
+* PFHedge provides useful [`Module`](https://pytorch.org/docs/stable/generated/torch.nn.Module.html)s for Deep Hedging in [`pfhedge.nn`](https://pfnet-research.github.io/pfhedge/nn.html).
 * You can create [Black-Scholes' delta-hedging](https://en.wikipedia.org/wiki/Delta_neutral), [Whalley-Wilmott's strategy][whalley-wilmott], and so forth.
 * Common risk measures such as [an entropic risk measure](https://en.wikipedia.org/wiki/Entropic_risk_measure) and [an expected shortfall](https://en.wikipedia.org/wiki/Expected_shortfall) are available.
 
@@ -70,12 +70,12 @@ $ pip install pfhedge
 
 ### Prepare a Derivative to Hedge
 
-Financial instruments can be classified into two types:
+Financial instruments are provided in [`pfhedge.instruments`](https://pfnet-research.github.io/pfhedge/instruments.html) and classified into two types:
 
 * **`Primary` instruments**: A primary instrument is a basic financial instrument that is traded on a market, and therefore their prices are accessible as the market prices. Examples include stocks, bonds, commodities, and currencies.
 * **`Derivative` instruments**: A derivative is a financial instrument whose payoff is contingent on a primary instrument. An (over-the-counter) derivative is not traded on the market, and therefore the price is not directly accessible. Examples include [`EuropeanOption`](https://en.wikipedia.org/wiki/Option_style#American_and_European_options), [`LookbackOption`](https://en.wikipedia.org/wiki/Lookback_option), and so forth.
 
-We consider a `BrownianStock`, which is a stock following the [geometric Brownian motion](https://en.wikipedia.org/wiki/Geometric_Brownian_motion), and a [`EuropeanOption`](https://en.wikipedia.org/wiki/Option_style#American_and_European_options) which is contingent on it.
+We consider a [`BrownianStock`](https://pfnet-research.github.io/pfhedge/generated/pfhedge.instruments.BrownianStock.html), which is a stock following the [geometric Brownian motion](https://en.wikipedia.org/wiki/Geometric_Brownian_motion), and a [`EuropeanOption`](https://pfnet-research.github.io/pfhedge/generated/pfhedge.instruments.EuropeanOption.html) which is contingent on it.
 We assume that the stock has a transaction cost of 1 basis point.
 
 ```py
@@ -88,21 +88,21 @@ derivative = EuropeanOption(stock)
 
 ### Create Your Hedger
 
-A `Hedger` in Deep Hedging is basically characterized by three elements:
+A [`Hedger`](https://pfnet-research.github.io/pfhedge/generated/pfhedge.nn.Hedger.html) in Deep Hedging is basically characterized by three elements:
 
-* **Features**: A hedger uses any market information as input features.
+* **Inputs**: A hedger uses any market information as input features.
     - `'log_moneyness'`: [Log-moneyness](https://en.wikipedia.org/wiki/Moneyness) of the stock.
     - `'expiry_time'`: Remaining time to the [maturity](https://en.wikipedia.org/wiki/Maturity_(finance)) of the option.
     - `'volatility'`: [Volatility](https://en.wikipedia.org/wiki/Volatility_(finance)) of the stock.
     - `'prev_hedge'`: The hedge ratio at the previous time step.
 * **Model**: A hedger's model computes the hedge ratio at the next time step from input features.
-    - `MultiLayerPerceptron`: [Multi-layer perceptron](https://en.wikipedia.org/wiki/Multilayer_perceptron).
-    - `BlackScholes`: [Black-Scholes](https://en.wikipedia.org/wiki/Delta_neutral)' delta-hedging strategy.
-    - `WhalleyWilmott`: [Whalley-Wilmott][whalley-wilmott]'s asymptotically optimal strategy for small costs.
-    - Any PyTorch [`Module`](https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module) which you build.
+    - [`MultiLayerPerceptron`](https://pfnet-research.github.io/pfhedge/generated/pfhedge.nn.MultiLayerPerceptron.html): [Multi-layer perceptron](https://en.wikipedia.org/wiki/Multilayer_perceptron).
+    - [`BlackScholes`](https://pfnet-research.github.io/pfhedge/generated/pfhedge.nn.BlackScholes.html): [Black-Scholes](https://en.wikipedia.org/wiki/Delta_neutral)' delta-hedging strategy.
+    - [`WhalleyWilmott`](https://pfnet-research.github.io/pfhedge/generated/pfhedge.nn.WhalleyWilmott.html): [Whalley-Wilmott][whalley-wilmott]'s asymptotically optimal strategy for small costs.
+    - Any PyTorch [`Module`](https://pytorch.org/docs/stable/generated/torch.nn.Module.html) which you build.
 * **Criterion**: A hedger wishes to minimize their [risk measure](https://en.wikipedia.org/wiki/Risk_measure).
-    - `EntropicRiskMeasure`: [Entropic Risk Measure](https://en.wikipedia.org/wiki/Entropic_risk_measure), a risk measure derived from [exponential utility](https://en.wikipedia.org/wiki/Exponential_utility).
-    - `ExpectedShortFall`: [Expected Shortfall](https://en.wikipedia.org/wiki/Expected_shortfall) or CVaR, a common measure to assess portfolio risk.
+    - [`EntropicRiskMeasure`](https://pfnet-research.github.io/pfhedge/generated/pfhedge.nn.EntropicRiskMeasure.html): [Entropic Risk Measure](https://en.wikipedia.org/wiki/Entropic_risk_measure), a risk measure derived from [exponential utility](https://en.wikipedia.org/wiki/Exponential_utility).
+    - [`ExpectedShortFall`](https://pfnet-research.github.io/pfhedge/generated/pfhedge.nn.ExpectedShortfall.html): [Expected Shortfall](https://en.wikipedia.org/wiki/Expected_shortfall) or CVaR, a common measure to assess portfolio risk.
 
 We here use a multi-layer perceptron as our model.
 
@@ -114,7 +114,7 @@ model = MultiLayerPerceptron()
 hedger = Hedger(model, inputs=["log_moneyness", "expiry_time", "volatility", "prev_hedge"])
 ```
 
-The `hedger` is also a [`Module`](https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module).
+The `hedger` is also a [`Module`](https://pytorch.org/docs/stable/generated/torch.nn.Module.html).
 
 ```py
 hedger
@@ -145,7 +145,7 @@ In each epoch, we generate Monte Carlo paths of the asset prices and let the `he
 The hedger's risk measure (`EntropicRiskMeasure()` in our case) is computed from the resulting profit and loss distribution, and the parameters in the `model` are updated.
 
 ```py
-hedger.fit(derivative, n_epochs=200, n_paths=10000)
+hedger.fit(derivative, n_epochs=200)
 ```
 
 Once we have trained the `hedger`, we can evaluate the derivative price as utility indifference price (For details, see [Deep Hedging][deep-hedging-arxiv] and references therein).
@@ -158,16 +158,15 @@ price = hedger.price(derivative)
 
 ### Use GPU
 
-To employ the desired [`device`](https://pytorch.org/docs/stable/cuda.html#torch.cuda.device) (and/or [`dtype`](https://pytorch.org/docs/stable/tensor_attributes.html#torch.torch.dtype)) in fitting and pricing, use `to` method.
+To employ the desired [`device`](https://pytorch.org/docs/stable/tensor_attributes.html#torch.torch.device) and/or [`dtype`](https://pytorch.org/docs/stable/tensor_attributes.html#torch.torch.dtype) in fitting and pricing, use `to` method.
 
 ```py
+dtype = torch.float64
 device = torch.device("cuda:0")
 
-derivative = EuropeanOption(BrownianStock(cost=1e-4))
-derivative.to(device)
+derivative = EuropeanOption(BrownianStock()).to(dtype, device)
 
-hedger = Hedger(...)
-hedger.to(device)
+hedger = Hedger(...).to(dtype, device)
 ```
 
 ### Black-Scholes' Delta-Hedging Strategy
@@ -199,7 +198,7 @@ This strategy is supposed to be optimal in the limit of small transaction costs,
 from pfhedge.nn import Hedger
 from pfhedge.nn import WhalleyWilmott
 
-derivative = EuropeanOption(BrownianStock(cost=1e-4))
+derivative = EuropeanOption(BrownianStock(cost=1e-3))
 
 model = WhalleyWilmott(derivative)
 hedger = Hedger(model, inputs=model.inputs())
@@ -207,7 +206,7 @@ hedger = Hedger(model, inputs=model.inputs())
 
 ### Your Own Module
 
-You can employ any [`Module`](https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module) you build as a hedging model.
+You can employ any [`Module`](https://pytorch.org/docs/stable/generated/torch.nn.Module.html) you build as a hedging model.
 The input/output shapes is `(N, H_in) -> (N, 1)`, where `N` is the number of Monte Carlo paths of assets and `H_in` is the number of input features.
 
 Here we show an example of **No-Transaction Band Network**, which is proposed in [Imaki *et al.* 21][ntb-network-arxiv].
@@ -264,14 +263,12 @@ model = WhalleyWilmott(derivative)
 hedger = Hedger(model, inputs=model.inputs())
 
 def pricer(spot):
-    return hedger.price(
-        derivative, n_paths=10000, init_state=(spot,), enable_grad=True
-    )
+    return hedger.price(derivative, init_state=(spot,), enable_grad=True)
 
 delta = autogreek.delta(pricer, spot=torch.tensor(1.0))
-# tensor(0.5083)
+# tensor(0.5092)
 gamma = autogreek.gamma(pricer, spot=torch.tensor(1.0))
-# tensor(0.0965)
+# tensor(0.0885)
 ```
 
 ## Contribution
@@ -280,6 +277,8 @@ Any contributions to PFHedge are more than welcome!
 
 * GitHub Issues: Bug reports, feature requests, and questions.
 * Pull Requests: Bug-fixes, feature implementations, and documentation updates.
+
+Please take a look at [CONTRIBUTING.md](.github/CONTRIBUTING.md) before creating a pull request.
 
 This project is owned by [Preferred Networks](https://www.preferred.jp/en/) and maintained by [Shota Imaki](https://github.com/simaki).
 
@@ -295,5 +294,4 @@ This project is owned by [Preferred Networks](https://www.preferred.jp/en/) and 
 [ntb-network-arxiv]: https://arxiv.org/abs/2103.01775
 [whalley-wilmott]: https://doi.org/10.1111/1467-9965.00034
 [NoTransactionBandNetwork]: https://github.com/pfnet-research/NoTransactionBandNetwork
-[CONTRIBUTING.md]: https://github.com/pfnet-research/pfhedge/blob/master/CONTRIBUTING.md
 [example-readme-colab]: https://colab.research.google.com/github/pfnet-research/pfhedge/blob/main/examples/example_readme.ipynb
