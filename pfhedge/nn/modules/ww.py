@@ -30,8 +30,9 @@ class WhalleyWilmott(Module):
         >>> from pfhedge.nn import WhalleyWilmott
         >>> from pfhedge.instruments import BrownianStock
         >>> from pfhedge.instruments import EuropeanOption
-        >>> deriv = EuropeanOption(BrownianStock(cost=1e-5))
-        >>> m = WhalleyWilmott(deriv)
+        >>> derivative = EuropeanOption(BrownianStock(cost=1e-5))
+        >>>
+        >>> m = WhalleyWilmott(derivative)
         >>> m.inputs()
         ['log_moneyness', 'expiry_time', 'volatility', 'prev_hedge']
         >>> input = torch.tensor([
@@ -49,8 +50,8 @@ class WhalleyWilmott(Module):
 
         An example for :class:`pfhedge.instruments.EuropeanOption` without cost.
 
-        >>> deriv = EuropeanOption(BrownianStock())
-        >>> m = WhalleyWilmott(deriv)
+        >>> derivative = EuropeanOption(BrownianStock())
+        >>> m = WhalleyWilmott(derivative)
         >>> m.inputs()
         ['log_moneyness', 'expiry_time', 'volatility', 'prev_hedge']
         >>> input = torch.tensor([
@@ -105,7 +106,7 @@ class WhalleyWilmott(Module):
         """Returns half-width of the no-transaction band.
 
         Args:
-            input : Tensor
+            input (Tensor): The input tensor.
 
         Shape:
             - Input: :math:`(N, *, H_{\\text{in}} - 1)`
@@ -116,8 +117,8 @@ class WhalleyWilmott(Module):
         """
         cost = self.derivative.underlier.cost
 
-        price = self.derivative.strike * input[..., [0]].exp()
+        spot = self.derivative.strike * input[..., [0]].exp()
         gamma = self.bs.gamma(*(input[..., [i]] for i in range(input.size(-1))))
-        width = (cost * (3 / 2) * (gamma ** 2) * price / self.a) ** (1 / 3)
+        width = (cost * (3 / 2) * (gamma ** 2) * spot / self.a) ** (1 / 3)
 
         return width

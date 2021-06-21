@@ -31,6 +31,7 @@ class BSAmericanBinaryOption(BSModuleMixin):
         The `forward` method returns delta of the derivative.
 
         >>> from pfhedge.nn import BSAmericanBinaryOption
+        >>>
         >>> m = BSAmericanBinaryOption(strike=1.0)
         >>> m.inputs()
         ['log_moneyness', 'max_log_moneyness', 'expiry_time', 'volatility']
@@ -69,8 +70,9 @@ class BSAmericanBinaryOption(BSModuleMixin):
 
             >>> from pfhedge.instruments import BrownianStock
             >>> from pfhedge.instruments import AmericanBinaryOption
-            >>> deriv = AmericanBinaryOption(BrownianStock(), strike=1.1)
-            >>> m = BSAmericanBinaryOption.from_derivative(deriv)
+            >>>
+            >>> derivative = AmericanBinaryOption(BrownianStock(), strike=1.1)
+            >>> m = BSAmericanBinaryOption.from_derivative(derivative)
             >>> m
             BSAmericanBinaryOption(strike=1.1)
         """

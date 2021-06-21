@@ -61,13 +61,14 @@ class EuropeanBinaryOption(Derivative):
         >>> import torch
         >>> from pfhedge.instruments import BrownianStock
         >>> from pfhedge.instruments import EuropeanBinaryOption
+        >>>
         >>> _ = torch.manual_seed(42)
-        >>> deriv = EuropeanBinaryOption(BrownianStock(), maturity=5/250)
-        >>> deriv.simulate(n_paths=2)
-        >>> deriv.underlier.spot
+        >>> derivative = EuropeanBinaryOption(BrownianStock(), maturity=5/250)
+        >>> derivative.simulate(n_paths=2)
+        >>> derivative.underlier.spot
         tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930],
                 [1.0000, 1.0282, 1.0199, 1.0258, 1.0292]])
-        >>> deriv.payoff()
+        >>> derivative.payoff()
         tensor([0., 1.])
     """
 

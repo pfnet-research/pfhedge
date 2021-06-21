@@ -8,12 +8,12 @@ def parse_spot(
     moneyness: Tensor = None,
     log_moneyness: Tensor = None,
     **kwargs
-):
+) -> Tensor:
     if spot is not None:
         return spot
-    elif moneyness is not None:
+    elif moneyness is not None and strike is not None:
         return moneyness * strike
     elif log_moneyness is not None and strike is not None:
         return log_moneyness.exp() * strike
     else:
-        raise ValueError("Insufficient parameters")
+        raise ValueError("Insufficient parameters to parse `spot`")

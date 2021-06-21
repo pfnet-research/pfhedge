@@ -1,27 +1,33 @@
-import abc
+from abc import ABC
+from abc import abstractmethod
+from typing import TypeVar
 
-import torch
+from torch import Tensor
+
+T = TypeVar("T")
 
 
-class Feature(abc.ABC):
+class Feature(ABC):
     """Base class for all features.
 
     All features should subclass this class.
     """
 
-    @abc.abstractmethod
-    def __getitem__(self, i) -> torch.Tensor:
+    @abstractmethod
+    def __getitem__(self, i: int) -> Tensor:
         """Return feature tensor.
+
+        Returned tensor should have a shape :math:`(N, 1)`, where :math:`N` is
+        the number of simulated paths.
 
         Args:
             i (int): The index of the time step to get the feature.
 
         Returns:
-            torch.Tensor with shape :math:`(N, 1)`, where :math:`N` is the number
-            of simulated price paths.
+            torch.Tensor
         """
 
-    def of(self, derivative=None, hedger=None):
+    def of(self: T, derivative=None, hedger=None) -> T:
         """Set `derivative` and `hedger` to the attributes of `self`.
 
         Args:

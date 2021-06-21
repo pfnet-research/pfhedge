@@ -415,7 +415,7 @@ class TestModelOutput(_TestFeature):
         f = ModuleOutput(module, [x1, x2])
         expect = (
             "ModuleOutput(\n"
-            "  inputs=['moneyness', 'expiry_time'],\n"
+            "  inputs=['moneyness', 'expiry_time']\n"
             "  (module): Linear(in_features=2, out_features=1, bias=True)\n"
             ")"
         )

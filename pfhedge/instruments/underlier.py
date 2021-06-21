@@ -75,7 +75,7 @@ class BrownianStock(Primary):
     def simulate(
         self,
         n_paths: int = 1,
-        time_horizon: float = 20 / 350,
+        time_horizon: float = 20 / 250,
         init_state: Optional[tuple] = None,
     ) -> None:
         """Simulate the spot price and add it as a buffer named `spot`.

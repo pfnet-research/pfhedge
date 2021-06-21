@@ -3,7 +3,12 @@ from torch import Tensor
 
 
 def bisect(
-    function, target: Tensor, lower, upper, precision: float = 1e-6, abort: int = 100000
+    function,
+    target: Tensor,
+    lower,
+    upper,
+    precision: float = 1e-6,
+    max_iter: int = 100000,
 ) -> Tensor:
     """Perform binary search over a tensor.
 
@@ -20,14 +25,14 @@ def bisect(
         lower (Tensor or float): Lower bound of binary search.
         upper (Tensor or float): Upper bound of binary search.
         precision (float, default=1e-6): Precision of output.
-        abort (int, default 100000): If the number of iterations exceeds this
+        max_iter (int, default 100000): If the number of iterations exceeds this
             value, abort computation and raise RuntimeError.
 
     Returns:
         torch.Tensor
 
     Raises:
-        RuntimeError: If the number of iteration exceeds `abort`.
+        RuntimeError: If the number of iteration exceeds `max_iter`.
 
     Examples:
 
@@ -54,9 +59,9 @@ def bisect(
         raise ValueError("condition lower < upper should be satisfied.")
 
     if (function(lower) > function(upper)).all():
-        # If decreasing function
+        # If `function` is a decreasing function
         mf = lambda input: -function(input)
-        return bisect(mf, -target, lower, upper, precision=precision, abort=abort)
+        return bisect(mf, -target, lower, upper, precision=precision, max_iter=max_iter)
 
     lower = torch.full_like(target, lower)
     upper = torch.full_like(target, upper)
@@ -64,8 +69,8 @@ def bisect(
     n_iter = 0
     while torch.max(upper - lower) > precision:
         n_iter += 1
-        if n_iter > abort:
-            raise RuntimeError(f"Aborting since iteration exceeds abort={abort}.")
+        if n_iter > max_iter:
+            raise RuntimeError(f"Aborting since iteration exceeds max_iter={max_iter}.")
 
         m = (lower + upper) / 2
         output = function(m)

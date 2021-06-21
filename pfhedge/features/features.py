@@ -22,14 +22,10 @@ class Moneyness(Feature):
 
     def __init__(self, log=False):
         super().__init__()
-
         self.log = log
 
     def __str__(self):
-        if self.log:
-            return "log_moneyness"
-        else:
-            return "moneyness"
+        return "log_moneyness" if self.log else "moneyness"
 
     def __getitem__(self, i):
         if self.log:
@@ -89,7 +85,6 @@ class Barrier(Feature):
 
     def __init__(self, threshold, up=True):
         super().__init__()
-
         self.threshold = threshold
         self.up = up
 
@@ -130,13 +125,11 @@ class MaxMoneyness(Feature):
     """
 
     def __init__(self, log=False):
+        super().__init__()
         self.log = log
 
     def __str__(self):
-        if self.log:
-            return "max_log_moneyness"
-        else:
-            return "max_moneyness"
+        return "max_log_moneyness" if self.log else "max_moneyness"
 
     def __getitem__(self, i):
         if self.log:
@@ -169,27 +162,28 @@ class ModuleOutput(Feature, torch.nn.Module):
         >>> from torch.nn import Linear
         >>> from pfhedge.instruments import BrownianStock
         >>> from pfhedge.instruments import EuropeanOption
-        >>> deriv = EuropeanOption(BrownianStock())
-        >>> deriv.simulate(n_paths=3)
+        >>> derivative = EuropeanOption(BrownianStock())
+        >>> derivative.simulate(n_paths=3)
         >>> m = Linear(2, 1)
-        >>> f = ModuleOutput(m, [Moneyness(), ExpiryTime()]).of(deriv)
+        >>> f = ModuleOutput(m, [Moneyness(), ExpiryTime()]).of(derivative)
         >>> f[0]
         tensor([[...],
                 [...],
                 [...]], grad_fn=<AddmmBackward>)
         >>> f
         ModuleOutput(
-          inputs=['moneyness', 'expiry_time'],
+          inputs=['moneyness', 'expiry_time']
           (module): Linear(in_features=2, out_features=1, bias=True)
         )
 
         >>> from pfhedge.nn import BlackScholes
 
         >>> _ = torch.manual_seed(42)
-        >>> deriv = EuropeanOption(BrownianStock())
-        >>> deriv.simulate(n_paths=3)
-        >>> m = BlackScholes(deriv)
-        >>> f = ModuleOutput(m, [LogMoneyness(), ExpiryTime(), Volatility()]).of(deriv)
+        >>> derivative = EuropeanOption(BrownianStock())
+        >>> derivative.simulate(n_paths=3)
+        >>> m = BlackScholes(derivative)
+        >>> f = ModuleOutput(m, [LogMoneyness(), ExpiryTime(), Volatility()])
+        >>> f = f.of(derivative)
         >>> f[0]
         tensor([[...],
                 [...],
@@ -203,7 +197,7 @@ class ModuleOutput(Feature, torch.nn.Module):
         self.inputs = inputs
 
     def extra_repr(self):
-        return f"inputs={[str(f) for f in self.inputs]},"
+        return "inputs=" + str([str(f) for f in self.inputs])
 
     def forward(self, input):
         return self.module(input)

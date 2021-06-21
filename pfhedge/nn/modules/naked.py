@@ -19,6 +19,8 @@ class Naked(Module):
 
     Examples:
 
+        >>> from pfhedge.nn import Naked
+        >>>
         >>> m = Naked()
         >>> input = torch.empty((2, 3))
         >>> m(input)

@@ -42,6 +42,7 @@ class MultiLayerPerceptron(Sequential):
 
         >>> import torch
         >>> from pfhedge.nn import MultiLayerPerceptron
+        >>>
         >>> m = MultiLayerPerceptron()
         >>> m
         MultiLayerPerceptron(

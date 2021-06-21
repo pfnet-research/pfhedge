@@ -21,10 +21,10 @@ if __name__ == "__main__":
     torch.manual_seed(42)
 
     # Prepare a derivative to hedge
-    deriv = EuropeanOption(BrownianStock(cost=1e-4))
+    derivative = EuropeanOption(BrownianStock(cost=1e-4))
 
     # bs is a module that outputs Black-Scholes' delta
-    bs = BlackScholes(deriv)
+    bs = BlackScholes(derivative)
     delta = ModuleOutput(bs, inputs=[LogMoneyness(), ExpiryTime(), Volatility()])
 
     # Create your hedger
@@ -33,6 +33,6 @@ if __name__ == "__main__":
     hedger = Hedger(model, [delta, "prev_hedge"])
 
     # Fit and price
-    hedger.fit(deriv, n_paths=10000, n_epochs=200)
-    price = hedger.price(deriv, n_paths=10000)
+    hedger.fit(derivative, n_paths=10000, n_epochs=200)
+    price = hedger.price(derivative, n_paths=10000)
     print(f"Price={price:.5e}")

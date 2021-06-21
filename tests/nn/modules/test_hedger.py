@@ -14,10 +14,6 @@ from pfhedge.nn import Naked
 from pfhedge.nn import WhalleyWilmott
 
 
-def naked(input):
-    return torch.zeros_like(input[:, :1])
-
-
 class TestHedger:
     """
     pfhedge.Hedger
@@ -33,7 +29,7 @@ class TestHedger:
         hedger = Hedger(Linear(2, 1), ["moneyness", "expiry_time"])
         assert repr(hedger) == (
             "Hedger(\n"
-            "  inputs=['moneyness', 'expiry_time'],\n"
+            "  inputs=['moneyness', 'expiry_time']\n"
             "  (model): Linear(in_features=2, out_features=1, bias=True)\n"
             "  (criterion): EntropicRiskMeasure()\n"
             ")"
@@ -44,17 +40,8 @@ class TestHedger:
         hedger = Hedger(model, model.inputs())
         assert repr(hedger) == (
             "Hedger(\n"
-            "  inputs=['log_moneyness', 'expiry_time', 'volatility'],\n"
+            "  inputs=['log_moneyness', 'expiry_time', 'volatility']\n"
             "  (model): BSEuropeanOption()\n"
-            "  (criterion): EntropicRiskMeasure()\n"
-            ")"
-        )
-
-        hedger = Hedger(naked, ["moneyness", "expiry_time"])
-        assert repr(hedger) == (
-            "Hedger(\n"
-            "  model=naked,\n"
-            "  inputs=['moneyness', 'expiry_time'],\n"
             "  (criterion): EntropicRiskMeasure()\n"
             ")"
         )

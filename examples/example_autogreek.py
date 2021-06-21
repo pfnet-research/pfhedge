@@ -25,9 +25,7 @@ if __name__ == "__main__":
     hedger = Hedger(model, inputs=model.inputs())
 
     def pricer(spot):
-        return hedger.price(
-            derivative, n_paths=10000, init_state=(spot,), enable_grad=True
-        )
+        return hedger.price(derivative, init_state=(spot,), enable_grad=True)
 
     delta = autogreek.delta(pricer, spot=torch.tensor(1.0))
     print("Delta:", delta)

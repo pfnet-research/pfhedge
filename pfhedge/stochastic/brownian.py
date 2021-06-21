@@ -39,6 +39,8 @@ def generate_brownian(
 
     Examples:
 
+        >>> from pfhedge.stochastic import generate_brownian
+        >>>
         >>> _ = torch.manual_seed(42)
         >>> generate_brownian(2, 5)
         tensor([[ 0.0000,  0.0016,  0.0046,  0.0075, -0.0067],
@@ -86,6 +88,8 @@ def generate_geometric_brownian(
 
     Examples:
 
+        >>> from pfhedge.stochastic import generate_brownian
+        >>>
         >>> _ = torch.manual_seed(42)
         >>> generate_geometric_brownian(2, 5)
         tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930],
