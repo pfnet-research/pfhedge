@@ -284,7 +284,7 @@ This project is owned by [Preferred Networks](https://www.preferred.jp/en/) and 
 
 ## References
 
-* Hans Bühler, Lukas Gonon, Josef Teichmann and Ben Wood, "[Deep hedging][deep-hedging-qf]". Quantitative Finance, 2019, 19, 1271-1291. arXiv:[1609.05213][deep-hedging-arxiv] \[q-fin.CP\].
+* Hans Bühler, Lukas Gonon, Josef Teichmann and Ben Wood, "[Deep hedging][deep-hedging-qf]". Quantitative Finance, 2019, 19, 1271-1291. arXiv:[1802.03042][deep-hedging-arxiv] \[q-fin.CP\].
 * Hans Bühler, Lukas Gonon, Josef Teichmann, Ben Wood, Baranidharan Mohan and Jonathan Kochems, [Deep Hedging: Hedging Derivatives Under Generic Market Frictions Using Reinforcement Learning][deep-hedging-wp] (March 19, 2019). Swiss Finance Institute Research Paper No. 19-80.
 * Shota Imaki, Kentaro Imajo, Katsuya Ito, Kentaro Minami and Kei Nakagawa, "No-Transaction Band Network: A Neural Network Architecture for Efficient Deep Hedging". arXiv:[2103.01775][ntb-network-arxiv] \[q-fin.CP\].
 
