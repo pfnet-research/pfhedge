@@ -1,38 +1,52 @@
 import torch
 from torch import Tensor
 
-from ..nn.functional import european_payoff
+from ...nn.functional import american_binary_payoff
 from .base import Derivative
 
 
-class EuropeanOption(Derivative):
-    """A European option.
+class AmericanBinaryOption(Derivative):
+    """An American binary Option.
 
-    A European option provides its holder the right to buy (for call option)
-    or sell (for put option) an underlying asset with the strike price
-    on the date of maturity.
+    An American binary call option pays an unit amount of cash if and only if
+    the maximum of the underlying asset's price until maturity is equal or greater
+    than the strike price.
 
-    The payoff of a European call option is given by:
+    An American binary put option pays an unit amount of cash if and only if
+    the minimum of the underlying asset's price until maturity is equal or smaller
+    than the strike price.
 
-    .. math::
+    The payoff of an American binary call option is given by:
 
-        \\mathrm{payoff} = \\max(S - K, 0)
+    .. math ::
 
-    Here, :math:`S` is the underlying asset's price at maturity and
-    :math:`K` is the strike price (`strike`) of the option.
+        \\mathrm{payoff} =
+        \\begin{cases}
+            1 & (\\mathrm{Max} \\geq K) \\\\
+            0 & (\\text{otherwise})
+        \\end{cases}
 
-    The payoff of a European put option is given by:
+    Here, :math:`\\mathrm{Max}` is the maximum of the underlying asset's price
+    until maturity and :math:`K` is the strike price (`strike`) of the option.
 
-    .. math::
+    The payoff of an American binary put option is given by:
 
-        \\mathrm{payoff} = \\max(K - S, 0)
+    .. math ::
+
+        \\mathrm{payoff} =
+        \\begin{cases}
+            1 & (\\mathrm{Min} \\leq K) \\\\
+            0 & (\\text{otherwise})
+        \\end{cases}
+
+    Here, :math:`\\mathrm{Min}` is the minimum of the underlying asset's price.
 
     Args:
         underlier (:class:`Primary`): The underlying instrument of the option.
         call (bool, default=True): Specifies whether the option is call or put.
         strike (float, default=1.0): The strike price of the option.
         maturity (float, default=20/250): The maturity of the option.
-        dtype (torch.dtype, optional): Desired device of returned tensor.
+        dtype (torch.device, optional): Desired device of returned tensor.
             Default: If None, uses a global default
             (see `torch.set_default_tensor_type()`).
         device (torch.device, optional): Desired device of returned tensor.
@@ -50,22 +64,16 @@ class EuropeanOption(Derivative):
 
         >>> import torch
         >>> from pfhedge.instruments import BrownianStock
-        >>> from pfhedge.instruments import EuropeanOption
+        >>> from pfhedge.instruments import AmericanBinaryOption
         >>>
         >>> _ = torch.manual_seed(42)
-        >>> derivative = EuropeanOption(BrownianStock(), maturity=5/250)
+        >>> derivative = AmericanBinaryOption(BrownianStock(), maturity=5/250, strike=1.01)
         >>> derivative.simulate(n_paths=2)
         >>> derivative.underlier.spot
         tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930],
                 [1.0000, 1.0282, 1.0199, 1.0258, 1.0292]])
         >>> derivative.payoff()
-        tensor([0.0000, 0.0292])
-
-        Using custom `dtype` and `device`.
-
-        >>> derivative = EuropeanOption(BrownianStock())
-        >>> derivative.to(dtype=torch.float64, device="cuda:0")
-        EuropeanOption(..., dtype=torch.float64, device='cuda:0')
+        tensor([0., 1.])
     """
 
     def __init__(
@@ -82,7 +90,6 @@ class EuropeanOption(Derivative):
         self.call = call
         self.strike = strike
         self.maturity = maturity
-
         self.to(dtype=dtype, device=device)
 
     def __repr__(self):
@@ -95,12 +102,14 @@ class EuropeanOption(Derivative):
         return self.__class__.__name__ + "(" + ", ".join(params) + ")"
 
     def payoff(self) -> Tensor:
-        return european_payoff(self.underlier.spot, call=self.call, strike=self.strike)
+        return american_binary_payoff(
+            self.underlier.spot, call=self.call, strike=self.strike
+        )
 
 
 # Assign docstrings so they appear in Sphinx documentation
-EuropeanOption.simulate = Derivative.simulate
-EuropeanOption.simulate.__doc__ = Derivative.simulate.__doc__
-EuropeanOption.to = Derivative.to
-EuropeanOption.to.__doc__ = Derivative.to.__doc__
-EuropeanOption.payoff.__doc__ = Derivative.payoff.__doc__
+AmericanBinaryOption.simulate = Derivative.simulate
+AmericanBinaryOption.simulate.__doc__ = Derivative.simulate.__doc__
+AmericanBinaryOption.to = Derivative.to
+AmericanBinaryOption.to.__doc__ = Derivative.to.__doc__
+AmericanBinaryOption.payoff.__doc__ = Derivative.payoff.__doc__
