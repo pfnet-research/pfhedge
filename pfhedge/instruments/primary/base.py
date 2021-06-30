@@ -39,6 +39,10 @@ class Primary(Instrument):
     def __init__(self):
         self._buffers = OrderedDict()
 
+    @property
+    def default_init_state(self):
+        """Returns the default initial state of simulation."""
+
     @abstractmethod
     def simulate(
         self, n_paths: int, time_horizon: float, init_state: Optional[tuple] = None

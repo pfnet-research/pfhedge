@@ -64,6 +64,10 @@ class BrownianStock(Primary):
 
         self.to(dtype=dtype, device=device)
 
+    @property
+    def default_init_state(self) -> tuple:
+        return (1.0,)
+
     def __repr__(self):
         params = [f"volatility={self.volatility:.2e}"]
         if self.cost != 0.0:
@@ -103,8 +107,7 @@ class BrownianStock(Primary):
                     [2.0000, 2.0565, 2.0398, 2.0516, 2.0584]])
         """
         if init_state is None:
-            # Default value
-            init_state = (1.0,)
+            init_state = self.default_init_state
 
         spot = generate_geometric_brownian(
             n_paths=n_paths,
@@ -120,5 +123,6 @@ class BrownianStock(Primary):
 
 
 # Assign docstrings so they appear in Sphinx documentation
+BrownianStock.default_init_state.__doc__ = Primary.default_init_state.__doc__
 BrownianStock.to = Primary.to
 BrownianStock.to.__doc__ = Primary.to.__doc__
