@@ -75,7 +75,6 @@ class HestonStock(Primary):
 
     @property
     def default_init_state(self) -> tuple:
-        """Returns the default initial state of simulation."""
         return (1.0, 0.04)
 
     def simulate(
@@ -135,5 +134,6 @@ class HestonStock(Primary):
 
 
 # Assign docstrings so they appear in Sphinx documentation
+HestonStock.default_init_state.__doc__ = Primary.default_init_state.__doc__
 HestonStock.to = Primary.to
 HestonStock.to.__doc__ = Primary.to.__doc__
