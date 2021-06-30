@@ -10,7 +10,7 @@ from typing import Union
 import torch
 from torch import Tensor
 
-T = TypeVar("T")
+T = TypeVar("T", bound="Primary")
 
 
 from ..base import Instrument
@@ -127,8 +127,8 @@ class Primary(Instrument):
         if not hasattr(self, "device") or device is not None:
             self.device = device
 
-        for buffer in self.buffers():
-            buffer.to(*args, **kwargs)
+        for name, buffer in self.named_buffers():
+            self.register_buffer(name, buffer.to(*args, **kwargs))
 
         return self
 

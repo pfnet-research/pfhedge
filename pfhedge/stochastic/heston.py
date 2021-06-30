@@ -18,16 +18,23 @@ def generate_heston(
 ) -> tuple:
     """Returns time series following Heston model.
 
-    The drift of the time series is assumed to be vanishing.
+    The time evolution of Heston process is given by:
+
+    .. math ::
+
+        dS(t) = S(t) \\sqrt{V(t)} dW_1(t) \\,, \\\\
+        dV(t) = \\kappa (\\theta - V(t)) + \\sigma \\sqrt{V(t)} dW_2(t) \\,.
+
+    The correlation between :math:`dW_1` and :math:`dW_2` is `\\rho`.
 
     Args:
         n_paths (int): The number of simulated paths.
         n_steps (int): The number of time steps.
         init_state (tuple, default=(1.0, 0.04)):
-        kappa (float, default=):
-        theta (float, default=):
-        sigma (float, default=):
-        rho (float, default=):
+        kappa (float): The parameter :math:`\\kappa`.
+        theta (float): The parameter :math:`\\theta`.
+        sigma (float): The parameter :math:`\\sigma`.
+        rho (float): The parameter :math:`\\rho`.
         dt (float, default=1/250): The intervals of the time steps.
         dtype (torch.dtype, optional): The desired data type of returned tensor.
             Default: If `None`, uses a global default
@@ -52,24 +59,18 @@ def generate_heston(
         >>> _ = torch.manual_seed(42)
         >>> spot, variance = generate_heston(2, 5)
         >>> spot
-        tensor([[1.0000, 0.9981, 0.9965, 0.9953, 0.9946],
-                [1.0000, 0.9984, 0.9932, 0.9937, 0.9922]])
+        tensor([[1.0000, 0.9944, 0.9923, 0.9876, 0.9773],
+                [1.0000, 1.0055, 0.9609, 0.9683, 0.9602]])
         >>> variance
-        tensor([[0.0400, 0.0201, 0.0132, 0.0067, 0.0109],
-                [0.0400, 0.0201, 0.0115, 0.0048, 0.0040]])
+        tensor([[0.0400, 0.0441, 0.0446, 0.0470, 0.0495],
+                [0.0400, 0.0347, 0.0823, 0.0670, 0.0754]])
     """
-    # TODO(simaki) dtype and device
-    assert dtype is None
-    assert device is None
-
-    # TODO(simaki) variance sometimes become nan
-
     GAMMA1 = 0.5
     GAMMA2 = 0.5
 
     init_spot, init_var = init_state
 
-    var = generate_cir(
+    variance = generate_cir(
         n_paths=n_paths,
         n_steps=n_steps,
         init_value=init_var,
@@ -83,22 +84,23 @@ def generate_heston(
     log_spot = torch.empty(n_paths, n_steps)
     log_spot[:, 0] = torch.tensor(init_spot).log()
 
+    randn = torch.randn(n_paths, n_steps)
+
     for i_step in range(n_steps - 1):
+        # Compute log S(t + 1): Eq(33)
         k0 = -rho * kappa * theta * dt / sigma
         k1 = GAMMA1 * dt * (kappa * rho / sigma - 0.5) - rho / sigma
         k2 = GAMMA2 * dt * (kappa * rho / sigma - 0.5) + rho / sigma
         k3 = GAMMA1 * dt * (1 - rho ** 2)
         k4 = GAMMA2 * dt * (1 - rho ** 2)
-        v0 = var[:, i_step]
-        v1 = var[:, i_step]
-        log_spot[:, i_step + 1] = (
-            log_spot[:, i_step]
-            + k0
-            + k1 * v0
-            + k2 * v1
-            + (k3 * v0 + k4 * v1).sqrt() * torch.randn(n_paths)
+        v0 = variance[:, i_step]
+        v1 = variance[:, i_step + 1]
+        log_spot[:, i_step + 1] = sum(
+            (
+                log_spot[:, i_step],
+                k0 + k1 * v0 + k2 * v1,
+                (k3 * v0 + k4 * v1).sqrt() * randn[:, i_step],
+            )
         )
 
-    spot = log_spot.exp()
-
-    return (spot, var)
+    return (log_spot.exp(), variance)

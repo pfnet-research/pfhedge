@@ -37,8 +37,15 @@ class HestonStock(Primary):
 
         >>> from pfhedge.instruments import HestonStock
         >>>
-        >>> _ = torch.manual_seed(42)
+        >>> _ = torch.manual_seed(1)
         >>> stock = HestonStock()
+        >>> stock.simulate(n_paths=2, time_horizon=5/250)
+        >>> stock.spot
+        tensor([[1.0000, 1.0045, 1.0137, 1.0197, 1.0259],
+                [1.0000, 0.9869, 0.9977, 0.9955, 1.0208]])
+        >>> stock.variance
+        tensor([[0.0400, 0.0570, 0.0607, 0.0556, 0.0751],
+                [0.0400, 0.0257, 0.0462, 0.0520, 0.0120]])
     """
 
     def __init__(
@@ -68,19 +75,6 @@ class HestonStock(Primary):
         """Returns the default initial state of simulation."""
         return (1.0, 0.04)
 
-    def __repr__(self):
-        params = [
-            f"kappa={self.kappa:.2e}",
-            f"theta={self.theta:.2e}",
-            f"sigma={self.sigma:.2e}",
-            f"rho={self.rho:.2e}",
-        ]
-        if self.cost != 0.0:
-            params.append(f"cost={self.cost:.2e}")
-        params.append(f"dt={self.dt:.2e}")
-        params += self.dinfo
-        return self.__class__.__name__ + "(" + ", ".join(params) + ")"
-
     def simulate(
         self,
         n_paths: int = 1,
@@ -99,14 +93,10 @@ class HestonStock(Primary):
                 the price.
             init_state (tuple, optional): The initial state of the instrument.
                 `init_state` should be a 2-tuple `(spot, variance)`
-                where `spot` is the initial spot price and `variance` of the initial variance.
-                If `None` (default), the default value is chosen (See `default_init_state`).
-
-        Examples:
-
-            >>> _ = torch.manual_seed(42)
-            >>> stock = HestonStock()
-            >>> # TODO(simaki)
+                where `spot` is the initial spot price and `variance` of the initial
+                variance.
+                If `None` (default), the default value is chosen
+                (See :member:`default_init_state`).
         """
         if init_state is None:
             init_state = self.default_init_state
@@ -126,6 +116,19 @@ class HestonStock(Primary):
 
         self.register_buffer("spot", spot)
         self.register_buffer("variance", variance)
+
+    def __repr__(self):
+        params = [
+            f"kappa={self.kappa:.2e}",
+            f"theta={self.theta:.2e}",
+            f"sigma={self.sigma:.2e}",
+            f"rho={self.rho:.2e}",
+        ]
+        if self.cost != 0.0:
+            params.append(f"cost={self.cost:.2e}")
+        params.append(f"dt={self.dt:.2e}")
+        params += self.dinfo
+        return self.__class__.__name__ + "(" + ", ".join(params) + ")"
 
 
 # Assign docstrings so they appear in Sphinx documentation
