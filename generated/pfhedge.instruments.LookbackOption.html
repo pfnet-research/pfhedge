@@ -5,10 +5,11 @@
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="EuropeanBinaryOption" href="pfhedge.instruments.EuropeanBinaryOption.html" /><link rel="prev" title="EuropeanOption" href="pfhedge.instruments.EuropeanOption.html" />
 
-    <meta name="generator" content="sphinx-4.0.2, furo 2021.06.18.beta36"/>
+    <meta name="generator" content="sphinx-4.0.2, furo 2021.06.24.beta37"/>
         <title>LookbackOption - PFHedge documentation</title>
-      <link rel="stylesheet" href="../_static/styles/furo.css?digest=9b17055c4366e8b2949c66d6a9d8b0efe4dbaa60">
-    <link rel="stylesheet" href="../_static/pygments.css">
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css" />
     
 
 
@@ -45,10 +46,7 @@
   --color-brand-content: #0D318F;
   
   }
-</style><link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css" />
-    <link media="(prefers-color-scheme: dark)" rel="stylesheet" href="../_static/pygments_dark.css">
-    <link rel="stylesheet" href="../_static/styles/furo-extensions.css?digest=ee12cdd73c4bbac24afec78d92c4afd7c2d8ea7f"></head>
+</style><link media="(prefers-color-scheme: dark)" rel="stylesheet" href="../_static/pygments_dark.css"></head>
   <body dir="">
     
 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
@@ -142,6 +140,7 @@
 <li class="toctree-l1 current has-children"><a class="reference internal" href="../instruments.html">pfhedge.instruments</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label for="toctree-checkbox-2"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.Primary.html">Primary</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.HestonStock.html">HestonStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.Derivative.html">Derivative</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">LookbackOption</a></li>
@@ -173,7 +172,7 @@
 <h1>LookbackOption<a class="headerlink" href="#lookbackoption" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="pfhedge.instruments.LookbackOption">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pfhedge.instruments.</span></span><span class="sig-name descname"><span class="pre">LookbackOption</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">underlier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">call</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strike</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maturity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/lookback.html#LookbackOption"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.LookbackOption" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pfhedge.instruments.</span></span><span class="sig-name descname"><span class="pre">LookbackOption</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">underlier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">call</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strike</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maturity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/derivative/lookback.html#LookbackOption"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.LookbackOption" title="Permalink to this definition">¶</a></dt>
 <dd><p>A lookback option with fixed strike.</p>
 <p>A lookback call option provides its holder the right to buy an underlying with
 the strike price and to sell with the highest price until the date of maturity.</p>
@@ -244,7 +243,7 @@ represented.</p>
 </div>
 <dl class="py method">
 <dt class="sig sig-object py" id="pfhedge.instruments.LookbackOption.payoff">
-<span class="sig-name descname"><span class="pre">payoff</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/lookback.html#LookbackOption.payoff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.LookbackOption.payoff" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">payoff</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/derivative/lookback.html#LookbackOption.payoff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.LookbackOption.payoff" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the payoffs of the derivative.</p>
 <dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
@@ -346,12 +345,11 @@ series.</p></li>
       
     </aside>
   </main>
-</div>
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+</div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
+    <script src="../_static/scripts/main.js"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script src="../_static/scripts/main.js?digest=e931d09b2a40c1bb82b542effe772014573baf67"></script></body>
+    </body>
 </html>

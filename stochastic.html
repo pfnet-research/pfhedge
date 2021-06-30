@@ -5,10 +5,11 @@
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="pfhedge.autogreek" href="autogreek.html" /><link rel="prev" title="AmericanBinaryOption" href="generated/pfhedge.instruments.AmericanBinaryOption.html" />
 
-    <meta name="generator" content="sphinx-4.0.2, furo 2021.06.18.beta36"/>
+    <meta name="generator" content="sphinx-4.0.2, furo 2021.06.24.beta37"/>
         <title>pfhedge.stochastic - PFHedge documentation</title>
-      <link rel="stylesheet" href="_static/styles/furo.css?digest=9b17055c4366e8b2949c66d6a9d8b0efe4dbaa60">
-    <link rel="stylesheet" href="_static/pygments.css">
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css" />
     
 
 
@@ -45,10 +46,7 @@
   --color-brand-content: #0D318F;
   
   }
-</style><link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css" />
-    <link media="(prefers-color-scheme: dark)" rel="stylesheet" href="_static/pygments_dark.css">
-    <link rel="stylesheet" href="_static/styles/furo-extensions.css?digest=ee12cdd73c4bbac24afec78d92c4afd7c2d8ea7f"></head>
+</style><link media="(prefers-color-scheme: dark)" rel="stylesheet" href="_static/pygments_dark.css"></head>
   <body dir="">
     
 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
@@ -142,6 +140,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="instruments.html">pfhedge.instruments</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label for="toctree-checkbox-2"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.Primary.html">Primary</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.HestonStock.html">HestonStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.Derivative.html">Derivative</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
@@ -266,6 +265,137 @@ for CUDA tensor types.</p></li>
 </div>
 </dd></dl>
 </section>
+<section id="cox-ingersoll-ross-process">
+<h2>Cox-Ingersoll-Ross Process<a class="headerlink" href="#cox-ingersoll-ross-process" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pfhedge.stochastic.generate_cir">
+<span class="sig-prename descclassname"><span class="pre">pfhedge.stochastic.</span></span><span class="sig-name descname"><span class="pre">generate_cir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_steps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.04</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kappa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.04</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.004</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfhedge/stochastic/cir.html#generate_cir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.stochastic.generate_cir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns time series following Cox-Ingersoll-Ross process.</p>
+<p>The time evolution of CIR process is given by:</p>
+<div class="math-wrapper"><div class="math notranslate nohighlight">
+\[dX(t) = \kappa (\theta - X(t)) + \sigma \sqrt{X(t)} dW(t) \,.\]</div></div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_paths</strong> (<em>int</em>) – The number of simulated paths.</p></li>
+<li><p><strong>n_steps</strong> (<em>int</em>) – The number of time steps.</p></li>
+<li><p><strong>init_value</strong> (<em>float</em><em>, </em><em>default=0.04</em>) – The initial value of the time series.</p></li>
+<li><p><strong>kappa</strong> (<em>float</em><em>, </em><em>default=1.0</em>) – The parameter <span class="math notranslate nohighlight">\(\kappa\)</span>.</p></li>
+<li><p><strong>theta</strong> (<em>float</em><em>, </em><em>default=0.04</em>) – The parameter <span class="math notranslate nohighlight">\(\theta\)</span>.</p></li>
+<li><p><strong>sigma</strong> (<em>float</em><em>, </em><em>default=2.0</em>) – The parameter <span class="math notranslate nohighlight">\(\sigma\)</span>.</p></li>
+<li><p><strong>dt</strong> (<em>float</em><em>, </em><em>default=1/250</em>) – The intervals of the time steps.</p></li>
+<li><p><strong>dtype</strong> (<em>torch.dtype</em><em>, </em><em>optional</em>) – The desired data type of returned tensor.
+Default: If <cite>None</cite>, uses a global default
+(see <cite>torch.set_default_tensor_type()</cite>).</p></li>
+<li><p><strong>device</strong> (<em>torch.device</em><em>, </em><em>optional</em>) – The desired device of returned tensor.
+Default: if None, uses the current device for the default tensor type
+(see <cite>torch.set_default_tensor_type()</cite>).
+<cite>device</cite> will be the CPU for CPU tensor types and the current CUDA device
+for CUDA tensor types.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Shape:</dt><dd><ul class="simple">
+<li><p>Output: <span class="math notranslate nohighlight">\((N, T)\)</span>, where <span class="math notranslate nohighlight">\(N\)</span> is the number of paths and
+<span class="math notranslate nohighlight">\(T\)</span> is the number of time steps.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.stochastic</span> <span class="kn">import</span> <span class="n">generate_cir</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">generate_cir</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="go">tensor([[0.0400, 0.0433, 0.0406, 0.0423, 0.0441],</span>
+<span class="go">        [0.0400, 0.0251, 0.0047, 0.0000, 0.0000]])</span>
+</pre></div>
+</div>
+<p class="rubric">References</p>
+<ul class="simple">
+<li><p>Andersen, Leif B.G., Efficient Simulation of the Heston Stochastic
+Volatility Model (January 23, 2007). Available at SSRN:
+<a class="reference external" href="https://ssrn.com/abstract=946405">https://ssrn.com/abstract=946405</a> or <a class="reference external" href="http://dx.doi.org/10.2139/ssrn.946404">http://dx.doi.org/10.2139/ssrn.946404</a></p></li>
+</ul>
+</dd></dl>
+</section>
+<section id="heston-process">
+<h2>Heston Process<a class="headerlink" href="#heston-process" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pfhedge.stochastic.generate_heston">
+<span class="sig-prename descclassname"><span class="pre">pfhedge.stochastic.</span></span><span class="sig-name descname"><span class="pre">generate_heston</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_steps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1.0,</span> <span class="pre">0.04)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kappa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.04</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">0.7</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.004</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfhedge/stochastic/heston.html#generate_heston"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.stochastic.generate_heston" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns time series following Heston model.</p>
+<p>The time evolution of Heston process is given by:</p>
+<div class="math-wrapper"><div class="math notranslate nohighlight">
+\[\begin{split}dS(t) = S(t) \sqrt{V(t)} dW_1(t) \,, \\
+dV(t) = \kappa (\theta - V(t)) + \sigma \sqrt{V(t)} dW_2(t) \,.\end{split}\]</div></div>
+<p>The correlation between <span class="math notranslate nohighlight">\(dW_1\)</span> and <span class="math notranslate nohighlight">\(dW_2\)</span> is <span class="math notranslate nohighlight">\(\rho\)</span>.
+The correlation between <span class="math notranslate nohighlight">\(dW_1\)</span> and <span class="math notranslate nohighlight">\(dW_2\)</span> is <cite>rho</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_paths</strong> (<em>int</em>) – The number of simulated paths.</p></li>
+<li><p><strong>n_steps</strong> (<em>int</em>) – The number of time steps.</p></li>
+<li><p><strong>init_state</strong> (<em>tuple</em><em>, </em><em>default=</em><em>(</em><em>1.0</em><em>, </em><em>0.04</em><em>)</em>) – Initial state of a simulation.
+<cite>init_state</cite> should be a 2-tuple <cite>(spot, variance)</cite> where <cite>spot</cite> is the
+initial spot price and <cite>variance</cite> of the initial variance.</p></li>
+<li><p><strong>kappa</strong> (<em>float</em><em>, </em><em>default=1.0</em>) – The parameter <span class="math notranslate nohighlight">\(\kappa\)</span>.</p></li>
+<li><p><strong>theta</strong> (<em>float</em><em>, </em><em>default=0.04</em>) – The parameter <span class="math notranslate nohighlight">\(\theta\)</span>.</p></li>
+<li><p><strong>sigma</strong> (<em>float</em><em>, </em><em>default=2.0</em>) – The parameter <span class="math notranslate nohighlight">\(\sigma\)</span>.</p></li>
+<li><p><strong>rho</strong> (<em>float</em><em>, </em><em>default=-0.7</em>) – The parameter <span class="math notranslate nohighlight">\(\rho\)</span>.</p></li>
+<li><p><strong>dt</strong> (<em>float</em><em>, </em><em>default=1/250</em>) – The intervals of the time steps.</p></li>
+<li><p><strong>dtype</strong> (<em>torch.dtype</em><em>, </em><em>optional</em>) – The desired data type of returned tensor.
+Default: If <cite>None</cite>, uses a global default
+(see <cite>torch.set_default_tensor_type()</cite>).</p></li>
+<li><p><strong>device</strong> (<em>torch.device</em><em>, </em><em>optional</em>) – The desired device of returned tensor.
+Default: if None, uses the current device for the default tensor type
+(see <cite>torch.set_default_tensor_type()</cite>).
+<cite>device</cite> will be the CPU for CPU tensor types and the current CUDA device
+for CUDA tensor types.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Shape:</dt><dd><ul class="simple">
+<li><p>Output: <span class="math notranslate nohighlight">\((N, T)\)</span>, where <span class="math notranslate nohighlight">\(N\)</span> is the number of paths and
+<span class="math notranslate nohighlight">\(T\)</span> is the number of time steps.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A tuple of spot and variance.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>(torch.Tensor, torch.Tensor)</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.stochastic</span> <span class="kn">import</span> <span class="n">generate_heston</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spot</span><span class="p">,</span> <span class="n">variance</span> <span class="o">=</span> <span class="n">generate_heston</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spot</span>
+<span class="go">tensor([[1.0000, 0.9958, 0.9940, 0.9895, 0.9765],</span>
+<span class="go">        [1.0000, 1.0064, 1.0117, 1.0116, 1.0117]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">variance</span>
+<span class="go">tensor([[0.0400, 0.0433, 0.0406, 0.0423, 0.0441],</span>
+<span class="go">        [0.0400, 0.0251, 0.0047, 0.0000, 0.0000]])</span>
+</pre></div>
+</div>
+<p class="rubric">References</p>
+<ul class="simple">
+<li><p>Andersen, Leif B.G., Efficient Simulation of the Heston Stochastic
+Volatility Model (January 23, 2007). Available at SSRN:
+<a class="reference external" href="https://ssrn.com/abstract=946405">https://ssrn.com/abstract=946405</a> or <a class="reference external" href="http://dx.doi.org/10.2139/ssrn.946404">http://dx.doi.org/10.2139/ssrn.946404</a></p></li>
+</ul>
+</dd></dl>
+</section>
 </section>
 
       </article>
@@ -324,6 +454,8 @@ for CUDA tensor types.</p></li>
             <ul>
 <li><a class="reference internal" href="#">pfhedge.stochastic</a><ul>
 <li><a class="reference internal" href="#brownian-motion">Brownian Motion</a></li>
+<li><a class="reference internal" href="#cox-ingersoll-ross-process">Cox-Ingersoll-Ross Process</a></li>
+<li><a class="reference internal" href="#heston-process">Heston Process</a></li>
 </ul>
 </li>
 </ul>
@@ -335,12 +467,11 @@ for CUDA tensor types.</p></li>
       
     </aside>
   </main>
-</div>
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/scripts/main.js"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script src="_static/scripts/main.js?digest=e931d09b2a40c1bb82b542effe772014573baf67"></script></body>
+    </body>
 </html>

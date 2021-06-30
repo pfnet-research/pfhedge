@@ -3,12 +3,13 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Derivative" href="pfhedge.instruments.Derivative.html" /><link rel="prev" title="Primary" href="pfhedge.instruments.Primary.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="HestonStock" href="pfhedge.instruments.HestonStock.html" /><link rel="prev" title="Primary" href="pfhedge.instruments.Primary.html" />
 
-    <meta name="generator" content="sphinx-4.0.2, furo 2021.06.18.beta36"/>
+    <meta name="generator" content="sphinx-4.0.2, furo 2021.06.24.beta37"/>
         <title>BrownianStock - PFHedge documentation</title>
-      <link rel="stylesheet" href="../_static/styles/furo.css?digest=9b17055c4366e8b2949c66d6a9d8b0efe4dbaa60">
-    <link rel="stylesheet" href="../_static/pygments.css">
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css" />
     
 
 
@@ -45,10 +46,7 @@
   --color-brand-content: #0D318F;
   
   }
-</style><link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css" />
-    <link media="(prefers-color-scheme: dark)" rel="stylesheet" href="../_static/pygments_dark.css">
-    <link rel="stylesheet" href="../_static/styles/furo-extensions.css?digest=ee12cdd73c4bbac24afec78d92c4afd7c2d8ea7f"></head>
+</style><link media="(prefers-color-scheme: dark)" rel="stylesheet" href="../_static/pygments_dark.css"></head>
   <body dir="">
     
 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
@@ -142,6 +140,7 @@
 <li class="toctree-l1 current has-children"><a class="reference internal" href="../instruments.html">pfhedge.instruments</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label for="toctree-checkbox-2"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.Primary.html">Primary</a></li>
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">BrownianStock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.HestonStock.html">HestonStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.Derivative.html">Derivative</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
@@ -173,7 +172,7 @@
 <h1>BrownianStock<a class="headerlink" href="#brownianstock" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="pfhedge.instruments.BrownianStock">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pfhedge.instruments.</span></span><span class="sig-name descname"><span class="pre">BrownianStock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">volatility</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.004</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/underlier.html#BrownianStock"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.BrownianStock" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pfhedge.instruments.</span></span><span class="sig-name descname"><span class="pre">BrownianStock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">volatility</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.004</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/primary/brownian.html#BrownianStock"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.BrownianStock" title="Permalink to this definition">¶</a></dt>
 <dd><p>A stock of which spot prices follow the geometric Brownian motion.</p>
 <p>The drift of the spot prices is assumed to be vanishing.</p>
 <dl class="field-list simple">
@@ -223,9 +222,14 @@ The shape is <span class="math notranslate nohighlight">\((N, T)\)</span>, where
 <span class="go">BrownianStock(..., dtype=torch.float64, device='cuda:0')</span>
 </pre></div>
 </div>
+<dl class="py property">
+<dt class="sig sig-object py" id="pfhedge.instruments.BrownianStock.default_init_state">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">default_init_state</span></span><em class="property"><span class="pre">:</span> <span class="pre">tuple</span></em><a class="headerlink" href="#pfhedge.instruments.BrownianStock.default_init_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the default initial state of simulation.</p>
+</dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pfhedge.instruments.BrownianStock.simulate">
-<span class="sig-name descname"><span class="pre">simulate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_horizon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/underlier.html#BrownianStock.simulate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.BrownianStock.simulate" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">simulate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_horizon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/primary/brownian.html#BrownianStock.simulate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.BrownianStock.simulate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Simulate the spot price and add it as a buffer named <cite>spot</cite>.</p>
 <p>The shape of the spot is <span class="math notranslate nohighlight">\((N, T)\)</span>, where <span class="math notranslate nohighlight">\(N\)</span> is the number of
 simulated paths and <span class="math notranslate nohighlight">\(T\)</span> is the number of time steps.
@@ -238,7 +242,7 @@ The number of time steps is determinded from <cite>dt</cite> and <cite>time_hori
 the price.</p></li>
 <li><p><strong>init_state</strong> (<em>tuple</em><em>, </em><em>optional</em>) – The initial state of the instrument.
 <cite>init_state</cite> should be a 1-tuple <cite>(spot,)</cite>
-where spot is the initial spot price.
+where <cite>spot</cite> is the initial spot price.
 If <cite>None</cite> (default), the default value <cite>(1.0,)</cite> is chosen.</p></li>
 </ul>
 </dd>
@@ -281,12 +285,12 @@ series.</p></li>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="pfhedge.instruments.Derivative.html">
+          <a class="next-page" href="pfhedge.instruments.HestonStock.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Derivative</div>
+                <div class="title">HestonStock</div>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -325,12 +329,11 @@ series.</p></li>
       
     </aside>
   </main>
-</div>
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+</div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
+    <script src="../_static/scripts/main.js"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script src="../_static/scripts/main.js?digest=e931d09b2a40c1bb82b542effe772014573baf67"></script></body>
+    </body>
 </html>

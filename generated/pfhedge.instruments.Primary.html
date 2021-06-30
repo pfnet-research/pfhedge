@@ -5,10 +5,11 @@
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="BrownianStock" href="pfhedge.instruments.BrownianStock.html" /><link rel="prev" title="pfhedge.instruments" href="../instruments.html" />
 
-    <meta name="generator" content="sphinx-4.0.2, furo 2021.06.18.beta36"/>
+    <meta name="generator" content="sphinx-4.0.2, furo 2021.06.24.beta37"/>
         <title>Primary - PFHedge documentation</title>
-      <link rel="stylesheet" href="../_static/styles/furo.css?digest=9b17055c4366e8b2949c66d6a9d8b0efe4dbaa60">
-    <link rel="stylesheet" href="../_static/pygments.css">
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css" />
     
 
 
@@ -45,10 +46,7 @@
   --color-brand-content: #0D318F;
   
   }
-</style><link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css" />
-    <link media="(prefers-color-scheme: dark)" rel="stylesheet" href="../_static/pygments_dark.css">
-    <link rel="stylesheet" href="../_static/styles/furo-extensions.css?digest=ee12cdd73c4bbac24afec78d92c4afd7c2d8ea7f"></head>
+</style><link media="(prefers-color-scheme: dark)" rel="stylesheet" href="../_static/pygments_dark.css"></head>
   <body dir="">
     
 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
@@ -142,6 +140,7 @@
 <li class="toctree-l1 current has-children"><a class="reference internal" href="../instruments.html">pfhedge.instruments</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label for="toctree-checkbox-2"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Primary</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.HestonStock.html">HestonStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.Derivative.html">Derivative</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
@@ -173,7 +172,7 @@
 <h1>Primary<a class="headerlink" href="#primary" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="pfhedge.instruments.Primary">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pfhedge.instruments.</span></span><span class="sig-name descname"><span class="pre">Primary</span></span><a class="reference internal" href="../_modules/pfhedge/instruments/base.html#Primary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Primary" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pfhedge.instruments.</span></span><span class="sig-name descname"><span class="pre">Primary</span></span><a class="reference internal" href="../_modules/pfhedge/instruments/primary/base.html#Primary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Primary" title="Permalink to this definition">¶</a></dt>
 <dd><p>Base class for all primary instruments.</p>
 <p>A primary instrument is a basic financial instrument which is traded on a market
 and therefore the price is accessible as the market price.
@@ -202,8 +201,51 @@ represented.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
+<dt class="sig sig-object py" id="pfhedge.instruments.Primary.buffers">
+<span class="sig-name descname"><span class="pre">buffers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/primary/base.html#Primary.buffers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Primary.buffers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an iterator over module buffers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Yields</dt>
+<dd class="field-odd"><p><em>torch.Tensor</em> – module buffer</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="pfhedge.instruments.Primary.default_init_state">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">default_init_state</span></span><a class="headerlink" href="#pfhedge.instruments.Primary.default_init_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the default initial state of simulation.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pfhedge.instruments.Primary.named_buffers">
+<span class="sig-name descname"><span class="pre">named_buffers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/primary/base.html#Primary.named_buffers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Primary.named_buffers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an iterator over module buffers, yielding both the
+name of the buffer as well as the buffer itself.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Yields</dt>
+<dd class="field-odd"><p><em>(string, torch.Tensor)</em> – Tuple containing the name and buffer</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pfhedge.instruments.Primary.register_buffer">
+<span class="sig-name descname"><span class="pre">register_buffer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tensor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/primary/base.html#Primary.register_buffer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Primary.register_buffer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a buffer to the module.</p>
+<p>Buffers can be accessed as attributes using given names.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>string</em>) – name of the buffer. The buffer can be accessed
+from this module using the given name</p></li>
+<li><p><strong>tensor</strong> (<em>Tensor</em><em> or </em><em>None</em>) – buffer to be registered. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, then operations
+that run on buffers, such as <code class="xref py py-attr docutils literal notranslate"><span class="pre">cuda</span></code>, are ignored. If <code class="docutils literal notranslate"><span class="pre">None</span></code>,
+the buffer is <strong>not</strong> included in the module’s <code class="xref py py-attr docutils literal notranslate"><span class="pre">state_dict</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
 <dt class="sig sig-object py" id="pfhedge.instruments.Primary.simulate">
-<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">simulate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_horizon</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/base.html#Primary.simulate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Primary.simulate" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">simulate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_horizon</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/primary/base.html#Primary.simulate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Primary.simulate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Simulate time series associated with the instrument and add them as buffers.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -218,7 +260,7 @@ If <cite>None</cite> (default), sensible default value is used.</p></li>
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pfhedge.instruments.Primary.to">
-<span class="sig-name descname"><span class="pre">to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/base.html#Primary.to"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Primary.to" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/primary/base.html#Primary.to"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Primary.to" title="Permalink to this definition">¶</a></dt>
 <dd><p>Performs dtype and/or device conversion of the buffers associated to
 the instument.</p>
 <p>A <cite>torch.dtype</cite> and <cite>torch.device</cite> are inferred from the arguments of
@@ -288,11 +330,10 @@ series.</p></li>
       
     </aside>
   </main>
-</div>
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+</div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/scripts/main.js?digest=e931d09b2a40c1bb82b542effe772014573baf67"></script></body>
+    <script src="../_static/scripts/main.js"></script>
+    </body>
 </html>
