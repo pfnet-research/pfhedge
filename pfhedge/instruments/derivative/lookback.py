@@ -1,7 +1,7 @@
 import torch
 from torch import Tensor
 
-from ..nn.functional import lookback_payoff
+from ...nn.functional import lookback_payoff
 from .base import Derivative
 
 

@@ -2,7 +2,7 @@ from typing import Optional
 
 import torch
 
-from ..stochastic import generate_geometric_brownian
+from ...stochastic import generate_geometric_brownian
 from .base import Primary
 
 
@@ -53,8 +53,8 @@ class BrownianStock(Primary):
         volatility: float = 0.2,
         cost: float = 0.0,
         dt: float = 1 / 250,
-        dtype: torch.dtype = None,
-        device: torch.device = None,
+        dtype: Optional[torch.dtype] = None,
+        device: Optional[torch.device] = None,
     ):
         super().__init__()
 
@@ -63,6 +63,10 @@ class BrownianStock(Primary):
         self.dt = dt
 
         self.to(dtype=dtype, device=device)
+
+    @property
+    def default_init_state(self) -> tuple:
+        return (1.0,)
 
     def __repr__(self):
         params = [f"volatility={self.volatility:.2e}"]
@@ -90,7 +94,7 @@ class BrownianStock(Primary):
                 the price.
             init_state (tuple, optional): The initial state of the instrument.
                 `init_state` should be a 1-tuple `(spot,)`
-                where spot is the initial spot price.
+                where `spot` is the initial spot price.
                 If `None` (default), the default value `(1.0,)` is chosen.
 
         Examples:
@@ -103,10 +107,9 @@ class BrownianStock(Primary):
                     [2.0000, 2.0565, 2.0398, 2.0516, 2.0584]])
         """
         if init_state is None:
-            # Default value
-            init_state = (1.0,)
+            init_state = self.default_init_state
 
-        self.spot = generate_geometric_brownian(
+        spot = generate_geometric_brownian(
             n_paths=n_paths,
             n_steps=int(time_horizon / self.dt),
             init_value=init_state[0],
@@ -116,7 +119,10 @@ class BrownianStock(Primary):
             device=self.device,
         )
 
+        self.register_buffer("spot", spot)
+
 
 # Assign docstrings so they appear in Sphinx documentation
+BrownianStock.default_init_state.__doc__ = Primary.default_init_state.__doc__
 BrownianStock.to = Primary.to
 BrownianStock.to.__doc__ = Primary.to.__doc__
