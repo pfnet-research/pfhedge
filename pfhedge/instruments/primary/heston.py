@@ -7,12 +7,15 @@ from .base import Primary
 
 
 class HestonStock(Primary):
-    """A stock of which spot prices follow the geometric Brownian motion.
+    """A stock of which spot price and variance follow Heston process.
 
-    The drift of the spot prices is assumed to be vanishing.
+    See :func:`pfhedge.stochastic.generate_heston` for details of the Heston process.
 
     Args:
-        volatility (float, default=0.2): The volatility of the price.
+        kappa (float, default=1.0): The parameter :math:`\\kappa`.
+        theta (float, default=0.04): The parameter :math:`\\theta`.
+        sigma (float, default=2.0): The parameter :math:`\\sigma`.
+        rho (float, default=-0.7): The parameter :math:`\\rho`.
         cost (float, default=0.0): The transaction cost rate.
         dt (float, default=1/250): The intervals of the time steps.
         dtype (torch.device, optional): Desired device of returned tensor.
@@ -25,27 +28,27 @@ class HestonStock(Primary):
             the current CUDA device for CUDA tensor types.
 
     Attributes:
-        spot (torch.Tensor): The spot prices of the instrument.
-            This attribute is set by a method `simulate()`.
-            The shape is :math:`(N, T)`, where :math:`T` is the number of time steps and
-            :math:`N` is the number of simulated paths.
+        spot (torch.Tensor): The spot price of the instrument.
+            This attribute is set by a method :func:`simulate()`.
+            The shape is :math:`(N, T)`, where :math:`N` is the number of simulated
+            paths and :math:`T` is the number of time steps.
         variance (torch.Tensor): The variance of the spot of the instrument.
-            This attribute is set by a method `simulate()`.
+            This attribute is set by a method :func:`simulate()`.
             The shape is :math:`(N, T)`.
 
     Examples:
 
         >>> from pfhedge.instruments import HestonStock
         >>>
-        >>> _ = torch.manual_seed(1)
+        >>> _ = torch.manual_seed(42)
         >>> stock = HestonStock()
         >>> stock.simulate(n_paths=2, time_horizon=5/250)
         >>> stock.spot
-        tensor([[1.0000, 1.0045, 1.0137, 1.0197, 1.0259],
-                [1.0000, 0.9869, 0.9977, 0.9955, 1.0208]])
+        tensor([[1.0000, 0.9958, 0.9940, 0.9895, 0.9765],
+                [1.0000, 1.0064, 1.0117, 1.0116, 1.0117]])
         >>> stock.variance
-        tensor([[0.0400, 0.0570, 0.0607, 0.0556, 0.0751],
-                [0.0400, 0.0257, 0.0462, 0.0520, 0.0120]])
+        tensor([[0.0400, 0.0433, 0.0406, 0.0423, 0.0441],
+                [0.0400, 0.0251, 0.0047, 0.0000, 0.0000]])
     """
 
     def __init__(
@@ -93,10 +96,10 @@ class HestonStock(Primary):
                 the price.
             init_state (tuple, optional): The initial state of the instrument.
                 `init_state` should be a 2-tuple `(spot, variance)`
-                where `spot` is the initial spot price and `variance` of the initial
+                where `spot` is the initial spot price and `variance` is the initial
                 variance.
                 If `None` (default), the default value is chosen
-                (See :member:`default_init_state`).
+                (See :func:`default_init_state`).
         """
         if init_state is None:
             init_state = self.default_init_state

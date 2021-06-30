@@ -16,6 +16,7 @@ Primary Instruments
 
     instruments.Primary
     instruments.BrownianStock
+    instruments.HestonStock
 
 Derivative Instruments
 ----------------------
