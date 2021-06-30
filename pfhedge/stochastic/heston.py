@@ -29,6 +29,7 @@ def generate_heston(
         dV(t) = \\kappa (\\theta - V(t)) + \\sigma \\sqrt{V(t)} dW_2(t) \\,.
 
     The correlation between :math:`dW_1` and :math:`dW_2` is :math:`\\rho`.
+    The correlation between :math:`dW_1` and :math:`dW_2` is `\\rho`.
 
     Args:
         n_paths (int): The number of simulated paths.
