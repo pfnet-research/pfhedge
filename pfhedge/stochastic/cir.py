@@ -6,9 +6,9 @@ def generate_cir(
     n_paths: int,
     n_steps: int,
     init_value: float = 0.04,
-    kappa: float = 0.5,
+    kappa: float = 1.0,
     theta: float = 0.04,
-    sigma: float = 1.0,
+    sigma: float = 2.0,
     dt: float = 1 / 250,
     dtype: torch.dtype = None,
     device: torch.device = None,
@@ -19,15 +19,15 @@ def generate_cir(
 
     .. math ::
 
-        dX(t) = \\kappa (\\theta - X(t)) + \\sigma \\sqrt{V(t)} dW(t) \\,.
+        dX(t) = \\kappa (\\theta - X(t)) + \\sigma \\sqrt{X(t)} dW(t) \\,.
 
     Args:
         n_paths (int): The number of simulated paths.
         n_steps (int): The number of time steps.
         init_value (float, default=0.04): The initial value of the time series.
-        kappa (float): The parameter :math:`\\kappa`.
-        theta (float): The parameter :math:`\\theta`.
-        sigma (float): The parameter :math:`\\sigma`.
+        kappa (float, default=1.0): The parameter :math:`\\kappa`.
+        theta (float, default=0.04): The parameter :math:`\\theta`.
+        sigma (float, default=2.0): The parameter :math:`\\sigma`.
         dt (float, default=1/250): The intervals of the time steps.
         dtype (torch.dtype, optional): The desired data type of returned tensor.
             Default: If `None`, uses a global default
@@ -49,16 +49,15 @@ def generate_cir(
 
         >>> from pfhedge.stochastic import generate_cir
         >>>
-        >>> _ = torch.manual_seed(3)
+        >>> _ = torch.manual_seed(42)
         >>> generate_cir(2, 5)
-        tensor([[0.0400, 0.0534, 0.0550, 0.0552, 0.0425],
-                [0.0400, 0.0177, 0.0189, 0.0352, 0.0113]])
+        tensor([[0.0400, 0.0433, 0.0406, 0.0423, 0.0441],
+                [0.0400, 0.0251, 0.0047, 0.0000, 0.0000]])
 
     References:
         - Andersen, Leif B.G., Efficient Simulation of the Heston Stochastic
           Volatility Model (January 23, 2007). Available at SSRN:
-          https://ssrn.com/abstract=946405 or
-          http://dx.doi.org/10.2139/ssrn.946404
+          https://ssrn.com/abstract=946405 or http://dx.doi.org/10.2139/ssrn.946404
     """
     # PSI_CRIT in [1.0, 2.0]. See section 3.2.3
     PSI_CRIT = 1.5
