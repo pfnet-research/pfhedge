@@ -92,10 +92,10 @@ def generate_heston(
         dtype=dtype,
         device=device,
     )
-    log_spot = torch.empty(n_paths, n_steps)
-    log_spot[:, 0] = torch.tensor(init_spot).log()
 
-    randn = torch.randn(n_paths, n_steps)
+    log_spot = torch.empty_like(variance)
+    log_spot[:, 0] = torch.tensor(init_spot).log()
+    randn = torch.randn_like(variance)
 
     for i_step in range(n_steps - 1):
         # Compute log S(t + 1): Eq(33)
