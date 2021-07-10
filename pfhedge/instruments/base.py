@@ -44,6 +44,14 @@ class Instrument(ABC):
             self
         """
 
+    def float(self: T) -> T:
+        """`self.float()` is equivalent to `self.to(torch.float32)`. See :func:`to()`.
+
+        Returns:
+            self
+        """
+        return self.to(torch.float32)
+
     @property
     def dinfo(self) -> list:
         """Returns list of strings that tell `dtype` and `device` of `self`.
