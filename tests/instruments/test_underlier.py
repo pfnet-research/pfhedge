@@ -89,7 +89,8 @@ class TestBrownianStock:
         assert s.spot.dtype == dtype
 
     def test_device(self):
-        ...
+        s = BrownianStock(device=torch.device("cuda:0"))
+        assert s.cpu().device == torch.device("cpu")
 
     def test_to_device(self):
         s = BrownianStock()
