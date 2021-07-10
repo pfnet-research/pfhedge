@@ -137,4 +137,15 @@ class Primary(Instrument):
         return self
 
 
+# Assign docstrings so they appear in Sphinx documentation
 Primary.to.__doc__ = Instrument.to.__doc__
+Primary.cpu = Instrument.cpu
+Primary.cpu.__doc__ = Instrument.cpu.__doc__
+Primary.cuda = Instrument.cuda
+Primary.cuda.__doc__ = Instrument.cuda.__doc__
+Primary.double = Instrument.double
+Primary.double.__doc__ = Instrument.double.__doc__
+Primary.float = Instrument.float
+Primary.float.__doc__ = Instrument.float.__doc__
+Primary.half = Instrument.half
+Primary.half.__doc__ = Instrument.half.__doc__

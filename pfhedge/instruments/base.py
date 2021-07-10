@@ -47,10 +47,8 @@ class Instrument(ABC):
     def cpu(self: T) -> T:
         """Returns a copy of this object in CPU memory.
 
-        If this object is already in CPU memory and on the correct device, then no copy is performed and the original object is returned.
-
-        Returns:
-            self
+        If this object is already in CPU memory and on the correct device,
+        then no copy is performed and the original object is returned.
         """
         return self.to(torch.device("cpu"))
 
@@ -70,35 +68,24 @@ class Instrument(ABC):
     def double(self: T) -> T:
         """`self.double()` is equivalent to `self.to(torch.float64)`.
         See :func:`to()`.
-
-        Returns:
-            self
         """
         return self.to(torch.float64)
 
     def float(self: T) -> T:
-        """`self.float()` is equivalent to `self.to(torch.float32)`. See `to()`.
-
-        Returns:
-            self
+        """`self.float()` is equivalent to `self.to(torch.float32)`.
+        See :func:`to()`.
         """
         return self.to(torch.float32)
 
     def half(self: T) -> T:
         """`self.half()` is equivalent to `self.to(torch.float16)`.
-        See `to()`.
-
-        Returns:
-            self
+        See :func:`to()`.
         """
         return self.to(torch.float16)
 
     def bfloat16(self: T) -> T:
         """`self.bfloat16()` is equivalent to `self.to(torch.bfloat16)`.
-        See `to()`.
-
-        Returns:
-            self
+        See :func:`to()`.
         """
         return self.to(torch.bfloat16)
 
