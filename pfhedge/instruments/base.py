@@ -6,7 +6,7 @@ from typing import TypeVar
 import torch
 from torch import Tensor
 
-T = TypeVar("T")
+T = TypeVar("T", bound="Instrument")
 
 
 class Instrument(ABC):
@@ -43,6 +43,16 @@ class Instrument(ABC):
         Returns:
             self
         """
+
+    def cpu(self: T) -> T:
+        """Returns a copy of this object in CPU memory.
+
+        If this object is already in CPU memory and on the correct device, then no copy is performed and the original object is returned.
+
+        Returns:
+            self
+        """
+        return self.to(torch.device("cpu"))
 
     def cuda(self: T, device: Optional[int] = None) -> T:
         """Returns a copy of this object in CUDA memory.
