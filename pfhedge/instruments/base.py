@@ -84,6 +84,14 @@ class Instrument(ABC):
         """
         return self.to(torch.float32)
 
+    def half(self: T) -> T:
+        """`self.half()` is equivalent to `self.to(torch.float16)`. See `to()`.
+
+        Returns:
+            self
+        """
+        return self.to(torch.float16)
+
     @property
     def dinfo(self) -> list:
         """Returns list of strings that tell `dtype` and `device` of `self`.
