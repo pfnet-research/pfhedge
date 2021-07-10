@@ -96,7 +96,7 @@ class TestBrownianStock:
         s.double()
         assert s.dtype == torch.float64
         assert s.spot.dtype == torch.float64
-       
+
         s = BrownianStock()
         s.simulate()
         s.float()
