@@ -6,7 +6,7 @@ from typing import TypeVar
 import torch
 from torch import Tensor
 
-T = TypeVar("T")
+T = TypeVar("T", bound="Instrument")
 
 
 class Instrument(ABC):
@@ -43,6 +43,51 @@ class Instrument(ABC):
         Returns:
             self
         """
+
+    def cpu(self: T) -> T:
+        """Returns a copy of this object in CPU memory.
+
+        If this object is already in CPU memory and on the correct device,
+        then no copy is performed and the original object is returned.
+        """
+        return self.to(torch.device("cpu"))
+
+    def cuda(self: T, device: Optional[int] = None) -> T:
+        """Returns a copy of this object in CUDA memory.
+
+        If this object is already in CUDA memory and on the correct device,
+        then no copy is performed and the original object is returned.
+
+        Args:
+            device (torch.device): The destination GPU device. Defaults to the current CUDA device.
+        """
+        return self.to(
+            torch.device("cuda:{}".format(device) if device is not None else "cuda")
+        )
+
+    def double(self: T) -> T:
+        """`self.double()` is equivalent to `self.to(torch.float64)`.
+        See :func:`to()`.
+        """
+        return self.to(torch.float64)
+
+    def float(self: T) -> T:
+        """`self.float()` is equivalent to `self.to(torch.float32)`.
+        See :func:`to()`.
+        """
+        return self.to(torch.float32)
+
+    def half(self: T) -> T:
+        """`self.half()` is equivalent to `self.to(torch.float16)`.
+        See :func:`to()`.
+        """
+        return self.to(torch.float16)
+
+    def bfloat16(self: T) -> T:
+        """`self.bfloat16()` is equivalent to `self.to(torch.bfloat16)`.
+        See :func:`to()`.
+        """
+        return self.to(torch.bfloat16)
 
     @property
     def dinfo(self) -> list:

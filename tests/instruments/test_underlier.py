@@ -75,21 +75,55 @@ class TestBrownianStock:
         # __init__
         s = BrownianStock(dtype=dtype)
         s.simulate()
+        assert s.dtype == dtype
         assert s.spot.dtype == dtype
 
         # to() before simulate
         s = BrownianStock().to(dtype)
         s.simulate()
+        assert s.dtype == dtype
         assert s.spot.dtype == dtype
 
         # to() after simulate
         s = BrownianStock()
         s.simulate()
         s.to(dtype)
+        assert s.dtype == dtype
         assert s.spot.dtype == dtype
 
+        s = BrownianStock()
+        s.simulate()
+        s.double()
+        assert s.dtype == torch.float64
+        assert s.spot.dtype == torch.float64
+
+        s = BrownianStock()
+        s.simulate()
+        s.float()
+        assert s.dtype == torch.float32
+        assert s.spot.dtype == torch.float32
+
+        s = BrownianStock()
+        s.simulate()
+        s.half()
+        assert s.dtype == torch.float16
+        assert s.spot.dtype == torch.float16
+
+        s = BrownianStock()
+        s.simulate()
+        s.bfloat16()
+        assert s.dtype == torch.bfloat16
+        assert s.spot.dtype == torch.bfloat16
+
     def test_device(self):
-        ...
+        s = BrownianStock(device=torch.device("cuda:0"))
+        assert s.cpu().device == torch.device("cpu")
+
+    def test_cuda(self):
+        s = BrownianStock()
+        assert s.cuda(1).device == torch.device("cuda:1")
+        s = BrownianStock()
+        assert s.cuda().device == torch.device("cuda")
 
     def test_to_device(self):
         s = BrownianStock()
