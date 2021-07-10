@@ -67,6 +67,23 @@ class Instrument(ABC):
             torch.device("cuda:{}".format(device) if device is not None else "cuda")
         )
 
+    def double(self: T) -> T:
+        """`self.double()` is equivalent to `self.to(torch.float64)`.
+        See :func:`to()`.
+
+        Returns:
+            self
+        """
+        return self.to(torch.float64)
+
+    def float(self: T) -> T:
+        """`self.float()` is equivalent to `self.to(torch.float32)`. See `to()`.
+
+        Returns:
+            self
+        """
+        return self.to(torch.float32)
+
     @property
     def dinfo(self) -> list:
         """Returns list of strings that tell `dtype` and `device` of `self`.
