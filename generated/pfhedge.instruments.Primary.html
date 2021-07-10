@@ -210,10 +210,47 @@ represented.</p>
 </dd>
 </dl>
 </dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pfhedge.instruments.Primary.cpu">
+<span class="sig-name descname"><span class="pre">cpu</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.Primary.cpu" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a copy of this object in CPU memory.</p>
+<p>If this object is already in CPU memory and on the correct device,
+then no copy is performed and the original object is returned.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pfhedge.instruments.Primary.cuda">
+<span class="sig-name descname"><span class="pre">cuda</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.Primary.cuda" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a copy of this object in CUDA memory.</p>
+<p>If this object is already in CUDA memory and on the correct device,
+then no copy is performed and the original object is returned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>device</strong> (<em>torch.device</em>) – The destination GPU device. Defaults to the current CUDA device.</p>
+</dd>
+</dl>
+</dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pfhedge.instruments.Primary.default_init_state">
 <em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">default_init_state</span></span><a class="headerlink" href="#pfhedge.instruments.Primary.default_init_state" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the default initial state of simulation.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pfhedge.instruments.Primary.double">
+<span class="sig-name descname"><span class="pre">double</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.Primary.double" title="Permalink to this definition">¶</a></dt>
+<dd><p><cite>self.double()</cite> is equivalent to <cite>self.to(torch.float64)</cite>.
+See <a class="reference internal" href="#pfhedge.instruments.Primary.to" title="pfhedge.instruments.Primary.to"><code class="xref py py-func docutils literal notranslate"><span class="pre">to()</span></code></a>.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pfhedge.instruments.Primary.float">
+<span class="sig-name descname"><span class="pre">float</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.Primary.float" title="Permalink to this definition">¶</a></dt>
+<dd><p><cite>self.float()</cite> is equivalent to <cite>self.to(torch.float32)</cite>.
+See <a class="reference internal" href="#pfhedge.instruments.Primary.to" title="pfhedge.instruments.Primary.to"><code class="xref py py-func docutils literal notranslate"><span class="pre">to()</span></code></a>.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pfhedge.instruments.Primary.half">
+<span class="sig-name descname"><span class="pre">half</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.Primary.half" title="Permalink to this definition">¶</a></dt>
+<dd><p><cite>self.half()</cite> is equivalent to <cite>self.to(torch.float16)</cite>.
+See <a class="reference internal" href="#pfhedge.instruments.Primary.to" title="pfhedge.instruments.Primary.to"><code class="xref py py-func docutils literal notranslate"><span class="pre">to()</span></code></a>.</p>
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pfhedge.instruments.Primary.named_buffers">
@@ -237,7 +274,7 @@ name of the buffer as well as the buffer itself.</p>
 <li><p><strong>name</strong> (<em>string</em>) – name of the buffer. The buffer can be accessed
 from this module using the given name</p></li>
 <li><p><strong>tensor</strong> (<em>Tensor</em><em> or </em><em>None</em>) – buffer to be registered. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, then operations
-that run on buffers, such as <code class="xref py py-attr docutils literal notranslate"><span class="pre">cuda</span></code>, are ignored. If <code class="docutils literal notranslate"><span class="pre">None</span></code>,
+that run on buffers, such as <a class="reference internal" href="#pfhedge.instruments.Primary.cuda" title="pfhedge.instruments.Primary.cuda"><code class="xref py py-attr docutils literal notranslate"><span class="pre">cuda</span></code></a>, are ignored. If <code class="docutils literal notranslate"><span class="pre">None</span></code>,
 the buffer is <strong>not</strong> included in the module’s <code class="xref py py-attr docutils literal notranslate"><span class="pre">state_dict</span></code>.</p></li>
 </ul>
 </dd>

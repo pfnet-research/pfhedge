@@ -214,6 +214,43 @@ represented.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
+<dt class="sig sig-object py" id="pfhedge.instruments.Derivative.cpu">
+<span class="sig-name descname"><span class="pre">cpu</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.Derivative.cpu" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a copy of this object in CPU memory.</p>
+<p>If this object is already in CPU memory and on the correct device,
+then no copy is performed and the original object is returned.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pfhedge.instruments.Derivative.cuda">
+<span class="sig-name descname"><span class="pre">cuda</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.Derivative.cuda" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a copy of this object in CUDA memory.</p>
+<p>If this object is already in CUDA memory and on the correct device,
+then no copy is performed and the original object is returned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>device</strong> (<em>torch.device</em>) – The destination GPU device. Defaults to the current CUDA device.</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pfhedge.instruments.Derivative.double">
+<span class="sig-name descname"><span class="pre">double</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.Derivative.double" title="Permalink to this definition">¶</a></dt>
+<dd><p><cite>self.double()</cite> is equivalent to <cite>self.to(torch.float64)</cite>.
+See <a class="reference internal" href="#pfhedge.instruments.Derivative.to" title="pfhedge.instruments.Derivative.to"><code class="xref py py-func docutils literal notranslate"><span class="pre">to()</span></code></a>.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pfhedge.instruments.Derivative.float">
+<span class="sig-name descname"><span class="pre">float</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.Derivative.float" title="Permalink to this definition">¶</a></dt>
+<dd><p><cite>self.float()</cite> is equivalent to <cite>self.to(torch.float32)</cite>.
+See <a class="reference internal" href="#pfhedge.instruments.Derivative.to" title="pfhedge.instruments.Derivative.to"><code class="xref py py-func docutils literal notranslate"><span class="pre">to()</span></code></a>.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pfhedge.instruments.Derivative.half">
+<span class="sig-name descname"><span class="pre">half</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.Derivative.half" title="Permalink to this definition">¶</a></dt>
+<dd><p><cite>self.half()</cite> is equivalent to <cite>self.to(torch.float16)</cite>.
+See <a class="reference internal" href="#pfhedge.instruments.Derivative.to" title="pfhedge.instruments.Derivative.to"><code class="xref py py-func docutils literal notranslate"><span class="pre">to()</span></code></a>.</p>
+</dd></dl>
+<dl class="py method">
 <dt class="sig sig-object py" id="pfhedge.instruments.Derivative.payoff">
 <em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">payoff</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/derivative/base.html#Derivative.payoff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Derivative.payoff" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the payoffs of the derivative.</p>

@@ -178,7 +178,7 @@
 
 <span class="kn">from</span> <span class="nn">..base</span> <span class="kn">import</span> <span class="n">Instrument</span>
 
-<span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"T"</span><span class="p">)</span>
+<span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"T"</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">"Derivative"</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="Derivative"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.Derivative.html#pfhedge.instruments.Derivative">[docs]</a><span class="k">class</span> <span class="nc">Derivative</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span>
@@ -244,7 +244,18 @@
 <span class="sd">        """</span></div></div>
 
 
+<span class="c1"># Assign docstrings so they appear in Sphinx documentation</span>
 <span class="n">Derivative</span><span class="o">.</span><span class="n">to</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">Instrument</span><span class="o">.</span><span class="n">to</span><span class="o">.</span><span class="vm">__doc__</span>
+<span class="n">Derivative</span><span class="o">.</span><span class="n">cpu</span> <span class="o">=</span> <span class="n">Instrument</span><span class="o">.</span><span class="n">cpu</span>
+<span class="n">Derivative</span><span class="o">.</span><span class="n">cpu</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">Instrument</span><span class="o">.</span><span class="n">cpu</span><span class="o">.</span><span class="vm">__doc__</span>
+<span class="n">Derivative</span><span class="o">.</span><span class="n">cuda</span> <span class="o">=</span> <span class="n">Instrument</span><span class="o">.</span><span class="n">cuda</span>
+<span class="n">Derivative</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">Instrument</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="vm">__doc__</span>
+<span class="n">Derivative</span><span class="o">.</span><span class="n">double</span> <span class="o">=</span> <span class="n">Instrument</span><span class="o">.</span><span class="n">double</span>
+<span class="n">Derivative</span><span class="o">.</span><span class="n">double</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">Instrument</span><span class="o">.</span><span class="n">double</span><span class="o">.</span><span class="vm">__doc__</span>
+<span class="n">Derivative</span><span class="o">.</span><span class="n">float</span> <span class="o">=</span> <span class="n">Instrument</span><span class="o">.</span><span class="n">float</span>
+<span class="n">Derivative</span><span class="o">.</span><span class="n">float</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">Instrument</span><span class="o">.</span><span class="n">float</span><span class="o">.</span><span class="vm">__doc__</span>
+<span class="n">Derivative</span><span class="o">.</span><span class="n">half</span> <span class="o">=</span> <span class="n">Instrument</span><span class="o">.</span><span class="n">half</span>
+<span class="n">Derivative</span><span class="o">.</span><span class="n">half</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">Instrument</span><span class="o">.</span><span class="n">half</span><span class="o">.</span><span class="vm">__doc__</span>
 </pre></div>
       </article>
       <footer>
