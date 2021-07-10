@@ -92,6 +92,12 @@ class TestBrownianStock:
         s = BrownianStock(device=torch.device("cuda:0"))
         assert s.cpu().device == torch.device("cpu")
 
+    def test_cuda(self):
+        s = BrownianStock()
+        assert s.cuda(1).device == torch.device("cuda:1")
+        s = BrownianStock()
+        assert s.cuda().device == torch.device("cuda")
+
     def test_to_device(self):
         s = BrownianStock()
         s.to(device="cuda:0")

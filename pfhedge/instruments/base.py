@@ -54,6 +54,19 @@ class Instrument(ABC):
         """
         return self.to(torch.device("cpu"))
 
+    def cuda(self: T, device: Optional[int] = None) -> T:
+        """Returns a copy of this object in CUDA memory.
+
+        If this object is already in CUDA memory and on the correct device,
+        then no copy is performed and the original object is returned.
+
+        Args:
+            device (torch.device): The destination GPU device. Defaults to the current CUDA device.
+        """
+        return self.to(
+            torch.device("cuda:{}".format(device) if device is not None else "cuda")
+        )
+
     @property
     def dinfo(self) -> list:
         """Returns list of strings that tell `dtype` and `device` of `self`.
