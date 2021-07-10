@@ -70,11 +70,19 @@ class Instrument(ABC):
     def double(self: T) -> T:
         """`self.double()` is equivalent to `self.to(torch.float64)`.
         See :func:`to()`.
-
+        
         Returns:
             self
         """
         return self.to(torch.float64)
+        
+    def float(self: T) -> T:
+        """`self.float()` is equivalent to `self.to(torch.float32)`. See `to()`.
+
+        Returns:
+            self
+        """
+        return self.to(torch.float32)
 
     @property
     def dinfo(self) -> list:
