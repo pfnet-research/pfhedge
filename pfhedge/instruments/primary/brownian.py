@@ -1,4 +1,5 @@
 from typing import Optional
+from typing import Tuple
 
 import torch
 
@@ -65,7 +66,7 @@ class BrownianStock(Primary):
         self.to(dtype=dtype, device=device)
 
     @property
-    def default_init_state(self) -> tuple:
+    def default_init_state(self) -> Tuple[float]:
         return (1.0,)
 
     def simulate(
