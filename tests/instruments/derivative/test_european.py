@@ -50,7 +50,7 @@ class TestEuropeanOption:
         derivative.simulate()
         assert derivative.payoff().dtype == dtype
 
-    @pytest.mark.parametrize("device", ["cpu","cuda:0", "cuda:1"])
+    @pytest.mark.parametrize("device", ["cpu", "cuda:0", "cuda:1"])
     def test_device(self, device):
         derivative = EuropeanOption(BrownianStock(device=device))
         assert derivative.device == torch.device(device)
