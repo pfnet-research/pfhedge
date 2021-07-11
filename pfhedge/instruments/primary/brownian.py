@@ -68,14 +68,6 @@ class BrownianStock(Primary):
     def default_init_state(self) -> tuple:
         return (1.0,)
 
-    def __repr__(self):
-        params = [f"volatility={self.volatility:.2e}"]
-        if self.cost != 0.0:
-            params.append(f"cost={self.cost:.2e}")
-        params.append(f"dt={self.dt:.2e}")
-        params += self.dinfo
-        return self.__class__.__name__ + "(" + ", ".join(params) + ")"
-
     def simulate(
         self,
         n_paths: int = 1,
@@ -120,6 +112,14 @@ class BrownianStock(Primary):
         )
 
         self.register_buffer("spot", spot)
+
+    def __repr__(self):
+        params = [f"volatility={self.volatility:.2e}"]
+        if self.cost != 0.0:
+            params.append(f"cost={self.cost:.2e}")
+        params.append(f"dt={self.dt:.2e}")
+        params += self.dinfo
+        return self.__class__.__name__ + "(" + ", ".join(params) + ")"
 
 
 # Assign docstrings so they appear in Sphinx documentation
