@@ -84,8 +84,8 @@ jobs:
     runs-on: ubuntu-latest
 
     needs: lint
-    
-    if: always() && needs.lint.outputs.status == 'failure'
+
+    if: ${{ always() && needs.lint.outputs.status == 'failure' }}
 
     steps:
 
