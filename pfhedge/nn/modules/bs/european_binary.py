@@ -86,6 +86,32 @@ class BSEuropeanBinaryOption(BSModuleMixin):
     def inputs(self) -> list:
         return ["log_moneyness", "expiry_time", "volatility"]
 
+    def price(
+        self, log_moneyness: Tensor, expiry_time: Tensor, volatility: Tensor
+    ) -> Tensor:
+        """Returns price of the derivative.
+
+        Args:
+            log_moneyness (torch.Tensor): Log moneyness of the underlying asset.
+            expiry_time (torch.Tensor): Time to expiry of the option.
+            volatility (torch.Tensor): Volatility of the underlying asset.
+
+        Shape:
+            - log_moneyness: :math:`(N, *)`
+            - expiry_time: :math:`(N, *)`
+            - volatility: :math:`(N, *)`
+            - output: :math:`(N, *)`
+
+        Returns:
+            torch.Tensor
+        """
+        s, t, v = map(torch.as_tensor, (log_moneyness, expiry_time, volatility))
+
+        price = self.N.cdf(self.d2(s, t, v))
+        price = 1.0 - price if not self.call else price  # put-call parity
+
+        return price
+
     @torch.enable_grad()
     def delta(
         self, log_moneyness: Tensor, expiry_time: Tensor, volatility: Tensor
@@ -108,9 +134,7 @@ class BSEuropeanBinaryOption(BSModuleMixin):
         """
         s, t, v = map(torch.as_tensor, (log_moneyness, expiry_time, volatility))
 
-        delta = self.N.pdf(self.d2(s, t, v)) / (
-            self.strike * torch.exp(s) * v * torch.sqrt(t)
-        )
+        delta = self.N.pdf(self.d2(s, t, v)) / (self.strike * s.exp() * v * t.sqrt())
         return delta
 
     def gamma(
@@ -140,32 +164,6 @@ class BSEuropeanBinaryOption(BSModuleMixin):
             volatility=volatility,
         )
 
-    def price(
-        self, log_moneyness: Tensor, expiry_time: Tensor, volatility: Tensor
-    ) -> Tensor:
-        """Returns price of the derivative.
-
-        Args:
-            log_moneyness (torch.Tensor): Log moneyness of the underlying asset.
-            expiry_time (torch.Tensor): Time to expiry of the option.
-            volatility (torch.Tensor): Volatility of the underlying asset.
-
-        Shape:
-            - log_moneyness: :math:`(N, *)`
-            - expiry_time: :math:`(N, *)`
-            - volatility: :math:`(N, *)`
-            - output: :math:`(N, *)`
-
-        Returns:
-            torch.Tensor
-        """
-        s, t, v = map(torch.as_tensor, (log_moneyness, expiry_time, volatility))
-
-        price = self.N.cdf(self.d2(s, t, v))
-        price = 1.0 - price if not self.call else price  # put-call parity
-
-        return price
-
     def implied_volatility(
         self,
         log_moneyness: Tensor,
@@ -190,8 +188,8 @@ class BSEuropeanBinaryOption(BSModuleMixin):
             torch.Tensor
         """
         s, t, p = map(torch.as_tensor, (log_moneyness, expiry_time, price))
-        get_price = lambda v: self.price(s, t, v)
-        return bisect(get_price, p, lower=0.001, upper=1.000, precision=precision)
+        pricer = lambda v: self.price(s, t, v)
+        return bisect(pricer, p, lower=0.001, upper=1.000, precision=precision)
 
 
 # Assign docstrings so they appear in Sphinx documentation

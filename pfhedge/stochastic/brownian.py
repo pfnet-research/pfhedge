@@ -1,3 +1,5 @@
+from typing import Optional
+
 import torch
 from torch import Tensor
 
@@ -8,8 +10,8 @@ def generate_brownian(
     init_value: float = 0.0,
     volatility: float = 0.2,
     dt: float = 1 / 250,
-    dtype: torch.dtype = None,
-    device: torch.device = None,
+    dtype: Optional[torch.dtype] = None,
+    device: Optional[torch.device] = None,
 ) -> Tensor:
     """Returns time series following the Brownian motion.
 
@@ -57,8 +59,8 @@ def generate_geometric_brownian(
     init_value: float = 1.0,
     volatility: float = 0.2,
     dt: float = 1 / 250,
-    dtype: torch.dtype = None,
-    device: torch.device = None,
+    dtype: Optional[torch.dtype] = None,
+    device: Optional[torch.device] = None,
 ) -> Tensor:
     """Returns time series following the geometric Brownian motion.
 
@@ -105,4 +107,4 @@ def generate_geometric_brownian(
         device=device,
     )
     t = dt * torch.arange(n_steps).to(brownian).reshape(1, -1)
-    return init_value * torch.exp(brownian - (volatility ** 2) * t / 2)
+    return init_value * (brownian - (volatility ** 2) * t / 2).exp()

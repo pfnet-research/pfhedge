@@ -1,12 +1,14 @@
+from typing import Optional
+
 from torch import Tensor
 
 
 def parse_spot(
     *,
-    spot: Tensor = None,
-    strike: Tensor = None,
-    moneyness: Tensor = None,
-    log_moneyness: Tensor = None,
+    spot: Optional[Tensor] = None,
+    strike: Optional[Tensor] = None,
+    moneyness: Optional[Tensor] = None,
+    log_moneyness: Optional[Tensor] = None,
     **kwargs
 ) -> Tensor:
     if spot is not None:

@@ -1,4 +1,3 @@
-from abc import ABC
 from abc import abstractmethod
 from collections import OrderedDict
 from typing import Iterator
@@ -10,10 +9,9 @@ from typing import Union
 import torch
 from torch import Tensor
 
-T = TypeVar("T", bound="Primary")
-
-
 from ..base import Instrument
+
+T = TypeVar("T", bound="Primary")
 
 
 class Primary(Instrument):
@@ -64,9 +62,10 @@ class Primary(Instrument):
         Args:
             name (string): name of the buffer. The buffer can be accessed
                 from this module using the given name
-            tensor (Tensor or None): buffer to be registered. If ``None``, then operations
-                that run on buffers, such as :attr:`cuda`, are ignored. If ``None``,
-                the buffer is **not** included in the module's :attr:`state_dict`.
+            tensor (Tensor or None): buffer to be registered. If ``None``, then
+                operations that run on buffers, such as :attr:`cuda`, are ignored.
+                If ``None``, the buffer is **not** included in the module's
+                :attr:`state_dict`.
         """
         # Implementation here refers to `torch.nn.Module.register_buffer`.
         if "_buffers" not in self.__dict__:
@@ -137,4 +136,15 @@ class Primary(Instrument):
         return self
 
 
+# Assign docstrings so they appear in Sphinx documentation
 Primary.to.__doc__ = Instrument.to.__doc__
+Primary.cpu = Instrument.cpu
+Primary.cpu.__doc__ = Instrument.cpu.__doc__
+Primary.cuda = Instrument.cuda
+Primary.cuda.__doc__ = Instrument.cuda.__doc__
+Primary.double = Instrument.double
+Primary.double.__doc__ = Instrument.double.__doc__
+Primary.float = Instrument.float
+Primary.float.__doc__ = Instrument.float.__doc__
+Primary.half = Instrument.half
+Primary.half.__doc__ = Instrument.half.__doc__

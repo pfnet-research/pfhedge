@@ -1,4 +1,5 @@
 from inspect import signature
+from typing import Callable
 
 import torch
 from torch import Tensor
@@ -6,7 +7,9 @@ from torch import Tensor
 from ._utils.parse import parse_spot
 
 
-def delta(pricer, *, create_graph: bool = False, **kwargs) -> Tensor:
+def delta(
+    pricer: Callable[..., Tensor], *, create_graph: bool = False, **kwargs
+) -> Tensor:
     """Computes and returns delta of a derivative using automatic differentiation.
 
     Delta is a differentiation of a derivative price with respect to
@@ -94,7 +97,9 @@ def delta(pricer, *, create_graph: bool = False, **kwargs) -> Tensor:
     )[0]
 
 
-def gamma(pricer, *, create_graph: bool = False, **kwargs) -> Tensor:
+def gamma(
+    pricer: Callable[..., Tensor], *, create_graph: bool = False, **kwargs
+) -> Tensor:
     """Computes and returns gamma of a derivative.
 
     Delta is a second-order differentiation of a derivative price with respect to

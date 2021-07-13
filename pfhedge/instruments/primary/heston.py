@@ -1,4 +1,5 @@
 from typing import Optional
+from typing import Tuple
 
 import torch
 
@@ -74,8 +75,8 @@ class HestonStock(Primary):
         self.to(dtype=dtype, device=device)
 
     @property
-    def default_init_state(self) -> tuple:
-        return (1.0, 0.04)
+    def default_init_state(self) -> Tuple[float, float]:
+        return (1.0, self.theta)
 
     def simulate(
         self,

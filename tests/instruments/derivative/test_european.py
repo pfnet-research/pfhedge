@@ -7,10 +7,6 @@ from pfhedge.instruments import EuropeanOption
 
 
 class TestEuropeanOption:
-    """
-    pfhedge.instruments.EuropeanOption
-    """
-
     @classmethod
     def setup_class(cls):
         torch.manual_seed(42)
@@ -18,8 +14,8 @@ class TestEuropeanOption:
     def test_payoff(self):
         derivative = EuropeanOption(BrownianStock(), strike=2.0)
         derivative.underlier.spot = torch.tensor(
-            [[1.0, 1.0, 1.0, 1.0], [1.0, 1.0, 1.0, 1.0], [1.9, 2.0, 2.1, 3.0]]
-        ).T
+            [[1.0, 1.0, 1.9], [1.0, 1.0, 2.0], [1.0, 1.0, 2.1], [1.0, 1.0, 3.0]]
+        )
         result = derivative.payoff()
         expect = torch.tensor([0.0, 0.0, 0.1, 1.0])
         assert_close(result, expect)
@@ -29,10 +25,7 @@ class TestEuropeanOption:
     @pytest.mark.parametrize("maturity", [0.1, 1.0])
     @pytest.mark.parametrize("n_paths", [100])
     @pytest.mark.parametrize("init_spot", [1.0, 1.1, 0.9])
-    def test_parity(self, volatility, strike, maturity, n_paths, init_spot):
-        """
-        Test put-call parity.
-        """
+    def test_put_call_parity(self, volatility, strike, maturity, n_paths, init_spot):
         stock = BrownianStock(volatility)
         co = EuropeanOption(stock, strike=strike, maturity=maturity, call=True)
         po = EuropeanOption(stock, strike=strike, maturity=maturity, call=False)
@@ -49,6 +42,7 @@ class TestEuropeanOption:
     def test_dtype(self, dtype):
         derivative = EuropeanOption(BrownianStock(dtype=dtype))
         assert derivative.dtype == dtype
+
         derivative.simulate()
         assert derivative.payoff().dtype == dtype
 
@@ -56,7 +50,7 @@ class TestEuropeanOption:
         derivative.simulate()
         assert derivative.payoff().dtype == dtype
 
-    @pytest.mark.parametrize("device", ["cuda:0", "cuda:1"])
+    @pytest.mark.parametrize("device", ["cpu", "cuda:0", "cuda:1"])
     def test_device(self, device):
         derivative = EuropeanOption(BrownianStock(device=device))
         assert derivative.device == torch.device(device)

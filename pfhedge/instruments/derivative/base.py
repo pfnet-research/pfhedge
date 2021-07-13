@@ -1,4 +1,3 @@
-from abc import ABC
 from abc import abstractmethod
 from typing import Optional
 from typing import TypeVar
@@ -8,7 +7,7 @@ from torch import Tensor
 
 from ..base import Instrument
 
-T = TypeVar("T")
+T = TypeVar("T", bound="Derivative")
 
 
 class Derivative(Instrument):
@@ -74,4 +73,15 @@ class Derivative(Instrument):
         """
 
 
+# Assign docstrings so they appear in Sphinx documentation
 Derivative.to.__doc__ = Instrument.to.__doc__
+Derivative.cpu = Instrument.cpu
+Derivative.cpu.__doc__ = Instrument.cpu.__doc__
+Derivative.cuda = Instrument.cuda
+Derivative.cuda.__doc__ = Instrument.cuda.__doc__
+Derivative.double = Instrument.double
+Derivative.double.__doc__ = Instrument.double.__doc__
+Derivative.float = Instrument.float
+Derivative.float.__doc__ = Instrument.float.__doc__
+Derivative.half = Instrument.half
+Derivative.half.__doc__ = Instrument.half.__doc__

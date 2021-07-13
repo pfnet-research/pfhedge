@@ -84,6 +84,43 @@ class BSAmericanBinaryOption(BSModuleMixin):
             params.append(f"strike={self.strike}")
         return ", ".join(params)
 
+    def price(
+        self,
+        log_moneyness: Tensor,
+        max_log_moneyness: Tensor,
+        expiry_time: Tensor,
+        volatility: Tensor,
+    ) -> Tensor:
+        """Returns price of the derivative.
+
+        Args:
+            log_moneyness (torch.Tensor): Log moneyness of the underlying asset.
+            max_log_moneyness (torch.Tensor): Cumulative maximum of the log moneyness.
+            expiry_time (torch.Tensor): Time to expiry of the option.
+            volatility (torch.Tensor): Volatility of the underlying asset.
+
+        Shape:
+            - log_moneyness: :math:`(N, *)`
+            - max_log_moneyness: :math:`(N, *)`
+            - expiry_time: :math:`(N, *)`
+            - volatility: :math:`(N, *)`
+            - output: :math:`(N, *)`
+
+        Returns:
+            Tensor
+        """
+        s, m, t, v = map(
+            torch.as_tensor, (log_moneyness, max_log_moneyness, expiry_time, volatility)
+        )
+
+        sqrt2 = torch.tensor(2.0).sqrt().item()
+        n1 = self.N.cdf(self.d1(s, t, v) / sqrt2)
+        n2 = self.N.cdf(self.d2(s, t, v) / sqrt2)
+
+        p = (1 / 2) * (s.exp() * (1 + n1) + n2)
+
+        return p.where(m < 0, torch.ones_like(p))
+
     def delta(
         self,
         log_moneyness: Tensor,
@@ -113,7 +150,7 @@ class BSAmericanBinaryOption(BSModuleMixin):
             torch.as_tensor, (log_moneyness, max_log_moneyness, expiry_time, volatility)
         )
 
-        sqrt2 = torch.sqrt(torch.as_tensor(2.0)).item()
+        sqrt2 = torch.tensor(2.0).sqrt().item()
         d1 = self.d1(s, t, v)
         d2 = self.d2(s, t, v)
         c1 = self.N.cdf(d1 / sqrt2)
@@ -122,7 +159,7 @@ class BSAmericanBinaryOption(BSModuleMixin):
 
         d = (1 + c1 + (p1 + p2)) / (2 * self.strike)
 
-        return torch.where(m < 0, d, torch.zeros_like(d))
+        return d.where(m < 0, torch.zeros_like(d))
 
     @torch.enable_grad()
     def gamma(
@@ -159,43 +196,6 @@ class BSAmericanBinaryOption(BSModuleMixin):
             volatility=volatility,
         )
 
-    def price(
-        self,
-        log_moneyness: Tensor,
-        max_log_moneyness: Tensor,
-        expiry_time: Tensor,
-        volatility: Tensor,
-    ) -> Tensor:
-        """Returns price of the derivative.
-
-        Args:
-            log_moneyness (torch.Tensor): Log moneyness of the underlying asset.
-            max_log_moneyness (torch.Tensor): Cumulative maximum of the log moneyness.
-            expiry_time (torch.Tensor): Time to expiry of the option.
-            volatility (torch.Tensor): Volatility of the underlying asset.
-
-        Shape:
-            - log_moneyness: :math:`(N, *)`
-            - max_log_moneyness: :math:`(N, *)`
-            - expiry_time: :math:`(N, *)`
-            - volatility: :math:`(N, *)`
-            - output: :math:`(N, *)`
-
-        Returns:
-            Tensor
-        """
-        s, m, t, v = map(
-            torch.as_tensor, (log_moneyness, max_log_moneyness, expiry_time, volatility)
-        )
-
-        sqrt2 = torch.sqrt(torch.as_tensor(2.0)).item()
-        n1 = self.N.cdf(self.d1(s, t, v) / sqrt2)
-        n2 = self.N.cdf(self.d2(s, t, v) / sqrt2)
-
-        p = (1 / 2) * (torch.exp(s) * (1 + n1) + n2)
-
-        return torch.where(m < 0, p, torch.ones_like(p))
-
     def implied_volatility(
         self,
         log_moneyness: Tensor,
@@ -227,8 +227,8 @@ class BSAmericanBinaryOption(BSModuleMixin):
         s, m, t, p = map(
             torch.as_tensor, (log_moneyness, max_log_moneyness, expiry_time, price)
         )
-        get_price = lambda volatility: self.price(s, m, t, volatility)
-        return bisect(get_price, p, lower=0.001, upper=1.000, precision=precision)
+        pricer = lambda volatility: self.price(s, m, t, volatility)
+        return bisect(pricer, p, lower=0.001, upper=1.000, precision=precision)
 
 
 # Assign docstrings so they appear in Sphinx documentation
