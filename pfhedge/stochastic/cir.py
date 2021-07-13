@@ -70,20 +70,20 @@ def generate_cir(
     randn = torch.randn_like(output)
     rand = torch.rand_like(output)
 
-    kappa = torch.tensor(kappa, dtype=dtype, device=device)
-    theta = torch.tensor(theta, dtype=dtype, device=device)
-    sigma = torch.tensor(sigma, dtype=dtype, device=device)
-    dt = torch.tensor(dt, dtype=dtype, device=device)
+    tensor_kappa = torch.tensor(kappa, dtype=dtype, device=device)
+    tensor_theta = torch.tensor(theta, dtype=dtype, device=device)
+    tensor_sigma = torch.tensor(sigma, dtype=dtype, device=device)
+    tensor_dt = torch.tensor(dt, dtype=dtype, device=device)
 
     for i_step in range(n_steps - 1):
         v = output[:, i_step]
 
         # Compute m, s, psi: Eq(17,18)
-        exp = (-kappa * dt).exp()
-        m = theta + (v - theta) * exp
+        exp = (-tensor_kappa * tensor_dt).exp()
+        m = tensor_theta + (v - tensor_theta) * exp
         s2 = sum(
-            v * (sigma ** 2) * exp * (1 - exp) / kappa,
-            theta * (sigma ** 2) * ((1 - exp) ** 2) / (2 * kappa),
+            v * (tensor_sigma ** 2) * exp * (1 - exp) / tensor_kappa,
+            tensor_theta * (tensor_sigma ** 2) * ((1 - exp) ** 2) / (2 * tensor_kappa),
         )
         psi = s2 / (m ** 2 + EPSILON)
 

@@ -1,4 +1,5 @@
 from abc import ABC
+from cmath import exp
 
 import torch
 from torch import Tensor
@@ -104,11 +105,10 @@ class EntropicRiskMeasure(HedgeLoss):
         return f"a={self.a}" if self.a != 1 else ""
 
     def forward(self, input: Tensor) -> Tensor:
-        return torch.log(-torch.mean(exp_utility(input, a=self.a), dim=0)) / self.a
+        return (-exp_utility(input, a=self.a).mean(0)).log() / self.a
 
     def cash(self, input: Tensor) -> Tensor:
-        """Returns the cash amount which is as preferable as
-        the given profit-loss distribution in terms of the loss.
+        """
 
         Args:
             input (torch.Tensor): The distribution of the profit and loss.
@@ -167,7 +167,7 @@ class EntropicLoss(HedgeLoss):
         return f"a={self.a}" if self.a != 1 else ""
 
     def forward(self, input: Tensor) -> Tensor:
-        return -torch.mean(exp_utility(input, a=self.a), dim=0)
+        return -exp_utility(input, a=self.a).mean(0)
 
     def cash(self, input: Tensor) -> Tensor:
         """Returns the cash amount which is as preferable as
@@ -184,7 +184,7 @@ class EntropicLoss(HedgeLoss):
         Returns:
             torch.Tensor
         """
-        return -torch.log(-torch.mean(exp_utility(input, a=self.a), dim=0)) / self.a
+        return -(-exp_utility(input, a=self.a).mean(0)).log() / self.a
 
 
 class IsoelasticLoss(HedgeLoss):
@@ -242,7 +242,7 @@ class IsoelasticLoss(HedgeLoss):
         return f"a={self.a}"
 
     def forward(self, input: Tensor) -> Tensor:
-        return -torch.mean(isoelastic_utility(input, a=self.a), dim=0)
+        return -isoelastic_utility(input, a=self.a).mean(0)
 
 
 class ExpectedShortfall(HedgeLoss):
@@ -330,4 +330,4 @@ class OCE(HedgeLoss):
         return self.utility.__name__ + f", w={self.w}"
 
     def forward(self, input: Tensor) -> Tensor:
-        return self.w - torch.mean(self.utility(input + self.w), dim=0)
+        return self.w - self.utility(input + self.w).mean(0)

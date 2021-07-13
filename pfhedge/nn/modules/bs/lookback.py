@@ -1,3 +1,5 @@
+from typing import Optional
+
 import torch
 from torch import Tensor
 
@@ -86,6 +88,57 @@ class BSLookbackOption(BSModuleMixin):
     def inputs(self) -> list:
         return ["log_moneyness", "max_log_moneyness", "expiry_time", "volatility"]
 
+    def price(
+        self,
+        log_moneyness: Tensor,
+        max_log_moneyness: Tensor,
+        expiry_time: Tensor,
+        volatility: Tensor,
+    ) -> Tensor:
+        """Returns price of the derivative.
+
+        Args:
+            log_moneyness (torch.Tensor): Log moneyness of the underlying asset.
+            max_log_moneyness (torch.Tensor): Cumulative maximum of the log moneyness.
+            expiry_time (torch.Tensor): Time to expiry of the option.
+            volatility (torch.Tensor): Volatility of the underlying asset.
+
+        Shape:
+            - log_moneyness: :math:`(N, *)`
+            - max_log_moneyness: :math:`(N, *)`
+            - expiry_time: :math:`(N, *)`
+            - volatility: :math:`(N, *)`
+            - output: :math:`(N, *)`
+
+        Returns:
+            Tensor
+        """
+        s, m, t, v = map(
+            torch.as_tensor, (log_moneyness, max_log_moneyness, expiry_time, volatility)
+        )
+
+        d1 = self.d1(s, t, v)
+        d2 = self.d2(s, t, v)
+        e1 = (s - m + (v ** 2 / 2) * t) / (v * t.sqrt())  # d' in paper
+        e2 = (s - m - (v ** 2 / 2) * t) / (v * t.sqrt())
+
+        # when max moneyness < strike
+        price_0 = self.strike * (
+            s.exp() * self.N.cdf(d1)
+            - self.N.cdf(d2)
+            + s.exp() * v * t.sqrt() * (d1 * self.N.cdf(d1) + self.N.pdf(d1))
+        )
+        # when max moneyness >= strike
+        price_1 = self.strike * (
+            s.exp() * self.N.cdf(e1)
+            - m.exp() * self.N.cdf(e2)
+            + m.exp()
+            - 1
+            + s.exp() * v * t.sqrt() * (e1 * self.N.cdf(e1) + self.N.pdf(e1))
+        )
+
+        return torch.where(m < 0, price_0, price_1)
+
     @torch.enable_grad()
     def delta(
         self,
@@ -94,7 +147,7 @@ class BSLookbackOption(BSModuleMixin):
         expiry_time: Tensor,
         volatility: Tensor,
         create_graph: bool = False,
-        strike: Tensor = None,
+        strike: Optional[Tensor] = None,
     ) -> Tensor:
         """Returns delta of the derivative.
 
@@ -160,57 +213,6 @@ class BSLookbackOption(BSModuleMixin):
             expiry_time=expiry_time,
             volatility=volatility,
         )
-
-    def price(
-        self,
-        log_moneyness: Tensor,
-        max_log_moneyness: Tensor,
-        expiry_time: Tensor,
-        volatility: Tensor,
-    ) -> Tensor:
-        """Returns price of the derivative.
-
-        Args:
-            log_moneyness (torch.Tensor): Log moneyness of the underlying asset.
-            max_log_moneyness (torch.Tensor): Cumulative maximum of the log moneyness.
-            expiry_time (torch.Tensor): Time to expiry of the option.
-            volatility (torch.Tensor): Volatility of the underlying asset.
-
-        Shape:
-            - log_moneyness: :math:`(N, *)`
-            - max_log_moneyness: :math:`(N, *)`
-            - expiry_time: :math:`(N, *)`
-            - volatility: :math:`(N, *)`
-            - output: :math:`(N, *)`
-
-        Returns:
-            Tensor
-        """
-        s, m, t, v = map(
-            torch.as_tensor, (log_moneyness, max_log_moneyness, expiry_time, volatility)
-        )
-
-        d1 = self.d1(s, t, v)
-        d2 = self.d2(s, t, v)
-        e1 = (s - m + (v ** 2 / 2) * t) / (v * torch.sqrt(t))  # d' in paper
-        e2 = (s - m - (v ** 2 / 2) * t) / (v * torch.sqrt(t))
-
-        # when max moneyness < strike
-        price_0 = self.strike * (
-            torch.exp(s) * self.N.cdf(d1)
-            - self.N.cdf(d2)
-            + torch.exp(s) * v * torch.sqrt(t) * (d1 * self.N.cdf(d1) + self.N.pdf(d1))
-        )
-        # when max moneyness >= strike
-        price_1 = self.strike * (
-            torch.exp(s) * self.N.cdf(e1)
-            - torch.exp(m) * self.N.cdf(e2)
-            + torch.exp(m)
-            - 1
-            + torch.exp(s) * v * torch.sqrt(t) * (e1 * self.N.cdf(e1) + self.N.pdf(e1))
-        )
-
-        return torch.where(m < 0, price_0, price_1)
 
     def implied_volatility(
         self,

@@ -160,10 +160,10 @@ class BSEuropeanOption(BSModuleMixin):
         n1 = self.N.cdf(self.d1(s, t, v))
         n2 = self.N.cdf(self.d2(s, t, v))
 
-        price = self.strike * (torch.exp(s) * n1 - n2)
+        price = self.strike * (s.exp() * n1 - n2)
 
         if not self.call:
-            price += self.strike * (torch.exp(s) - 1)  # put-call parity
+            price += self.strike * (s.exp() - 1)  # put-call parity
 
         return price
 
