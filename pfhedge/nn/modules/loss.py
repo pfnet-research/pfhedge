@@ -58,7 +58,7 @@ class HedgeLoss(Module, ABC):
         Returns:
             torch.Tensor
         """
-        return bisect(self, self(input), torch.min(input), torch.max(input))
+        return bisect(self, self(input), input.min(), input.max())
 
 
 class EntropicRiskMeasure(HedgeLoss):
@@ -312,7 +312,7 @@ class OCE(HedgeLoss):
         >>> from pfhedge.nn.modules.loss import OCE
         >>>
         >>> _ = torch.manual_seed(42)
-        >>> m = OCE(lambda x: 1 - torch.exp(-x))
+        >>> m = OCE(lambda x: 1 - (-x).exp())
         >>> pnl = torch.randn(10)
         >>> m(pnl)
         tensor(0.0855, grad_fn=<SubBackward0>)

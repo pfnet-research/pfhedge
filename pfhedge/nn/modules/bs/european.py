@@ -130,8 +130,8 @@ class BSEuropeanOption(BSModuleMixin):
             )
 
         s, t, v = map(torch.as_tensor, (log_moneyness, expiry_time, volatility))
-        price = self.strike * torch.exp(s)
-        gamma = self.N.pdf(self.d1(s, t, v)) / (price * v * torch.sqrt(t))
+        price = self.strike * s.exp()
+        gamma = self.N.pdf(self.d1(s, t, v)) / (price * v * t.sqrt())
 
         return gamma
 

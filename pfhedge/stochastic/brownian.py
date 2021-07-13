@@ -107,4 +107,4 @@ def generate_geometric_brownian(
         device=device,
     )
     t = dt * torch.arange(n_steps).to(brownian).reshape(1, -1)
-    return init_value * torch.exp(brownian - (volatility ** 2) * t / 2)
+    return init_value * (brownian - (volatility ** 2) * t / 2).exp()

@@ -125,7 +125,7 @@ class Hedger(Module):
         return self.model(input)
 
     def extra_repr(self) -> str:
-        return "inputs=" + str([str(f) for f in self.inputs])
+        return "inputs=" + str(list(map(str, self.inputs)))
 
     def compute_pnl(
         self, derivative, n_paths: int = 1000, init_state: Optional[tuple] = None
@@ -174,10 +174,8 @@ class Hedger(Module):
         )
 
         # prev_output: shape (N)
-        self.register_buffer(
-            "prev_output",
-            torch.zeros_like(derivative.underlier.spot[..., :1]),
-            persistent=False,
+        save_prev_output(
+            self, None, torch.zeros_like(derivative.underlier.spot[..., :1])
         )
         pnl = 0
 
@@ -194,7 +192,7 @@ class Hedger(Module):
             # Deduct transactoon cost.
             pnl -= (
                 derivative.underlier.cost
-                * torch.abs(hedge - prev_hedge)
+                * (hedge - prev_hedge).abs()
                 * derivative.underlier.spot[..., i]
             )
 

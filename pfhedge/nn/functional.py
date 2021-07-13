@@ -224,11 +224,11 @@ def leaky_clamp(
 
     if min is not None:
         min = torch.as_tensor(min)
-        x = x.max(min + clamped_slope * (x - min))
+        x = x.maximum(min + clamped_slope * (x - min))
 
     if max is not None:
         max = torch.as_tensor(max)
-        x = x.min(max + clamped_slope * (x - max))
+        x = x.minimum(max + clamped_slope * (x - max))
 
     if min is not None and max is not None:
         x = x.where(min <= max, (min + max) / 2)
