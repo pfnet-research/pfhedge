@@ -4,7 +4,6 @@ from typing import Optional
 from typing import TypeVar
 
 import torch
-from torch import Tensor
 
 T = TypeVar("T", bound="Instrument")
 
@@ -59,7 +58,8 @@ class Instrument(ABC):
         then no copy is performed and the original object is returned.
 
         Args:
-            device (torch.device): The destination GPU device. Defaults to the current CUDA device.
+            device (torch.device): The destination GPU device.
+                Defaults to the current CUDA device.
         """
         return self.to(
             torch.device("cuda:{}".format(device) if device is not None else "cuda")

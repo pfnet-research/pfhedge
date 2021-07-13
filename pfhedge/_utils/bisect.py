@@ -1,11 +1,12 @@
-import torch
 from typing import Callable
-from torch import Tensor
 from typing import Union
+
+import torch
+from torch import Tensor
 
 
 def bisect(
-    function:Callable[[Tensor], Tensor],
+    function: Callable[[Tensor], Tensor],
     target: Tensor,
     lower: Union[float, Tensor],
     upper: Union[float, Tensor],

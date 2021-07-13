@@ -406,9 +406,9 @@ class Hedger(Module):
         """
         with torch.set_grad_enabled(enable_grad):
             # Negative because selling
-            price = lambda: -self.criterion.cash(
+            pricer = lambda: -self.criterion.cash(
                 self.compute_pnl(derivative, n_paths=n_paths, init_state=init_state)
             )
-            mean_price = ensemble_mean(price, n_times=n_times)
+            mean_price = ensemble_mean(pricer, n_times=n_times)
 
         return mean_price

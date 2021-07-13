@@ -1,6 +1,7 @@
+from typing import Callable
+
 import torch
 from torch import Tensor
-from typing import Callable
 
 
 def ensemble_mean(
