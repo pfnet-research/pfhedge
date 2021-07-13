@@ -1,4 +1,7 @@
 from copy import deepcopy
+from typing import Optional
+from typing import Sequence
+from typing import Union
 
 from torch.nn import Identity
 from torch.nn import LazyLinear
@@ -91,10 +94,10 @@ class MultiLayerPerceptron(Sequential):
 
     def __init__(
         self,
-        in_features: int = None,
+        in_features: Optional[int] = None,
         out_features: int = 1,
         n_layers: int = 4,
-        n_units=32,
+        n_units: Union[int, Sequence[int]] = 32,
         activation: Module = ReLU(),
         out_activation: Module = Identity(),
     ):

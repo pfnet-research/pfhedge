@@ -130,8 +130,8 @@ class BSEuropeanOption(BSModuleMixin):
             )
 
         s, t, v = map(torch.as_tensor, (log_moneyness, expiry_time, volatility))
-        price = self.strike * torch.exp(s)
-        gamma = self.N.pdf(self.d1(s, t, v)) / (price * v * torch.sqrt(t))
+        price = self.strike * s.exp()
+        gamma = self.N.pdf(self.d1(s, t, v)) / (price * v * t.sqrt())
 
         return gamma
 
@@ -160,10 +160,10 @@ class BSEuropeanOption(BSModuleMixin):
         n1 = self.N.cdf(self.d1(s, t, v))
         n2 = self.N.cdf(self.d2(s, t, v))
 
-        price = self.strike * (torch.exp(s) * n1 - n2)
+        price = self.strike * (s.exp() * n1 - n2)
 
         if not self.call:
-            price += self.strike * (torch.exp(s) - 1)  # put-call parity
+            price += self.strike * (s.exp() - 1)  # put-call parity
 
         return price
 
@@ -189,8 +189,8 @@ class BSEuropeanOption(BSModuleMixin):
             Tensor
         """
         s, t, p = map(torch.as_tensor, (log_moneyness, expiry_time, price))
-        get_price = lambda v: self.price(s, t, v)
-        return bisect(get_price, p, lower=0.001, upper=1.000, precision=precision)
+        pricer = lambda v: self.price(s, t, v)
+        return bisect(pricer, p, lower=0.001, upper=1.000, precision=precision)
 
 
 # Assign docstrings so they appear in Sphinx documentation

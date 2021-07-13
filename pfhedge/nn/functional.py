@@ -1,4 +1,5 @@
 from math import ceil
+from typing import Optional
 
 import torch
 import torch.nn.functional as fn
@@ -114,10 +115,10 @@ def exp_utility(input: Tensor, a: float = 1.0) -> Tensor:
     Returns:
         torch.Tensor
     """
-    return -torch.exp(-a * input)
+    return -(-a * input).exp()
 
 
-def isoelastic_utility(input: Tensor, a: float = 0.5) -> Tensor:
+def isoelastic_utility(input: Tensor, a: float) -> Tensor:
     """Applies an isoelastic utility function.
 
     An isoelastic utility function is defined as:
@@ -131,19 +132,19 @@ def isoelastic_utility(input: Tensor, a: float = 0.5) -> Tensor:
 
     Args:
         input (torch.Tensor): The input tensor.
-        a (float, default=0.5): Relative risk aversion coefficient of the isoelastic
+        a (float): Relative risk aversion coefficient of the isoelastic
             utility.
 
     Returns:
         torch.Tensor
     """
     if a == 1.0:
-        return torch.log(input)
+        return input.log()
     else:
-        return torch.pow(input, exponent=1.0 - a)
+        return input ** (1.0 - a)
 
 
-def topp(input, p: float, dim: int = None, largest: bool = True):
+def topp(input, p: float, dim: Optional[int] = None, largest: bool = True):
     """Returns the largest `p * N` elements of the given input tensor,
     where `N` stands for the total number of elements in the input tensor.
 
@@ -177,12 +178,12 @@ def topp(input, p: float, dim: int = None, largest: bool = True):
         indices=tensor([4, 3, 2]))
     """
     if dim is None:
-        return torch.topk(input, ceil(p * input.numel()), largest=largest)
+        return input.topk(ceil(p * input.numel()), largest=largest)
     else:
-        return torch.topk(input, ceil(p * input.size()[dim]), dim=dim, largest=largest)
+        return input.topk(ceil(p * input.size()[dim]), dim=dim, largest=largest)
 
 
-def expected_shortfall(input: Tensor, p: float, dim=None) -> Tensor:
+def expected_shortfall(input: Tensor, p: float, dim: Optional[int] = None) -> Tensor:
     """Returns the expected shortfall of the given input tensor.
 
     Args:
@@ -208,7 +209,10 @@ def expected_shortfall(input: Tensor, p: float, dim=None) -> Tensor:
 
 
 def leaky_clamp(
-    input: Tensor, min: Tensor = None, max: Tensor = None, clamped_slope: float = 0.01
+    input: Tensor,
+    min: Optional[Tensor] = None,
+    max: Optional[Tensor] = None,
+    clamped_slope: float = 0.01,
 ) -> Tensor:
     """Leakily clamp all elements in `input` into the range :math:`[\\min, \\max]`.
 
@@ -220,19 +224,21 @@ def leaky_clamp(
 
     if min is not None:
         min = torch.as_tensor(min)
-        x = torch.max(x, min + clamped_slope * (x - min))
+        x = x.maximum(min + clamped_slope * (x - min))
 
     if max is not None:
         max = torch.as_tensor(max)
-        x = torch.min(x, max + clamped_slope * (x - max))
+        x = x.minimum(max + clamped_slope * (x - max))
 
     if min is not None and max is not None:
-        x = torch.where(min <= max, x, (min + max) / 2)
+        x = x.where(min <= max, (min + max) / 2)
 
     return x
 
 
-def clamp(input: Tensor, min: Tensor = None, max: Tensor = None) -> Tensor:
+def clamp(
+    input: Tensor, min: Optional[Tensor] = None, max: Optional[Tensor] = None
+) -> Tensor:
     """Clamp all elements in `input` into the range :math:`[\\min, \\max]`.
 
     The bounds :math:`\\min` and :math:`\\max` can be tensors.

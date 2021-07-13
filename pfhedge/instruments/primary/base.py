@@ -1,4 +1,3 @@
-from abc import ABC
 from abc import abstractmethod
 from collections import OrderedDict
 from typing import Iterator
@@ -10,10 +9,9 @@ from typing import Union
 import torch
 from torch import Tensor
 
-T = TypeVar("T", bound="Primary")
-
-
 from ..base import Instrument
+
+T = TypeVar("T", bound="Primary")
 
 
 class Primary(Instrument):
@@ -64,9 +62,10 @@ class Primary(Instrument):
         Args:
             name (string): name of the buffer. The buffer can be accessed
                 from this module using the given name
-            tensor (Tensor or None): buffer to be registered. If ``None``, then operations
-                that run on buffers, such as :attr:`cuda`, are ignored. If ``None``,
-                the buffer is **not** included in the module's :attr:`state_dict`.
+            tensor (Tensor or None): buffer to be registered. If ``None``, then
+                operations that run on buffers, such as :attr:`cuda`, are ignored.
+                If ``None``, the buffer is **not** included in the module's
+                :attr:`state_dict`.
         """
         # Implementation here refers to `torch.nn.Module.register_buffer`.
         if "_buffers" not in self.__dict__:
