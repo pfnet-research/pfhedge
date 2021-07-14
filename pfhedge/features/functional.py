@@ -1,31 +1,8 @@
+from time import time
+
 import torch
 from torch import Tensor
 from torch.nn import Module
-
-
-def moneyness(i: int, derivative: "Derivative", hedger: Module = None) -> Tensor:
-    """Returns moneyness.
-
-    Args:
-        i (int): The index of time step.
-        derivative (pfhedge.instruments.Derivative):
-        hedger (pfhedge.nn.Hedger):
-
-    Returns:
-        torch.Tensor
-    """
-    s = derivative.underlier.spot[..., [i]]
-    k = derivative.strike
-    return s / k
-
-
-def log_moneyness(i, derivative, hedger=None) -> Tensor:
-    return moneyness(i, derivative=derivative).log()
-
-
-def expiry_time(i, derivative, hedger=None) -> Tensor:
-    value = derivative.maturity - i * derivative.underlier.dt
-    return torch.full_like(derivative.underlier.spot[:, :1], value)
 
 
 def volatility(i, derivative, hedger=None) -> Tensor:

@@ -6,6 +6,7 @@ from .features import MaxLogMoneyness
 from .features import MaxMoneyness
 from .features import Moneyness
 from .features import PrevHedge
+from .features import TimeToMaturity
 from .features import Volatility
 from .features import Zeros
 
@@ -17,6 +18,7 @@ FEATURES = [
     MaxMoneyness(),
     Moneyness(),
     PrevHedge(),
+    TimeToMaturity(),
     Volatility(),
     Zeros(),
 ]
@@ -31,6 +33,12 @@ def get_feature(feature):
     Returns:
         Feature
     """
+    # TODO(simaki): Remove this when expiry_time is removed.
+    if feature == "expiry_time":
+        raise DeprecationWarning(
+            "'expiry_time' is deprecated. Use 'time_to_maturity' instead."
+        )
+
     dict_features = {str(f): f for f in FEATURES}
 
     if isinstance(feature, str):

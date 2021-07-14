@@ -3,11 +3,8 @@ import torch
 from ._base import Feature
 from .functional import barrier
 from .functional import empty
-from .functional import expiry_time
-from .functional import log_moneyness
 from .functional import max_log_moneyness
 from .functional import max_moneyness
-from .functional import moneyness
 from .functional import prev_hedge
 from .functional import volatility
 from .functional import zeros
@@ -29,9 +26,9 @@ class Moneyness(Feature):
 
     def __getitem__(self, i):
         if self.log:
-            return log_moneyness(i, derivative=self.derivative)
+            return self.derivative.log_moneyness(i).unsqueeze(1)
         else:
-            return moneyness(i, derivative=self.derivative)
+            return self.derivative.moneyness(i).unsqueeze(1)
 
 
 class LogMoneyness(Moneyness):
@@ -41,6 +38,16 @@ class LogMoneyness(Moneyness):
         super().__init__(log=True)
 
 
+class TimeToMaturity(Feature):
+    """Remaining time to the maturity of the derivative."""
+
+    def __str__(self):
+        return "time_to_maturity"
+
+    def __getitem__(self, i):
+        return self.derivative.time_to_maturity(i).unsqueeze(1)
+
+
 class ExpiryTime(Feature):
     """Remaining time to the maturity of the derivative."""
 
@@ -48,7 +55,7 @@ class ExpiryTime(Feature):
         return "expiry_time"
 
     def __getitem__(self, i):
-        return expiry_time(i, derivative=self.derivative)
+        return self.derivative.time_to_maturity(i).unsqueeze(1)
 
 
 class Volatility(Feature):
@@ -165,14 +172,14 @@ class ModuleOutput(Feature, torch.nn.Module):
         >>> derivative = EuropeanOption(BrownianStock())
         >>> derivative.simulate(n_paths=3)
         >>> m = Linear(2, 1)
-        >>> f = ModuleOutput(m, [Moneyness(), ExpiryTime()]).of(derivative)
+        >>> f = ModuleOutput(m, [Moneyness(), TimeToMaturity()]).of(derivative)
         >>> f[0]
         tensor([[...],
                 [...],
                 [...]], grad_fn=<AddmmBackward>)
         >>> f
         ModuleOutput(
-          inputs=['moneyness', 'expiry_time']
+          inputs=['moneyness', 'time_to_maturity']
           (module): Linear(in_features=2, out_features=1, bias=True)
         )
 

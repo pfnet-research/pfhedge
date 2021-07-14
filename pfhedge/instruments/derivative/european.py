@@ -3,9 +3,10 @@ from torch import Tensor
 
 from ...nn.functional import european_payoff
 from .base import Derivative
+from .base import OptionMixin
 
 
-class EuropeanOption(Derivative):
+class EuropeanOption(Derivative, OptionMixin):
     """A European option.
 
     A European option provides its holder the right to buy (for call option)
@@ -104,3 +105,10 @@ EuropeanOption.simulate.__doc__ = Derivative.simulate.__doc__
 EuropeanOption.to = Derivative.to
 EuropeanOption.to.__doc__ = Derivative.to.__doc__
 EuropeanOption.payoff.__doc__ = Derivative.payoff.__doc__
+
+EuropeanOption.moneyness = OptionMixin.moneyness
+EuropeanOption.moneyness.__doc__ = OptionMixin.moneyness.__doc__
+EuropeanOption.log_moneyness = OptionMixin.log_moneyness
+EuropeanOption.log_moneyness.__doc__ = OptionMixin.log_moneyness.__doc__
+EuropeanOption.time_to_maturity = OptionMixin.time_to_maturity
+EuropeanOption.time_to_maturity.__doc__ = OptionMixin.time_to_maturity.__doc__

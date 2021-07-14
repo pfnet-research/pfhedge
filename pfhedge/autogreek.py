@@ -32,7 +32,7 @@ def delta(pricer, *, create_graph: bool = False, **kwargs) -> Tensor:
         >>> autogreek.delta(
         ...     pricer,
         ...     log_moneyness=torch.zeros(3),
-        ...     expiry_time=torch.ones(3),
+        ...     time_to_maturity=torch.ones(3),
         ...     volatility=torch.tensor([0.18, 0.20, 0.22]),
         ... )
         tensor([0.5359, 0.5398, 0.5438])
@@ -41,7 +41,7 @@ def delta(pricer, *, create_graph: bool = False, **kwargs) -> Tensor:
 
         >>> BSEuropeanOption().delta(
         ...     log_moneyness=torch.zeros(3),
-        ...     expiry_time=torch.ones(3),
+        ...     time_to_maturity=torch.ones(3),
         ...     volatility=torch.tensor([0.18, 0.20, 0.22]),
         ... )
         tensor([0.5359, 0.5398, 0.5438])
@@ -121,7 +121,7 @@ def gamma(pricer, *, create_graph: bool = False, **kwargs) -> Tensor:
         ...     pricer,
         ...     strike=torch.ones(3),
         ...     log_moneyness=torch.zeros(3),
-        ...     expiry_time=torch.ones(3),
+        ...     time_to_maturity=torch.ones(3),
         ...     volatility=torch.tensor([0.18, 0.20, 0.22]),
         ... )
         tensor([2.2074, 1.9848, 1.8024])
@@ -130,7 +130,7 @@ def gamma(pricer, *, create_graph: bool = False, **kwargs) -> Tensor:
 
         >>> BSEuropeanOption().gamma(
         ...     log_moneyness=torch.zeros(3),
-        ...     expiry_time=torch.ones(3),
+        ...     time_to_maturity=torch.ones(3),
         ...     volatility=torch.tensor([0.18, 0.20, 0.22]),
         ... )
         tensor([2.2074, 1.9848, 1.8024])

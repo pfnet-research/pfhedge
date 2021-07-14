@@ -3,9 +3,10 @@ from torch import Tensor
 
 from ...nn.functional import lookback_payoff
 from .base import Derivative
+from .base import OptionMixin
 
 
-class LookbackOption(Derivative):
+class LookbackOption(Derivative, OptionMixin):
     """A lookback option with fixed strike.
 
     A lookback call option provides its holder the right to buy an underlying with
@@ -102,3 +103,10 @@ LookbackOption.simulate.__doc__ = Derivative.simulate.__doc__
 LookbackOption.to = Derivative.to
 LookbackOption.to.__doc__ = Derivative.to.__doc__
 LookbackOption.payoff.__doc__ = Derivative.payoff.__doc__
+
+LookbackOption.moneyness = OptionMixin.moneyness
+LookbackOption.moneyness.__doc__ = OptionMixin.moneyness.__doc__
+LookbackOption.log_moneyness = OptionMixin.log_moneyness
+LookbackOption.log_moneyness.__doc__ = OptionMixin.log_moneyness.__doc__
+LookbackOption.time_to_maturity = OptionMixin.time_to_maturity
+LookbackOption.time_to_maturity.__doc__ = OptionMixin.time_to_maturity.__doc__

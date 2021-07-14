@@ -34,7 +34,7 @@ class WhalleyWilmott(Module):
         >>>
         >>> m = WhalleyWilmott(derivative)
         >>> m.inputs()
-        ['log_moneyness', 'expiry_time', 'volatility', 'prev_hedge']
+        ['log_moneyness', 'time_to_maturity', 'volatility', 'prev_hedge']
         >>> input = torch.tensor([
         ...     [-0.05, 0.1, 0.2, 0.5],
         ...     [-0.01, 0.1, 0.2, 0.5],
@@ -53,7 +53,7 @@ class WhalleyWilmott(Module):
         >>> derivative = EuropeanOption(BrownianStock())
         >>> m = WhalleyWilmott(derivative)
         >>> m.inputs()
-        ['log_moneyness', 'expiry_time', 'volatility', 'prev_hedge']
+        ['log_moneyness', 'time_to_maturity', 'volatility', 'prev_hedge']
         >>> input = torch.tensor([
         ...     [-0.05, 0.1, 0.2, 0.5],
         ...     [-0.01, 0.1, 0.2, 0.5],

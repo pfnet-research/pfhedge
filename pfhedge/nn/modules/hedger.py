@@ -50,7 +50,7 @@ class Hedger(Module):
         >>> hedger = Hedger(model, model.inputs())
         >>> hedger
         Hedger(
-          inputs=['log_moneyness', 'expiry_time', 'volatility']
+          inputs=['log_moneyness', 'time_to_maturity', 'volatility']
           (model): BSEuropeanOption()
           (criterion): EntropicRiskMeasure()
         )
@@ -63,7 +63,7 @@ class Hedger(Module):
         >>> hedger = Hedger(model, model.inputs())
         >>> hedger
         Hedger(
-          inputs=['log_moneyness', 'expiry_time', 'volatility', 'prev_hedge']
+          inputs=['log_moneyness', 'time_to_maturity', 'volatility', 'prev_hedge']
           (model): WhalleyWilmott(
             (bs): BSEuropeanOption()
             (clamp): Clamp()
@@ -82,11 +82,11 @@ class Hedger(Module):
         >>> from pfhedge.nn import MultiLayerPerceptron
         >>>
         >>> model = MultiLayerPerceptron()
-        >>> hedger = Hedger(model, ["moneyness", "expiry_time", "volatility"])
+        >>> hedger = Hedger(model, ["moneyness", "time_to_maturity", "volatility"])
         >>> _ = hedger.compute_pnl(derivative, n_paths=1)  # Lazily materialize
         >>> hedger
         Hedger(
-          inputs=['moneyness', 'expiry_time', 'volatility']
+          inputs=['moneyness', 'time_to_maturity', 'volatility']
           (model): MultiLayerPerceptron(
             (0): Linear(in_features=3, out_features=32, bias=True)
             (1): ReLU()
@@ -300,7 +300,7 @@ class Hedger(Module):
             >>>
             >>> derivative = EuropeanOption(BrownianStock())
             >>> model = MultiLayerPerceptron()
-            >>> hedger = Hedger(model, ["moneyness", "expiry_time", "volatility"])
+            >>> hedger = Hedger(model, ["moneyness", "time_to_maturity", "volatility"])
             >>> history = hedger.fit(derivative, verbose=False, n_paths=1, n_epochs=1)
 
             One can use a custom optimizer as follows.

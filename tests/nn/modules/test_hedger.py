@@ -20,16 +20,16 @@ class TestHedger:
     """
 
     def test_error_optimizer(self):
-        hedger = Hedger(Linear(2, 1), ["moneyness", "expiry_time"])
+        hedger = Hedger(Linear(2, 1), ["moneyness", "time_to_maturity"])
         derivative = EuropeanOption(BrownianStock())
         with pytest.raises(TypeError):
             hedger.fit(derivative, optimizer=Identity)
 
     def test_repr(self):
-        hedger = Hedger(Linear(2, 1), ["moneyness", "expiry_time"])
+        hedger = Hedger(Linear(2, 1), ["moneyness", "time_to_maturity"])
         assert repr(hedger) == (
             "Hedger(\n"
-            "  inputs=['moneyness', 'expiry_time']\n"
+            "  inputs=['moneyness', 'time_to_maturity']\n"
             "  (model): Linear(in_features=2, out_features=1, bias=True)\n"
             "  (criterion): EntropicRiskMeasure()\n"
             ")"
@@ -40,7 +40,7 @@ class TestHedger:
         hedger = Hedger(model, model.inputs())
         assert repr(hedger) == (
             "Hedger(\n"
-            "  inputs=['log_moneyness', 'expiry_time', 'volatility']\n"
+            "  inputs=['log_moneyness', 'time_to_maturity', 'volatility']\n"
             "  (model): BSEuropeanOption()\n"
             "  (criterion): EntropicRiskMeasure()\n"
             ")"
@@ -91,7 +91,7 @@ class TestHedger:
     def test_compute_loss(self):
         torch.manual_seed(42)
         deriv = EuropeanOption(BrownianStock())
-        hedger = Hedger(Naked(), ["log_moneyness", "expiry_time", "volatility"])
+        hedger = Hedger(Naked(), ["log_moneyness", "time_to_maturity", "volatility"])
 
         result = hedger.compute_loss(deriv)
         expect = EntropicRiskMeasure()(-deriv.payoff())
