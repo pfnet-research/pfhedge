@@ -3,9 +3,10 @@ from torch import Tensor
 
 from ...nn.functional import european_binary_payoff
 from .base import Derivative
+from .base import OptionMixin
 
 
-class EuropeanBinaryOption(Derivative):
+class EuropeanBinaryOption(Derivative, OptionMixin):
     """A European binary option.
 
     An American binary call option pays an unit amount of cash if and only if
@@ -110,3 +111,9 @@ EuropeanBinaryOption.simulate.__doc__ = Derivative.simulate.__doc__
 EuropeanBinaryOption.to = Derivative.to
 EuropeanBinaryOption.to.__doc__ = Derivative.to.__doc__
 EuropeanBinaryOption.payoff.__doc__ = Derivative.payoff.__doc__
+EuropeanBinaryOption.moneyness = OptionMixin.moneyness
+EuropeanBinaryOption.moneyness.__doc__ = OptionMixin.moneyness.__doc__
+EuropeanBinaryOption.log_moneyness = OptionMixin.log_moneyness
+EuropeanBinaryOption.log_moneyness.__doc__ = OptionMixin.log_moneyness.__doc__
+EuropeanBinaryOption.time_to_maturity = OptionMixin.time_to_maturity
+EuropeanBinaryOption.time_to_maturity.__doc__ = OptionMixin.time_to_maturity.__doc__
