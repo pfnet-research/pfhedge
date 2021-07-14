@@ -38,6 +38,41 @@ class TestEuropeanOption:
 
         assert ((c - p) == s - strike).all()
 
+    @pytest.mark.parametrize("strike", [1.0, 2.0])
+    def test_moneyness(self, strike):
+        stock = BrownianStock()
+        derivative = EuropeanOption(stock, strike=strike)
+        derivative.simulate()
+
+        result = derivative.moneyness()
+        expect = stock.spot / strike
+        assert_close(result, expect)
+
+        result = derivative.moneyness(0)
+        expect = stock.spot[:, 0] / strike
+        assert_close(result, expect)
+
+        result = derivative.log_moneyness()
+        expect = (stock.spot / strike).log()
+        assert_close(result, expect)
+
+        result = derivative.log_moneyness(0)
+        expect = (stock.spot[:, 0] / strike).log()
+        assert_close(result, expect)
+
+    def test_time_to_maturity(self):
+        stock = BrownianStock(dt=1.0)
+        derivative = EuropeanOption(stock, maturity=4.0)
+        derivative.simulate(n_paths=2)
+
+        result = derivative.time_to_maturity()
+        expect = torch.tensor([[4.0, 3.0, 2.0, 1.0], [4.0, 3.0, 2.0, 1.0]])
+        assert_close(result, expect)
+
+        result = derivative.time_to_maturity(0)
+        expect = torch.tensor([4.0, 4.0])
+        assert_close(result, expect)
+
     @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
     def test_dtype(self, dtype):
         derivative = EuropeanOption(BrownianStock(dtype=dtype))
