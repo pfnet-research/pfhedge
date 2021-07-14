@@ -84,9 +84,14 @@ class OptionMixin:
         """Returns the moneyness of self.
 
         Args:
-            time_step (int, optional): The time step at which to calculate
+            time_step (int, optional): The time step to calculate
                 the moneyness. If `None` (default), the moneyness is calculated
                 at all time steps.
+
+        Shape:
+            - Output: :math:`(N, T)` where :math:`N` is the number of paths and
+              :math:`T` is the number of time steps.
+              If `time_step` is given, the shape is :math:`(N, 1)`.
 
         Returns:
             torch.Tensor
@@ -100,13 +105,14 @@ class OptionMixin:
         """Returns the log moneyness of self.
 
         Args:
-            time_step (int, optional): The time step at which to calculate
-                the moneyness. If `None` (default), the moneyness is calculated
+            time_step (int, optional): The time step to calculate the log
+                moneyness. If `None` (default), the moneyness is calculated
                 at all time steps.
 
         Shape:
-            - output: (N, T) where N is the number of paths and T is the number
-                of time steps. If `time_step` is given, the shape is :math:`(N, 1)`.
+            - Output: :math:`(N, T)` where :math:`N` is the number of paths and
+              :math:`T` is the number of time steps.
+              If `time_step` is given, the shape is :math:`(N, 1)`.
 
         Returns:
             torch.Tensor
@@ -117,13 +123,14 @@ class OptionMixin:
         """Returns the time to maturity of self.
 
         Args:
-            time_step (int, optional): The time step at which to calculate
+            time_step (int, optional): The time step to calculate
                 the time to maturity. If `None` (default), the time to
                 maturity is calculated at all time steps.
 
         Shape:
-            - output: (N, T) where N is the number of paths and T is the number
-                of time steps. If `time_step` is given, the shape is :math:`(N, 1)`.
+            - Output: :math:`(N, T)` where :math:`N` is the number of paths and
+              :math:`T` is the number of time steps.
+              If `time_step` is given, the shape is :math:`(N, 1)`.
 
         Returns:
             torch.Tensor
