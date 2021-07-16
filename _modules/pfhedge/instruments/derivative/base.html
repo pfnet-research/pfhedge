@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
-    <meta name="generator" content="sphinx-4.0.3, furo 2021.07.05.beta38"/>
+    <meta name="generator" content="sphinx-4.1.1, furo 2021.07.05.beta38"/>
         <title>pfhedge.instruments.derivative.base - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css" />
@@ -150,7 +150,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../stochastic.html">pfhedge.stochastic</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../autogreek.html">pfhedge.autogreek</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Development</span></p>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/pfnet-research/pfhedge">GitHub</a></li>
 </ul>
@@ -168,8 +168,7 @@
           <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
         </label>
         <h1>Source code for pfhedge.instruments.derivative.base</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span>
-<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">abstractmethod</span>
+<span></span><span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">abstractmethod</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TypeVar</span>
 
@@ -242,6 +241,80 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            torch.Tensor</span>
 <span class="sd">        """</span></div></div>
+
+
+<span class="k">class</span> <span class="nc">OptionMixin</span><span class="p">:</span>
+    <span class="sd">"""Mixin class of options."""</span>
+
+    <span class="n">underlier</span><span class="p">:</span> <span class="s2">"Primary"</span>
+    <span class="n">strike</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">maturity</span><span class="p">:</span> <span class="nb">float</span>
+
+    <span class="k">def</span> <span class="nf">moneyness</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+        <span class="sd">"""Returns the moneyness of self.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            time_step (int, optional): The time step to calculate</span>
+<span class="sd">                the moneyness. If `None` (default), the moneyness is calculated</span>
+<span class="sd">                at all time steps.</span>
+
+<span class="sd">        Shape:</span>
+<span class="sd">            - Output: :math:`(N, T)` where :math:`N` is the number of paths and</span>
+<span class="sd">              :math:`T` is the number of time steps.</span>
+<span class="sd">              If `time_step` is given, the shape is :math:`(N, 1)`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            torch.Tensor</span>
+<span class="sd">        """</span>
+        <span class="n">spot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">underlier</span><span class="o">.</span><span class="n">spot</span>
+        <span class="k">if</span> <span class="n">time_step</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">spot</span> <span class="o">=</span> <span class="n">spot</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">time_step</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">spot</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">strike</span>
+
+    <span class="k">def</span> <span class="nf">log_moneyness</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+        <span class="sd">"""Returns the log moneyness of self.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            time_step (int, optional): The time step to calculate the log</span>
+<span class="sd">                moneyness. If `None` (default), the moneyness is calculated</span>
+<span class="sd">                at all time steps.</span>
+
+<span class="sd">        Shape:</span>
+<span class="sd">            - Output: :math:`(N, T)` where :math:`N` is the number of paths and</span>
+<span class="sd">              :math:`T` is the number of time steps.</span>
+<span class="sd">              If `time_step` is given, the shape is :math:`(N, 1)`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            torch.Tensor</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">moneyness</span><span class="p">(</span><span class="n">time_step</span><span class="o">=</span><span class="n">time_step</span><span class="p">)</span><span class="o">.</span><span class="n">log</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">time_to_maturity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+        <span class="sd">"""Returns the time to maturity of self.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            time_step (int, optional): The time step to calculate</span>
+<span class="sd">                the time to maturity. If `None` (default), the time to</span>
+<span class="sd">                maturity is calculated at all time steps.</span>
+
+<span class="sd">        Shape:</span>
+<span class="sd">            - Output: :math:`(N, T)` where :math:`N` is the number of paths and</span>
+<span class="sd">              :math:`T` is the number of time steps.</span>
+<span class="sd">              If `time_step` is given, the shape is :math:`(N, 1)`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            torch.Tensor</span>
+<span class="sd">        """</span>
+        <span class="n">n_paths</span><span class="p">,</span> <span class="n">n_steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">underlier</span><span class="o">.</span><span class="n">spot</span><span class="o">.</span><span class="n">size</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">time_step</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">underlier</span><span class="o">.</span><span class="n">dt</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_steps</span><span class="p">)</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">n_paths</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">t</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">underlier</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">maturity</span> <span class="o">-</span> <span class="n">t</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">underlier</span><span class="o">.</span><span class="n">spot</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">time_step</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">underlier</span><span class="o">.</span><span class="n">dt</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">maturity</span> <span class="o">-</span> <span class="n">t</span>
 
 
 <span class="c1"># Assign docstrings so they appear in Sphinx documentation</span>

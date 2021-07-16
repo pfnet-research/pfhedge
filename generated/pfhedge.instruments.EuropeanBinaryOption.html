@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="AmericanBinaryOption" href="pfhedge.instruments.AmericanBinaryOption.html" /><link rel="prev" title="LookbackOption" href="pfhedge.instruments.LookbackOption.html" />
 
-    <meta name="generator" content="sphinx-4.0.3, furo 2021.07.05.beta38"/>
+    <meta name="generator" content="sphinx-4.1.1, furo 2021.07.05.beta38"/>
         <title>EuropeanBinaryOption - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css" />
@@ -151,7 +151,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../stochastic.html">pfhedge.stochastic</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../autogreek.html">pfhedge.autogreek</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Development</span></p>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/pfnet-research/pfhedge">GitHub</a></li>
 </ul>
@@ -249,6 +249,56 @@ represented.</p>
 </pre></div>
 </div>
 <dl class="py method">
+<dt class="sig sig-object py" id="pfhedge.instruments.EuropeanBinaryOption.log_moneyness">
+<span class="sig-name descname"><span class="pre">log_moneyness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.EuropeanBinaryOption.log_moneyness" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the log moneyness of self.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>time_step</strong> (<em>int</em><em>, </em><em>optional</em>) – The time step to calculate the log
+moneyness. If <cite>None</cite> (default), the moneyness is calculated
+at all time steps.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Shape:</dt><dd><ul class="simple">
+<li><p>Output: <span class="math notranslate nohighlight">\((N, T)\)</span> where <span class="math notranslate nohighlight">\(N\)</span> is the number of paths and
+<span class="math notranslate nohighlight">\(T\)</span> is the number of time steps.
+If <cite>time_step</cite> is given, the shape is <span class="math notranslate nohighlight">\((N, 1)\)</span>.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pfhedge.instruments.EuropeanBinaryOption.moneyness">
+<span class="sig-name descname"><span class="pre">moneyness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.EuropeanBinaryOption.moneyness" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the moneyness of self.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>time_step</strong> (<em>int</em><em>, </em><em>optional</em>) – The time step to calculate
+the moneyness. If <cite>None</cite> (default), the moneyness is calculated
+at all time steps.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Shape:</dt><dd><ul class="simple">
+<li><p>Output: <span class="math notranslate nohighlight">\((N, T)\)</span> where <span class="math notranslate nohighlight">\(N\)</span> is the number of paths and
+<span class="math notranslate nohighlight">\(T\)</span> is the number of time steps.
+If <cite>time_step</cite> is given, the shape is <span class="math notranslate nohighlight">\((N, 1)\)</span>.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
 <dt class="sig sig-object py" id="pfhedge.instruments.EuropeanBinaryOption.payoff">
 <span class="sig-name descname"><span class="pre">payoff</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/derivative/european_binary.html#EuropeanBinaryOption.payoff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.EuropeanBinaryOption.payoff" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the payoffs of the derivative.</p>
@@ -277,6 +327,31 @@ paths.</p></li>
 instrument. If <cite>None</cite> (default), sensible default values are used.</p></li>
 <li><p><strong>**kwargs</strong> – Other parameters passed to <cite>self.underlier.simulate()</cite>.</p></li>
 </ul>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pfhedge.instruments.EuropeanBinaryOption.time_to_maturity">
+<span class="sig-name descname"><span class="pre">time_to_maturity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.EuropeanBinaryOption.time_to_maturity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the time to maturity of self.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>time_step</strong> (<em>int</em><em>, </em><em>optional</em>) – The time step to calculate
+the time to maturity. If <cite>None</cite> (default), the time to
+maturity is calculated at all time steps.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Shape:</dt><dd><ul class="simple">
+<li><p>Output: <span class="math notranslate nohighlight">\((N, T)\)</span> where <span class="math notranslate nohighlight">\(N\)</span> is the number of paths and
+<span class="math notranslate nohighlight">\(T\)</span> is the number of time steps.
+If <cite>time_step</cite> is given, the shape is <span class="math notranslate nohighlight">\((N, 1)\)</span>.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>torch.Tensor</p>
 </dd>
 </dl>
 </dd></dl>

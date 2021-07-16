@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
-    <meta name="generator" content="sphinx-4.0.3, furo 2021.07.05.beta38"/>
+    <meta name="generator" content="sphinx-4.1.1, furo 2021.07.05.beta38"/>
         <title>pfhedge.stochastic.cir - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css" />
@@ -150,7 +150,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../stochastic.html">pfhedge.stochastic</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../autogreek.html">pfhedge.autogreek</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Development</span></p>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/pfnet-research/pfhedge">GitHub</a></li>
 </ul>
@@ -240,20 +240,20 @@
     <span class="n">randn</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn_like</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
     <span class="n">rand</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand_like</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
 
-    <span class="n">kappa</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">kappa</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
-    <span class="n">theta</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
-    <span class="n">sigma</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
-    <span class="n">dt</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+    <span class="n">tensor_kappa</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">kappa</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+    <span class="n">tensor_theta</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+    <span class="n">tensor_sigma</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+    <span class="n">tensor_dt</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="n">i_step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_steps</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
         <span class="n">v</span> <span class="o">=</span> <span class="n">output</span><span class="p">[:,</span> <span class="n">i_step</span><span class="p">]</span>
 
         <span class="c1"># Compute m, s, psi: Eq(17,18)</span>
-        <span class="n">exp</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">kappa</span> <span class="o">*</span> <span class="n">dt</span><span class="p">)</span><span class="o">.</span><span class="n">exp</span><span class="p">()</span>
-        <span class="n">m</span> <span class="o">=</span> <span class="n">theta</span> <span class="o">+</span> <span class="p">(</span><span class="n">v</span> <span class="o">-</span> <span class="n">theta</span><span class="p">)</span> <span class="o">*</span> <span class="n">exp</span>
+        <span class="n">exp</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">tensor_kappa</span> <span class="o">*</span> <span class="n">tensor_dt</span><span class="p">)</span><span class="o">.</span><span class="n">exp</span><span class="p">()</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">tensor_theta</span> <span class="o">+</span> <span class="p">(</span><span class="n">v</span> <span class="o">-</span> <span class="n">tensor_theta</span><span class="p">)</span> <span class="o">*</span> <span class="n">exp</span>
         <span class="n">s2</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
-            <span class="n">v</span> <span class="o">*</span> <span class="p">(</span><span class="n">sigma</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">exp</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">exp</span><span class="p">)</span> <span class="o">/</span> <span class="n">kappa</span><span class="p">,</span>
-            <span class="n">theta</span> <span class="o">*</span> <span class="p">(</span><span class="n">sigma</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">exp</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">kappa</span><span class="p">),</span>
+            <span class="n">v</span> <span class="o">*</span> <span class="p">(</span><span class="n">tensor_sigma</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">exp</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">exp</span><span class="p">)</span> <span class="o">/</span> <span class="n">tensor_kappa</span><span class="p">,</span>
+            <span class="n">tensor_theta</span> <span class="o">*</span> <span class="p">(</span><span class="n">tensor_sigma</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">exp</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">tensor_kappa</span><span class="p">),</span>
         <span class="p">)</span>
         <span class="n">psi</span> <span class="o">=</span> <span class="n">s2</span> <span class="o">/</span> <span class="p">(</span><span class="n">m</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">EPSILON</span><span class="p">)</span>
 

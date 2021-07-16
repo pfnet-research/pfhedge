@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
-    <meta name="generator" content="sphinx-4.0.3, furo 2021.07.05.beta38"/>
+    <meta name="generator" content="sphinx-4.1.1, furo 2021.07.05.beta38"/>
         <title>pfhedge.instruments.derivative.european_binary - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css" />
@@ -150,7 +150,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../stochastic.html">pfhedge.stochastic</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../autogreek.html">pfhedge.autogreek</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Development</span></p>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/pfnet-research/pfhedge">GitHub</a></li>
 </ul>
@@ -173,9 +173,10 @@
 
 <span class="kn">from</span> <span class="nn">...nn.functional</span> <span class="kn">import</span> <span class="n">european_binary_payoff</span>
 <span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">Derivative</span>
+<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">OptionMixin</span>
 
 
-<div class="viewcode-block" id="EuropeanBinaryOption"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.EuropeanBinaryOption.html#pfhedge.instruments.EuropeanBinaryOption">[docs]</a><span class="k">class</span> <span class="nc">EuropeanBinaryOption</span><span class="p">(</span><span class="n">Derivative</span><span class="p">):</span>
+<div class="viewcode-block" id="EuropeanBinaryOption"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.EuropeanBinaryOption.html#pfhedge.instruments.EuropeanBinaryOption">[docs]</a><span class="k">class</span> <span class="nc">EuropeanBinaryOption</span><span class="p">(</span><span class="n">Derivative</span><span class="p">,</span> <span class="n">OptionMixin</span><span class="p">):</span>
     <span class="sd">"""A European binary option.</span>
 
 <span class="sd">    An American binary call option pays an unit amount of cash if and only if</span>
@@ -280,6 +281,12 @@
 <span class="n">EuropeanBinaryOption</span><span class="o">.</span><span class="n">to</span> <span class="o">=</span> <span class="n">Derivative</span><span class="o">.</span><span class="n">to</span>
 <span class="n">EuropeanBinaryOption</span><span class="o">.</span><span class="n">to</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">Derivative</span><span class="o">.</span><span class="n">to</span><span class="o">.</span><span class="vm">__doc__</span>
 <span class="n">EuropeanBinaryOption</span><span class="o">.</span><span class="n">payoff</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">Derivative</span><span class="o">.</span><span class="n">payoff</span><span class="o">.</span><span class="vm">__doc__</span>
+<span class="n">EuropeanBinaryOption</span><span class="o">.</span><span class="n">moneyness</span> <span class="o">=</span> <span class="n">OptionMixin</span><span class="o">.</span><span class="n">moneyness</span>
+<span class="n">EuropeanBinaryOption</span><span class="o">.</span><span class="n">moneyness</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">OptionMixin</span><span class="o">.</span><span class="n">moneyness</span><span class="o">.</span><span class="vm">__doc__</span>
+<span class="n">EuropeanBinaryOption</span><span class="o">.</span><span class="n">log_moneyness</span> <span class="o">=</span> <span class="n">OptionMixin</span><span class="o">.</span><span class="n">log_moneyness</span>
+<span class="n">EuropeanBinaryOption</span><span class="o">.</span><span class="n">log_moneyness</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">OptionMixin</span><span class="o">.</span><span class="n">log_moneyness</span><span class="o">.</span><span class="vm">__doc__</span>
+<span class="n">EuropeanBinaryOption</span><span class="o">.</span><span class="n">time_to_maturity</span> <span class="o">=</span> <span class="n">OptionMixin</span><span class="o">.</span><span class="n">time_to_maturity</span>
+<span class="n">EuropeanBinaryOption</span><span class="o">.</span><span class="n">time_to_maturity</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">OptionMixin</span><span class="o">.</span><span class="n">time_to_maturity</span><span class="o">.</span><span class="vm">__doc__</span>
 </pre></div>
       </article>
       <footer>

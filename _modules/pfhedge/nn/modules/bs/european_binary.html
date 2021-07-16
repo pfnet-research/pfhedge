@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../../genindex.html" /><link rel="search" title="Search" href="../../../../../search.html" />
 
-    <meta name="generator" content="sphinx-4.0.3, furo 2021.07.05.beta38"/>
+    <meta name="generator" content="sphinx-4.1.1, furo 2021.07.05.beta38"/>
         <title>pfhedge.nn.modules.bs.european_binary - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/styles/furo.css" />
@@ -150,7 +150,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../../stochastic.html">pfhedge.stochastic</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../autogreek.html">pfhedge.autogreek</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Development</span></p>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/pfnet-research/pfhedge">GitHub</a></li>
 </ul>
@@ -256,6 +256,32 @@
 <div class="viewcode-block" id="BSEuropeanBinaryOption.inputs"><a class="viewcode-back" href="../../../../../generated/pfhedge.nn.BSEuropeanBinaryOption.html#pfhedge.nn.BSEuropeanBinaryOption.inputs">[docs]</a>    <span class="k">def</span> <span class="nf">inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[</span><span class="s2">"log_moneyness"</span><span class="p">,</span> <span class="s2">"expiry_time"</span><span class="p">,</span> <span class="s2">"volatility"</span><span class="p">]</span></div>
 
+<div class="viewcode-block" id="BSEuropeanBinaryOption.price"><a class="viewcode-back" href="../../../../../generated/pfhedge.nn.BSEuropeanBinaryOption.html#pfhedge.nn.BSEuropeanBinaryOption.price">[docs]</a>    <span class="k">def</span> <span class="nf">price</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">log_moneyness</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">expiry_time</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">volatility</span><span class="p">:</span> <span class="n">Tensor</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+        <span class="sd">"""Returns price of the derivative.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            log_moneyness (torch.Tensor): Log moneyness of the underlying asset.</span>
+<span class="sd">            expiry_time (torch.Tensor): Time to expiry of the option.</span>
+<span class="sd">            volatility (torch.Tensor): Volatility of the underlying asset.</span>
+
+<span class="sd">        Shape:</span>
+<span class="sd">            - log_moneyness: :math:`(N, *)`</span>
+<span class="sd">            - expiry_time: :math:`(N, *)`</span>
+<span class="sd">            - volatility: :math:`(N, *)`</span>
+<span class="sd">            - output: :math:`(N, *)`</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            torch.Tensor</span>
+<span class="sd">        """</span>
+        <span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">,</span> <span class="p">(</span><span class="n">log_moneyness</span><span class="p">,</span> <span class="n">expiry_time</span><span class="p">,</span> <span class="n">volatility</span><span class="p">))</span>
+
+        <span class="n">price</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d2</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
+        <span class="n">price</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">price</span> <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span> <span class="k">else</span> <span class="n">price</span>  <span class="c1"># put-call parity</span>
+
+        <span class="k">return</span> <span class="n">price</span></div>
+
 <div class="viewcode-block" id="BSEuropeanBinaryOption.delta"><a class="viewcode-back" href="../../../../../generated/pfhedge.nn.BSEuropeanBinaryOption.html#pfhedge.nn.BSEuropeanBinaryOption.delta">[docs]</a>    <span class="nd">@torch</span><span class="o">.</span><span class="n">enable_grad</span><span class="p">()</span>
     <span class="k">def</span> <span class="nf">delta</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">log_moneyness</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">expiry_time</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">volatility</span><span class="p">:</span> <span class="n">Tensor</span>
@@ -278,9 +304,7 @@
 <span class="sd">        """</span>
         <span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">,</span> <span class="p">(</span><span class="n">log_moneyness</span><span class="p">,</span> <span class="n">expiry_time</span><span class="p">,</span> <span class="n">volatility</span><span class="p">))</span>
 
-        <span class="n">delta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d2</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">strike</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">*</span> <span class="n">v</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
-        <span class="p">)</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d2</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">strike</span> <span class="o">*</span> <span class="n">s</span><span class="o">.</span><span class="n">exp</span><span class="p">()</span> <span class="o">*</span> <span class="n">v</span> <span class="o">*</span> <span class="n">t</span><span class="o">.</span><span class="n">sqrt</span><span class="p">())</span>
         <span class="k">return</span> <span class="n">delta</span></div>
 
 <div class="viewcode-block" id="BSEuropeanBinaryOption.gamma"><a class="viewcode-back" href="../../../../../generated/pfhedge.nn.BSEuropeanBinaryOption.html#pfhedge.nn.BSEuropeanBinaryOption.gamma">[docs]</a>    <span class="k">def</span> <span class="nf">gamma</span><span class="p">(</span>
@@ -310,32 +334,6 @@
             <span class="n">volatility</span><span class="o">=</span><span class="n">volatility</span><span class="p">,</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="BSEuropeanBinaryOption.price"><a class="viewcode-back" href="../../../../../generated/pfhedge.nn.BSEuropeanBinaryOption.html#pfhedge.nn.BSEuropeanBinaryOption.price">[docs]</a>    <span class="k">def</span> <span class="nf">price</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">log_moneyness</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">expiry_time</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">volatility</span><span class="p">:</span> <span class="n">Tensor</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">"""Returns price of the derivative.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            log_moneyness (torch.Tensor): Log moneyness of the underlying asset.</span>
-<span class="sd">            expiry_time (torch.Tensor): Time to expiry of the option.</span>
-<span class="sd">            volatility (torch.Tensor): Volatility of the underlying asset.</span>
-
-<span class="sd">        Shape:</span>
-<span class="sd">            - log_moneyness: :math:`(N, *)`</span>
-<span class="sd">            - expiry_time: :math:`(N, *)`</span>
-<span class="sd">            - volatility: :math:`(N, *)`</span>
-<span class="sd">            - output: :math:`(N, *)`</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            torch.Tensor</span>
-<span class="sd">        """</span>
-        <span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">,</span> <span class="p">(</span><span class="n">log_moneyness</span><span class="p">,</span> <span class="n">expiry_time</span><span class="p">,</span> <span class="n">volatility</span><span class="p">))</span>
-
-        <span class="n">price</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d2</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
-        <span class="n">price</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">price</span> <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span> <span class="k">else</span> <span class="n">price</span>  <span class="c1"># put-call parity</span>
-
-        <span class="k">return</span> <span class="n">price</span></div>
-
 <div class="viewcode-block" id="BSEuropeanBinaryOption.implied_volatility"><a class="viewcode-back" href="../../../../../generated/pfhedge.nn.BSEuropeanBinaryOption.html#pfhedge.nn.BSEuropeanBinaryOption.implied_volatility">[docs]</a>    <span class="k">def</span> <span class="nf">implied_volatility</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">log_moneyness</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
@@ -360,8 +358,8 @@
 <span class="sd">            torch.Tensor</span>
 <span class="sd">        """</span>
         <span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">p</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">,</span> <span class="p">(</span><span class="n">log_moneyness</span><span class="p">,</span> <span class="n">expiry_time</span><span class="p">,</span> <span class="n">price</span><span class="p">))</span>
-        <span class="n">get_price</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">price</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">bisect</span><span class="p">(</span><span class="n">get_price</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="mf">1.000</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="n">precision</span><span class="p">)</span></div></div>
+        <span class="n">pricer</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">price</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">bisect</span><span class="p">(</span><span class="n">pricer</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="mf">1.000</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="n">precision</span><span class="p">)</span></div></div>
 
 
 <span class="c1"># Assign docstrings so they appear in Sphinx documentation</span>

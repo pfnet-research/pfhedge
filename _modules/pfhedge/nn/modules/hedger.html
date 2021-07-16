@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
-    <meta name="generator" content="sphinx-4.0.3, furo 2021.07.05.beta38"/>
+    <meta name="generator" content="sphinx-4.1.1, furo 2021.07.05.beta38"/>
         <title>pfhedge.nn.modules.hedger - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css" />
@@ -150,7 +150,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../stochastic.html">pfhedge.stochastic</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../autogreek.html">pfhedge.autogreek</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Development</span></p>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/pfnet-research/pfhedge">GitHub</a></li>
 </ul>
@@ -295,7 +295,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">extra_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">"inputs="</span> <span class="o">+</span> <span class="nb">str</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="p">])</span>
+        <span class="k">return</span> <span class="s2">"inputs="</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="p">)))</span>
 
 <div class="viewcode-block" id="Hedger.compute_pnl"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.Hedger.html#pfhedge.nn.Hedger.compute_pnl">[docs]</a>    <span class="k">def</span> <span class="nf">compute_pnl</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">derivative</span><span class="p">,</span> <span class="n">n_paths</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">init_state</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">tuple</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -344,10 +344,8 @@
         <span class="p">)</span>
 
         <span class="c1"># prev_output: shape (N)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">register_buffer</span><span class="p">(</span>
-            <span class="s2">"prev_output"</span><span class="p">,</span>
-            <span class="n">torch</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">derivative</span><span class="o">.</span><span class="n">underlier</span><span class="o">.</span><span class="n">spot</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="mi">1</span><span class="p">]),</span>
-            <span class="n">persistent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">save_prev_output</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">derivative</span><span class="o">.</span><span class="n">underlier</span><span class="o">.</span><span class="n">spot</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="mi">1</span><span class="p">])</span>
         <span class="p">)</span>
         <span class="n">pnl</span> <span class="o">=</span> <span class="mi">0</span>
 
@@ -364,7 +362,7 @@
             <span class="c1"># Deduct transactoon cost.</span>
             <span class="n">pnl</span> <span class="o">-=</span> <span class="p">(</span>
                 <span class="n">derivative</span><span class="o">.</span><span class="n">underlier</span><span class="o">.</span><span class="n">cost</span>
-                <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">hedge</span> <span class="o">-</span> <span class="n">prev_hedge</span><span class="p">)</span>
+                <span class="o">*</span> <span class="p">(</span><span class="n">hedge</span> <span class="o">-</span> <span class="n">prev_hedge</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span>
                 <span class="o">*</span> <span class="n">derivative</span><span class="o">.</span><span class="n">underlier</span><span class="o">.</span><span class="n">spot</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span>
             <span class="p">)</span>
 
@@ -578,10 +576,10 @@
 <span class="sd">        """</span>
         <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">set_grad_enabled</span><span class="p">(</span><span class="n">enable_grad</span><span class="p">):</span>
             <span class="c1"># Negative because selling</span>
-            <span class="n">price</span> <span class="o">=</span> <span class="k">lambda</span><span class="p">:</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">criterion</span><span class="o">.</span><span class="n">cash</span><span class="p">(</span>
+            <span class="n">pricer</span> <span class="o">=</span> <span class="k">lambda</span><span class="p">:</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">criterion</span><span class="o">.</span><span class="n">cash</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">compute_pnl</span><span class="p">(</span><span class="n">derivative</span><span class="p">,</span> <span class="n">n_paths</span><span class="o">=</span><span class="n">n_paths</span><span class="p">,</span> <span class="n">init_state</span><span class="o">=</span><span class="n">init_state</span><span class="p">)</span>
             <span class="p">)</span>
-            <span class="n">mean_price</span> <span class="o">=</span> <span class="n">ensemble_mean</span><span class="p">(</span><span class="n">price</span><span class="p">,</span> <span class="n">n_times</span><span class="o">=</span><span class="n">n_times</span><span class="p">)</span>
+            <span class="n">mean_price</span> <span class="o">=</span> <span class="n">ensemble_mean</span><span class="p">(</span><span class="n">pricer</span><span class="p">,</span> <span class="n">n_times</span><span class="o">=</span><span class="n">n_times</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">mean_price</span></div></div>
 </pre></div>

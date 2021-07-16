@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
-    <meta name="generator" content="sphinx-4.0.3, furo 2021.07.05.beta38"/>
+    <meta name="generator" content="sphinx-4.1.1, furo 2021.07.05.beta38"/>
         <title>pfhedge.nn.modules.loss - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css" />
@@ -150,7 +150,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../stochastic.html">pfhedge.stochastic</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../autogreek.html">pfhedge.autogreek</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Development</span></p>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/pfnet-research/pfhedge">GitHub</a></li>
 </ul>
@@ -227,7 +227,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            torch.Tensor</span>
 <span class="sd">        """</span>
-        <span class="k">return</span> <span class="n">bisect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="p">(</span><span class="nb">input</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="nb">input</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="nb">input</span><span class="p">))</span></div></div>
+        <span class="k">return</span> <span class="n">bisect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="p">(</span><span class="nb">input</span><span class="p">),</span> <span class="nb">input</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="nb">input</span><span class="o">.</span><span class="n">max</span><span class="p">())</span></div></div>
 
 
 <div class="viewcode-block" id="EntropicRiskMeasure"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.EntropicRiskMeasure.html#pfhedge.nn.EntropicRiskMeasure">[docs]</a><span class="k">class</span> <span class="nc">EntropicRiskMeasure</span><span class="p">(</span><span class="n">HedgeLoss</span><span class="p">):</span>
@@ -274,11 +274,10 @@
         <span class="k">return</span> <span class="sa">f</span><span class="s2">"a=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">a</span> <span class="o">!=</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">""</span>
 
     <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="o">-</span><span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">exp_utility</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">a</span>
+        <span class="k">return</span> <span class="p">(</span><span class="o">-</span><span class="n">exp_utility</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">log</span><span class="p">()</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">a</span>
 
 <div class="viewcode-block" id="EntropicRiskMeasure.cash"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.EntropicRiskMeasure.html#pfhedge.nn.EntropicRiskMeasure.cash">[docs]</a>    <span class="k">def</span> <span class="nf">cash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">"""Returns the cash amount which is as preferable as</span>
-<span class="sd">        the given profit-loss distribution in terms of the loss.</span>
+        <span class="sd">"""</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            input (torch.Tensor): The distribution of the profit and loss.</span>
@@ -337,7 +336,7 @@
         <span class="k">return</span> <span class="sa">f</span><span class="s2">"a=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">a</span> <span class="o">!=</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">""</span>
 
     <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="k">return</span> <span class="o">-</span><span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">exp_utility</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="o">-</span><span class="n">exp_utility</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
 <div class="viewcode-block" id="EntropicLoss.cash"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.EntropicLoss.html#pfhedge.nn.EntropicLoss.cash">[docs]</a>    <span class="k">def</span> <span class="nf">cash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
         <span class="sd">"""Returns the cash amount which is as preferable as</span>
@@ -354,7 +353,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            torch.Tensor</span>
 <span class="sd">        """</span>
-        <span class="k">return</span> <span class="o">-</span><span class="n">torch</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="o">-</span><span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">exp_utility</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">a</span></div></div>
+        <span class="k">return</span> <span class="o">-</span><span class="p">(</span><span class="o">-</span><span class="n">exp_utility</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">log</span><span class="p">()</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">a</span></div></div>
 
 
 <div class="viewcode-block" id="IsoelasticLoss"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.IsoelasticLoss.html#pfhedge.nn.IsoelasticLoss">[docs]</a><span class="k">class</span> <span class="nc">IsoelasticLoss</span><span class="p">(</span><span class="n">HedgeLoss</span><span class="p">):</span>
@@ -412,7 +411,7 @@
         <span class="k">return</span> <span class="sa">f</span><span class="s2">"a=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="si">}</span><span class="s2">"</span>
 
     <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="k">return</span> <span class="o">-</span><span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">isoelastic_utility</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="o">-</span><span class="n">isoelastic_utility</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ExpectedShortfall"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.ExpectedShortfall.html#pfhedge.nn.ExpectedShortfall">[docs]</a><span class="k">class</span> <span class="nc">ExpectedShortfall</span><span class="p">(</span><span class="n">HedgeLoss</span><span class="p">):</span>
@@ -482,7 +481,7 @@
 <span class="sd">        &gt;&gt;&gt; from pfhedge.nn.modules.loss import OCE</span>
 <span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt; _ = torch.manual_seed(42)</span>
-<span class="sd">        &gt;&gt;&gt; m = OCE(lambda x: 1 - torch.exp(-x))</span>
+<span class="sd">        &gt;&gt;&gt; m = OCE(lambda x: 1 - (-x).exp())</span>
 <span class="sd">        &gt;&gt;&gt; pnl = torch.randn(10)</span>
 <span class="sd">        &gt;&gt;&gt; m(pnl)</span>
 <span class="sd">        tensor(0.0855, grad_fn=&lt;SubBackward0&gt;)</span>
@@ -500,7 +499,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">utility</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">", w=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="si">}</span><span class="s2">"</span>
 
     <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span> <span class="o">-</span> <span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">utility</span><span class="p">(</span><span class="nb">input</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">utility</span><span class="p">(</span><span class="nb">input</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
       </article>
       <footer>
