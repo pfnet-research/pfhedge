@@ -1,12 +1,15 @@
+from typing import Callable
+from typing import Union
+
 import torch
 from torch import Tensor
 
 
 def bisect(
-    function,
+    function: Callable[[Tensor], Tensor],
     target: Tensor,
-    lower,
-    upper,
+    lower: Union[float, Tensor],
+    upper: Union[float, Tensor],
     precision: float = 1e-6,
     max_iter: int = 100000,
 ) -> Tensor:
@@ -74,7 +77,7 @@ def bisect(
 
         m = (lower + upper) / 2
         output = function(m)
-        lower = torch.where(output < target, m, lower)
-        upper = torch.where(output >= target, m, upper)
+        lower = lower.where(output >= target, m)
+        upper = upper.where(output < target, m)
 
     return upper

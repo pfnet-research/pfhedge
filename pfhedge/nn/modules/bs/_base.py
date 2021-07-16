@@ -69,7 +69,7 @@ class BSModuleMixin(Module):
             torch.Tensor
         """
         s, t, v = map(torch.as_tensor, (log_moneyness, expiry_time, volatility))
-        return (s + (v ** 2 / 2) * t) / (v * torch.sqrt(t))
+        return (s + (v ** 2 / 2) * t) / (v * t.sqrt())
 
     @staticmethod
     def d2(log_moneyness: Tensor, expiry_time: Tensor, volatility: Tensor) -> Tensor:
@@ -84,4 +84,4 @@ class BSModuleMixin(Module):
             torch.Tensor
         """
         s, t, v = map(torch.as_tensor, (log_moneyness, expiry_time, volatility))
-        return (s - (v ** 2 / 2) * t) / (v * torch.sqrt(t))
+        return (s - (v ** 2 / 2) * t) / (v * t.sqrt())
