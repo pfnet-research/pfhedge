@@ -15,7 +15,7 @@ def generate_cir(
 ) -> Tensor:
     """Returns time series following Cox-Ingersoll-Ross process.
 
-    The time evolution of CIR process is given by:
+    The time evolution of the process is given by:
 
     .. math ::
 

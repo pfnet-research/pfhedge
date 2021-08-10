@@ -17,6 +17,12 @@ def generate_brownian(
 
     The drift of the time series is assumed to be vanishing.
 
+    The time evolution of the process is given by:
+
+    .. math ::
+
+        dS(t) = \\sigma dW(t) \\,.
+
     Args:
         n_paths (int): The number of simulated paths.
         n_steps (int): The number of time steps.
@@ -65,6 +71,12 @@ def generate_geometric_brownian(
     """Returns time series following the geometric Brownian motion.
 
     The drift of the time series is assumed to be vanishing.
+
+    The time evolution of the process is given by:
+
+    .. math ::
+
+        dS(t) = \\sigma S(t) dW(t) \\,.
 
     Args:
         n_paths (int): The number of simulated paths.

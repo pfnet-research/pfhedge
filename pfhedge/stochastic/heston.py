@@ -21,7 +21,7 @@ def generate_heston(
 ) -> Tuple[Tensor, Tensor]:
     """Returns time series following Heston model.
 
-    The time evolution of Heston process is given by:
+    The time evolution of the process is given by:
 
     .. math ::
 
