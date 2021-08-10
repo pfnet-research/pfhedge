@@ -10,7 +10,7 @@ from .base import Primary
 class HestonStock(Primary):
     """A stock of which spot price and variance follow Heston process.
 
-    See :func:`pfhedge.stochastic.generate_heston` for details of the Heston process.
+    See :func:`pfhedge.stochastic.generate_heston` for details of the process.
 
     Args:
         kappa (float, default=1.0): The parameter :math:`\\kappa`.
