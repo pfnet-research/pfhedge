@@ -44,6 +44,10 @@ class BSLookbackOption(BSModuleMixin):
         tensor([[0.9208],
                 [1.0515],
                 [1.0515]])
+
+    References:
+        Conze, A., 1991. Path dependent options: The case of lookback options.
+        The Journal of Finance, 46(5), pp.1893-1907.
     """
 
     def __init__(self, call: bool = True, strike: float = 1.0):
