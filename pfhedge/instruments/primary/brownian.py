@@ -12,6 +12,9 @@ class BrownianStock(Primary):
 
     The drift of the spot prices is assumed to be vanishing.
 
+    See :func:`pfhedge.stochastic.generate_geometric_brownian`
+    for details of the process.
+
     Args:
         volatility (float, default=0.2): The volatility of the price.
         cost (float, default=0.0): The transaction cost rate.
