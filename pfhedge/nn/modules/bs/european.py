@@ -145,7 +145,6 @@ class BSEuropeanOption(BSModuleMixin):
 
         Args:
             log_moneyness (torch.Tensor): Log moneyness of the underlying asset.
-            max_log_moneyness (torch.Tensor): Cumulative maximum of the log moneyness.
             expiry_time (torch.Tensor): Time to expiry of the option.
             volatility (torch.Tensor): Volatility of the underlying asset.
 
