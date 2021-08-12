@@ -26,7 +26,7 @@ def generate_heston(
     .. math ::
 
         dS(t) = S(t) \\sqrt{V(t)} dW_1(t) \\,, \\\\
-        dV(t) = \\kappa (\\theta - V(t)) + \\sigma \\sqrt{V(t)} dW_2(t) \\,.
+        dV(t) = \\kappa (\\theta - V(t)) dt + \\sigma \\sqrt{V(t)} dW_2(t) \\,.
 
     The correlation between :math:`dW_1` and :math:`dW_2` is :math:`\\rho`.
     
