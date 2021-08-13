@@ -119,17 +119,17 @@ The `hedger` is also a [`Module`](https://pytorch.org/docs/stable/generated/torc
 ```py
 hedger
 # Hedger(
-#   inputs=['log_moneyness', 'expiry_time', 'volatility', 'prev_hedge'],
+#   inputs=['log_moneyness', 'expiry_time', 'volatility', 'prev_hedge']
 #   (model): MultiLayerPerceptron(
-#     (0): LazyLinear(in_features=None, out_features=32, bias=True)
+#     (0): LazyLinear(in_features=0, out_features=32, bias=True)
 #     (1): ReLU()
-#     (2): LazyLinear(in_features=None, out_features=32, bias=True)
+#     (2): Linear(in_features=32, out_features=32, bias=True)
 #     (3): ReLU()
-#     (4): LazyLinear(in_features=None, out_features=32, bias=True)
+#     (4): Linear(in_features=32, out_features=32, bias=True)
 #     (5): ReLU()
-#     (6): LazyLinear(in_features=None, out_features=32, bias=True)
+#     (6): Linear(in_features=32, out_features=32, bias=True)
 #     (7): ReLU()
-#     (8): LazyLinear(in_features=None, out_features=1, bias=True)
+#     (8): Linear(in_features=32, out_features=1, bias=True)
 #     (9): Identity()
 #   )
 #   (criterion): EntropicRiskMeasure()
