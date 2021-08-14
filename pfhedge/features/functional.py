@@ -1,6 +1,5 @@
 import torch
 from torch import Tensor
-from torch.nn import Module
 
 
 def volatility(i, derivative, hedger=None) -> Tensor:

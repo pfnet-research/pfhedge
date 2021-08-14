@@ -1,6 +1,9 @@
 import torch
 from torch import Tensor
 
+from pfhedge._utils.doc import set_attr_and_docstring
+from pfhedge._utils.doc import set_docstring
+
 from ...nn.functional import european_binary_payoff
 from .base import Derivative
 from .base import OptionMixin
@@ -106,14 +109,11 @@ class EuropeanBinaryOption(Derivative, OptionMixin):
 
 
 # Assign docstrings so they appear in Sphinx documentation
-EuropeanBinaryOption.simulate = Derivative.simulate
-EuropeanBinaryOption.simulate.__doc__ = Derivative.simulate.__doc__
-EuropeanBinaryOption.to = Derivative.to
-EuropeanBinaryOption.to.__doc__ = Derivative.to.__doc__
-EuropeanBinaryOption.payoff.__doc__ = Derivative.payoff.__doc__
-EuropeanBinaryOption.moneyness = OptionMixin.moneyness
-EuropeanBinaryOption.moneyness.__doc__ = OptionMixin.moneyness.__doc__
-EuropeanBinaryOption.log_moneyness = OptionMixin.log_moneyness
-EuropeanBinaryOption.log_moneyness.__doc__ = OptionMixin.log_moneyness.__doc__
-EuropeanBinaryOption.time_to_maturity = OptionMixin.time_to_maturity
-EuropeanBinaryOption.time_to_maturity.__doc__ = OptionMixin.time_to_maturity.__doc__
+set_attr_and_docstring(EuropeanBinaryOption, "simulate", Derivative.simulate)
+set_attr_and_docstring(EuropeanBinaryOption, "to", Derivative.to)
+set_docstring(EuropeanBinaryOption, "payoff", Derivative.payoff)
+set_attr_and_docstring(EuropeanBinaryOption, "moneyness", OptionMixin.moneyness)
+set_attr_and_docstring(EuropeanBinaryOption, "log_moneyness", OptionMixin.log_moneyness)
+set_attr_and_docstring(
+    EuropeanBinaryOption, "time_to_maturity", OptionMixin.time_to_maturity
+)

@@ -3,6 +3,8 @@ from torch import Tensor
 
 import pfhedge.autogreek as autogreek
 from pfhedge._utils.bisect import bisect
+from pfhedge._utils.doc import set_attr_and_docstring
+from pfhedge._utils.doc import set_docstring
 
 from ._base import BSModuleMixin
 
@@ -137,7 +139,9 @@ class BSEuropeanBinaryOption(BSModuleMixin):
         """
         s, t, v = map(torch.as_tensor, (log_moneyness, expiry_time, volatility))
 
-        delta = self.N.pdf(self.d2(s, t, v)) / (self.strike * s.exp() * v * t.sqrt())
+        delta = self.N.log_prob(self.d2(s, t, v)).exp() / (
+            self.strike * s.exp() * v * t.sqrt()
+        )
         return delta
 
     def gamma(
@@ -196,6 +200,5 @@ class BSEuropeanBinaryOption(BSModuleMixin):
 
 
 # Assign docstrings so they appear in Sphinx documentation
-BSEuropeanBinaryOption.inputs.__doc__ = BSModuleMixin.inputs.__doc__
-BSEuropeanBinaryOption.forward = BSModuleMixin.forward
-BSEuropeanBinaryOption.forward.__doc__ = BSModuleMixin.forward.__doc__
+set_docstring(BSEuropeanBinaryOption, "inputs", BSModuleMixin.inputs)
+set_attr_and_docstring(BSEuropeanBinaryOption, "forward", BSModuleMixin.forward)

@@ -4,7 +4,9 @@ import torch
 from torch import Tensor
 from torch.nn import Module
 from torch.optim import Adam
-from tqdm import tqdm
+
+# error: Skipping analyzing "tqdm": found module but no type hints or library stubs
+from tqdm import tqdm  # type: ignore
 
 from pfhedge._utils.hook import save_prev_output
 from pfhedge._utils.lazy import has_lazy
@@ -177,7 +179,7 @@ class Hedger(Module):
         save_prev_output(
             self, None, torch.zeros_like(derivative.underlier.spot[..., :1])
         )
-        pnl = 0
+        pnl = torch.zeros_like(derivative.underlier.spot[..., 0])
 
         # Simulate hedging over time.
         n_steps = derivative.underlier.spot.size(1)  # = T
