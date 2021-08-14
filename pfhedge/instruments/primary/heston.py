@@ -1,10 +1,17 @@
 from typing import Optional
 from typing import Tuple
+from typing import Union
 
 import torch
+from torch import Tensor
+
+from pfhedge._utils.doc import set_attr_and_docstring
+from pfhedge._utils.doc import set_docstring
 
 from ...stochastic import generate_heston
 from .base import Primary
+
+TensorOrFloat = Union[Tensor, float]
 
 
 class HestonStock(Primary):
@@ -82,7 +89,7 @@ class HestonStock(Primary):
         self,
         n_paths: int = 1,
         time_horizon: float = 20 / 250,
-        init_state: Optional[tuple] = None,
+        init_state: Optional[Tuple[TensorOrFloat, TensorOrFloat]] = None,
     ) -> None:
         """Simulate the spot price and add it as a buffer named `spot`.
 
@@ -135,6 +142,5 @@ class HestonStock(Primary):
 
 
 # Assign docstrings so they appear in Sphinx documentation
-HestonStock.default_init_state.__doc__ = Primary.default_init_state.__doc__
-HestonStock.to = Primary.to
-HestonStock.to.__doc__ = Primary.to.__doc__
+set_docstring(HestonStock, "default_init_state", Primary.default_init_state)
+set_attr_and_docstring(HestonStock, "to", Primary.to)

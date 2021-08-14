@@ -1,3 +1,7 @@
+from typing import Callable
+from typing import List
+
+from torch import Tensor
 from torch.nn import Module
 
 from .american_binary import BSAmericanBinaryOption
@@ -70,7 +74,10 @@ class BlackScholes(Module):
                 [...]])
     """
 
-    inputs: list
+    inputs: Callable[..., List[str]]  # inputs(self) -> List[str]
+    price: Callable[..., Tensor]  # price(self, ...) -> Tensor
+    delta: Callable[..., Tensor]  # price(self, ...) -> Tensor
+    gamma: Callable[..., Tensor]  # price(self, ...) -> Tensor
 
     def __new__(cls, derivative):
         return {

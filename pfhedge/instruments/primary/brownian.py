@@ -3,6 +3,9 @@ from typing import Tuple
 
 import torch
 
+from pfhedge._utils.doc import set_attr_and_docstring
+from pfhedge._utils.doc import set_docstring
+
 from ...stochastic import generate_geometric_brownian
 from .base import Primary
 
@@ -127,6 +130,5 @@ class BrownianStock(Primary):
 
 
 # Assign docstrings so they appear in Sphinx documentation
-BrownianStock.default_init_state.__doc__ = Primary.default_init_state.__doc__
-BrownianStock.to = Primary.to
-BrownianStock.to.__doc__ = Primary.to.__doc__
+set_docstring(BrownianStock, "default_init_state", Primary.default_init_state)
+set_attr_and_docstring(BrownianStock, "to", Primary.to)

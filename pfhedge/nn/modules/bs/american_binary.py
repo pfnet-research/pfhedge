@@ -3,6 +3,7 @@ from torch import Tensor
 
 import pfhedge.autogreek as autogreek
 from pfhedge._utils.bisect import bisect
+from pfhedge._utils.doc import set_attr_and_docstring
 
 from ._base import BSModuleMixin
 
@@ -158,8 +159,8 @@ class BSAmericanBinaryOption(BSModuleMixin):
         d1 = self.d1(s, t, v)
         d2 = self.d2(s, t, v)
         c1 = self.N.cdf(d1 / sqrt2)
-        p1 = self.N.pdf(d1 / sqrt2)
-        p2 = self.N.pdf(d2 / sqrt2)
+        p1 = self.N.log_prob(d1 / sqrt2).exp()
+        p2 = self.N.log_prob(d2 / sqrt2).exp()
 
         d = (1 + c1 + (p1 + p2)) / (2 * self.strike)
 
@@ -236,7 +237,5 @@ class BSAmericanBinaryOption(BSModuleMixin):
 
 
 # Assign docstrings so they appear in Sphinx documentation
-BSAmericanBinaryOption.inputs = BSModuleMixin.inputs
-BSAmericanBinaryOption.inputs.__doc__ = BSModuleMixin.inputs.__doc__
-BSAmericanBinaryOption.forward = BSModuleMixin.forward
-BSAmericanBinaryOption.forward.__doc__ = BSModuleMixin.forward.__doc__
+set_attr_and_docstring(BSAmericanBinaryOption, "inputs", BSModuleMixin.inputs)
+set_attr_and_docstring(BSAmericanBinaryOption, "forward", BSModuleMixin.forward)

@@ -66,8 +66,8 @@ def bisect(
         mf = lambda input: -function(input)
         return bisect(mf, -target, lower, upper, precision=precision, max_iter=max_iter)
 
-    lower = torch.full_like(target, lower)
-    upper = torch.full_like(target, upper)
+    # lower = torch.full_like(target, lower)
+    # upper = torch.full_like(target, upper)
 
     n_iter = 0
     while torch.max(upper - lower) > precision:

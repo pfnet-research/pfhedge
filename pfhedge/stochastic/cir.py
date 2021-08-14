@@ -1,11 +1,15 @@
+from typing import Union
+
 import torch
 from torch import Tensor
+
+TensorOrFloat = Union[Tensor, float]
 
 
 def generate_cir(
     n_paths: int,
     n_steps: int,
-    init_value: float = 0.04,
+    init_value: TensorOrFloat = 0.04,
     kappa: float = 1.0,
     theta: float = 0.04,
     sigma: float = 2.0,

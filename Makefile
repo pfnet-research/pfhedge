@@ -14,6 +14,10 @@ lint:
 	@poetry run black --check --diff --quiet --skip-magic-trailing-comma .
 	@poetry run isort --check --force-single-line-imports --quiet .
 
+.PHONY: mypy
+mypy:
+	@poetry run mypy pfhedge
+
 .PHONY: format
 format:
 	@poetry run black --quiet --skip-magic-trailing-comma .
