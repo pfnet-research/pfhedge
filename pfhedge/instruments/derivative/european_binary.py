@@ -94,7 +94,7 @@ class EuropeanBinaryOption(Derivative, OptionMixin):
         self.to(dtype=dtype, device=device)
 
     def __repr__(self):
-        params = [f"{self.underlier.__class__.__name__}(...)"]
+        params = [f"{self.ul().__class__.__name__}(...)"]
         if not self.call:
             params.append(f"call={self.call}")
         params.append(f"strike={self.strike}")
@@ -104,13 +104,14 @@ class EuropeanBinaryOption(Derivative, OptionMixin):
 
     def payoff(self) -> Tensor:
         return european_binary_payoff(
-            self.underlier.spot, call=self.call, strike=self.strike
+            self.ul().spot, call=self.call, strike=self.strike
         )
 
 
 # Assign docstrings so they appear in Sphinx documentation
 set_attr_and_docstring(EuropeanBinaryOption, "simulate", Derivative.simulate)
 set_attr_and_docstring(EuropeanBinaryOption, "to", Derivative.to)
+set_attr_and_docstring(EuropeanBinaryOption, "ul", Derivative.ul)
 set_docstring(EuropeanBinaryOption, "payoff", Derivative.payoff)
 set_attr_and_docstring(EuropeanBinaryOption, "moneyness", OptionMixin.moneyness)
 set_attr_and_docstring(EuropeanBinaryOption, "log_moneyness", OptionMixin.log_moneyness)
