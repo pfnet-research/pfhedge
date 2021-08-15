@@ -1,4 +1,5 @@
 from copy import deepcopy
+from typing import List
 from typing import Optional
 from typing import Sequence
 from typing import Union
@@ -103,13 +104,15 @@ class MultiLayerPerceptron(Sequential):
     ):
         n_units = (n_units,) * n_layers if isinstance(n_units, int) else n_units
 
-        layers = []
+        layers: List[Module] = []
         for i in range(n_layers):
-            if i == 0 and in_features is None:
-                layers.append(LazyLinear(n_units[0]))
+            if i == 0:
+                if in_features is None:
+                    layers.append(LazyLinear(n_units[0]))
+                else:
+                    layers.append(Linear(in_features, n_units[0]))
             else:
-                _in_features = in_features if i == 0 else n_units[i - 1]
-                layers.append(Linear(_in_features, n_units[i]))
+                layers.append(Linear(n_units[i - 1], n_units[i]))
             layers.append(deepcopy(activation))
         layers.append(Linear(n_units[-1], out_features))
         layers.append(deepcopy(out_activation))

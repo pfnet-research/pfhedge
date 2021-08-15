@@ -1,10 +1,18 @@
 from typing import Optional
 from typing import Tuple
+from typing import Union
+from typing import cast
 
 import torch
+from torch import Tensor
+
+from pfhedge._utils.doc import set_attr_and_docstring
+from pfhedge._utils.doc import set_docstring
 
 from ...stochastic import generate_heston
 from .base import Primary
+
+TensorOrFloat = Union[Tensor, float]
 
 
 class HestonStock(Primary):
@@ -75,14 +83,14 @@ class HestonStock(Primary):
         self.to(dtype=dtype, device=device)
 
     @property
-    def default_init_state(self) -> Tuple[float, float]:
+    def default_init_state(self) -> Tuple[float, ...]:
         return (1.0, self.theta)
 
     def simulate(
         self,
         n_paths: int = 1,
         time_horizon: float = 20 / 250,
-        init_state: Optional[tuple] = None,
+        init_state: Optional[Tuple[TensorOrFloat, ...]] = None,
     ) -> None:
         """Simulate the spot price and add it as a buffer named `spot`.
 
@@ -94,11 +102,11 @@ class HestonStock(Primary):
             n_paths (int, default=1): The number of paths to simulate.
             time_horizon (float, default=20/250): The period of time to simulate
                 the price.
-            init_state (tuple, optional): The initial state of the instrument.
-                `init_state` should be a 2-tuple `(spot, variance)`
-                where `spot` is the initial spot price and `variance` is the initial
-                variance.
-                If `None` (default), the default value is chosen
+            init_state (tuple[torch.Tensor | float], default=(1.0,)): The initial
+                state of the instrument.
+                This is specified by `(S0, V0)`, where `S0` and `V0` are the initial
+                values of of spot and variance, respectively.
+                If `None` (default), it uses the default value
                 (See :func:`default_init_state`).
         """
         if init_state is None:
@@ -135,6 +143,5 @@ class HestonStock(Primary):
 
 
 # Assign docstrings so they appear in Sphinx documentation
-HestonStock.default_init_state.__doc__ = Primary.default_init_state.__doc__
-HestonStock.to = Primary.to
-HestonStock.to.__doc__ = Primary.to.__doc__
+set_docstring(HestonStock, "default_init_state", Primary.default_init_state)
+set_attr_and_docstring(HestonStock, "to", Primary.to)

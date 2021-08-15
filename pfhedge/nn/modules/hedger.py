@@ -1,10 +1,14 @@
 from typing import Optional
+from typing import Tuple
+from typing import Union
 
 import torch
 from torch import Tensor
 from torch.nn import Module
 from torch.optim import Adam
-from tqdm import tqdm
+
+# error: Skipping analyzing "tqdm": found module but no type hints or library stubs
+from tqdm import tqdm  # type: ignore
 
 from pfhedge._utils.hook import save_prev_output
 from pfhedge._utils.lazy import has_lazy
@@ -13,6 +17,8 @@ from pfhedge.features import get_feature
 
 from .loss import EntropicRiskMeasure
 from .loss import HedgeLoss
+
+TensorOrFloat = Union[Tensor, float]
 
 
 class Hedger(Module):
@@ -128,7 +134,10 @@ class Hedger(Module):
         return "inputs=" + str(list(map(str, self.inputs)))
 
     def compute_pnl(
-        self, derivative, n_paths: int = 1000, init_state: Optional[tuple] = None
+        self,
+        derivative,
+        n_paths: int = 1000,
+        init_state: Optional[Tuple[TensorOrFloat, ...]] = None,
     ) -> Tensor:
         """Returns the profit and loss distribution after hedging.
 
@@ -142,9 +151,9 @@ class Hedger(Module):
             derivative (pfhedge.instruments.Derivative): The derivative to hedge.
             n_paths (int, default=1000): The number of simulated price paths of the
                 underlying instrument.
-            init_state (tuple, optional): The initial price of the underlying
-                instrument of the derivative.
-                If `None` (default), sensible default value is used.
+            init_state (tuple[torch.Tensor | float], optional): The initial state of
+                the underlying instrument of the derivative.
+                If `None` (default), it uses the default value.
 
         Shape:
             - Output: :math:`(N)`, where :math:`N` is the number of paths.
@@ -169,18 +178,14 @@ class Hedger(Module):
 
         derivative.simulate(n_paths=n_paths, init_state=init_state)
         # cashflow: shape (N, T - 1)
-        cashflow = (
-            derivative.underlier.spot[..., 1:] - derivative.underlier.spot[..., :-1]
-        )
+        cashflow = derivative.ul().spot.diff(dim=-1)
 
         # prev_output: shape (N)
-        save_prev_output(
-            self, None, torch.zeros_like(derivative.underlier.spot[..., :1])
-        )
-        pnl = 0
+        save_prev_output(self, None, torch.zeros_like(derivative.ul().spot[..., :1]))
+        pnl = torch.zeros_like(derivative.ul().spot[..., 0])
 
         # Simulate hedging over time.
-        n_steps = derivative.underlier.spot.size(1)  # = T
+        n_steps = derivative.ul().spot.size(1)  # = T
         for i in range(n_steps - 1):
             prev_hedge = self.get_buffer("prev_output").reshape(-1)
 
@@ -191,9 +196,9 @@ class Hedger(Module):
             pnl += hedge * cashflow[..., i]
             # Deduct transactoon cost.
             pnl -= (
-                derivative.underlier.cost
+                derivative.ul().cost
                 * (hedge - prev_hedge).abs()
-                * derivative.underlier.spot[..., i]
+                * derivative.ul().spot[..., i]
             )
 
         # Settle the derivative's payoff.

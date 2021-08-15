@@ -5,13 +5,19 @@ from typing import Optional
 from typing import Tuple
 from typing import TypeVar
 from typing import Union
+from typing import no_type_check
 
 import torch
 from torch import Tensor
+from torch.nn import Module
+
+from pfhedge._utils.doc import set_attr_and_docstring
+from pfhedge._utils.doc import set_docstring
 
 from ..base import Instrument
 
 T = TypeVar("T", bound="Primary")
+TensorOrFloat = Union[float, Tensor]
 
 
 class Primary(Instrument):
@@ -33,6 +39,7 @@ class Primary(Instrument):
     spot: torch.Tensor
     dtype: torch.dtype
     device: torch.device
+    dt: float
 
     def __init__(self):
         self._buffers = OrderedDict()
@@ -41,17 +48,25 @@ class Primary(Instrument):
     def default_init_state(self):
         """Returns the default initial state of simulation."""
 
+    # TODO(simaki): Remove @no_type_check once BrownianStock and HestonStock get
+    #   unified signatures.
     @abstractmethod
+    @no_type_check
     def simulate(
-        self, n_paths: int, time_horizon: float, init_state: Optional[tuple] = None
+        self,
+        n_paths: int,
+        time_horizon: float,
+        init_state: Optional[Tuple[TensorOrFloat, ...]] = None,
     ) -> None:
         """Simulate time series associated with the instrument and add them as buffers.
 
         Args:
             n_paths (int): The number of paths to simulate.
             time_horizon (float): The period of time to simulate the price.
-            init_state (tuple, optional): The initial state of the instrument.
-                If `None` (default), sensible default value is used.
+            init_state (tuple[torch.Tensor | float], optional): The initial state of
+                the instrument.
+                If `None` (default), it uses the default value
+                (See :func:`default_init_state`).
         """
 
     def register_buffer(self, name: str, tensor: Optional[Tensor]) -> None:
@@ -107,7 +122,7 @@ class Primary(Instrument):
         for _, buffer in self.named_buffers():
             yield buffer
 
-    def __getattr__(self, name: str) -> Union[Tensor, "Module"]:
+    def __getattr__(self, name: str) -> Union[Tensor, Module]:
         if "_buffers" in self.__dict__:
             _buffers = self.__dict__["_buffers"]
             if name in _buffers:
@@ -137,14 +152,9 @@ class Primary(Instrument):
 
 
 # Assign docstrings so they appear in Sphinx documentation
-Primary.to.__doc__ = Instrument.to.__doc__
-Primary.cpu = Instrument.cpu
-Primary.cpu.__doc__ = Instrument.cpu.__doc__
-Primary.cuda = Instrument.cuda
-Primary.cuda.__doc__ = Instrument.cuda.__doc__
-Primary.double = Instrument.double
-Primary.double.__doc__ = Instrument.double.__doc__
-Primary.float = Instrument.float
-Primary.float.__doc__ = Instrument.float.__doc__
-Primary.half = Instrument.half
-Primary.half.__doc__ = Instrument.half.__doc__
+set_docstring(Primary, "to", Instrument.to)
+set_attr_and_docstring(Primary, "cpu", Instrument.cpu)
+set_attr_and_docstring(Primary, "cuda", Instrument.cuda)
+set_attr_and_docstring(Primary, "double", Instrument.double)
+set_attr_and_docstring(Primary, "float", Instrument.float)
+set_attr_and_docstring(Primary, "half", Instrument.half)
