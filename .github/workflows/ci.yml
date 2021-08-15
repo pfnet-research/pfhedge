@@ -68,7 +68,7 @@ jobs:
 
     - uses: actions/setup-python@v2
 
-    - run: poetry install
+    - run: pip install poetry && poetry install
 
     - run: mypy ${PROJECT_NAME}
 
