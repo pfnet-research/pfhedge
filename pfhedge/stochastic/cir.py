@@ -12,10 +12,10 @@ def generate_cir(
     n_paths: int,
     n_steps: int,
     init_state: Tuple[TensorOrFloat, ...] = (0.04,),
-    kappa: float = 1.0,
-    theta: float = 0.04,
-    sigma: float = 2.0,
-    dt: float = 1 / 250,
+    kappa: TensorOrFloat = 1.0,
+    theta: TensorOrFloat = 0.04,
+    sigma: TensorOrFloat = 2.0,
+    dt: TensorOrFloat = 1 / 250,
     dtype: torch.dtype = None,
     device: torch.device = None,
 ) -> Tensor:
@@ -36,10 +36,10 @@ def generate_cir(
             the time series.
             This is specified by `(X0,)`, where `X0` is the initial value of :math:`X`.
             It also accepts a float or a `torch.Tensor`.
-        kappa (float, default=1.0): The parameter :math:`\\kappa`.
-        theta (float, default=0.04): The parameter :math:`\\theta`.
-        sigma (float, default=2.0): The parameter :math:`\\sigma`.
-        dt (float, default=1/250): The intervals of the time steps.
+        kappa (torch.Tensor or float, default=1.0): The parameter :math:`\\kappa`.
+        theta (torch.Tensor or float, default=0.04): The parameter :math:`\\theta`.
+        sigma (torch.Tensor or float, default=2.0): The parameter :math:`\\sigma`.
+        dt (torch.Tensor or float, default=1/250): The intervals of the time steps.
         dtype (torch.dtype, optional): The desired data type of returned tensor.
             Default: If `None`, uses a global default
             (see `torch.set_default_tensor_type()`).
@@ -90,20 +90,19 @@ def generate_cir(
     randn = torch.randn_like(output)
     rand = torch.rand_like(output)
 
-    tensor_kappa = torch.tensor(kappa, dtype=dtype, device=device)
-    tensor_theta = torch.tensor(theta, dtype=dtype, device=device)
-    tensor_sigma = torch.tensor(sigma, dtype=dtype, device=device)
-    tensor_dt = torch.tensor(dt, dtype=dtype, device=device)
+    # Cast to Tensor with desired dtype and device
+    kappa, theta, sigma, dt = map(torch.as_tensor, (kappa, theta, sigma, dt))
+    kappa, theta, sigma, dt = map(lambda t: t.to(output), (kappa, theta, sigma, dt))
 
     for i_step in range(n_steps - 1):
         v = output[:, i_step]
 
         # Compute m, s, psi: Eq(17,18)
-        exp = (-tensor_kappa * tensor_dt).exp()
-        m = tensor_theta + (v - tensor_theta) * exp
-        s2 = v * (tensor_sigma ** 2) * exp * (1 - exp) / tensor_kappa + tensor_theta * (
-            tensor_sigma ** 2
-        ) * ((1 - exp) ** 2) / (2 * tensor_kappa)
+        exp = (-kappa * dt).exp()
+        m = theta + (v - theta) * exp
+        s2 = v * (sigma ** 2) * exp * (1 - exp) / kappa + theta * (sigma ** 2) * (
+            (1 - exp) ** 2
+        ) / (2 * kappa)
         psi = s2 / (m ** 2 + EPSILON)
 
         # Compute V(t + dt) where psi <= PSI_CRIT: Eq(23, 27, 28)
