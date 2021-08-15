@@ -36,7 +36,7 @@ class HedgeLoss(Module, ABC):
         """Returns the cash amount which is as preferable as
         the given profit-loss distribution in terms of the loss.
 
-        The output `cash` is expected to satisfy the following relation:
+        The output ``cash`` is expected to satisfy the following relation:
 
         .. code::
 
@@ -63,7 +63,8 @@ class HedgeLoss(Module, ABC):
 class EntropicRiskMeasure(HedgeLoss):
     """Creates a loss given by the entropic risk measure.
 
-    The entropic risk measure of the profit-loss distribution `pnl` is given by:
+    The entropic risk measure of the profit-loss distribution
+    :math:`\\text{pnl}` is given by:
 
     .. math ::
 
@@ -126,7 +127,7 @@ class EntropicRiskMeasure(HedgeLoss):
 class EntropicLoss(HedgeLoss):
     """Creates a loss given by the negative of expected exponential utility.
 
-    The loss of the profit-loss `pnl` is given by
+    The loss of the profit-loss :math:`\\text{pnl}` is given by:
 
     .. math ::
 
@@ -189,7 +190,7 @@ class EntropicLoss(HedgeLoss):
 class IsoelasticLoss(HedgeLoss):
     """Creates a loss function that measures the isoelastic utility.
 
-    The loss of the profit-loss distribution `pnl` is given by
+    The loss of the profit-loss :math:`\\text{pnl}` is given by:
 
     .. math ::
 

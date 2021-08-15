@@ -145,15 +145,15 @@ def isoelastic_utility(input: Tensor, a: float) -> Tensor:
 
 
 def topp(input, p: float, dim: Optional[int] = None, largest: bool = True):
-    """Returns the largest `p * N` elements of the given input tensor,
-    where `N` stands for the total number of elements in the input tensor.
+    """Returns the largest :math:`p * N` elements of the given input tensor,
+    where :math:`N` stands for the total number of elements in the input tensor.
 
-    If `dim` is not given, the last dimension of the `input` is chosen.
+    If ``dim`` is not given, the last dimension of the ``input`` is chosen.
 
-    If `largest` is `False` then the smallest elements are returned.
+    If ``largest`` is ``False`` then the smallest elements are returned.
 
-    A namedtuple of `(values, indices)` is returned, where the `indices` are the indices
-    of the elements in the original `input` tensor.
+    A namedtuple of ``(values, indices)`` is returned, where the ``indices``
+    are the indices of the elements in the original ``input`` tensor.
 
     Args:
         input (torch.Tensor): The input tensor.
@@ -214,7 +214,7 @@ def leaky_clamp(
     max: Optional[Tensor] = None,
     clamped_slope: float = 0.01,
 ) -> Tensor:
-    """Leakily clamp all elements in `input` into the range :math:`[\\min, \\max]`.
+    """Leakily clamp all elements in ``input`` into the range :math:`[\\min, \\max]`.
 
     The bounds :math:`\\min` and :math:`\\max` can be tensors.
 
@@ -239,7 +239,7 @@ def leaky_clamp(
 def clamp(
     input: Tensor, min: Optional[Tensor] = None, max: Optional[Tensor] = None
 ) -> Tensor:
-    """Clamp all elements in `input` into the range :math:`[\\min, \\max]`.
+    """Clamp all elements in ``input`` into the range :math:`[\\min, \\max]`.
 
     The bounds :math:`\\min` and :math:`\\max` can be tensors.
 

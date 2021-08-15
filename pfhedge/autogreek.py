@@ -17,9 +17,10 @@ def delta(
 
     Args:
         pricer (callable): Pricing formula of a derivative.
-        create_graph (bool, default=False): If `True`, graph of the derivative will be
-            constructed, allowing to compute higher order derivative products.
-        **kwargs: Parameters passed to `pricer`.
+        create_graph (bool, default=False): If ``True``, graph of the derivative
+            will be constructed, allowing to compute higher order derivative
+            products.
+        **kwargs: Parameters passed to ``pricer``.
 
     Returns:
         torch.Tensor
@@ -107,7 +108,7 @@ def gamma(
 
     Args:
         pricer (callable): Pricing formula of a derivative.
-        create_graph (bool, default=False): If `True`, graph of the derivative will be
+        create_graph (bool, default=False): If ``True``, graph of the derivative will be
             constructed, allowing to compute higher order derivative products.
         **kwargs: Parameters passed to `pricer`.
 

@@ -22,7 +22,7 @@ TensorOrFloat = Union[Tensor, float]
 
 
 class Hedger(Module):
-    """A `torch.nn.Module` to hedge and price derivatives.
+    """A ``torch.nn.Module`` to hedge and price derivatives.
 
     Args:
         model (torch.nn.Module): Hedging model to compute the hedge ratio at the
@@ -30,9 +30,9 @@ class Hedger(Module):
             The input and output shapes should be :math:`(N, H_\\text{in})` and
             :math:`(N, 1)` respectively, where `N` stands for the number simulated
             paths of the asset prices and :math:`H_\\text{in}` stands for the number of
-            input features (namely, `len(inputs)`).
+            input features (namely, ``len(inputs)``).
         inputs (list[str|Feature]): List of (names of) input features to feed to model.
-            See `[str(f) for f in pfhedge.features.FEATURES]` for valid options.
+            See ``[str(f) for f in pfhedge.features.FEATURES]`` for valid options.
         criterion (HedgeLoss, default=EntropicRiskMeasure()):
             Loss function to minimize by hedging.
             Default: :class:`pfhedge.nn.EntropicRiskMeasure()` .
@@ -124,7 +124,7 @@ class Hedger(Module):
         self.register_forward_hook(save_prev_output)
 
     def forward(self, input: Tensor) -> Tensor:
-        """Returns the outout of `model`.
+        """Returns the outout of ``self.model``.
 
         The output represents the hedge ratio at the next time step.
         """
@@ -143,7 +143,7 @@ class Hedger(Module):
 
         A hedger sells the derivative to its customer and obliges to settle the payoff
         at maturity. The dealer hedges the risk of this liability by trading
-        the underlying instrument of the derivative based on `model`.
+        the underlying instrument of the derivative based on ``self.model``.
         The resulting profit and loss is obtained by adding up the payoff to the
         customer, capital gains from the underlying asset, and the transaction cost.
 
@@ -153,7 +153,7 @@ class Hedger(Module):
                 underlying instrument.
             init_state (tuple[torch.Tensor | float], optional): The initial state of
                 the underlying instrument of the derivative.
-                If `None` (default), it uses the default value.
+                If ``None`` (default), it uses the default value.
 
         Shape:
             - Output: :math:`(N)`, where :math:`N` is the number of paths.
@@ -229,11 +229,11 @@ class Hedger(Module):
             derivative (pfhedge.instruments.Derivative): The derivative to hedge.
             n_paths (int, default=1000): The number of simulated price paths of the
                 underlying instrument.
-            n_times (int, default=1): If `n_times > 1`, returns the ensemble mean
+            n_times (int, default=1): If ``n_times > 1``, returns the ensemble mean
                 of the losses computed through multiple simulations.
             init_state (tuple, optional): The initial price of the underlying
                 instrument of the derivative.
-                If `None` (default), sensible default value is used.
+                If ``None`` (default), sensible default value is used.
             enable_grad (bool, default=True): Context-manager that sets gradient
                 calculation to on or off.
 
@@ -282,13 +282,13 @@ class Hedger(Module):
             n_epochs (int, default=100): Number of Monte-Carlo simulations.
             n_paths (int, default=1000): The number of simulated price paths of the
                 underlying instrument.
-            n_times (int, default=1): If `n_times > 1`, returns the ensemble mean of
+            n_times (int, default=1): If ``n_times > 1``, returns the ensemble mean of
                 the losses computed through multiple simulations.
             optimizer (torch.optim.Optimizer, default=Adam): The optimizer algorithm
-                to use.  It can be an instance or a class of `torch.optim.Optimizer`.
+                to use.  It can be an instance or a class of ``torch.optim.Optimizer``.
             init_state (tuple, optional): The initial price of the underlying
                 instrument of the derivative.
-                If `None` (default), sensible default value is used.
+                If ``None`` (default), sensible default value is used.
             verbose (bool, default=True): If `True`, print progress of the training to
                 standard output.
 
@@ -382,11 +382,11 @@ class Hedger(Module):
             derivative (pfhedge.instuments.Derivative): The derivative to price.
             n_paths (int, default=1000): The number of simulated price paths of the
                 underlying instrument.
-            n_times (int, default=1): If `n_times > 1`, returns the ensemble mean of
+            n_times (int, default=1): If ``n_times > 1``, returns the ensemble mean of
                 the losses computed through multiple simulations.
             init_state (tuple, optional): The initial price of the underlying
                 instrument of the derivative.
-                If `None` (default), sensible default value is used.
+                If ``None`` (default), sensible default value is used.
             enable_grad (bool, default=False): Context-manager that sets gradient
                 calculation to on or off.
 

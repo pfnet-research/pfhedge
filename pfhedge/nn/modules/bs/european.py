@@ -16,7 +16,7 @@ class BSEuropeanOption(BSModuleMixin):
 
     Shape:
         - Input : :math:`(N, *, 3)`, where :math:`*` means any number
-          of additional dimensions. See `inputs()` for the names of input features.
+          of additional dimensions. See ``inputs`` for the names of input features.
         - Output: :math:`(N, *, 1)`. Delta of the derivative.
           All but the last dimension are the same shape as the input.
 
@@ -27,7 +27,7 @@ class BSEuropeanOption(BSModuleMixin):
 
     Examples:
 
-        The `forward` method returns delta of the derivative.
+        The ``forward`` method returns delta of the derivative.
 
         >>> from pfhedge.nn import BSEuropeanOption
         >>>
