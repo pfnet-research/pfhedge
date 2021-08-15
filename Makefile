@@ -16,7 +16,7 @@ lint:
 
 .PHONY: mypy
 mypy:
-	@poetry run mypy pfhedge
+	@poetry run mypy $(PROJECT_NAME)
 
 .PHONY: format
 format:
@@ -26,3 +26,7 @@ format:
 .PHONY: doc
 doc:
 	@cd docs && make html
+
+.PHONY: cov-html
+cov-html:
+	@pytest --cov=$(PROJECT_NAME) --cov-report=html

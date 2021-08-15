@@ -1,6 +1,8 @@
 from abc import abstractmethod
 from typing import Optional
+from typing import Tuple
 from typing import TypeVar
+from typing import Union
 
 import torch
 from torch import Tensor
@@ -12,6 +14,7 @@ from ..base import Instrument
 from ..primary.base import Primary
 
 T = TypeVar("T", bound="Derivative")
+TensorOrFloat = Union[Tensor, float]
 
 
 class Derivative(Instrument):
@@ -45,13 +48,15 @@ class Derivative(Instrument):
     def device(self) -> torch.device:
         return self.underlier.device
 
-    def simulate(self, n_paths: int = 1, init_state: Optional[tuple] = None) -> None:
+    def simulate(
+        self, n_paths: int = 1, init_state: Optional[Tuple[TensorOrFloat, ...]] = None
+    ) -> None:
         """Simulate time series associated with the underlier.
 
         Args:
             n_paths (int): The number of paths to simulate.
-            init_state (tuple, optional): The initial state of the underlying
-                instrument. If `None` (default), sensible default values are used.
+            init_state (tuple[torch.Tensor | float], optional): The initial state of
+                the underlier.
             **kwargs: Other parameters passed to `self.underlier.simulate()`.
         """
         self.underlier.simulate(

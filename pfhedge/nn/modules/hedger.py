@@ -1,4 +1,6 @@
 from typing import Optional
+from typing import Tuple
+from typing import Union
 
 import torch
 from torch import Tensor
@@ -15,6 +17,8 @@ from pfhedge.features import get_feature
 
 from .loss import EntropicRiskMeasure
 from .loss import HedgeLoss
+
+TensorOrFloat = Union[Tensor, float]
 
 
 class Hedger(Module):
@@ -130,7 +134,10 @@ class Hedger(Module):
         return "inputs=" + str(list(map(str, self.inputs)))
 
     def compute_pnl(
-        self, derivative, n_paths: int = 1000, init_state: Optional[tuple] = None
+        self,
+        derivative,
+        n_paths: int = 1000,
+        init_state: Optional[Tuple[TensorOrFloat, ...]] = None,
     ) -> Tensor:
         """Returns the profit and loss distribution after hedging.
 
@@ -144,9 +151,9 @@ class Hedger(Module):
             derivative (pfhedge.instruments.Derivative): The derivative to hedge.
             n_paths (int, default=1000): The number of simulated price paths of the
                 underlying instrument.
-            init_state (tuple, optional): The initial price of the underlying
-                instrument of the derivative.
-                If `None` (default), sensible default value is used.
+            init_state (tuple[torch.Tensor | float], optional): The initial state of
+                the underlying instrument of the derivative.
+                If `None` (default), it uses the default value.
 
         Shape:
             - Output: :math:`(N)`, where :math:`N` is the number of paths.
