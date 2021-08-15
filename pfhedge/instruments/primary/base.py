@@ -63,8 +63,10 @@ class Primary(Instrument):
         Args:
             n_paths (int): The number of paths to simulate.
             time_horizon (float): The period of time to simulate the price.
-            init_state (tuple, optional): The initial state of the instrument.
-                If `None` (default), sensible default value is used.
+            init_state (tuple[torch.Tensor | float], optional): The initial state of
+                the instrument.
+                If `None` (default), it uses the default value
+                (See :func:`default_init_state`).
         """
 
     def register_buffer(self, name: str, tensor: Optional[Tensor]) -> None:

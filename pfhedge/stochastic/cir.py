@@ -1,4 +1,6 @@
+from typing import Tuple
 from typing import Union
+from typing import cast
 
 import torch
 from torch import Tensor
@@ -9,7 +11,7 @@ TensorOrFloat = Union[Tensor, float]
 def generate_cir(
     n_paths: int,
     n_steps: int,
-    init_value: TensorOrFloat = 0.04,
+    init_state: Tuple[TensorOrFloat, ...] = (0.04,),
     kappa: float = 1.0,
     theta: float = 0.04,
     sigma: float = 2.0,
@@ -30,7 +32,10 @@ def generate_cir(
     Args:
         n_paths (int): The number of simulated paths.
         n_steps (int): The number of time steps.
-        init_value (float, default=0.04): The initial value of the time series.
+        init_state (tuple[torch.Tensor | float], default=(0.04,)): The initial state of
+            the time series.
+            This is specified by `(X0,)`, where `X0` is the initial value of :math:`X`.
+            It also accepts a float or a `torch.Tensor`.
         kappa (float, default=1.0): The parameter :math:`\\kappa`.
         theta (float, default=0.04): The parameter :math:`\\theta`.
         sigma (float, default=2.0): The parameter :math:`\\sigma`.
@@ -65,13 +70,22 @@ def generate_cir(
           Volatility Model (January 23, 2007). Available at SSRN:
           https://ssrn.com/abstract=946405 or http://dx.doi.org/10.2139/ssrn.946404
     """
+    # Accept Union[float, Tensor] as well because making a tuple with a single element
+    # is troublesome
+    if isinstance(init_state, (float, Tensor)):
+        init_state = (init_state,)
+
+    # Cast to init_state: Tuple[Tensor, ...] with desired dtype and device
+    init_state = cast(Tuple[Tensor, ...], tuple(map(torch.as_tensor, init_state)))
+    init_state = tuple(map(lambda t: t.to(dtype=dtype, device=device), init_state))
+
     # PSI_CRIT in [1.0, 2.0]. See section 3.2.3
     PSI_CRIT = 1.5
     # Prevent zero division
     EPSILON = 1e-8
 
     output = torch.empty((n_paths, n_steps), dtype=dtype, device=device)
-    output[:, 0] = init_value
+    output[:, 0] = init_state[0]
 
     randn = torch.randn_like(output)
     rand = torch.rand_like(output)
