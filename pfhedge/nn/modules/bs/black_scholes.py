@@ -76,8 +76,8 @@ class BlackScholes(Module):
 
     inputs: Callable[..., List[str]]  # inputs(self) -> List[str]
     price: Callable[..., Tensor]  # price(self, ...) -> Tensor
-    delta: Callable[..., Tensor]  # price(self, ...) -> Tensor
-    gamma: Callable[..., Tensor]  # price(self, ...) -> Tensor
+    delta: Callable[..., Tensor]  # delta(self, ...) -> Tensor
+    gamma: Callable[..., Tensor]  # gamma(self, ...) -> Tensor
 
     def __new__(cls, derivative):
         return {
