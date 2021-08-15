@@ -88,7 +88,7 @@ class LookbackOption(Derivative, OptionMixin):
         self.to(dtype=dtype, device=device)
 
     def __repr__(self):
-        params = [f"{self.underlier.__class__.__name__}(...)"]
+        params = [f"{self.ul().__class__.__name__}(...)"]
         if not self.call:
             params.append(f"call={self.call}")
         params.append(f"strike={self.strike}")
@@ -97,12 +97,13 @@ class LookbackOption(Derivative, OptionMixin):
         return self.__class__.__name__ + "(" + ", ".join(params) + ")"
 
     def payoff(self) -> Tensor:
-        return lookback_payoff(self.underlier.spot, call=self.call, strike=self.strike)
+        return lookback_payoff(self.ul().spot, call=self.call, strike=self.strike)
 
 
 # Assign docstrings so they appear in Sphinx documentation
 set_attr_and_docstring(LookbackOption, "simulate", Derivative.simulate)
 set_attr_and_docstring(LookbackOption, "to", Derivative.to)
+set_attr_and_docstring(LookbackOption, "ul", Derivative.ul)
 set_docstring(LookbackOption, "payoff", Derivative.payoff)
 set_attr_and_docstring(LookbackOption, "moneyness", OptionMixin.moneyness)
 set_attr_and_docstring(LookbackOption, "log_moneyness", OptionMixin.log_moneyness)

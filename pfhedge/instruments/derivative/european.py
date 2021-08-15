@@ -90,7 +90,7 @@ class EuropeanOption(Derivative, OptionMixin):
         self.to(dtype=dtype, device=device)
 
     def __repr__(self):
-        params = [f"{self.underlier.__class__.__name__}(...)"]
+        params = [f"{self.ul().__class__.__name__}(...)"]
         if not self.call:
             params.append(f"call={self.call}")
         params.append(f"strike={self.strike}")
@@ -105,6 +105,7 @@ class EuropeanOption(Derivative, OptionMixin):
 # Assign docstrings so they appear in Sphinx documentation
 set_attr_and_docstring(EuropeanOption, "simulate", Derivative.simulate)
 set_attr_and_docstring(EuropeanOption, "to", Derivative.to)
+set_attr_and_docstring(EuropeanOption, "ul", Derivative.ul)
 set_docstring(EuropeanOption, "payoff", Derivative.payoff)
 set_attr_and_docstring(EuropeanOption, "moneyness", OptionMixin.moneyness)
 set_attr_and_docstring(EuropeanOption, "log_moneyness", OptionMixin.log_moneyness)

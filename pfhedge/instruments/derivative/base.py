@@ -63,6 +63,10 @@ class Derivative(Instrument):
             n_paths=n_paths, time_horizon=self.maturity, init_state=init_state
         )
 
+    def ul(self) -> Primary:
+        """Alias for ``self.underlier``."""
+        return self.underlier
+
     def to(self: T, *args, **kwargs) -> T:
         self.underlier.to(*args, **kwargs)
         return self

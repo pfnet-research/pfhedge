@@ -178,18 +178,14 @@ class Hedger(Module):
 
         derivative.simulate(n_paths=n_paths, init_state=init_state)
         # cashflow: shape (N, T - 1)
-        cashflow = (
-            derivative.underlier.spot[..., 1:] - derivative.underlier.spot[..., :-1]
-        )
+        cashflow = derivative.ul().spot[..., 1:] - derivative.ul().spot[..., :-1]
 
         # prev_output: shape (N)
-        save_prev_output(
-            self, None, torch.zeros_like(derivative.underlier.spot[..., :1])
-        )
-        pnl = torch.zeros_like(derivative.underlier.spot[..., 0])
+        save_prev_output(self, None, torch.zeros_like(derivative.ul().spot[..., :1]))
+        pnl = torch.zeros_like(derivative.ul().spot[..., 0])
 
         # Simulate hedging over time.
-        n_steps = derivative.underlier.spot.size(1)  # = T
+        n_steps = derivative.ul().spot.size(1)  # = T
         for i in range(n_steps - 1):
             prev_hedge = self.get_buffer("prev_output").reshape(-1)
 
@@ -200,9 +196,9 @@ class Hedger(Module):
             pnl += hedge * cashflow[..., i]
             # Deduct transactoon cost.
             pnl -= (
-                derivative.underlier.cost
+                derivative.ul().cost
                 * (hedge - prev_hedge).abs()
-                * derivative.underlier.spot[..., i]
+                * derivative.ul().spot[..., i]
             )
 
         # Settle the derivative's payoff.

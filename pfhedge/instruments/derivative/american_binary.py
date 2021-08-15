@@ -115,6 +115,7 @@ maturity=5/250, strike=1.01)
 # Assign docstrings so they appear in Sphinx documentation
 set_attr_and_docstring(AmericanBinaryOption, "simulate", Derivative.simulate)
 set_attr_and_docstring(AmericanBinaryOption, "to", Derivative.to)
+set_attr_and_docstring(AmericanBinaryOption, "ul", Derivative.ul)
 set_docstring(AmericanBinaryOption, "payoff", Derivative.payoff)
 set_attr_and_docstring(AmericanBinaryOption, "moneyness", OptionMixin.moneyness)
 set_attr_and_docstring(AmericanBinaryOption, "log_moneyness", OptionMixin.log_moneyness)
