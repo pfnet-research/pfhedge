@@ -70,7 +70,7 @@ jobs:
 
     - run: pip install poetry && poetry install
 
-    - run: mypy ${PROJECT_NAME}
+    - run: poetry run python -m mypy ${PROJECT_NAME}
 
   lint:
 
