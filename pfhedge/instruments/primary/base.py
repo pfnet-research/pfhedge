@@ -1,6 +1,6 @@
-from typing import Dict
 from abc import abstractmethod
 from collections import OrderedDict
+from typing import Dict
 from typing import Iterator
 from typing import Optional
 from typing import Tuple
