@@ -83,7 +83,7 @@ class BSAmericanBinaryOption(BSModuleMixin):
         """
         return cls(call=derivative.call, strike=derivative.strike)
 
-    def extra_repr(self):
+    def extra_repr(self) -> str:
         params = []
         if self.strike != 1.0:
             params.append(f"strike={self.strike}")

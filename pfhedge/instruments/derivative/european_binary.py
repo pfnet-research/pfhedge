@@ -1,3 +1,5 @@
+from typing import Optional
+
 import torch
 from torch import Tensor
 
@@ -5,6 +7,7 @@ from pfhedge._utils.doc import set_attr_and_docstring
 from pfhedge._utils.doc import set_docstring
 
 from ...nn.functional import european_binary_payoff
+from ..primary.base import Primary
 from .base import Derivative
 from .base import OptionMixin
 
@@ -78,13 +81,13 @@ class EuropeanBinaryOption(Derivative, OptionMixin):
 
     def __init__(
         self,
-        underlier,
+        underlier: Primary,
         call: bool = True,
         strike: float = 1.0,
         maturity: float = 20 / 250,
-        dtype: torch.dtype = None,
-        device: torch.device = None,
-    ):
+        dtype: Optional[torch.dtype] = None,
+        device: Optional[torch.device] = None,
+    ) -> None:
         super().__init__()
         self.underlier = underlier
         self.call = call
@@ -93,7 +96,7 @@ class EuropeanBinaryOption(Derivative, OptionMixin):
 
         self.to(dtype=dtype, device=device)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         params = [f"{self.ul().__class__.__name__}(...)"]
         if not self.call:
             params.append(f"call={self.call}")

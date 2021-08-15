@@ -1,3 +1,4 @@
+from typing import List
 from typing import Optional
 
 import torch
@@ -85,13 +86,13 @@ class BSLookbackOption(BSModuleMixin):
         """
         return cls(call=derivative.call, strike=derivative.strike)
 
-    def extra_repr(self):
+    def extra_repr(self) -> str:
         params = []
         if self.strike != 1.0:
             params.append(f"strike={self.strike}")
         return ", ".join(params)
 
-    def inputs(self) -> list:
+    def inputs(self) -> List[str]:
         return ["log_moneyness", "max_log_moneyness", "expiry_time", "volatility"]
 
     def price(

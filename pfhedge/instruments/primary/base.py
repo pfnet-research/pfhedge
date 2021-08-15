@@ -1,3 +1,4 @@
+import typing
 from abc import abstractmethod
 from collections import OrderedDict
 from typing import Iterator
@@ -40,12 +41,13 @@ class Primary(Instrument):
     dtype: torch.dtype
     device: torch.device
     dt: float
+    _buffers: typing.OrderedDict[str, Optional[Tensor]]
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._buffers = OrderedDict()
 
     @property
-    def default_init_state(self):
+    def default_init_state(self) -> Tuple[TensorOrFloat, ...]:
         """Returns the default initial state of simulation."""
 
     # TODO(simaki): Remove @no_type_check once BrownianStock and HestonStock get
