@@ -378,9 +378,9 @@ customer, capital gains from the underlying asset, and the transaction cost.</p>
 <li><p><strong>derivative</strong> (<a class="reference internal" href="pfhedge.instruments.Derivative.html#pfhedge.instruments.Derivative" title="pfhedge.instruments.Derivative"><em>pfhedge.instruments.Derivative</em></a>) – The derivative to hedge.</p></li>
 <li><p><strong>n_paths</strong> (<em>int</em><em>, </em><em>default=1000</em>) – The number of simulated price paths of the
 underlying instrument.</p></li>
-<li><p><strong>init_state</strong> (<em>tuple</em><em>, </em><em>optional</em>) – The initial price of the underlying
-instrument of the derivative.
-If <cite>None</cite> (default), sensible default value is used.</p></li>
+<li><p><strong>init_state</strong> (<em>tuple</em><em>[</em><em>torch.Tensor</em><em> | </em><em>float</em><em>]</em><em>, </em><em>optional</em>) – The initial state of
+the underlying instrument of the derivative.
+If <cite>None</cite> (default), it uses the default value.</p></li>
 </ul>
 </dd>
 </dl>

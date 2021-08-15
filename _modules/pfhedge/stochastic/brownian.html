@@ -222,15 +222,20 @@
         </div>
         <h1>Source code for pfhedge.stochastic.brownian</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">cast</span>
 
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
+
+<span class="n">TensorOrFloat</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">Tensor</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="generate_brownian"><a class="viewcode-back" href="../../../stochastic.html#pfhedge.stochastic.generate_brownian">[docs]</a><span class="k">def</span> <span class="nf">generate_brownian</span><span class="p">(</span>
     <span class="n">n_paths</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">n_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">init_value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">init_state</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">TensorOrFloat</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,),</span>
     <span class="n">volatility</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
     <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">250</span><span class="p">,</span>
     <span class="n">dtype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -249,7 +254,10 @@
 <span class="sd">    Args:</span>
 <span class="sd">        n_paths (int): The number of simulated paths.</span>
 <span class="sd">        n_steps (int): The number of time steps.</span>
-<span class="sd">        init_value (float, default=0.0): The initial value of the time series.</span>
+<span class="sd">        init_state (tuple[torch.Tensor | float], default=(0.0,)): The initial state of</span>
+<span class="sd">            the time series.</span>
+<span class="sd">            This is specified by `(S0,)`, where `S0` is the initial value of :math:`S`.</span>
+<span class="sd">            It also accepts a float or a `torch.Tensor`.</span>
 <span class="sd">        volatility (float, default=0.2): The volatility of the Brownian motion.</span>
 <span class="sd">        dt (float, default=1/250): The intervals of the time steps.</span>
 <span class="sd">        dtype (torch.dtype, optional): The desired data type of returned tensor.</span>
@@ -277,6 +285,16 @@
 <span class="sd">        tensor([[ 0.0000,  0.0016,  0.0046,  0.0075, -0.0067],</span>
 <span class="sd">                [ 0.0000,  0.0279,  0.0199,  0.0257,  0.0291]])</span>
 <span class="sd">    """</span>
+    <span class="c1"># Accept Union[float, Tensor] as well because making a tuple with a single element</span>
+    <span class="c1"># is troublesome</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">init_state</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">)):</span>
+        <span class="n">init_state</span> <span class="o">=</span> <span class="p">(</span><span class="n">init_state</span><span class="p">,)</span>
+
+    <span class="c1"># Cast to init_state: Tuple[Tensor, ...] with desired dtype and device</span>
+    <span class="n">init_state</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Tensor</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">,</span> <span class="n">init_state</span><span class="p">)))</span>
+    <span class="n">init_state</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">),</span> <span class="n">init_state</span><span class="p">))</span>
+
+    <span class="n">init_value</span> <span class="o">=</span> <span class="n">init_state</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">randn</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">((</span><span class="n">n_paths</span><span class="p">,</span> <span class="n">n_steps</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
     <span class="n">randn</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
     <span class="k">return</span> <span class="n">init_value</span> <span class="o">+</span> <span class="n">volatility</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">randn</span><span class="p">)</span><span class="o">.</span><span class="n">sqrt</span><span class="p">()</span> <span class="o">*</span> <span class="n">randn</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
@@ -285,7 +303,7 @@
 <div class="viewcode-block" id="generate_geometric_brownian"><a class="viewcode-back" href="../../../stochastic.html#pfhedge.stochastic.generate_geometric_brownian">[docs]</a><span class="k">def</span> <span class="nf">generate_geometric_brownian</span><span class="p">(</span>
     <span class="n">n_paths</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">n_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">init_value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">init_state</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">TensorOrFloat</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,),</span>
     <span class="n">volatility</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
     <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">250</span><span class="p">,</span>
     <span class="n">dtype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -304,7 +322,10 @@
 <span class="sd">    Args:</span>
 <span class="sd">        n_paths (int): The number of simulated paths.</span>
 <span class="sd">        n_steps (int): The number of time steps.</span>
-<span class="sd">        init_value (float, default=0.0): The initial value of the time series.</span>
+<span class="sd">        init_state (tuple[torch.Tensor | float], default=(1.0,)): The initial state of</span>
+<span class="sd">            the time series.</span>
+<span class="sd">            This is specified by `(S0,)`, where `S0` is the initial value of :math:`S`.</span>
+<span class="sd">            It also accepts a float or a `torch.Tensor`.</span>
 <span class="sd">        volatility (float, default=0.2): The volatility of the Brownian motion.</span>
 <span class="sd">        dt (float, default=1/250): The intervals of the time steps.</span>
 <span class="sd">        dtype (torch.dtype, optional): The desired data type of returned tensor.</span>
@@ -332,17 +353,26 @@
 <span class="sd">        tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930],</span>
 <span class="sd">                [1.0000, 1.0282, 1.0199, 1.0258, 1.0292]])</span>
 <span class="sd">    """</span>
+    <span class="c1"># Accept Union[float, Tensor] as well because making a tuple with a single element</span>
+    <span class="c1"># is troublesome</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">init_state</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">)):</span>
+        <span class="n">init_state</span> <span class="o">=</span> <span class="p">(</span><span class="n">init_state</span><span class="p">,)</span>
+
+    <span class="c1"># Cast to init_state: Tuple[Tensor, ...] with desired dtype and device</span>
+    <span class="n">init_state</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Tensor</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">,</span> <span class="n">init_state</span><span class="p">)))</span>
+    <span class="n">init_state</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">),</span> <span class="n">init_state</span><span class="p">))</span>
+
     <span class="n">brownian</span> <span class="o">=</span> <span class="n">generate_brownian</span><span class="p">(</span>
         <span class="n">n_paths</span><span class="o">=</span><span class="n">n_paths</span><span class="p">,</span>
         <span class="n">n_steps</span><span class="o">=</span><span class="n">n_steps</span><span class="p">,</span>
-        <span class="n">init_value</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">init_state</span><span class="o">=</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,),</span>
         <span class="n">volatility</span><span class="o">=</span><span class="n">volatility</span><span class="p">,</span>
         <span class="n">dt</span><span class="o">=</span><span class="n">dt</span><span class="p">,</span>
         <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span>
         <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">t</span> <span class="o">=</span> <span class="n">dt</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_steps</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">brownian</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">init_value</span> <span class="o">*</span> <span class="p">(</span><span class="n">brownian</span> <span class="o">-</span> <span class="p">(</span><span class="n">volatility</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">t</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">exp</span><span class="p">()</span></div>
+    <span class="k">return</span> <span class="n">init_state</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">brownian</span> <span class="o">-</span> <span class="p">(</span><span class="n">volatility</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">t</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">exp</span><span class="p">()</span></div>
 </pre></div>
       </article>
       <footer>

@@ -305,11 +305,11 @@ The number of time steps is determinded from <cite>dt</cite> and <cite>time_hori
 <li><p><strong>n_paths</strong> (<em>int</em><em>, </em><em>default=1</em>) – The number of paths to simulate.</p></li>
 <li><p><strong>time_horizon</strong> (<em>float</em><em>, </em><em>default=20/250</em>) – The period of time to simulate
 the price.</p></li>
-<li><p><strong>init_state</strong> (<em>tuple</em><em>, </em><em>optional</em>) – The initial state of the instrument.
-<cite>init_state</cite> should be a 2-tuple <cite>(spot, variance)</cite>
-where <cite>spot</cite> is the initial spot price and <cite>variance</cite> is the initial
-variance.
-If <cite>None</cite> (default), the default value is chosen
+<li><p><strong>init_state</strong> (<em>tuple</em><em>[</em><em>torch.Tensor</em><em> | </em><em>float</em><em>]</em><em>, </em><em>default=</em><em>(</em><em>1.0</em><em>,</em><em>)</em>) – The initial
+state of the instrument.
+This is specified by <cite>(S0, V0)</cite>, where <cite>S0</cite> and <cite>V0</cite> are the initial
+values of of spot and variance, respectively.
+If <cite>None</cite> (default), it uses the default value
 (See <a class="reference internal" href="#pfhedge.instruments.HestonStock.default_init_state" title="pfhedge.instruments.HestonStock.default_init_state"><code class="xref py py-func docutils literal notranslate"><span class="pre">default_init_state()</span></code></a>).</p></li>
 </ul>
 </dd>

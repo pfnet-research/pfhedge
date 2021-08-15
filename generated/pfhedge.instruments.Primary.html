@@ -344,8 +344,10 @@ If <code class="docutils literal notranslate"><span class="pre">None</span></cod
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>n_paths</strong> (<em>int</em>) – The number of paths to simulate.</p></li>
 <li><p><strong>time_horizon</strong> (<em>float</em>) – The period of time to simulate the price.</p></li>
-<li><p><strong>init_state</strong> (<em>tuple</em><em>, </em><em>optional</em>) – The initial state of the instrument.
-If <cite>None</cite> (default), sensible default value is used.</p></li>
+<li><p><strong>init_state</strong> (<em>tuple</em><em>[</em><em>torch.Tensor</em><em> | </em><em>float</em><em>]</em><em>, </em><em>optional</em>) – The initial state of
+the instrument.
+If <cite>None</cite> (default), it uses the default value
+(See <a class="reference internal" href="#pfhedge.instruments.Primary.default_init_state" title="pfhedge.instruments.Primary.default_init_state"><code class="xref py py-func docutils literal notranslate"><span class="pre">default_init_state()</span></code></a>).</p></li>
 </ul>
 </dd>
 </dl>

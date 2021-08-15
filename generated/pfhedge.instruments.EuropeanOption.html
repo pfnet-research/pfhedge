@@ -367,14 +367,14 @@ paths.</p></li>
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pfhedge.instruments.EuropeanOption.simulate">
-<span class="sig-name descname"><span class="pre">simulate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.EuropeanOption.simulate" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">simulate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.EuropeanOption.simulate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Simulate time series associated with the underlier.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>n_paths</strong> (<em>int</em>) – The number of paths to simulate.</p></li>
-<li><p><strong>init_state</strong> (<em>tuple</em><em>, </em><em>optional</em>) – The initial state of the underlying
-instrument. If <cite>None</cite> (default), sensible default values are used.</p></li>
+<li><p><strong>init_state</strong> (<em>tuple</em><em>[</em><em>torch.Tensor</em><em> | </em><em>float</em><em>]</em><em>, </em><em>optional</em>) – The initial state of
+the underlier.</p></li>
 <li><p><strong>**kwargs</strong> – Other parameters passed to <cite>self.underlier.simulate()</cite>.</p></li>
 </ul>
 </dd>
@@ -425,6 +425,11 @@ series.</p></li>
 <dd class="field-even"><p>self</p>
 </dd>
 </dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pfhedge.instruments.EuropeanOption.ul">
+<span class="sig-name descname"><span class="pre">ul</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.EuropeanOption.ul" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for <code class="docutils literal notranslate"><span class="pre">self.underlier</span></code>.</p>
 </dd></dl>
 </dd></dl>
 </section>

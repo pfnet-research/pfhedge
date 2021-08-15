@@ -295,10 +295,13 @@ The number of time steps is determinded from <cite>dt</cite> and <cite>time_hori
 <li><p><strong>n_paths</strong> (<em>int</em><em>, </em><em>default=1</em>) – The number of paths to simulate.</p></li>
 <li><p><strong>time_horizon</strong> (<em>float</em><em>, </em><em>default=20/250</em>) – The period of time to simulate
 the price.</p></li>
-<li><p><strong>init_state</strong> (<em>tuple</em><em>, </em><em>optional</em>) – The initial state of the instrument.
-<cite>init_state</cite> should be a 1-tuple <cite>(spot,)</cite>
-where <cite>spot</cite> is the initial spot price.
-If <cite>None</cite> (default), the default value <cite>(1.0,)</cite> is chosen.</p></li>
+<li><p><strong>init_state</strong> (<em>tuple</em><em>[</em><em>torch.Tensor</em><em> | </em><em>float</em><em>]</em><em>, </em><em>optional</em>) – The initial state of
+the instrument.
+This is specified by <cite>(spot,)</cite>, where <cite>spot</cite> is the initial value
+of the stock price.
+If <cite>None</cite> (default), it uses the default value
+(See <a class="reference internal" href="#pfhedge.instruments.BrownianStock.default_init_state" title="pfhedge.instruments.BrownianStock.default_init_state"><code class="xref py py-func docutils literal notranslate"><span class="pre">default_init_state()</span></code></a>).
+It also accepts a float or a <cite>torch.Tensor</cite>.</p></li>
 </ul>
 </dd>
 </dl>

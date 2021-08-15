@@ -225,6 +225,7 @@
 <span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
 
 <span class="kn">from</span> <span class="nn">pfhedge._utils.bisect</span> <span class="kn">import</span> <span class="n">bisect</span>
+<span class="kn">from</span> <span class="nn">pfhedge._utils.doc</span> <span class="kn">import</span> <span class="n">set_attr_and_docstring</span>
 
 <span class="kn">from</span> <span class="nn">._base</span> <span class="kn">import</span> <span class="n">BSModuleMixin</span>
 
@@ -357,7 +358,7 @@
 
         <span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">,</span> <span class="p">(</span><span class="n">log_moneyness</span><span class="p">,</span> <span class="n">expiry_time</span><span class="p">,</span> <span class="n">volatility</span><span class="p">))</span>
         <span class="n">price</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">strike</span> <span class="o">*</span> <span class="n">s</span><span class="o">.</span><span class="n">exp</span><span class="p">()</span>
-        <span class="n">gamma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d1</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="n">price</span> <span class="o">*</span> <span class="n">v</span> <span class="o">*</span> <span class="n">t</span><span class="o">.</span><span class="n">sqrt</span><span class="p">())</span>
+        <span class="n">gamma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="o">.</span><span class="n">log_prob</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d1</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span><span class="o">.</span><span class="n">exp</span><span class="p">()</span> <span class="o">/</span> <span class="p">(</span><span class="n">price</span> <span class="o">*</span> <span class="n">v</span> <span class="o">*</span> <span class="n">t</span><span class="o">.</span><span class="n">sqrt</span><span class="p">())</span>
 
         <span class="k">return</span> <span class="n">gamma</span></div>
 
@@ -419,10 +420,8 @@
 
 
 <span class="c1"># Assign docstrings so they appear in Sphinx documentation</span>
-<span class="n">BSEuropeanOption</span><span class="o">.</span><span class="n">inputs</span> <span class="o">=</span> <span class="n">BSModuleMixin</span><span class="o">.</span><span class="n">inputs</span>
-<span class="n">BSEuropeanOption</span><span class="o">.</span><span class="n">inputs</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">BSModuleMixin</span><span class="o">.</span><span class="n">inputs</span><span class="o">.</span><span class="vm">__doc__</span>
-<span class="n">BSEuropeanOption</span><span class="o">.</span><span class="n">forward</span> <span class="o">=</span> <span class="n">BSModuleMixin</span><span class="o">.</span><span class="n">forward</span>
-<span class="n">BSEuropeanOption</span><span class="o">.</span><span class="n">forward</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">BSModuleMixin</span><span class="o">.</span><span class="n">forward</span><span class="o">.</span><span class="vm">__doc__</span>
+<span class="n">set_attr_and_docstring</span><span class="p">(</span><span class="n">BSEuropeanOption</span><span class="p">,</span> <span class="s2">"inputs"</span><span class="p">,</span> <span class="n">BSModuleMixin</span><span class="o">.</span><span class="n">inputs</span><span class="p">)</span>
+<span class="n">set_attr_and_docstring</span><span class="p">(</span><span class="n">BSEuropeanOption</span><span class="p">,</span> <span class="s2">"forward"</span><span class="p">,</span> <span class="n">BSModuleMixin</span><span class="o">.</span><span class="n">forward</span><span class="p">)</span>
 </pre></div>
       </article>
       <footer>

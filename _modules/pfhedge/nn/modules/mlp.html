@@ -222,6 +222,7 @@
         </div>
         <h1>Source code for pfhedge.nn.modules.mlp</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Sequence</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
@@ -326,13 +327,15 @@
     <span class="p">):</span>
         <span class="n">n_units</span> <span class="o">=</span> <span class="p">(</span><span class="n">n_units</span><span class="p">,)</span> <span class="o">*</span> <span class="n">n_layers</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">n_units</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="k">else</span> <span class="n">n_units</span>
 
-        <span class="n">layers</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">layers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Module</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_layers</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">in_features</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">LazyLinear</span><span class="p">(</span><span class="n">n_units</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">in_features</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">LazyLinear</span><span class="p">(</span><span class="n">n_units</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Linear</span><span class="p">(</span><span class="n">in_features</span><span class="p">,</span> <span class="n">n_units</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">_in_features</span> <span class="o">=</span> <span class="n">in_features</span> <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">n_units</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
-                <span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Linear</span><span class="p">(</span><span class="n">_in_features</span><span class="p">,</span> <span class="n">n_units</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+                <span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Linear</span><span class="p">(</span><span class="n">n_units</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span> <span class="n">n_units</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
             <span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">activation</span><span class="p">))</span>
         <span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Linear</span><span class="p">(</span><span class="n">n_units</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">out_features</span><span class="p">))</span>
         <span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">out_activation</span><span class="p">))</span>

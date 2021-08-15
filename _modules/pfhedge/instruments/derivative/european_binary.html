@@ -224,6 +224,9 @@
 <span></span><span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
 
+<span class="kn">from</span> <span class="nn">pfhedge._utils.doc</span> <span class="kn">import</span> <span class="n">set_attr_and_docstring</span>
+<span class="kn">from</span> <span class="nn">pfhedge._utils.doc</span> <span class="kn">import</span> <span class="n">set_docstring</span>
+
 <span class="kn">from</span> <span class="nn">...nn.functional</span> <span class="kn">import</span> <span class="n">european_binary_payoff</span>
 <span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">Derivative</span>
 <span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">OptionMixin</span>
@@ -314,7 +317,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">underlier</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(...)"</span><span class="p">]</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ul</span><span class="p">()</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(...)"</span><span class="p">]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">:</span>
             <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"call=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"strike=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">strike</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
@@ -324,22 +327,20 @@
 
 <div class="viewcode-block" id="EuropeanBinaryOption.payoff"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.EuropeanBinaryOption.html#pfhedge.instruments.EuropeanBinaryOption.payoff">[docs]</a>    <span class="k">def</span> <span class="nf">payoff</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">european_binary_payoff</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">underlier</span><span class="o">.</span><span class="n">spot</span><span class="p">,</span> <span class="n">call</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">,</span> <span class="n">strike</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">strike</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ul</span><span class="p">()</span><span class="o">.</span><span class="n">spot</span><span class="p">,</span> <span class="n">call</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">,</span> <span class="n">strike</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">strike</span>
         <span class="p">)</span></div></div>
 
 
 <span class="c1"># Assign docstrings so they appear in Sphinx documentation</span>
-<span class="n">EuropeanBinaryOption</span><span class="o">.</span><span class="n">simulate</span> <span class="o">=</span> <span class="n">Derivative</span><span class="o">.</span><span class="n">simulate</span>
-<span class="n">EuropeanBinaryOption</span><span class="o">.</span><span class="n">simulate</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">Derivative</span><span class="o">.</span><span class="n">simulate</span><span class="o">.</span><span class="vm">__doc__</span>
-<span class="n">EuropeanBinaryOption</span><span class="o">.</span><span class="n">to</span> <span class="o">=</span> <span class="n">Derivative</span><span class="o">.</span><span class="n">to</span>
-<span class="n">EuropeanBinaryOption</span><span class="o">.</span><span class="n">to</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">Derivative</span><span class="o">.</span><span class="n">to</span><span class="o">.</span><span class="vm">__doc__</span>
-<span class="n">EuropeanBinaryOption</span><span class="o">.</span><span class="n">payoff</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">Derivative</span><span class="o">.</span><span class="n">payoff</span><span class="o">.</span><span class="vm">__doc__</span>
-<span class="n">EuropeanBinaryOption</span><span class="o">.</span><span class="n">moneyness</span> <span class="o">=</span> <span class="n">OptionMixin</span><span class="o">.</span><span class="n">moneyness</span>
-<span class="n">EuropeanBinaryOption</span><span class="o">.</span><span class="n">moneyness</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">OptionMixin</span><span class="o">.</span><span class="n">moneyness</span><span class="o">.</span><span class="vm">__doc__</span>
-<span class="n">EuropeanBinaryOption</span><span class="o">.</span><span class="n">log_moneyness</span> <span class="o">=</span> <span class="n">OptionMixin</span><span class="o">.</span><span class="n">log_moneyness</span>
-<span class="n">EuropeanBinaryOption</span><span class="o">.</span><span class="n">log_moneyness</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">OptionMixin</span><span class="o">.</span><span class="n">log_moneyness</span><span class="o">.</span><span class="vm">__doc__</span>
-<span class="n">EuropeanBinaryOption</span><span class="o">.</span><span class="n">time_to_maturity</span> <span class="o">=</span> <span class="n">OptionMixin</span><span class="o">.</span><span class="n">time_to_maturity</span>
-<span class="n">EuropeanBinaryOption</span><span class="o">.</span><span class="n">time_to_maturity</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">OptionMixin</span><span class="o">.</span><span class="n">time_to_maturity</span><span class="o">.</span><span class="vm">__doc__</span>
+<span class="n">set_attr_and_docstring</span><span class="p">(</span><span class="n">EuropeanBinaryOption</span><span class="p">,</span> <span class="s2">"simulate"</span><span class="p">,</span> <span class="n">Derivative</span><span class="o">.</span><span class="n">simulate</span><span class="p">)</span>
+<span class="n">set_attr_and_docstring</span><span class="p">(</span><span class="n">EuropeanBinaryOption</span><span class="p">,</span> <span class="s2">"to"</span><span class="p">,</span> <span class="n">Derivative</span><span class="o">.</span><span class="n">to</span><span class="p">)</span>
+<span class="n">set_attr_and_docstring</span><span class="p">(</span><span class="n">EuropeanBinaryOption</span><span class="p">,</span> <span class="s2">"ul"</span><span class="p">,</span> <span class="n">Derivative</span><span class="o">.</span><span class="n">ul</span><span class="p">)</span>
+<span class="n">set_docstring</span><span class="p">(</span><span class="n">EuropeanBinaryOption</span><span class="p">,</span> <span class="s2">"payoff"</span><span class="p">,</span> <span class="n">Derivative</span><span class="o">.</span><span class="n">payoff</span><span class="p">)</span>
+<span class="n">set_attr_and_docstring</span><span class="p">(</span><span class="n">EuropeanBinaryOption</span><span class="p">,</span> <span class="s2">"moneyness"</span><span class="p">,</span> <span class="n">OptionMixin</span><span class="o">.</span><span class="n">moneyness</span><span class="p">)</span>
+<span class="n">set_attr_and_docstring</span><span class="p">(</span><span class="n">EuropeanBinaryOption</span><span class="p">,</span> <span class="s2">"log_moneyness"</span><span class="p">,</span> <span class="n">OptionMixin</span><span class="o">.</span><span class="n">log_moneyness</span><span class="p">)</span>
+<span class="n">set_attr_and_docstring</span><span class="p">(</span>
+    <span class="n">EuropeanBinaryOption</span><span class="p">,</span> <span class="s2">"time_to_maturity"</span><span class="p">,</span> <span class="n">OptionMixin</span><span class="o">.</span><span class="n">time_to_maturity</span>
+<span class="p">)</span>
 </pre></div>
       </article>
       <footer>
