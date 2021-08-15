@@ -178,7 +178,7 @@ class Hedger(Module):
 
         derivative.simulate(n_paths=n_paths, init_state=init_state)
         # cashflow: shape (N, T - 1)
-        cashflow = derivative.ul().spot[..., 1:] - derivative.ul().spot[..., :-1]
+        cashflow = derivative.ul().spot.diff(dim=-1)
 
         # prev_output: shape (N)
         save_prev_output(self, None, torch.zeros_like(derivative.ul().spot[..., :1]))
