@@ -35,15 +35,17 @@ class HestonStock(Primary):
             `device` will be the CPU for CPU tensor types and
             the current CUDA device for CUDA tensor types.
 
-    Attributes:
-        spot (torch.Tensor): The spot price of the instrument.
-            This attribute is set by a method :func:`simulate()`.
-            The shape is :math:`(N, T)`, where :math:`N` is the number of simulated
-            paths and :math:`T` is the number of time steps.
-        variance (torch.Tensor): The variance of the spot of the instrument.
-            This attribute is set by a method :func:`simulate()`.
-            The shape is :math:`(N, T)`.
-        volatility (torch.Tensor): An alias for ``self.variance.sqrt()``.
+    Buffers:
+        - ``spot`` (``torch.Tensor``): The spot price of the instrument.
+          This attribute is set by a method :func:`simulate()`.
+          The shape is :math:`(N, T)` where
+          :math:`N` is the number of simulated paths and
+          :math:`T` is the number of time steps.
+        - ``variance`` (``torch.Tensor``): The variance of the instrument.
+          Note that this is different from the realized variance of the spot price.
+          This attribute is set by a method :func:`simulate()`.
+          The shape is :math:`(N, T)`.
+        - ``volatility`` (``torch.Tensor``): An alias for ``self.variance.sqrt()``.
 
     Examples:
 
