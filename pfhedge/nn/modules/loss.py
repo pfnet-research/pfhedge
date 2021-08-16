@@ -1,4 +1,5 @@
 from abc import ABC
+from typing import Callable
 
 import torch
 from torch import Tensor
@@ -101,7 +102,7 @@ class EntropicRiskMeasure(HedgeLoss):
         super().__init__()
         self.a = a
 
-    def extra_repr(self):
+    def extra_repr(self) -> str:
         return f"a={self.a}" if self.a != 1 else ""
 
     def forward(self, input: Tensor) -> Tensor:
@@ -163,7 +164,7 @@ class EntropicLoss(HedgeLoss):
         super().__init__()
         self.a = a
 
-    def extra_repr(self):
+    def extra_repr(self) -> str:
         return f"a={self.a}" if self.a != 1 else ""
 
     def forward(self, input: Tensor) -> Tensor:
@@ -238,7 +239,7 @@ class IsoelasticLoss(HedgeLoss):
         super().__init__()
         self.a = a
 
-    def extra_repr(self):
+    def extra_repr(self) -> str:
         return f"a={self.a}"
 
     def forward(self, input: Tensor) -> Tensor:
@@ -276,7 +277,7 @@ class ExpectedShortfall(HedgeLoss):
         super().__init__()
         self.p = p
 
-    def extra_repr(self):
+    def extra_repr(self) -> str:
         return str(self.p)
 
     def forward(self, input: Tensor) -> Tensor:
@@ -320,13 +321,13 @@ class OCE(HedgeLoss):
         tensor(-0.0821)
     """
 
-    def __init__(self, utility):
+    def __init__(self, utility: Callable[[Tensor], Tensor]) -> None:
         super().__init__()
 
         self.utility = utility
         self.w = Parameter(torch.tensor(0.0))
 
-    def extra_repr(self):
+    def extra_repr(self) -> str:
         return self.utility.__name__ + f", w={self.w}"
 
     def forward(self, input: Tensor) -> Tensor:

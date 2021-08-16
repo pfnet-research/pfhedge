@@ -143,8 +143,7 @@ def isoelastic_utility(input: Tensor, a: float) -> Tensor:
     else:
         return input ** (1.0 - a)
 
-
-def topp(input, p: float, dim: Optional[int] = None, largest: bool = True):
+def topp(input: Tensor, p: float, dim: Optional[int] = None, largest: bool = True):
     """Returns the largest :math:`p * N` elements of the given input tensor,
     where :math:`N` stands for the total number of elements in the input tensor.
 

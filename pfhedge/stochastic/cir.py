@@ -1,3 +1,4 @@
+from typing import Optional
 from typing import Tuple
 from typing import Union
 from typing import cast
@@ -16,8 +17,8 @@ def generate_cir(
     theta: TensorOrFloat = 0.04,
     sigma: TensorOrFloat = 2.0,
     dt: TensorOrFloat = 1 / 250,
-    dtype: torch.dtype = None,
-    device: torch.device = None,
+    dtype: Optional[torch.dtype] = None,
+    device: Optional[torch.device] = None,
 ) -> Tensor:
     """Returns time series following Cox-Ingersoll-Ross process.
 

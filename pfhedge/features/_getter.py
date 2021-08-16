@@ -1,3 +1,6 @@
+from typing import Dict
+from typing import Union
+
 from ._base import Feature
 from .features import Empty
 from .features import ExpiryTime
@@ -22,7 +25,7 @@ FEATURES = [
 ]
 
 
-def get_feature(feature):
+def get_feature(feature: Union[str, Feature]) -> Feature:
     """Get feature from name.
 
     Args:
@@ -31,7 +34,7 @@ def get_feature(feature):
     Returns:
         Feature
     """
-    dict_features = {str(f): f for f in FEATURES}
+    dict_features: Dict[str, Feature] = {str(f): f for f in FEATURES}
 
     if isinstance(feature, str):
         if feature not in dict_features:
@@ -40,8 +43,7 @@ def get_feature(feature):
                 "Use sorted(pfhedge.features.FEATURES) to get valid options."
             )
         feature = dict_features[feature]
-    else:
-        # If `feature` is Feature object, pass it through.
-        if not isinstance(feature, Feature):
-            raise TypeError(f"{feature} is not an instance of Feature.")
+    elif not isinstance(feature, Feature):
+        raise TypeError(f"{feature} is not an instance of Feature.")
+    # If `feature` is Feature object, pass it through.
     return feature

@@ -91,7 +91,7 @@ class OptionMixin:
     strike: float
     maturity: float
 
-    def moneyness(self, time_step: int = None) -> Tensor:
+    def moneyness(self, time_step: Optional[int] = None) -> Tensor:
         """Returns the moneyness of self.
 
         Args:
@@ -112,7 +112,7 @@ class OptionMixin:
             spot = spot[..., time_step]
         return spot / self.strike
 
-    def log_moneyness(self, time_step: int = None) -> Tensor:
+    def log_moneyness(self, time_step: Optional[int] = None) -> Tensor:
         """Returns the log moneyness of self.
 
         Args:
@@ -130,7 +130,7 @@ class OptionMixin:
         """
         return self.moneyness(time_step=time_step).log()
 
-    def time_to_maturity(self, time_step: int = None) -> Tensor:
+    def time_to_maturity(self, time_step: Optional[int] = None) -> Tensor:
         """Returns the time to maturity of self.
 
         Args:

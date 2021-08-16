@@ -1,3 +1,5 @@
+from typing import List
+
 from torch import Tensor
 from torch.nn import Module
 
@@ -73,7 +75,7 @@ class WhalleyWilmott(Module):
           1997, 7, 307–324.
     """
 
-    def __init__(self, derivative, a: float = 1.0):
+    def __init__(self, derivative, a: float = 1.0) -> None:
         super().__init__()
         self.derivative = derivative
         self.a = a
@@ -81,7 +83,7 @@ class WhalleyWilmott(Module):
         self.bs = BlackScholes(derivative)
         self.clamp = Clamp()
 
-    def inputs(self) -> list:
+    def inputs(self) -> List[str]:
         """Returns the names of input features.
 
         Returns:
@@ -89,7 +91,7 @@ class WhalleyWilmott(Module):
         """
         return self.bs.inputs() + ["prev_hedge"]
 
-    def extra_repr(self):
+    def extra_repr(self) -> str:
         return f"a={self.a}" if self.a != 1 else ""
 
     def forward(self, input: Tensor) -> Tensor:

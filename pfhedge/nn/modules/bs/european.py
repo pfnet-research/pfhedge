@@ -75,7 +75,7 @@ class BSEuropeanOption(BSModuleMixin):
         """
         return cls(call=derivative.call, strike=derivative.strike)
 
-    def extra_repr(self):
+    def extra_repr(self) -> str:
         params = []
         if not self.call:
             params.append(f"call={self.call}")
@@ -171,7 +171,11 @@ class BSEuropeanOption(BSModuleMixin):
         return price
 
     def implied_volatility(
-        self, log_moneyness: Tensor, expiry_time: Tensor, price: Tensor, precision=1e-6
+        self,
+        log_moneyness: Tensor,
+        expiry_time: Tensor,
+        price: Tensor,
+        precision: float = 1e-6,
     ) -> Tensor:
         """Returns implied volatility of the derivative.
 

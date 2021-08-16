@@ -68,8 +68,8 @@ class HestonStock(Primary):
         rho: float = -0.7,
         cost: float = 0.0,
         dt: float = 1 / 250,
-        dtype: torch.dtype = None,
-        device: torch.device = None,
+        dtype: Optional[torch.dtype] = None,
+        device: Optional[torch.device] = None,
     ):
         super().__init__()
 
@@ -128,7 +128,7 @@ class HestonStock(Primary):
         self.register_buffer("spot", spot)
         self.register_buffer("variance", variance)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         params = [
             f"kappa={self.kappa:.2e}",
             f"theta={self.theta:.2e}",
