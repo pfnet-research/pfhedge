@@ -7,7 +7,7 @@ def volatility(i, derivative, hedger=None) -> Tensor:
     if isinstance(value, torch.Tensor):
         if not derivative.ul().spot.size() == value.size():
             raise ValueError("spot tensor and volatility tensor are not the same size")
-        return value[:, i:i + 1]
+        return value[:, i : i + 1]
     else:
         return torch.full_like(derivative.ul().spot[:, :1], value)
 
