@@ -1,7 +1,13 @@
+from typing import Optional
+
 import torch
 from torch import Tensor
 
+from pfhedge._utils.doc import set_attr_and_docstring
+from pfhedge._utils.doc import set_docstring
+
 from ...nn.functional import european_payoff
+from ..primary.base import Primary
 from .base import Derivative
 from .base import OptionMixin
 
@@ -71,13 +77,13 @@ class EuropeanOption(Derivative, OptionMixin):
 
     def __init__(
         self,
-        underlier,
+        underlier: Primary,
         call: bool = True,
         strike: float = 1.0,
         maturity: float = 20 / 250,
-        dtype: torch.dtype = None,
-        device: torch.device = None,
-    ):
+        dtype: Optional[torch.dtype] = None,
+        device: Optional[torch.device] = None,
+    ) -> None:
         super().__init__()
         self.underlier = underlier
         self.call = call
@@ -87,7 +93,7 @@ class EuropeanOption(Derivative, OptionMixin):
         self.to(dtype=dtype, device=device)
 
     def __repr__(self):
-        params = [f"{self.underlier.__class__.__name__}(...)"]
+        params = [f"{self.ul().__class__.__name__}(...)"]
         if not self.call:
             params.append(f"call={self.call}")
         params.append(f"strike={self.strike}")
@@ -100,14 +106,10 @@ class EuropeanOption(Derivative, OptionMixin):
 
 
 # Assign docstrings so they appear in Sphinx documentation
-EuropeanOption.simulate = Derivative.simulate
-EuropeanOption.simulate.__doc__ = Derivative.simulate.__doc__
-EuropeanOption.to = Derivative.to
-EuropeanOption.to.__doc__ = Derivative.to.__doc__
-EuropeanOption.payoff.__doc__ = Derivative.payoff.__doc__
-EuropeanOption.moneyness = OptionMixin.moneyness
-EuropeanOption.moneyness.__doc__ = OptionMixin.moneyness.__doc__
-EuropeanOption.log_moneyness = OptionMixin.log_moneyness
-EuropeanOption.log_moneyness.__doc__ = OptionMixin.log_moneyness.__doc__
-EuropeanOption.time_to_maturity = OptionMixin.time_to_maturity
-EuropeanOption.time_to_maturity.__doc__ = OptionMixin.time_to_maturity.__doc__
+set_attr_and_docstring(EuropeanOption, "simulate", Derivative.simulate)
+set_attr_and_docstring(EuropeanOption, "to", Derivative.to)
+set_attr_and_docstring(EuropeanOption, "ul", Derivative.ul)
+set_docstring(EuropeanOption, "payoff", Derivative.payoff)
+set_attr_and_docstring(EuropeanOption, "moneyness", OptionMixin.moneyness)
+set_attr_and_docstring(EuropeanOption, "log_moneyness", OptionMixin.log_moneyness)
+set_attr_and_docstring(EuropeanOption, "time_to_maturity", OptionMixin.time_to_maturity)

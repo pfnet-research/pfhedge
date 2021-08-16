@@ -1,4 +1,8 @@
+from typing import List
+
 import torch
+from torch import Tensor
+from torch.nn import Module
 
 from ._base import Feature
 from .functional import barrier
@@ -17,14 +21,14 @@ class Moneyness(Feature):
         log (bool, default=False): If `True`, represents log moneyness.
     """
 
-    def __init__(self, log=False):
+    def __init__(self, log: bool = False) -> None:
         super().__init__()
         self.log = log
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "log_moneyness" if self.log else "moneyness"
 
-    def __getitem__(self, i):
+    def __getitem__(self, i: int) -> Tensor:
         if self.log:
             return self.derivative.log_moneyness(i).unsqueeze(-1)
         else:
@@ -34,37 +38,37 @@ class Moneyness(Feature):
 class LogMoneyness(Moneyness):
     """Log moneyness of the underlying instrument of the derivative."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(log=True)
 
 
 class ExpiryTime(Feature):
     """Remaining time to the maturity of the derivative."""
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "expiry_time"
 
-    def __getitem__(self, i):
+    def __getitem__(self, i: int) -> Tensor:
         return self.derivative.time_to_maturity(i).unsqueeze(-1)
 
 
 class Volatility(Feature):
     """Volatility of the underlier of the derivative."""
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "volatility"
 
-    def __getitem__(self, i):
+    def __getitem__(self, i: int) -> Tensor:
         return volatility(i, derivative=self.derivative)
 
 
 class PrevHedge(Feature):
     """Previous holding of underlier."""
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "prev_hedge"
 
-    def __getitem__(self, i):
+    def __getitem__(self, i: int) -> Tensor:
         return prev_hedge(i, derivative=self.derivative, hedger=self.hedger)
 
 
@@ -80,15 +84,15 @@ class Barrier(Feature):
             If `False`, signifies whether the price has exceeded the barrier downward.
     """
 
-    def __init__(self, threshold, up=True):
+    def __init__(self, threshold: float, up: bool = True) -> None:
         super().__init__()
         self.threshold = threshold
         self.up = up
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.__class__.__name__ + f"({self.threshold}, up={self.up})"
 
-    def __getitem__(self, i):
+    def __getitem__(self, i: int) -> Tensor:
         return barrier(
             i, derivative=self.derivative, threshold=self.threshold, up=self.up
         )
@@ -97,20 +101,20 @@ class Barrier(Feature):
 class Zeros(Feature):
     """A feature of which value is always zero."""
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "zeros"
 
-    def __getitem__(self, i):
+    def __getitem__(self, i: int) -> Tensor:
         return zeros(i, derivative=self.derivative)
 
 
 class Empty(Feature):
     """A feature of which value is always empty."""
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "empty"
 
-    def __getitem__(self, i):
+    def __getitem__(self, i: int) -> Tensor:
         return empty(i, derivative=self.derivative)
 
 
@@ -121,14 +125,14 @@ class MaxMoneyness(Feature):
         log (bool, default=False): If `True`, represents log moneyness.
     """
 
-    def __init__(self, log=False):
+    def __init__(self, log: bool = False) -> None:
         super().__init__()
         self.log = log
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "max_log_moneyness" if self.log else "max_moneyness"
 
-    def __getitem__(self, i):
+    def __getitem__(self, i: int) -> Tensor:
         if self.log:
             return max_log_moneyness(i, derivative=self.derivative)
         else:
@@ -138,11 +142,11 @@ class MaxMoneyness(Feature):
 class MaxLogMoneyness(MaxMoneyness):
     """Cumulative maximum of log Moneyness."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(log=True)
 
 
-class ModuleOutput(Feature, torch.nn.Module):
+class ModuleOutput(Feature, Module):
     """The feature computed as an output of a `torch.nn.Module`.
 
     Args:
@@ -187,19 +191,19 @@ class ModuleOutput(Feature, torch.nn.Module):
                 [...]])
     """
 
-    def __init__(self, module, inputs):
+    def __init__(self, module: Module, inputs: List[Feature]) -> None:
         super().__init__()
 
         self.module = module
         self.inputs = inputs
 
-    def extra_repr(self):
+    def extra_repr(self) -> str:
         return "inputs=" + str([str(f) for f in self.inputs])
 
-    def forward(self, input):
+    def forward(self, input: Tensor) -> Tensor:
         return self.module(input)
 
-    def __getitem__(self, i):
+    def __getitem__(self, i: int) -> Tensor:
         return self(torch.cat([f[i] for f in self.inputs], 1))
 
     def of(self, derivative=None, hedger=None):

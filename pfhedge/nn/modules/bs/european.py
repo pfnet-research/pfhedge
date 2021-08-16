@@ -2,6 +2,7 @@ import torch
 from torch import Tensor
 
 from pfhedge._utils.bisect import bisect
+from pfhedge._utils.doc import set_attr_and_docstring
 
 from ._base import BSModuleMixin
 
@@ -74,7 +75,7 @@ class BSEuropeanOption(BSModuleMixin):
         """
         return cls(call=derivative.call, strike=derivative.strike)
 
-    def extra_repr(self):
+    def extra_repr(self) -> str:
         params = []
         if not self.call:
             params.append(f"call={self.call}")
@@ -134,7 +135,7 @@ class BSEuropeanOption(BSModuleMixin):
 
         s, t, v = map(torch.as_tensor, (log_moneyness, expiry_time, volatility))
         price = self.strike * s.exp()
-        gamma = self.N.pdf(self.d1(s, t, v)) / (price * v * t.sqrt())
+        gamma = self.N.log_prob(self.d1(s, t, v)).exp() / (price * v * t.sqrt())
 
         return gamma
 
@@ -170,7 +171,11 @@ class BSEuropeanOption(BSModuleMixin):
         return price
 
     def implied_volatility(
-        self, log_moneyness: Tensor, expiry_time: Tensor, price: Tensor, precision=1e-6
+        self,
+        log_moneyness: Tensor,
+        expiry_time: Tensor,
+        price: Tensor,
+        precision: float = 1e-6,
     ) -> Tensor:
         """Returns implied volatility of the derivative.
 
@@ -196,7 +201,5 @@ class BSEuropeanOption(BSModuleMixin):
 
 
 # Assign docstrings so they appear in Sphinx documentation
-BSEuropeanOption.inputs = BSModuleMixin.inputs
-BSEuropeanOption.inputs.__doc__ = BSModuleMixin.inputs.__doc__
-BSEuropeanOption.forward = BSModuleMixin.forward
-BSEuropeanOption.forward.__doc__ = BSModuleMixin.forward.__doc__
+set_attr_and_docstring(BSEuropeanOption, "inputs", BSModuleMixin.inputs)
+set_attr_and_docstring(BSEuropeanOption, "forward", BSModuleMixin.forward)

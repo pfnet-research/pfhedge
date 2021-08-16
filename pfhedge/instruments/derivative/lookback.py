@@ -1,7 +1,13 @@
+from typing import Optional
+
 import torch
 from torch import Tensor
 
+from pfhedge._utils.doc import set_attr_and_docstring
+from pfhedge._utils.doc import set_docstring
+
 from ...nn.functional import lookback_payoff
+from ..primary.base import Primary
 from .base import Derivative
 from .base import OptionMixin
 
@@ -69,13 +75,13 @@ class LookbackOption(Derivative, OptionMixin):
 
     def __init__(
         self,
-        underlier,
+        underlier: Primary,
         call: bool = True,
         strike: float = 1.0,
         maturity: float = 20 / 250,
-        dtype: torch.dtype = None,
-        device: torch.device = None,
-    ):
+        dtype: Optional[torch.dtype] = None,
+        device: Optional[torch.device] = None,
+    ) -> None:
         super().__init__()
         self.underlier = underlier
         self.call = call
@@ -84,8 +90,8 @@ class LookbackOption(Derivative, OptionMixin):
 
         self.to(dtype=dtype, device=device)
 
-    def __repr__(self):
-        params = [f"{self.underlier.__class__.__name__}(...)"]
+    def __repr__(self) -> str:
+        params = [f"{self.ul().__class__.__name__}(...)"]
         if not self.call:
             params.append(f"call={self.call}")
         params.append(f"strike={self.strike}")
@@ -94,18 +100,14 @@ class LookbackOption(Derivative, OptionMixin):
         return self.__class__.__name__ + "(" + ", ".join(params) + ")"
 
     def payoff(self) -> Tensor:
-        return lookback_payoff(self.underlier.spot, call=self.call, strike=self.strike)
+        return lookback_payoff(self.ul().spot, call=self.call, strike=self.strike)
 
 
 # Assign docstrings so they appear in Sphinx documentation
-LookbackOption.simulate = Derivative.simulate
-LookbackOption.simulate.__doc__ = Derivative.simulate.__doc__
-LookbackOption.to = Derivative.to
-LookbackOption.to.__doc__ = Derivative.to.__doc__
-LookbackOption.payoff.__doc__ = Derivative.payoff.__doc__
-LookbackOption.moneyness = OptionMixin.moneyness
-LookbackOption.moneyness.__doc__ = OptionMixin.moneyness.__doc__
-LookbackOption.log_moneyness = OptionMixin.log_moneyness
-LookbackOption.log_moneyness.__doc__ = OptionMixin.log_moneyness.__doc__
-LookbackOption.time_to_maturity = OptionMixin.time_to_maturity
-LookbackOption.time_to_maturity.__doc__ = OptionMixin.time_to_maturity.__doc__
+set_attr_and_docstring(LookbackOption, "simulate", Derivative.simulate)
+set_attr_and_docstring(LookbackOption, "to", Derivative.to)
+set_attr_and_docstring(LookbackOption, "ul", Derivative.ul)
+set_docstring(LookbackOption, "payoff", Derivative.payoff)
+set_attr_and_docstring(LookbackOption, "moneyness", OptionMixin.moneyness)
+set_attr_and_docstring(LookbackOption, "log_moneyness", OptionMixin.log_moneyness)
+set_attr_and_docstring(LookbackOption, "time_to_maturity", OptionMixin.time_to_maturity)

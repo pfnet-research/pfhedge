@@ -1,13 +1,18 @@
 from typing import Optional
+from typing import Tuple
+from typing import Union
+from typing import cast
 
 import torch
 from torch import Tensor
+
+TensorOrFloat = Union[Tensor, float]
 
 
 def generate_brownian(
     n_paths: int,
     n_steps: int,
-    init_value: float = 0.0,
+    init_state: Tuple[TensorOrFloat, ...] = (0.0,),
     volatility: float = 0.2,
     dt: float = 1 / 250,
     dtype: Optional[torch.dtype] = None,
@@ -26,7 +31,10 @@ def generate_brownian(
     Args:
         n_paths (int): The number of simulated paths.
         n_steps (int): The number of time steps.
-        init_value (float, default=0.0): The initial value of the time series.
+        init_state (tuple[torch.Tensor | float], default=(0.0,)): The initial state of
+            the time series.
+            This is specified by `(S0,)`, where `S0` is the initial value of :math:`S`.
+            It also accepts a float or a `torch.Tensor`.
         volatility (float, default=0.2): The volatility of the Brownian motion.
         dt (float, default=1/250): The intervals of the time steps.
         dtype (torch.dtype, optional): The desired data type of returned tensor.
@@ -54,6 +62,16 @@ def generate_brownian(
         tensor([[ 0.0000,  0.0016,  0.0046,  0.0075, -0.0067],
                 [ 0.0000,  0.0279,  0.0199,  0.0257,  0.0291]])
     """
+    # Accept Union[float, Tensor] as well because making a tuple with a single element
+    # is troublesome
+    if isinstance(init_state, (float, Tensor)):
+        init_state = (init_state,)
+
+    # Cast to init_state: Tuple[Tensor, ...] with desired dtype and device
+    init_state = cast(Tuple[Tensor, ...], tuple(map(torch.as_tensor, init_state)))
+    init_state = tuple(map(lambda t: t.to(dtype=dtype, device=device), init_state))
+
+    init_value = init_state[0]
     randn = torch.randn((n_paths, n_steps), dtype=dtype, device=device)
     randn[:, 0] = 0.0
     return init_value + volatility * torch.tensor(dt).to(randn).sqrt() * randn.cumsum(1)
@@ -62,7 +80,7 @@ def generate_brownian(
 def generate_geometric_brownian(
     n_paths: int,
     n_steps: int,
-    init_value: float = 1.0,
+    init_state: Tuple[TensorOrFloat, ...] = (1.0,),
     volatility: float = 0.2,
     dt: float = 1 / 250,
     dtype: Optional[torch.dtype] = None,
@@ -81,7 +99,10 @@ def generate_geometric_brownian(
     Args:
         n_paths (int): The number of simulated paths.
         n_steps (int): The number of time steps.
-        init_value (float, default=0.0): The initial value of the time series.
+        init_state (tuple[torch.Tensor | float], default=(1.0,)): The initial state of
+            the time series.
+            This is specified by `(S0,)`, where `S0` is the initial value of :math:`S`.
+            It also accepts a float or a `torch.Tensor`.
         volatility (float, default=0.2): The volatility of the Brownian motion.
         dt (float, default=1/250): The intervals of the time steps.
         dtype (torch.dtype, optional): The desired data type of returned tensor.
@@ -109,14 +130,23 @@ def generate_geometric_brownian(
         tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930],
                 [1.0000, 1.0282, 1.0199, 1.0258, 1.0292]])
     """
+    # Accept Union[float, Tensor] as well because making a tuple with a single element
+    # is troublesome
+    if isinstance(init_state, (float, Tensor)):
+        init_state = (init_state,)
+
+    # Cast to init_state: Tuple[Tensor, ...] with desired dtype and device
+    init_state = cast(Tuple[Tensor, ...], tuple(map(torch.as_tensor, init_state)))
+    init_state = tuple(map(lambda t: t.to(dtype=dtype, device=device), init_state))
+
     brownian = generate_brownian(
         n_paths=n_paths,
         n_steps=n_steps,
-        init_value=0.0,
+        init_state=(0.0,),
         volatility=volatility,
         dt=dt,
         dtype=dtype,
         device=device,
     )
     t = dt * torch.arange(n_steps).to(brownian).reshape(1, -1)
-    return init_value * (brownian - (volatility ** 2) * t / 2).exp()
+    return init_state[0] * (brownian - (volatility ** 2) * t / 2).exp()
