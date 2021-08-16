@@ -4,7 +4,12 @@ from torch import Tensor
 
 def volatility(i, derivative, hedger=None) -> Tensor:
     value = derivative.ul().volatility
-    return torch.full_like(derivative.ul().spot[:, :1], value)
+    if isinstance(value, torch.Tensor):
+        if not derivative.ul().spot.size() == value.size():
+            raise ValueError("spot tensor and volatility tensor are not the same size")
+        return value[:, i:i + 1]
+    else:
+        return torch.full_like(derivative.ul().spot[:, :1], value)
 
 
 def prev_hedge(i, derivative, hedger) -> Tensor:
