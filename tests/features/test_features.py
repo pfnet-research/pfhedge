@@ -16,6 +16,7 @@ from pfhedge.features import Volatility
 from pfhedge.features import Zeros
 from pfhedge.instruments import BrownianStock
 from pfhedge.instruments import EuropeanOption
+from pfhedge.instruments import HestonStock
 from pfhedge.nn import Hedger
 
 
@@ -151,6 +152,21 @@ class TestVolatility(_TestFeature):
         expect = torch.full((2, 1), volatility)
         assert_close(result, expect)
 
+    def test_stochastic_volatility(self):
+        derivative = EuropeanOption(HestonStock())
+        variance = torch.arange(6).resize(2, 3)
+        derivative.ul().register_buffer("spot", torch.empty_like(variance))
+        derivative.ul().register_buffer("variance", variance)
+
+        f = Volatility().of(derivative)
+
+        result = f[0]
+        expect = variance[:, [0]].sqrt()
+        assert_close(result, expect, check_stride=False)
+        result = f[1]
+        expect = variance[:, [1]].sqrt()
+        assert_close(result, expect, check_stride=False)
+
     def test_str(self):
         assert str(Volatility()) == "volatility"
 
@@ -158,6 +174,14 @@ class TestVolatility(_TestFeature):
     def test_dtype(self, dtype):
         derivative = EuropeanOption(BrownianStock())
         self.assert_same_dtype(Volatility(), derivative, dtype)
+
+    def test_spot_and_volatility_are_not_the_same_size(self):
+        derivative = EuropeanOption(HestonStock())
+        derivative.simulate()
+        derivative.ul().register_buffer("variance", torch.empty(1, 1))
+        f = Volatility().of(derivative)
+        with pytest.raises(ValueError):
+            _ = f[0]
 
 
 class TestPrevHedge(_TestFeature):
