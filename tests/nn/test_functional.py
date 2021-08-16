@@ -1,5 +1,3 @@
-from cmath import log
-
 import pytest
 import torch
 from torch.testing import assert_close
