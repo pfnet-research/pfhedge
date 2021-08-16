@@ -1,3 +1,4 @@
+from typing import List
 from typing import Optional
 
 import torch
@@ -5,6 +6,8 @@ from torch import Tensor
 
 import pfhedge.autogreek as autogreek
 from pfhedge._utils.bisect import bisect
+from pfhedge._utils.doc import set_attr_and_docstring
+from pfhedge._utils.doc import set_docstring
 
 from ._base import BSModuleMixin
 
@@ -83,13 +86,13 @@ class BSLookbackOption(BSModuleMixin):
         """
         return cls(call=derivative.call, strike=derivative.strike)
 
-    def extra_repr(self):
+    def extra_repr(self) -> str:
         params = []
         if self.strike != 1.0:
             params.append(f"strike={self.strike}")
         return ", ".join(params)
 
-    def inputs(self) -> list:
+    def inputs(self) -> List[str]:
         return ["log_moneyness", "max_log_moneyness", "expiry_time", "volatility"]
 
     def price(
@@ -130,7 +133,7 @@ class BSLookbackOption(BSModuleMixin):
         price_0 = self.strike * (
             s.exp() * self.N.cdf(d1)
             - self.N.cdf(d2)
-            + s.exp() * v * t.sqrt() * (d1 * self.N.cdf(d1) + self.N.pdf(d1))
+            + s.exp() * v * t.sqrt() * (d1 * self.N.cdf(d1) + self.N.log_prob(d1).exp())
         )
         # when max moneyness >= strike
         price_1 = self.strike * (
@@ -138,7 +141,7 @@ class BSLookbackOption(BSModuleMixin):
             - m.exp() * self.N.cdf(e2)
             + m.exp()
             - 1
-            + s.exp() * v * t.sqrt() * (e1 * self.N.cdf(e1) + self.N.pdf(e1))
+            + s.exp() * v * t.sqrt() * (e1 * self.N.cdf(e1) + self.N.log_prob(e1).exp())
         )
 
         return torch.where(m < 0, price_0, price_1)
@@ -253,6 +256,5 @@ class BSLookbackOption(BSModuleMixin):
 
 
 # Assign docstrings so they appear in Sphinx documentation
-BSLookbackOption.inputs.__doc__ = BSModuleMixin.inputs.__doc__
-BSLookbackOption.forward = BSModuleMixin.forward
-BSLookbackOption.forward.__doc__ = BSModuleMixin.forward.__doc__
+set_docstring(BSLookbackOption, "inputs", BSModuleMixin.inputs)
+set_attr_and_docstring(BSLookbackOption, "forward", BSModuleMixin.forward)

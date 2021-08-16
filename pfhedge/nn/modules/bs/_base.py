@@ -1,5 +1,7 @@
 import abc
 from inspect import signature
+from typing import List
+from typing import no_type_check
 
 import torch
 from torch import Tensor
@@ -30,6 +32,7 @@ class BSModuleMixin(Module):
         return self.delta(*(input[..., [i]] for i in range(input.size(-1))))
 
     @abc.abstractmethod
+    @no_type_check
     def delta(self, *args, **kwargs) -> Tensor:
         """Returns delta of the derivative.
 
@@ -37,7 +40,7 @@ class BSModuleMixin(Module):
             torch.Tensor
         """
 
-    def inputs(self) -> list:
+    def inputs(self) -> List[str]:
         """Returns the names of input features.
 
         Returns:
@@ -47,14 +50,8 @@ class BSModuleMixin(Module):
 
     @property
     def N(self) -> Normal:
-        """Returns normal distribution with zero mean and unit standard deviation.
-
-        It is almost the same with `torch.distibution.normal.Normal(0, 1)`, but has
-        a method `pdf` which stands for the partial distribution function.
-        """
-        normal = Normal(torch.tensor(0.0), torch.tensor(1.0))
-        setattr(normal, "pdf", lambda value: normal.log_prob(value).exp())
-        return normal
+        """Returns normal distribution with zero mean and unit standard deviation."""
+        return Normal(torch.tensor(0.0), torch.tensor(1.0))
 
     @staticmethod
     def d1(log_moneyness: Tensor, expiry_time: Tensor, volatility: Tensor) -> Tensor:

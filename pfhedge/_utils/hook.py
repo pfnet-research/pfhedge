@@ -1,8 +1,12 @@
+from typing import Optional
+
 from torch import Tensor
 from torch.nn import Module
 
 
-def save_prev_output(module: Module, input: Tensor, output: Tensor) -> None:
+def save_prev_output(
+    module: Module, input: Optional[Tensor], output: Optional[Tensor]
+) -> None:
     """A hook to save previous output as a buffer named `prev_output`.
 
     Examples:

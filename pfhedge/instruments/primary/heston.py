@@ -1,10 +1,18 @@
 from typing import Optional
 from typing import Tuple
+from typing import Union
+from typing import cast
 
 import torch
+from torch import Tensor
+
+from pfhedge._utils.doc import set_attr_and_docstring
+from pfhedge._utils.doc import set_docstring
 
 from ...stochastic import generate_heston
 from .base import Primary
+
+TensorOrFloat = Union[Tensor, float]
 
 
 class HestonStock(Primary):
@@ -36,6 +44,7 @@ class HestonStock(Primary):
         variance (torch.Tensor): The variance of the spot of the instrument.
             This attribute is set by a method :func:`simulate()`.
             The shape is :math:`(N, T)`.
+        volatility (torch.Tensor): An alias for ``self.variance.sqrt()``.
 
     Examples:
 
@@ -50,7 +59,13 @@ class HestonStock(Primary):
         >>> stock.variance
         tensor([[0.0400, 0.0445, 0.0437, 0.0458, 0.0479],
                 [0.0400, 0.0314, 0.0955, 0.0683, 0.0799]])
+        >>> stock.volatility
+        tensor([[0.2000, 0.2110, 0.2092, 0.2140, 0.2189],
+                [0.2000, 0.1771, 0.3091, 0.2613, 0.2827]])
     """
+
+    spot: Tensor
+    variance: Tensor
 
     def __init__(
         self,
@@ -60,8 +75,8 @@ class HestonStock(Primary):
         rho: float = -0.7,
         cost: float = 0.0,
         dt: float = 1 / 250,
-        dtype: torch.dtype = None,
-        device: torch.device = None,
+        dtype: Optional[torch.dtype] = None,
+        device: Optional[torch.device] = None,
     ):
         super().__init__()
 
@@ -75,14 +90,18 @@ class HestonStock(Primary):
         self.to(dtype=dtype, device=device)
 
     @property
-    def default_init_state(self) -> Tuple[float, float]:
+    def default_init_state(self) -> Tuple[float, ...]:
         return (1.0, self.theta)
+
+    @property
+    def volatility(self) -> Tensor:
+        return self.variance.clamp(min=0.0).sqrt()
 
     def simulate(
         self,
         n_paths: int = 1,
         time_horizon: float = 20 / 250,
-        init_state: Optional[tuple] = None,
+        init_state: Optional[Tuple[TensorOrFloat, ...]] = None,
     ) -> None:
         """Simulate the spot price and add it as a buffer named `spot`.
 
@@ -94,11 +113,11 @@ class HestonStock(Primary):
             n_paths (int, default=1): The number of paths to simulate.
             time_horizon (float, default=20/250): The period of time to simulate
                 the price.
-            init_state (tuple, optional): The initial state of the instrument.
-                `init_state` should be a 2-tuple `(spot, variance)`
-                where `spot` is the initial spot price and `variance` is the initial
-                variance.
-                If `None` (default), the default value is chosen
+            init_state (tuple[torch.Tensor | float], default=(1.0,)): The initial
+                state of the instrument.
+                This is specified by `(S0, V0)`, where `S0` and `V0` are the initial
+                values of of spot and variance, respectively.
+                If `None` (default), it uses the default value
                 (See :func:`default_init_state`).
         """
         if init_state is None:
@@ -120,7 +139,7 @@ class HestonStock(Primary):
         self.register_buffer("spot", spot)
         self.register_buffer("variance", variance)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         params = [
             f"kappa={self.kappa:.2e}",
             f"theta={self.theta:.2e}",
@@ -135,6 +154,5 @@ class HestonStock(Primary):
 
 
 # Assign docstrings so they appear in Sphinx documentation
-HestonStock.default_init_state.__doc__ = Primary.default_init_state.__doc__
-HestonStock.to = Primary.to
-HestonStock.to.__doc__ = Primary.to.__doc__
+set_docstring(HestonStock, "default_init_state", Primary.default_init_state)
+set_attr_and_docstring(HestonStock, "to", Primary.to)
