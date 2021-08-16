@@ -29,11 +29,11 @@ class HestonStock(Primary):
         dt (float, default=1/250): The intervals of the time steps.
         dtype (torch.device, optional): Desired device of returned tensor.
             Default: If None, uses a global default
-            (see `torch.set_default_tensor_type()`).
+            (see ``torch.set_default_tensor_type()``).
         device (torch.device, optional): Desired device of returned tensor.
             Default: if None, uses the current device for the default tensor type
-            (see `torch.set_default_tensor_type()`).
-            `device` will be the CPU for CPU tensor types and
+            (see ``torch.set_default_tensor_type()``).
+            ``device`` will be the CPU for CPU tensor types and
             the current CUDA device for CUDA tensor types.
 
     Attributes:
@@ -92,11 +92,11 @@ class HestonStock(Primary):
         time_horizon: float = 20 / 250,
         init_state: Optional[Tuple[TensorOrFloat, ...]] = None,
     ) -> None:
-        """Simulate the spot price and add it as a buffer named `spot`.
+        """Simulate the spot price and add it as a buffer named ``spot``.
 
         The shape of the spot is :math:`(N, T)`, where :math:`N` is the number of
         simulated paths and :math:`T` is the number of time steps.
-        The number of time steps is determinded from `dt` and `time_horizon`.
+        The number of time steps is determinded from ``dt`` and ``time_horizon``.
 
         Args:
             n_paths (int, default=1): The number of paths to simulate.
@@ -104,9 +104,9 @@ class HestonStock(Primary):
                 the price.
             init_state (tuple[torch.Tensor | float], default=(1.0,)): The initial
                 state of the instrument.
-                This is specified by `(S0, V0)`, where `S0` and `V0` are the initial
-                values of of spot and variance, respectively.
-                If `None` (default), it uses the default value
+                This is specified by ``(S0, V0)``, where ``S0`` and ``V0`` are
+                the initial values of of spot and variance, respectively.
+                If ``None`` (default), it uses the default value
                 (See :func:`default_init_state`).
         """
         if init_state is None:

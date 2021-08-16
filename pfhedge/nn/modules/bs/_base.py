@@ -24,7 +24,8 @@ class BSModuleMixin(Module):
 
         Args:
             input (torch.Tensor): The input tensor. Features are concatenated along
-                the last dimension. See `inputs()` for the names of the input features.
+                the last dimension.
+                See :func:`inputs()` for the names of the input features.
 
         Returns:
             torch.Tensor

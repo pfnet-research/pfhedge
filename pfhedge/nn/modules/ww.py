@@ -20,8 +20,9 @@ class WhalleyWilmott(Module):
 
     Shape:
         - Input: :math:`(N, *, H_{\\text{in}})`.  Here, :math:`*` means any number of
-          additional dimensions and `H_{\\text{in}}` is the number of input features.
-          See :func:`inputs` for the names of input features.
+          additional dimensions and :math:`H_{\\text{in}}` is
+          the number of input features.
+          See :func:`inputs()` for the names of input features.
         - Output: :math:`(N, *, 1)`. The hedge ratio at the next time step.
 
     Examples:

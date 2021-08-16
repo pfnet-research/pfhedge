@@ -26,7 +26,7 @@ class MultiLayerPerceptron(Sequential):
         out_features (int, default=1): Size of each output sample.
         n_layers (int, default=4): Number of hidden layers.
         n_units (int or tuple[int], default=32): Number of units in each hidden layer.
-            If `tuple[int]`, it specifies different number of units for each layer.
+            If ``tuple[int]``, it specifies different number of units for each layer.
         activation (torch.nn.Module, default=torch.nn.ReLU()):
             Activation module of the hidden layers.
         out_activation (torch.nn.Module, default=torch.nn.Identity()):

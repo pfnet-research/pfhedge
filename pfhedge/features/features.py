@@ -18,7 +18,7 @@ class Moneyness(Feature):
     """Moneyness of the underlying instrument of the derivative.
 
     Args:
-        log (bool, default=False): If `True`, represents log moneyness.
+        log (bool, default=False): If ``True``, represents log moneyness.
     """
 
     def __init__(self, log: bool = False) -> None:
@@ -74,14 +74,14 @@ class PrevHedge(Feature):
 
 class Barrier(Feature):
     """A feature which signifies whether the price of the underlier have reached
-    the barrier. The output `1.0` means that the price have touched the barrier,
-    and `0` otherwise.
+    the barrier. The output 1.0 means that the price have touched the barrier,
+    and 0.0 otherwise.
 
     Args:
         threshold (float): The price level of the barrier.
-        up (bool, default True): If `True`, signifies whether the price has exceeded
+        up (bool, default True): If ``True``, signifies whether the price has exceeded
             the barrier upward.
-            If `False`, signifies whether the price has exceeded the barrier downward.
+            If ``False``, signifies whether the price has exceeded the barrier downward.
     """
 
     def __init__(self, threshold: float, up: bool = True) -> None:
@@ -122,7 +122,7 @@ class MaxMoneyness(Feature):
     """Cumulative maximum of moneyness.
 
     Args:
-        log (bool, default=False): If `True`, represents log moneyness.
+        log (bool, default=False): If ``True``, represents log moneyness.
     """
 
     def __init__(self, log: bool = False) -> None:
@@ -147,15 +147,16 @@ class MaxLogMoneyness(MaxMoneyness):
 
 
 class ModuleOutput(Feature, Module):
-    """The feature computed as an output of a `torch.nn.Module`.
+    """The feature computed as an output of a ``torch.nn.Module``.
 
     Args:
         module (torch.nn.Module): Module to compute the value of the feature.
-            The input and output shapes should be `(N, *, H_in) -> (N, *, 1)`,
-            where `N` stands for the number of Monte Carlo paths of the underlier of
-            the derivative, `H_in` stands for the number of input features
-            (namely, `H_in = len(inputs)`),
-            and `*` means any number of additional dimensions.
+            The input and output shapes should be :math:`(N, *, H_in) -> (N, *, 1)`,
+            where :math:`N` stands for the number of Monte Carlo paths of
+            the underlier of the derivative,
+            :math:`H_in` stands for the number of input features
+            (namely, ``len(inputs)``),
+            and :math:`*` means any number of additional dimensions.
         inputs (list[Feature]): The input features to the module.
 
     Examples:

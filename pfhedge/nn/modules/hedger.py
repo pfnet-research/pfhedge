@@ -30,7 +30,7 @@ class Hedger(Module):
         model (torch.nn.Module): Hedging model to compute the hedge ratio at the
             next time step from the input features at the current time step.
             The input and output shapes should be :math:`(N, H_\\text{in})` and
-            :math:`(N, 1)` respectively, where `N` stands for the number simulated
+            :math:`(N, 1)` respectively, where :math:`N` stands for the number simulated
             paths of the asset prices and :math:`H_\\text{in}` stands for the number of
             input features (namely, ``len(inputs)``).
         inputs (list[str|Feature]): List of (names of) input features to feed to model.
@@ -294,7 +294,7 @@ class Hedger(Module):
             init_state (tuple, optional): The initial price of the underlying
                 instrument of the derivative.
                 If ``None`` (default), sensible default value is used.
-            verbose (bool, default=True): If `True`, print progress of the training to
+            verbose (bool, default=True): If ``True``, print progress of the training to
                 standard output.
 
         Returns:

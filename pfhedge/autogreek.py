@@ -82,7 +82,7 @@ def delta(
         kwargs["moneyness"] = spot / kwargs["strike"]
         kwargs["log_moneyness"] = (spot / kwargs["strike"]).log()
 
-    # Delete parameters that are not in the signature of `pricer` to avoid
+    # Delete parameters that are not in the signature of pricer to avoid
     # TypeError: <pricer> got an unexpected keyword argument '<parameter>'
     for parameter in list(kwargs.keys()):
         if parameter not in signature(pricer).parameters.keys():
@@ -110,7 +110,7 @@ def gamma(
         pricer (callable): Pricing formula of a derivative.
         create_graph (bool, default=False): If ``True``, graph of the derivative will be
             constructed, allowing to compute higher order derivative products.
-        **kwargs: Parameters passed to `pricer`.
+        **kwargs: Parameters passed to ``pricer``.
 
     Returns:
         torch.Tensor
