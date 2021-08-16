@@ -1,10 +1,18 @@
 from typing import Optional
 from typing import Tuple
+from typing import Union
+from typing import cast
 
 import torch
+from torch import Tensor
+
+from pfhedge._utils.doc import set_attr_and_docstring
+from pfhedge._utils.doc import set_docstring
 
 from ...stochastic import generate_geometric_brownian
 from .base import Primary
+
+TensorOrFloat = Union[Tensor, float]
 
 
 class BrownianStock(Primary):
@@ -69,14 +77,14 @@ class BrownianStock(Primary):
         self.to(dtype=dtype, device=device)
 
     @property
-    def default_init_state(self) -> Tuple[float]:
+    def default_init_state(self) -> Tuple[float, ...]:
         return (1.0,)
 
     def simulate(
         self,
         n_paths: int = 1,
         time_horizon: float = 20 / 250,
-        init_state: Optional[tuple] = None,
+        init_state: Optional[Tuple[TensorOrFloat]] = None,
     ) -> None:
         """Simulate the spot price and add it as a buffer named `spot`.
 
@@ -88,10 +96,13 @@ class BrownianStock(Primary):
             n_paths (int, default=1): The number of paths to simulate.
             time_horizon (float, default=20/250): The period of time to simulate
                 the price.
-            init_state (tuple, optional): The initial state of the instrument.
-                `init_state` should be a 1-tuple `(spot,)`
-                where `spot` is the initial spot price.
-                If `None` (default), the default value `(1.0,)` is chosen.
+            init_state (tuple[torch.Tensor | float], optional): The initial state of
+                the instrument.
+                This is specified by `(spot,)`, where `spot` is the initial value
+                of the stock price.
+                If `None` (default), it uses the default value
+                (See :func:`default_init_state`).
+                It also accepts a float or a `torch.Tensor`.
 
         Examples:
 
@@ -103,12 +114,12 @@ class BrownianStock(Primary):
                     [2.0000, 2.0565, 2.0398, 2.0516, 2.0584]])
         """
         if init_state is None:
-            init_state = self.default_init_state
+            init_state = cast(Tuple[float], self.default_init_state)
 
         spot = generate_geometric_brownian(
             n_paths=n_paths,
             n_steps=int(time_horizon / self.dt),
-            init_value=init_state[0],
+            init_state=init_state,
             volatility=self.volatility,
             dt=self.dt,
             dtype=self.dtype,
@@ -127,6 +138,5 @@ class BrownianStock(Primary):
 
 
 # Assign docstrings so they appear in Sphinx documentation
-BrownianStock.default_init_state.__doc__ = Primary.default_init_state.__doc__
-BrownianStock.to = Primary.to
-BrownianStock.to.__doc__ = Primary.to.__doc__
+set_docstring(BrownianStock, "default_init_state", Primary.default_init_state)
+set_attr_and_docstring(BrownianStock, "to", Primary.to)

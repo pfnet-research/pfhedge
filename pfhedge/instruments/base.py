@@ -2,6 +2,7 @@ from abc import ABC
 from abc import abstractmethod
 from typing import Optional
 from typing import TypeVar
+from typing import no_type_check
 
 import torch
 
@@ -12,6 +13,7 @@ class Instrument(ABC):
     """Base class for all financial instruments."""
 
     @abstractmethod
+    @no_type_check
     def simulate(self, n_paths: int, time_horizon: float, **kwargs) -> None:
         """Simulate time series associated with the instrument itself
         (for a primary instrument) or its underlier (for a derivative)

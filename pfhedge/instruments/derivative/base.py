@@ -1,13 +1,20 @@
 from abc import abstractmethod
 from typing import Optional
+from typing import Tuple
 from typing import TypeVar
+from typing import Union
 
 import torch
 from torch import Tensor
 
+from pfhedge._utils.doc import set_attr_and_docstring
+from pfhedge._utils.doc import set_docstring
+
 from ..base import Instrument
+from ..primary.base import Primary
 
 T = TypeVar("T", bound="Derivative")
+TensorOrFloat = Union[Tensor, float]
 
 
 class Derivative(Instrument):
@@ -30,7 +37,7 @@ class Derivative(Instrument):
         device (torch.device): The device where the simulated time-series are.
     """
 
-    underlier: "Primary"
+    underlier: Primary
     maturity: float
 
     @property
@@ -42,19 +49,23 @@ class Derivative(Instrument):
         return self.underlier.device
 
     def simulate(
-        self, n_paths: int = 1, init_state: Optional[tuple] = None, **kwargs
+        self, n_paths: int = 1, init_state: Optional[Tuple[TensorOrFloat, ...]] = None
     ) -> None:
         """Simulate time series associated with the underlier.
 
         Args:
             n_paths (int): The number of paths to simulate.
-            init_state (tuple, optional): The initial state of the underlying
-                instrument. If `None` (default), sensible default values are used.
+            init_state (tuple[torch.Tensor | float], optional): The initial state of
+                the underlier.
             **kwargs: Other parameters passed to `self.underlier.simulate()`.
         """
         self.underlier.simulate(
-            n_paths=n_paths, time_horizon=self.maturity, init_state=init_state, **kwargs
+            n_paths=n_paths, time_horizon=self.maturity, init_state=init_state
         )
+
+    def ul(self) -> Primary:
+        """Alias for ``self.underlier``."""
+        return self.underlier
 
     def to(self: T, *args, **kwargs) -> T:
         self.underlier.to(*args, **kwargs)
@@ -148,14 +159,9 @@ class OptionMixin:
 
 
 # Assign docstrings so they appear in Sphinx documentation
-Derivative.to.__doc__ = Instrument.to.__doc__
-Derivative.cpu = Instrument.cpu
-Derivative.cpu.__doc__ = Instrument.cpu.__doc__
-Derivative.cuda = Instrument.cuda
-Derivative.cuda.__doc__ = Instrument.cuda.__doc__
-Derivative.double = Instrument.double
-Derivative.double.__doc__ = Instrument.double.__doc__
-Derivative.float = Instrument.float
-Derivative.float.__doc__ = Instrument.float.__doc__
-Derivative.half = Instrument.half
-Derivative.half.__doc__ = Instrument.half.__doc__
+set_docstring(Derivative, "to", Instrument.to)
+set_attr_and_docstring(Derivative, "cpu", Instrument.cpu)
+set_attr_and_docstring(Derivative, "cuda", Instrument.cuda)
+set_attr_and_docstring(Derivative, "double", Instrument.double)
+set_attr_and_docstring(Derivative, "float", Instrument.float)
+set_attr_and_docstring(Derivative, "half", Instrument.half)

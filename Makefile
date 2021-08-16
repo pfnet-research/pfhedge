@@ -14,6 +14,10 @@ lint:
 	@poetry run black --check --diff --quiet --skip-magic-trailing-comma .
 	@poetry run isort --check --force-single-line-imports --quiet .
 
+.PHONY: mypy
+mypy:
+	@poetry run mypy $(PROJECT_NAME)
+
 .PHONY: format
 format:
 	@poetry run black --quiet --skip-magic-trailing-comma .
@@ -22,3 +26,7 @@ format:
 .PHONY: doc
 doc:
 	@cd docs && make html
+
+.PHONY: cov-html
+cov-html:
+	@pytest --cov=$(PROJECT_NAME) --cov-report=html
