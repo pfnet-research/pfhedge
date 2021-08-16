@@ -259,11 +259,12 @@
 <span class="sd">            `device` will be the CPU for CPU tensor types and</span>
 <span class="sd">            the current CUDA device for CUDA tensor types.</span>
 
-<span class="sd">    Attributes:</span>
-<span class="sd">        spot (torch.Tensor): The spot prices of the instrument.</span>
-<span class="sd">            This attribute is set by a method `simulate()`.</span>
-<span class="sd">            The shape is :math:`(N, T)`, where :math:`T` is the number of time steps and</span>
-<span class="sd">            :math:`N` is the number of simulated paths.</span>
+<span class="sd">    Buffers:</span>
+<span class="sd">        - ``spot`` (``torch.Tensor``): The spot prices of the instrument.</span>
+<span class="sd">          This attribute is set by a method :func:`simulate()`.</span>
+<span class="sd">          The shape is :math:`(N, T)` where</span>
+<span class="sd">          :math:`N` is the number of simulated paths and</span>
+<span class="sd">          :math:`T` is the number of time steps.</span>
 
 <span class="sd">    Examples:</span>
 
@@ -351,7 +352,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">register_buffer</span><span class="p">(</span><span class="s2">"spot"</span><span class="p">,</span> <span class="n">spot</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"volatility=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">volatility</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cost</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">:</span>
             <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"cost=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cost</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>

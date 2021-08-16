@@ -224,7 +224,6 @@
 <span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">cast</span>
 
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
@@ -259,14 +258,17 @@
 <span class="sd">            `device` will be the CPU for CPU tensor types and</span>
 <span class="sd">            the current CUDA device for CUDA tensor types.</span>
 
-<span class="sd">    Attributes:</span>
-<span class="sd">        spot (torch.Tensor): The spot price of the instrument.</span>
-<span class="sd">            This attribute is set by a method :func:`simulate()`.</span>
-<span class="sd">            The shape is :math:`(N, T)`, where :math:`N` is the number of simulated</span>
-<span class="sd">            paths and :math:`T` is the number of time steps.</span>
-<span class="sd">        variance (torch.Tensor): The variance of the spot of the instrument.</span>
-<span class="sd">            This attribute is set by a method :func:`simulate()`.</span>
-<span class="sd">            The shape is :math:`(N, T)`.</span>
+<span class="sd">    Buffers:</span>
+<span class="sd">        - ``spot`` (``torch.Tensor``): The spot price of the instrument.</span>
+<span class="sd">          This attribute is set by a method :func:`simulate()`.</span>
+<span class="sd">          The shape is :math:`(N, T)` where</span>
+<span class="sd">          :math:`N` is the number of simulated paths and</span>
+<span class="sd">          :math:`T` is the number of time steps.</span>
+<span class="sd">        - ``variance`` (``torch.Tensor``): The variance of the instrument.</span>
+<span class="sd">          Note that this is different from the realized variance of the spot price.</span>
+<span class="sd">          This attribute is set by a method :func:`simulate()`.</span>
+<span class="sd">          The shape is :math:`(N, T)`.</span>
+<span class="sd">        - ``volatility`` (``torch.Tensor``): An alias for ``self.variance.sqrt()``.</span>
 
 <span class="sd">    Examples:</span>
 
@@ -276,23 +278,29 @@
 <span class="sd">        &gt;&gt;&gt; stock = HestonStock()</span>
 <span class="sd">        &gt;&gt;&gt; stock.simulate(n_paths=2, time_horizon=5/250)</span>
 <span class="sd">        &gt;&gt;&gt; stock.spot</span>
-<span class="sd">        tensor([[1.0000, 0.9953, 0.9929, 0.9880, 0.9744],</span>
-<span class="sd">                [1.0000, 1.0043, 0.9779, 0.9770, 0.9717]])</span>
+<span class="sd">        tensor([[1.0000, 0.9941, 0.9905, 0.9846, 0.9706],</span>
+<span class="sd">                [1.0000, 1.0031, 0.9800, 0.9785, 0.9735]])</span>
 <span class="sd">        &gt;&gt;&gt; stock.variance</span>
-<span class="sd">        tensor([[0.0400, 0.0445, 0.0437, 0.0458, 0.0479],</span>
-<span class="sd">                [0.0400, 0.0314, 0.0955, 0.0683, 0.0799]])</span>
+<span class="sd">        tensor([[0.0400, 0.0408, 0.0411, 0.0417, 0.0422],</span>
+<span class="sd">                [0.0400, 0.0395, 0.0452, 0.0434, 0.0446]])</span>
+<span class="sd">        &gt;&gt;&gt; stock.volatility</span>
+<span class="sd">        tensor([[0.2000, 0.2020, 0.2027, 0.2041, 0.2054],</span>
+<span class="sd">                [0.2000, 0.1987, 0.2126, 0.2084, 0.2112]])</span>
 <span class="sd">    """</span>
+
+    <span class="n">spot</span><span class="p">:</span> <span class="n">Tensor</span>
+    <span class="n">variance</span><span class="p">:</span> <span class="n">Tensor</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">kappa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
         <span class="n">theta</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.04</span><span class="p">,</span>
-        <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">,</span>
+        <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
         <span class="n">rho</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.7</span><span class="p">,</span>
         <span class="n">cost</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
         <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">250</span><span class="p">,</span>
-        <span class="n">dtype</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">dtype</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">device</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">device</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
@@ -308,6 +316,10 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">default_init_state</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
         <span class="k">return</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">volatility</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">variance</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span><span class="o">.</span><span class="n">sqrt</span><span class="p">()</span>
 
 <div class="viewcode-block" id="HestonStock.simulate"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.HestonStock.html#pfhedge.instruments.HestonStock.simulate">[docs]</a>    <span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -351,7 +363,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">register_buffer</span><span class="p">(</span><span class="s2">"spot"</span><span class="p">,</span> <span class="n">spot</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">register_buffer</span><span class="p">(</span><span class="s2">"variance"</span><span class="p">,</span> <span class="n">variance</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">[</span>
             <span class="sa">f</span><span class="s2">"kappa=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">kappa</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
             <span class="sa">f</span><span class="s2">"theta=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>

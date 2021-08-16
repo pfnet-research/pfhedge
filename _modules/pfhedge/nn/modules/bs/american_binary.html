@@ -306,7 +306,7 @@
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">call</span><span class="o">=</span><span class="n">derivative</span><span class="o">.</span><span class="n">call</span><span class="p">,</span> <span class="n">strike</span><span class="o">=</span><span class="n">derivative</span><span class="o">.</span><span class="n">strike</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">extra_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">extra_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">strike</span> <span class="o">!=</span> <span class="mf">1.0</span><span class="p">:</span>
             <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"strike=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">strike</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>

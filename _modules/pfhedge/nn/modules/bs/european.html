@@ -298,7 +298,7 @@
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">call</span><span class="o">=</span><span class="n">derivative</span><span class="o">.</span><span class="n">call</span><span class="p">,</span> <span class="n">strike</span><span class="o">=</span><span class="n">derivative</span><span class="o">.</span><span class="n">strike</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">extra_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">extra_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">:</span>
             <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"call=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
@@ -394,7 +394,11 @@
         <span class="k">return</span> <span class="n">price</span></div>
 
 <div class="viewcode-block" id="BSEuropeanOption.implied_volatility"><a class="viewcode-back" href="../../../../../generated/pfhedge.nn.BSEuropeanOption.html#pfhedge.nn.BSEuropeanOption.implied_volatility">[docs]</a>    <span class="k">def</span> <span class="nf">implied_volatility</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">log_moneyness</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">expiry_time</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">price</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mf">1e-6</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">log_moneyness</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">expiry_time</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">price</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">precision</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-6</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
         <span class="sd">"""Returns implied volatility of the derivative.</span>
 

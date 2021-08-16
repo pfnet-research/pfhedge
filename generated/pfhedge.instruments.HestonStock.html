@@ -225,7 +225,7 @@
 <h1>HestonStock<a class="headerlink" href="#hestonstock" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="pfhedge.instruments.HestonStock">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pfhedge.instruments.</span></span><span class="sig-name descname"><span class="pre">HestonStock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kappa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.04</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">0.7</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.004</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/primary/heston.html#HestonStock"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.HestonStock" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pfhedge.instruments.</span></span><span class="sig-name descname"><span class="pre">HestonStock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kappa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.04</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">0.7</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.004</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/primary/heston.html#HestonStock"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.HestonStock" title="Permalink to this definition">¶</a></dt>
 <dd><p>A stock of which spot price and variance follow Heston process.</p>
 <p>See <a class="reference internal" href="../stochastic.html#pfhedge.stochastic.generate_heston" title="pfhedge.stochastic.generate_heston"><code class="xref py py-func docutils literal notranslate"><span class="pre">pfhedge.stochastic.generate_heston()</span></code></a> for details of the process.</p>
 <dl class="field-list simple">
@@ -248,31 +248,21 @@ the current CUDA device for CUDA tensor types.</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pfhedge.instruments.HestonStock.spot">
-<span class="sig-name descname"><span class="pre">spot</span></span><a class="headerlink" href="#pfhedge.instruments.HestonStock.spot" title="Permalink to this definition">¶</a></dt>
-<dd><p>The spot price of the instrument.
+<dl class="simple">
+<dt>Buffers:</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">spot</span></code> (<code class="docutils literal notranslate"><span class="pre">torch.Tensor</span></code>): The spot price of the instrument.
 This attribute is set by a method <a class="reference internal" href="#pfhedge.instruments.HestonStock.simulate" title="pfhedge.instruments.HestonStock.simulate"><code class="xref py py-func docutils literal notranslate"><span class="pre">simulate()</span></code></a>.
-The shape is <span class="math notranslate nohighlight">\((N, T)\)</span>, where <span class="math notranslate nohighlight">\(N\)</span> is the number of simulated
-paths and <span class="math notranslate nohighlight">\(T\)</span> is the number of time steps.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>torch.Tensor</p>
+The shape is <span class="math notranslate nohighlight">\((N, T)\)</span> where
+<span class="math notranslate nohighlight">\(N\)</span> is the number of simulated paths and
+<span class="math notranslate nohighlight">\(T\)</span> is the number of time steps.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">variance</span></code> (<code class="docutils literal notranslate"><span class="pre">torch.Tensor</span></code>): The variance of the instrument.
+Note that this is different from the realized variance of the spot price.
+This attribute is set by a method <a class="reference internal" href="#pfhedge.instruments.HestonStock.simulate" title="pfhedge.instruments.HestonStock.simulate"><code class="xref py py-func docutils literal notranslate"><span class="pre">simulate()</span></code></a>.
+The shape is <span class="math notranslate nohighlight">\((N, T)\)</span>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">volatility</span></code> (<code class="docutils literal notranslate"><span class="pre">torch.Tensor</span></code>): An alias for <code class="docutils literal notranslate"><span class="pre">self.variance.sqrt()</span></code>.</p></li>
+</ul>
 </dd>
 </dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pfhedge.instruments.HestonStock.variance">
-<span class="sig-name descname"><span class="pre">variance</span></span><a class="headerlink" href="#pfhedge.instruments.HestonStock.variance" title="Permalink to this definition">¶</a></dt>
-<dd><p>The variance of the spot of the instrument.
-This attribute is set by a method <a class="reference internal" href="#pfhedge.instruments.HestonStock.simulate" title="pfhedge.instruments.HestonStock.simulate"><code class="xref py py-func docutils literal notranslate"><span class="pre">simulate()</span></code></a>.
-The shape is <span class="math notranslate nohighlight">\((N, T)\)</span>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>torch.Tensor</p>
-</dd>
-</dl>
-</dd></dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">HestonStock</span>
 <span class="go">&gt;&gt;&gt;</span>
@@ -280,11 +270,14 @@ The shape is <span class="math notranslate nohighlight">\((N, T)\)</span>.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span> <span class="o">=</span> <span class="n">HestonStock</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">n_paths</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">time_horizon</span><span class="o">=</span><span class="mi">5</span><span class="o">/</span><span class="mi">250</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span><span class="o">.</span><span class="n">spot</span>
-<span class="go">tensor([[1.0000, 0.9953, 0.9929, 0.9880, 0.9744],</span>
-<span class="go">        [1.0000, 1.0043, 0.9779, 0.9770, 0.9717]])</span>
+<span class="go">tensor([[1.0000, 0.9941, 0.9905, 0.9846, 0.9706],</span>
+<span class="go">        [1.0000, 1.0031, 0.9800, 0.9785, 0.9735]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span><span class="o">.</span><span class="n">variance</span>
-<span class="go">tensor([[0.0400, 0.0445, 0.0437, 0.0458, 0.0479],</span>
-<span class="go">        [0.0400, 0.0314, 0.0955, 0.0683, 0.0799]])</span>
+<span class="go">tensor([[0.0400, 0.0408, 0.0411, 0.0417, 0.0422],</span>
+<span class="go">        [0.0400, 0.0395, 0.0452, 0.0434, 0.0446]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span><span class="o">.</span><span class="n">volatility</span>
+<span class="go">tensor([[0.2000, 0.2020, 0.2027, 0.2041, 0.2054],</span>
+<span class="go">        [0.2000, 0.1987, 0.2126, 0.2084, 0.2112]])</span>
 </pre></div>
 </div>
 <dl class="py property">
