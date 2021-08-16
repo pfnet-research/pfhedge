@@ -1,7 +1,6 @@
 from math import sqrt
 
 import torch
-from numpy import real
 from torch.testing import assert_close
 
 from pfhedge.instruments import BrownianStock
