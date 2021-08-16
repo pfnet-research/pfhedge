@@ -119,6 +119,7 @@ class HestonStock(Primary):
 
         self.register_buffer("spot", spot)
         self.register_buffer("variance", variance)
+        self.register_buffer("volatility", torch.sqrt(variance))
 
     def __repr__(self):
         params = [
