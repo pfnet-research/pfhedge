@@ -1,3 +1,5 @@
+from cmath import log
+
 import pytest
 import torch
 from torch.testing import assert_close
@@ -6,6 +8,8 @@ from pfhedge.nn.functional import clamp
 from pfhedge.nn.functional import exp_utility
 from pfhedge.nn.functional import expected_shortfall
 from pfhedge.nn.functional import leaky_clamp
+from pfhedge.nn.functional import realized_variance
+from pfhedge.nn.functional import realized_volatility
 from pfhedge.nn.functional import topp
 
 
@@ -78,4 +82,32 @@ def test_leaky_clamp():
 
     result = leaky_clamp(input, 0, 1, clamped_slope=0.0)
     expect = clamp(input, 0, 1)
+    assert_close(result, expect)
+
+
+def test_realized_variance():
+    torch.manual_seed(42)
+
+    log_return = 0.01 * torch.randn(2, 10)
+    log_return[:, 0] = 0.0
+    log_return -= log_return.mean(dim=-1, keepdim=True)
+    input = log_return.cumsum(-1).exp()
+
+    result = realized_variance(input, dt=1.0)
+    expect = log_return[:, 1:].var(-1, unbiased=False)
+
+    assert_close(result, expect)
+
+
+def test_realized_volatility():
+    torch.manual_seed(42)
+
+    log_return = 0.01 * torch.randn(2, 10)
+    log_return[:, 0] = 0.0
+    log_return -= log_return.mean(dim=-1, keepdim=True)
+    input = log_return.cumsum(-1).exp()
+
+    result = realized_volatility(input, dt=1.0)
+    expect = log_return[:, 1:].std(-1, unbiased=False)
+
     assert_close(result, expect)
