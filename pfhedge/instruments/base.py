@@ -1,5 +1,6 @@
 from abc import ABC
 from abc import abstractmethod
+from typing import List
 from typing import Optional
 from typing import TypeVar
 from typing import no_type_check
@@ -92,7 +93,7 @@ class Instrument(ABC):
         return self.to(torch.bfloat16)
 
     @property
-    def dinfo(self) -> list:
+    def dinfo(self) -> List[str]:
         """Returns list of strings that tell `dtype` and `device` of `self`.
 
         Intended to be used in `__repr__`.

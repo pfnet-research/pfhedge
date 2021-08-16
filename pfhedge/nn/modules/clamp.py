@@ -1,3 +1,5 @@
+from typing import Optional
+
 from torch import Tensor
 from torch.nn import Module
 
@@ -60,10 +62,12 @@ class LeakyClamp(Module):
         super().__init__()
         self.clamped_slope = clamped_slope
 
-    def extra_repr(self):
+    def extra_repr(self) -> str:
         return f"clamped_slope={self.clamped_slope}" if self.clamped_slope != 0 else ""
 
-    def forward(self, input: Tensor, min: Tensor = None, max: Tensor = None) -> Tensor:
+    def forward(
+        self, input: Tensor, min: Optional[Tensor] = None, max: Optional[Tensor] = None
+    ) -> Tensor:
         """Clamp all elements in `input` into the range :math:`[\\min, \\max]`.
 
         Args:
@@ -137,7 +141,9 @@ class Clamp(Module):
         tensor([0.0000, 0.5000])
     """
 
-    def forward(self, input: Tensor, min: Tensor = None, max: Tensor = None) -> Tensor:
+    def forward(
+        self, input: Tensor, min: Optional[Tensor] = None, max: Optional[Tensor] = None
+    ) -> Tensor:
         """Clamp all elements in `input` into the range :math:`[\\min, \\max]`.
 
         Args:

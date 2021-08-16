@@ -1,5 +1,6 @@
 from abc import abstractmethod
 from collections import OrderedDict
+from typing import Dict
 from typing import Iterator
 from typing import Optional
 from typing import Tuple
@@ -40,12 +41,13 @@ class Primary(Instrument):
     dtype: torch.dtype
     device: torch.device
     dt: float
+    _buffers: Dict[str, Tensor]
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._buffers = OrderedDict()
 
     @property
-    def default_init_state(self):
+    def default_init_state(self) -> Tuple[TensorOrFloat, ...]:
         """Returns the default initial state of simulation."""
 
     # TODO(simaki): Remove @no_type_check once BrownianStock and HestonStock get
@@ -69,7 +71,7 @@ class Primary(Instrument):
                 (See :func:`default_init_state`).
         """
 
-    def register_buffer(self, name: str, tensor: Optional[Tensor]) -> None:
+    def register_buffer(self, name: str, tensor: Tensor) -> None:
         """Adds a buffer to the module.
 
         Buffers can be accessed as attributes using given names.
