@@ -36,11 +36,12 @@ class BrownianStock(Primary):
             ``device`` will be the CPU for CPU tensor types and
             the current CUDA device for CUDA tensor types.
 
-    Attributes:
-        spot (torch.Tensor): The spot prices of the instrument.
-            This attribute is set by a method :func:`simulate()`.
-            The shape is :math:`(N, T)`, where :math:`T` is the number of time steps and
-            :math:`N` is the number of simulated paths.
+    Buffers:
+        - ``spot`` (``torch.Tensor``): The spot prices of the instrument.
+          This attribute is set by a method :func:`simulate()`.
+          The shape is :math:`(N, T)` where
+          :math:`N` is the number of simulated paths and
+          :math:`T` is the number of time steps.
 
     Examples:
 

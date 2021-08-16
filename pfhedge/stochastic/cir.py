@@ -15,7 +15,7 @@ def generate_cir(
     init_state: Tuple[TensorOrFloat, ...] = (0.04,),
     kappa: TensorOrFloat = 1.0,
     theta: TensorOrFloat = 0.04,
-    sigma: TensorOrFloat = 2.0,
+    sigma: TensorOrFloat = 0.2,
     dt: TensorOrFloat = 1 / 250,
     dtype: Optional[torch.dtype] = None,
     device: Optional[torch.device] = None,
@@ -64,8 +64,8 @@ def generate_cir(
         >>>
         >>> _ = torch.manual_seed(42)
         >>> generate_cir(2, 5)
-        tensor([[0.0400, 0.0445, 0.0437, 0.0458, 0.0479],
-                [0.0400, 0.0314, 0.0955, 0.0683, 0.0799]])
+        tensor([[0.0400, 0.0408, 0.0411, 0.0417, 0.0422],
+                [0.0400, 0.0395, 0.0452, 0.0434, 0.0446]])
 
     References:
         - Andersen, Leif B.G., Efficient Simulation of the Heston Stochastic

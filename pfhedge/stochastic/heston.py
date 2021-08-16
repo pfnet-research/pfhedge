@@ -17,7 +17,7 @@ def generate_heston(
     init_state: Tuple[TensorOrFloat, ...] = (1.0, 0.04),
     kappa: float = 1.0,
     theta: float = 0.04,
-    sigma: float = 2.0,
+    sigma: float = 0.2,
     rho: float = -0.7,
     dt: float = 1 / 250,
     dtype: Optional[torch.dtype] = None,
@@ -71,11 +71,11 @@ def generate_heston(
         >>> _ = torch.manual_seed(42)
         >>> spot, variance = generate_heston(2, 5)
         >>> spot
-        tensor([[1.0000, 0.9953, 0.9929, 0.9880, 0.9744],
-                [1.0000, 1.0043, 0.9779, 0.9770, 0.9717]])
+        tensor([[1.0000, 0.9941, 0.9905, 0.9846, 0.9706],
+                [1.0000, 1.0031, 0.9800, 0.9785, 0.9735]])
         >>> variance
-        tensor([[0.0400, 0.0445, 0.0437, 0.0458, 0.0479],
-                [0.0400, 0.0314, 0.0955, 0.0683, 0.0799]])
+        tensor([[0.0400, 0.0408, 0.0411, 0.0417, 0.0422],
+                [0.0400, 0.0395, 0.0452, 0.0434, 0.0446]])
 
     References:
         - Andersen, Leif B.G., Efficient Simulation of the Heston Stochastic
