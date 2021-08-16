@@ -46,6 +46,7 @@ class HestonStock(Primary):
           Note that this is different from the realized variance of the spot price.
           This attribute is set by a method :func:`simulate()`.
           The shape is :math:`(N, T)`.
+        - ``volatility`` (``torch.Tensor``): An alias for ``self.variance.sqrt()``.
 
     Examples:
 
@@ -60,7 +61,13 @@ class HestonStock(Primary):
         >>> stock.variance
         tensor([[0.0400, 0.0445, 0.0437, 0.0458, 0.0479],
                 [0.0400, 0.0314, 0.0955, 0.0683, 0.0799]])
+        >>> stock.volatility
+        tensor([[0.2000, 0.2110, 0.2092, 0.2140, 0.2189],
+                [0.2000, 0.1771, 0.3091, 0.2613, 0.2827]])
     """
+
+    spot: Tensor
+    variance: Tensor
 
     def __init__(
         self,
@@ -70,8 +77,8 @@ class HestonStock(Primary):
         rho: float = -0.7,
         cost: float = 0.0,
         dt: float = 1 / 250,
-        dtype: torch.dtype = None,
-        device: torch.device = None,
+        dtype: Optional[torch.dtype] = None,
+        device: Optional[torch.device] = None,
     ):
         super().__init__()
 
@@ -87,6 +94,10 @@ class HestonStock(Primary):
     @property
     def default_init_state(self) -> Tuple[float, ...]:
         return (1.0, self.theta)
+
+    @property
+    def volatility(self) -> Tensor:
+        return self.variance.clamp(min=0.0).sqrt()
 
     def simulate(
         self,
@@ -130,7 +141,7 @@ class HestonStock(Primary):
         self.register_buffer("spot", spot)
         self.register_buffer("variance", variance)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         params = [
             f"kappa={self.kappa:.2e}",
             f"theta={self.theta:.2e}",

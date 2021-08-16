@@ -129,7 +129,7 @@ class BrownianStock(Primary):
 
         self.register_buffer("spot", spot)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         params = [f"volatility={self.volatility:.2e}"]
         if self.cost != 0.0:
             params.append(f"cost={self.cost:.2e}")

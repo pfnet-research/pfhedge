@@ -29,4 +29,4 @@ doc:
 
 .PHONY: cov-html
 cov-html:
-	@pytest --cov=$(PROJECT_NAME) --cov-report=html
+	@poetry run pytest --cov=$(PROJECT_NAME) --cov-report=html

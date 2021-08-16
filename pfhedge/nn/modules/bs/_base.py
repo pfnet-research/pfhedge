@@ -1,5 +1,6 @@
 import abc
 from inspect import signature
+from typing import List
 from typing import no_type_check
 
 import torch
@@ -39,7 +40,7 @@ class BSModuleMixin(Module):
             torch.Tensor
         """
 
-    def inputs(self) -> list:
+    def inputs(self) -> List[str]:
         """Returns the names of input features.
 
         Returns:

@@ -1,3 +1,4 @@
+from typing import List
 from typing import Optional
 from typing import Tuple
 from typing import Union
@@ -14,6 +15,7 @@ from pfhedge._utils.hook import save_prev_output
 from pfhedge._utils.lazy import has_lazy
 from pfhedge._utils.operations import ensemble_mean
 from pfhedge.features import get_feature
+from pfhedge.instruments.derivative.base import Derivative
 
 from .loss import EntropicRiskMeasure
 from .loss import HedgeLoss
@@ -113,7 +115,10 @@ class Hedger(Module):
     """
 
     def __init__(
-        self, model: Module, inputs: list, criterion: HedgeLoss = EntropicRiskMeasure()
+        self,
+        model: Module,
+        inputs: List[str],
+        criterion: HedgeLoss = EntropicRiskMeasure(),
     ):
         super().__init__()
 
@@ -135,7 +140,7 @@ class Hedger(Module):
 
     def compute_pnl(
         self,
-        derivative,
+        derivative: Derivative,
         n_paths: int = 1000,
         init_state: Optional[Tuple[TensorOrFloat, ...]] = None,
     ) -> Tensor:
@@ -217,10 +222,10 @@ class Hedger(Module):
 
     def compute_loss(
         self,
-        derivative,
+        derivative: Derivative,
         n_paths: int = 1000,
         n_times: int = 1,
-        init_state: Optional[tuple] = None,
+        init_state: Optional[Tuple[TensorOrFloat, ...]] = None,
         enable_grad: bool = True,
     ) -> Tensor:
         """Returns the loss of the profit and loss distribution after hedging.
@@ -265,14 +270,14 @@ class Hedger(Module):
 
     def fit(
         self,
-        derivative,
+        derivative: Derivative,
         n_epochs: int = 100,
         n_paths: int = 1000,
         n_times: int = 1,
         optimizer=Adam,
-        init_state: Optional[tuple] = None,
+        init_state: Optional[Tuple[TensorOrFloat, ...]] = None,
         verbose: bool = True,
-    ) -> list:
+    ) -> List[float]:
         """Train the hedging model to hedge the given derivative.
 
         It returns the trade history, that is, validation loss after each simulation.
@@ -343,7 +348,7 @@ class Hedger(Module):
             if not isinstance(optimizer, torch.optim.Optimizer):
                 raise TypeError("optimizer is not torch.optim.Optimizer")
 
-        def compute_loss(**kwargs):
+        def compute_loss(**kwargs) -> Tensor:
             return self.compute_loss(
                 derivative, n_paths=n_paths, init_state=init_state, **kwargs
             )
@@ -370,10 +375,10 @@ class Hedger(Module):
 
     def price(
         self,
-        derivative,
+        derivative: Derivative,
         n_paths: int = 1000,
         n_times: int = 1,
-        init_state: Optional[tuple] = None,
+        init_state: Optional[Tuple[TensorOrFloat, ...]] = None,
         enable_grad: bool = False,
     ) -> Tensor:
         """Evaluate the premium of the given derivative.
