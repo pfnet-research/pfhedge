@@ -1,7 +1,6 @@
 from typing import Optional
 from typing import Tuple
 from typing import Union
-from typing import cast
 
 import torch
 from torch import Tensor
@@ -54,14 +53,14 @@ class HestonStock(Primary):
         >>> stock = HestonStock()
         >>> stock.simulate(n_paths=2, time_horizon=5/250)
         >>> stock.spot
-        tensor([[1.0000, 0.9953, 0.9929, 0.9880, 0.9744],
-                [1.0000, 1.0043, 0.9779, 0.9770, 0.9717]])
+        tensor([[1.0000, 0.9941, 0.9905, 0.9846, 0.9706],
+                [1.0000, 1.0031, 0.9800, 0.9785, 0.9735]])
         >>> stock.variance
-        tensor([[0.0400, 0.0445, 0.0437, 0.0458, 0.0479],
-                [0.0400, 0.0314, 0.0955, 0.0683, 0.0799]])
+        tensor([[0.0400, 0.0408, 0.0411, 0.0417, 0.0422],
+                [0.0400, 0.0395, 0.0452, 0.0434, 0.0446]])
         >>> stock.volatility
-        tensor([[0.2000, 0.2110, 0.2092, 0.2140, 0.2189],
-                [0.2000, 0.1771, 0.3091, 0.2613, 0.2827]])
+        tensor([[0.2000, 0.2020, 0.2027, 0.2041, 0.2054],
+                [0.2000, 0.1987, 0.2126, 0.2084, 0.2112]])
     """
 
     spot: Tensor
@@ -71,7 +70,7 @@ class HestonStock(Primary):
         self,
         kappa: float = 1.0,
         theta: float = 0.04,
-        sigma: float = 2.0,
+        sigma: float = 0.2,
         rho: float = -0.7,
         cost: float = 0.0,
         dt: float = 1 / 250,
