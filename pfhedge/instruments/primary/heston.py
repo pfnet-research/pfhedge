@@ -45,7 +45,6 @@ class HestonStock(Primary):
           Note that this is different from the realized variance of the spot price.
           This attribute is set by a method :func:`simulate()`.
           The shape is :math:`(N, T)`.
-        - ``volatility`` (``torch.Tensor``): An alias for ``self.variance.sqrt()``.
 
     Examples:
 
@@ -96,6 +95,7 @@ class HestonStock(Primary):
 
     @property
     def volatility(self) -> Tensor:
+        """An alias for ``self.variance.sqrt()``."""
         return self.variance.clamp(min=0.0).sqrt()
 
     def simulate(
