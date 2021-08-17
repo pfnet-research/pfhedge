@@ -62,6 +62,10 @@ class Primary(Instrument):
     ) -> None:
         """Simulate time series associated with the instrument and add them as buffers.
 
+        The shapes of the registered buffers should be ``(n_paths, n_steps)``
+        where ``n_steps`` is the minimum integer that satisfies
+        ``n_steps * self.dt >= time_horizon``.
+
         Args:
             n_paths (int): The number of paths to simulate.
             time_horizon (float): The period of time to simulate the price.

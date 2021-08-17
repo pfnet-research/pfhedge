@@ -73,8 +73,8 @@ class EuropeanBinaryOption(Derivative, OptionMixin):
         >>> derivative = EuropeanBinaryOption(BrownianStock(), maturity=5/250)
         >>> derivative.simulate(n_paths=2)
         >>> derivative.underlier.spot
-        tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930],
-                [1.0000, 1.0282, 1.0199, 1.0258, 1.0292]])
+        tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930, 0.9906],
+                [1.0000, 0.9919, 0.9976, 1.0009, 1.0076, 1.0179]])
         >>> derivative.payoff()
         tensor([0., 1.])
     """

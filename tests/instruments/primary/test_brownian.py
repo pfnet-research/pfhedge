@@ -115,6 +115,15 @@ class TestBrownianStock:
         s = BrownianStock(device=torch.device("cuda:0"))
         assert s.cpu().device == torch.device("cpu")
 
+    def test_simulate_shape(self):
+        s = BrownianStock(dt=0.1)
+        s.simulate(time_horizon=0.2, n_paths=10)
+        assert s.spot.size() == torch.Size((10, 3))
+
+        s = BrownianStock(dt=0.1)
+        s.simulate(time_horizon=0.25, n_paths=10)
+        assert s.spot.size() == torch.Size((10, 4))
+
     def test_cuda(self):
         s = BrownianStock()
         assert s.cuda(1).device == torch.device("cuda:1")

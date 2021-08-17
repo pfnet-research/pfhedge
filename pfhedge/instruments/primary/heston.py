@@ -54,14 +54,14 @@ class HestonStock(Primary):
         >>> stock = HestonStock()
         >>> stock.simulate(n_paths=2, time_horizon=5/250)
         >>> stock.spot
-        tensor([[1.0000, 0.9941, 0.9905, 0.9846, 0.9706],
-                [1.0000, 1.0031, 0.9800, 0.9785, 0.9735]])
+        tensor([[1.0000, 0.9902, 0.9823, 0.9926, 0.9968, 1.0040],
+                [1.0000, 0.9826, 0.9891, 0.9898, 0.9851, 0.9796]])
         >>> stock.variance
-        tensor([[0.0400, 0.0408, 0.0411, 0.0417, 0.0422],
-                [0.0400, 0.0395, 0.0452, 0.0434, 0.0446]])
+        tensor([[0.0400, 0.0408, 0.0411, 0.0417, 0.0422, 0.0393],
+                [0.0400, 0.0457, 0.0440, 0.0451, 0.0458, 0.0472]])
         >>> stock.volatility
-        tensor([[0.2000, 0.2020, 0.2027, 0.2041, 0.2054],
-                [0.2000, 0.1987, 0.2126, 0.2084, 0.2112]])
+        tensor([[0.2000, 0.2020, 0.2027, 0.2041, 0.2054, 0.1982],
+                [0.2000, 0.2138, 0.2097, 0.2124, 0.2140, 0.2172]])
     """
 
     spot: Tensor
@@ -126,7 +126,7 @@ class HestonStock(Primary):
 
         spot, variance = generate_heston(
             n_paths=n_paths,
-            n_steps=int(time_horizon / self.dt),
+            n_steps=int(time_horizon / self.dt + 1),
             init_state=init_state,
             kappa=self.kappa,
             theta=self.theta,

@@ -1,3 +1,4 @@
+from math import ceil
 from typing import Optional
 from typing import Tuple
 from typing import Union
@@ -51,8 +52,8 @@ class BrownianStock(Primary):
         >>> stock = BrownianStock()
         >>> stock.simulate(n_paths=2, time_horizon=5 / 250)
         >>> stock.spot
-        tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930],
-                [1.0000, 1.0282, 1.0199, 1.0258, 1.0292]])
+        tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930, 0.9906],
+                [1.0000, 0.9919, 0.9976, 1.0009, 1.0076, 1.0179]])
 
         Using custom ``dtype`` and ``device``.
 
@@ -111,15 +112,15 @@ class BrownianStock(Primary):
             >>> stock = BrownianStock()
             >>> stock.simulate(n_paths=2, time_horizon=5 / 250, init_state=(2.0,))
             >>> stock.spot
-            tensor([[2.0000, 2.0031, 2.0089, 2.0146, 1.9860],
-                    [2.0000, 2.0565, 2.0398, 2.0516, 2.0584]])
+            tensor([[2.0000, 2.0031, 2.0089, 2.0146, 1.9860, 1.9812],
+                    [2.0000, 1.9838, 1.9952, 2.0018, 2.0153, 2.0358]])
         """
         if init_state is None:
             init_state = cast(Tuple[float], self.default_init_state)
 
         spot = generate_geometric_brownian(
             n_paths=n_paths,
-            n_steps=int(time_horizon / self.dt),
+            n_steps=ceil(time_horizon / self.dt + 1),
             init_state=init_state,
             volatility=self.volatility,
             dt=self.dt,
