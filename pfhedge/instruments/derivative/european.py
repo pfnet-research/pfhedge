@@ -74,7 +74,7 @@ class EuropeanOption(Derivative, OptionMixin):
         >>> derivative.to(dtype=torch.float64, device="cuda:0")
         EuropeanOption(..., dtype=torch.float64, device='cuda:0')
 
-        List a derivative.
+        Make ``self`` a listed derivative.
 
         >>> from pfhedge.nn import BlackScholes
         >>>

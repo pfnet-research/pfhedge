@@ -99,7 +99,7 @@ class TestHedger:
         expect = EntropicRiskMeasure()(-deriv.payoff())
         assert_close(result, expect)
 
-    def test_hedging(self):
+    def test_hedging_with_identical_derivative(self):
         torch.manual_seed(42)
 
         class Ones(Module):
@@ -116,4 +116,13 @@ class TestHedger:
         derivative.list(pricer)
         hedger = Hedger(Ones(), ["empty"])
 
-        _ = hedger.compute_pnl(derivative, hedge=derivative, n_paths=2)
+        torch.manual_seed(42)
+        result = hedger.compute_pnl(derivative, hedge=derivative, n_paths=2)
+        # value of a short position of the derivative
+        expect = -derivative.spot[:, 0]
+        assert_close(result, expect, check_stride=False)
+
+        torch.manual_seed(42)
+        result = hedger.price(derivative, hedge=derivative, n_paths=2)
+        expect = derivative.spot[0, 0]
+        assert_close(result, expect, check_stride=False)

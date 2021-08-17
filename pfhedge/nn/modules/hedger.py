@@ -48,7 +48,7 @@ class Hedger(Module):
 
     Examples:
 
-        Black-Scholes' delta hedging strategy.
+        A hedger that uses Black-Scholes' delta hedging strategy.
 
         >>> from pfhedge.instruments import BrownianStock
         >>> from pfhedge.instruments import EuropeanOption
@@ -65,7 +65,7 @@ class Hedger(Module):
           (criterion): EntropicRiskMeasure()
         )
 
-        Whalley-Wilmott's no-transaction-band strategy.
+        A hedger that uses Whalley-Wilmott's no-transaction-band strategy.
 
         >>> from pfhedge.nn import WhalleyWilmott
         >>>
@@ -81,13 +81,13 @@ class Hedger(Module):
           (criterion): EntropicRiskMeasure()
         )
 
-        A naked position (never hedge at all).
+        A hedger that takes naked positions (never hedge at all).
 
         >>> from pfhedge.nn import Naked
         >>>
         >>> hedger = Hedger(Naked(), ["empty"])
 
-        A strategy represented by a neural network (Deep Hedging).
+        A hedger represented by a neural network (Deep Hedging).
 
         >>> from pfhedge.nn import MultiLayerPerceptron
         >>>
@@ -115,7 +115,8 @@ class Hedger(Module):
         >>> hedger.price(derivative)
         tensor(...)
 
-        Hedge with a listed derivative.
+        It is possible to hedge a derivative with another listed derivative by
+        ``Derivative.list()`` method.
 
         >>> from pfhedge.instruments import LookbackOption
         >>> from pfhedge.nn import BlackScholes
@@ -124,22 +125,25 @@ class Hedger(Module):
         ...     log_moneyness=derivative.log_moneyness(),
         ...     expiry_time=derivative.time_to_maturity(),
         ...     volatility=derivative.ul().volatility)
+        >>>
         >>> stock = BrownianStock()
         >>> hedging_instrument = EuropeanOption(stock, maturity=5/250)
         >>> hedging_instrument.list(pricer, cost=1e-4)
         >>> derivative = LookbackOption(stock)
         >>> derivative.simulate()
+        >>>
+        >>> stock = BrownianStock()
         >>> hedger = Hedger(
         ...     MultiLayerPerceptron(),
         ...     inputs=["moneyness", "expiry_time", "volatility"])
         >>> _ = hedger.fit(
-        ...     hedging_instrument,
+        ...     derivative,
         ...     hedge=hedging_instrument,
         ...     verbose=False,
         ...     n_paths=1,
         ...     n_epochs=1)
         >>> hedger.price(derivative)
-        tensor(0.0402)
+        tensor(...)
     """
 
     def __init__(

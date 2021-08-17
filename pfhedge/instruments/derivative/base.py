@@ -93,18 +93,22 @@ class Derivative(Instrument):
         """
 
     def list(self: T, pricer: Callable[[T], Tensor], cost: float = 0.0) -> None:
-        """List self.
+        """Make self a listed derivative.
+
+        After this method self will be a exchange-traded derivative which can be transacted
+        at any time with the spot price given by ``self.price``.
+
+        See an example in :class:`EuropeanOption` for a usage.
 
         Args:
             pricer (Callable[[Derivative], Tensor]]): A function that takes a derivative
                 and returns the derivative's price.
-            cost (float, optional): The transaction cost of self.
+            cost (float, optional): The transaction cost rate.
         """
         self.pricer = pricer
         self.cost = cost
 
     @property
-    @lru_cache(maxsize=1)
     def spot(self) -> Tensor:
         if self.pricer is None:
             raise ValueError("self is not listed.")
