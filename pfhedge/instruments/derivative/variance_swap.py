@@ -51,6 +51,7 @@ class VarianceSwap(Derivative):
         >>> import torch
         >>> from pfhedge.instruments import BrownianStock
         >>> from pfhedge.instruments import VarianceSwap
+        >>> from pfhedge.nn.functional import realized_variance
         >>>
         >>> _ = torch.manual_seed(42)
         >>> derivative = VarianceSwap(BrownianStock(), strike=0.04, maturity=5/250)
