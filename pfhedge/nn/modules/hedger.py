@@ -17,6 +17,7 @@ from pfhedge._utils.lazy import has_lazy
 from pfhedge._utils.operations import ensemble_mean
 from pfhedge.features import get_feature
 from pfhedge.instruments.base import Instrument
+from pfhedge.instruments.primary.base import Primary
 from pfhedge.instruments.derivative.base import Derivative
 
 from .loss import EntropicRiskMeasure
@@ -173,7 +174,7 @@ class Hedger(Module):
     def compute_pnl(
         self,
         derivative: Derivative,
-        hedge: Optional[Instrument] = None,
+        hedge: Optional[Union[Primary, Derivative]] = None,
         n_paths: int = 1000,
         init_state: Optional[Tuple[TensorOrFloat, ...]] = None,
     ) -> Tensor:
@@ -216,7 +217,8 @@ class Hedger(Module):
             tensor([..., ...])
         """
         self.inputs = [f.of(derivative, self) for f in self.inputs]
-        hedge = cast(Instrument, hedge if hedge is not None else derivative.ul())
+        hedge = hedge if hedge is not None else derivative.ul()
+        hedge = cast(Union[Primary, Derivative], hedge)
 
         derivative.simulate(n_paths=n_paths, init_state=init_state)
         # cashflow: shape (N, T - 1)
@@ -256,7 +258,7 @@ class Hedger(Module):
     def compute_loss(
         self,
         derivative: Derivative,
-        hedge: Optional[Instrument] = None,
+        hedge: Optional[Union[Primary, Derivative]] = None,
         n_paths: int = 1000,
         n_times: int = 1,
         init_state: Optional[Tuple[TensorOrFloat, ...]] = None,
@@ -307,7 +309,7 @@ class Hedger(Module):
     def fit(
         self,
         derivative: Derivative,
-        hedge: Optional[Instrument] = None,
+        hedge: Optional[Union[Primary, Derivative]] = None,
         n_epochs: int = 100,
         n_paths: int = 1000,
         n_times: int = 1,
@@ -417,7 +419,7 @@ class Hedger(Module):
     def price(
         self,
         derivative: Derivative,
-        hedge: Optional[Instrument] = None,
+        hedge: Optional[Union[Primary, Derivative]] = None,
         n_paths: int = 1000,
         n_times: int = 1,
         init_state: Optional[Tuple[TensorOrFloat, ...]] = None,

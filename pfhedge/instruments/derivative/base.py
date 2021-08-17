@@ -1,8 +1,8 @@
 from abc import abstractmethod
-from functools import lru_cache
 from typing import Callable
 from typing import Optional
 from typing import Tuple
+from typing import Any
 from typing import TypeVar
 from typing import Union
 
@@ -41,7 +41,7 @@ class Derivative(Instrument):
 
     underlier: Primary
     maturity: float
-    pricer: Optional[Callable[[...], Tensor]]
+    pricer: Optional[Callable[[Any], Tensor]]
     cost: Optional[float]
 
     def __init__(self):
