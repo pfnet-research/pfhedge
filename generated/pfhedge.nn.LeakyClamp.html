@@ -5,11 +5,11 @@
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="HedgeLoss" href="pfhedge.nn.HedgeLoss.html" /><link rel="prev" title="Clamp" href="pfhedge.nn.Clamp.html" />
 
-    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.11.beta42"/>
+    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.17.beta43"/>
         <title>LeakyClamp - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=197f00461d56902ea7ca048ec6e6ba026f62c97b" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=93475b62d1c3bc01323a0eefdc14a62d77b12690" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=910ac4ccc9d7c023151c34010d7b500fb9777a51" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
     
     
 
@@ -188,6 +188,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.VarianceSwap.html">VarianceSwap</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../stochastic.html">pfhedge.stochastic</a></li>
@@ -226,7 +227,7 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="pfhedge.nn.LeakyClamp">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pfhedge.nn.</span></span><span class="sig-name descname"><span class="pre">LeakyClamp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clamped_slope</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/clamp.html#LeakyClamp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.LeakyClamp" title="Permalink to this definition">¶</a></dt>
-<dd><p>Leakily Clamp all elements in <cite>input</cite> into the range <span class="math notranslate nohighlight">\([\min, \max]\)</span>.</p>
+<dd><p>Leakily Clamp all elements in <code class="docutils literal notranslate"><span class="pre">input</span></code> into the range <span class="math notranslate nohighlight">\([\min, \max]\)</span>.</p>
 <p>The bounds <span class="math notranslate nohighlight">\(\min\)</span> and <span class="math notranslate nohighlight">\(\max\)</span> can be tensors.</p>
 <p>If <span class="math notranslate nohighlight">\(\min \leq \max\)</span>:</p>
 <div class="math-wrapper"><div class="math notranslate nohighlight">
@@ -274,7 +275,7 @@ dimensions.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="pfhedge.nn.LeakyClamp.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/clamp.html#LeakyClamp.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.LeakyClamp.forward" title="Permalink to this definition">¶</a></dt>
-<dd><p>Clamp all elements in <cite>input</cite> into the range <span class="math notranslate nohighlight">\([\min, \max]\)</span>.</p>
+<dd><p>Clamp all elements in <code class="docutils literal notranslate"><span class="pre">input</span></code> into the range <span class="math notranslate nohighlight">\([\min, \max]\)</span>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">

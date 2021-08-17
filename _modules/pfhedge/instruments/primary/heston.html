@@ -4,11 +4,11 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
-    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.11.beta42"/>
+    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.17.beta43"/>
         <title>pfhedge.instruments.primary.heston - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?digest=197f00461d56902ea7ca048ec6e6ba026f62c97b" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo-extensions.css?digest=93475b62d1c3bc01323a0eefdc14a62d77b12690" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?digest=910ac4ccc9d7c023151c34010d7b500fb9777a51" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
     
     
 
@@ -187,6 +187,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.VarianceSwap.html">VarianceSwap</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../stochastic.html">pfhedge.stochastic</a></li>
@@ -251,11 +252,11 @@
 <span class="sd">        dt (float, default=1/250): The intervals of the time steps.</span>
 <span class="sd">        dtype (torch.device, optional): Desired device of returned tensor.</span>
 <span class="sd">            Default: If None, uses a global default</span>
-<span class="sd">            (see `torch.set_default_tensor_type()`).</span>
+<span class="sd">            (see ``torch.set_default_tensor_type()``).</span>
 <span class="sd">        device (torch.device, optional): Desired device of returned tensor.</span>
 <span class="sd">            Default: if None, uses the current device for the default tensor type</span>
-<span class="sd">            (see `torch.set_default_tensor_type()`).</span>
-<span class="sd">            `device` will be the CPU for CPU tensor types and</span>
+<span class="sd">            (see ``torch.set_default_tensor_type()``).</span>
+<span class="sd">            ``device`` will be the CPU for CPU tensor types and</span>
 <span class="sd">            the current CUDA device for CUDA tensor types.</span>
 
 <span class="sd">    Buffers:</span>
@@ -268,7 +269,6 @@
 <span class="sd">          Note that this is different from the realized variance of the spot price.</span>
 <span class="sd">          This attribute is set by a method :func:`simulate()`.</span>
 <span class="sd">          The shape is :math:`(N, T)`.</span>
-<span class="sd">        - ``volatility`` (``torch.Tensor``): An alias for ``self.variance.sqrt()``.</span>
 
 <span class="sd">    Examples:</span>
 
@@ -278,14 +278,14 @@
 <span class="sd">        &gt;&gt;&gt; stock = HestonStock()</span>
 <span class="sd">        &gt;&gt;&gt; stock.simulate(n_paths=2, time_horizon=5/250)</span>
 <span class="sd">        &gt;&gt;&gt; stock.spot</span>
-<span class="sd">        tensor([[1.0000, 0.9941, 0.9905, 0.9846, 0.9706],</span>
-<span class="sd">                [1.0000, 1.0031, 0.9800, 0.9785, 0.9735]])</span>
+<span class="sd">        tensor([[1.0000, 0.9902, 0.9823, 0.9926, 0.9968, 1.0040],</span>
+<span class="sd">                [1.0000, 0.9826, 0.9891, 0.9898, 0.9851, 0.9796]])</span>
 <span class="sd">        &gt;&gt;&gt; stock.variance</span>
-<span class="sd">        tensor([[0.0400, 0.0408, 0.0411, 0.0417, 0.0422],</span>
-<span class="sd">                [0.0400, 0.0395, 0.0452, 0.0434, 0.0446]])</span>
+<span class="sd">        tensor([[0.0400, 0.0408, 0.0411, 0.0417, 0.0422, 0.0393],</span>
+<span class="sd">                [0.0400, 0.0457, 0.0440, 0.0451, 0.0458, 0.0472]])</span>
 <span class="sd">        &gt;&gt;&gt; stock.volatility</span>
-<span class="sd">        tensor([[0.2000, 0.2020, 0.2027, 0.2041, 0.2054],</span>
-<span class="sd">                [0.2000, 0.1987, 0.2126, 0.2084, 0.2112]])</span>
+<span class="sd">        tensor([[0.2000, 0.2020, 0.2027, 0.2041, 0.2054, 0.1982],</span>
+<span class="sd">                [0.2000, 0.2138, 0.2097, 0.2124, 0.2140, 0.2172]])</span>
 <span class="sd">    """</span>
 
     <span class="n">spot</span><span class="p">:</span> <span class="n">Tensor</span>
@@ -319,6 +319,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">volatility</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+        <span class="sd">"""An alias for ``self.variance.sqrt()``."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">variance</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span><span class="o">.</span><span class="n">sqrt</span><span class="p">()</span>
 
 <div class="viewcode-block" id="HestonStock.simulate"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.HestonStock.html#pfhedge.instruments.HestonStock.simulate">[docs]</a>    <span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span>
@@ -327,11 +328,11 @@
         <span class="n">time_horizon</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">20</span> <span class="o">/</span> <span class="mi">250</span><span class="p">,</span>
         <span class="n">init_state</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">TensorOrFloat</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">"""Simulate the spot price and add it as a buffer named `spot`.</span>
+        <span class="sd">"""Simulate the spot price and add it as a buffer named ``spot``.</span>
 
 <span class="sd">        The shape of the spot is :math:`(N, T)`, where :math:`N` is the number of</span>
 <span class="sd">        simulated paths and :math:`T` is the number of time steps.</span>
-<span class="sd">        The number of time steps is determinded from `dt` and `time_horizon`.</span>
+<span class="sd">        The number of time steps is determinded from ``dt`` and ``time_horizon``.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            n_paths (int, default=1): The number of paths to simulate.</span>
@@ -339,9 +340,9 @@
 <span class="sd">                the price.</span>
 <span class="sd">            init_state (tuple[torch.Tensor | float], default=(1.0,)): The initial</span>
 <span class="sd">                state of the instrument.</span>
-<span class="sd">                This is specified by `(S0, V0)`, where `S0` and `V0` are the initial</span>
-<span class="sd">                values of of spot and variance, respectively.</span>
-<span class="sd">                If `None` (default), it uses the default value</span>
+<span class="sd">                This is specified by ``(S0, V0)``, where ``S0`` and ``V0`` are</span>
+<span class="sd">                the initial values of of spot and variance, respectively.</span>
+<span class="sd">                If ``None`` (default), it uses the default value</span>
 <span class="sd">                (See :func:`default_init_state`).</span>
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="n">init_state</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -349,7 +350,7 @@
 
         <span class="n">spot</span><span class="p">,</span> <span class="n">variance</span> <span class="o">=</span> <span class="n">generate_heston</span><span class="p">(</span>
             <span class="n">n_paths</span><span class="o">=</span><span class="n">n_paths</span><span class="p">,</span>
-            <span class="n">n_steps</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">time_horizon</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">),</span>
+            <span class="n">n_steps</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">time_horizon</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span>
             <span class="n">init_state</span><span class="o">=</span><span class="n">init_state</span><span class="p">,</span>
             <span class="n">kappa</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kappa</span><span class="p">,</span>
             <span class="n">theta</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">,</span>

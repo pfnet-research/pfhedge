@@ -5,11 +5,11 @@
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Derivative" href="pfhedge.instruments.Derivative.html" /><link rel="prev" title="BrownianStock" href="pfhedge.instruments.BrownianStock.html" />
 
-    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.11.beta42"/>
+    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.17.beta43"/>
         <title>HestonStock - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=197f00461d56902ea7ca048ec6e6ba026f62c97b" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=93475b62d1c3bc01323a0eefdc14a62d77b12690" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=910ac4ccc9d7c023151c34010d7b500fb9777a51" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
     
     
 
@@ -188,6 +188,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.VarianceSwap.html">VarianceSwap</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../stochastic.html">pfhedge.stochastic</a></li>
@@ -239,11 +240,11 @@
 <li><p><strong>dt</strong> (<em>float</em><em>, </em><em>default=1/250</em>) – The intervals of the time steps.</p></li>
 <li><p><strong>dtype</strong> (<em>torch.device</em><em>, </em><em>optional</em>) – Desired device of returned tensor.
 Default: If None, uses a global default
-(see <cite>torch.set_default_tensor_type()</cite>).</p></li>
+(see <code class="docutils literal notranslate"><span class="pre">torch.set_default_tensor_type()</span></code>).</p></li>
 <li><p><strong>device</strong> (<em>torch.device</em><em>, </em><em>optional</em>) – Desired device of returned tensor.
 Default: if None, uses the current device for the default tensor type
-(see <cite>torch.set_default_tensor_type()</cite>).
-<cite>device</cite> will be the CPU for CPU tensor types and
+(see <code class="docutils literal notranslate"><span class="pre">torch.set_default_tensor_type()</span></code>).
+<code class="docutils literal notranslate"><span class="pre">device</span></code> will be the CPU for CPU tensor types and
 the current CUDA device for CUDA tensor types.</p></li>
 </ul>
 </dd>
@@ -259,7 +260,6 @@ The shape is <span class="math notranslate nohighlight">\((N, T)\)</span> where
 Note that this is different from the realized variance of the spot price.
 This attribute is set by a method <a class="reference internal" href="#pfhedge.instruments.HestonStock.simulate" title="pfhedge.instruments.HestonStock.simulate"><code class="xref py py-func docutils literal notranslate"><span class="pre">simulate()</span></code></a>.
 The shape is <span class="math notranslate nohighlight">\((N, T)\)</span>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">volatility</span></code> (<code class="docutils literal notranslate"><span class="pre">torch.Tensor</span></code>): An alias for <code class="docutils literal notranslate"><span class="pre">self.variance.sqrt()</span></code>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -270,14 +270,14 @@ The shape is <span class="math notranslate nohighlight">\((N, T)\)</span>.</p></
 <span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span> <span class="o">=</span> <span class="n">HestonStock</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">n_paths</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">time_horizon</span><span class="o">=</span><span class="mi">5</span><span class="o">/</span><span class="mi">250</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span><span class="o">.</span><span class="n">spot</span>
-<span class="go">tensor([[1.0000, 0.9941, 0.9905, 0.9846, 0.9706],</span>
-<span class="go">        [1.0000, 1.0031, 0.9800, 0.9785, 0.9735]])</span>
+<span class="go">tensor([[1.0000, 0.9902, 0.9823, 0.9926, 0.9968, 1.0040],</span>
+<span class="go">        [1.0000, 0.9826, 0.9891, 0.9898, 0.9851, 0.9796]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span><span class="o">.</span><span class="n">variance</span>
-<span class="go">tensor([[0.0400, 0.0408, 0.0411, 0.0417, 0.0422],</span>
-<span class="go">        [0.0400, 0.0395, 0.0452, 0.0434, 0.0446]])</span>
+<span class="go">tensor([[0.0400, 0.0408, 0.0411, 0.0417, 0.0422, 0.0393],</span>
+<span class="go">        [0.0400, 0.0457, 0.0440, 0.0451, 0.0458, 0.0472]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span><span class="o">.</span><span class="n">volatility</span>
-<span class="go">tensor([[0.2000, 0.2020, 0.2027, 0.2041, 0.2054],</span>
-<span class="go">        [0.2000, 0.1987, 0.2126, 0.2084, 0.2112]])</span>
+<span class="go">tensor([[0.2000, 0.2020, 0.2027, 0.2041, 0.2054, 0.1982],</span>
+<span class="go">        [0.2000, 0.2138, 0.2097, 0.2124, 0.2140, 0.2172]])</span>
 </pre></div>
 </div>
 <dl class="py property">
@@ -288,10 +288,10 @@ The shape is <span class="math notranslate nohighlight">\((N, T)\)</span>.</p></
 <dl class="py method">
 <dt class="sig sig-object py" id="pfhedge.instruments.HestonStock.simulate">
 <span class="sig-name descname"><span class="pre">simulate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_horizon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/primary/heston.html#HestonStock.simulate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.HestonStock.simulate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Simulate the spot price and add it as a buffer named <cite>spot</cite>.</p>
+<dd><p>Simulate the spot price and add it as a buffer named <code class="docutils literal notranslate"><span class="pre">spot</span></code>.</p>
 <p>The shape of the spot is <span class="math notranslate nohighlight">\((N, T)\)</span>, where <span class="math notranslate nohighlight">\(N\)</span> is the number of
 simulated paths and <span class="math notranslate nohighlight">\(T\)</span> is the number of time steps.
-The number of time steps is determinded from <cite>dt</cite> and <cite>time_horizon</cite>.</p>
+The number of time steps is determinded from <code class="docutils literal notranslate"><span class="pre">dt</span></code> and <code class="docutils literal notranslate"><span class="pre">time_horizon</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -300,9 +300,9 @@ The number of time steps is determinded from <cite>dt</cite> and <cite>time_hori
 the price.</p></li>
 <li><p><strong>init_state</strong> (<em>tuple</em><em>[</em><em>torch.Tensor</em><em> | </em><em>float</em><em>]</em><em>, </em><em>default=</em><em>(</em><em>1.0</em><em>,</em><em>)</em>) – The initial
 state of the instrument.
-This is specified by <cite>(S0, V0)</cite>, where <cite>S0</cite> and <cite>V0</cite> are the initial
-values of of spot and variance, respectively.
-If <cite>None</cite> (default), it uses the default value
+This is specified by <code class="docutils literal notranslate"><span class="pre">(S0,</span> <span class="pre">V0)</span></code>, where <code class="docutils literal notranslate"><span class="pre">S0</span></code> and <code class="docutils literal notranslate"><span class="pre">V0</span></code> are
+the initial values of of spot and variance, respectively.
+If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), it uses the default value
 (See <a class="reference internal" href="#pfhedge.instruments.HestonStock.default_init_state" title="pfhedge.instruments.HestonStock.default_init_state"><code class="xref py py-func docutils literal notranslate"><span class="pre">default_init_state()</span></code></a>).</p></li>
 </ul>
 </dd>
@@ -313,8 +313,8 @@ If <cite>None</cite> (default), it uses the default value
 <span class="sig-name descname"><span class="pre">to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.HestonStock.to" title="Permalink to this definition">¶</a></dt>
 <dd><p>Performs dtype and/or device conversion of the buffers associated to
 the instument.</p>
-<p>A <cite>torch.dtype</cite> and <cite>torch.device</cite> are inferred from the arguments of
-<cite>self.to(*args, **kwargs)</cite>.</p>
+<p>A <code class="docutils literal notranslate"><span class="pre">torch.dtype</span></code> and <code class="docutils literal notranslate"><span class="pre">torch.device</span></code> are inferred from the arguments of
+<code class="docutils literal notranslate"><span class="pre">self.to(*args,</span> <span class="pre">**kwargs)</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -328,6 +328,11 @@ series.</p></li>
 <dd class="field-even"><p>self</p>
 </dd>
 </dl>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="pfhedge.instruments.HestonStock.volatility">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">volatility</span></span><a class="headerlink" href="#pfhedge.instruments.HestonStock.volatility" title="Permalink to this definition">¶</a></dt>
+<dd><p>An alias for <code class="docutils literal notranslate"><span class="pre">self.variance.sqrt()</span></code>.</p>
 </dd></dl>
 </dd></dl>
 </section>

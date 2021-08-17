@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
     <meta name="generator" content="sphinx-4.1.2, furo 2021.08.17.beta43"/>
-        <title>pfhedge.instruments.derivative.lookback - PFHedge documentation</title>
+        <title>pfhedge.instruments.derivative.variance_swap - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?digest=910ac4ccc9d7c023151c34010d7b500fb9777a51" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
@@ -221,7 +221,7 @@
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
-        <h1>Source code for pfhedge.instruments.derivative.lookback</h1><div class="highlight"><pre>
+        <h1>Source code for pfhedge.instruments.derivative.variance_swap</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 
 <span class="kn">import</span> <span class="nn">torch</span>
@@ -229,45 +229,34 @@
 
 <span class="kn">from</span> <span class="nn">pfhedge._utils.doc</span> <span class="kn">import</span> <span class="n">set_attr_and_docstring</span>
 <span class="kn">from</span> <span class="nn">pfhedge._utils.doc</span> <span class="kn">import</span> <span class="n">set_docstring</span>
+<span class="kn">from</span> <span class="nn">pfhedge.nn.functional</span> <span class="kn">import</span> <span class="n">realized_variance</span>
 
-<span class="kn">from</span> <span class="nn">...nn.functional</span> <span class="kn">import</span> <span class="n">lookback_payoff</span>
 <span class="kn">from</span> <span class="nn">..primary.base</span> <span class="kn">import</span> <span class="n">Primary</span>
 <span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">Derivative</span>
-<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">OptionMixin</span>
 
 
-<div class="viewcode-block" id="LookbackOption"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.LookbackOption.html#pfhedge.instruments.LookbackOption">[docs]</a><span class="k">class</span> <span class="nc">LookbackOption</span><span class="p">(</span><span class="n">Derivative</span><span class="p">,</span> <span class="n">OptionMixin</span><span class="p">):</span>
-    <span class="sd">"""A lookback option with fixed strike.</span>
+<div class="viewcode-block" id="VarianceSwap"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.VarianceSwap.html#pfhedge.instruments.VarianceSwap">[docs]</a><span class="k">class</span> <span class="nc">VarianceSwap</span><span class="p">(</span><span class="n">Derivative</span><span class="p">):</span>
+    <span class="sd">"""A variance swap.</span>
 
-<span class="sd">    A lookback call option provides its holder the right to buy an underlying with</span>
-<span class="sd">    the strike price and to sell with the highest price until the date of maturity.</span>
+<span class="sd">    A variance swap pays cash in the amount of the realized variance</span>
+<span class="sd">    until the maturity and levies the cash of the strike variance.</span>
 
-<span class="sd">    A lookback put option provides its holder the right to sell an underlying with</span>
-<span class="sd">    the strike price and to buy with the lowest price until the date of maturity.</span>
+<span class="sd">    The payoff of a variance swap is given by</span>
 
-<span class="sd">    The payoff of a lookback call option is given by:</span>
+<span class="sd">    .. math ::</span>
 
-<span class="sd">    .. math::</span>
+<span class="sd">        \\mathrm{payoff} = \\sigma^2 - K</span>
 
-<span class="sd">        \\mathrm{payoff} = \\max(\\mathrm{Max} - K, 0)</span>
-
-<span class="sd">    Here, :math:`\\mathrm{Max}` is the maximum of the underlying asset's price</span>
-<span class="sd">    until maturity and :math:`K` is the strike price (`strike`) of the option.</span>
-
-<span class="sd">    The payoff of a lookback put option is given by:</span>
-
-<span class="sd">    .. math::</span>
-
-<span class="sd">        \\mathrm{payoff} = \\max(K - \\mathrm{Min}, 0)</span>
-
-<span class="sd">    Here, :math:`\\mathrm{Min}` is the minimum of the underlying asset's price.</span>
+<span class="sd">    where :math:`\\sigma^2` is the realized variance of the underlying asset</span>
+<span class="sd">    until maturity and :math:`K` is the strike variance (``strike``).</span>
+<span class="sd">    See :func:`pfhedge.nn.functional.realized_variance` for the definition of</span>
+<span class="sd">    the realized variance.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        underlier (:class:`Primary`): The underlying instrument of the option.</span>
-<span class="sd">        call (bool, default=True): Specifies whether the option is call or put.</span>
-<span class="sd">        strike (float, default=1.0): The strike price of the option.</span>
-<span class="sd">        maturity (float, default=20/250): The maturity of the option.</span>
-<span class="sd">        dtype (torch.dtype, optional): Desired device of returned tensor.</span>
+<span class="sd">        underlier (:class:`Primary`): The underlying instrument.</span>
+<span class="sd">        strike (float, default=0.04): The strike variance of the swap.</span>
+<span class="sd">        maturity (float, default=20/250): The maturity of the derivative.</span>
+<span class="sd">        dtype (torch.device, optional): Desired device of returned tensor.</span>
 <span class="sd">            Default: If None, uses a global default</span>
 <span class="sd">            (see ``torch.set_default_tensor_type()``).</span>
 <span class="sd">        device (torch.device, optional): Desired device of returned tensor.</span>
@@ -284,57 +273,52 @@
 <span class="sd">    Examples:</span>
 
 <span class="sd">        &gt;&gt;&gt; import torch</span>
+<span class="sd">        &gt;&gt;&gt; from pfhedge.nn.functional import realized_variance</span>
 <span class="sd">        &gt;&gt;&gt; from pfhedge.instruments import BrownianStock</span>
-<span class="sd">        &gt;&gt;&gt; from pfhedge.instruments import LookbackOption</span>
+<span class="sd">        &gt;&gt;&gt; from pfhedge.instruments import VarianceSwap</span>
 <span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt; _ = torch.manual_seed(42)</span>
-<span class="sd">        &gt;&gt;&gt; derivative = LookbackOption(BrownianStock(), maturity=5/250)</span>
+<span class="sd">        &gt;&gt;&gt; derivative = VarianceSwap(BrownianStock(), strike=0.04, maturity=5/250)</span>
 <span class="sd">        &gt;&gt;&gt; derivative.simulate(n_paths=2)</span>
 <span class="sd">        &gt;&gt;&gt; derivative.underlier.spot</span>
 <span class="sd">        tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930, 0.9906],</span>
 <span class="sd">                [1.0000, 0.9919, 0.9976, 1.0009, 1.0076, 1.0179]])</span>
+<span class="sd">        &gt;&gt;&gt; realized_variance(derivative.ul().spot, dt=derivative.ul().dt)</span>
+<span class="sd">        tensor([0.0114, 0.0129])</span>
 <span class="sd">        &gt;&gt;&gt; derivative.payoff()</span>
-<span class="sd">        tensor([0.0073, 0.0179])</span>
+<span class="sd">        tensor([-0.0286, -0.0271])</span>
 <span class="sd">    """</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">underlier</span><span class="p">:</span> <span class="n">Primary</span><span class="p">,</span>
-        <span class="n">call</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">strike</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">strike</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.04</span><span class="p">,</span>
         <span class="n">maturity</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">20</span> <span class="o">/</span> <span class="mi">250</span><span class="p">,</span>
         <span class="n">dtype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">device</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">underlier</span> <span class="o">=</span> <span class="n">underlier</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">call</span> <span class="o">=</span> <span class="n">call</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">strike</span> <span class="o">=</span> <span class="n">strike</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">maturity</span> <span class="o">=</span> <span class="n">maturity</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ul</span><span class="p">()</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(...)"</span><span class="p">]</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">:</span>
-            <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"call=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-        <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"strike=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">strike</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">underlier</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(...)"</span><span class="p">]</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"strike=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">strike</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"maturity=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">maturity</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="n">params</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dinfo</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">+</span> <span class="s2">"("</span> <span class="o">+</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="o">+</span> <span class="s2">")"</span>
 
-<div class="viewcode-block" id="LookbackOption.payoff"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.LookbackOption.html#pfhedge.instruments.LookbackOption.payoff">[docs]</a>    <span class="k">def</span> <span class="nf">payoff</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">lookback_payoff</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ul</span><span class="p">()</span><span class="o">.</span><span class="n">spot</span><span class="p">,</span> <span class="n">call</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">,</span> <span class="n">strike</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">strike</span><span class="p">)</span></div></div>
+<div class="viewcode-block" id="VarianceSwap.payoff"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.VarianceSwap.html#pfhedge.instruments.VarianceSwap.payoff">[docs]</a>    <span class="k">def</span> <span class="nf">payoff</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">realized_variance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ul</span><span class="p">()</span><span class="o">.</span><span class="n">spot</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ul</span><span class="p">()</span><span class="o">.</span><span class="n">dt</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">strike</span></div></div>
 
 
 <span class="c1"># Assign docstrings so they appear in Sphinx documentation</span>
-<span class="n">set_attr_and_docstring</span><span class="p">(</span><span class="n">LookbackOption</span><span class="p">,</span> <span class="s2">"simulate"</span><span class="p">,</span> <span class="n">Derivative</span><span class="o">.</span><span class="n">simulate</span><span class="p">)</span>
-<span class="n">set_attr_and_docstring</span><span class="p">(</span><span class="n">LookbackOption</span><span class="p">,</span> <span class="s2">"to"</span><span class="p">,</span> <span class="n">Derivative</span><span class="o">.</span><span class="n">to</span><span class="p">)</span>
-<span class="n">set_attr_and_docstring</span><span class="p">(</span><span class="n">LookbackOption</span><span class="p">,</span> <span class="s2">"ul"</span><span class="p">,</span> <span class="n">Derivative</span><span class="o">.</span><span class="n">ul</span><span class="p">)</span>
-<span class="n">set_docstring</span><span class="p">(</span><span class="n">LookbackOption</span><span class="p">,</span> <span class="s2">"payoff"</span><span class="p">,</span> <span class="n">Derivative</span><span class="o">.</span><span class="n">payoff</span><span class="p">)</span>
-<span class="n">set_attr_and_docstring</span><span class="p">(</span><span class="n">LookbackOption</span><span class="p">,</span> <span class="s2">"moneyness"</span><span class="p">,</span> <span class="n">OptionMixin</span><span class="o">.</span><span class="n">moneyness</span><span class="p">)</span>
-<span class="n">set_attr_and_docstring</span><span class="p">(</span><span class="n">LookbackOption</span><span class="p">,</span> <span class="s2">"log_moneyness"</span><span class="p">,</span> <span class="n">OptionMixin</span><span class="o">.</span><span class="n">log_moneyness</span><span class="p">)</span>
-<span class="n">set_attr_and_docstring</span><span class="p">(</span><span class="n">LookbackOption</span><span class="p">,</span> <span class="s2">"time_to_maturity"</span><span class="p">,</span> <span class="n">OptionMixin</span><span class="o">.</span><span class="n">time_to_maturity</span><span class="p">)</span>
+<span class="n">set_attr_and_docstring</span><span class="p">(</span><span class="n">VarianceSwap</span><span class="p">,</span> <span class="s2">"simulate"</span><span class="p">,</span> <span class="n">Derivative</span><span class="o">.</span><span class="n">simulate</span><span class="p">)</span>
+<span class="n">set_attr_and_docstring</span><span class="p">(</span><span class="n">VarianceSwap</span><span class="p">,</span> <span class="s2">"to"</span><span class="p">,</span> <span class="n">Derivative</span><span class="o">.</span><span class="n">to</span><span class="p">)</span>
+<span class="n">set_attr_and_docstring</span><span class="p">(</span><span class="n">VarianceSwap</span><span class="p">,</span> <span class="s2">"ul"</span><span class="p">,</span> <span class="n">Derivative</span><span class="o">.</span><span class="n">ul</span><span class="p">)</span>
+<span class="n">set_docstring</span><span class="p">(</span><span class="n">VarianceSwap</span><span class="p">,</span> <span class="s2">"payoff"</span><span class="p">,</span> <span class="n">Derivative</span><span class="o">.</span><span class="n">payoff</span><span class="p">)</span>
 </pre></div>
       </article>
       <footer>

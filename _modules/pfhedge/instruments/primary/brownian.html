@@ -4,11 +4,11 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
-    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.11.beta42"/>
+    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.17.beta43"/>
         <title>pfhedge.instruments.primary.brownian - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?digest=197f00461d56902ea7ca048ec6e6ba026f62c97b" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo-extensions.css?digest=93475b62d1c3bc01323a0eefdc14a62d77b12690" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?digest=910ac4ccc9d7c023151c34010d7b500fb9777a51" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
     
     
 
@@ -187,6 +187,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.VarianceSwap.html">VarianceSwap</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../stochastic.html">pfhedge.stochastic</a></li>
@@ -221,7 +222,8 @@
           </label>
         </div>
         <h1>Source code for pfhedge.instruments.primary.brownian</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+<span></span><span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">ceil</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">cast</span>
@@ -252,11 +254,11 @@
 <span class="sd">        dt (float, default=1/250): The intervals of the time steps.</span>
 <span class="sd">        dtype (torch.device, optional): Desired device of returned tensor.</span>
 <span class="sd">            Default: If None, uses a global default</span>
-<span class="sd">            (see `torch.set_default_tensor_type()`).</span>
+<span class="sd">            (see ``torch.set_default_tensor_type()``).</span>
 <span class="sd">        device (torch.device, optional): Desired device of returned tensor.</span>
 <span class="sd">            Default: if None, uses the current device for the default tensor type</span>
-<span class="sd">            (see `torch.set_default_tensor_type()`).</span>
-<span class="sd">            `device` will be the CPU for CPU tensor types and</span>
+<span class="sd">            (see ``torch.set_default_tensor_type()``).</span>
+<span class="sd">            ``device`` will be the CPU for CPU tensor types and</span>
 <span class="sd">            the current CUDA device for CUDA tensor types.</span>
 
 <span class="sd">    Buffers:</span>
@@ -274,10 +276,10 @@
 <span class="sd">        &gt;&gt;&gt; stock = BrownianStock()</span>
 <span class="sd">        &gt;&gt;&gt; stock.simulate(n_paths=2, time_horizon=5 / 250)</span>
 <span class="sd">        &gt;&gt;&gt; stock.spot</span>
-<span class="sd">        tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930],</span>
-<span class="sd">                [1.0000, 1.0282, 1.0199, 1.0258, 1.0292]])</span>
+<span class="sd">        tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930, 0.9906],</span>
+<span class="sd">                [1.0000, 0.9919, 0.9976, 1.0009, 1.0076, 1.0179]])</span>
 
-<span class="sd">        Using custom `dtype` and `device`.</span>
+<span class="sd">        Using custom ``dtype`` and ``device``.</span>
 
 <span class="sd">        &gt;&gt;&gt; stock = BrownianStock()</span>
 <span class="sd">        &gt;&gt;&gt; stock.to(dtype=torch.float64, device="cuda:0")</span>
@@ -310,11 +312,11 @@
         <span class="n">time_horizon</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">20</span> <span class="o">/</span> <span class="mi">250</span><span class="p">,</span>
         <span class="n">init_state</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">TensorOrFloat</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">"""Simulate the spot price and add it as a buffer named `spot`.</span>
+        <span class="sd">"""Simulate the spot price and add it as a buffer named ``spot``.</span>
 
 <span class="sd">        The shape of the spot is :math:`(N, T)`, where :math:`N` is the number of</span>
 <span class="sd">        simulated paths and :math:`T` is the number of time steps.</span>
-<span class="sd">        The number of time steps is determinded from `dt` and `time_horizon`.</span>
+<span class="sd">        The number of time steps is determinded from ``dt`` and ``time_horizon``.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            n_paths (int, default=1): The number of paths to simulate.</span>
@@ -322,11 +324,11 @@
 <span class="sd">                the price.</span>
 <span class="sd">            init_state (tuple[torch.Tensor | float], optional): The initial state of</span>
 <span class="sd">                the instrument.</span>
-<span class="sd">                This is specified by `(spot,)`, where `spot` is the initial value</span>
+<span class="sd">                This is specified by ``(spot,)``, where ``spot`` is the initial value</span>
 <span class="sd">                of the stock price.</span>
-<span class="sd">                If `None` (default), it uses the default value</span>
+<span class="sd">                If ``None`` (default), it uses the default value</span>
 <span class="sd">                (See :func:`default_init_state`).</span>
-<span class="sd">                It also accepts a float or a `torch.Tensor`.</span>
+<span class="sd">                It also accepts a ``float`` or a ``torch.Tensor``.</span>
 
 <span class="sd">        Examples:</span>
 
@@ -334,15 +336,15 @@
 <span class="sd">            &gt;&gt;&gt; stock = BrownianStock()</span>
 <span class="sd">            &gt;&gt;&gt; stock.simulate(n_paths=2, time_horizon=5 / 250, init_state=(2.0,))</span>
 <span class="sd">            &gt;&gt;&gt; stock.spot</span>
-<span class="sd">            tensor([[2.0000, 2.0031, 2.0089, 2.0146, 1.9860],</span>
-<span class="sd">                    [2.0000, 2.0565, 2.0398, 2.0516, 2.0584]])</span>
+<span class="sd">            tensor([[2.0000, 2.0031, 2.0089, 2.0146, 1.9860, 1.9812],</span>
+<span class="sd">                    [2.0000, 1.9838, 1.9952, 2.0018, 2.0153, 2.0358]])</span>
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="n">init_state</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">init_state</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_init_state</span><span class="p">)</span>
 
         <span class="n">spot</span> <span class="o">=</span> <span class="n">generate_geometric_brownian</span><span class="p">(</span>
             <span class="n">n_paths</span><span class="o">=</span><span class="n">n_paths</span><span class="p">,</span>
-            <span class="n">n_steps</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">time_horizon</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">),</span>
+            <span class="n">n_steps</span><span class="o">=</span><span class="n">ceil</span><span class="p">(</span><span class="n">time_horizon</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span>
             <span class="n">init_state</span><span class="o">=</span><span class="n">init_state</span><span class="p">,</span>
             <span class="n">volatility</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">volatility</span><span class="p">,</span>
             <span class="n">dt</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span>

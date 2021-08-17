@@ -4,11 +4,11 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
-    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.11.beta42"/>
+    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.17.beta43"/>
         <title>pfhedge.nn.modules.loss - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?digest=197f00461d56902ea7ca048ec6e6ba026f62c97b" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo-extensions.css?digest=93475b62d1c3bc01323a0eefdc14a62d77b12690" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?digest=910ac4ccc9d7c023151c34010d7b500fb9777a51" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
     
     
 
@@ -187,6 +187,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.VarianceSwap.html">VarianceSwap</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../stochastic.html">pfhedge.stochastic</a></li>
@@ -260,7 +261,7 @@
         <span class="sd">"""Returns the cash amount which is as preferable as</span>
 <span class="sd">        the given profit-loss distribution in terms of the loss.</span>
 
-<span class="sd">        The output `cash` is expected to satisfy the following relation:</span>
+<span class="sd">        The output ``cash`` is expected to satisfy the following relation:</span>
 
 <span class="sd">        .. code::</span>
 
@@ -287,7 +288,8 @@
 <div class="viewcode-block" id="EntropicRiskMeasure"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.EntropicRiskMeasure.html#pfhedge.nn.EntropicRiskMeasure">[docs]</a><span class="k">class</span> <span class="nc">EntropicRiskMeasure</span><span class="p">(</span><span class="n">HedgeLoss</span><span class="p">):</span>
     <span class="sd">"""Creates a loss given by the entropic risk measure.</span>
 
-<span class="sd">    The entropic risk measure of the profit-loss distribution `pnl` is given by:</span>
+<span class="sd">    The entropic risk measure of the profit-loss distribution</span>
+<span class="sd">    :math:`\\text{pnl}` is given by:</span>
 
 <span class="sd">    .. math ::</span>
 
@@ -350,7 +352,7 @@
 <div class="viewcode-block" id="EntropicLoss"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.EntropicLoss.html#pfhedge.nn.EntropicLoss">[docs]</a><span class="k">class</span> <span class="nc">EntropicLoss</span><span class="p">(</span><span class="n">HedgeLoss</span><span class="p">):</span>
     <span class="sd">"""Creates a loss given by the negative of expected exponential utility.</span>
 
-<span class="sd">    The loss of the profit-loss `pnl` is given by</span>
+<span class="sd">    The loss of the profit-loss :math:`\\text{pnl}` is given by:</span>
 
 <span class="sd">    .. math ::</span>
 
@@ -413,7 +415,7 @@
 <div class="viewcode-block" id="IsoelasticLoss"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.IsoelasticLoss.html#pfhedge.nn.IsoelasticLoss">[docs]</a><span class="k">class</span> <span class="nc">IsoelasticLoss</span><span class="p">(</span><span class="n">HedgeLoss</span><span class="p">):</span>
     <span class="sd">"""Creates a loss function that measures the isoelastic utility.</span>
 
-<span class="sd">    The loss of the profit-loss distribution `pnl` is given by</span>
+<span class="sd">    The loss of the profit-loss :math:`\\text{pnl}` is given by:</span>
 
 <span class="sd">    .. math ::</span>
 

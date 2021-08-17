@@ -4,11 +4,11 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
-    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.11.beta42"/>
+    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.17.beta43"/>
         <title>pfhedge.instruments.primary.base - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?digest=197f00461d56902ea7ca048ec6e6ba026f62c97b" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo-extensions.css?digest=93475b62d1c3bc01323a0eefdc14a62d77b12690" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?digest=910ac4ccc9d7c023151c34010d7b500fb9777a51" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
     
     
 
@@ -187,6 +187,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.VarianceSwap.html">VarianceSwap</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../stochastic.html">pfhedge.stochastic</a></li>
@@ -285,12 +286,16 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">"""Simulate time series associated with the instrument and add them as buffers.</span>
 
+<span class="sd">        The shapes of the registered buffers should be ``(n_paths, n_steps)``</span>
+<span class="sd">        where ``n_steps`` is the minimum integer that satisfies</span>
+<span class="sd">        ``n_steps * self.dt &gt;= time_horizon``.</span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            n_paths (int): The number of paths to simulate.</span>
 <span class="sd">            time_horizon (float): The period of time to simulate the price.</span>
 <span class="sd">            init_state (tuple[torch.Tensor | float], optional): The initial state of</span>
 <span class="sd">                the instrument.</span>
-<span class="sd">                If `None` (default), it uses the default value</span>
+<span class="sd">                If ``None`` (default), it uses the default value</span>
 <span class="sd">                (See :func:`default_init_state`).</span>
 <span class="sd">        """</span></div>
 
@@ -307,7 +312,7 @@
 <span class="sd">                If ``None``, the buffer is **not** included in the module's</span>
 <span class="sd">                :attr:`state_dict`.</span>
 <span class="sd">        """</span>
-        <span class="c1"># Implementation here refers to `torch.nn.Module.register_buffer`.</span>
+        <span class="c1"># Implementation here refers to torch.nn.Module.register_buffer.</span>
         <span class="k">if</span> <span class="s2">"_buffers"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">"cannot assign buffer before Primary.__init__() call"</span><span class="p">)</span>
         <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">_six</span><span class="o">.</span><span class="n">string_classes</span><span class="p">):</span>

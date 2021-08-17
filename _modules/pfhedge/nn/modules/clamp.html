@@ -4,11 +4,11 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
-    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.11.beta42"/>
+    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.17.beta43"/>
         <title>pfhedge.nn.modules.clamp - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?digest=197f00461d56902ea7ca048ec6e6ba026f62c97b" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo-extensions.css?digest=93475b62d1c3bc01323a0eefdc14a62d77b12690" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?digest=910ac4ccc9d7c023151c34010d7b500fb9777a51" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
     
     
 
@@ -187,6 +187,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.VarianceSwap.html">VarianceSwap</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../stochastic.html">pfhedge.stochastic</a></li>
@@ -231,7 +232,7 @@
 
 
 <div class="viewcode-block" id="LeakyClamp"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.LeakyClamp.html#pfhedge.nn.LeakyClamp">[docs]</a><span class="k">class</span> <span class="nc">LeakyClamp</span><span class="p">(</span><span class="n">Module</span><span class="p">):</span>
-    <span class="sd">"""Leakily Clamp all elements in `input` into the range :math:`[\\min, \\max]`.</span>
+    <span class="sd">"""Leakily Clamp all elements in ``input`` into the range :math:`[\\min, \\max]`.</span>
 
 <span class="sd">    The bounds :math:`\\min` and :math:`\\max` can be tensors.</span>
 
@@ -291,7 +292,7 @@
 <div class="viewcode-block" id="LeakyClamp.forward"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.LeakyClamp.html#pfhedge.nn.LeakyClamp.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="nb">min</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">max</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">"""Clamp all elements in `input` into the range :math:`[\\min, \\max]`.</span>
+        <span class="sd">"""Clamp all elements in ``input`` into the range :math:`[\\min, \\max]`.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            input (torch.Tensor): The input tensor.</span>
@@ -312,7 +313,7 @@
 
 
 <div class="viewcode-block" id="Clamp"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.Clamp.html#pfhedge.nn.Clamp">[docs]</a><span class="k">class</span> <span class="nc">Clamp</span><span class="p">(</span><span class="n">Module</span><span class="p">):</span>
-    <span class="sd">"""Clamp all elements in `input` into the range :math:`[\\min, \\max]`.</span>
+    <span class="sd">"""Clamp all elements in ``input`` into the range :math:`[\\min, \\max]`.</span>
 
 <span class="sd">    The bounds :math:`\\min` and :math:`\\max` can be tensors.</span>
 
@@ -367,7 +368,7 @@
 <div class="viewcode-block" id="Clamp.forward"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.Clamp.html#pfhedge.nn.Clamp.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="nb">min</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">max</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">"""Clamp all elements in `input` into the range :math:`[\\min, \\max]`.</span>
+        <span class="sd">"""Clamp all elements in ``input`` into the range :math:`[\\min, \\max]`.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            input (torch.Tensor): The input tensor.</span>

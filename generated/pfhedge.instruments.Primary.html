@@ -5,11 +5,11 @@
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="BrownianStock" href="pfhedge.instruments.BrownianStock.html" /><link rel="prev" title="pfhedge.instruments" href="../instruments.html" />
 
-    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.11.beta42"/>
+    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.17.beta43"/>
         <title>Primary - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=197f00461d56902ea7ca048ec6e6ba026f62c97b" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=93475b62d1c3bc01323a0eefdc14a62d77b12690" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=910ac4ccc9d7c023151c34010d7b500fb9777a51" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
     
     
 
@@ -188,6 +188,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.VarianceSwap.html">VarianceSwap</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../stochastic.html">pfhedge.stochastic</a></li>
@@ -291,19 +292,19 @@ Defaults to the current CUDA device.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pfhedge.instruments.Primary.double">
 <span class="sig-name descname"><span class="pre">double</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.Primary.double" title="Permalink to this definition">¶</a></dt>
-<dd><p><cite>self.double()</cite> is equivalent to <cite>self.to(torch.float64)</cite>.
+<dd><p>It is equivalent to <code class="docutils literal notranslate"><span class="pre">self.to(torch.float64)</span></code>.
 See <a class="reference internal" href="#pfhedge.instruments.Primary.to" title="pfhedge.instruments.Primary.to"><code class="xref py py-func docutils literal notranslate"><span class="pre">to()</span></code></a>.</p>
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pfhedge.instruments.Primary.float">
 <span class="sig-name descname"><span class="pre">float</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.Primary.float" title="Permalink to this definition">¶</a></dt>
-<dd><p><cite>self.float()</cite> is equivalent to <cite>self.to(torch.float32)</cite>.
+<dd><p>It is equivalent to <code class="docutils literal notranslate"><span class="pre">self.to(torch.float32)</span></code>.
 See <a class="reference internal" href="#pfhedge.instruments.Primary.to" title="pfhedge.instruments.Primary.to"><code class="xref py py-func docutils literal notranslate"><span class="pre">to()</span></code></a>.</p>
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pfhedge.instruments.Primary.half">
 <span class="sig-name descname"><span class="pre">half</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.Primary.half" title="Permalink to this definition">¶</a></dt>
-<dd><p><cite>self.half()</cite> is equivalent to <cite>self.to(torch.float16)</cite>.
+<dd><p>It is equivalent to <code class="docutils literal notranslate"><span class="pre">self.to(torch.float16)</span></code>.
 See <a class="reference internal" href="#pfhedge.instruments.Primary.to" title="pfhedge.instruments.Primary.to"><code class="xref py py-func docutils literal notranslate"><span class="pre">to()</span></code></a>.</p>
 </dd></dl>
 <dl class="py method">
@@ -339,6 +340,9 @@ If <code class="docutils literal notranslate"><span class="pre">None</span></cod
 <dt class="sig sig-object py" id="pfhedge.instruments.Primary.simulate">
 <em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">simulate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_horizon</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/primary/base.html#Primary.simulate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Primary.simulate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Simulate time series associated with the instrument and add them as buffers.</p>
+<p>The shapes of the registered buffers should be <code class="docutils literal notranslate"><span class="pre">(n_paths,</span> <span class="pre">n_steps)</span></code>
+where <code class="docutils literal notranslate"><span class="pre">n_steps</span></code> is the minimum integer that satisfies
+<code class="docutils literal notranslate"><span class="pre">n_steps</span> <span class="pre">*</span> <span class="pre">self.dt</span> <span class="pre">&gt;=</span> <span class="pre">time_horizon</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -346,7 +350,7 @@ If <code class="docutils literal notranslate"><span class="pre">None</span></cod
 <li><p><strong>time_horizon</strong> (<em>float</em>) – The period of time to simulate the price.</p></li>
 <li><p><strong>init_state</strong> (<em>tuple</em><em>[</em><em>torch.Tensor</em><em> | </em><em>float</em><em>]</em><em>, </em><em>optional</em>) – The initial state of
 the instrument.
-If <cite>None</cite> (default), it uses the default value
+If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), it uses the default value
 (See <a class="reference internal" href="#pfhedge.instruments.Primary.default_init_state" title="pfhedge.instruments.Primary.default_init_state"><code class="xref py py-func docutils literal notranslate"><span class="pre">default_init_state()</span></code></a>).</p></li>
 </ul>
 </dd>
@@ -357,8 +361,8 @@ If <cite>None</cite> (default), it uses the default value
 <span class="sig-name descname"><span class="pre">to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/primary/base.html#Primary.to"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Primary.to" title="Permalink to this definition">¶</a></dt>
 <dd><p>Performs dtype and/or device conversion of the buffers associated to
 the instument.</p>
-<p>A <cite>torch.dtype</cite> and <cite>torch.device</cite> are inferred from the arguments of
-<cite>self.to(*args, **kwargs)</cite>.</p>
+<p>A <code class="docutils literal notranslate"><span class="pre">torch.dtype</span></code> and <code class="docutils literal notranslate"><span class="pre">torch.device</span></code> are inferred from the arguments of
+<code class="docutils literal notranslate"><span class="pre">self.to(*args,</span> <span class="pre">**kwargs)</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">

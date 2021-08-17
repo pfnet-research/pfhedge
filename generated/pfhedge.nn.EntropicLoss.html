@@ -5,11 +5,11 @@
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="EntropicRiskMeasure" href="pfhedge.nn.EntropicRiskMeasure.html" /><link rel="prev" title="HedgeLoss" href="pfhedge.nn.HedgeLoss.html" />
 
-    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.11.beta42"/>
+    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.17.beta43"/>
         <title>EntropicLoss - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=197f00461d56902ea7ca048ec6e6ba026f62c97b" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=93475b62d1c3bc01323a0eefdc14a62d77b12690" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=910ac4ccc9d7c023151c34010d7b500fb9777a51" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
     
     
 
@@ -188,6 +188,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.VarianceSwap.html">VarianceSwap</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../stochastic.html">pfhedge.stochastic</a></li>
@@ -227,7 +228,7 @@
 <dt class="sig sig-object py" id="pfhedge.nn.EntropicLoss">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pfhedge.nn.</span></span><span class="sig-name descname"><span class="pre">EntropicLoss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/loss.html#EntropicLoss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.EntropicLoss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a loss given by the negative of expected exponential utility.</p>
-<p>The loss of the profit-loss <cite>pnl</cite> is given by</p>
+<p>The loss of the profit-loss <span class="math notranslate nohighlight">\(\text{pnl}\)</span> is given by:</p>
 <div class="math-wrapper"><div class="math notranslate nohighlight">
 \[\text{loss}(\text{pnl}) = -\mathbf{E}[u(\text{pnl})] \,,
 \quad

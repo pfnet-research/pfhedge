@@ -5,11 +5,11 @@
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="pfhedge.stochastic" href="stochastic.html" />
 
-    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.11.beta42"/>
+    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.17.beta43"/>
         <title>pfhedge.autogreek - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=197f00461d56902ea7ca048ec6e6ba026f62c97b" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=93475b62d1c3bc01323a0eefdc14a62d77b12690" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=910ac4ccc9d7c023151c34010d7b500fb9777a51" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
     
     
 
@@ -188,6 +188,7 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.VarianceSwap.html">VarianceSwap</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="stochastic.html">pfhedge.stochastic</a></li>
@@ -234,9 +235,10 @@ a price of underlying instrument.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pricer</strong> (<em>callable</em>) – Pricing formula of a derivative.</p></li>
-<li><p><strong>create_graph</strong> (<em>bool</em><em>, </em><em>default=False</em>) – If <cite>True</cite>, graph of the derivative will be
-constructed, allowing to compute higher order derivative products.</p></li>
-<li><p><strong>**kwargs</strong> – Parameters passed to <cite>pricer</cite>.</p></li>
+<li><p><strong>create_graph</strong> (<em>bool</em><em>, </em><em>default=False</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, graph of the derivative
+will be constructed, allowing to compute higher order derivative
+products.</p></li>
+<li><p><strong>**kwargs</strong> – Parameters passed to <code class="docutils literal notranslate"><span class="pre">pricer</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -275,9 +277,9 @@ constructed, allowing to compute higher order derivative products.</p></li>
 <span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
 <span class="go">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span> <span class="o">=</span> <span class="n">EuropeanOption</span><span class="p">(</span><span class="n">BrownianStock</span><span class="p">(</span><span class="n">cost</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span> <span class="o">=</span> <span class="n">EuropeanOption</span><span class="p">(</span><span class="n">BrownianStock</span><span class="p">(</span><span class="n">cost</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">WhalleyWilmott</span><span class="p">(</span><span class="n">derivative</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">hedger</span> <span class="o">=</span> <span class="n">Hedger</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">inputs</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hedger</span> <span class="o">=</span> <span class="n">Hedger</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">inputs</span><span class="p">())</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
 <span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">pricer</span><span class="p">(</span><span class="n">spot</span><span class="p">):</span>
 <span class="gp">... </span>    <span class="k">return</span> <span class="n">hedger</span><span class="o">.</span><span class="n">price</span><span class="p">(</span>
@@ -285,7 +287,7 @@ constructed, allowing to compute higher order derivative products.</p></li>
 <span class="gp">... </span>    <span class="p">)</span>
 <span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">autogreek</span><span class="o">.</span><span class="n">delta</span><span class="p">(</span><span class="n">pricer</span><span class="p">,</span> <span class="n">spot</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="mf">1.0</span><span class="p">))</span>
-<span class="go">tensor(0.52...)</span>
+<span class="go">tensor(0.5...)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -299,9 +301,9 @@ a price of underlying instrument.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pricer</strong> (<em>callable</em>) – Pricing formula of a derivative.</p></li>
-<li><p><strong>create_graph</strong> (<em>bool</em><em>, </em><em>default=False</em>) – If <cite>True</cite>, graph of the derivative will be
+<li><p><strong>create_graph</strong> (<em>bool</em><em>, </em><em>default=False</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, graph of the derivative will be
 constructed, allowing to compute higher order derivative products.</p></li>
-<li><p><strong>**kwargs</strong> – Parameters passed to <cite>pricer</cite>.</p></li>
+<li><p><strong>**kwargs</strong> – Parameters passed to <code class="docutils literal notranslate"><span class="pre">pricer</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>

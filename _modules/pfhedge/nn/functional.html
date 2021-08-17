@@ -4,11 +4,11 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
-    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.11.beta42"/>
+    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.17.beta43"/>
         <title>pfhedge.nn.functional - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=197f00461d56902ea7ca048ec6e6ba026f62c97b" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?digest=93475b62d1c3bc01323a0eefdc14a62d77b12690" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=910ac4ccc9d7c023151c34010d7b500fb9777a51" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
     
     
 
@@ -187,6 +187,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.VarianceSwap.html">VarianceSwap</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../stochastic.html">pfhedge.stochastic</a></li>
@@ -223,6 +224,7 @@
         <h1>Source code for pfhedge.nn.functional</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">ceil</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">fn</span>
@@ -238,7 +240,7 @@
 <span class="sd">        strike (float, default=1.0): The strike price of the option.</span>
 
 <span class="sd">    Shape:</span>
-<span class="sd">        - input: :math:`(*, T)`, where, :math:`T` stands for the number of time steps</span>
+<span class="sd">        - input: :math:`(*, T)` where :math:`T` stands for the number of time steps</span>
 <span class="sd">          and :math:`*` means any number of additional dimensions.</span>
 <span class="sd">        - output: :math:`(*)`</span>
 
@@ -260,7 +262,7 @@
 <span class="sd">        strike (float, default=1.0): The strike price of the option.</span>
 
 <span class="sd">    Shape:</span>
-<span class="sd">        - input: :math:`(*, T)`, where, :math:`T` stands for the number of time steps</span>
+<span class="sd">        - input: :math:`(*, T)` where :math:`T` stands for the number of time steps</span>
 <span class="sd">          and :math:`*` means any number of additional dimensions.</span>
 <span class="sd">        - output: :math:`(*)`</span>
 
@@ -284,7 +286,7 @@
 <span class="sd">        strike (float, default=1.0): The strike price of the option.</span>
 
 <span class="sd">    Shape:</span>
-<span class="sd">        - input: :math:`(*, T)`, where, :math:`T` stands for the number of time steps</span>
+<span class="sd">        - input: :math:`(*, T)` where :math:`T` stands for the number of time steps</span>
 <span class="sd">          and :math:`*` means any number of additional dimensions.</span>
 <span class="sd">        - output: :math:`(*)`</span>
 
@@ -308,7 +310,7 @@
 <span class="sd">        strike (float, default=1.0): The strike price of the option.</span>
 
 <span class="sd">    Shape:</span>
-<span class="sd">        - input: :math:`(*, T)`, where, :math:`T` stands for the number of time steps</span>
+<span class="sd">        - input: :math:`(*, T)` where :math:`T` stands for the number of time steps</span>
 <span class="sd">          and :math:`*` means any number of additional dimensions.</span>
 <span class="sd">        - output: :math:`(*)`</span>
 
@@ -368,15 +370,15 @@
 
 
 <div class="viewcode-block" id="topp"><a class="viewcode-back" href="../../../nn.functional.html#pfhedge.nn.functional.topp">[docs]</a><span class="k">def</span> <span class="nf">topp</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">p</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">dim</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">largest</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
-    <span class="sd">"""Returns the largest `p * N` elements of the given input tensor,</span>
-<span class="sd">    where `N` stands for the total number of elements in the input tensor.</span>
+    <span class="sd">"""Returns the largest :math:`p * N` elements of the given input tensor,</span>
+<span class="sd">    where :math:`N` stands for the total number of elements in the input tensor.</span>
 
-<span class="sd">    If `dim` is not given, the last dimension of the `input` is chosen.</span>
+<span class="sd">    If ``dim`` is not given, the last dimension of the ``input`` is chosen.</span>
 
-<span class="sd">    If `largest` is `False` then the smallest elements are returned.</span>
+<span class="sd">    If ``largest`` is ``False`` then the smallest elements are returned.</span>
 
-<span class="sd">    A namedtuple of `(values, indices)` is returned, where the `indices` are the indices</span>
-<span class="sd">    of the elements in the original `input` tensor.</span>
+<span class="sd">    A namedtuple of ``(values, indices)`` is returned, where the ``indices``</span>
+<span class="sd">    are the indices of the elements in the original ``input`` tensor.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        input (torch.Tensor): The input tensor.</span>
@@ -437,7 +439,7 @@
     <span class="nb">max</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">clamped_slope</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-    <span class="sd">"""Leakily clamp all elements in `input` into the range :math:`[\\min, \\max]`.</span>
+    <span class="sd">"""Leakily clamp all elements in ``input`` into the range :math:`[\\min, \\max]`.</span>
 
 <span class="sd">    The bounds :math:`\\min` and :math:`\\max` can be tensors.</span>
 
@@ -462,13 +464,63 @@
 <div class="viewcode-block" id="clamp"><a class="viewcode-back" href="../../../nn.functional.html#pfhedge.nn.functional.clamp">[docs]</a><span class="k">def</span> <span class="nf">clamp</span><span class="p">(</span>
     <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="nb">min</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">max</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-    <span class="sd">"""Clamp all elements in `input` into the range :math:`[\\min, \\max]`.</span>
+    <span class="sd">"""Clamp all elements in ``input`` into the range :math:`[\\min, \\max]`.</span>
 
 <span class="sd">    The bounds :math:`\\min` and :math:`\\max` can be tensors.</span>
 
 <span class="sd">    See :class:`pfhedge.nn.Clamp` for details.</span>
 <span class="sd">    """</span>
     <span class="k">return</span> <span class="n">leaky_clamp</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="nb">max</span><span class="p">,</span> <span class="n">clamped_slope</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="realized_variance"><a class="viewcode-back" href="../../../nn.functional.html#pfhedge.nn.functional.realized_variance">[docs]</a><span class="k">def</span> <span class="nf">realized_variance</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">dt</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Tensor</span><span class="p">,</span> <span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+    <span class="sd">"""Returns the realized variance of the price.</span>
+
+<span class="sd">    Realized variance :math:`\\sigma^2` of the stock price :math:`S` is defined as:</span>
+
+<span class="sd">    .. math ::</span>
+
+<span class="sd">        \\sigma^2 = \\frac{1}{T - 1} \\sum_{i = 1}^{T - 1}</span>
+<span class="sd">        \\frac{1}{dt} \\log(S_{i + 1} / S_i)^2</span>
+
+<span class="sd">    where :math:`T` is the number of time steps.</span>
+
+<span class="sd">    .. note ::</span>
+
+<span class="sd">        The mean of log return is assumed to be zero.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        input (torch.Tensor): The input tensor.</span>
+<span class="sd">        dt (torch.Tensor or float): The intervals of the time steps.</span>
+
+<span class="sd">    Shape:</span>
+<span class="sd">        - input: :math:`(*, T)` where :math:`T` stands for the number of time steps</span>
+<span class="sd">          and :math:`*` means any number of additional dimensions.</span>
+<span class="sd">        - output: :math:`(*)`</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        torch.Tensor</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="nb">input</span><span class="o">.</span><span class="n">log</span><span class="p">()</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">square</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">dt</span></div>
+
+
+<div class="viewcode-block" id="realized_volatility"><a class="viewcode-back" href="../../../nn.functional.html#pfhedge.nn.functional.realized_volatility">[docs]</a><span class="k">def</span> <span class="nf">realized_volatility</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">dt</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Tensor</span><span class="p">,</span> <span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+    <span class="sd">"""Returns the realized volatility of the price.</span>
+<span class="sd">    It is square root of :func:`realized_variance`.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        input (torch.Tensor): The input tensor.</span>
+<span class="sd">        dt (torch.Tensor or float): The intervals of the time steps.</span>
+
+<span class="sd">    Shape:</span>
+<span class="sd">        - input: :math:`(*, T)` where :math:`T` stands for the number of time steps</span>
+<span class="sd">          and :math:`*` means any number of additional dimensions.</span>
+<span class="sd">        - output: :math:`(*)`</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        torch.Tensor</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">realized_variance</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="n">dt</span><span class="p">)</span><span class="o">.</span><span class="n">sqrt</span><span class="p">()</span></div>
 </pre></div>
       </article>
       <footer>

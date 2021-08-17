@@ -5,11 +5,11 @@
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="HestonStock" href="pfhedge.instruments.HestonStock.html" /><link rel="prev" title="Primary" href="pfhedge.instruments.Primary.html" />
 
-    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.11.beta42"/>
+    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.17.beta43"/>
         <title>BrownianStock - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=197f00461d56902ea7ca048ec6e6ba026f62c97b" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=93475b62d1c3bc01323a0eefdc14a62d77b12690" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=910ac4ccc9d7c023151c34010d7b500fb9777a51" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
     
     
 
@@ -188,6 +188,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.VarianceSwap.html">VarianceSwap</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../stochastic.html">pfhedge.stochastic</a></li>
@@ -238,11 +239,11 @@ for details of the process.</p>
 <li><p><strong>dt</strong> (<em>float</em><em>, </em><em>default=1/250</em>) – The intervals of the time steps.</p></li>
 <li><p><strong>dtype</strong> (<em>torch.device</em><em>, </em><em>optional</em>) – Desired device of returned tensor.
 Default: If None, uses a global default
-(see <cite>torch.set_default_tensor_type()</cite>).</p></li>
+(see <code class="docutils literal notranslate"><span class="pre">torch.set_default_tensor_type()</span></code>).</p></li>
 <li><p><strong>device</strong> (<em>torch.device</em><em>, </em><em>optional</em>) – Desired device of returned tensor.
 Default: if None, uses the current device for the default tensor type
-(see <cite>torch.set_default_tensor_type()</cite>).
-<cite>device</cite> will be the CPU for CPU tensor types and
+(see <code class="docutils literal notranslate"><span class="pre">torch.set_default_tensor_type()</span></code>).
+<code class="docutils literal notranslate"><span class="pre">device</span></code> will be the CPU for CPU tensor types and
 the current CUDA device for CUDA tensor types.</p></li>
 </ul>
 </dd>
@@ -264,11 +265,11 @@ The shape is <span class="math notranslate nohighlight">\((N, T)\)</span> where
 <span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span> <span class="o">=</span> <span class="n">BrownianStock</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">n_paths</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">time_horizon</span><span class="o">=</span><span class="mi">5</span> <span class="o">/</span> <span class="mi">250</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span><span class="o">.</span><span class="n">spot</span>
-<span class="go">tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930],</span>
-<span class="go">        [1.0000, 1.0282, 1.0199, 1.0258, 1.0292]])</span>
+<span class="go">tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930, 0.9906],</span>
+<span class="go">        [1.0000, 0.9919, 0.9976, 1.0009, 1.0076, 1.0179]])</span>
 </pre></div>
 </div>
-<p>Using custom <cite>dtype</cite> and <cite>device</cite>.</p>
+<p>Using custom <code class="docutils literal notranslate"><span class="pre">dtype</span></code> and <code class="docutils literal notranslate"><span class="pre">device</span></code>.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span> <span class="o">=</span> <span class="n">BrownianStock</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s2">"cuda:0"</span><span class="p">)</span>
 <span class="go">BrownianStock(..., dtype=torch.float64, device='cuda:0')</span>
@@ -282,10 +283,10 @@ The shape is <span class="math notranslate nohighlight">\((N, T)\)</span> where
 <dl class="py method">
 <dt class="sig sig-object py" id="pfhedge.instruments.BrownianStock.simulate">
 <span class="sig-name descname"><span class="pre">simulate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_horizon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/primary/brownian.html#BrownianStock.simulate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.BrownianStock.simulate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Simulate the spot price and add it as a buffer named <cite>spot</cite>.</p>
+<dd><p>Simulate the spot price and add it as a buffer named <code class="docutils literal notranslate"><span class="pre">spot</span></code>.</p>
 <p>The shape of the spot is <span class="math notranslate nohighlight">\((N, T)\)</span>, where <span class="math notranslate nohighlight">\(N\)</span> is the number of
 simulated paths and <span class="math notranslate nohighlight">\(T\)</span> is the number of time steps.
-The number of time steps is determinded from <cite>dt</cite> and <cite>time_horizon</cite>.</p>
+The number of time steps is determinded from <code class="docutils literal notranslate"><span class="pre">dt</span></code> and <code class="docutils literal notranslate"><span class="pre">time_horizon</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -294,11 +295,11 @@ The number of time steps is determinded from <cite>dt</cite> and <cite>time_hori
 the price.</p></li>
 <li><p><strong>init_state</strong> (<em>tuple</em><em>[</em><em>torch.Tensor</em><em> | </em><em>float</em><em>]</em><em>, </em><em>optional</em>) – The initial state of
 the instrument.
-This is specified by <cite>(spot,)</cite>, where <cite>spot</cite> is the initial value
+This is specified by <code class="docutils literal notranslate"><span class="pre">(spot,)</span></code>, where <code class="docutils literal notranslate"><span class="pre">spot</span></code> is the initial value
 of the stock price.
-If <cite>None</cite> (default), it uses the default value
+If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), it uses the default value
 (See <a class="reference internal" href="#pfhedge.instruments.BrownianStock.default_init_state" title="pfhedge.instruments.BrownianStock.default_init_state"><code class="xref py py-func docutils literal notranslate"><span class="pre">default_init_state()</span></code></a>).
-It also accepts a float or a <cite>torch.Tensor</cite>.</p></li>
+It also accepts a <code class="docutils literal notranslate"><span class="pre">float</span></code> or a <code class="docutils literal notranslate"><span class="pre">torch.Tensor</span></code>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -307,8 +308,8 @@ It also accepts a float or a <cite>torch.Tensor</cite>.</p></li>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span> <span class="o">=</span> <span class="n">BrownianStock</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">n_paths</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">time_horizon</span><span class="o">=</span><span class="mi">5</span> <span class="o">/</span> <span class="mi">250</span><span class="p">,</span> <span class="n">init_state</span><span class="o">=</span><span class="p">(</span><span class="mf">2.0</span><span class="p">,))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span><span class="o">.</span><span class="n">spot</span>
-<span class="go">tensor([[2.0000, 2.0031, 2.0089, 2.0146, 1.9860],</span>
-<span class="go">        [2.0000, 2.0565, 2.0398, 2.0516, 2.0584]])</span>
+<span class="go">tensor([[2.0000, 2.0031, 2.0089, 2.0146, 1.9860, 1.9812],</span>
+<span class="go">        [2.0000, 1.9838, 1.9952, 2.0018, 2.0153, 2.0358]])</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -317,8 +318,8 @@ It also accepts a float or a <cite>torch.Tensor</cite>.</p></li>
 <span class="sig-name descname"><span class="pre">to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.BrownianStock.to" title="Permalink to this definition">¶</a></dt>
 <dd><p>Performs dtype and/or device conversion of the buffers associated to
 the instument.</p>
-<p>A <cite>torch.dtype</cite> and <cite>torch.device</cite> are inferred from the arguments of
-<cite>self.to(*args, **kwargs)</cite>.</p>
+<p>A <code class="docutils literal notranslate"><span class="pre">torch.dtype</span></code> and <code class="docutils literal notranslate"><span class="pre">torch.device</span></code> are inferred from the arguments of
+<code class="docutils literal notranslate"><span class="pre">self.to(*args,</span> <span class="pre">**kwargs)</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">

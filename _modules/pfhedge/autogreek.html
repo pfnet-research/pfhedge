@@ -4,11 +4,11 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
-    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.11.beta42"/>
+    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.17.beta43"/>
         <title>pfhedge.autogreek - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=197f00461d56902ea7ca048ec6e6ba026f62c97b" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?digest=93475b62d1c3bc01323a0eefdc14a62d77b12690" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=910ac4ccc9d7c023151c34010d7b500fb9777a51" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
     
     
 
@@ -187,6 +187,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../generated/pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../generated/pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../generated/pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../generated/pfhedge.instruments.VarianceSwap.html">VarianceSwap</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../stochastic.html">pfhedge.stochastic</a></li>
@@ -240,9 +241,10 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        pricer (callable): Pricing formula of a derivative.</span>
-<span class="sd">        create_graph (bool, default=False): If `True`, graph of the derivative will be</span>
-<span class="sd">            constructed, allowing to compute higher order derivative products.</span>
-<span class="sd">        **kwargs: Parameters passed to `pricer`.</span>
+<span class="sd">        create_graph (bool, default=False): If ``True``, graph of the derivative</span>
+<span class="sd">            will be constructed, allowing to compute higher order derivative</span>
+<span class="sd">            products.</span>
+<span class="sd">        **kwargs: Parameters passed to ``pricer``.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        torch.Tensor</span>
@@ -281,9 +283,9 @@
 <span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt; _ = torch.manual_seed(42)</span>
 <span class="sd">        &gt;&gt;&gt;</span>
-<span class="sd">        &gt;&gt;&gt; derivative = EuropeanOption(BrownianStock(cost=1e-4))</span>
+<span class="sd">        &gt;&gt;&gt; derivative = EuropeanOption(BrownianStock(cost=1e-4)).to(torch.float64)</span>
 <span class="sd">        &gt;&gt;&gt; model = WhalleyWilmott(derivative)</span>
-<span class="sd">        &gt;&gt;&gt; hedger = Hedger(model, model.inputs())</span>
+<span class="sd">        &gt;&gt;&gt; hedger = Hedger(model, model.inputs()).to(torch.float64)</span>
 <span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt; def pricer(spot):</span>
 <span class="sd">        ...     return hedger.price(</span>
@@ -291,7 +293,7 @@
 <span class="sd">        ...     )</span>
 <span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt; autogreek.delta(pricer, spot=torch.tensor(1.0))</span>
-<span class="sd">        tensor(0.52...)</span>
+<span class="sd">        tensor(0.5...)</span>
 <span class="sd">    """</span>
     <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"strike"</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"spot"</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># Since delta does not depend on strike,</span>
@@ -304,7 +306,7 @@
         <span class="n">kwargs</span><span class="p">[</span><span class="s2">"moneyness"</span><span class="p">]</span> <span class="o">=</span> <span class="n">spot</span> <span class="o">/</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">"strike"</span><span class="p">]</span>
         <span class="n">kwargs</span><span class="p">[</span><span class="s2">"log_moneyness"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">spot</span> <span class="o">/</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">"strike"</span><span class="p">])</span><span class="o">.</span><span class="n">log</span><span class="p">()</span>
 
-    <span class="c1"># Delete parameters that are not in the signature of `pricer` to avoid</span>
+    <span class="c1"># Delete parameters that are not in the signature of pricer to avoid</span>
     <span class="c1"># TypeError: &lt;pricer&gt; got an unexpected keyword argument '&lt;parameter&gt;'</span>
     <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
         <span class="k">if</span> <span class="n">parameter</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">signature</span><span class="p">(</span><span class="n">pricer</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
@@ -330,9 +332,9 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        pricer (callable): Pricing formula of a derivative.</span>
-<span class="sd">        create_graph (bool, default=False): If `True`, graph of the derivative will be</span>
+<span class="sd">        create_graph (bool, default=False): If ``True``, graph of the derivative will be</span>
 <span class="sd">            constructed, allowing to compute higher order derivative products.</span>
-<span class="sd">        **kwargs: Parameters passed to `pricer`.</span>
+<span class="sd">        **kwargs: Parameters passed to ``pricer``.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        torch.Tensor</span>

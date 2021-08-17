@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Clamp" href="pfhedge.nn.Clamp.html" /><link rel="prev" title="BSLookbackOption" href="pfhedge.nn.BSLookbackOption.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="pfhedge.stochastic" href="../stochastic.html" /><link rel="prev" title="AmericanBinaryOption" href="pfhedge.instruments.AmericanBinaryOption.html" />
 
     <meta name="generator" content="sphinx-4.1.2, furo 2021.08.17.beta43"/>
-        <title>WhalleyWilmott - PFHedge documentation</title>
+        <title>VarianceSwap - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=910ac4ccc9d7c023151c34010d7b500fb9777a51" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
@@ -159,14 +159,14 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
-<li class="toctree-l1 current has-children"><a class="reference internal" href="../nn.html">pfhedge.nn</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../nn.html">pfhedge.nn</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.Hedger.html">Hedger</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.BlackScholes.html">BlackScholes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.BSAmericanBinaryOption.html">BSAmericanBinaryOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.BSEuropeanOption.html">BSEuropeanOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.BSEuropeanBinaryOption.html">BSEuropeanBinaryOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.BSLookbackOption.html">BSLookbackOption</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">WhalleyWilmott</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.WhalleyWilmott.html">WhalleyWilmott</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.Clamp.html">Clamp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.LeakyClamp.html">LeakyClamp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.HedgeLoss.html">HedgeLoss</a></li>
@@ -179,7 +179,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../nn.functional.html">pfhedge.nn.functional</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../instruments.html">pfhedge.instruments</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../instruments.html">pfhedge.instruments</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.Primary.html">Primary</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.HestonStock.html">HestonStock</a></li>
@@ -188,7 +188,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.VarianceSwap.html">VarianceSwap</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">VarianceSwap</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../stochastic.html">pfhedge.stochastic</a></li>
@@ -222,105 +222,85 @@
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
-        <section id="whalleywilmott">
-<h1>WhalleyWilmott<a class="headerlink" href="#whalleywilmott" title="Permalink to this headline">¶</a></h1>
+        <section id="varianceswap">
+<h1>VarianceSwap<a class="headerlink" href="#varianceswap" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="pfhedge.nn.WhalleyWilmott">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pfhedge.nn.</span></span><span class="sig-name descname"><span class="pre">WhalleyWilmott</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">derivative</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/ww.html#WhalleyWilmott"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.WhalleyWilmott" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize Whalley-Wilmott’s hedging strategy of a derivative.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">forward</span></code> method returns the next hedge ratio.</p>
-<p>This is the optimal hedging strategy for asymptotically small transaction cost.</p>
+<dt class="sig sig-object py" id="pfhedge.instruments.VarianceSwap">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pfhedge.instruments.</span></span><span class="sig-name descname"><span class="pre">VarianceSwap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">underlier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strike</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.04</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maturity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/derivative/variance_swap.html#VarianceSwap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.VarianceSwap" title="Permalink to this definition">¶</a></dt>
+<dd><p>A variance swap.</p>
+<p>A variance swap pays cash in the amount of the realized variance
+until the maturity and levies the cash of the strike variance.</p>
+<p>The payoff of a variance swap is given by</p>
+<div class="math-wrapper"><div class="math notranslate nohighlight">
+\[\mathrm{payoff} = \sigma^2 - K\]</div></div>
+<p>where <span class="math notranslate nohighlight">\(\sigma^2\)</span> is the realized variance of the underlying asset
+until maturity and <span class="math notranslate nohighlight">\(K\)</span> is the strike variance (<code class="docutils literal notranslate"><span class="pre">strike</span></code>).
+See <a class="reference internal" href="../nn.functional.html#pfhedge.nn.functional.realized_variance" title="pfhedge.nn.functional.realized_variance"><code class="xref py py-func docutils literal notranslate"><span class="pre">pfhedge.nn.functional.realized_variance()</span></code></a> for the definition of
+the realized variance.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>derivative</strong> (<a class="reference internal" href="pfhedge.instruments.Derivative.html#pfhedge.instruments.Derivative" title="pfhedge.instruments.Derivative"><code class="xref py py-class docutils literal notranslate"><span class="pre">pfhedge.instruments.Derivative</span></code></a>) – Derivative to hedge.</p></li>
-<li><p><strong>a</strong> (<em>float</em><em>, </em><em>default=1.0</em>) – Risk aversion parameter in exponential utility.</p></li>
+<li><p><strong>underlier</strong> (<a class="reference internal" href="pfhedge.instruments.Primary.html#pfhedge.instruments.Primary" title="pfhedge.instruments.Primary"><code class="xref py py-class docutils literal notranslate"><span class="pre">Primary</span></code></a>) – The underlying instrument.</p></li>
+<li><p><strong>strike</strong> (<em>float</em><em>, </em><em>default=0.04</em>) – The strike variance of the swap.</p></li>
+<li><p><strong>maturity</strong> (<em>float</em><em>, </em><em>default=20/250</em>) – The maturity of the derivative.</p></li>
+<li><p><strong>dtype</strong> (<em>torch.device</em><em>, </em><em>optional</em>) – Desired device of returned tensor.
+Default: If None, uses a global default
+(see <code class="docutils literal notranslate"><span class="pre">torch.set_default_tensor_type()</span></code>).</p></li>
+<li><p><strong>device</strong> (<em>torch.device</em><em>, </em><em>optional</em>) – Desired device of returned tensor.
+Default: if None, uses the current device for the default tensor type
+(see <code class="docutils literal notranslate"><span class="pre">torch.set_default_tensor_type()</span></code>).
+<code class="docutils literal notranslate"><span class="pre">device</span></code> will be the CPU for CPU tensor types and
+the current CUDA device for CUDA tensor types.</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="simple">
-<dt>Shape:</dt><dd><ul class="simple">
-<li><p>Input: <span class="math notranslate nohighlight">\((N, *, H_{\text{in}})\)</span>.  Here, <span class="math notranslate nohighlight">\(*\)</span> means any number of
-additional dimensions and <span class="math notranslate nohighlight">\(H_{\text{in}}\)</span> is
-the number of input features.
-See <a class="reference internal" href="#pfhedge.nn.WhalleyWilmott.inputs" title="pfhedge.nn.WhalleyWilmott.inputs"><code class="xref py py-func docutils literal notranslate"><span class="pre">inputs()</span></code></a> for the names of input features.</p></li>
-<li><p>Output: <span class="math notranslate nohighlight">\((N, *, 1)\)</span>. The hedge ratio at the next time step.</p></li>
-</ul>
-</dd>
-</dl>
-<p class="rubric">Examples</p>
-<p>An example for <a class="reference internal" href="pfhedge.instruments.EuropeanOption.html#pfhedge.instruments.EuropeanOption" title="pfhedge.instruments.EuropeanOption"><code class="xref py py-class docutils literal notranslate"><span class="pre">pfhedge.instruments.EuropeanOption</span></code></a>.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">WhalleyWilmott</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">BrownianStock</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">EuropeanOption</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span> <span class="o">=</span> <span class="n">EuropeanOption</span><span class="p">(</span><span class="n">BrownianStock</span><span class="p">(</span><span class="n">cost</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">))</span>
-<span class="go">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">WhalleyWilmott</span><span class="p">(</span><span class="n">derivative</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">inputs</span><span class="p">()</span>
-<span class="go">['log_moneyness', 'expiry_time', 'volatility', 'prev_hedge']</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">input</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span>
-<span class="gp">... </span>    <span class="p">[</span><span class="o">-</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span>
-<span class="gp">... </span>    <span class="p">[</span><span class="o">-</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span>
-<span class="gp">... </span>    <span class="p">[</span> <span class="mf">0.00</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span>
-<span class="gp">... </span>    <span class="p">[</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span>
-<span class="gp">... </span>    <span class="p">[</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
-<span class="go">tensor([[0.2946],</span>
-<span class="go">        [0.5000],</span>
-<span class="go">        [0.5000],</span>
-<span class="go">        [0.5000],</span>
-<span class="go">        [0.7284]])</span>
-</pre></div>
-</div>
-<p>An example for <a class="reference internal" href="pfhedge.instruments.EuropeanOption.html#pfhedge.instruments.EuropeanOption" title="pfhedge.instruments.EuropeanOption"><code class="xref py py-class docutils literal notranslate"><span class="pre">pfhedge.instruments.EuropeanOption</span></code></a> without cost.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span> <span class="o">=</span> <span class="n">EuropeanOption</span><span class="p">(</span><span class="n">BrownianStock</span><span class="p">())</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">WhalleyWilmott</span><span class="p">(</span><span class="n">derivative</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">inputs</span><span class="p">()</span>
-<span class="go">['log_moneyness', 'expiry_time', 'volatility', 'prev_hedge']</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">input</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span>
-<span class="gp">... </span>    <span class="p">[</span><span class="o">-</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span>
-<span class="gp">... </span>    <span class="p">[</span><span class="o">-</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span>
-<span class="gp">... </span>    <span class="p">[</span> <span class="mf">0.00</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span>
-<span class="gp">... </span>    <span class="p">[</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span>
-<span class="gp">... </span>    <span class="p">[</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
-<span class="go">tensor([[0.2239],</span>
-<span class="go">        [0.4497],</span>
-<span class="go">        [0.5126],</span>
-<span class="go">        [0.5752],</span>
-<span class="go">        [0.7945]])</span>
-</pre></div>
-</div>
-<p class="rubric">References</p>
-<ul class="simple">
-<li><p>Whalley, A.E. and Wilmott, P., An asymptotic analysis of an optimal hedging
-model for option pricing with transaction costs. Mathematical Finance,
-1997, 7, 307–324.</p></li>
-</ul>
-<dl class="py method">
-<dt class="sig sig-object py" id="pfhedge.nn.WhalleyWilmott.inputs">
-<span class="sig-name descname"><span class="pre">inputs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/ww.html#WhalleyWilmott.inputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.WhalleyWilmott.inputs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the names of input features.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfhedge.instruments.VarianceSwap.dtype">
+<span class="sig-name descname"><span class="pre">dtype</span></span><a class="headerlink" href="#pfhedge.instruments.VarianceSwap.dtype" title="Permalink to this definition">¶</a></dt>
+<dd><p>The dtype with which the simulated time-series are
+represented.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>list</p>
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>torch.dtype</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="pfhedge.nn.WhalleyWilmott.width">
-<span class="sig-name descname"><span class="pre">width</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/ww.html#WhalleyWilmott.width"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.WhalleyWilmott.width" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns half-width of the no-transaction band.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfhedge.instruments.VarianceSwap.device">
+<span class="sig-name descname"><span class="pre">device</span></span><a class="headerlink" href="#pfhedge.instruments.VarianceSwap.device" title="Permalink to this definition">¶</a></dt>
+<dd><p>The device where the simulated time-series are.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>input</strong> (<em>Tensor</em>) – The input tensor.</p>
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>torch.device</p>
 </dd>
 </dl>
+</dd></dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.nn.functional</span> <span class="kn">import</span> <span class="n">realized_variance</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">BrownianStock</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">VarianceSwap</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span> <span class="o">=</span> <span class="n">VarianceSwap</span><span class="p">(</span><span class="n">BrownianStock</span><span class="p">(),</span> <span class="n">strike</span><span class="o">=</span><span class="mf">0.04</span><span class="p">,</span> <span class="n">maturity</span><span class="o">=</span><span class="mi">5</span><span class="o">/</span><span class="mi">250</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">n_paths</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span><span class="o">.</span><span class="n">underlier</span><span class="o">.</span><span class="n">spot</span>
+<span class="go">tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930, 0.9906],</span>
+<span class="go">        [1.0000, 0.9919, 0.9976, 1.0009, 1.0076, 1.0179]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">realized_variance</span><span class="p">(</span><span class="n">derivative</span><span class="o">.</span><span class="n">ul</span><span class="p">()</span><span class="o">.</span><span class="n">spot</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="n">derivative</span><span class="o">.</span><span class="n">ul</span><span class="p">()</span><span class="o">.</span><span class="n">dt</span><span class="p">)</span>
+<span class="go">tensor([0.0114, 0.0129])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span><span class="o">.</span><span class="n">payoff</span><span class="p">()</span>
+<span class="go">tensor([-0.0286, -0.0271])</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="pfhedge.instruments.VarianceSwap.payoff">
+<span class="sig-name descname"><span class="pre">payoff</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/derivative/variance_swap.html#VarianceSwap.payoff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.VarianceSwap.payoff" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the payoffs of the derivative.</p>
 <dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
-<li><p>Input: <span class="math notranslate nohighlight">\((N, *, H_{\text{in}} - 1)\)</span></p></li>
-<li><p>Output: <span class="math notranslate nohighlight">\((N, *, 1)\)</span></p></li>
+<li><p>Output: <span class="math notranslate nohighlight">\((N)\)</span> where <span class="math notranslate nohighlight">\(N\)</span> stands for the number of simulated
+paths.</p></li>
 </ul>
 </dd>
 </dl>
@@ -330,6 +310,47 @@ model for option pricing with transaction costs. Mathematical Finance,
 </dd>
 </dl>
 </dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pfhedge.instruments.VarianceSwap.simulate">
+<span class="sig-name descname"><span class="pre">simulate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.VarianceSwap.simulate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simulate time series associated with the underlier.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_paths</strong> (<em>int</em>) – The number of paths to simulate.</p></li>
+<li><p><strong>init_state</strong> (<em>tuple</em><em>[</em><em>torch.Tensor</em><em> | </em><em>float</em><em>]</em><em>, </em><em>optional</em>) – The initial state of
+the underlier.</p></li>
+<li><p><strong>**kwargs</strong> – Other parameters passed to <code class="docutils literal notranslate"><span class="pre">self.underlier.simulate()</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pfhedge.instruments.VarianceSwap.to">
+<span class="sig-name descname"><span class="pre">to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.VarianceSwap.to" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs dtype and/or device conversion of the buffers associated to
+the instument.</p>
+<p>A <code class="docutils literal notranslate"><span class="pre">torch.dtype</span></code> and <code class="docutils literal notranslate"><span class="pre">torch.device</span></code> are inferred from the arguments of
+<code class="docutils literal notranslate"><span class="pre">self.to(*args,</span> <span class="pre">**kwargs)</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dtype</strong> (<em>torch.dtype</em>) – Desired floating point type of the floating point
+values of simulated time series.</p></li>
+<li><p><strong>device</strong> (<em>torch.device</em>) – Desired device of the values of simulated time
+series.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>self</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pfhedge.instruments.VarianceSwap.ul">
+<span class="sig-name descname"><span class="pre">ul</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.VarianceSwap.ul" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for <code class="docutils literal notranslate"><span class="pre">self.underlier</span></code>.</p>
+</dd></dl>
 </dd></dl>
 </section>
 
@@ -337,23 +358,23 @@ model for option pricing with transaction costs. Mathematical Finance,
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="pfhedge.nn.Clamp.html">
+          <a class="next-page" href="../stochastic.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Clamp</div>
+                <div class="title">pfhedge.stochastic</div>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="pfhedge.nn.BSLookbackOption.html">
+          <a class="prev-page" href="pfhedge.instruments.AmericanBinaryOption.html">
               <svg><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">BSLookbackOption</div>
+                <div class="title">AmericanBinaryOption</div>
                 
               </div>
             </a>
@@ -367,7 +388,7 @@ model for option pricing with transaction costs. Mathematical Finance,
               <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
               <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
             |
-            <a class="muted-link" href="../_sources/generated/pfhedge.nn.WhalleyWilmott.rst.txt"
+            <a class="muted-link" href="../_sources/generated/pfhedge.instruments.VarianceSwap.rst.txt"
                rel="nofollow">
               Show Source
             </a>

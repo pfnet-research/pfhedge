@@ -5,11 +5,11 @@
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="pfhedge.instruments" href="instruments.html" /><link rel="prev" title="Naked" href="generated/pfhedge.nn.Naked.html" />
 
-    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.11.beta42"/>
+    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.17.beta43"/>
         <title>pfhedge.nn.functional - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=197f00461d56902ea7ca048ec6e6ba026f62c97b" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=93475b62d1c3bc01323a0eefdc14a62d77b12690" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=910ac4ccc9d7c023151c34010d7b500fb9777a51" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
     
     
 
@@ -188,6 +188,7 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.VarianceSwap.html">VarianceSwap</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="stochastic.html">pfhedge.stochastic</a></li>
@@ -240,7 +241,7 @@
 </dl>
 <dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
-<li><p>input: <span class="math notranslate nohighlight">\((*, T)\)</span>, where, <span class="math notranslate nohighlight">\(T\)</span> stands for the number of time steps
+<li><p>input: <span class="math notranslate nohighlight">\((*, T)\)</span> where <span class="math notranslate nohighlight">\(T\)</span> stands for the number of time steps
 and <span class="math notranslate nohighlight">\(*\)</span> means any number of additional dimensions.</p></li>
 <li><p>output: <span class="math notranslate nohighlight">\((*)\)</span></p></li>
 </ul>
@@ -267,7 +268,7 @@ and <span class="math notranslate nohighlight">\(*\)</span> means any number of 
 </dl>
 <dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
-<li><p>input: <span class="math notranslate nohighlight">\((*, T)\)</span>, where, <span class="math notranslate nohighlight">\(T\)</span> stands for the number of time steps
+<li><p>input: <span class="math notranslate nohighlight">\((*, T)\)</span> where <span class="math notranslate nohighlight">\(T\)</span> stands for the number of time steps
 and <span class="math notranslate nohighlight">\(*\)</span> means any number of additional dimensions.</p></li>
 <li><p>output: <span class="math notranslate nohighlight">\((*)\)</span></p></li>
 </ul>
@@ -294,7 +295,7 @@ and <span class="math notranslate nohighlight">\(*\)</span> means any number of 
 </dl>
 <dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
-<li><p>input: <span class="math notranslate nohighlight">\((*, T)\)</span>, where, <span class="math notranslate nohighlight">\(T\)</span> stands for the number of time steps
+<li><p>input: <span class="math notranslate nohighlight">\((*, T)\)</span> where <span class="math notranslate nohighlight">\(T\)</span> stands for the number of time steps
 and <span class="math notranslate nohighlight">\(*\)</span> means any number of additional dimensions.</p></li>
 <li><p>output: <span class="math notranslate nohighlight">\((*)\)</span></p></li>
 </ul>
@@ -321,7 +322,7 @@ and <span class="math notranslate nohighlight">\(*\)</span> means any number of 
 </dl>
 <dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
-<li><p>input: <span class="math notranslate nohighlight">\((*, T)\)</span>, where, <span class="math notranslate nohighlight">\(T\)</span> stands for the number of time steps
+<li><p>input: <span class="math notranslate nohighlight">\((*, T)\)</span> where <span class="math notranslate nohighlight">\(T\)</span> stands for the number of time steps
 and <span class="math notranslate nohighlight">\(*\)</span> means any number of additional dimensions.</p></li>
 <li><p>output: <span class="math notranslate nohighlight">\((*)\)</span></p></li>
 </ul>
@@ -412,26 +413,26 @@ utility.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="pfhedge.nn.functional.leaky_clamp">
 <span class="sig-prename descclassname"><span class="pre">pfhedge.nn.functional.</span></span><span class="sig-name descname"><span class="pre">leaky_clamp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clamped_slope</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfhedge/nn/functional.html#leaky_clamp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.functional.leaky_clamp" title="Permalink to this definition">¶</a></dt>
-<dd><p>Leakily clamp all elements in <cite>input</cite> into the range <span class="math notranslate nohighlight">\([\min, \max]\)</span>.</p>
+<dd><p>Leakily clamp all elements in <code class="docutils literal notranslate"><span class="pre">input</span></code> into the range <span class="math notranslate nohighlight">\([\min, \max]\)</span>.</p>
 <p>The bounds <span class="math notranslate nohighlight">\(\min\)</span> and <span class="math notranslate nohighlight">\(\max\)</span> can be tensors.</p>
 <p>See <a class="reference internal" href="generated/pfhedge.nn.LeakyClamp.html#pfhedge.nn.LeakyClamp" title="pfhedge.nn.LeakyClamp"><code class="xref py py-class docutils literal notranslate"><span class="pre">pfhedge.nn.LeakyClamp</span></code></a> for details.</p>
 </dd></dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="pfhedge.nn.functional.clamp">
 <span class="sig-prename descclassname"><span class="pre">pfhedge.nn.functional.</span></span><span class="sig-name descname"><span class="pre">clamp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfhedge/nn/functional.html#clamp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.functional.clamp" title="Permalink to this definition">¶</a></dt>
-<dd><p>Clamp all elements in <cite>input</cite> into the range <span class="math notranslate nohighlight">\([\min, \max]\)</span>.</p>
+<dd><p>Clamp all elements in <code class="docutils literal notranslate"><span class="pre">input</span></code> into the range <span class="math notranslate nohighlight">\([\min, \max]\)</span>.</p>
 <p>The bounds <span class="math notranslate nohighlight">\(\min\)</span> and <span class="math notranslate nohighlight">\(\max\)</span> can be tensors.</p>
 <p>See <a class="reference internal" href="generated/pfhedge.nn.Clamp.html#pfhedge.nn.Clamp" title="pfhedge.nn.Clamp"><code class="xref py py-class docutils literal notranslate"><span class="pre">pfhedge.nn.Clamp</span></code></a> for details.</p>
 </dd></dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="pfhedge.nn.functional.topp">
 <span class="sig-prename descclassname"><span class="pre">pfhedge.nn.functional.</span></span><span class="sig-name descname"><span class="pre">topp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">largest</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfhedge/nn/functional.html#topp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.functional.topp" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the largest <cite>p * N</cite> elements of the given input tensor,
-where <cite>N</cite> stands for the total number of elements in the input tensor.</p>
-<p>If <cite>dim</cite> is not given, the last dimension of the <cite>input</cite> is chosen.</p>
-<p>If <cite>largest</cite> is <cite>False</cite> then the smallest elements are returned.</p>
-<p>A namedtuple of <cite>(values, indices)</cite> is returned, where the <cite>indices</cite> are the indices
-of the elements in the original <cite>input</cite> tensor.</p>
+<dd><p>Returns the largest <span class="math notranslate nohighlight">\(p * N\)</span> elements of the given input tensor,
+where <span class="math notranslate nohighlight">\(N\)</span> stands for the total number of elements in the input tensor.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">dim</span></code> is not given, the last dimension of the <code class="docutils literal notranslate"><span class="pre">input</span></code> is chosen.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">largest</span></code> is <code class="docutils literal notranslate"><span class="pre">False</span></code> then the smallest elements are returned.</p>
+<p>A namedtuple of <code class="docutils literal notranslate"><span class="pre">(values,</span> <span class="pre">indices)</span></code> is returned, where the <code class="docutils literal notranslate"><span class="pre">indices</span></code>
+are the indices of the elements in the original <code class="docutils literal notranslate"><span class="pre">input</span></code> tensor.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -458,6 +459,68 @@ elements.</p></li>
 <span class="go">indices=tensor([4, 3, 2]))</span>
 </pre></div>
 </div>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="pfhedge.nn.functional.realized_variance">
+<span class="sig-prename descclassname"><span class="pre">pfhedge.nn.functional.</span></span><span class="sig-name descname"><span class="pre">realized_variance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfhedge/nn/functional.html#realized_variance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.functional.realized_variance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the realized variance of the price.</p>
+<p>Realized variance <span class="math notranslate nohighlight">\(\sigma^2\)</span> of the stock price <span class="math notranslate nohighlight">\(S\)</span> is defined as:</p>
+<div class="math-wrapper"><div class="math notranslate nohighlight">
+\[\sigma^2 = \frac{1}{T - 1} \sum_{i = 1}^{T - 1}
+\frac{1}{dt} \log(S_{i + 1} / S_i)^2\]</div></div>
+<p>where <span class="math notranslate nohighlight">\(T\)</span> is the number of time steps.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The mean of log return is assumed to be zero.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input</strong> (<em>torch.Tensor</em>) – The input tensor.</p></li>
+<li><p><strong>dt</strong> (<em>torch.Tensor</em><em> or </em><em>float</em>) – The intervals of the time steps.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Shape:</dt><dd><ul class="simple">
+<li><p>input: <span class="math notranslate nohighlight">\((*, T)\)</span> where <span class="math notranslate nohighlight">\(T\)</span> stands for the number of time steps
+and <span class="math notranslate nohighlight">\(*\)</span> means any number of additional dimensions.</p></li>
+<li><p>output: <span class="math notranslate nohighlight">\((*)\)</span></p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="pfhedge.nn.functional.realized_volatility">
+<span class="sig-prename descclassname"><span class="pre">pfhedge.nn.functional.</span></span><span class="sig-name descname"><span class="pre">realized_volatility</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfhedge/nn/functional.html#realized_volatility"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.functional.realized_volatility" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the realized volatility of the price.
+It is square root of <a class="reference internal" href="#pfhedge.nn.functional.realized_variance" title="pfhedge.nn.functional.realized_variance"><code class="xref py py-func docutils literal notranslate"><span class="pre">realized_variance()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input</strong> (<em>torch.Tensor</em>) – The input tensor.</p></li>
+<li><p><strong>dt</strong> (<em>torch.Tensor</em><em> or </em><em>float</em>) – The intervals of the time steps.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Shape:</dt><dd><ul class="simple">
+<li><p>input: <span class="math notranslate nohighlight">\((*, T)\)</span> where <span class="math notranslate nohighlight">\(T\)</span> stands for the number of time steps
+and <span class="math notranslate nohighlight">\(*\)</span> means any number of additional dimensions.</p></li>
+<li><p>output: <span class="math notranslate nohighlight">\((*)\)</span></p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
 </dd></dl>
 </section>
 </section>

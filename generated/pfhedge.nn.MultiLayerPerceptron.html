@@ -5,11 +5,11 @@
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Naked" href="pfhedge.nn.Naked.html" /><link rel="prev" title="IsoelasticLoss" href="pfhedge.nn.IsoelasticLoss.html" />
 
-    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.11.beta42"/>
+    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.17.beta43"/>
         <title>MultiLayerPerceptron - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=197f00461d56902ea7ca048ec6e6ba026f62c97b" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=93475b62d1c3bc01323a0eefdc14a62d77b12690" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=910ac4ccc9d7c023151c34010d7b500fb9777a51" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
     
     
 
@@ -188,6 +188,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.VarianceSwap.html">VarianceSwap</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../stochastic.html">pfhedge.stochastic</a></li>
@@ -232,14 +233,14 @@
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>in_features</strong> (<em>int</em><em>, </em><em>default=None</em>) – Size of each input sample.
-If <cite>None</cite> (default), the number of input features will be
-will be inferred from the <cite>input.shape[-1]</cite> after the first call to
-<cite>forward</cite> is done. Also, before the first <cite>forward</cite> parameters in the
-module are of <cite>torch.nn.UninitializedParameter</cite> class.</p></li>
+If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), the number of input features will be
+will be inferred from the <code class="docutils literal notranslate"><span class="pre">input.shape[-1]</span></code> after the first call to
+<code class="docutils literal notranslate"><span class="pre">forward</span></code> is done. Also, before the first <code class="docutils literal notranslate"><span class="pre">forward</span></code> parameters in the
+module are of <code class="docutils literal notranslate"><span class="pre">torch.nn.UninitializedParameter</span></code> class.</p></li>
 <li><p><strong>out_features</strong> (<em>int</em><em>, </em><em>default=1</em>) – Size of each output sample.</p></li>
 <li><p><strong>n_layers</strong> (<em>int</em><em>, </em><em>default=4</em>) – Number of hidden layers.</p></li>
 <li><p><strong>n_units</strong> (<em>int</em><em> or </em><em>tuple</em><em>[</em><em>int</em><em>]</em><em>, </em><em>default=32</em>) – Number of units in each hidden layer.
-If <cite>tuple[int]</cite>, it specifies different number of units for each layer.</p></li>
+If <code class="docutils literal notranslate"><span class="pre">tuple[int]</span></code>, it specifies different number of units for each layer.</p></li>
 <li><p><strong>activation</strong> (<em>torch.nn.Module</em><em>, </em><em>default=torch.nn.ReLU</em><em>(</em><em>)</em>) – Activation module of the hidden layers.</p></li>
 <li><p><strong>out_activation</strong> (<em>torch.nn.Module</em><em>, </em><em>default=torch.nn.Identity</em><em>(</em><em>)</em>) – Activation module of the output layer.</p></li>
 </ul>
@@ -252,12 +253,12 @@ additional dimensions and <span class="math notranslate nohighlight">\(H_{\text{
 features.</p></li>
 <li><p>Output: <span class="math notranslate nohighlight">\((N, *, H_{\text{out}})\)</span>, where all but the last dimension
 are the same shape as the input and <span class="math notranslate nohighlight">\(H_{\text{in}})\)</span> is
-<cite>out_features</cite>.</p></li>
+<code class="docutils literal notranslate"><span class="pre">out_features</span></code>.</p></li>
 </ul>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<p>By default, <cite>in_features</cite> is lazily determined:</p>
+<p>By default, <code class="docutils literal notranslate"><span class="pre">in_features</span></code> is lazily determined:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">MultiLayerPerceptron</span>
 <span class="go">&gt;&gt;&gt;</span>

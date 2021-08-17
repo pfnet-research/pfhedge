@@ -5,11 +5,11 @@
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="EuropeanBinaryOption" href="pfhedge.instruments.EuropeanBinaryOption.html" /><link rel="prev" title="EuropeanOption" href="pfhedge.instruments.EuropeanOption.html" />
 
-    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.11.beta42"/>
+    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.17.beta43"/>
         <title>LookbackOption - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=197f00461d56902ea7ca048ec6e6ba026f62c97b" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=93475b62d1c3bc01323a0eefdc14a62d77b12690" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=910ac4ccc9d7c023151c34010d7b500fb9777a51" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
     
     
 
@@ -188,6 +188,7 @@
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">LookbackOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.VarianceSwap.html">VarianceSwap</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../stochastic.html">pfhedge.stochastic</a></li>
@@ -249,11 +250,11 @@ until maturity and <span class="math notranslate nohighlight">\(K\)</span> is th
 <li><p><strong>maturity</strong> (<em>float</em><em>, </em><em>default=20/250</em>) – The maturity of the option.</p></li>
 <li><p><strong>dtype</strong> (<em>torch.dtype</em><em>, </em><em>optional</em>) – Desired device of returned tensor.
 Default: If None, uses a global default
-(see <cite>torch.set_default_tensor_type()</cite>).</p></li>
+(see <code class="docutils literal notranslate"><span class="pre">torch.set_default_tensor_type()</span></code>).</p></li>
 <li><p><strong>device</strong> (<em>torch.device</em><em>, </em><em>optional</em>) – Desired device of returned tensor.
 Default: if None, uses the current device for the default tensor type
-(see <cite>torch.set_default_tensor_type()</cite>).
-<cite>device</cite> will be the CPU for CPU tensor types and
+(see <code class="docutils literal notranslate"><span class="pre">torch.set_default_tensor_type()</span></code>).
+<code class="docutils literal notranslate"><span class="pre">device</span></code> will be the CPU for CPU tensor types and
 the current CUDA device for CUDA tensor types.</p></li>
 </ul>
 </dd>
@@ -288,10 +289,10 @@ represented.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span> <span class="o">=</span> <span class="n">LookbackOption</span><span class="p">(</span><span class="n">BrownianStock</span><span class="p">(),</span> <span class="n">maturity</span><span class="o">=</span><span class="mi">5</span><span class="o">/</span><span class="mi">250</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">n_paths</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span><span class="o">.</span><span class="n">underlier</span><span class="o">.</span><span class="n">spot</span>
-<span class="go">tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930],</span>
-<span class="go">        [1.0000, 1.0282, 1.0199, 1.0258, 1.0292]])</span>
+<span class="go">tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930, 0.9906],</span>
+<span class="go">        [1.0000, 0.9919, 0.9976, 1.0009, 1.0076, 1.0179]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span><span class="o">.</span><span class="n">payoff</span><span class="p">()</span>
-<span class="go">tensor([0.0073, 0.0292])</span>
+<span class="go">tensor([0.0073, 0.0179])</span>
 </pre></div>
 </div>
 <dl class="py method">
@@ -301,7 +302,7 @@ represented.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>time_step</strong> (<em>int</em><em>, </em><em>optional</em>) – The time step to calculate the log
-moneyness. If <cite>None</cite> (default), the moneyness is calculated
+moneyness. If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), the moneyness is calculated
 at all time steps.</p>
 </dd>
 </dl>
@@ -309,7 +310,7 @@ at all time steps.</p>
 <dt>Shape:</dt><dd><ul class="simple">
 <li><p>Output: <span class="math notranslate nohighlight">\((N, T)\)</span> where <span class="math notranslate nohighlight">\(N\)</span> is the number of paths and
 <span class="math notranslate nohighlight">\(T\)</span> is the number of time steps.
-If <cite>time_step</cite> is given, the shape is <span class="math notranslate nohighlight">\((N, 1)\)</span>.</p></li>
+If <code class="docutils literal notranslate"><span class="pre">time_step</span></code> is given, the shape is <span class="math notranslate nohighlight">\((N, 1)\)</span>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -326,7 +327,7 @@ If <cite>time_step</cite> is given, the shape is <span class="math notranslate n
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>time_step</strong> (<em>int</em><em>, </em><em>optional</em>) – The time step to calculate
-the moneyness. If <cite>None</cite> (default), the moneyness is calculated
+the moneyness. If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), the moneyness is calculated
 at all time steps.</p>
 </dd>
 </dl>
@@ -334,7 +335,7 @@ at all time steps.</p>
 <dt>Shape:</dt><dd><ul class="simple">
 <li><p>Output: <span class="math notranslate nohighlight">\((N, T)\)</span> where <span class="math notranslate nohighlight">\(N\)</span> is the number of paths and
 <span class="math notranslate nohighlight">\(T\)</span> is the number of time steps.
-If <cite>time_step</cite> is given, the shape is <span class="math notranslate nohighlight">\((N, 1)\)</span>.</p></li>
+If <code class="docutils literal notranslate"><span class="pre">time_step</span></code> is given, the shape is <span class="math notranslate nohighlight">\((N, 1)\)</span>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -371,7 +372,7 @@ paths.</p></li>
 <li><p><strong>n_paths</strong> (<em>int</em>) – The number of paths to simulate.</p></li>
 <li><p><strong>init_state</strong> (<em>tuple</em><em>[</em><em>torch.Tensor</em><em> | </em><em>float</em><em>]</em><em>, </em><em>optional</em>) – The initial state of
 the underlier.</p></li>
-<li><p><strong>**kwargs</strong> – Other parameters passed to <cite>self.underlier.simulate()</cite>.</p></li>
+<li><p><strong>**kwargs</strong> – Other parameters passed to <code class="docutils literal notranslate"><span class="pre">self.underlier.simulate()</span></code>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -383,7 +384,7 @@ the underlier.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>time_step</strong> (<em>int</em><em>, </em><em>optional</em>) – The time step to calculate
-the time to maturity. If <cite>None</cite> (default), the time to
+the time to maturity. If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), the time to
 maturity is calculated at all time steps.</p>
 </dd>
 </dl>
@@ -391,7 +392,7 @@ maturity is calculated at all time steps.</p>
 <dt>Shape:</dt><dd><ul class="simple">
 <li><p>Output: <span class="math notranslate nohighlight">\((N, T)\)</span> where <span class="math notranslate nohighlight">\(N\)</span> is the number of paths and
 <span class="math notranslate nohighlight">\(T\)</span> is the number of time steps.
-If <cite>time_step</cite> is given, the shape is <span class="math notranslate nohighlight">\((N, 1)\)</span>.</p></li>
+If <code class="docutils literal notranslate"><span class="pre">time_step</span></code> is given, the shape is <span class="math notranslate nohighlight">\((N, 1)\)</span>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -406,8 +407,8 @@ If <cite>time_step</cite> is given, the shape is <span class="math notranslate n
 <span class="sig-name descname"><span class="pre">to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.LookbackOption.to" title="Permalink to this definition">¶</a></dt>
 <dd><p>Performs dtype and/or device conversion of the buffers associated to
 the instument.</p>
-<p>A <cite>torch.dtype</cite> and <cite>torch.device</cite> are inferred from the arguments of
-<cite>self.to(*args, **kwargs)</cite>.</p>
+<p>A <code class="docutils literal notranslate"><span class="pre">torch.dtype</span></code> and <code class="docutils literal notranslate"><span class="pre">torch.device</span></code> are inferred from the arguments of
+<code class="docutils literal notranslate"><span class="pre">self.to(*args,</span> <span class="pre">**kwargs)</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">

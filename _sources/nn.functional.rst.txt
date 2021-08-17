@@ -27,3 +27,5 @@ Other Functions
 .. autofunction:: leaky_clamp
 .. autofunction:: clamp
 .. autofunction:: topp
+.. autofunction:: realized_variance
+.. autofunction:: realized_volatility

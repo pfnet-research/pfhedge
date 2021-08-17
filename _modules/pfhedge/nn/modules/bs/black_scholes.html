@@ -4,11 +4,11 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../../genindex.html" /><link rel="search" title="Search" href="../../../../../search.html" />
 
-    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.11.beta42"/>
+    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.17.beta43"/>
         <title>pfhedge.nn.modules.bs.black_scholes - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../../../_static/styles/furo.css?digest=197f00461d56902ea7ca048ec6e6ba026f62c97b" />
-    <link rel="stylesheet" type="text/css" href="../../../../../_static/styles/furo-extensions.css?digest=93475b62d1c3bc01323a0eefdc14a62d77b12690" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/styles/furo.css?digest=910ac4ccc9d7c023151c34010d7b500fb9777a51" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
     
     
 
@@ -187,6 +187,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.VarianceSwap.html">VarianceSwap</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../stochastic.html">pfhedge.stochastic</a></li>
@@ -236,7 +237,7 @@
 <div class="viewcode-block" id="BlackScholes"><a class="viewcode-back" href="../../../../../generated/pfhedge.nn.BlackScholes.html#pfhedge.nn.BlackScholes">[docs]</a><span class="k">class</span> <span class="nc">BlackScholes</span><span class="p">(</span><span class="n">Module</span><span class="p">):</span>
     <span class="sd">"""Initialize Black-Scholes formula module from a derivative.</span>
 
-<span class="sd">    The `forward` method returns the Black-Scholes delta.</span>
+<span class="sd">    The ``forward`` method returns the Black-Scholes delta.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        derivative (:class:`pfhedge.instruments.Derivative`):</span>
@@ -245,7 +246,7 @@
 <span class="sd">    Shape:</span>
 <span class="sd">        - Input : :math:`(N, *, H_{\\mathrm{in}})`, where :math:`*` means any number of</span>
 <span class="sd">          additional dimensions and :math:`H_{\\mathrm{in}}` is the number of input</span>
-<span class="sd">          features. See `inputs()` for the names of input features.</span>
+<span class="sd">          features. See :func:`inputs` for the names of input features.</span>
 <span class="sd">        - Output : :math:`(N, *, 1)`. All but the last dimension are the same shape</span>
 <span class="sd">          as the input.</span>
 
@@ -254,7 +255,7 @@
 <span class="sd">        One can instantiate Black-Scholes module by using a derivative.</span>
 <span class="sd">        For example, one can instantiate :class:`BSEuropeanOption` using</span>
 <span class="sd">        a :class:`pfhedge.instruments.EuropeanOption`.</span>
-<span class="sd">        The `forward` method returns delta of the derivative.</span>
+<span class="sd">        The ``forward`` method returns delta of the derivative.</span>
 
 <span class="sd">        &gt;&gt;&gt; import torch</span>
 <span class="sd">        &gt;&gt;&gt; from pfhedge.instruments import BrownianStock</span>
