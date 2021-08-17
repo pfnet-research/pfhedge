@@ -49,20 +49,20 @@ class VarianceSwap(Derivative):
     Examples:
 
         >>> import torch
+        >>> from pfhedge.nn.functional import realized_variance
         >>> from pfhedge.instruments import BrownianStock
         >>> from pfhedge.instruments import VarianceSwap
-        >>> from pfhedge.nn.functional import realized_variance
         >>>
         >>> _ = torch.manual_seed(42)
         >>> derivative = VarianceSwap(BrownianStock(), strike=0.04, maturity=5/250)
         >>> derivative.simulate(n_paths=2)
         >>> derivative.underlier.spot
-        tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930],
-                [1.0000, 1.0282, 1.0199, 1.0258, 1.0292]])
+        tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930, 0.9906],
+                [1.0000, 0.9919, 0.9976, 1.0009, 1.0076, 1.0179]])
         >>> realized_variance(derivative.ul().spot, dt=derivative.ul().dt)
-        tensor([0.0139, 0.0554])
+        tensor([0.0114, 0.0129])
         >>> derivative.payoff()
-        tensor([-0.0261,  0.0154])
+        tensor([-0.0286, -0.0271])
     """
 
     def __init__(
