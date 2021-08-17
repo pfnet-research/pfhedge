@@ -32,4 +32,6 @@ def ensemble_mean(
     if n_times == 1:
         return function(*args, **kwargs)
     else:
-        return torch.stack([function(*args, **kwargs) for _ in range(n_times)]).mean(dim=0)
+        return torch.stack([function(*args, **kwargs) for _ in range(n_times)]).mean(
+            dim=0
+        )
