@@ -55,11 +55,11 @@ class AmericanBinaryOption(Derivative, OptionMixin):
         maturity (float, default=20/250): The maturity of the option.
         dtype (torch.device, optional): Desired device of returned tensor.
             Default: If None, uses a global default
-            (see `torch.set_default_tensor_type()`).
+            (see ``torch.set_default_tensor_type()``).
         device (torch.device, optional): Desired device of returned tensor.
             Default: if None, uses the current device for the default tensor type
-            (see `torch.set_default_tensor_type()`).
-            `device` will be the CPU for CPU tensor types and
+            (see ``torch.set_default_tensor_type()``).
+            ``device`` will be the CPU for CPU tensor types and
             the current CUDA device for CUDA tensor types.
 
     Attributes:
@@ -78,8 +78,8 @@ class AmericanBinaryOption(Derivative, OptionMixin):
 maturity=5/250, strike=1.01)
         >>> derivative.simulate(n_paths=2)
         >>> derivative.underlier.spot
-        tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930],
-                [1.0000, 1.0282, 1.0199, 1.0258, 1.0292]])
+        tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930, 0.9906],
+                [1.0000, 0.9919, 0.9976, 1.0009, 1.0076, 1.0179]])
         >>> derivative.payoff()
         tensor([0., 1.])
     """

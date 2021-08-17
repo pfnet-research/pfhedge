@@ -41,7 +41,7 @@ def generate_heston(
         n_steps (int): The number of time steps.
         init_state (tuple[torch.Tensor | float], default=(1.0,)): The initial state of
             the time series.
-            This is specified by `(S0, V0)`, where `S0` and `V0` are the initial values
+            This is specified by ``(S0, V0)``, where ``S0`` and ``V0`` are the initial values
             of :math:`S` and :math:`V`, respectively.
         kappa (float, default=1.0): The parameter :math:`\\kappa`.
         theta (float, default=0.04): The parameter :math:`\\theta`.
@@ -49,12 +49,12 @@ def generate_heston(
         rho (float, default=-0.7): The parameter :math:`\\rho`.
         dt (float, default=1/250): The intervals of the time steps.
         dtype (torch.dtype, optional): The desired data type of returned tensor.
-            Default: If `None`, uses a global default
-            (see `torch.set_default_tensor_type()`).
+            Default: If ``None``, uses a global default
+            (see ``torch.set_default_tensor_type()``).
         device (torch.device, optional): The desired device of returned tensor.
-            Default: if None, uses the current device for the default tensor type
-            (see `torch.set_default_tensor_type()`).
-            `device` will be the CPU for CPU tensor types and the current CUDA device
+            Default: If ``None``, uses the current device for the default tensor type
+            (see ``torch.set_default_tensor_type()``).
+            ``device`` will be the CPU for CPU tensor types and the current CUDA device
             for CUDA tensor types.
 
     Shape:

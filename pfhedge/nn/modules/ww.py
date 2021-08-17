@@ -10,7 +10,7 @@ from .clamp import Clamp
 class WhalleyWilmott(Module):
     """Initialize Whalley-Wilmott's hedging strategy of a derivative.
 
-    The `forward` method returns the next hedge ratio.
+    The ``forward`` method returns the next hedge ratio.
 
     This is the optimal hedging strategy for asymptotically small transaction cost.
 
@@ -20,8 +20,9 @@ class WhalleyWilmott(Module):
 
     Shape:
         - Input: :math:`(N, *, H_{\\text{in}})`.  Here, :math:`*` means any number of
-          additional dimensions and `H_in` is the number of input features.
-          See `inputs()` for the names of input features.
+          additional dimensions and :math:`H_{\\text{in}}` is
+          the number of input features.
+          See :func:`inputs()` for the names of input features.
         - Output: :math:`(N, *, 1)`. The hedge ratio at the next time step.
 
     Examples:

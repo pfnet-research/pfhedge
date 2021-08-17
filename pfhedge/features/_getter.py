@@ -45,5 +45,4 @@ def get_feature(feature: Union[str, Feature]) -> Feature:
         feature = dict_features[feature]
     elif not isinstance(feature, Feature):
         raise TypeError(f"{feature} is not an instance of Feature.")
-    # If `feature` is Feature object, pass it through.
     return feature
