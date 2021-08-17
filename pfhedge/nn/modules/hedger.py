@@ -17,8 +17,8 @@ from pfhedge._utils.lazy import has_lazy
 from pfhedge._utils.operations import ensemble_mean
 from pfhedge.features import get_feature
 from pfhedge.instruments.base import Instrument
-from pfhedge.instruments.primary.base import Primary
 from pfhedge.instruments.derivative.base import Derivative
+from pfhedge.instruments.primary.base import Primary
 
 from .loss import EntropicRiskMeasure
 from .loss import HedgeLoss
