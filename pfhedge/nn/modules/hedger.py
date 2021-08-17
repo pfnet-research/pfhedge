@@ -354,7 +354,7 @@ class Hedger(Module):
             )
 
         history = []
-        progress = tqdm(range(n_epochs)) if verbose else range(n_epochs)
+        progress = tqdm(range(n_epochs), disable=not verbose)
         for _ in progress:
             # Compute training loss and backpropagate
             self.train()
