@@ -139,6 +139,7 @@ class Hedger(Module):
         ...     n_paths=1,
         ...     n_epochs=1)
         >>> hedger.price(derivative)
+        tensor(0.0402)
     """
 
     def __init__(
