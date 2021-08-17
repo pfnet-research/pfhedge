@@ -58,9 +58,9 @@ def delta(
         >>>
         >>> _ = torch.manual_seed(42)
         >>>
-        >>> derivative = EuropeanOption(BrownianStock(cost=1e-4))
+        >>> derivative = EuropeanOption(BrownianStock(cost=1e-4)).to(torch.float64)
         >>> model = WhalleyWilmott(derivative)
-        >>> hedger = Hedger(model, model.inputs())
+        >>> hedger = Hedger(model, model.inputs()).to(torch.float64)
         >>>
         >>> def pricer(spot):
         ...     return hedger.price(
@@ -68,7 +68,7 @@ def delta(
         ...     )
         >>>
         >>> autogreek.delta(pricer, spot=torch.tensor(1.0))
-        tensor(0.52...)
+        tensor(0.5...)
     """
     if kwargs.get("strike") is None and kwargs.get("spot") is None:
         # Since delta does not depend on strike,

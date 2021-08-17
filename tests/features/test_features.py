@@ -104,21 +104,37 @@ class TestExpiryTime(_TestFeature):
     """
 
     def test(self):
-        maturity = 3 / 365
-        dt = 1 / 365
-        derivative = EuropeanOption(BrownianStock(dt=dt), maturity=maturity)
+        derivative = EuropeanOption(BrownianStock(dt=0.1), maturity=0.2)
         derivative.underlier.spot = torch.empty(2, 3)
-
         f = ExpiryTime().of(derivative)
 
         result = f[0]
-        expect = torch.full((2, 1), 3 / 365)
+        expect = torch.full((2, 1), 0.2)
         assert_close(result, expect)
+
         result = f[1]
-        expect = torch.full((2, 1), 2 / 365)
+        expect = torch.full((2, 1), 0.1)
         assert_close(result, expect)
+
         result = f[2]
-        expect = torch.full((2, 1), 1 / 365)
+        expect = torch.full((2, 1), 0.0)
+        assert_close(result, expect)
+
+    def test_2(self):
+        derivative = EuropeanOption(BrownianStock(dt=0.1), maturity=0.15)
+        derivative.underlier.spot = torch.empty(2, 3)
+        f = ExpiryTime().of(derivative)
+
+        result = f[0]
+        expect = torch.full((2, 1), 0.2)
+        assert_close(result, expect)
+
+        result = f[1]
+        expect = torch.full((2, 1), 0.1)
+        assert_close(result, expect)
+
+        result = f[2]
+        expect = torch.full((2, 1), 0.0)
         assert_close(result, expect)
 
     def test_str(self):

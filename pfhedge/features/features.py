@@ -30,9 +30,9 @@ class Moneyness(Feature):
 
     def __getitem__(self, i: int) -> Tensor:
         if self.log:
-            return self.derivative.log_moneyness(i).unsqueeze(-1)
+            return self.derivative.log_moneyness(i)
         else:
-            return self.derivative.moneyness(i).unsqueeze(-1)
+            return self.derivative.moneyness(i)
 
 
 class LogMoneyness(Moneyness):
@@ -49,7 +49,7 @@ class ExpiryTime(Feature):
         return "expiry_time"
 
     def __getitem__(self, i: int) -> Tensor:
-        return self.derivative.time_to_maturity(i).unsqueeze(-1)
+        return self.derivative.time_to_maturity(i)
 
 
 class Volatility(Feature):

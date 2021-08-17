@@ -107,10 +107,8 @@ class OptionMixin:
         Returns:
             torch.Tensor
         """
-        spot = self.underlier.spot
-        if time_step is not None:
-            spot = spot[..., time_step]
-        return spot / self.strike
+        index = ... if time_step is None else [time_step]
+        return self.underlier.spot[..., index] / self.strike
 
     def log_moneyness(self, time_step: Optional[int] = None) -> Tensor:
         """Returns the log moneyness of self.
@@ -148,14 +146,13 @@ class OptionMixin:
         """
         n_paths, n_steps = self.underlier.spot.size()
         if time_step is None:
-            t = self.underlier.dt * torch.arange(n_steps).repeat(n_paths, 1)
-            t.to(self.underlier.device)
-            return self.maturity - t
+            # Time passed from the beginning
+            t = torch.arange(n_steps).to(self.underlier.spot) * self.underlier.dt
+            return (t[-1] - t).unsqueeze(0).expand(n_paths, -1)
         else:
-            t = torch.full_like(
-                self.underlier.spot[:, 0], time_step * self.underlier.dt
-            )
-            return self.maturity - t
+            time_step %= n_steps
+            t = (n_steps - time_step - 1) * self.underlier.dt
+            return torch.full_like(self.underlier.spot[:, :1], t)
 
 
 # Assign docstrings so they appear in Sphinx documentation
