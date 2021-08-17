@@ -110,15 +110,15 @@ class TestExpiryTime(_TestFeature):
 
         result = f[0]
         expect = torch.full((2, 1), 0.2)
-        assert_close(result, expect)
+        assert_close(result, expect, check_stride=False)
 
         result = f[1]
         expect = torch.full((2, 1), 0.1)
-        assert_close(result, expect)
+        assert_close(result, expect, check_stride=False)
 
         result = f[2]
         expect = torch.full((2, 1), 0.0)
-        assert_close(result, expect)
+        assert_close(result, expect, check_stride=False)
 
     def test_2(self):
         derivative = EuropeanOption(BrownianStock(dt=0.1), maturity=0.15)
@@ -127,15 +127,15 @@ class TestExpiryTime(_TestFeature):
 
         result = f[0]
         expect = torch.full((2, 1), 0.2)
-        assert_close(result, expect)
+        assert_close(result, expect, check_stride=False)
 
         result = f[1]
         expect = torch.full((2, 1), 0.1)
-        assert_close(result, expect)
+        assert_close(result, expect, check_stride=False)
 
         result = f[2]
         expect = torch.full((2, 1), 0.0)
-        assert_close(result, expect)
+        assert_close(result, expect, check_stride=False)
 
     def test_str(self):
         assert str(ExpiryTime()) == "expiry_time"

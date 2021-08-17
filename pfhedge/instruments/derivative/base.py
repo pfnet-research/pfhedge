@@ -150,9 +150,9 @@ class OptionMixin:
             t = torch.arange(n_steps).to(self.underlier.spot) * self.underlier.dt
             return (t[-1] - t).unsqueeze(0).expand(n_paths, -1)
         else:
-            time_step %= n_steps
-            t = (n_steps - time_step - 1) * self.underlier.dt
-            return torch.full_like(self.underlier.spot[:, :1], t)
+            time = n_steps - (time_step % n_steps) - 1
+            t = torch.tensor([[time]]).to(self.underlier.spot) * self.underlier.dt
+            return t.expand(n_paths, -1)
 
 
 # Assign docstrings so they appear in Sphinx documentation

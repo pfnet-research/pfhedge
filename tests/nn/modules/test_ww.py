@@ -1,10 +1,10 @@
 import torch
-from pfhedge.nn import Hedger
 
-from pfhedge.instruments import BrownianStock
 from pfhedge import autogreek
+from pfhedge.instruments import BrownianStock
 from pfhedge.instruments import EuropeanOption
 from pfhedge.instruments import LookbackOption
+from pfhedge.nn import Hedger
 from pfhedge.nn import WhalleyWilmott
 
 
@@ -72,9 +72,7 @@ class TestWhalleyWilmott:
             hedger = Hedger(model, model.inputs()).to(torch.float64)
 
             def pricer(spot):
-                return hedger.price(
-                derivative, init_state=(spot,), enable_grad=True
-                )
+                return hedger.price(derivative, init_state=(spot,), enable_grad=True)
 
             delta = autogreek.delta(pricer, spot=torch.tensor(1.0))
             assert not delta.isnan().any()
