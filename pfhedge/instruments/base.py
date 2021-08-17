@@ -33,8 +33,8 @@ class Instrument(ABC):
         """Performs dtype and/or device conversion of the buffers associated to
         the instument.
 
-        A `torch.dtype` and `torch.device` are inferred from the arguments of
-        `self.to(*args, **kwargs)`.
+        A ``torch.dtype`` and ``torch.device`` are inferred from the arguments of
+        ``self.to(*args, **kwargs)``.
 
         Args:
             dtype (torch.dtype): Desired floating point type of the floating point
@@ -69,43 +69,43 @@ class Instrument(ABC):
         )
 
     def double(self: T) -> T:
-        """`self.double()` is equivalent to `self.to(torch.float64)`.
+        """It is equivalent to ``self.to(torch.float64)``.
         See :func:`to()`.
         """
         return self.to(torch.float64)
 
     def float(self: T) -> T:
-        """`self.float()` is equivalent to `self.to(torch.float32)`.
+        """It is equivalent to ``self.to(torch.float32)``.
         See :func:`to()`.
         """
         return self.to(torch.float32)
 
     def half(self: T) -> T:
-        """`self.half()` is equivalent to `self.to(torch.float16)`.
+        """It is equivalent to ``self.to(torch.float16)``.
         See :func:`to()`.
         """
         return self.to(torch.float16)
 
     def bfloat16(self: T) -> T:
-        """`self.bfloat16()` is equivalent to `self.to(torch.bfloat16)`.
+        """It is equivalent to ``self.to(torch.bfloat16)``.
         See :func:`to()`.
         """
         return self.to(torch.bfloat16)
 
     @property
     def dinfo(self) -> List[str]:
-        """Returns list of strings that tell `dtype` and `device` of `self`.
+        """Returns list of strings that tell ``dtype`` and ``device`` of self.
 
-        Intended to be used in `__repr__`.
+        Intended to be used in :func:`__repr__`.
 
-        If `dtype` (`device`) is the one specified in default type,
-        `dinfo` will not have the information of it.
+        If ``dtype`` (``device``) is the one specified in default type,
+        ``dinfo`` will not have the information of it.
 
         Returns:
             list[str]
         """
-        # Implementation here refers to the function `_str_intern` in
-        # `pytorch/_tensor_str.py`.
+        # Implementation here refers to the function _str_intern in
+        # pytorch/_tensor_str.py.
 
         dinfo = []
 

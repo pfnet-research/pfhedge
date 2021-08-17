@@ -29,11 +29,11 @@ class BrownianStock(Primary):
         dt (float, default=1/250): The intervals of the time steps.
         dtype (torch.device, optional): Desired device of returned tensor.
             Default: If None, uses a global default
-            (see `torch.set_default_tensor_type()`).
+            (see ``torch.set_default_tensor_type()``).
         device (torch.device, optional): Desired device of returned tensor.
             Default: if None, uses the current device for the default tensor type
-            (see `torch.set_default_tensor_type()`).
-            `device` will be the CPU for CPU tensor types and
+            (see ``torch.set_default_tensor_type()``).
+            ``device`` will be the CPU for CPU tensor types and
             the current CUDA device for CUDA tensor types.
 
     Buffers:
@@ -54,7 +54,7 @@ class BrownianStock(Primary):
         tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930],
                 [1.0000, 1.0282, 1.0199, 1.0258, 1.0292]])
 
-        Using custom `dtype` and `device`.
+        Using custom ``dtype`` and ``device``.
 
         >>> stock = BrownianStock()
         >>> stock.to(dtype=torch.float64, device="cuda:0")
@@ -87,11 +87,11 @@ class BrownianStock(Primary):
         time_horizon: float = 20 / 250,
         init_state: Optional[Tuple[TensorOrFloat]] = None,
     ) -> None:
-        """Simulate the spot price and add it as a buffer named `spot`.
+        """Simulate the spot price and add it as a buffer named ``spot``.
 
         The shape of the spot is :math:`(N, T)`, where :math:`N` is the number of
         simulated paths and :math:`T` is the number of time steps.
-        The number of time steps is determinded from `dt` and `time_horizon`.
+        The number of time steps is determinded from ``dt`` and ``time_horizon``.
 
         Args:
             n_paths (int, default=1): The number of paths to simulate.
@@ -99,11 +99,11 @@ class BrownianStock(Primary):
                 the price.
             init_state (tuple[torch.Tensor | float], optional): The initial state of
                 the instrument.
-                This is specified by `(spot,)`, where `spot` is the initial value
+                This is specified by ``(spot,)``, where ``spot`` is the initial value
                 of the stock price.
-                If `None` (default), it uses the default value
+                If ``None`` (default), it uses the default value
                 (See :func:`default_init_state`).
-                It also accepts a float or a `torch.Tensor`.
+                It also accepts a ``float`` or a ``torch.Tensor``.
 
         Examples:
 

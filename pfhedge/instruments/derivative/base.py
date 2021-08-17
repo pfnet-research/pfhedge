@@ -57,7 +57,7 @@ class Derivative(Instrument):
             n_paths (int): The number of paths to simulate.
             init_state (tuple[torch.Tensor | float], optional): The initial state of
                 the underlier.
-            **kwargs: Other parameters passed to `self.underlier.simulate()`.
+            **kwargs: Other parameters passed to ``self.underlier.simulate()``.
         """
         self.underlier.simulate(
             n_paths=n_paths, time_horizon=self.maturity, init_state=init_state
@@ -96,13 +96,13 @@ class OptionMixin:
 
         Args:
             time_step (int, optional): The time step to calculate
-                the moneyness. If `None` (default), the moneyness is calculated
+                the moneyness. If ``None`` (default), the moneyness is calculated
                 at all time steps.
 
         Shape:
             - Output: :math:`(N, T)` where :math:`N` is the number of paths and
               :math:`T` is the number of time steps.
-              If `time_step` is given, the shape is :math:`(N, 1)`.
+              If ``time_step`` is given, the shape is :math:`(N, 1)`.
 
         Returns:
             torch.Tensor
@@ -117,13 +117,13 @@ class OptionMixin:
 
         Args:
             time_step (int, optional): The time step to calculate the log
-                moneyness. If `None` (default), the moneyness is calculated
+                moneyness. If ``None`` (default), the moneyness is calculated
                 at all time steps.
 
         Shape:
             - Output: :math:`(N, T)` where :math:`N` is the number of paths and
               :math:`T` is the number of time steps.
-              If `time_step` is given, the shape is :math:`(N, 1)`.
+              If ``time_step`` is given, the shape is :math:`(N, 1)`.
 
         Returns:
             torch.Tensor
@@ -135,13 +135,13 @@ class OptionMixin:
 
         Args:
             time_step (int, optional): The time step to calculate
-                the time to maturity. If `None` (default), the time to
+                the time to maturity. If ``None`` (default), the time to
                 maturity is calculated at all time steps.
 
         Shape:
             - Output: :math:`(N, T)` where :math:`N` is the number of paths and
               :math:`T` is the number of time steps.
-              If `time_step` is given, the shape is :math:`(N, 1)`.
+              If ``time_step`` is given, the shape is :math:`(N, 1)`.
 
         Returns:
             torch.Tensor

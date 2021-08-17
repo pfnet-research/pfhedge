@@ -13,7 +13,7 @@ from .lookback import BSLookbackOption
 class BlackScholes(Module):
     """Initialize Black-Scholes formula module from a derivative.
 
-    The `forward` method returns the Black-Scholes delta.
+    The ``forward`` method returns the Black-Scholes delta.
 
     Args:
         derivative (:class:`pfhedge.instruments.Derivative`):
@@ -22,7 +22,7 @@ class BlackScholes(Module):
     Shape:
         - Input : :math:`(N, *, H_{\\mathrm{in}})`, where :math:`*` means any number of
           additional dimensions and :math:`H_{\\mathrm{in}}` is the number of input
-          features. See `inputs()` for the names of input features.
+          features. See :func:`inputs` for the names of input features.
         - Output : :math:`(N, *, 1)`. All but the last dimension are the same shape
           as the input.
 
@@ -31,7 +31,7 @@ class BlackScholes(Module):
         One can instantiate Black-Scholes module by using a derivative.
         For example, one can instantiate :class:`BSEuropeanOption` using
         a :class:`pfhedge.instruments.EuropeanOption`.
-        The `forward` method returns delta of the derivative.
+        The ``forward`` method returns delta of the derivative.
 
         >>> import torch
         >>> from pfhedge.instruments import BrownianStock

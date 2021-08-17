@@ -33,17 +33,18 @@ def generate_brownian(
         n_steps (int): The number of time steps.
         init_state (tuple[torch.Tensor | float], default=(0.0,)): The initial state of
             the time series.
-            This is specified by `(S0,)`, where `S0` is the initial value of :math:`S`.
-            It also accepts a float or a `torch.Tensor`.
+            This is specified by ``(S0,)``, where ``S0`` is
+            the initial value of :math:`S`.
+            It also accepts a ``torch.Tensor` or a ``float``.
         volatility (float, default=0.2): The volatility of the Brownian motion.
         dt (float, default=1/250): The intervals of the time steps.
         dtype (torch.dtype, optional): The desired data type of returned tensor.
-            Default: If `None`, uses a global default
-            (see `torch.set_default_tensor_type()`).
+            Default: If ``None``, uses a global default
+            (see ``torch.set_default_tensor_type()``).
         device (torch.device, optional): The desired device of returned tensor.
-            Default: if None, uses the current device for the default tensor type
-            (see `torch.set_default_tensor_type()`).
-            `device` will be the CPU for CPU tensor types and the current CUDA device
+            Default: If ``None``, uses the current device for the default tensor type
+            (see ``torch.set_default_tensor_type()``).
+            ``device`` will be the CPU for CPU tensor types and the current CUDA device
             for CUDA tensor types.
 
     Shape:
@@ -101,17 +102,17 @@ def generate_geometric_brownian(
         n_steps (int): The number of time steps.
         init_state (tuple[torch.Tensor | float], default=(1.0,)): The initial state of
             the time series.
-            This is specified by `(S0,)`, where `S0` is the initial value of :math:`S`.
-            It also accepts a float or a `torch.Tensor`.
+            This is specified by ``(S0,)``, where ``S0`` is the initial value of :math:`S`.
+            It also accepts a ``torch.Tensor`` or a ``float``.
         volatility (float, default=0.2): The volatility of the Brownian motion.
         dt (float, default=1/250): The intervals of the time steps.
         dtype (torch.dtype, optional): The desired data type of returned tensor.
-            Default: If `None`, uses a global default
-            (see `torch.set_default_tensor_type()`).
+            Default: If ``None``, uses a global default
+            (see ``torch.set_default_tensor_type()``).
         device (torch.device, optional): The desired device of returned tensor.
-            Default: if None, uses the current device for the default tensor type
-            (see `torch.set_default_tensor_type()`).
-            `device` will be the CPU for CPU tensor types and the current CUDA device
+            Default: If ``None``, uses the current device for the default tensor type
+            (see ``torch.set_default_tensor_type()``).
+            ``device`` will be the CPU for CPU tensor types and the current CUDA device
             for CUDA tensor types.
 
     Shape:
