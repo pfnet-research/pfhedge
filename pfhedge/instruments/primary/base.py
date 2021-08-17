@@ -31,20 +31,25 @@ class Primary(Instrument):
     Derivatives are issued based on primary instruments
     (See :class:`Derivative` for details).
 
+    Buffers:
+        - ``spot`` (``torch.Tensor``): The spot price of the instrument.
+
     Attributes:
         dtype (torch.dtype): The dtype with which the simulated time-series are
             represented.
         device (torch.device): The device where the simulated time-series are.
     """
 
-    spot: torch.Tensor
     dtype: torch.dtype
     device: torch.device
     dt: float
-    _buffers: Dict[str, Tensor]
+    _buffers: Dict[str, Optional[Tensor]]
+    spot: Tensor
 
     def __init__(self) -> None:
+        super().__init__()
         self._buffers = OrderedDict()
+        self.register_buffer("spot", None)
 
     @property
     def default_init_state(self) -> Tuple[TensorOrFloat, ...]:
@@ -71,7 +76,7 @@ class Primary(Instrument):
                 (See :func:`default_init_state`).
         """
 
-    def register_buffer(self, name: str, tensor: Tensor) -> None:
+    def register_buffer(self, name: str, tensor: Optional[Tensor]) -> None:
         """Adds a buffer to the module.
 
         Buffers can be accessed as attributes using given names.
@@ -113,7 +118,8 @@ class Primary(Instrument):
             (string, torch.Tensor): Tuple containing the name and buffer
         """
         for name, buffer in self._buffers.items():
-            yield name, buffer
+            if buffer is not None:
+                yield name, buffer
 
     def buffers(self) -> Iterator[Tensor]:
         r"""Returns an iterator over module buffers.

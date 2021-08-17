@@ -1,7 +1,9 @@
 import pytest
 import torch
+from torch import Tensor
 from torch.nn import Identity
 from torch.nn import Linear
+from torch.nn import Module
 from torch.testing import assert_close
 
 from pfhedge.instruments import BrownianStock
@@ -96,3 +98,22 @@ class TestHedger:
         result = hedger.compute_loss(deriv)
         expect = EntropicRiskMeasure()(-deriv.payoff())
         assert_close(result, expect)
+
+    def test_hedging(self):
+        torch.manual_seed(42)
+
+        class Ones(Module):
+            def forward(self, input: Tensor):
+                return torch.ones_like(input[:, :1])
+
+        pricer = lambda derivative: BlackScholes(derivative).price(
+            log_moneyness=derivative.log_moneyness(),
+            expiry_time=derivative.time_to_maturity(),
+            volatility=derivative.ul().volatility,
+        )
+
+        derivative = EuropeanOption(BrownianStock(), maturity=5 / 250)
+        derivative.list(pricer)
+        hedger = Hedger(Ones(), ["empty"])
+
+        _ = hedger.compute_pnl(derivative, hedge=derivative, n_paths=2)

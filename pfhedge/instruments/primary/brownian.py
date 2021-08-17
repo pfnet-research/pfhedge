@@ -1,3 +1,4 @@
+from math import ceil
 from typing import Optional
 from typing import Tuple
 from typing import Union
@@ -119,7 +120,7 @@ class BrownianStock(Primary):
 
         spot = generate_geometric_brownian(
             n_paths=n_paths,
-            n_steps=int(time_horizon / self.dt),
+            n_steps=ceil(time_horizon / self.dt),
             init_state=init_state,
             volatility=self.volatility,
             dt=self.dt,

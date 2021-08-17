@@ -2,6 +2,7 @@ from typing import List
 from typing import Optional
 from typing import Tuple
 from typing import Union
+from typing import cast
 
 import torch
 from torch import Tensor
@@ -15,6 +16,7 @@ from pfhedge._utils.hook import save_prev_output
 from pfhedge._utils.lazy import has_lazy
 from pfhedge._utils.operations import ensemble_mean
 from pfhedge.features import get_feature
+from pfhedge.instruments.base import Instrument
 from pfhedge.instruments.derivative.base import Derivative
 
 from .loss import EntropicRiskMeasure
@@ -112,6 +114,31 @@ class Hedger(Module):
         >>> history = hedger.fit(derivative, verbose=False, n_paths=1, n_epochs=1)
         >>> hedger.price(derivative)
         tensor(...)
+
+        Hedge with a listed derivative.
+
+        >>> from pfhedge.instruments import LookbackOption
+        >>> from pfhedge.nn import BlackScholes
+        >>>
+        >>> pricer = lambda derivative: BlackScholes(derivative).price(
+        ...     log_moneyness=derivative.log_moneyness(),
+        ...     expiry_time=derivative.time_to_maturity(),
+        ...     volatility=derivative.ul().volatility)
+        >>> stock = BrownianStock()
+        >>> hedging_instrument = EuropeanOption(stock, maturity=5/250)
+        >>> hedging_instrument.list(pricer, cost=1e-4)
+        >>> derivative = LookbackOption(stock)
+        >>> derivative.simulate()
+        >>> hedger = Hedger(
+        ...     MultiLayerPerceptron(),
+        ...     inputs=["moneyness", "expiry_time", "volatility"])
+        >>> _ = hedger.fit(
+        ...     hedging_instrument,
+        ...     hedge=hedging_instrument,
+        ...     verbose=False,
+        ...     n_paths=1,
+        ...     n_epochs=1)
+        >>> hedger.price(derivative)
     """
 
     def __init__(
@@ -141,6 +168,7 @@ class Hedger(Module):
     def compute_pnl(
         self,
         derivative: Derivative,
+        hedge: Optional[Instrument] = None,
         n_paths: int = 1000,
         init_state: Optional[Tuple[TensorOrFloat, ...]] = None,
     ) -> Tensor:
@@ -154,6 +182,9 @@ class Hedger(Module):
 
         Args:
             derivative (pfhedge.instruments.Derivative): The derivative to hedge.
+            hedge (pfhedge.instruments.Instrument, optional): The instrument to hedge
+                the risk of ``derivative``.
+                If ``None`` (default), use ``derivative.ul()``.
             n_paths (int, default=1000): The number of simulated price paths of the
                 underlying instrument.
             init_state (tuple[torch.Tensor | float], optional): The initial state of
@@ -180,31 +211,28 @@ class Hedger(Module):
             tensor([..., ...])
         """
         self.inputs = [f.of(derivative, self) for f in self.inputs]
+        hedge = cast(Instrument, hedge if hedge is not None else derivative.ul())
 
         derivative.simulate(n_paths=n_paths, init_state=init_state)
         # cashflow: shape (N, T - 1)
-        cashflow = derivative.ul().spot.diff(dim=-1)
+        cashflow = hedge.spot.diff(dim=-1)
 
         # prev_output: shape (N)
-        save_prev_output(self, None, torch.zeros_like(derivative.ul().spot[..., :1]))
-        pnl = torch.zeros_like(derivative.ul().spot[..., 0])
+        save_prev_output(self, None, torch.zeros_like(hedge.spot[..., :1]))
+        pnl = torch.zeros_like(hedge.spot[..., 0])
 
         # Simulate hedging over time.
-        n_steps = derivative.ul().spot.size(1)  # = T
-        for i in range(n_steps - 1):
-            prev_hedge = self.get_buffer("prev_output").reshape(-1)
+        for i in range(hedge.spot.size(1) - 1):
+            prev_output = self.get_buffer("prev_output").reshape(-1)
 
             # Compute the hedge ratio at the next time step.
-            hedge = self(torch.cat([f[i] for f in self.inputs], 1)).reshape(-1)
+            output = self(torch.cat([f[i] for f in self.inputs], 1)).reshape(-1)
 
             # Receive profit and loss from the underlying asset.
-            pnl += hedge * cashflow[..., i]
-            # Deduct transactoon cost.
-            pnl -= (
-                derivative.ul().cost
-                * (hedge - prev_hedge).abs()
-                * derivative.ul().spot[..., i]
-            )
+            pnl += output * cashflow[..., i]
+
+            # Deduct transaction cost.
+            pnl -= hedge.cost * (output - prev_output).abs() * hedge.spot[..., i]
 
         # Settle the derivative's payoff.
         pnl -= derivative.payoff()
@@ -223,6 +251,7 @@ class Hedger(Module):
     def compute_loss(
         self,
         derivative: Derivative,
+        hedge: Optional[Instrument] = None,
         n_paths: int = 1000,
         n_times: int = 1,
         init_state: Optional[Tuple[TensorOrFloat, ...]] = None,
@@ -262,7 +291,9 @@ class Hedger(Module):
         """
         with torch.set_grad_enabled(enable_grad):
             loss = lambda: self.criterion(
-                self.compute_pnl(derivative, n_paths=n_paths, init_state=init_state)
+                self.compute_pnl(
+                    derivative, hedge=hedge, n_paths=n_paths, init_state=init_state
+                )
             )
             mean_loss = ensemble_mean(loss, n_times=n_times)
 
@@ -271,6 +302,7 @@ class Hedger(Module):
     def fit(
         self,
         derivative: Derivative,
+        hedge: Optional[Instrument] = None,
         n_epochs: int = 100,
         n_paths: int = 1000,
         n_times: int = 1,
@@ -350,7 +382,11 @@ class Hedger(Module):
 
         def compute_loss(**kwargs) -> Tensor:
             return self.compute_loss(
-                derivative, n_paths=n_paths, init_state=init_state, **kwargs
+                derivative,
+                hedge=hedge,
+                n_paths=n_paths,
+                init_state=init_state,
+                **kwargs,
             )
 
         history = []
@@ -376,6 +412,7 @@ class Hedger(Module):
     def price(
         self,
         derivative: Derivative,
+        hedge: Optional[Instrument] = None,
         n_paths: int = 1000,
         n_times: int = 1,
         init_state: Optional[Tuple[TensorOrFloat, ...]] = None,
@@ -417,7 +454,9 @@ class Hedger(Module):
         with torch.set_grad_enabled(enable_grad):
             # Negative because selling
             pricer = lambda: -self.criterion.cash(
-                self.compute_pnl(derivative, n_paths=n_paths, init_state=init_state)
+                self.compute_pnl(
+                    derivative, hedge=hedge, n_paths=n_paths, init_state=init_state
+                )
             )
             mean_price = ensemble_mean(pricer, n_times=n_times)
 
