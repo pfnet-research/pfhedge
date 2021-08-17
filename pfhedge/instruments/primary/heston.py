@@ -28,11 +28,11 @@ class HestonStock(Primary):
         dt (float, default=1/250): The intervals of the time steps.
         dtype (torch.device, optional): Desired device of returned tensor.
             Default: If None, uses a global default
-            (see `torch.set_default_tensor_type()`).
+            (see ``torch.set_default_tensor_type()``).
         device (torch.device, optional): Desired device of returned tensor.
             Default: if None, uses the current device for the default tensor type
-            (see `torch.set_default_tensor_type()`).
-            `device` will be the CPU for CPU tensor types and
+            (see ``torch.set_default_tensor_type()``).
+            ``device`` will be the CPU for CPU tensor types and
             the current CUDA device for CUDA tensor types.
 
     Buffers:
@@ -45,7 +45,6 @@ class HestonStock(Primary):
           Note that this is different from the realized variance of the spot price.
           This attribute is set by a method :func:`simulate()`.
           The shape is :math:`(N, T)`.
-        - ``volatility`` (``torch.Tensor``): An alias for ``self.variance.sqrt()``.
 
     Examples:
 
@@ -55,14 +54,14 @@ class HestonStock(Primary):
         >>> stock = HestonStock()
         >>> stock.simulate(n_paths=2, time_horizon=5/250)
         >>> stock.spot
-        tensor([[1.0000, 0.9941, 0.9905, 0.9846, 0.9706],
-                [1.0000, 1.0031, 0.9800, 0.9785, 0.9735]])
+        tensor([[1.0000, 0.9902, 0.9823, 0.9926, 0.9968, 1.0040],
+                [1.0000, 0.9826, 0.9891, 0.9898, 0.9851, 0.9796]])
         >>> stock.variance
-        tensor([[0.0400, 0.0408, 0.0411, 0.0417, 0.0422],
-                [0.0400, 0.0395, 0.0452, 0.0434, 0.0446]])
+        tensor([[0.0400, 0.0408, 0.0411, 0.0417, 0.0422, 0.0393],
+                [0.0400, 0.0457, 0.0440, 0.0451, 0.0458, 0.0472]])
         >>> stock.volatility
-        tensor([[0.2000, 0.2020, 0.2027, 0.2041, 0.2054],
-                [0.2000, 0.1987, 0.2126, 0.2084, 0.2112]])
+        tensor([[0.2000, 0.2020, 0.2027, 0.2041, 0.2054, 0.1982],
+                [0.2000, 0.2138, 0.2097, 0.2124, 0.2140, 0.2172]])
     """
 
     spot: Tensor
@@ -96,6 +95,7 @@ class HestonStock(Primary):
 
     @property
     def volatility(self) -> Tensor:
+        """An alias for ``self.variance.sqrt()``."""
         return self.variance.clamp(min=0.0).sqrt()
 
     def simulate(
@@ -104,11 +104,11 @@ class HestonStock(Primary):
         time_horizon: float = 20 / 250,
         init_state: Optional[Tuple[TensorOrFloat, ...]] = None,
     ) -> None:
-        """Simulate the spot price and add it as a buffer named `spot`.
+        """Simulate the spot price and add it as a buffer named ``spot``.
 
         The shape of the spot is :math:`(N, T)`, where :math:`N` is the number of
         simulated paths and :math:`T` is the number of time steps.
-        The number of time steps is determinded from `dt` and `time_horizon`.
+        The number of time steps is determinded from ``dt`` and ``time_horizon``.
 
         Args:
             n_paths (int, default=1): The number of paths to simulate.
@@ -116,9 +116,9 @@ class HestonStock(Primary):
                 the price.
             init_state (tuple[torch.Tensor | float], default=(1.0,)): The initial
                 state of the instrument.
-                This is specified by `(S0, V0)`, where `S0` and `V0` are the initial
-                values of of spot and variance, respectively.
-                If `None` (default), it uses the default value
+                This is specified by ``(S0, V0)``, where ``S0`` and ``V0`` are
+                the initial values of of spot and variance, respectively.
+                If ``None`` (default), it uses the default value
                 (See :func:`default_init_state`).
         """
         if init_state is None:
@@ -126,7 +126,7 @@ class HestonStock(Primary):
 
         spot, variance = generate_heston(
             n_paths=n_paths,
-            n_steps=int(time_horizon / self.dt),
+            n_steps=int(time_horizon / self.dt + 1),
             init_state=init_state,
             kappa=self.kappa,
             theta=self.theta,

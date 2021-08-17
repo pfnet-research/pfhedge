@@ -19,14 +19,14 @@ class MultiLayerPerceptron(Sequential):
 
     Args:
         in_features (int, default=None): Size of each input sample.
-            If `None` (default), the number of input features will be
-            will be inferred from the `input.shape[-1]` after the first call to
-            `forward` is done. Also, before the first `forward` parameters in the
-            module are of `torch.nn.UninitializedParameter` class.
+            If ``None`` (default), the number of input features will be
+            will be inferred from the ``input.shape[-1]`` after the first call to
+            ``forward`` is done. Also, before the first ``forward`` parameters in the
+            module are of ``torch.nn.UninitializedParameter`` class.
         out_features (int, default=1): Size of each output sample.
         n_layers (int, default=4): Number of hidden layers.
         n_units (int or tuple[int], default=32): Number of units in each hidden layer.
-            If `tuple[int]`, it specifies different number of units for each layer.
+            If ``tuple[int]``, it specifies different number of units for each layer.
         activation (torch.nn.Module, default=torch.nn.ReLU()):
             Activation module of the hidden layers.
         out_activation (torch.nn.Module, default=torch.nn.Identity()):
@@ -38,11 +38,11 @@ class MultiLayerPerceptron(Sequential):
           features.
         - Output: :math:`(N, *, H_{\\text{out}})`, where all but the last dimension
           are the same shape as the input and :math:`H_{\\text{in}})` is
-          `out_features`.
+          ``out_features``.
 
     Examples:
 
-        By default, `in_features` is lazily determined:
+        By default, ``in_features`` is lazily determined:
 
         >>> import torch
         >>> from pfhedge.nn import MultiLayerPerceptron

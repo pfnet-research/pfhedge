@@ -67,12 +67,16 @@ class Primary(Instrument):
     ) -> None:
         """Simulate time series associated with the instrument and add them as buffers.
 
+        The shapes of the registered buffers should be ``(n_paths, n_steps)``
+        where ``n_steps`` is the minimum integer that satisfies
+        ``n_steps * self.dt >= time_horizon``.
+
         Args:
             n_paths (int): The number of paths to simulate.
             time_horizon (float): The period of time to simulate the price.
             init_state (tuple[torch.Tensor | float], optional): The initial state of
                 the instrument.
-                If `None` (default), it uses the default value
+                If ``None`` (default), it uses the default value
                 (See :func:`default_init_state`).
         """
 
@@ -89,7 +93,7 @@ class Primary(Instrument):
                 If ``None``, the buffer is **not** included in the module's
                 :attr:`state_dict`.
         """
-        # Implementation here refers to `torch.nn.Module.register_buffer`.
+        # Implementation here refers to torch.nn.Module.register_buffer.
         if "_buffers" not in self.__dict__:
             raise AttributeError("cannot assign buffer before Primary.__init__() call")
         elif not isinstance(name, torch._six.string_classes):

@@ -17,9 +17,10 @@ def delta(
 
     Args:
         pricer (callable): Pricing formula of a derivative.
-        create_graph (bool, default=False): If `True`, graph of the derivative will be
-            constructed, allowing to compute higher order derivative products.
-        **kwargs: Parameters passed to `pricer`.
+        create_graph (bool, default=False): If ``True``, graph of the derivative
+            will be constructed, allowing to compute higher order derivative
+            products.
+        **kwargs: Parameters passed to ``pricer``.
 
     Returns:
         torch.Tensor
@@ -58,9 +59,9 @@ def delta(
         >>>
         >>> _ = torch.manual_seed(42)
         >>>
-        >>> derivative = EuropeanOption(BrownianStock(cost=1e-4))
+        >>> derivative = EuropeanOption(BrownianStock(cost=1e-4)).to(torch.float64)
         >>> model = WhalleyWilmott(derivative)
-        >>> hedger = Hedger(model, model.inputs())
+        >>> hedger = Hedger(model, model.inputs()).to(torch.float64)
         >>>
         >>> def pricer(spot):
         ...     return hedger.price(
@@ -68,7 +69,7 @@ def delta(
         ...     )
         >>>
         >>> autogreek.delta(pricer, spot=torch.tensor(1.0))
-        tensor(0.52...)
+        tensor(0.5...)
     """
     if kwargs.get("strike") is None and kwargs.get("spot") is None:
         # Since delta does not depend on strike,
@@ -81,7 +82,7 @@ def delta(
         kwargs["moneyness"] = spot / kwargs["strike"]
         kwargs["log_moneyness"] = (spot / kwargs["strike"]).log()
 
-    # Delete parameters that are not in the signature of `pricer` to avoid
+    # Delete parameters that are not in the signature of pricer to avoid
     # TypeError: <pricer> got an unexpected keyword argument '<parameter>'
     for parameter in list(kwargs.keys()):
         if parameter not in signature(pricer).parameters.keys():
@@ -107,9 +108,9 @@ def gamma(
 
     Args:
         pricer (callable): Pricing formula of a derivative.
-        create_graph (bool, default=False): If `True`, graph of the derivative will be
+        create_graph (bool, default=False): If ``True``, graph of the derivative will be
             constructed, allowing to compute higher order derivative products.
-        **kwargs: Parameters passed to `pricer`.
+        **kwargs: Parameters passed to ``pricer``.
 
     Returns:
         torch.Tensor

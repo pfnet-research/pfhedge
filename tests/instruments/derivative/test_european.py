@@ -49,7 +49,7 @@ class TestEuropeanOption:
         assert_close(result, expect)
 
         result = derivative.moneyness(0)
-        expect = stock.spot[:, 0] / strike
+        expect = stock.spot[:, [0]] / strike
         assert_close(result, expect)
 
         result = derivative.log_moneyness()
@@ -57,21 +57,50 @@ class TestEuropeanOption:
         assert_close(result, expect)
 
         result = derivative.log_moneyness(0)
-        expect = (stock.spot[:, 0] / strike).log()
+        expect = (stock.spot[:, [0]] / strike).log()
         assert_close(result, expect)
 
     def test_time_to_maturity(self):
-        stock = BrownianStock(dt=1.0)
-        derivative = EuropeanOption(stock, maturity=4.0)
+        stock = BrownianStock(dt=0.1)
+        derivative = EuropeanOption(stock, maturity=0.2)
         derivative.simulate(n_paths=2)
 
         result = derivative.time_to_maturity()
-        expect = torch.tensor([[4.0, 3.0, 2.0, 1.0], [4.0, 3.0, 2.0, 1.0]])
-        assert_close(result, expect)
+        expect = torch.tensor([[0.2, 0.1, 0.0], [0.2, 0.1, 0.0]])
+        assert_close(result, expect, check_stride=False)
 
         result = derivative.time_to_maturity(0)
-        expect = torch.tensor([4.0, 4.0])
-        assert_close(result, expect)
+        expect = torch.full((2, 1), 0.2)
+        assert_close(result, expect, check_stride=False)
+
+        result = derivative.time_to_maturity(1)
+        expect = torch.full((2, 1), 0.1)
+        assert_close(result, expect, check_stride=False)
+
+        result = derivative.time_to_maturity(-1)
+        expect = torch.full((2, 1), 0.0)
+        assert_close(result, expect, check_stride=False)
+
+    def test_time_to_maturity_2(self):
+        stock = BrownianStock(dt=0.1)
+        derivative = EuropeanOption(stock, maturity=0.25)
+        derivative.simulate(n_paths=2)
+
+        result = derivative.time_to_maturity()
+        expect = torch.tensor([[0.3, 0.2, 0.1, 0.0], [0.3, 0.2, 0.1, 0.0]])
+        assert_close(result, expect, check_stride=False)
+
+        result = derivative.time_to_maturity(0)
+        expect = torch.full((2, 1), 0.3)
+        assert_close(result, expect, check_stride=False)
+
+        result = derivative.time_to_maturity(1)
+        expect = torch.full((2, 1), 0.2)
+        assert_close(result, expect, check_stride=False)
+
+        result = derivative.time_to_maturity(-1)
+        expect = torch.full((2, 1), 0.0)
+        assert_close(result, expect, check_stride=False)
 
     @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
     def test_dtype(self, dtype):

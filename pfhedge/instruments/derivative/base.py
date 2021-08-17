@@ -66,7 +66,7 @@ class Derivative(Instrument):
             n_paths (int): The number of paths to simulate.
             init_state (tuple[torch.Tensor | float], optional): The initial state of
                 the underlier.
-            **kwargs: Other parameters passed to `self.underlier.simulate()`.
+            **kwargs: Other parameters passed to ``self.underlier.simulate()``.
         """
         self.underlier.simulate(
             n_paths=n_paths, time_horizon=self.maturity, init_state=init_state
@@ -123,34 +123,32 @@ class OptionMixin:
 
         Args:
             time_step (int, optional): The time step to calculate
-                the moneyness. If `None` (default), the moneyness is calculated
+                the moneyness. If ``None`` (default), the moneyness is calculated
                 at all time steps.
 
         Shape:
             - Output: :math:`(N, T)` where :math:`N` is the number of paths and
               :math:`T` is the number of time steps.
-              If `time_step` is given, the shape is :math:`(N, 1)`.
+              If ``time_step`` is given, the shape is :math:`(N, 1)`.
 
         Returns:
             torch.Tensor
         """
-        spot = self.underlier.spot
-        if time_step is not None:
-            spot = spot[..., time_step]
-        return spot / self.strike
+        index = ... if time_step is None else [time_step]
+        return self.underlier.spot[..., index] / self.strike
 
     def log_moneyness(self, time_step: Optional[int] = None) -> Tensor:
         """Returns the log moneyness of self.
 
         Args:
             time_step (int, optional): The time step to calculate the log
-                moneyness. If `None` (default), the moneyness is calculated
+                moneyness. If ``None`` (default), the moneyness is calculated
                 at all time steps.
 
         Shape:
             - Output: :math:`(N, T)` where :math:`N` is the number of paths and
               :math:`T` is the number of time steps.
-              If `time_step` is given, the shape is :math:`(N, 1)`.
+              If ``time_step`` is given, the shape is :math:`(N, 1)`.
 
         Returns:
             torch.Tensor
@@ -162,27 +160,26 @@ class OptionMixin:
 
         Args:
             time_step (int, optional): The time step to calculate
-                the time to maturity. If `None` (default), the time to
+                the time to maturity. If ``None`` (default), the time to
                 maturity is calculated at all time steps.
 
         Shape:
             - Output: :math:`(N, T)` where :math:`N` is the number of paths and
               :math:`T` is the number of time steps.
-              If `time_step` is given, the shape is :math:`(N, 1)`.
+              If ``time_step`` is given, the shape is :math:`(N, 1)`.
 
         Returns:
             torch.Tensor
         """
         n_paths, n_steps = self.underlier.spot.size()
         if time_step is None:
-            t = self.underlier.dt * torch.arange(n_steps).repeat(n_paths, 1)
-            t.to(self.underlier.device)
-            return self.maturity - t
+            # Time passed from the beginning
+            t = torch.arange(n_steps).to(self.underlier.spot) * self.underlier.dt
+            return (t[-1] - t).unsqueeze(0).expand(n_paths, -1)
         else:
-            t = torch.full_like(
-                self.underlier.spot[:, 0], time_step * self.underlier.dt
-            )
-            return self.maturity - t
+            time = n_steps - (time_step % n_steps) - 1
+            t = torch.tensor([[time]]).to(self.underlier.spot) * self.underlier.dt
+            return t.expand(n_paths, -1)
 
 
 # Assign docstrings so they appear in Sphinx documentation

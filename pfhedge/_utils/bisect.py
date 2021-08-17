@@ -35,7 +35,7 @@ def bisect(
         torch.Tensor
 
     Raises:
-        RuntimeError: If the number of iteration exceeds `max_iter`.
+        RuntimeError: If the number of iteration exceeds ``max_iter``.
 
     Examples:
 
@@ -62,7 +62,7 @@ def bisect(
         raise ValueError("condition lower < upper should be satisfied.")
 
     if (function(lower) > function(upper)).all():
-        # If `function` is a decreasing function
+        # If function is a decreasing function
         mf = lambda input: -function(input)
         return bisect(mf, -target, lower, upper, precision=precision, max_iter=max_iter)
 
