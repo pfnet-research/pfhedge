@@ -115,6 +115,7 @@ class EuropeanBinaryOption(Derivative, OptionMixin):
 set_attr_and_docstring(EuropeanBinaryOption, "simulate", Derivative.simulate)
 set_attr_and_docstring(EuropeanBinaryOption, "to", Derivative.to)
 set_attr_and_docstring(EuropeanBinaryOption, "ul", Derivative.ul)
+set_attr_and_docstring(EuropeanBinaryOption, "list", Derivative.list)
 set_docstring(EuropeanBinaryOption, "payoff", Derivative.payoff)
 set_attr_and_docstring(EuropeanBinaryOption, "moneyness", OptionMixin.moneyness)
 set_attr_and_docstring(EuropeanBinaryOption, "log_moneyness", OptionMixin.log_moneyness)
