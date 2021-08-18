@@ -107,6 +107,7 @@ class LookbackOption(Derivative, OptionMixin):
 set_attr_and_docstring(LookbackOption, "simulate", Derivative.simulate)
 set_attr_and_docstring(LookbackOption, "to", Derivative.to)
 set_attr_and_docstring(LookbackOption, "ul", Derivative.ul)
+set_attr_and_docstring(LookbackOption, "list", Derivative.list)
 set_docstring(LookbackOption, "payoff", Derivative.payoff)
 set_attr_and_docstring(LookbackOption, "moneyness", OptionMixin.moneyness)
 set_attr_and_docstring(LookbackOption, "log_moneyness", OptionMixin.log_moneyness)
