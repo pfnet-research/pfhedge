@@ -24,7 +24,7 @@ class LeakyClamp(Module):
         \\max < \\text{input}
         \\end{cases}
 
-    Otherwise:
+    If :math:`\\min > \\max`:
 
     .. math ::
 
@@ -103,7 +103,7 @@ class Clamp(Module):
         \\max & \\max < \\text{input}
         \\end{cases}
 
-    Otherwise:
+    If :math:`\\min > \\max`:
 
     .. math ::
 
