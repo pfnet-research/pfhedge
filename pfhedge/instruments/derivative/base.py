@@ -1,4 +1,6 @@
 from abc import abstractmethod
+from typing import Any
+from typing import Callable
 from typing import Optional
 from typing import Tuple
 from typing import TypeVar
@@ -39,6 +41,13 @@ class Derivative(Instrument):
 
     underlier: Primary
     maturity: float
+    pricer: Optional[Callable[[Any], Tensor]]
+    cost: Optional[float]
+
+    def __init__(self):
+        super().__init__()
+        self.pricer = None
+        self.cost = None
 
     @property
     def dtype(self) -> torch.dtype:
@@ -83,11 +92,33 @@ class Derivative(Instrument):
             torch.Tensor
         """
 
+    def list(self: T, pricer: Callable[[T], Tensor], cost: float = 0.0) -> None:
+        """Make self a listed derivative.
+
+        After this method self will be a exchange-traded derivative which can be transacted
+        at any time with the spot price given by ``self.price``.
+
+        See an example in :class:`EuropeanOption` for a usage.
+
+        Args:
+            pricer (Callable[[Derivative], Tensor]]): A function that takes a derivative
+                and returns the derivative's price.
+            cost (float, optional): The transaction cost rate.
+        """
+        self.pricer = pricer
+        self.cost = cost
+
+    @property
+    def spot(self) -> Tensor:
+        if self.pricer is None:
+            raise ValueError("self is not listed.")
+        return self.pricer(self)
+
 
 class OptionMixin:
     """Mixin class of options."""
 
-    underlier: "Primary"
+    underlier: Primary
     strike: float
     maturity: float
 

@@ -139,3 +139,8 @@ class TestEuropeanOption:
             " dtype=torch.float64, device='cuda:0')"
         )
         assert repr(derivative) == expect
+
+    def test_spot_not_listed(self):
+        derivative = EuropeanOption(BrownianStock())
+        with pytest.raises(ValueError):
+            _ = derivative.spot

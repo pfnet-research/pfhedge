@@ -73,6 +73,24 @@ class EuropeanOption(Derivative, OptionMixin):
         >>> derivative = EuropeanOption(BrownianStock())
         >>> derivative.to(dtype=torch.float64, device="cuda:0")
         EuropeanOption(..., dtype=torch.float64, device='cuda:0')
+
+        Make ``self`` a listed derivative.
+
+        >>> from pfhedge.nn import BlackScholes
+        >>>
+        >>> pricer = lambda derivative: BlackScholes(derivative).price(
+        ...     log_moneyness=derivative.log_moneyness(),
+        ...     expiry_time=derivative.time_to_maturity(),
+        ...     volatility=derivative.ul().volatility)
+        >>> derivative = EuropeanOption(BrownianStock(), maturity=5/250)
+        >>> derivative.list(pricer, cost=1e-4)
+        >>> derivative.simulate(n_paths=2)
+        >>> derivative.ul().spot
+        tensor([[1.0000, 0.9788, 0.9665, 0.9782, 0.9947, 1.0049],
+                [1.0000, 0.9905, 1.0075, 1.0162, 1.0119, 1.0220]])
+        >>> derivative.spot
+        tensor([[0.0113, 0.0028, 0.0006, 0.0009, 0.0028, 0.0049],
+                [0.0113, 0.0060, 0.0130, 0.0180, 0.0131, 0.0220]])
     """
 
     def __init__(
