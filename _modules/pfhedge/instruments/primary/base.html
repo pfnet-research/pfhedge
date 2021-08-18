@@ -255,20 +255,25 @@
 <span class="sd">    Derivatives are issued based on primary instruments</span>
 <span class="sd">    (See :class:`Derivative` for details).</span>
 
+<span class="sd">    Buffers:</span>
+<span class="sd">        - ``spot`` (``torch.Tensor``): The spot price of the instrument.</span>
+
 <span class="sd">    Attributes:</span>
 <span class="sd">        dtype (torch.dtype): The dtype with which the simulated time-series are</span>
 <span class="sd">            represented.</span>
 <span class="sd">        device (torch.device): The device where the simulated time-series are.</span>
 <span class="sd">    """</span>
 
-    <span class="n">spot</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>
     <span class="n">dtype</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">dtype</span>
     <span class="n">device</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span>
     <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span>
-    <span class="n">_buffers</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">]</span>
+    <span class="n">_buffers</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tensor</span><span class="p">]]</span>
+    <span class="n">spot</span><span class="p">:</span> <span class="n">Tensor</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_buffers</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">register_buffer</span><span class="p">(</span><span class="s2">"spot"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">default_init_state</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">TensorOrFloat</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
@@ -299,7 +304,7 @@
 <span class="sd">                (See :func:`default_init_state`).</span>
 <span class="sd">        """</span></div>
 
-<div class="viewcode-block" id="Primary.register_buffer"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.Primary.html#pfhedge.instruments.Primary.register_buffer">[docs]</a>    <span class="k">def</span> <span class="nf">register_buffer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">tensor</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="Primary.register_buffer"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.Primary.html#pfhedge.instruments.Primary.register_buffer">[docs]</a>    <span class="k">def</span> <span class="nf">register_buffer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">tensor</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tensor</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">"""Adds a buffer to the module.</span>
 
 <span class="sd">        Buffers can be accessed as attributes using given names.</span>
@@ -341,7 +346,8 @@
 <span class="sd">            (string, torch.Tensor): Tuple containing the name and buffer</span>
 <span class="sd">        """</span>
         <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">buffer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buffers</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">yield</span> <span class="n">name</span><span class="p">,</span> <span class="n">buffer</span></div>
+            <span class="k">if</span> <span class="n">buffer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">name</span><span class="p">,</span> <span class="n">buffer</span></div>
 
 <div class="viewcode-block" id="Primary.buffers"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.Primary.html#pfhedge.instruments.Primary.buffers">[docs]</a>    <span class="k">def</span> <span class="nf">buffers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tensor</span><span class="p">]:</span>
         <span class="sa">r</span><span class="sd">"""Returns an iterator over module buffers.</span>

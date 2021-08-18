@@ -297,6 +297,24 @@
 <span class="sd">        &gt;&gt;&gt; derivative = EuropeanOption(BrownianStock())</span>
 <span class="sd">        &gt;&gt;&gt; derivative.to(dtype=torch.float64, device="cuda:0")</span>
 <span class="sd">        EuropeanOption(..., dtype=torch.float64, device='cuda:0')</span>
+
+<span class="sd">        Make ``self`` a listed derivative.</span>
+
+<span class="sd">        &gt;&gt;&gt; from pfhedge.nn import BlackScholes</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; pricer = lambda derivative: BlackScholes(derivative).price(</span>
+<span class="sd">        ...     log_moneyness=derivative.log_moneyness(),</span>
+<span class="sd">        ...     expiry_time=derivative.time_to_maturity(),</span>
+<span class="sd">        ...     volatility=derivative.ul().volatility)</span>
+<span class="sd">        &gt;&gt;&gt; derivative = EuropeanOption(BrownianStock(), maturity=5/250)</span>
+<span class="sd">        &gt;&gt;&gt; derivative.list(pricer, cost=1e-4)</span>
+<span class="sd">        &gt;&gt;&gt; derivative.simulate(n_paths=2)</span>
+<span class="sd">        &gt;&gt;&gt; derivative.ul().spot</span>
+<span class="sd">        tensor([[1.0000, 0.9788, 0.9665, 0.9782, 0.9947, 1.0049],</span>
+<span class="sd">                [1.0000, 0.9905, 1.0075, 1.0162, 1.0119, 1.0220]])</span>
+<span class="sd">        &gt;&gt;&gt; derivative.spot</span>
+<span class="sd">        tensor([[0.0113, 0.0028, 0.0006, 0.0009, 0.0028, 0.0049],</span>
+<span class="sd">                [0.0113, 0.0060, 0.0130, 0.0180, 0.0131, 0.0220]])</span>
 <span class="sd">    """</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>

@@ -226,6 +226,7 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">cast</span>
 
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
@@ -239,7 +240,9 @@
 <span class="kn">from</span> <span class="nn">pfhedge._utils.lazy</span> <span class="kn">import</span> <span class="n">has_lazy</span>
 <span class="kn">from</span> <span class="nn">pfhedge._utils.operations</span> <span class="kn">import</span> <span class="n">ensemble_mean</span>
 <span class="kn">from</span> <span class="nn">pfhedge.features</span> <span class="kn">import</span> <span class="n">get_feature</span>
+<span class="kn">from</span> <span class="nn">pfhedge.instruments.base</span> <span class="kn">import</span> <span class="n">Instrument</span>
 <span class="kn">from</span> <span class="nn">pfhedge.instruments.derivative.base</span> <span class="kn">import</span> <span class="n">Derivative</span>
+<span class="kn">from</span> <span class="nn">pfhedge.instruments.primary.base</span> <span class="kn">import</span> <span class="n">Primary</span>
 
 <span class="kn">from</span> <span class="nn">.loss</span> <span class="kn">import</span> <span class="n">EntropicRiskMeasure</span>
 <span class="kn">from</span> <span class="nn">.loss</span> <span class="kn">import</span> <span class="n">HedgeLoss</span>
@@ -270,7 +273,7 @@
 
 <span class="sd">    Examples:</span>
 
-<span class="sd">        Black-Scholes' delta hedging strategy.</span>
+<span class="sd">        A hedger that uses Black-Scholes' delta hedging strategy.</span>
 
 <span class="sd">        &gt;&gt;&gt; from pfhedge.instruments import BrownianStock</span>
 <span class="sd">        &gt;&gt;&gt; from pfhedge.instruments import EuropeanOption</span>
@@ -287,7 +290,7 @@
 <span class="sd">          (criterion): EntropicRiskMeasure()</span>
 <span class="sd">        )</span>
 
-<span class="sd">        Whalley-Wilmott's no-transaction-band strategy.</span>
+<span class="sd">        A hedger that uses Whalley-Wilmott's no-transaction-band strategy.</span>
 
 <span class="sd">        &gt;&gt;&gt; from pfhedge.nn import WhalleyWilmott</span>
 <span class="sd">        &gt;&gt;&gt;</span>
@@ -303,13 +306,13 @@
 <span class="sd">          (criterion): EntropicRiskMeasure()</span>
 <span class="sd">        )</span>
 
-<span class="sd">        A naked position (never hedge at all).</span>
+<span class="sd">        A hedger that takes naked positions (never hedge at all).</span>
 
 <span class="sd">        &gt;&gt;&gt; from pfhedge.nn import Naked</span>
 <span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt; hedger = Hedger(Naked(), ["empty"])</span>
 
-<span class="sd">        A strategy represented by a neural network (Deep Hedging).</span>
+<span class="sd">        A hedger represented by a neural network (Deep Hedging).</span>
 
 <span class="sd">        &gt;&gt;&gt; from pfhedge.nn import MultiLayerPerceptron</span>
 <span class="sd">        &gt;&gt;&gt;</span>
@@ -334,6 +337,36 @@
 <span class="sd">          (criterion): EntropicRiskMeasure()</span>
 <span class="sd">        )</span>
 <span class="sd">        &gt;&gt;&gt; history = hedger.fit(derivative, verbose=False, n_paths=1, n_epochs=1)</span>
+<span class="sd">        &gt;&gt;&gt; hedger.price(derivative)</span>
+<span class="sd">        tensor(...)</span>
+
+<span class="sd">        It is possible to hedge a derivative with another listed derivative by</span>
+<span class="sd">        ``Derivative.list()`` method.</span>
+
+<span class="sd">        &gt;&gt;&gt; from pfhedge.instruments import LookbackOption</span>
+<span class="sd">        &gt;&gt;&gt; from pfhedge.nn import BlackScholes</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; pricer = lambda derivative: BlackScholes(derivative).price(</span>
+<span class="sd">        ...     log_moneyness=derivative.log_moneyness(),</span>
+<span class="sd">        ...     expiry_time=derivative.time_to_maturity(),</span>
+<span class="sd">        ...     volatility=derivative.ul().volatility)</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; stock = BrownianStock()</span>
+<span class="sd">        &gt;&gt;&gt; hedging_instrument = EuropeanOption(stock, maturity=5/250)</span>
+<span class="sd">        &gt;&gt;&gt; hedging_instrument.list(pricer, cost=1e-4)</span>
+<span class="sd">        &gt;&gt;&gt; derivative = LookbackOption(stock)</span>
+<span class="sd">        &gt;&gt;&gt; derivative.simulate()</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; stock = BrownianStock()</span>
+<span class="sd">        &gt;&gt;&gt; hedger = Hedger(</span>
+<span class="sd">        ...     MultiLayerPerceptron(),</span>
+<span class="sd">        ...     inputs=["moneyness", "expiry_time", "volatility"])</span>
+<span class="sd">        &gt;&gt;&gt; _ = hedger.fit(</span>
+<span class="sd">        ...     derivative,</span>
+<span class="sd">        ...     hedge=hedging_instrument,</span>
+<span class="sd">        ...     verbose=False,</span>
+<span class="sd">        ...     n_paths=1,</span>
+<span class="sd">        ...     n_epochs=1)</span>
 <span class="sd">        &gt;&gt;&gt; hedger.price(derivative)</span>
 <span class="sd">        tensor(...)</span>
 <span class="sd">    """</span>
@@ -365,6 +398,7 @@
 <div class="viewcode-block" id="Hedger.compute_pnl"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.Hedger.html#pfhedge.nn.Hedger.compute_pnl">[docs]</a>    <span class="k">def</span> <span class="nf">compute_pnl</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">derivative</span><span class="p">:</span> <span class="n">Derivative</span><span class="p">,</span>
+        <span class="n">hedge</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">Primary</span><span class="p">,</span> <span class="n">Derivative</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">n_paths</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
         <span class="n">init_state</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">TensorOrFloat</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
@@ -378,6 +412,9 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            derivative (pfhedge.instruments.Derivative): The derivative to hedge.</span>
+<span class="sd">            hedge (pfhedge.instruments.Instrument, optional): The instrument to hedge</span>
+<span class="sd">                the risk of ``derivative``.</span>
+<span class="sd">                If ``None`` (default), use ``derivative.ul()``.</span>
 <span class="sd">            n_paths (int, default=1000): The number of simulated price paths of the</span>
 <span class="sd">                underlying instrument.</span>
 <span class="sd">            init_state (tuple[torch.Tensor | float], optional): The initial state of</span>
@@ -404,31 +441,29 @@
 <span class="sd">            tensor([..., ...])</span>
 <span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="n">derivative</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="p">]</span>
+        <span class="n">hedge</span> <span class="o">=</span> <span class="n">hedge</span> <span class="k">if</span> <span class="n">hedge</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">derivative</span><span class="o">.</span><span class="n">ul</span><span class="p">()</span>
+        <span class="n">hedge</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">Union</span><span class="p">[</span><span class="n">Primary</span><span class="p">,</span> <span class="n">Derivative</span><span class="p">],</span> <span class="n">hedge</span><span class="p">)</span>
 
         <span class="n">derivative</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">n_paths</span><span class="o">=</span><span class="n">n_paths</span><span class="p">,</span> <span class="n">init_state</span><span class="o">=</span><span class="n">init_state</span><span class="p">)</span>
         <span class="c1"># cashflow: shape (N, T - 1)</span>
-        <span class="n">cashflow</span> <span class="o">=</span> <span class="n">derivative</span><span class="o">.</span><span class="n">ul</span><span class="p">()</span><span class="o">.</span><span class="n">spot</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">cashflow</span> <span class="o">=</span> <span class="n">hedge</span><span class="o">.</span><span class="n">spot</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
 
         <span class="c1"># prev_output: shape (N)</span>
-        <span class="n">save_prev_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">derivative</span><span class="o">.</span><span class="n">ul</span><span class="p">()</span><span class="o">.</span><span class="n">spot</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="mi">1</span><span class="p">]))</span>
-        <span class="n">pnl</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">derivative</span><span class="o">.</span><span class="n">ul</span><span class="p">()</span><span class="o">.</span><span class="n">spot</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="n">save_prev_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">hedge</span><span class="o">.</span><span class="n">spot</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="n">pnl</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">hedge</span><span class="o">.</span><span class="n">spot</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
 
         <span class="c1"># Simulate hedging over time.</span>
-        <span class="n">n_steps</span> <span class="o">=</span> <span class="n">derivative</span><span class="o">.</span><span class="n">ul</span><span class="p">()</span><span class="o">.</span><span class="n">spot</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># = T</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_steps</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
-            <span class="n">prev_hedge</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_buffer</span><span class="p">(</span><span class="s2">"prev_output"</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">hedge</span><span class="o">.</span><span class="n">spot</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">prev_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_buffer</span><span class="p">(</span><span class="s2">"prev_output"</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 
             <span class="c1"># Compute the hedge ratio at the next time step.</span>
-            <span class="n">hedge</span> <span class="o">=</span> <span class="bp">self</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">f</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="p">],</span> <span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">f</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="p">],</span> <span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 
             <span class="c1"># Receive profit and loss from the underlying asset.</span>
-            <span class="n">pnl</span> <span class="o">+=</span> <span class="n">hedge</span> <span class="o">*</span> <span class="n">cashflow</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span>
-            <span class="c1"># Deduct transactoon cost.</span>
-            <span class="n">pnl</span> <span class="o">-=</span> <span class="p">(</span>
-                <span class="n">derivative</span><span class="o">.</span><span class="n">ul</span><span class="p">()</span><span class="o">.</span><span class="n">cost</span>
-                <span class="o">*</span> <span class="p">(</span><span class="n">hedge</span> <span class="o">-</span> <span class="n">prev_hedge</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span>
-                <span class="o">*</span> <span class="n">derivative</span><span class="o">.</span><span class="n">ul</span><span class="p">()</span><span class="o">.</span><span class="n">spot</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span>
-            <span class="p">)</span>
+            <span class="n">pnl</span> <span class="o">+=</span> <span class="n">output</span> <span class="o">*</span> <span class="n">cashflow</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span>
+
+            <span class="c1"># Deduct transaction cost.</span>
+            <span class="n">pnl</span> <span class="o">-=</span> <span class="n">hedge</span><span class="o">.</span><span class="n">cost</span> <span class="o">*</span> <span class="p">(</span><span class="n">output</span> <span class="o">-</span> <span class="n">prev_output</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span> <span class="o">*</span> <span class="n">hedge</span><span class="o">.</span><span class="n">spot</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span>
 
         <span class="c1"># Settle the derivative's payoff.</span>
         <span class="n">pnl</span> <span class="o">-=</span> <span class="n">derivative</span><span class="o">.</span><span class="n">payoff</span><span class="p">()</span>
@@ -447,6 +482,7 @@
 <div class="viewcode-block" id="Hedger.compute_loss"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.Hedger.html#pfhedge.nn.Hedger.compute_loss">[docs]</a>    <span class="k">def</span> <span class="nf">compute_loss</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">derivative</span><span class="p">:</span> <span class="n">Derivative</span><span class="p">,</span>
+        <span class="n">hedge</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">Primary</span><span class="p">,</span> <span class="n">Derivative</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">n_paths</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
         <span class="n">n_times</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
         <span class="n">init_state</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">TensorOrFloat</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -486,7 +522,9 @@
 <span class="sd">        """</span>
         <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">set_grad_enabled</span><span class="p">(</span><span class="n">enable_grad</span><span class="p">):</span>
             <span class="n">loss</span> <span class="o">=</span> <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">criterion</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">compute_pnl</span><span class="p">(</span><span class="n">derivative</span><span class="p">,</span> <span class="n">n_paths</span><span class="o">=</span><span class="n">n_paths</span><span class="p">,</span> <span class="n">init_state</span><span class="o">=</span><span class="n">init_state</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">compute_pnl</span><span class="p">(</span>
+                    <span class="n">derivative</span><span class="p">,</span> <span class="n">hedge</span><span class="o">=</span><span class="n">hedge</span><span class="p">,</span> <span class="n">n_paths</span><span class="o">=</span><span class="n">n_paths</span><span class="p">,</span> <span class="n">init_state</span><span class="o">=</span><span class="n">init_state</span>
+                <span class="p">)</span>
             <span class="p">)</span>
             <span class="n">mean_loss</span> <span class="o">=</span> <span class="n">ensemble_mean</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">n_times</span><span class="o">=</span><span class="n">n_times</span><span class="p">)</span>
 
@@ -495,6 +533,7 @@
 <div class="viewcode-block" id="Hedger.fit"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.Hedger.html#pfhedge.nn.Hedger.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">derivative</span><span class="p">:</span> <span class="n">Derivative</span><span class="p">,</span>
+        <span class="n">hedge</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">Primary</span><span class="p">,</span> <span class="n">Derivative</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">n_epochs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
         <span class="n">n_paths</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
         <span class="n">n_times</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
@@ -574,7 +613,11 @@
 
         <span class="k">def</span> <span class="nf">compute_loss</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_loss</span><span class="p">(</span>
-                <span class="n">derivative</span><span class="p">,</span> <span class="n">n_paths</span><span class="o">=</span><span class="n">n_paths</span><span class="p">,</span> <span class="n">init_state</span><span class="o">=</span><span class="n">init_state</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+                <span class="n">derivative</span><span class="p">,</span>
+                <span class="n">hedge</span><span class="o">=</span><span class="n">hedge</span><span class="p">,</span>
+                <span class="n">n_paths</span><span class="o">=</span><span class="n">n_paths</span><span class="p">,</span>
+                <span class="n">init_state</span><span class="o">=</span><span class="n">init_state</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
             <span class="p">)</span>
 
         <span class="n">history</span> <span class="o">=</span> <span class="p">[]</span>
@@ -600,6 +643,7 @@
 <div class="viewcode-block" id="Hedger.price"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.Hedger.html#pfhedge.nn.Hedger.price">[docs]</a>    <span class="k">def</span> <span class="nf">price</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">derivative</span><span class="p">:</span> <span class="n">Derivative</span><span class="p">,</span>
+        <span class="n">hedge</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">Primary</span><span class="p">,</span> <span class="n">Derivative</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">n_paths</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
         <span class="n">n_times</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
         <span class="n">init_state</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">TensorOrFloat</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -641,7 +685,9 @@
         <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">set_grad_enabled</span><span class="p">(</span><span class="n">enable_grad</span><span class="p">):</span>
             <span class="c1"># Negative because selling</span>
             <span class="n">pricer</span> <span class="o">=</span> <span class="k">lambda</span><span class="p">:</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">criterion</span><span class="o">.</span><span class="n">cash</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">compute_pnl</span><span class="p">(</span><span class="n">derivative</span><span class="p">,</span> <span class="n">n_paths</span><span class="o">=</span><span class="n">n_paths</span><span class="p">,</span> <span class="n">init_state</span><span class="o">=</span><span class="n">init_state</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">compute_pnl</span><span class="p">(</span>
+                    <span class="n">derivative</span><span class="p">,</span> <span class="n">hedge</span><span class="o">=</span><span class="n">hedge</span><span class="p">,</span> <span class="n">n_paths</span><span class="o">=</span><span class="n">n_paths</span><span class="p">,</span> <span class="n">init_state</span><span class="o">=</span><span class="n">init_state</span>
+                <span class="p">)</span>
             <span class="p">)</span>
             <span class="n">mean_price</span> <span class="o">=</span> <span class="n">ensemble_mean</span><span class="p">(</span><span class="n">pricer</span><span class="p">,</span> <span class="n">n_times</span><span class="o">=</span><span class="n">n_times</span><span class="p">)</span>
 

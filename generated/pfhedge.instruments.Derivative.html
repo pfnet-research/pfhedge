@@ -306,6 +306,23 @@ See <a class="reference internal" href="#pfhedge.instruments.Derivative.to" titl
 See <a class="reference internal" href="#pfhedge.instruments.Derivative.to" title="pfhedge.instruments.Derivative.to"><code class="xref py py-func docutils literal notranslate"><span class="pre">to()</span></code></a>.</p>
 </dd></dl>
 <dl class="py method">
+<dt class="sig sig-object py" id="pfhedge.instruments.Derivative.list">
+<span class="sig-name descname"><span class="pre">list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pricer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/derivative/base.html#Derivative.list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Derivative.list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make self a listed derivative.</p>
+<p>After this method self will be a exchange-traded derivative which can be transacted
+at any time with the spot price given by <code class="docutils literal notranslate"><span class="pre">self.price</span></code>.</p>
+<p>See an example in <a class="reference internal" href="pfhedge.instruments.EuropeanOption.html#pfhedge.instruments.EuropeanOption" title="pfhedge.instruments.EuropeanOption"><code class="xref py py-class docutils literal notranslate"><span class="pre">EuropeanOption</span></code></a> for a usage.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pricer</strong> (<em>Callable</em><em>[</em><em>[</em><a class="reference internal" href="#pfhedge.instruments.Derivative" title="pfhedge.instruments.Derivative"><em>Derivative</em></a><em>]</em><em>, </em><em>Tensor</em><em>]</em><em>]</em>) – A function that takes a derivative
+and returns the derivative’s price.</p></li>
+<li><p><strong>cost</strong> (<em>float</em><em>, </em><em>optional</em>) – The transaction cost rate.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
 <dt class="sig sig-object py" id="pfhedge.instruments.Derivative.payoff">
 <em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">payoff</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/derivative/base.html#Derivative.payoff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Derivative.payoff" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the payoffs of the derivative.</p>

@@ -299,6 +299,24 @@ represented.</p>
 <span class="go">EuropeanOption(..., dtype=torch.float64, device='cuda:0')</span>
 </pre></div>
 </div>
+<p>Make <code class="docutils literal notranslate"><span class="pre">self</span></code> a listed derivative.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">BlackScholes</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pricer</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">derivative</span><span class="p">:</span> <span class="n">BlackScholes</span><span class="p">(</span><span class="n">derivative</span><span class="p">)</span><span class="o">.</span><span class="n">price</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">log_moneyness</span><span class="o">=</span><span class="n">derivative</span><span class="o">.</span><span class="n">log_moneyness</span><span class="p">(),</span>
+<span class="gp">... </span>    <span class="n">expiry_time</span><span class="o">=</span><span class="n">derivative</span><span class="o">.</span><span class="n">time_to_maturity</span><span class="p">(),</span>
+<span class="gp">... </span>    <span class="n">volatility</span><span class="o">=</span><span class="n">derivative</span><span class="o">.</span><span class="n">ul</span><span class="p">()</span><span class="o">.</span><span class="n">volatility</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span> <span class="o">=</span> <span class="n">EuropeanOption</span><span class="p">(</span><span class="n">BrownianStock</span><span class="p">(),</span> <span class="n">maturity</span><span class="o">=</span><span class="mi">5</span><span class="o">/</span><span class="mi">250</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">pricer</span><span class="p">,</span> <span class="n">cost</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">n_paths</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span><span class="o">.</span><span class="n">ul</span><span class="p">()</span><span class="o">.</span><span class="n">spot</span>
+<span class="go">tensor([[1.0000, 0.9788, 0.9665, 0.9782, 0.9947, 1.0049],</span>
+<span class="go">        [1.0000, 0.9905, 1.0075, 1.0162, 1.0119, 1.0220]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span><span class="o">.</span><span class="n">spot</span>
+<span class="go">tensor([[0.0113, 0.0028, 0.0006, 0.0009, 0.0028, 0.0049],</span>
+<span class="go">        [0.0113, 0.0060, 0.0130, 0.0180, 0.0131, 0.0220]])</span>
+</pre></div>
+</div>
 <dl class="py method">
 <dt class="sig sig-object py" id="pfhedge.instruments.EuropeanOption.log_moneyness">
 <span class="sig-name descname"><span class="pre">log_moneyness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.EuropeanOption.log_moneyness" title="Permalink to this definition">¶</a></dt>
