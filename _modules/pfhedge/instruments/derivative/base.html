@@ -320,13 +320,13 @@
         <span class="sd">"""Make self a listed derivative.</span>
 
 <span class="sd">        After this method self will be a exchange-traded derivative which can be transacted</span>
-<span class="sd">        at any time with the spot price given by ``self.price``.</span>
+<span class="sd">        at any time with the spot price given by ``self.spot``.</span>
 
 <span class="sd">        See an example in :class:`EuropeanOption` for a usage.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            pricer (Callable[[Derivative], Tensor]]): A function that takes a derivative</span>
-<span class="sd">                and returns the derivative's price.</span>
+<span class="sd">            pricer (Callable[[Derivative], Tensor]]): A function that takes self</span>
+<span class="sd">                and returns the spot price tensor of self.</span>
 <span class="sd">            cost (float, optional): The transaction cost rate.</span>
 <span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pricer</span> <span class="o">=</span> <span class="n">pricer</span>
@@ -334,6 +334,10 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">spot</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+        <span class="sd">"""Returns ``self.pricer(self)`` if self is listed.</span>
+
+<span class="sd">        See :func:`list()` for details.</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pricer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"self is not listed."</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pricer</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
