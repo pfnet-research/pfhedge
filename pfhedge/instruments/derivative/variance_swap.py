@@ -94,4 +94,5 @@ class VarianceSwap(Derivative):
 set_attr_and_docstring(VarianceSwap, "simulate", Derivative.simulate)
 set_attr_and_docstring(VarianceSwap, "to", Derivative.to)
 set_attr_and_docstring(VarianceSwap, "ul", Derivative.ul)
+set_attr_and_docstring(VarianceSwap, "list", Derivative.list)
 set_docstring(VarianceSwap, "payoff", Derivative.payoff)
