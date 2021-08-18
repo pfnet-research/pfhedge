@@ -29,4 +29,8 @@ def ensemble_mean(
         >>> ensemble_mean(function, 5)
         tensor([ 0.4236, -0.0396])
     """
-    return torch.stack([function(*args, **kwargs) for _ in range(n_times)]).mean(dim=0)
+    if n_times == 1:
+        return function(*args, **kwargs)
+    else:
+        stack = torch.stack([function(*args, **kwargs) for _ in range(n_times)])
+        return stack.mean(dim=0)
