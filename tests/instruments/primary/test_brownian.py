@@ -1,5 +1,6 @@
 import pytest
 import torch
+from torch.testing import assert_close
 
 from pfhedge.instruments import BrownianStock
 from pfhedge.instruments import Primary
@@ -124,6 +125,18 @@ class TestBrownianStock:
         s = BrownianStock(dt=0.1)
         s.simulate(time_horizon=0.25, n_paths=10)
         assert s.spot.size() == torch.Size((10, 4))
+
+    @pytest.mark.parametrize("sigma", [0.2, 0.1])
+    def test_volatility(self, sigma):
+        s = BrownianStock(sigma=sigma)
+        s.simulate()
+        result = s.volatility
+        expect = torch.full_like(s.spot, sigma)
+        assert_close(result, expect)
+
+        result = s.variance
+        expect = torch.full_like(s.spot, sigma ** 2)
+        assert_close(result, expect)
 
     def test_cuda(self):
         s = BrownianStock()
