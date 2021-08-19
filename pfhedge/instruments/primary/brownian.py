@@ -97,7 +97,7 @@ class BrownianStock(Primary):
 
         It is a tensor filled with the square of ``self.sigma``.
         """
-        return self.volatility.square()
+        return torch.full_like(self.spot, self.sigma ** 2)
 
     def simulate(
         self,
