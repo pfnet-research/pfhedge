@@ -151,22 +151,22 @@ class TestVolatility(_TestFeature):
     pfhedge.features.Volatility
     """
 
-    @pytest.mark.parametrize("volatility", [0.2, 0.1])
-    def test(self, volatility):
-        derivative = EuropeanOption(BrownianStock(volatility=volatility))
+    @pytest.mark.parametrize("sigma", [0.2, 0.1])
+    def test(self, sigma):
+        derivative = EuropeanOption(BrownianStock(sigma=sigma))
         derivative.underlier.spot = torch.empty(2, 3)
 
         f = Volatility().of(derivative)
 
         result = f[0]
-        expect = torch.full((2, 1), volatility)
-        assert_close(result, expect)
+        expect = torch.full((2, 1), sigma)
+        assert_close(result, expect, check_stride=False)
         result = f[1]
-        expect = torch.full((2, 1), volatility)
-        assert_close(result, expect)
+        expect = torch.full((2, 1), sigma)
+        assert_close(result, expect, check_stride=False)
         result = f[2]
-        expect = torch.full((2, 1), volatility)
-        assert_close(result, expect)
+        expect = torch.full((2, 1), sigma)
+        assert_close(result, expect, check_stride=False)
 
     def test_stochastic_volatility(self):
         derivative = EuropeanOption(HestonStock())
@@ -190,14 +190,6 @@ class TestVolatility(_TestFeature):
     def test_dtype(self, dtype):
         derivative = EuropeanOption(BrownianStock())
         self.assert_same_dtype(Volatility(), derivative, dtype)
-
-    def test_spot_and_volatility_are_not_the_same_size(self):
-        derivative = EuropeanOption(HestonStock())
-        derivative.simulate()
-        derivative.ul().register_buffer("variance", torch.empty(1, 1))
-        f = Volatility().of(derivative)
-        with pytest.raises(ValueError):
-            _ = f[0]
 
 
 class TestPrevHedge(_TestFeature):
