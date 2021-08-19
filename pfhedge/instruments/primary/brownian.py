@@ -95,7 +95,7 @@ class BrownianStock(Primary):
     def variance(self) -> Tensor:
         """Returns the volatility of self.
 
-        It is a tensor filled with ``self.sigma``.
+        It is a tensor filled with the square of ``self.sigma``.
         """
         return self.volatility.square()
 
