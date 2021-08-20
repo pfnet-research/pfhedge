@@ -3,6 +3,8 @@ from typing import List
 from torch import Tensor
 from torch.nn import Module
 
+from pfhedge._utils.str import _format_float
+
 from .bs.black_scholes import BlackScholes
 from .clamp import Clamp
 
@@ -112,7 +114,7 @@ class WhalleyWilmott(Module):
         return self.bs.inputs() + ["prev_hedge"]
 
     def extra_repr(self) -> str:
-        return f"a={self.a}" if self.a != 1 else ""
+        return "a=" + _format_float(self.a) if self.a != 1 else ""
 
     def forward(self, input: Tensor) -> Tensor:
         prev_hedge = input[..., [-1]]

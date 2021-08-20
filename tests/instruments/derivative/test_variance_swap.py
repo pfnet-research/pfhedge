@@ -9,13 +9,6 @@ from pfhedge.instruments import VarianceSwap
 
 
 class TestVarianceSwap:
-    def test_repr(self):
-        derivative = VarianceSwap(BrownianStock())
-
-        result = repr(derivative)
-        expect = "VarianceSwap(BrownianStock(...), strike=4.00e-02, maturity=8.00e-02)"
-        assert result == expect
-
     def test_payoff(self):
         derivative = VarianceSwap(BrownianStock(), strike=0.04)
         derivative.ul().register_buffer("spot", torch.ones(2, 3))
@@ -39,3 +32,14 @@ class TestVarianceSwap:
         result = derivative.payoff()
         expect = torch.full_like(result, -0.04)
         assert_close(result, expect)
+
+    def test_repr(self):
+        derivative = VarianceSwap(BrownianStock())
+
+        result = repr(derivative)
+        expect = """\
+VarianceSwap(
+  strike=0.0400, maturity=0.0800
+  (underlier): BrownianStock(sigma=0.2000, dt=0.0040)
+)"""
+        assert result == expect

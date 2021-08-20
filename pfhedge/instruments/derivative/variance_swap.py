@@ -5,6 +5,7 @@ from torch import Tensor
 
 from pfhedge._utils.doc import set_attr_and_docstring
 from pfhedge._utils.doc import set_docstring
+from pfhedge._utils.str import _format_float
 from pfhedge.nn.functional import realized_variance
 
 from ..primary.base import Primary
@@ -79,12 +80,13 @@ class VarianceSwap(Derivative):
         self.maturity = maturity
         self.to(dtype=dtype, device=device)
 
-    def __repr__(self):
-        params = [f"{self.underlier.__class__.__name__}(...)"]
-        params.append(f"strike={self.strike:.2e}")
-        params.append(f"maturity={self.maturity:.2e}")
-        params += self.dinfo
-        return self.__class__.__name__ + "(" + ", ".join(params) + ")"
+    def extra_repr(self):
+        return ", ".join(
+            (
+                "strike=" + _format_float(self.strike),
+                "maturity=" + _format_float(self.maturity),
+            )
+        )
 
     def payoff(self) -> Tensor:
         return realized_variance(self.ul().spot, dt=self.ul().dt) - self.strike

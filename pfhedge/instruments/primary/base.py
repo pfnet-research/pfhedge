@@ -9,6 +9,7 @@ from typing import Union
 from typing import no_type_check
 
 import torch
+from black import main
 from torch import Tensor
 from torch.nn import Module
 
@@ -161,6 +162,15 @@ class Primary(Instrument):
             self.register_buffer(name, buffer.to(*args, **kwargs))
 
         return self
+
+    def __repr__(self) -> str:
+        extra_repr = self.extra_repr()
+        dinfo = ", ".join(self._dinfo())
+        main_str = self._get_name() + "("
+        if extra_repr and dinfo:
+            extra_repr += ", "
+        main_str += extra_repr + dinfo + ")"
+        return main_str
 
 
 # Assign docstrings so they appear in Sphinx documentation

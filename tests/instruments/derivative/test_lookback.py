@@ -47,11 +47,9 @@ class TestLookbackOption:
 
     def test_repr(self):
         derivative = LookbackOption(BrownianStock(), maturity=1.0)
-        expect = "LookbackOption(BrownianStock(...), strike=1.0, maturity=1.00e+00)"
-        assert repr(derivative) == expect
-        derivative = LookbackOption(BrownianStock(), maturity=1.0, call=False)
-        expect = "LookbackOption(BrownianStock(...), call=False, strike=1.0, maturity=1.00e+00)"
-        assert repr(derivative) == expect
-        derivative = LookbackOption(BrownianStock(), maturity=1.0, strike=2.0)
-        expect = "LookbackOption(BrownianStock(...), strike=2.0, maturity=1.00e+00)"
+        expect = """\
+LookbackOption(
+  strike=1., maturity=1.
+  (underlier): BrownianStock(sigma=0.2000, dt=0.0040)
+)"""
         assert repr(derivative) == expect

@@ -3,6 +3,8 @@ from typing import Optional
 from torch import Tensor
 from torch.nn import Module
 
+from pfhedge._utils.str import _format_float
+
 from ..functional import clamp
 from ..functional import leaky_clamp
 
@@ -63,7 +65,11 @@ class LeakyClamp(Module):
         self.clamped_slope = clamped_slope
 
     def extra_repr(self) -> str:
-        return f"clamped_slope={self.clamped_slope}" if self.clamped_slope != 0 else ""
+        return (
+            "clamped_slope=" + _format_float(self.clamped_slope)
+            if self.clamped_slope != 0
+            else ""
+        )
 
     def forward(
         self, input: Tensor, min: Optional[Tensor] = None, max: Optional[Tensor] = None

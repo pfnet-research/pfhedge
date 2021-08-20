@@ -19,6 +19,17 @@ T = TypeVar("T", bound="Derivative")
 TensorOrFloat = Union[Tensor, float]
 
 
+def _addindent(string: str, n_spaces: int = 2) -> str:
+    list_str = string.split("\n")
+    # don't do anything for single-line stuff
+    if len(list_str) == 1:
+        output = string
+    else:
+        lines = [list_str[0]] + [(n_spaces * " ") + line for line in list_str[1:]]
+        output = "\n".join(lines)
+    return output
+
+
 class Derivative(Instrument):
     """Base class for all derivatives.
 
@@ -117,6 +128,13 @@ class Derivative(Instrument):
         if self.pricer is None:
             raise ValueError("self is not listed.")
         return self.pricer(self)
+
+    def __repr__(self) -> str:
+        main_str = self._get_name() + "(\n  "
+        main_str += self.extra_repr()
+        main_str += "\n  " + "(underlier): " + _addindent(repr(self.ul()))
+        main_str += "\n)"
+        return main_str
 
 
 class OptionMixin:

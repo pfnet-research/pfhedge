@@ -9,19 +9,19 @@ from pfhedge.instruments import Primary
 class TestBrownianStock:
     def test_repr(self):
         s = BrownianStock(dt=1 / 100)
-        expect = "BrownianStock(sigma=2.00e-01, dt=1.00e-02)"
+        expect = "BrownianStock(sigma=0.2000, dt=0.0100)"
         assert repr(s) == expect
 
         s = BrownianStock(dt=1 / 100, cost=0.001)
-        expect = "BrownianStock(sigma=2.00e-01, cost=1.00e-03, dt=1.00e-02)"
+        expect = "BrownianStock(sigma=0.2000, cost=0.0010, dt=0.0100)"
         assert repr(s) == expect
 
         s = BrownianStock(dt=1 / 100, dtype=torch.float64)
-        expect = "BrownianStock(sigma=2.00e-01, dt=1.00e-02, dtype=torch.float64)"
+        expect = "BrownianStock(sigma=0.2000, dt=0.0100, dtype=torch.float64)"
         assert repr(s) == expect
 
         s = BrownianStock(dt=1 / 100, device=torch.device("cuda:0"))
-        expect = "BrownianStock(sigma=2.00e-01, dt=1.00e-02, device='cuda:0')"
+        expect = "BrownianStock(sigma=0.2000, dt=0.0100, device='cuda:0')"
         assert repr(s) == expect
 
     def test_register_buffer(self):
