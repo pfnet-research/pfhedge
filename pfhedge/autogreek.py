@@ -8,7 +8,7 @@ from ._utils.parse import parse_spot
 
 
 def delta(
-    pricer: Callable[..., Tensor], *, create_graph: bool = False, **kwargs
+    pricer: Callable[..., Tensor], *, create_graph: bool = False, **params
 ) -> Tensor:
     """Computes and returns delta of a derivative using automatic differentiation.
 
@@ -20,7 +20,7 @@ def delta(
         create_graph (bool, default=False): If ``True``, graph of the derivative
             will be constructed, allowing to compute higher order derivative
             products.
-        **kwargs: Parameters passed to ``pricer``.
+        **params: Parameters passed to ``pricer``.
 
     Returns:
         torch.Tensor
@@ -71,25 +71,25 @@ def delta(
         >>> autogreek.delta(pricer, spot=torch.tensor(1.0))
         tensor(0.5...)
     """
-    if kwargs.get("strike") is None and kwargs.get("spot") is None:
+    if params.get("strike") is None and params.get("spot") is None:
         # Since delta does not depend on strike,
         # assign an arbitrary value (1.0) to strike if not given.
-        kwargs["strike"] = torch.tensor(1.0)
+        params["strike"] = torch.tensor(1.0)
 
-    spot = parse_spot(**kwargs).requires_grad_()
-    kwargs["spot"] = spot
-    if "strike" in kwargs:
-        kwargs["moneyness"] = spot / kwargs["strike"]
-        kwargs["log_moneyness"] = (spot / kwargs["strike"]).log()
+    spot = parse_spot(**params).requires_grad_()
+    params["spot"] = spot
+    if "strike" in params:
+        params["moneyness"] = spot / params["strike"]
+        params["log_moneyness"] = (spot / params["strike"]).log()
 
     # Delete parameters that are not in the signature of pricer to avoid
     # TypeError: <pricer> got an unexpected keyword argument '<parameter>'
-    for parameter in list(kwargs.keys()):
+    for parameter in list(params.keys()):
         if parameter not in signature(pricer).parameters.keys():
-            del kwargs[parameter]
+            del params[parameter]
 
     assert spot.requires_grad
-    price = pricer(**kwargs)
+    price = pricer(**params)
     return torch.autograd.grad(
         price,
         inputs=spot,
@@ -99,7 +99,7 @@ def delta(
 
 
 def gamma(
-    pricer: Callable[..., Tensor], *, create_graph: bool = False, **kwargs
+    pricer: Callable[..., Tensor], *, create_graph: bool = False, **params
 ) -> Tensor:
     """Computes and returns gamma of a derivative.
 
@@ -110,7 +110,7 @@ def gamma(
         pricer (callable): Pricing formula of a derivative.
         create_graph (bool, default=False): If ``True``, graph of the derivative will be
             constructed, allowing to compute higher order derivative products.
-        **kwargs: Parameters passed to ``pricer``.
+        **params: Parameters passed to ``pricer``.
 
     Returns:
         torch.Tensor
@@ -141,13 +141,13 @@ def gamma(
         ... )
         tensor([2.2074, 1.9848, 1.8024])
     """
-    spot = parse_spot(**kwargs).requires_grad_()
-    kwargs["spot"] = spot
-    if "strike" in kwargs:
-        kwargs["moneyness"] = spot / kwargs["strike"]
-        kwargs["log_moneyness"] = (spot / kwargs["strike"]).log()
+    spot = parse_spot(**params).requires_grad_()
+    params["spot"] = spot
+    if "strike" in params:
+        params["moneyness"] = spot / params["strike"]
+        params["log_moneyness"] = (spot / params["strike"]).log()
 
-    tensor_delta = delta(pricer, create_graph=True, **kwargs).requires_grad_()
+    tensor_delta = delta(pricer, create_graph=True, **params).requires_grad_()
     return torch.autograd.grad(
         tensor_delta,
         inputs=spot,

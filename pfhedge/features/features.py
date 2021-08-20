@@ -10,7 +10,6 @@ from .functional import empty
 from .functional import max_log_moneyness
 from .functional import max_moneyness
 from .functional import prev_hedge
-from .functional import volatility
 from .functional import zeros
 
 
@@ -59,7 +58,7 @@ class Volatility(Feature):
         return "volatility"
 
     def __getitem__(self, i: int) -> Tensor:
-        return volatility(i, derivative=self.derivative)
+        return self.derivative.ul().volatility[:, [i]]
 
 
 class PrevHedge(Feature):
@@ -147,7 +146,7 @@ class MaxLogMoneyness(MaxMoneyness):
 
 
 class ModuleOutput(Feature, Module):
-    """The feature computed as an output of a ``torch.nn.Module``.
+    """The feature computed as an output of a :class:`torch.nn.Module`.
 
     Args:
         module (torch.nn.Module): Module to compute the value of the feature.

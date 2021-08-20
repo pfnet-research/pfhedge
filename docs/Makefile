@@ -22,3 +22,6 @@ help:
 clean:
 	@echo "Removing everything under 'build' and 'source/generated'.."
 	@rm -rf $(BUILDDIR)/html/ $(BUILDDIR)/doctrees $(SOURCEDIR)/generated
+
+livehtml:
+	sphinx-autobuild "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) --open-browser $(O)

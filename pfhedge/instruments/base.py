@@ -34,8 +34,8 @@ class Instrument(ABC):
         """Performs dtype and/or device conversion of the buffers associated to
         the instument.
 
-        A ``torch.dtype`` and ``torch.device`` are inferred from the arguments of
-        ``self.to(*args, **kwargs)``.
+        A :class:`torch.dtype` and :class:`torch.device` are inferred from
+        the arguments of ``self.to(*args, **kwargs)``.
 
         Args:
             dtype (torch.dtype): Desired floating point type of the floating point

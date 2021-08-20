@@ -25,20 +25,21 @@ class BrownianStock(Primary):
     for details of the process.
 
     Args:
-        volatility (float, default=0.2): The volatility of the price.
+        sigma (float, default=0.2): The parameter :math:`\\sigma`,
+            which stands for the volatility of the spot price.
         cost (float, default=0.0): The transaction cost rate.
         dt (float, default=1/250): The intervals of the time steps.
         dtype (torch.device, optional): Desired device of returned tensor.
             Default: If None, uses a global default
-            (see ``torch.set_default_tensor_type()``).
+            (see :func:`torch.set_default_tensor_type()`).
         device (torch.device, optional): Desired device of returned tensor.
             Default: if None, uses the current device for the default tensor type
-            (see ``torch.set_default_tensor_type()``).
+            (see :func:`torch.set_default_tensor_type()`).
             ``device`` will be the CPU for CPU tensor types and
             the current CUDA device for CUDA tensor types.
 
     Buffers:
-        - ``spot`` (``torch.Tensor``): The spot prices of the instrument.
+        - spot (:class:`torch.Tensor`): The spot prices of the instrument.
           This attribute is set by a method :func:`simulate()`.
           The shape is :math:`(N, T)` where
           :math:`N` is the number of simulated paths and
@@ -64,7 +65,7 @@ class BrownianStock(Primary):
 
     def __init__(
         self,
-        volatility: float = 0.2,
+        sigma: float = 0.2,
         cost: float = 0.0,
         dt: float = 1 / 250,
         dtype: Optional[torch.dtype] = None,
@@ -72,7 +73,7 @@ class BrownianStock(Primary):
     ):
         super().__init__()
 
-        self.volatility = volatility
+        self.sigma = sigma
         self.cost = cost
         self.dt = dt
 
@@ -81,6 +82,22 @@ class BrownianStock(Primary):
     @property
     def default_init_state(self) -> Tuple[float, ...]:
         return (1.0,)
+
+    @property
+    def volatility(self) -> Tensor:
+        """Returns the volatility of self.
+
+        It is a tensor filled with ``self.sigma``.
+        """
+        return torch.full_like(self.spot, self.sigma)
+
+    @property
+    def variance(self) -> Tensor:
+        """Returns the volatility of self.
+
+        It is a tensor filled with the square of ``self.sigma``.
+        """
+        return torch.full_like(self.spot, self.sigma ** 2)
 
     def simulate(
         self,
@@ -104,7 +121,7 @@ class BrownianStock(Primary):
                 of the stock price.
                 If ``None`` (default), it uses the default value
                 (See :func:`default_init_state`).
-                It also accepts a ``float`` or a ``torch.Tensor``.
+                It also accepts a :class:`float` or a :class:`torch.Tensor`.
 
         Examples:
 
@@ -122,7 +139,7 @@ class BrownianStock(Primary):
             n_paths=n_paths,
             n_steps=ceil(time_horizon / self.dt + 1),
             init_state=init_state,
-            volatility=self.volatility,
+            sigma=self.sigma,
             dt=self.dt,
             dtype=self.dtype,
             device=self.device,
@@ -131,7 +148,7 @@ class BrownianStock(Primary):
         self.register_buffer("spot", spot)
 
     def __repr__(self) -> str:
-        params = [f"volatility={self.volatility:.2e}"]
+        params = [f"sigma={self.sigma:.2e}"]
         if self.cost != 0.0:
             params.append(f"cost={self.cost:.2e}")
         params.append(f"dt={self.dt:.2e}")

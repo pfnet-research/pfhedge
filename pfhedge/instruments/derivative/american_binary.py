@@ -55,10 +55,10 @@ class AmericanBinaryOption(Derivative, OptionMixin):
         maturity (float, default=20/250): The maturity of the option.
         dtype (torch.device, optional): Desired device of returned tensor.
             Default: If None, uses a global default
-            (see ``torch.set_default_tensor_type()``).
+            (see :func:`torch.set_default_tensor_type()`).
         device (torch.device, optional): Desired device of returned tensor.
             Default: if None, uses the current device for the default tensor type
-            (see ``torch.set_default_tensor_type()``).
+            (see :func:`torch.set_default_tensor_type()`).
             ``device`` will be the CPU for CPU tensor types and
             the current CUDA device for CUDA tensor types.
 

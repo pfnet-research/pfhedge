@@ -28,20 +28,20 @@ class HestonStock(Primary):
         dt (float, default=1/250): The intervals of the time steps.
         dtype (torch.device, optional): Desired device of returned tensor.
             Default: If None, uses a global default
-            (see ``torch.set_default_tensor_type()``).
+            (see :func:`torch.set_default_tensor_type()`).
         device (torch.device, optional): Desired device of returned tensor.
             Default: if None, uses the current device for the default tensor type
-            (see ``torch.set_default_tensor_type()``).
+            (see :func:`torch.set_default_tensor_type()`).
             ``device`` will be the CPU for CPU tensor types and
             the current CUDA device for CUDA tensor types.
 
     Buffers:
-        - ``spot`` (``torch.Tensor``): The spot price of the instrument.
+        - spot (:class:`torch.Tensor`): The spot price of the instrument.
           This attribute is set by a method :func:`simulate()`.
           The shape is :math:`(N, T)` where
           :math:`N` is the number of simulated paths and
           :math:`T` is the number of time steps.
-        - ``variance`` (``torch.Tensor``): The variance of the instrument.
+        - variance (:class:`torch.Tensor`): The variance of the instrument.
           Note that this is different from the realized variance of the spot price.
           This attribute is set by a method :func:`simulate()`.
           The shape is :math:`(N, T)`.
