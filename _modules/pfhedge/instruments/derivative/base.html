@@ -244,6 +244,13 @@
 <span class="n">TensorOrFloat</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">Tensor</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
 
 
+<span class="k">def</span> <span class="nf">_addindent</span><span class="p">(</span><span class="n">string</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">n_spaces</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">):</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">" "</span> <span class="o">*</span> <span class="n">n_spaces</span> <span class="o">+</span> <span class="n">line</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+
+
 <div class="viewcode-block" id="Derivative"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.Derivative.html#pfhedge.instruments.Derivative">[docs]</a><span class="k">class</span> <span class="nc">Derivative</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span>
     <span class="sd">"""Base class for all derivatives.</span>
 
@@ -341,7 +348,14 @@
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pricer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"self is not listed."</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pricer</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pricer</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">main_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_name</span><span class="p">()</span> <span class="o">+</span> <span class="s2">"(</span><span class="se">\n</span><span class="s2">  "</span>
+        <span class="n">main_str</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra_repr</span><span class="p">()</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="n">main_str</span> <span class="o">+=</span> <span class="n">_addindent</span><span class="p">(</span><span class="s2">"(underlier): "</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ul</span><span class="p">()))</span>
+        <span class="n">main_str</span> <span class="o">+=</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">)"</span>
+        <span class="k">return</span> <span class="n">main_str</span></div>
 
 
 <span class="k">class</span> <span class="nc">OptionMixin</span><span class="p">:</span>

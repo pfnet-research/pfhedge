@@ -297,7 +297,10 @@ represented.</p>
 <p>Using custom <code class="docutils literal notranslate"><span class="pre">dtype</span></code> and <code class="docutils literal notranslate"><span class="pre">device</span></code>.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span> <span class="o">=</span> <span class="n">EuropeanOption</span><span class="p">(</span><span class="n">BrownianStock</span><span class="p">())</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s2">"cuda:0"</span><span class="p">)</span>
-<span class="go">EuropeanOption(..., dtype=torch.float64, device='cuda:0')</span>
+<span class="go">EuropeanOption(</span>
+<span class="go">  strike=..., maturity=...</span>
+<span class="go">  (underlier): BrownianStock(..., dtype=torch.float64, device='cuda:0')</span>
+<span class="go">)</span>
 </pre></div>
 </div>
 <p>Make <code class="docutils literal notranslate"><span class="pre">self</span></code> a listed derivative.</p>

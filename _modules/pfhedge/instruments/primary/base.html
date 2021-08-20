@@ -385,7 +385,16 @@
         <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">buffer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">named_buffers</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">register_buffer</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">buffer</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
 
-        <span class="k">return</span> <span class="bp">self</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">extra_repr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra_repr</span><span class="p">()</span>
+        <span class="n">dinfo</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dinfo</span><span class="p">())</span>
+        <span class="n">main_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_name</span><span class="p">()</span> <span class="o">+</span> <span class="s2">"("</span>
+        <span class="k">if</span> <span class="n">extra_repr</span> <span class="ow">and</span> <span class="n">dinfo</span><span class="p">:</span>
+            <span class="n">extra_repr</span> <span class="o">+=</span> <span class="s2">", "</span>
+        <span class="n">main_str</span> <span class="o">+=</span> <span class="n">extra_repr</span> <span class="o">+</span> <span class="n">dinfo</span> <span class="o">+</span> <span class="s2">")"</span>
+        <span class="k">return</span> <span class="n">main_str</span></div>
 
 
 <span class="c1"># Assign docstrings so they appear in Sphinx documentation</span>
