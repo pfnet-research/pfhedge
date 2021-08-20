@@ -15,6 +15,7 @@ from tqdm import tqdm  # type: ignore
 from pfhedge._utils.hook import save_prev_output
 from pfhedge._utils.lazy import has_lazy
 from pfhedge._utils.operations import ensemble_mean
+from pfhedge._utils.str import _format_float
 from pfhedge.features import get_feature
 from pfhedge.instruments.base import Instrument
 from pfhedge.instruments.derivative.base import Derivative
@@ -416,7 +417,7 @@ class Hedger(Module):
             history.append(loss.item())
 
             if verbose:
-                progress.desc = f"Loss={loss:.5e}"
+                progress.desc = "Loss=" + _format_float(float(loss.item()))
 
         return history
 

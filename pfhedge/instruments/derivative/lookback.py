@@ -5,6 +5,7 @@ from torch import Tensor
 
 from pfhedge._utils.doc import set_attr_and_docstring
 from pfhedge._utils.doc import set_docstring
+from pfhedge._utils.str import _format_float
 
 from ...nn.functional import lookback_payoff
 from ..primary.base import Primary
@@ -90,14 +91,13 @@ class LookbackOption(Derivative, OptionMixin):
 
         self.to(dtype=dtype, device=device)
 
-    def __repr__(self) -> str:
-        params = [f"{self.ul().__class__.__name__}(...)"]
+    def extra_repr(self) -> str:
+        params = []
         if not self.call:
-            params.append(f"call={self.call}")
-        params.append(f"strike={self.strike}")
-        params.append(f"maturity={self.maturity:.2e}")
-        params += self.dinfo
-        return self.__class__.__name__ + "(" + ", ".join(params) + ")"
+            params.append("call=" + str(self.call))
+        params.append("strike=" + _format_float(self.strike))
+        params.append("maturity=" + _format_float(self.maturity))
+        return ", ".join(params)
 
     def payoff(self) -> Tensor:
         return lookback_payoff(self.ul().spot, call=self.call, strike=self.strike)

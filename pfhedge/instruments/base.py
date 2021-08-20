@@ -91,21 +91,19 @@ class Instrument(ABC):
         """
         return self.to(torch.bfloat16)
 
-    @property
-    def dinfo(self) -> List[str]:
-        """Returns list of strings that tell ``dtype`` and ``device`` of self.
+    def extra_repr(self) -> str:
+        return ""
 
-        Intended to be used in :func:`__repr__`.
+    def _get_name(self) -> str:
+        return self.__class__.__name__
 
-        If ``dtype`` (``device``) is the one specified in default type,
-        ``dinfo`` will not have the information of it.
-
-        Returns:
-            list[str]
-        """
+    def _dinfo(self) -> List[str]:
+        # Returns list of strings that tell ``dtype`` and ``device`` of self.
+        # Intended to be used in :func:`__repr__`.
+        # If ``dtype`` (``device``) is the one specified in default type,
+        # ``dinfo`` will not have the information of it.
         # Implementation here refers to the function _str_intern in
         # pytorch/_tensor_str.py.
-
         dinfo = []
 
         dtype = getattr(self, "dtype", None)

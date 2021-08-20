@@ -166,7 +166,7 @@ class BSEuropeanOption(BSModuleMixin):
         price = self.strike * (s.exp() * n1 - n2)
 
         if not self.call:
-            price += self.strike * (s.exp() - 1)  # put-call parity
+            price += self.strike * (1 - s.exp())  # put-call parity
 
         return price
 

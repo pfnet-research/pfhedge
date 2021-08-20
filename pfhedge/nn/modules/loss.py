@@ -7,6 +7,7 @@ from torch.nn import Module
 from torch.nn import Parameter
 
 from pfhedge._utils.bisect import bisect
+from pfhedge._utils.str import _format_float
 
 from ..functional import exp_utility
 from ..functional import expected_shortfall
@@ -103,7 +104,7 @@ class EntropicRiskMeasure(HedgeLoss):
         self.a = a
 
     def extra_repr(self) -> str:
-        return f"a={self.a}" if self.a != 1 else ""
+        return f"a=" + _format_float(self.a) if self.a != 1 else ""
 
     def forward(self, input: Tensor) -> Tensor:
         return (-exp_utility(input, a=self.a).mean(0)).log() / self.a
@@ -165,7 +166,7 @@ class EntropicLoss(HedgeLoss):
         self.a = a
 
     def extra_repr(self) -> str:
-        return f"a={self.a}" if self.a != 1 else ""
+        return f"a=" + _format_float(self.a) if self.a != 1 else ""
 
     def forward(self, input: Tensor) -> Tensor:
         return -exp_utility(input, a=self.a).mean(0)
@@ -240,7 +241,7 @@ class IsoelasticLoss(HedgeLoss):
         self.a = a
 
     def extra_repr(self) -> str:
-        return f"a={self.a}"
+        return f"a=" + _format_float(self.a) if self.a != 1 else ""
 
     def forward(self, input: Tensor) -> Tensor:
         return -isoelastic_utility(input, a=self.a).mean(0)
@@ -328,7 +329,8 @@ class OCE(HedgeLoss):
         self.w = Parameter(torch.tensor(0.0))
 
     def extra_repr(self) -> str:
-        return self.utility.__name__ + f", w={self.w}"
+        w = float(self.w.item())
+        return self.utility.__name__ + ", w=" + _format_float(w)
 
     def forward(self, input: Tensor) -> Tensor:
         return self.w - self.utility(input + self.w).mean(0)

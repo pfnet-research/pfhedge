@@ -9,6 +9,7 @@ from torch import Tensor
 
 from pfhedge._utils.doc import set_attr_and_docstring
 from pfhedge._utils.doc import set_docstring
+from pfhedge._utils.str import _format_float
 
 from ...stochastic import generate_geometric_brownian
 from .base import Primary
@@ -147,13 +148,12 @@ class BrownianStock(Primary):
 
         self.register_buffer("spot", spot)
 
-    def __repr__(self) -> str:
-        params = [f"sigma={self.sigma:.2e}"]
+    def extra_repr(self) -> str:
+        params = ["sigma=" + _format_float(self.sigma)]
         if self.cost != 0.0:
-            params.append(f"cost={self.cost:.2e}")
-        params.append(f"dt={self.dt:.2e}")
-        params += self.dinfo
-        return self.__class__.__name__ + "(" + ", ".join(params) + ")"
+            params.append("cost=" + _format_float(self.cost))
+        params.append("dt=" + _format_float(self.dt))
+        return ", ".join(params)
 
 
 # Assign docstrings so they appear in Sphinx documentation

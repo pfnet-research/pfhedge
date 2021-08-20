@@ -19,4 +19,4 @@ jobs:
 
     - run: pip install poetry
 
-    - run: poetry publish --build --username ${{ secrets.PYPI_USER_NAME }} --password ${{ secrets.PYPI_PASSWORD }}
+    - run: poetry publish --build --username ${{ secrets.PYPI_USERNAME }} --password ${{ secrets.PYPI_PASSWORD }}

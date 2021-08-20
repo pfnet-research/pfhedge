@@ -62,15 +62,17 @@ class TestEuropeanBinaryOption:
 
     def test_repr(self):
         derivative = EuropeanBinaryOption(BrownianStock(), maturity=1.0)
-        expect = (
-            "EuropeanBinaryOption(BrownianStock(...), strike=1.0, maturity=1.00e+00)"
-        )
+        expect = """\
+EuropeanBinaryOption(
+  strike=1., maturity=1.
+  (underlier): BrownianStock(sigma=0.2000, dt=0.0040)
+)"""
         assert repr(derivative) == expect
-        derivative = EuropeanBinaryOption(BrownianStock(), maturity=1.0, call=False)
-        expect = "EuropeanBinaryOption(BrownianStock(...), call=False, strike=1.0, maturity=1.00e+00)"
-        assert repr(derivative) == expect
-        derivative = EuropeanBinaryOption(BrownianStock(), maturity=1.0, strike=2.0)
-        expect = (
-            "EuropeanBinaryOption(BrownianStock(...), strike=2.0, maturity=1.00e+00)"
-        )
+
+        derivative = EuropeanBinaryOption(BrownianStock(), call=False, maturity=1.0)
+        expect = """\
+EuropeanBinaryOption(
+  call=False, strike=1., maturity=1.
+  (underlier): BrownianStock(sigma=0.2000, dt=0.0040)
+)"""
         assert repr(derivative) == expect
