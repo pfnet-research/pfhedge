@@ -75,7 +75,10 @@ class Instrument(ABC):
             tensor([[1.0000, 1.0016, 1.0044],
                     [1.0000, 0.9858, 0.9834]])
             >>> derivative.to(torch.float64)
-            EuropeanOption(..., dtype=torch.float64)
+            EuropeanOption(
+              ...
+              (underlier): BrownianStock(..., dtype=torch.float64)
+            )
             >>> derivative.ul()
             BrownianStock(..., dtype=torch.float64)
             >>> derivative.ul().spot
