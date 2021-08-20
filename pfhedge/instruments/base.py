@@ -31,20 +31,56 @@ class Instrument(ABC):
 
     @abstractmethod
     def to(self: T, *args, **kwargs) -> T:
-        """Performs dtype and/or device conversion of the buffers associated to
-        the instument.
+        """Moves and/or casts the buffers.
 
-        A :class:`torch.dtype` and :class:`torch.device` are inferred from
-        the arguments of ``self.to(*args, **kwargs)``.
+        This can be called like :meth:`torch.nn.Module.to`.
+        See below for examples.
+
+        .. note::
+
+            This method modifies the instrument in-place.
 
         Args:
-            dtype (torch.dtype): Desired floating point type of the floating point
-                values of simulated time series.
-            device (torch.device): Desired device of the values of simulated time
-                series.
+            dtype (torch.dtype): The desired floating point dtype of
+                the buffers in this instrument.
+            device (torch.device): The desired device of the buffers in this instrument.
+            tensor (torch.Tensor): Tensor whose dtype and device are the desired
+                dtype and device for all buffers in this module.
 
         Returns:
             self
+
+        Examples:
+
+            >>> from pfhedge.instruments import BrownianStock
+            >>>
+            >>> _ = torch.manual_seed(42)
+            >>> stock = BrownianStock()
+            >>> stock.simulate(n_paths=2, time_horizon=2 / 250)
+            >>> stock.spot
+            tensor([[1.0000, 1.0016, 1.0044],
+                    [1.0000, 0.9858, 0.9834]])
+            >>> stock.to(torch.float64)
+            BrownianStock(..., dtype=torch.float64)
+            >>> stock.spot
+            tensor([[1.0000, 1.0016, 1.0044],
+                    [1.0000, 0.9858, 0.9834]], dtype=torch.float64)
+
+            >>> from pfhedge.instruments import EuropeanOption
+            >>>
+            >>> _ = torch.manual_seed(42)
+            >>> derivative = EuropeanOption(BrownianStock(), maturity=2 / 250)
+            >>> derivative.simulate(n_paths=2)
+            >>> derivative.ul().spot
+            tensor([[1.0000, 1.0016, 1.0044],
+                    [1.0000, 0.9858, 0.9834]])
+            >>> derivative.to(torch.float64)
+            EuropeanOption(..., dtype=torch.float64)
+            >>> derivative.ul()
+            BrownianStock(..., dtype=torch.float64)
+            >>> derivative.ul().spot
+            tensor([[1.0000, 1.0016, 1.0044],
+                    [1.0000, 0.9858, 0.9834]], dtype=torch.float64)
         """
 
     def cpu(self: T) -> T:
