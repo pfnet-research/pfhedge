@@ -22,7 +22,7 @@ class WhalleyWilmott(Module):
         w = \\left( \\frac{3 c \\Gamma^2 S}{2 a} \\right)^{1 / 3} \,,
 
     where :math:`c` is the transaction cost rate, :math:`\\Gamma` is the gamma of
-    the derivative, :math:`S` is the spot price of the underlying instrument,
+    the derivative, :math:`S` is the spot price of the underlying instrument, and
     :math:`a` is the risk-aversion coefficient of the exponential utility.
 
     .. note ::
