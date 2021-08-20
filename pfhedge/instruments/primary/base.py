@@ -80,7 +80,7 @@ class Primary(Instrument):
                 (See :func:`default_init_state`).
         """
 
-    def register_buffer(self, name: str, tensor: Tensor) -> None:
+    def register_buffer(self, name: str, tensor: Optional[Tensor]) -> None:
         """Adds a buffer to the module.
 
         Buffers can be accessed as attributes using given names.
