@@ -32,7 +32,7 @@ class Primary(Instrument):
     (See :class:`Derivative` for details).
 
     Buffers:
-        - ``spot`` (``torch.Tensor``): The spot price of the instrument.
+        - spot (:class:`torch.Tensor`): The spot price of the instrument.
 
     Attributes:
         dtype (torch.dtype): The dtype with which the simulated time-series are
