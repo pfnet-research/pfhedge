@@ -123,7 +123,7 @@ class EuropeanOption(Derivative, OptionMixin):
         return ", ".join(params)
 
     def payoff(self) -> Tensor:
-        return european_payoff(self.underlier.spot, call=self.call, strike=self.strike)
+        return european_payoff(self.ul().spot, call=self.call, strike=self.strike)
 
 
 # Assign docstrings so they appear in Sphinx documentation

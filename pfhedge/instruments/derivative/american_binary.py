@@ -111,7 +111,7 @@ maturity=5/250, strike=1.01)
 
     def payoff(self) -> Tensor:
         return american_binary_payoff(
-            self.underlier.spot, call=self.call, strike=self.strike
+            self.ul().spot, call=self.call, strike=self.strike
         )
 
 
