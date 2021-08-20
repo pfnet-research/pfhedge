@@ -2,16 +2,6 @@ import torch
 from torch import Tensor
 
 
-def volatility(i: int, derivative, hedger=None) -> Tensor:
-    value = derivative.ul().volatility
-    if isinstance(value, torch.Tensor):
-        if not derivative.ul().spot.size() == value.size():
-            raise ValueError("spot tensor and volatility tensor are not the same size")
-        return value[:, i : i + 1]
-    else:
-        return torch.full_like(derivative.ul().spot[:, :1], value)
-
-
 def prev_hedge(i: int, derivative, hedger) -> Tensor:
     if hasattr(hedger, "prev_output"):
         return hedger.prev_output
@@ -40,9 +30,7 @@ def empty(i: int, derivative, hedger=None) -> Tensor:
 
 
 def max_moneyness(i: int, derivative, hedger=None) -> Tensor:
-    m = derivative.ul().spot[..., : i + 1].max(dim=1, keepdim=True).values
-    k = derivative.strike
-    return m / k
+    return derivative.moneyness()[..., : i + 1].max(dim=1, keepdim=True).values
 
 
 def max_log_moneyness(i: int, derivative, hedger=None) -> Tensor:

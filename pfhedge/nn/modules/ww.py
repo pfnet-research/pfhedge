@@ -12,7 +12,26 @@ class WhalleyWilmott(Module):
 
     The ``forward`` method returns the next hedge ratio.
 
-    This is the optimal hedging strategy for asymptotically small transaction cost.
+    This is the no-transaction band strategy
+    that is optimal under the premises of
+    asymptotically small transaction cost, European option, and exponential utility.
+    The half-width of the no-transaction band is given by
+
+    .. math ::
+
+        w = \\left( \\frac{3 c \\Gamma^2 S}{2 a} \\right)^{1 / 3} \,,
+
+    where :math:`c` is the transaction cost rate, :math:`\\Gamma` is the gamma of
+    the derivative, :math:`S` is the spot price of the underlying instrument, and
+    :math:`a` is the risk-aversion coefficient of the exponential utility.
+
+    .. note ::
+
+        A backward computation for this module generates ``nan``
+        if the :math:`\\Gamma` of the derivative is too small.
+        This is because the output is proportional to :math:`\\Gamma^{2 / 3}`
+        of which gradient diverges for :math:`\\Gamma \\to 0`.
+        A ``dtype`` with higher precision may alleviate this problem.
 
     Args:
         derivative (:class:`pfhedge.instruments.Derivative`): Derivative to hedge.
