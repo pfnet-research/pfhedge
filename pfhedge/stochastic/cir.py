@@ -15,7 +15,7 @@ def generate_cir(
     init_state: Tuple[TensorOrFloat, ...] = (0.04,),
     kappa: TensorOrFloat = 1.0,
     theta: TensorOrFloat = 0.04,
-    sigma: TensorOrFloat = 2.0,
+    sigma: TensorOrFloat = 0.2,
     dt: TensorOrFloat = 1 / 250,
     dtype: Optional[torch.dtype] = None,
     device: Optional[torch.device] = None,
@@ -35,19 +35,20 @@ def generate_cir(
         n_steps (int): The number of time steps.
         init_state (tuple[torch.Tensor | float], default=(0.04,)): The initial state of
             the time series.
-            This is specified by `(X0,)`, where `X0` is the initial value of :math:`X`.
-            It also accepts a float or a `torch.Tensor`.
+            This is specified by ``(X0,)``, where ``X0`` is
+            the initial value of :math:`X`.
+            It also accepts a ``torch.Tensor`` or a float.
         kappa (torch.Tensor or float, default=1.0): The parameter :math:`\\kappa`.
         theta (torch.Tensor or float, default=0.04): The parameter :math:`\\theta`.
         sigma (torch.Tensor or float, default=2.0): The parameter :math:`\\sigma`.
         dt (torch.Tensor or float, default=1/250): The intervals of the time steps.
         dtype (torch.dtype, optional): The desired data type of returned tensor.
-            Default: If `None`, uses a global default
-            (see `torch.set_default_tensor_type()`).
+            Default: If ``None``, uses a global default
+            (see ``torch.set_default_tensor_type()``).
         device (torch.device, optional): The desired device of returned tensor.
             Default: if None, uses the current device for the default tensor type
-            (see `torch.set_default_tensor_type()`).
-            `device` will be the CPU for CPU tensor types and the current CUDA device
+            (see ``torch.set_default_tensor_type()``).
+            ``device`` will be the CPU for CPU tensor types and the current CUDA device
             for CUDA tensor types.
 
     Shape:
@@ -63,8 +64,8 @@ def generate_cir(
         >>>
         >>> _ = torch.manual_seed(42)
         >>> generate_cir(2, 5)
-        tensor([[0.0400, 0.0445, 0.0437, 0.0458, 0.0479],
-                [0.0400, 0.0314, 0.0955, 0.0683, 0.0799]])
+        tensor([[0.0400, 0.0408, 0.0411, 0.0417, 0.0422],
+                [0.0400, 0.0395, 0.0452, 0.0434, 0.0446]])
 
     References:
         - Andersen, Leif B.G., Efficient Simulation of the Heston Stochastic

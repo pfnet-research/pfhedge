@@ -15,7 +15,7 @@ class Naked(Module):
           features.
         - Output: :math:`(N, *, H_{\\text{out}})`, where all but the last dimension
           are the same shape as the input and :math:`H_{\\text{in}})` is
-          `out_features`.
+          ``out_features``.
 
     Examples:
 

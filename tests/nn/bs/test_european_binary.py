@@ -99,7 +99,7 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
         model = BSEuropeanBinaryOption(deriv)
         hedger = Hedger(model, model.inputs())
         result = hedger.price(deriv)
-        expect = torch.tensor(0.51)
+        expect = torch.tensor(0.4922)
         assert_close(result, expect, atol=1e-2, rtol=1e-2)
 
     def test_shape(self):

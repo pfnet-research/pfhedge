@@ -17,7 +17,7 @@ def generate_heston(
     init_state: Tuple[TensorOrFloat, ...] = (1.0, 0.04),
     kappa: float = 1.0,
     theta: float = 0.04,
-    sigma: float = 2.0,
+    sigma: float = 0.2,
     rho: float = -0.7,
     dt: float = 1 / 250,
     dtype: Optional[torch.dtype] = None,
@@ -41,7 +41,7 @@ def generate_heston(
         n_steps (int): The number of time steps.
         init_state (tuple[torch.Tensor | float], default=(1.0,)): The initial state of
             the time series.
-            This is specified by `(S0, V0)`, where `S0` and `V0` are the initial values
+            This is specified by ``(S0, V0)``, where ``S0`` and ``V0`` are the initial values
             of :math:`S` and :math:`V`, respectively.
         kappa (float, default=1.0): The parameter :math:`\\kappa`.
         theta (float, default=0.04): The parameter :math:`\\theta`.
@@ -49,12 +49,12 @@ def generate_heston(
         rho (float, default=-0.7): The parameter :math:`\\rho`.
         dt (float, default=1/250): The intervals of the time steps.
         dtype (torch.dtype, optional): The desired data type of returned tensor.
-            Default: If `None`, uses a global default
-            (see `torch.set_default_tensor_type()`).
+            Default: If ``None``, uses a global default
+            (see ``torch.set_default_tensor_type()``).
         device (torch.device, optional): The desired device of returned tensor.
-            Default: if None, uses the current device for the default tensor type
-            (see `torch.set_default_tensor_type()`).
-            `device` will be the CPU for CPU tensor types and the current CUDA device
+            Default: If ``None``, uses the current device for the default tensor type
+            (see ``torch.set_default_tensor_type()``).
+            ``device`` will be the CPU for CPU tensor types and the current CUDA device
             for CUDA tensor types.
 
     Shape:
@@ -71,11 +71,11 @@ def generate_heston(
         >>> _ = torch.manual_seed(42)
         >>> spot, variance = generate_heston(2, 5)
         >>> spot
-        tensor([[1.0000, 0.9953, 0.9929, 0.9880, 0.9744],
-                [1.0000, 1.0043, 0.9779, 0.9770, 0.9717]])
+        tensor([[1.0000, 0.9941, 0.9905, 0.9846, 0.9706],
+                [1.0000, 1.0031, 0.9800, 0.9785, 0.9735]])
         >>> variance
-        tensor([[0.0400, 0.0445, 0.0437, 0.0458, 0.0479],
-                [0.0400, 0.0314, 0.0955, 0.0683, 0.0799]])
+        tensor([[0.0400, 0.0408, 0.0411, 0.0417, 0.0422],
+                [0.0400, 0.0395, 0.0452, 0.0434, 0.0446]])
 
     References:
         - Andersen, Leif B.G., Efficient Simulation of the Heston Stochastic

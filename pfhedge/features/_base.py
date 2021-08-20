@@ -28,7 +28,7 @@ class Feature(ABC):
         """
 
     def of(self: T, derivative=None, hedger=None) -> T:
-        """Set `derivative` and `hedger` to the attributes of `self`.
+        """Set ``derivative`` and ``hedger`` to the attributes of ``self``.
 
         Args:
             derivative (Derivative, optional): The derivative to compute features.

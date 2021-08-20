@@ -1,5 +1,6 @@
 from math import ceil
 from typing import Optional
+from typing import Union
 
 import torch
 import torch.nn.functional as fn
@@ -15,7 +16,7 @@ def european_payoff(input: Tensor, call: bool = True, strike: float = 1.0) -> Te
         strike (float, default=1.0): The strike price of the option.
 
     Shape:
-        - input: :math:`(*, T)`, where, :math:`T` stands for the number of time steps
+        - input: :math:`(*, T)` where :math:`T` stands for the number of time steps
           and :math:`*` means any number of additional dimensions.
         - output: :math:`(*)`
 
@@ -37,7 +38,7 @@ def lookback_payoff(input: Tensor, call: bool = True, strike: float = 1.0) -> Te
         strike (float, default=1.0): The strike price of the option.
 
     Shape:
-        - input: :math:`(*, T)`, where, :math:`T` stands for the number of time steps
+        - input: :math:`(*, T)` where :math:`T` stands for the number of time steps
           and :math:`*` means any number of additional dimensions.
         - output: :math:`(*)`
 
@@ -61,7 +62,7 @@ def american_binary_payoff(
         strike (float, default=1.0): The strike price of the option.
 
     Shape:
-        - input: :math:`(*, T)`, where, :math:`T` stands for the number of time steps
+        - input: :math:`(*, T)` where :math:`T` stands for the number of time steps
           and :math:`*` means any number of additional dimensions.
         - output: :math:`(*)`
 
@@ -85,7 +86,7 @@ def european_binary_payoff(
         strike (float, default=1.0): The strike price of the option.
 
     Shape:
-        - input: :math:`(*, T)`, where, :math:`T` stands for the number of time steps
+        - input: :math:`(*, T)` where :math:`T` stands for the number of time steps
           and :math:`*` means any number of additional dimensions.
         - output: :math:`(*)`
 
@@ -145,15 +146,15 @@ def isoelastic_utility(input: Tensor, a: float) -> Tensor:
 
 
 def topp(input: Tensor, p: float, dim: Optional[int] = None, largest: bool = True):
-    """Returns the largest `p * N` elements of the given input tensor,
-    where `N` stands for the total number of elements in the input tensor.
+    """Returns the largest :math:`p * N` elements of the given input tensor,
+    where :math:`N` stands for the total number of elements in the input tensor.
 
-    If `dim` is not given, the last dimension of the `input` is chosen.
+    If ``dim`` is not given, the last dimension of the ``input`` is chosen.
 
-    If `largest` is `False` then the smallest elements are returned.
+    If ``largest`` is ``False`` then the smallest elements are returned.
 
-    A namedtuple of `(values, indices)` is returned, where the `indices` are the indices
-    of the elements in the original `input` tensor.
+    A namedtuple of ``(values, indices)`` is returned, where the ``indices``
+    are the indices of the elements in the original ``input`` tensor.
 
     Args:
         input (torch.Tensor): The input tensor.
@@ -214,7 +215,7 @@ def leaky_clamp(
     max: Optional[Tensor] = None,
     clamped_slope: float = 0.01,
 ) -> Tensor:
-    """Leakily clamp all elements in `input` into the range :math:`[\\min, \\max]`.
+    """Leakily clamp all elements in ``input`` into the range :math:`[\\min, \\max]`.
 
     The bounds :math:`\\min` and :math:`\\max` can be tensors.
 
@@ -239,10 +240,60 @@ def leaky_clamp(
 def clamp(
     input: Tensor, min: Optional[Tensor] = None, max: Optional[Tensor] = None
 ) -> Tensor:
-    """Clamp all elements in `input` into the range :math:`[\\min, \\max]`.
+    """Clamp all elements in ``input`` into the range :math:`[\\min, \\max]`.
 
     The bounds :math:`\\min` and :math:`\\max` can be tensors.
 
     See :class:`pfhedge.nn.Clamp` for details.
     """
     return leaky_clamp(input, min=min, max=max, clamped_slope=0.0)
+
+
+def realized_variance(input: Tensor, dt: Union[Tensor, float]) -> Tensor:
+    """Returns the realized variance of the price.
+
+    Realized variance :math:`\\sigma^2` of the stock price :math:`S` is defined as:
+
+    .. math ::
+
+        \\sigma^2 = \\frac{1}{T - 1} \\sum_{i = 1}^{T - 1}
+        \\frac{1}{dt} \\log(S_{i + 1} / S_i)^2
+
+    where :math:`T` is the number of time steps.
+
+    .. note ::
+
+        The mean of log return is assumed to be zero.
+
+    Args:
+        input (torch.Tensor): The input tensor.
+        dt (torch.Tensor or float): The intervals of the time steps.
+
+    Shape:
+        - input: :math:`(*, T)` where :math:`T` stands for the number of time steps
+          and :math:`*` means any number of additional dimensions.
+        - output: :math:`(*)`
+
+    Returns:
+        torch.Tensor
+    """
+    return input.log().diff(dim=-1).square().mean(dim=-1) / dt
+
+
+def realized_volatility(input: Tensor, dt: Union[Tensor, float]) -> Tensor:
+    """Returns the realized volatility of the price.
+    It is square root of :func:`realized_variance`.
+
+    Args:
+        input (torch.Tensor): The input tensor.
+        dt (torch.Tensor or float): The intervals of the time steps.
+
+    Shape:
+        - input: :math:`(*, T)` where :math:`T` stands for the number of time steps
+          and :math:`*` means any number of additional dimensions.
+        - output: :math:`(*)`
+
+    Returns:
+        torch.Tensor
+    """
+    return realized_variance(input, dt=dt).sqrt()

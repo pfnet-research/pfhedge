@@ -8,7 +8,7 @@ from ..functional import leaky_clamp
 
 
 class LeakyClamp(Module):
-    """Leakily Clamp all elements in `input` into the range :math:`[\\min, \\max]`.
+    """Leakily Clamp all elements in ``input`` into the range :math:`[\\min, \\max]`.
 
     The bounds :math:`\\min` and :math:`\\max` can be tensors.
 
@@ -24,7 +24,7 @@ class LeakyClamp(Module):
         \\max < \\text{input}
         \\end{cases}
 
-    Otherwise:
+    If :math:`\\min > \\max`:
 
     .. math ::
 
@@ -68,7 +68,7 @@ class LeakyClamp(Module):
     def forward(
         self, input: Tensor, min: Optional[Tensor] = None, max: Optional[Tensor] = None
     ) -> Tensor:
-        """Clamp all elements in `input` into the range :math:`[\\min, \\max]`.
+        """Clamp all elements in ``input`` into the range :math:`[\\min, \\max]`.
 
         Args:
             input (torch.Tensor): The input tensor.
@@ -89,7 +89,7 @@ class LeakyClamp(Module):
 
 
 class Clamp(Module):
-    """Clamp all elements in `input` into the range :math:`[\\min, \\max]`.
+    """Clamp all elements in ``input`` into the range :math:`[\\min, \\max]`.
 
     The bounds :math:`\\min` and :math:`\\max` can be tensors.
 
@@ -103,7 +103,7 @@ class Clamp(Module):
         \\max & \\max < \\text{input}
         \\end{cases}
 
-    Otherwise:
+    If :math:`\\min > \\max`:
 
     .. math ::
 
@@ -144,7 +144,7 @@ class Clamp(Module):
     def forward(
         self, input: Tensor, min: Optional[Tensor] = None, max: Optional[Tensor] = None
     ) -> Tensor:
-        """Clamp all elements in `input` into the range :math:`[\\min, \\max]`.
+        """Clamp all elements in ``input`` into the range :math:`[\\min, \\max]`.
 
         Args:
             input (torch.Tensor): The input tensor.
