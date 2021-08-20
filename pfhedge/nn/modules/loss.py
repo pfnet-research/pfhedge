@@ -106,7 +106,7 @@ class EntropicRiskMeasure(HedgeLoss):
         return f"a={self.a}" if self.a != 1 else ""
 
     def forward(self, input: Tensor) -> Tensor:
-        return (-exp_utility(input, a=self.a).mean(dim=-1)).log() / self.a
+        return (-exp_utility(input, a=self.a).mean(0)).log() / self.a
 
     def cash(self, input: Tensor) -> Tensor:
         """
