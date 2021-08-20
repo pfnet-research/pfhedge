@@ -56,10 +56,6 @@ class _TestHedgeLoss:
 
 
 class TestEntropicRiskMeasure(_TestHedgeLoss):
-    """
-    pfhedge.nn.EntropicRiskMeasure
-    """
-
     @classmethod
     def setup_class(cls):
         torch.manual_seed(42)
@@ -120,10 +116,6 @@ class TestEntropicRiskMeasure(_TestHedgeLoss):
 
 
 class TestEntropicLoss(_TestHedgeLoss):
-    """
-    pfhedge.nn.EntropicLoss
-    """
-
     @classmethod
     def setup_class(cls):
         torch.manual_seed(42)
@@ -229,10 +221,6 @@ class TestIsoelasticLoss(_TestHedgeLoss):
 
 
 class TestExpectedShortFall(_TestHedgeLoss):
-    """
-    pfhedge.nn.ExpectedShortFall
-    """
-
     @classmethod
     def setup_class(cls):
         torch.manual_seed(42)
@@ -303,11 +291,8 @@ class TestExpectedShortFall(_TestHedgeLoss):
 
 
 class TestOCE(_TestHedgeLoss):
-    @classmethod
-    def setup_class(cls):
-        torch.manual_seed(42)
-
     def train_oce(self, m):
+        torch.manual_seed(42)
         optim = torch.optim.Adam(m.parameters())
 
         for _ in range(1000):
