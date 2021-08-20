@@ -7,6 +7,7 @@ import pfhedge.autogreek as autogreek
 from pfhedge._utils.bisect import bisect
 from pfhedge._utils.doc import set_attr_and_docstring
 from pfhedge._utils.doc import set_docstring
+from pfhedge._utils.str import _format_float
 
 from ._base import BSModuleMixin
 
@@ -80,14 +81,13 @@ class BSEuropeanBinaryOption(BSModuleMixin):
             >>> derivative = EuropeanBinaryOption(BrownianStock(), strike=1.1)
             >>> m = BSEuropeanBinaryOption.from_derivative(derivative)
             >>> m
-            BSEuropeanBinaryOption(strike=1.1)
+            BSEuropeanBinaryOption(strike=1.1000)
         """
         return cls(call=derivative.call, strike=derivative.strike)
 
     def extra_repr(self) -> str:
         params = []
-        if self.strike != 1.0:
-            params.append(f"strike={self.strike}")
+        params.append("strike=" + _format_float(self.strike))
         return ", ".join(params)
 
     def inputs(self) -> List[str]:

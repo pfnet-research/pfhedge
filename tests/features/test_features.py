@@ -278,10 +278,10 @@ class TestBarrier(_TestFeature):
         assert_close(result, expect)
 
     def test_repr(self):
-        assert repr(Barrier(1.0, up=True)) == "Barrier(1.0, up=True)"
-        assert repr(Barrier(2.0, up=True)) == "Barrier(2.0, up=True)"
-        assert repr(Barrier(1.0, up=False)) == "Barrier(1.0, up=False)"
-        assert repr(Barrier(2.0, up=False)) == "Barrier(2.0, up=False)"
+        assert repr(Barrier(1.0, up=True)) == "Barrier(1., up=True)"
+        assert repr(Barrier(2.0, up=True)) == "Barrier(2., up=True)"
+        assert repr(Barrier(1.0, up=False)) == "Barrier(1., up=False)"
+        assert repr(Barrier(2.0, up=False)) == "Barrier(2., up=False)"
 
     @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
     def test_dtype(self, dtype):
