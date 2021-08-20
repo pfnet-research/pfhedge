@@ -9,6 +9,7 @@
         <title>WhalleyWilmott - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=910ac4ccc9d7c023151c34010d7b500fb9777a51" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
     
     
@@ -229,12 +230,28 @@
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pfhedge.nn.</span></span><span class="sig-name descname"><span class="pre">WhalleyWilmott</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">derivative</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/ww.html#WhalleyWilmott"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.WhalleyWilmott" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize Whalley-Wilmott’s hedging strategy of a derivative.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">forward</span></code> method returns the next hedge ratio.</p>
-<p>This is the optimal hedging strategy for asymptotically small transaction cost.</p>
+<p>This is the no-transaction band strategy
+that is optimal under the premises of
+asymptotically small transaction cost, European option, and exponential utility.
+The half-width of the no-transaction band is given by</p>
+<div class="math-wrapper"><div class="math notranslate nohighlight">
+\[w = \left( \frac{3 c \Gamma^2 S}{2 a} \right)^{1 / 3} \,,\]</div></div>
+<p>where <span class="math notranslate nohighlight">\(c\)</span> is the transaction cost rate, <span class="math notranslate nohighlight">\(\Gamma\)</span> is the gamma of
+the derivative, <span class="math notranslate nohighlight">\(S\)</span> is the spot price of the underlying instrument, and
+<span class="math notranslate nohighlight">\(a\)</span> is the risk-aversion coefficient of the exponential utility.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A backward computation for this module generates <code class="docutils literal notranslate"><span class="pre">nan</span></code>
+if the <span class="math notranslate nohighlight">\(\Gamma\)</span> of the derivative is too small.
+This is because the output is proportional to <span class="math notranslate nohighlight">\(\Gamma^{2 / 3}\)</span>
+of which gradient diverges for <span class="math notranslate nohighlight">\(\Gamma \to 0\)</span>.
+A <code class="docutils literal notranslate"><span class="pre">dtype</span></code> with higher precision may alleviate this problem.</p>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>derivative</strong> (<a class="reference internal" href="pfhedge.instruments.Derivative.html#pfhedge.instruments.Derivative" title="pfhedge.instruments.Derivative"><code class="xref py py-class docutils literal notranslate"><span class="pre">pfhedge.instruments.Derivative</span></code></a>) – Derivative to hedge.</p></li>
-<li><p><strong>a</strong> (<em>float</em><em>, </em><em>default=1.0</em>) – Risk aversion parameter in exponential utility.</p></li>
+<li><p><strong>a</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>default=1.0</em>) – Risk aversion parameter in exponential utility.</p></li>
 </ul>
 </dd>
 </dl>
@@ -386,6 +403,8 @@ model for option pricing with transaction costs. Mathematical Finance,
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
     <script src="../_static/scripts/main.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     </body>
 </html>

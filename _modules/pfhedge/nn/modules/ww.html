@@ -8,6 +8,7 @@
         <title>pfhedge.nn.modules.ww - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?digest=910ac4ccc9d7c023151c34010d7b500fb9777a51" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
     
     
@@ -236,7 +237,26 @@
 
 <span class="sd">    The ``forward`` method returns the next hedge ratio.</span>
 
-<span class="sd">    This is the optimal hedging strategy for asymptotically small transaction cost.</span>
+<span class="sd">    This is the no-transaction band strategy</span>
+<span class="sd">    that is optimal under the premises of</span>
+<span class="sd">    asymptotically small transaction cost, European option, and exponential utility.</span>
+<span class="sd">    The half-width of the no-transaction band is given by</span>
+
+<span class="sd">    .. math ::</span>
+
+<span class="sd">        w = \\left( \\frac{3 c \\Gamma^2 S}{2 a} \\right)^{1 / 3} \,,</span>
+
+<span class="sd">    where :math:`c` is the transaction cost rate, :math:`\\Gamma` is the gamma of</span>
+<span class="sd">    the derivative, :math:`S` is the spot price of the underlying instrument, and</span>
+<span class="sd">    :math:`a` is the risk-aversion coefficient of the exponential utility.</span>
+
+<span class="sd">    .. note ::</span>
+
+<span class="sd">        A backward computation for this module generates ``nan``</span>
+<span class="sd">        if the :math:`\\Gamma` of the derivative is too small.</span>
+<span class="sd">        This is because the output is proportional to :math:`\\Gamma^{2 / 3}`</span>
+<span class="sd">        of which gradient diverges for :math:`\\Gamma \\to 0`.</span>
+<span class="sd">        A ``dtype`` with higher precision may alleviate this problem.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        derivative (:class:`pfhedge.instruments.Derivative`): Derivative to hedge.</span>
@@ -380,5 +400,7 @@
     <script src="../../../../_static/underscore.js"></script>
     <script src="../../../../_static/doctools.js"></script>
     <script src="../../../../_static/scripts/main.js"></script>
+    <script src="../../../../_static/clipboard.min.js"></script>
+    <script src="../../../../_static/copybutton.js"></script>
     </body>
 </html>

@@ -8,6 +8,7 @@
         <title>pfhedge.nn.modules.hedger - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?digest=910ac4ccc9d7c023151c34010d7b500fb9777a51" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
     
     
@@ -251,7 +252,7 @@
 
 
 <div class="viewcode-block" id="Hedger"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.Hedger.html#pfhedge.nn.Hedger">[docs]</a><span class="k">class</span> <span class="nc">Hedger</span><span class="p">(</span><span class="n">Module</span><span class="p">):</span>
-    <span class="sd">"""A ``torch.nn.Module`` to hedge and price derivatives.</span>
+    <span class="sd">"""A :class:`torch.nn.Module` to hedge and price derivatives.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        model (torch.nn.Module): Hedging model to compute the hedge ratio at the</span>
@@ -261,7 +262,7 @@
 <span class="sd">            paths of the asset prices and :math:`H_\\text{in}` stands for the number of</span>
 <span class="sd">            input features (namely, ``len(inputs)``).</span>
 <span class="sd">        inputs (list[str|Feature]): List of (names of) input features to feed to model.</span>
-<span class="sd">            See ``[str(f) for f in pfhedge.features.FEATURES]`` for valid options.</span>
+<span class="sd">            See ``list(map(str, pfhedge.features.FEATURES))`` for valid options.</span>
 <span class="sd">        criterion (HedgeLoss, default=EntropicRiskMeasure()):</span>
 <span class="sd">            Loss function to minimize by hedging.</span>
 <span class="sd">            Default: :class:`pfhedge.nn.EntropicRiskMeasure()` .</span>
@@ -274,6 +275,7 @@
 <span class="sd">    Examples:</span>
 
 <span class="sd">        A hedger that uses Black-Scholes' delta hedging strategy.</span>
+<span class="sd">        See :class:`pfhedge.nn.BlackScholes` for details of the module.</span>
 
 <span class="sd">        &gt;&gt;&gt; from pfhedge.instruments import BrownianStock</span>
 <span class="sd">        &gt;&gt;&gt; from pfhedge.instruments import EuropeanOption</span>
@@ -291,6 +293,7 @@
 <span class="sd">        )</span>
 
 <span class="sd">        A hedger that uses Whalley-Wilmott's no-transaction-band strategy.</span>
+<span class="sd">        See :class:`pfhedge.nn.WhalleyWilmott` for details of the module.</span>
 
 <span class="sd">        &gt;&gt;&gt; from pfhedge.nn import WhalleyWilmott</span>
 <span class="sd">        &gt;&gt;&gt;</span>
@@ -307,12 +310,14 @@
 <span class="sd">        )</span>
 
 <span class="sd">        A hedger that takes naked positions (never hedge at all).</span>
+<span class="sd">        See :class:`pfhedge.nn.Naked` for details of the module.</span>
 
 <span class="sd">        &gt;&gt;&gt; from pfhedge.nn import Naked</span>
 <span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt; hedger = Hedger(Naked(), ["empty"])</span>
 
 <span class="sd">        A hedger represented by a neural network (Deep Hedging).</span>
+<span class="sd">        See :class:`pfhedge.nn.MultiLayerPerceptron` for details of the module.</span>
 
 <span class="sd">        &gt;&gt;&gt; from pfhedge.nn import MultiLayerPerceptron</span>
 <span class="sd">        &gt;&gt;&gt;</span>
@@ -336,7 +341,7 @@
 <span class="sd">          )</span>
 <span class="sd">          (criterion): EntropicRiskMeasure()</span>
 <span class="sd">        )</span>
-<span class="sd">        &gt;&gt;&gt; history = hedger.fit(derivative, verbose=False, n_paths=1, n_epochs=1)</span>
+<span class="sd">        &gt;&gt;&gt; history = hedger.fit(derivative, n_paths=1, n_epochs=1, verbose=False)</span>
 <span class="sd">        &gt;&gt;&gt; hedger.price(derivative)</span>
 <span class="sd">        tensor(...)</span>
 
@@ -355,18 +360,16 @@
 <span class="sd">        &gt;&gt;&gt; hedging_instrument = EuropeanOption(stock, maturity=5/250)</span>
 <span class="sd">        &gt;&gt;&gt; hedging_instrument.list(pricer, cost=1e-4)</span>
 <span class="sd">        &gt;&gt;&gt; derivative = LookbackOption(stock)</span>
-<span class="sd">        &gt;&gt;&gt; derivative.simulate()</span>
 <span class="sd">        &gt;&gt;&gt;</span>
-<span class="sd">        &gt;&gt;&gt; stock = BrownianStock()</span>
 <span class="sd">        &gt;&gt;&gt; hedger = Hedger(</span>
 <span class="sd">        ...     MultiLayerPerceptron(),</span>
 <span class="sd">        ...     inputs=["moneyness", "expiry_time", "volatility"])</span>
 <span class="sd">        &gt;&gt;&gt; _ = hedger.fit(</span>
 <span class="sd">        ...     derivative,</span>
 <span class="sd">        ...     hedge=hedging_instrument,</span>
-<span class="sd">        ...     verbose=False,</span>
 <span class="sd">        ...     n_paths=1,</span>
-<span class="sd">        ...     n_epochs=1)</span>
+<span class="sd">        ...     n_epochs=1,</span>
+<span class="sd">        ...     verbose=False)</span>
 <span class="sd">        &gt;&gt;&gt; hedger.price(derivative)</span>
 <span class="sd">        tensor(...)</span>
 <span class="sd">    """</span>
@@ -553,7 +556,8 @@
 <span class="sd">            n_times (int, default=1): If ``n_times &gt; 1``, returns the ensemble mean of</span>
 <span class="sd">                the losses computed through multiple simulations.</span>
 <span class="sd">            optimizer (torch.optim.Optimizer, default=Adam): The optimizer algorithm</span>
-<span class="sd">                to use.  It can be an instance or a class of ``torch.optim.Optimizer``.</span>
+<span class="sd">                to use.  It can be an instance or a class of</span>
+<span class="sd">                :class:`torch.optim.Optimizer`.</span>
 <span class="sd">            init_state (tuple, optional): The initial price of the underlying</span>
 <span class="sd">                instrument of the derivative.</span>
 <span class="sd">                If ``None`` (default), sensible default value is used.</span>
@@ -572,7 +576,7 @@
 <span class="sd">            &gt;&gt;&gt; derivative = EuropeanOption(BrownianStock())</span>
 <span class="sd">            &gt;&gt;&gt; model = MultiLayerPerceptron()</span>
 <span class="sd">            &gt;&gt;&gt; hedger = Hedger(model, ["moneyness", "expiry_time", "volatility"])</span>
-<span class="sd">            &gt;&gt;&gt; history = hedger.fit(derivative, verbose=False, n_paths=1, n_epochs=1)</span>
+<span class="sd">            &gt;&gt;&gt; history = hedger.fit(derivative, n_paths=1, n_epochs=1, verbose=False)</span>
 
 <span class="sd">            One can use a custom optimizer as follows.</span>
 
@@ -592,10 +596,11 @@
 <span class="sd">            ...     verbose=False)</span>
 
 <span class="sd">            One can also pass a class object of an optimizer.</span>
+<span class="sd">            The optimizer will be initialized as ``Adadelta(hedger.parameters())``.</span>
 
 <span class="sd">            &gt;&gt;&gt; from torch.optim import Adadelta</span>
-<span class="sd">            &gt;&gt;&gt; derivative = EuropeanOption(BrownianStock())</span>
 <span class="sd">            &gt;&gt;&gt;</span>
+<span class="sd">            &gt;&gt;&gt; derivative = EuropeanOption(BrownianStock())</span>
 <span class="sd">            &gt;&gt;&gt; hedger = Hedger(MultiLayerPerceptron(), ["empty"])</span>
 <span class="sd">            &gt;&gt;&gt; _ = hedger.fit(</span>
 <span class="sd">            ...     derivative,</span>
@@ -652,7 +657,7 @@
         <span class="sd">"""Evaluate the premium of the given derivative.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            derivative (pfhedge.instuments.Derivative): The derivative to price.</span>
+<span class="sd">            derivative (pfhedge.instruments.Derivative): The derivative to price.</span>
 <span class="sd">            n_paths (int, default=1000): The number of simulated price paths of the</span>
 <span class="sd">                underlying instrument.</span>
 <span class="sd">            n_times (int, default=1): If ``n_times &gt; 1``, returns the ensemble mean of</span>
@@ -723,5 +728,7 @@
     <script src="../../../../_static/underscore.js"></script>
     <script src="../../../../_static/doctools.js"></script>
     <script src="../../../../_static/scripts/main.js"></script>
+    <script src="../../../../_static/clipboard.min.js"></script>
+    <script src="../../../../_static/copybutton.js"></script>
     </body>
 </html>

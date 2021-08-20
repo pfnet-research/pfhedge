@@ -9,6 +9,7 @@
         <title>EuropeanBinaryOption - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=910ac4ccc9d7c023151c34010d7b500fb9777a51" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
     
     
@@ -252,15 +253,15 @@ the underlying asset’s price at maturity is equal or smaller than the strike p
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>underlier</strong> (<a class="reference internal" href="pfhedge.instruments.Primary.html#pfhedge.instruments.Primary" title="pfhedge.instruments.Primary"><code class="xref py py-class docutils literal notranslate"><span class="pre">Primary</span></code></a>) – The underlying instrument of the option.</p></li>
-<li><p><strong>call</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Specifies whether the option is call or put.</p></li>
-<li><p><strong>strike</strong> (<em>float</em><em>, </em><em>default=1</em>) – The strike price of the option.</p></li>
-<li><p><strong>maturity</strong> (<em>float</em><em>, </em><em>default=20/250</em>) – </p></li>
+<li><p><strong>call</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>default=True</em>) – Specifies whether the option is call or put.</p></li>
+<li><p><strong>strike</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>default=1</em>) – The strike price of the option.</p></li>
+<li><p><strong>maturity</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>default=20/250</em>) – </p></li>
 <li><p><strong>dtype</strong> (<em>torch.dtype</em><em>, </em><em>optional</em>) – Desired device of returned tensor.
 Default: If None, uses a global default
-(see <code class="docutils literal notranslate"><span class="pre">torch.set_default_tensor_type()</span></code>).</p></li>
+(see <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.set_default_tensor_type.html#torch.set_default_tensor_type" title="(in PyTorch v1.9.0a0+gitd69c22d)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.set_default_tensor_type()</span></code></a>).</p></li>
 <li><p><strong>device</strong> (<em>torch.device</em><em>, </em><em>optional</em>) – Desired device of returned tensor.
 Default: if None, uses the current device for the default tensor type
-(see <code class="docutils literal notranslate"><span class="pre">torch.set_default_tensor_type()</span></code>).
+(see <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.set_default_tensor_type.html#torch.set_default_tensor_type" title="(in PyTorch v1.9.0a0+gitd69c22d)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.set_default_tensor_type()</span></code></a>).
 <code class="docutils literal notranslate"><span class="pre">device</span></code> will be the CPU for CPU tensor types and
 the current CUDA device for CUDA tensor types.</p></li>
 </ul>
@@ -314,7 +315,7 @@ at any time with the spot price given by <code class="docutils literal notransla
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pricer</strong> (<em>Callable</em><em>[</em><em>[</em><a class="reference internal" href="pfhedge.instruments.Derivative.html#pfhedge.instruments.Derivative" title="pfhedge.instruments.Derivative"><em>Derivative</em></a><em>]</em><em>, </em><em>Tensor</em><em>]</em><em>]</em>) – A function that takes self
 and returns the spot price tensor of self.</p></li>
-<li><p><strong>cost</strong> (<em>float</em><em>, </em><em>optional</em>) – The transaction cost rate.</p></li>
+<li><p><strong>cost</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>optional</em>) – The transaction cost rate.</p></li>
 </ul>
 </dd>
 </dl>
@@ -325,7 +326,7 @@ and returns the spot price tensor of self.</p></li>
 <dd><p>Returns the log moneyness of self.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>time_step</strong> (<em>int</em><em>, </em><em>optional</em>) – The time step to calculate the log
+<dd class="field-odd"><p><strong>time_step</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><em>optional</em>) – The time step to calculate the log
 moneyness. If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), the moneyness is calculated
 at all time steps.</p>
 </dd>
@@ -350,7 +351,7 @@ If <code class="docutils literal notranslate"><span class="pre">time_step</span>
 <dd><p>Returns the moneyness of self.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>time_step</strong> (<em>int</em><em>, </em><em>optional</em>) – The time step to calculate
+<dd class="field-odd"><p><strong>time_step</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><em>optional</em>) – The time step to calculate
 the moneyness. If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), the moneyness is calculated
 at all time steps.</p>
 </dd>
@@ -393,8 +394,8 @@ paths.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>n_paths</strong> (<em>int</em>) – The number of paths to simulate.</p></li>
-<li><p><strong>init_state</strong> (<em>tuple</em><em>[</em><em>torch.Tensor</em><em> | </em><em>float</em><em>]</em><em>, </em><em>optional</em>) – The initial state of
+<li><p><strong>n_paths</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The number of paths to simulate.</p></li>
+<li><p><strong>init_state</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>]</em><em>, </em><em>optional</em>) – The initial state of
 the underlier.</p></li>
 <li><p><strong>**kwargs</strong> – Other parameters passed to <code class="docutils literal notranslate"><span class="pre">self.underlier.simulate()</span></code>.</p></li>
 </ul>
@@ -407,7 +408,7 @@ the underlier.</p></li>
 <dd><p>Returns the time to maturity of self.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>time_step</strong> (<em>int</em><em>, </em><em>optional</em>) – The time step to calculate
+<dd class="field-odd"><p><strong>time_step</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><em>optional</em>) – The time step to calculate
 the time to maturity. If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), the time to
 maturity is calculated at all time steps.</p>
 </dd>
@@ -431,8 +432,8 @@ If <code class="docutils literal notranslate"><span class="pre">time_step</span>
 <span class="sig-name descname"><span class="pre">to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.EuropeanBinaryOption.to" title="Permalink to this definition">¶</a></dt>
 <dd><p>Performs dtype and/or device conversion of the buffers associated to
 the instument.</p>
-<p>A <code class="docutils literal notranslate"><span class="pre">torch.dtype</span></code> and <code class="docutils literal notranslate"><span class="pre">torch.device</span></code> are inferred from the arguments of
-<code class="docutils literal notranslate"><span class="pre">self.to(*args,</span> <span class="pre">**kwargs)</span></code>.</p>
+<p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.dtype</span></code> and <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.device</span></code> are inferred from
+the arguments of <code class="docutils literal notranslate"><span class="pre">self.to(*args,</span> <span class="pre">**kwargs)</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -508,6 +509,8 @@ series.</p></li>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
     <script src="../_static/scripts/main.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     </body>
 </html>

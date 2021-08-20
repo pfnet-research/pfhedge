@@ -8,6 +8,7 @@
         <title>pfhedge.stochastic.cir - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=910ac4ccc9d7c023151c34010d7b500fb9777a51" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
     
     
@@ -261,17 +262,17 @@
 <span class="sd">            the time series.</span>
 <span class="sd">            This is specified by ``(X0,)``, where ``X0`` is</span>
 <span class="sd">            the initial value of :math:`X`.</span>
-<span class="sd">            It also accepts a ``torch.Tensor`` or a float.</span>
+<span class="sd">            It also accepts a :class:`torch.Tensor` or a :class:`float`.</span>
 <span class="sd">        kappa (torch.Tensor or float, default=1.0): The parameter :math:`\\kappa`.</span>
 <span class="sd">        theta (torch.Tensor or float, default=0.04): The parameter :math:`\\theta`.</span>
 <span class="sd">        sigma (torch.Tensor or float, default=2.0): The parameter :math:`\\sigma`.</span>
 <span class="sd">        dt (torch.Tensor or float, default=1/250): The intervals of the time steps.</span>
 <span class="sd">        dtype (torch.dtype, optional): The desired data type of returned tensor.</span>
 <span class="sd">            Default: If ``None``, uses a global default</span>
-<span class="sd">            (see ``torch.set_default_tensor_type()``).</span>
+<span class="sd">            (see :func:`torch.set_default_tensor_type()`).</span>
 <span class="sd">        device (torch.device, optional): The desired device of returned tensor.</span>
 <span class="sd">            Default: if None, uses the current device for the default tensor type</span>
-<span class="sd">            (see ``torch.set_default_tensor_type()``).</span>
+<span class="sd">            (see :func:`torch.set_default_tensor_type()`).</span>
 <span class="sd">            ``device`` will be the CPU for CPU tensor types and the current CUDA device</span>
 <span class="sd">            for CUDA tensor types.</span>
 
@@ -377,5 +378,7 @@
     <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
     <script src="../../../_static/scripts/main.js"></script>
+    <script src="../../../_static/clipboard.min.js"></script>
+    <script src="../../../_static/copybutton.js"></script>
     </body>
 </html>

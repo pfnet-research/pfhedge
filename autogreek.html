@@ -9,6 +9,7 @@
         <title>pfhedge.autogreek - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=910ac4ccc9d7c023151c34010d7b500fb9777a51" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
     
     
@@ -227,7 +228,7 @@
 <p><cite>pfhedge.autogreek</cite> provides functions implementing automatic evaluation of greeks (susceptibility of derivative price to its input parameters) using automatic differentiation.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="pfhedge.autogreek.delta">
-<span class="sig-prename descclassname"><span class="pre">pfhedge.autogreek.</span></span><span class="sig-name descname"><span class="pre">delta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pricer</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">create_graph</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfhedge/autogreek.html#delta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.autogreek.delta" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pfhedge.autogreek.</span></span><span class="sig-name descname"><span class="pre">delta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pricer</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">create_graph</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfhedge/autogreek.html#delta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.autogreek.delta" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes and returns delta of a derivative using automatic differentiation.</p>
 <p>Delta is a differentiation of a derivative price with respect to
 a price of underlying instrument.</p>
@@ -235,10 +236,10 @@ a price of underlying instrument.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pricer</strong> (<em>callable</em>) – Pricing formula of a derivative.</p></li>
-<li><p><strong>create_graph</strong> (<em>bool</em><em>, </em><em>default=False</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, graph of the derivative
+<li><p><strong>create_graph</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>default=False</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, graph of the derivative
 will be constructed, allowing to compute higher order derivative
 products.</p></li>
-<li><p><strong>**kwargs</strong> – Parameters passed to <code class="docutils literal notranslate"><span class="pre">pricer</span></code>.</p></li>
+<li><p><strong>**params</strong> – Parameters passed to <code class="docutils literal notranslate"><span class="pre">pricer</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -293,7 +294,7 @@ products.</p></li>
 </dd></dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="pfhedge.autogreek.gamma">
-<span class="sig-prename descclassname"><span class="pre">pfhedge.autogreek.</span></span><span class="sig-name descname"><span class="pre">gamma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pricer</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">create_graph</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfhedge/autogreek.html#gamma"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.autogreek.gamma" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pfhedge.autogreek.</span></span><span class="sig-name descname"><span class="pre">gamma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pricer</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">create_graph</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfhedge/autogreek.html#gamma"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.autogreek.gamma" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes and returns gamma of a derivative.</p>
 <p>Delta is a second-order differentiation of a derivative price with respect to
 a price of underlying instrument.</p>
@@ -301,9 +302,9 @@ a price of underlying instrument.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pricer</strong> (<em>callable</em>) – Pricing formula of a derivative.</p></li>
-<li><p><strong>create_graph</strong> (<em>bool</em><em>, </em><em>default=False</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, graph of the derivative will be
+<li><p><strong>create_graph</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>default=False</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, graph of the derivative will be
 constructed, allowing to compute higher order derivative products.</p></li>
-<li><p><strong>**kwargs</strong> – Parameters passed to <code class="docutils literal notranslate"><span class="pre">pricer</span></code>.</p></li>
+<li><p><strong>**params</strong> – Parameters passed to <code class="docutils literal notranslate"><span class="pre">pricer</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -383,5 +384,7 @@ constructed, allowing to compute higher order derivative products.</p></li>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
     <script src="_static/scripts/main.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
     </body>
 </html>

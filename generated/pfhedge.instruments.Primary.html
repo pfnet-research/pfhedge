@@ -9,6 +9,7 @@
         <title>Primary - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=910ac4ccc9d7c023151c34010d7b500fb9777a51" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
     
     
@@ -235,7 +236,7 @@ Examples include stocks, bonds, commodities, and currencies.</p>
 (See <a class="reference internal" href="pfhedge.instruments.Derivative.html#pfhedge.instruments.Derivative" title="pfhedge.instruments.Derivative"><code class="xref py py-class docutils literal notranslate"><span class="pre">Derivative</span></code></a> for details).</p>
 <dl class="simple">
 <dt>Buffers:</dt><dd><ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">spot</span></code> (<code class="docutils literal notranslate"><span class="pre">torch.Tensor</span></code>): The spot price of the instrument.</p></li>
+<li><p>spot (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.Tensor</span></code></a>): The spot price of the instrument.</p></li>
 </ul>
 </dd>
 </dl>
@@ -334,7 +335,7 @@ name of the buffer as well as the buffer itself.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>name</strong> (<em>string</em>) – name of the buffer. The buffer can be accessed
 from this module using the given name</p></li>
-<li><p><strong>tensor</strong> (<em>Tensor</em><em> or </em><em>None</em>) – buffer to be registered. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, then
+<li><p><strong>tensor</strong> (<em>Tensor</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a>) – buffer to be registered. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, then
 operations that run on buffers, such as <a class="reference internal" href="#pfhedge.instruments.Primary.cuda" title="pfhedge.instruments.Primary.cuda"><code class="xref py py-attr docutils literal notranslate"><span class="pre">cuda</span></code></a>, are ignored.
 If <code class="docutils literal notranslate"><span class="pre">None</span></code>, the buffer is <strong>not</strong> included in the module’s
 <code class="xref py py-attr docutils literal notranslate"><span class="pre">state_dict</span></code>.</p></li>
@@ -352,9 +353,9 @@ where <code class="docutils literal notranslate"><span class="pre">n_steps</span
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>n_paths</strong> (<em>int</em>) – The number of paths to simulate.</p></li>
-<li><p><strong>time_horizon</strong> (<em>float</em>) – The period of time to simulate the price.</p></li>
-<li><p><strong>init_state</strong> (<em>tuple</em><em>[</em><em>torch.Tensor</em><em> | </em><em>float</em><em>]</em><em>, </em><em>optional</em>) – The initial state of
+<li><p><strong>n_paths</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The number of paths to simulate.</p></li>
+<li><p><strong>time_horizon</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – The period of time to simulate the price.</p></li>
+<li><p><strong>init_state</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>]</em><em>, </em><em>optional</em>) – The initial state of
 the instrument.
 If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), it uses the default value
 (See <a class="reference internal" href="#pfhedge.instruments.Primary.default_init_state" title="pfhedge.instruments.Primary.default_init_state"><code class="xref py py-func docutils literal notranslate"><span class="pre">default_init_state()</span></code></a>).</p></li>
@@ -367,8 +368,8 @@ If <code class="docutils literal notranslate"><span class="pre">None</span></cod
 <span class="sig-name descname"><span class="pre">to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/primary/base.html#Primary.to"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Primary.to" title="Permalink to this definition">¶</a></dt>
 <dd><p>Performs dtype and/or device conversion of the buffers associated to
 the instument.</p>
-<p>A <code class="docutils literal notranslate"><span class="pre">torch.dtype</span></code> and <code class="docutils literal notranslate"><span class="pre">torch.device</span></code> are inferred from the arguments of
-<code class="docutils literal notranslate"><span class="pre">self.to(*args,</span> <span class="pre">**kwargs)</span></code>.</p>
+<p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.dtype</span></code> and <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.device</span></code> are inferred from
+the arguments of <code class="docutils literal notranslate"><span class="pre">self.to(*args,</span> <span class="pre">**kwargs)</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -439,5 +440,7 @@ series.</p></li>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
     <script src="../_static/scripts/main.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
     </body>
 </html>

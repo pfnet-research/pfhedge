@@ -9,6 +9,7 @@
         <title>HestonStock - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=910ac4ccc9d7c023151c34010d7b500fb9777a51" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
     
     
@@ -232,18 +233,18 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>kappa</strong> (<em>float</em><em>, </em><em>default=1.0</em>) – The parameter <span class="math notranslate nohighlight">\(\kappa\)</span>.</p></li>
-<li><p><strong>theta</strong> (<em>float</em><em>, </em><em>default=0.04</em>) – The parameter <span class="math notranslate nohighlight">\(\theta\)</span>.</p></li>
-<li><p><strong>sigma</strong> (<em>float</em><em>, </em><em>default=2.0</em>) – The parameter <span class="math notranslate nohighlight">\(\sigma\)</span>.</p></li>
-<li><p><strong>rho</strong> (<em>float</em><em>, </em><em>default=-0.7</em>) – The parameter <span class="math notranslate nohighlight">\(\rho\)</span>.</p></li>
-<li><p><strong>cost</strong> (<em>float</em><em>, </em><em>default=0.0</em>) – The transaction cost rate.</p></li>
-<li><p><strong>dt</strong> (<em>float</em><em>, </em><em>default=1/250</em>) – The intervals of the time steps.</p></li>
+<li><p><strong>kappa</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>default=1.0</em>) – The parameter <span class="math notranslate nohighlight">\(\kappa\)</span>.</p></li>
+<li><p><strong>theta</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>default=0.04</em>) – The parameter <span class="math notranslate nohighlight">\(\theta\)</span>.</p></li>
+<li><p><strong>sigma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>default=2.0</em>) – The parameter <span class="math notranslate nohighlight">\(\sigma\)</span>.</p></li>
+<li><p><strong>rho</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>default=-0.7</em>) – The parameter <span class="math notranslate nohighlight">\(\rho\)</span>.</p></li>
+<li><p><strong>cost</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>default=0.0</em>) – The transaction cost rate.</p></li>
+<li><p><strong>dt</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>default=1/250</em>) – The intervals of the time steps.</p></li>
 <li><p><strong>dtype</strong> (<em>torch.device</em><em>, </em><em>optional</em>) – Desired device of returned tensor.
 Default: If None, uses a global default
-(see <code class="docutils literal notranslate"><span class="pre">torch.set_default_tensor_type()</span></code>).</p></li>
+(see <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.set_default_tensor_type.html#torch.set_default_tensor_type" title="(in PyTorch v1.9.0a0+gitd69c22d)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.set_default_tensor_type()</span></code></a>).</p></li>
 <li><p><strong>device</strong> (<em>torch.device</em><em>, </em><em>optional</em>) – Desired device of returned tensor.
 Default: if None, uses the current device for the default tensor type
-(see <code class="docutils literal notranslate"><span class="pre">torch.set_default_tensor_type()</span></code>).
+(see <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.set_default_tensor_type.html#torch.set_default_tensor_type" title="(in PyTorch v1.9.0a0+gitd69c22d)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.set_default_tensor_type()</span></code></a>).
 <code class="docutils literal notranslate"><span class="pre">device</span></code> will be the CPU for CPU tensor types and
 the current CUDA device for CUDA tensor types.</p></li>
 </ul>
@@ -251,12 +252,12 @@ the current CUDA device for CUDA tensor types.</p></li>
 </dl>
 <dl class="simple">
 <dt>Buffers:</dt><dd><ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">spot</span></code> (<code class="docutils literal notranslate"><span class="pre">torch.Tensor</span></code>): The spot price of the instrument.
+<li><p>spot (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.Tensor</span></code></a>): The spot price of the instrument.
 This attribute is set by a method <a class="reference internal" href="#pfhedge.instruments.HestonStock.simulate" title="pfhedge.instruments.HestonStock.simulate"><code class="xref py py-func docutils literal notranslate"><span class="pre">simulate()</span></code></a>.
 The shape is <span class="math notranslate nohighlight">\((N, T)\)</span> where
 <span class="math notranslate nohighlight">\(N\)</span> is the number of simulated paths and
 <span class="math notranslate nohighlight">\(T\)</span> is the number of time steps.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">variance</span></code> (<code class="docutils literal notranslate"><span class="pre">torch.Tensor</span></code>): The variance of the instrument.
+<li><p>variance (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.Tensor</span></code></a>): The variance of the instrument.
 Note that this is different from the realized variance of the spot price.
 This attribute is set by a method <a class="reference internal" href="#pfhedge.instruments.HestonStock.simulate" title="pfhedge.instruments.HestonStock.simulate"><code class="xref py py-func docutils literal notranslate"><span class="pre">simulate()</span></code></a>.
 The shape is <span class="math notranslate nohighlight">\((N, T)\)</span>.</p></li>
@@ -295,10 +296,10 @@ The number of time steps is determinded from <code class="docutils literal notra
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>n_paths</strong> (<em>int</em><em>, </em><em>default=1</em>) – The number of paths to simulate.</p></li>
-<li><p><strong>time_horizon</strong> (<em>float</em><em>, </em><em>default=20/250</em>) – The period of time to simulate
+<li><p><strong>n_paths</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><em>default=1</em>) – The number of paths to simulate.</p></li>
+<li><p><strong>time_horizon</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>default=20/250</em>) – The period of time to simulate
 the price.</p></li>
-<li><p><strong>init_state</strong> (<em>tuple</em><em>[</em><em>torch.Tensor</em><em> | </em><em>float</em><em>]</em><em>, </em><em>default=</em><em>(</em><em>1.0</em><em>,</em><em>)</em>) – The initial
+<li><p><strong>init_state</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>]</em><em>, </em><em>default=</em><em>(</em><em>1.0</em><em>,</em><em>)</em>) – The initial
 state of the instrument.
 This is specified by <code class="docutils literal notranslate"><span class="pre">(S0,</span> <span class="pre">V0)</span></code>, where <code class="docutils literal notranslate"><span class="pre">S0</span></code> and <code class="docutils literal notranslate"><span class="pre">V0</span></code> are
 the initial values of of spot and variance, respectively.
@@ -313,8 +314,8 @@ If <code class="docutils literal notranslate"><span class="pre">None</span></cod
 <span class="sig-name descname"><span class="pre">to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.HestonStock.to" title="Permalink to this definition">¶</a></dt>
 <dd><p>Performs dtype and/or device conversion of the buffers associated to
 the instument.</p>
-<p>A <code class="docutils literal notranslate"><span class="pre">torch.dtype</span></code> and <code class="docutils literal notranslate"><span class="pre">torch.device</span></code> are inferred from the arguments of
-<code class="docutils literal notranslate"><span class="pre">self.to(*args,</span> <span class="pre">**kwargs)</span></code>.</p>
+<p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.dtype</span></code> and <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.device</span></code> are inferred from
+the arguments of <code class="docutils literal notranslate"><span class="pre">self.to(*args,</span> <span class="pre">**kwargs)</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -390,6 +391,8 @@ series.</p></li>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
     <script src="../_static/scripts/main.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     </body>
 </html>

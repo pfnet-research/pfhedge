@@ -8,6 +8,7 @@
         <title>pfhedge.instruments.primary.brownian - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?digest=910ac4ccc9d7c023151c34010d7b500fb9777a51" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
     
     
@@ -249,20 +250,21 @@
 <span class="sd">    for details of the process.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        volatility (float, default=0.2): The volatility of the price.</span>
+<span class="sd">        sigma (float, default=0.2): The parameter :math:`\\sigma`,</span>
+<span class="sd">            which stands for the volatility of the spot price.</span>
 <span class="sd">        cost (float, default=0.0): The transaction cost rate.</span>
 <span class="sd">        dt (float, default=1/250): The intervals of the time steps.</span>
 <span class="sd">        dtype (torch.device, optional): Desired device of returned tensor.</span>
 <span class="sd">            Default: If None, uses a global default</span>
-<span class="sd">            (see ``torch.set_default_tensor_type()``).</span>
+<span class="sd">            (see :func:`torch.set_default_tensor_type()`).</span>
 <span class="sd">        device (torch.device, optional): Desired device of returned tensor.</span>
 <span class="sd">            Default: if None, uses the current device for the default tensor type</span>
-<span class="sd">            (see ``torch.set_default_tensor_type()``).</span>
+<span class="sd">            (see :func:`torch.set_default_tensor_type()`).</span>
 <span class="sd">            ``device`` will be the CPU for CPU tensor types and</span>
 <span class="sd">            the current CUDA device for CUDA tensor types.</span>
 
 <span class="sd">    Buffers:</span>
-<span class="sd">        - ``spot`` (``torch.Tensor``): The spot prices of the instrument.</span>
+<span class="sd">        - spot (:class:`torch.Tensor`): The spot prices of the instrument.</span>
 <span class="sd">          This attribute is set by a method :func:`simulate()`.</span>
 <span class="sd">          The shape is :math:`(N, T)` where</span>
 <span class="sd">          :math:`N` is the number of simulated paths and</span>
@@ -288,7 +290,7 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">volatility</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
+        <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
         <span class="n">cost</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
         <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">250</span><span class="p">,</span>
         <span class="n">dtype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -296,7 +298,7 @@
     <span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">volatility</span> <span class="o">=</span> <span class="n">volatility</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span> <span class="o">=</span> <span class="n">sigma</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cost</span> <span class="o">=</span> <span class="n">cost</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">=</span> <span class="n">dt</span>
 
@@ -305,6 +307,22 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">default_init_state</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
         <span class="k">return</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">volatility</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+        <span class="sd">"""Returns the volatility of self.</span>
+
+<span class="sd">        It is a tensor filled with ``self.sigma``.</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spot</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">variance</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+        <span class="sd">"""Returns the volatility of self.</span>
+
+<span class="sd">        It is a tensor filled with the square of ``self.sigma``.</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spot</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
 
 <div class="viewcode-block" id="BrownianStock.simulate"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.BrownianStock.html#pfhedge.instruments.BrownianStock.simulate">[docs]</a>    <span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -328,7 +346,7 @@
 <span class="sd">                of the stock price.</span>
 <span class="sd">                If ``None`` (default), it uses the default value</span>
 <span class="sd">                (See :func:`default_init_state`).</span>
-<span class="sd">                It also accepts a ``float`` or a ``torch.Tensor``.</span>
+<span class="sd">                It also accepts a :class:`float` or a :class:`torch.Tensor`.</span>
 
 <span class="sd">        Examples:</span>
 
@@ -346,7 +364,7 @@
             <span class="n">n_paths</span><span class="o">=</span><span class="n">n_paths</span><span class="p">,</span>
             <span class="n">n_steps</span><span class="o">=</span><span class="n">ceil</span><span class="p">(</span><span class="n">time_horizon</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span>
             <span class="n">init_state</span><span class="o">=</span><span class="n">init_state</span><span class="p">,</span>
-            <span class="n">volatility</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">volatility</span><span class="p">,</span>
+            <span class="n">sigma</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sigma</span><span class="p">,</span>
             <span class="n">dt</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span>
             <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span>
             <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">,</span>
@@ -355,7 +373,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">register_buffer</span><span class="p">(</span><span class="s2">"spot"</span><span class="p">,</span> <span class="n">spot</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"volatility=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">volatility</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"sigma=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sigma</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cost</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">:</span>
             <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"cost=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cost</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"dt=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
@@ -397,5 +415,7 @@
     <script src="../../../../_static/underscore.js"></script>
     <script src="../../../../_static/doctools.js"></script>
     <script src="../../../../_static/scripts/main.js"></script>
+    <script src="../../../../_static/clipboard.min.js"></script>
+    <script src="../../../../_static/copybutton.js"></script>
     </body>
 </html>

@@ -8,6 +8,7 @@
         <title>pfhedge.nn.modules.mlp - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?digest=910ac4ccc9d7c023151c34010d7b500fb9777a51" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
     
     
@@ -246,22 +247,24 @@
 <span class="sd">            If ``None`` (default), the number of input features will be</span>
 <span class="sd">            will be inferred from the ``input.shape[-1]`` after the first call to</span>
 <span class="sd">            ``forward`` is done. Also, before the first ``forward`` parameters in the</span>
-<span class="sd">            module are of ``torch.nn.UninitializedParameter`` class.</span>
+<span class="sd">            module are of :class:`torch.nn.UninitializedParameter` class.</span>
 <span class="sd">        out_features (int, default=1): Size of each output sample.</span>
 <span class="sd">        n_layers (int, default=4): Number of hidden layers.</span>
 <span class="sd">        n_units (int or tuple[int], default=32): Number of units in each hidden layer.</span>
 <span class="sd">            If ``tuple[int]``, it specifies different number of units for each layer.</span>
 <span class="sd">        activation (torch.nn.Module, default=torch.nn.ReLU()):</span>
 <span class="sd">            Activation module of the hidden layers.</span>
+<span class="sd">            Default: :class:`torch.nn.ReLU` instance.</span>
 <span class="sd">        out_activation (torch.nn.Module, default=torch.nn.Identity()):</span>
 <span class="sd">            Activation module of the output layer.</span>
+<span class="sd">            Default: :class:`torch.nn.Identity` instance.</span>
 
 <span class="sd">    Shape:</span>
 <span class="sd">        - Input: :math:`(N, *, H_{\\text{in}})`, where where * means any number of</span>
-<span class="sd">          additional dimensions and :math:`H_{\\text{in}})` is the number of input</span>
+<span class="sd">          additional dimensions and :math:`H_{\\text{in}}` is the number of input</span>
 <span class="sd">          features.</span>
 <span class="sd">        - Output: :math:`(N, *, H_{\\text{out}})`, where all but the last dimension</span>
-<span class="sd">          are the same shape as the input and :math:`H_{\\text{in}})` is</span>
+<span class="sd">          are the same shape as the input and :math:`H_{\\text{in}}` is</span>
 <span class="sd">          ``out_features``.</span>
 
 <span class="sd">    Examples:</span>
@@ -373,5 +376,7 @@
     <script src="../../../../_static/underscore.js"></script>
     <script src="../../../../_static/doctools.js"></script>
     <script src="../../../../_static/scripts/main.js"></script>
+    <script src="../../../../_static/clipboard.min.js"></script>
+    <script src="../../../../_static/copybutton.js"></script>
     </body>
 </html>
