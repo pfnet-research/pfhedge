@@ -12,31 +12,31 @@ class TestWhalleyWilmott:
     def test_repr(self):
         derivative = EuropeanOption(BrownianStock())
         m = WhalleyWilmott(derivative)
-        assert repr(m) == (
-            "WhalleyWilmott(\n"
-            "  (bs): BSEuropeanOption()\n"
-            "  (clamp): Clamp()\n"
-            ")"
-        )
+        expect = """\
+WhalleyWilmott(
+  (bs): BSEuropeanOption(strike=1.)
+  (clamp): Clamp()
+)"""
+        assert repr(m) == expect
 
         derivative = EuropeanOption(BrownianStock())
-        m = WhalleyWilmott(derivative, a=2)
-        assert repr(m) == (
-            "WhalleyWilmott(\n"
-            "  a=2\n"
-            "  (bs): BSEuropeanOption()\n"
-            "  (clamp): Clamp()\n"
-            ")"
-        )
+        m = WhalleyWilmott(derivative, a=2.0)
+        expect = """\
+WhalleyWilmott(
+  a=2.
+  (bs): BSEuropeanOption(strike=1.)
+  (clamp): Clamp()
+)"""
+        assert repr(m) == expect
 
         derivative = LookbackOption(BrownianStock())
         m = WhalleyWilmott(derivative)
-        assert repr(m) == (
-            "WhalleyWilmott(\n"
-            "  (bs): BSLookbackOption()\n"
-            "  (clamp): Clamp()\n"
-            ")"
-        )
+        expect = """\
+WhalleyWilmott(
+  (bs): BSLookbackOption(strike=1.)
+  (clamp): Clamp()
+)"""
+        assert repr(m) == expect
 
     def test_shape(self):
         torch.distributions.Distribution.set_default_validate_args(False)

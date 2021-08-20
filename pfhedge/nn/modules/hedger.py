@@ -64,7 +64,7 @@ class Hedger(Module):
         >>> hedger
         Hedger(
           inputs=['log_moneyness', 'expiry_time', 'volatility']
-          (model): BSEuropeanOption()
+          (model): BSEuropeanOption(strike=1.)
           (criterion): EntropicRiskMeasure()
         )
 
@@ -79,7 +79,7 @@ class Hedger(Module):
         Hedger(
           inputs=['log_moneyness', 'expiry_time', 'volatility', 'prev_hedge']
           (model): WhalleyWilmott(
-            (bs): BSEuropeanOption()
+            (bs): BSEuropeanOption(strike=1.)
             (clamp): Clamp()
           )
           (criterion): EntropicRiskMeasure()

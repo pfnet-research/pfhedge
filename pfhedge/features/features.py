@@ -4,6 +4,8 @@ import torch
 from torch import Tensor
 from torch.nn import Module
 
+from pfhedge._utils.str import _format_float
+
 from ._base import Feature
 from .functional import barrier
 from .functional import empty
@@ -89,7 +91,8 @@ class Barrier(Feature):
         self.up = up
 
     def __repr__(self) -> str:
-        return self.__class__.__name__ + f"({self.threshold}, up={self.up})"
+        params = [_format_float(self.threshold), "up=" + str(self.up)]
+        return self._get_name() + "(" + ", ".join(params) + ")"
 
     def __getitem__(self, i: int) -> Tensor:
         return barrier(
