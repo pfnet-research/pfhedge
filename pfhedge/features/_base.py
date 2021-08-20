@@ -42,3 +42,6 @@ class Feature(ABC):
         if not hasattr(self, "hedger") or derivative is not None:
             self.hedger = hedger
         return self
+
+    def _get_name(self) -> str:
+        return self.__class__.__name__

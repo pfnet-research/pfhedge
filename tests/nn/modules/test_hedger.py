@@ -70,7 +70,7 @@ class TestHedger:
         assert repr(hedger) == (
             "Hedger(\n"
             "  inputs=['log_moneyness', 'expiry_time', 'volatility']\n"
-            "  (model): BSEuropeanOption()\n"
+            "  (model): BSEuropeanOption(strike=1.)\n"
             "  (criterion): EntropicRiskMeasure()\n"
             ")"
         )

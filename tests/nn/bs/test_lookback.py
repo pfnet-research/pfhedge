@@ -20,11 +20,11 @@ class TestBSLookbackOption(_TestBSModule):
 
     def test_repr(self):
         m = BSLookbackOption()
-        assert repr(m) == "BSLookbackOption()"
+        assert repr(m) == "BSLookbackOption(strike=1.)"
 
         derivative = LookbackOption(BrownianStock(), strike=1.1)
         m = BSLookbackOption.from_derivative(derivative)
-        assert repr(m) == "BSLookbackOption(strike=1.1)"
+        assert repr(m) == "BSLookbackOption(strike=1.1000)"
 
     def test_forward(self):
         m = BSLookbackOption()

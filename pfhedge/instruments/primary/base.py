@@ -90,8 +90,6 @@ class Primary(Instrument):
                 from this module using the given name
             tensor (Tensor or None): buffer to be registered. If ``None``, then
                 operations that run on buffers, such as :attr:`cuda`, are ignored.
-                If ``None``, the buffer is **not** included in the module's
-                :attr:`state_dict`.
         """
         # Implementation here refers to torch.nn.Module.register_buffer.
         if "_buffers" not in self.__dict__:
@@ -148,8 +146,8 @@ class Primary(Instrument):
 
         if dtype is not None and not dtype.is_floating_point:
             raise TypeError(
-                f"Instrument.to only accepts floating point "
-                f"dtypes, but got desired dtype={dtype}"
+                "Instrument.to only accepts floating point "
+                "dtypes, but got desired dtype=" + str(dtype)
             )
 
         if not hasattr(self, "dtype") or dtype is not None:

@@ -20,11 +20,11 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
 
     def test_repr(self):
         m = BSEuropeanBinaryOption()
-        assert repr(m) == "BSEuropeanBinaryOption()"
+        assert repr(m) == "BSEuropeanBinaryOption(strike=1.)"
 
         derivative = EuropeanBinaryOption(BrownianStock(), strike=1.1)
         m = BSEuropeanBinaryOption.from_derivative(derivative)
-        assert repr(m) == "BSEuropeanBinaryOption(strike=1.1)"
+        assert repr(m) == "BSEuropeanBinaryOption(strike=1.1000)"
 
         with pytest.raises(ValueError):
             # not yet supported

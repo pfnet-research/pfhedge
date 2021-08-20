@@ -6,6 +6,16 @@ pfhedge.instruments
 
 .. currentmodule:: pfhedge
 
+Base Class
+----------
+
+.. autosummary::
+    :toctree: generated
+    :nosignatures:
+    :template: classtemplate.rst
+
+    instruments.Instrument
+
 Primary Instruments
 -------------------
 

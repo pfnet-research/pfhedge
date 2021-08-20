@@ -6,8 +6,8 @@ from torch import Tensor
 from pfhedge._utils.doc import set_attr_and_docstring
 from pfhedge._utils.doc import set_docstring
 from pfhedge._utils.str import _format_float
+from pfhedge.nn.functional import american_binary_payoff
 
-from ...nn.functional import american_binary_payoff
 from ..primary.base import Primary
 from .base import Derivative
 from .base import OptionMixin
@@ -111,7 +111,7 @@ maturity=5/250, strike=1.01)
 
     def payoff(self) -> Tensor:
         return american_binary_payoff(
-            self.underlier.spot, call=self.call, strike=self.strike
+            self.ul().spot, call=self.call, strike=self.strike
         )
 
 
