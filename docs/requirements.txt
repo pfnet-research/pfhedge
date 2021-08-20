@@ -1,2 +1,4 @@
 sphinx
+sphinx-autobuild
+sphinx-copybutton
 furo

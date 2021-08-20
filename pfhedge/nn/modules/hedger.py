@@ -27,7 +27,7 @@ TensorOrFloat = Union[Tensor, float]
 
 
 class Hedger(Module):
-    """A ``torch.nn.Module`` to hedge and price derivatives.
+    """A :class:`torch.nn.Module` to hedge and price derivatives.
 
     Args:
         model (torch.nn.Module): Hedging model to compute the hedge ratio at the
@@ -37,7 +37,7 @@ class Hedger(Module):
             paths of the asset prices and :math:`H_\\text{in}` stands for the number of
             input features (namely, ``len(inputs)``).
         inputs (list[str|Feature]): List of (names of) input features to feed to model.
-            See ``[str(f) for f in pfhedge.features.FEATURES]`` for valid options.
+            See ``list(map(str, pfhedge.features.FEATURES))`` for valid options.
         criterion (HedgeLoss, default=EntropicRiskMeasure()):
             Loss function to minimize by hedging.
             Default: :class:`pfhedge.nn.EntropicRiskMeasure()` .
@@ -50,6 +50,7 @@ class Hedger(Module):
     Examples:
 
         A hedger that uses Black-Scholes' delta hedging strategy.
+        See :class:`pfhedge.nn.BlackScholes` for details of the module.
 
         >>> from pfhedge.instruments import BrownianStock
         >>> from pfhedge.instruments import EuropeanOption
@@ -67,6 +68,7 @@ class Hedger(Module):
         )
 
         A hedger that uses Whalley-Wilmott's no-transaction-band strategy.
+        See :class:`pfhedge.nn.WhalleyWilmott` for details of the module.
 
         >>> from pfhedge.nn import WhalleyWilmott
         >>>
@@ -83,12 +85,14 @@ class Hedger(Module):
         )
 
         A hedger that takes naked positions (never hedge at all).
+        See :class:`pfhedge.nn.Naked` for details of the module.
 
         >>> from pfhedge.nn import Naked
         >>>
         >>> hedger = Hedger(Naked(), ["empty"])
 
         A hedger represented by a neural network (Deep Hedging).
+        See :class:`pfhedge.nn.MultiLayerPerceptron` for details of the module.
 
         >>> from pfhedge.nn import MultiLayerPerceptron
         >>>
@@ -112,7 +116,7 @@ class Hedger(Module):
           )
           (criterion): EntropicRiskMeasure()
         )
-        >>> history = hedger.fit(derivative, verbose=False, n_paths=1, n_epochs=1)
+        >>> history = hedger.fit(derivative, n_paths=1, n_epochs=1, verbose=False)
         >>> hedger.price(derivative)
         tensor(...)
 
@@ -131,18 +135,16 @@ class Hedger(Module):
         >>> hedging_instrument = EuropeanOption(stock, maturity=5/250)
         >>> hedging_instrument.list(pricer, cost=1e-4)
         >>> derivative = LookbackOption(stock)
-        >>> derivative.simulate()
         >>>
-        >>> stock = BrownianStock()
         >>> hedger = Hedger(
         ...     MultiLayerPerceptron(),
         ...     inputs=["moneyness", "expiry_time", "volatility"])
         >>> _ = hedger.fit(
         ...     derivative,
         ...     hedge=hedging_instrument,
-        ...     verbose=False,
         ...     n_paths=1,
-        ...     n_epochs=1)
+        ...     n_epochs=1,
+        ...     verbose=False)
         >>> hedger.price(derivative)
         tensor(...)
     """
@@ -329,7 +331,8 @@ class Hedger(Module):
             n_times (int, default=1): If ``n_times > 1``, returns the ensemble mean of
                 the losses computed through multiple simulations.
             optimizer (torch.optim.Optimizer, default=Adam): The optimizer algorithm
-                to use.  It can be an instance or a class of ``torch.optim.Optimizer``.
+                to use.  It can be an instance or a class of
+                :class:`torch.optim.Optimizer`.
             init_state (tuple, optional): The initial price of the underlying
                 instrument of the derivative.
                 If ``None`` (default), sensible default value is used.
@@ -348,7 +351,7 @@ class Hedger(Module):
             >>> derivative = EuropeanOption(BrownianStock())
             >>> model = MultiLayerPerceptron()
             >>> hedger = Hedger(model, ["moneyness", "expiry_time", "volatility"])
-            >>> history = hedger.fit(derivative, verbose=False, n_paths=1, n_epochs=1)
+            >>> history = hedger.fit(derivative, n_paths=1, n_epochs=1, verbose=False)
 
             One can use a custom optimizer as follows.
 
@@ -368,10 +371,11 @@ class Hedger(Module):
             ...     verbose=False)
 
             One can also pass a class object of an optimizer.
+            The optimizer will be initialized as ``Adadelta(hedger.parameters())``.
 
             >>> from torch.optim import Adadelta
-            >>> derivative = EuropeanOption(BrownianStock())
             >>>
+            >>> derivative = EuropeanOption(BrownianStock())
             >>> hedger = Hedger(MultiLayerPerceptron(), ["empty"])
             >>> _ = hedger.fit(
             ...     derivative,
@@ -428,7 +432,7 @@ class Hedger(Module):
         """Evaluate the premium of the given derivative.
 
         Args:
-            derivative (pfhedge.instuments.Derivative): The derivative to price.
+            derivative (pfhedge.instruments.Derivative): The derivative to price.
             n_paths (int, default=1000): The number of simulated price paths of the
                 underlying instrument.
             n_times (int, default=1): If ``n_times > 1``, returns the ensemble mean of

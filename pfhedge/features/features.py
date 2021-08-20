@@ -147,7 +147,7 @@ class MaxLogMoneyness(MaxMoneyness):
 
 
 class ModuleOutput(Feature, Module):
-    """The feature computed as an output of a ``torch.nn.Module``.
+    """The feature computed as an output of a :class:`torch.nn.Module`.
 
     Args:
         module (torch.nn.Module): Module to compute the value of the feature.

@@ -30,15 +30,15 @@ class BrownianStock(Primary):
         dt (float, default=1/250): The intervals of the time steps.
         dtype (torch.device, optional): Desired device of returned tensor.
             Default: If None, uses a global default
-            (see ``torch.set_default_tensor_type()``).
+            (see :func:`torch.set_default_tensor_type()`).
         device (torch.device, optional): Desired device of returned tensor.
             Default: if None, uses the current device for the default tensor type
-            (see ``torch.set_default_tensor_type()``).
+            (see :func:`torch.set_default_tensor_type()`).
             ``device`` will be the CPU for CPU tensor types and
             the current CUDA device for CUDA tensor types.
 
     Buffers:
-        - ``spot`` (``torch.Tensor``): The spot prices of the instrument.
+        - spot (:class:`torch.Tensor`): The spot prices of the instrument.
           This attribute is set by a method :func:`simulate()`.
           The shape is :math:`(N, T)` where
           :math:`N` is the number of simulated paths and
@@ -104,7 +104,7 @@ class BrownianStock(Primary):
                 of the stock price.
                 If ``None`` (default), it uses the default value
                 (See :func:`default_init_state`).
-                It also accepts a ``float`` or a ``torch.Tensor``.
+                It also accepts a :class:`float` or a :class:`torch.Tensor`.
 
         Examples:
 

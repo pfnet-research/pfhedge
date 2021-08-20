@@ -37,17 +37,17 @@ def generate_cir(
             the time series.
             This is specified by ``(X0,)``, where ``X0`` is
             the initial value of :math:`X`.
-            It also accepts a ``torch.Tensor`` or a float.
+            It also accepts a :class:`torch.Tensor` or a :class:`float`.
         kappa (torch.Tensor or float, default=1.0): The parameter :math:`\\kappa`.
         theta (torch.Tensor or float, default=0.04): The parameter :math:`\\theta`.
         sigma (torch.Tensor or float, default=2.0): The parameter :math:`\\sigma`.
         dt (torch.Tensor or float, default=1/250): The intervals of the time steps.
         dtype (torch.dtype, optional): The desired data type of returned tensor.
             Default: If ``None``, uses a global default
-            (see ``torch.set_default_tensor_type()``).
+            (see :func:`torch.set_default_tensor_type()`).
         device (torch.device, optional): The desired device of returned tensor.
             Default: if None, uses the current device for the default tensor type
-            (see ``torch.set_default_tensor_type()``).
+            (see :func:`torch.set_default_tensor_type()`).
             ``device`` will be the CPU for CPU tensor types and the current CUDA device
             for CUDA tensor types.
 
