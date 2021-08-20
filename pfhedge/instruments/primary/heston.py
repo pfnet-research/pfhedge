@@ -7,6 +7,7 @@ from torch import Tensor
 
 from pfhedge._utils.doc import set_attr_and_docstring
 from pfhedge._utils.doc import set_docstring
+from pfhedge._utils.str import _format_float
 
 from ...stochastic import generate_heston
 from .base import Primary
@@ -140,18 +141,17 @@ class HestonStock(Primary):
         self.register_buffer("spot", spot)
         self.register_buffer("variance", variance)
 
-    def __repr__(self) -> str:
+    def extra_repr(self) -> str:
         params = [
-            f"kappa={self.kappa:.2e}",
-            f"theta={self.theta:.2e}",
-            f"sigma={self.sigma:.2e}",
-            f"rho={self.rho:.2e}",
+            "kappa=" + _format_float(self.kappa),
+            "theta=" + _format_float(self.theta),
+            "sigma=" + _format_float(self.sigma),
+            "rho=" + _format_float(self.rho),
         ]
         if self.cost != 0.0:
-            params.append(f"cost={self.cost:.2e}")
-        params.append(f"dt={self.dt:.2e}")
-        params += self.dinfo
-        return self.__class__.__name__ + "(" + ", ".join(params) + ")"
+            params.append("cost=" + _format_float(self.cost))
+        params.append("dt=" + _format_float(self.dt))
+        return ", ".join(params)
 
 
 # Assign docstrings so they appear in Sphinx documentation

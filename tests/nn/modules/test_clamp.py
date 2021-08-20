@@ -34,4 +34,5 @@ class TestLeakyClamp:
         assert_close(result, expect)
 
     def test_repr(self):
-        assert repr(LeakyClamp(0.1)) == "LeakyClamp(clamped_slope=0.1)"
+        expect = "LeakyClamp(clamped_slope=0.1000)"
+        assert repr(LeakyClamp(0.1)) == expect

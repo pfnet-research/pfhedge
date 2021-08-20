@@ -162,6 +162,15 @@ class Primary(Instrument):
 
         return self
 
+    def __repr__(self) -> str:
+        extra_repr = self.extra_repr()
+        dinfo = ", ".join(self._dinfo())
+        main_str = self._get_name() + "("
+        if extra_repr and dinfo:
+            extra_repr += ", "
+        main_str += extra_repr + dinfo + ")"
+        return main_str
+
 
 # Assign docstrings so they appear in Sphinx documentation
 set_docstring(Primary, "to", Instrument.to)

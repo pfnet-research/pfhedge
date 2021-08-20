@@ -121,23 +121,36 @@ class TestEuropeanOption:
 
     def test_repr(self):
         derivative = EuropeanOption(BrownianStock(), maturity=1.0)
-        expect = "EuropeanOption(BrownianStock(...), strike=1.0, maturity=1.00e+00)"
+        expect = """\
+EuropeanOption(
+  strike=1., maturity=1.
+  (underlier): BrownianStock(sigma=0.2000, dt=0.0040)
+)"""
         assert repr(derivative) == expect
 
         derivative = EuropeanOption(BrownianStock(), maturity=1.0, call=False)
-        expect = "EuropeanOption(BrownianStock(...), call=False, strike=1.0, maturity=1.00e+00)"
+        expect = """\
+EuropeanOption(
+  call=False, strike=1., maturity=1.
+  (underlier): BrownianStock(sigma=0.2000, dt=0.0040)
+)"""
         assert repr(derivative) == expect
 
         derivative = EuropeanOption(BrownianStock(), maturity=1.0, strike=2.0)
-        expect = "EuropeanOption(BrownianStock(...), strike=2.0, maturity=1.00e+00)"
+        expect = """\
+EuropeanOption(
+  strike=2., maturity=1.
+  (underlier): BrownianStock(sigma=0.2000, dt=0.0040)
+)"""
         assert repr(derivative) == expect
 
         derivative = EuropeanOption(BrownianStock(), maturity=1.0)
         derivative.to(dtype=torch.float64, device="cuda:0")
-        expect = (
-            "EuropeanOption(BrownianStock(...), strike=1.0, maturity=1.00e+00,"
-            " dtype=torch.float64, device='cuda:0')"
-        )
+        expect = """\
+EuropeanOption(
+  strike=1., maturity=1.
+  (underlier): BrownianStock(sigma=0.2000, dt=0.0040, dtype=torch.float64, device='cuda:0')
+)"""
         assert repr(derivative) == expect
 
     def test_spot_not_listed(self):

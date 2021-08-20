@@ -112,7 +112,7 @@ class TestEntropicRiskMeasure(_TestHedgeLoss):
         loss = EntropicRiskMeasure()
         assert repr(loss) == "EntropicRiskMeasure()"
         loss = EntropicRiskMeasure(a=10.0)
-        assert repr(loss) == "EntropicRiskMeasure(a=10.0)"
+        assert repr(loss) == "EntropicRiskMeasure(a=10.)"
 
     def test_shape(self):
         loss = EntropicRiskMeasure()
@@ -169,7 +169,7 @@ class TestEntropicLoss(_TestHedgeLoss):
         loss = EntropicLoss()
         assert repr(loss) == "EntropicLoss()"
         loss = EntropicLoss(a=10.0)
-        assert repr(loss) == "EntropicLoss(a=10.0)"
+        assert repr(loss) == "EntropicLoss(a=10.)"
 
     def test_shape(self):
         loss = EntropicLoss()
@@ -219,7 +219,7 @@ class TestIsoelasticLoss(_TestHedgeLoss):
 
     def test_repr(self):
         loss = IsoelasticLoss(0.5)
-        assert repr(loss) == "IsoelasticLoss(a=0.5)"
+        assert repr(loss) == "IsoelasticLoss(a=0.5000)"
 
     def test_shape(self):
         loss = IsoelasticLoss(0.5)
@@ -333,7 +333,7 @@ class TestOCE(_TestHedgeLoss):
             return 1 - torch.exp(-input)
 
         loss = OCE(exp_utility)
-        assert repr(loss) == "OCE(exp_utility, w=0.0)"
+        assert repr(loss) == "OCE(exp_utility, w=0.)"
 
     def test_shape(self):
         loss = OCE(lambda input: 1 - torch.exp(-input))

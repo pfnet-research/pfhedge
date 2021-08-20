@@ -17,8 +17,6 @@ class TestHestonStock:
 
     def test_repr(self):
         s = HestonStock(cost=1e-4)
-        expect = (
-            "HestonStock(kappa=1.00e+00, theta=4.00e-02, sigma=2.00e-01, "
-            "rho=-7.00e-01, cost=1.00e-04, dt=4.00e-03)"
-        )
+        expect = "HestonStock(\
+kappa=1., theta=0.0400, sigma=0.2000, rho=-0.7000, cost=1.0000e-04, dt=0.0040)"
         assert repr(s) == expect
