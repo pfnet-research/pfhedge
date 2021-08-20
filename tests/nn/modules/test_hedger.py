@@ -1,10 +1,11 @@
+from unittest.mock import patch
+
 import pytest
 import torch
 from torch import Tensor
 from torch.nn import Identity
 from torch.nn import Linear
 from torch.nn import Module
-from unittest.mock import patch
 from torch.testing import assert_close
 
 from pfhedge.instruments import BrownianStock

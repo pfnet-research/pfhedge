@@ -35,7 +35,9 @@ class TestMoneyness(_TestFeature):
     @pytest.mark.parametrize("log", [True, False])
     def test(self, strike, log):
         derivative = EuropeanOption(BrownianStock(), strike=strike)
-        derivative.underlier.spot = torch.arange(1.0, 7.0).reshape(2, 3)
+        derivative.underlier.register_buffer(
+            "spot", torch.arange(1.0, 7.0).reshape(2, 3)
+        )
         # tensor([[1., 2., 3.],
         #         [4., 5., 6.]])
         f = Moneyness(log=log).of(derivative)

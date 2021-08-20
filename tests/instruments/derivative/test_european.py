@@ -13,9 +13,12 @@ class TestEuropeanOption:
 
     def test_payoff(self):
         derivative = EuropeanOption(BrownianStock(), strike=2.0)
-        derivative.underlier.register_buffer("spot", torch.tensor(
-            [[1.0, 1.0, 1.9], [1.0, 1.0, 2.0], [1.0, 1.0, 2.1], [1.0, 1.0, 3.0]]
-        ))
+        derivative.underlier.register_buffer(
+            "spot",
+            torch.tensor(
+                [[1.0, 1.0, 1.9], [1.0, 1.0, 2.0], [1.0, 1.0, 2.1], [1.0, 1.0, 3.0]]
+            ),
+        )
         result = derivative.payoff()
         expect = torch.tensor([0.0, 0.0, 0.1, 1.0])
         assert_close(result, expect)
