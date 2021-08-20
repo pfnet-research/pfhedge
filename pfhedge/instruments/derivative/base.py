@@ -20,14 +20,10 @@ TensorOrFloat = Union[Tensor, float]
 
 
 def _addindent(string: str, n_spaces: int = 2) -> str:
-    list_str = string.split("\n")
-    # don't do anything for single-line stuff
-    if len(list_str) == 1:
-        output = string
-    else:
-        lines = [list_str[0]] + [(n_spaces * " ") + line for line in list_str[1:]]
-        output = "\n".join(lines)
-    return output
+    lines = []
+    for line in string.split("\n"):
+        lines.append(" " * n_spaces + line)
+    return "\n".join(lines)
 
 
 class Derivative(Instrument):
@@ -131,8 +127,8 @@ class Derivative(Instrument):
 
     def __repr__(self) -> str:
         main_str = self._get_name() + "(\n  "
-        main_str += self.extra_repr()
-        main_str += "\n  " + "(underlier): " + _addindent(repr(self.ul()))
+        main_str += self.extra_repr() + "\n"
+        main_str += _addindent("(underlier): " + repr(self.ul()))
         main_str += "\n)"
         return main_str
 

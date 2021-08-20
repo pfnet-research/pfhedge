@@ -6,6 +6,15 @@ from pfhedge.instruments import BrownianStock
 from pfhedge.instruments import Primary
 
 
+class NullPrimary(Primary):
+    def simulate(self):
+        pass
+
+
+def test_extra_repr_is_empty_by_default():
+    assert NullPrimary().extra_repr() == ""
+
+
 class TestBrownianStock:
     def test_repr(self):
         s = BrownianStock(dt=1 / 100)

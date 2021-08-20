@@ -329,7 +329,8 @@ class OCE(HedgeLoss):
         self.w = Parameter(torch.tensor(0.0))
 
     def extra_repr(self) -> str:
-        return self.utility.__name__ + ", w=" + _format_float(self.w)
+        w = float(self.w.item())
+        return self.utility.__name__ + ", w=" + _format_float(w)
 
     def forward(self, input: Tensor) -> Tensor:
         return self.w - self.utility(input + self.w).mean(0)

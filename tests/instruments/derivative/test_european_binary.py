@@ -68,3 +68,11 @@ EuropeanBinaryOption(
   (underlier): BrownianStock(sigma=0.2000, dt=0.0040)
 )"""
         assert repr(derivative) == expect
+
+        derivative = EuropeanBinaryOption(BrownianStock(), call=False, maturity=1.0)
+        expect = """\
+EuropeanBinaryOption(
+  call=False, strike=1., maturity=1.
+  (underlier): BrownianStock(sigma=0.2000, dt=0.0040)
+)"""
+        assert repr(derivative) == expect
