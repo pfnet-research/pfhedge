@@ -51,6 +51,7 @@ class ExpiryTime(Feature):
     def __getitem__(self, i: int) -> Tensor:
         return self.derivative.time_to_maturity(i)
 
+
 class Volatility(Feature):
     """Volatility of the underlier of the derivative."""
 
