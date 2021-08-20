@@ -65,7 +65,7 @@ WhalleyWilmott(
         pnl = hedger.compute_pnl(derivative)
         assert not pnl.isnan().any()
 
-    def test_autogreek(self):
+    def test_autogreek_generate_nan_for_float64(self):
         with torch.autograd.detect_anomaly():
             derivative = EuropeanOption(BrownianStock(cost=1e-4)).to(torch.float64)
             model = WhalleyWilmott(derivative).to(torch.float64)
