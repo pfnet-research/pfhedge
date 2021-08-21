@@ -20,6 +20,7 @@ from pfhedge.features import get_feature
 from pfhedge.instruments.base import Instrument
 from pfhedge.instruments.derivative.base import Derivative
 from pfhedge.instruments.primary.base import Primary
+from pfhedge.nn.functional import terminal_value
 
 from .loss import EntropicRiskMeasure
 from .loss import HedgeLoss
@@ -174,6 +175,31 @@ class Hedger(Module):
     def extra_repr(self) -> str:
         return "inputs=" + str(list(map(str, self.inputs)))
 
+    def compute_hedge(
+        self, derivative: Derivative, hedge: Optional[Union[Primary, Derivative]] = None
+    ) -> Tensor:
+        """
+
+        Shape:
+            - Output: :math:`(N, 1, T)`
+        """
+        self.inputs = [f.of(derivative, self) for f in self.inputs]
+        hedge = hedge if hedge is not None else derivative.ul()
+        hedge = cast(Union[Primary, Derivative], hedge)
+
+        if any(map(lambda f: f.state_dependent, self.inputs)):
+            outputs: List[Tensor] = []
+            save_prev_output(self, None, torch.zeros_like(hedge.spot[..., :1]))
+            for i in range(hedge.spot.size(1) - 1):
+                # out: shape (N, 1)
+                out = self(torch.cat([f[i] for f in self.inputs], 1)).reshape(-1)
+                outputs.append(out.unsqueeze(-1))
+            output = torch.cat(outputs, dim=-1)
+        else:
+            input = torch.cat([f[None].unsqueeze(-1) for f in self.inputs], dim=-1)
+            output = self(input)
+        return output
+
     def compute_pnl(
         self,
         derivative: Derivative,
@@ -219,11 +245,15 @@ class Hedger(Module):
             >>> hedger.compute_pnl(derivative, n_paths=2)
             tensor([..., ...])
         """
-        self.inputs = [f.of(derivative, self) for f in self.inputs]
-        hedge = hedge if hedge is not None else derivative.ul()
-        hedge = cast(Union[Primary, Derivative], hedge)
-
         derivative.simulate(n_paths=n_paths, init_state=init_state)
+        unit = self.compute_hedge(derivative, hedge=hedge)
+        return terminal_value(
+            derivative.ul().spot,
+            unit=unit,
+            cost=derivative.ul().cost,
+            payoff=derivative.payoff(),
+        )
+
         # cashflow: shape (N, T - 1)
         cashflow = hedge.spot.diff(dim=-1)
 

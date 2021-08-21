@@ -1,4 +1,5 @@
 from typing import List
+from typing import Optional
 
 import torch
 from torch import Tensor
@@ -8,11 +9,7 @@ from pfhedge._utils.str import _format_float
 
 from ._base import Feature
 from .functional import barrier
-from .functional import empty
-from .functional import max_log_moneyness
-from .functional import max_moneyness
 from .functional import prev_hedge
-from .functional import zeros
 
 
 class Moneyness(Feature):
@@ -29,15 +26,14 @@ class Moneyness(Feature):
     def __str__(self) -> str:
         return "log_moneyness" if self.log else "moneyness"
 
-    def __getitem__(self, i: int) -> Tensor:
-        if self.log:
-            return self.derivative.log_moneyness(i)
-        else:
-            return self.derivative.moneyness(i)
+    def __getitem__(self, i: Optional[int]) -> Tensor:
+        return self.derivative.moneyness(i, log=self.log)
 
 
 class LogMoneyness(Moneyness):
     """Log moneyness of the underlying instrument of the derivative."""
+
+    # derivative should be a subclass of OptionMixin
 
     def __init__(self) -> None:
         super().__init__(log=True)
@@ -46,10 +42,12 @@ class LogMoneyness(Moneyness):
 class ExpiryTime(Feature):
     """Remaining time to the maturity of the derivative."""
 
+    # derivative should be a subclass of OptionMixin
+
     def __str__(self) -> str:
         return "expiry_time"
 
-    def __getitem__(self, i: int) -> Tensor:
+    def __getitem__(self, i: Optional[int]) -> Tensor:
         return self.derivative.time_to_maturity(i)
 
 
@@ -59,17 +57,22 @@ class Volatility(Feature):
     def __str__(self) -> str:
         return "volatility"
 
-    def __getitem__(self, i: int) -> Tensor:
-        return self.derivative.ul().volatility[:, [i]]
+    def __getitem__(self, i: Optional[int]) -> Tensor:
+        index = [i] if isinstance(i, int) else ...
+        return self.derivative.ul().volatility[:, index]
 
 
 class PrevHedge(Feature):
     """Previous holding of underlier."""
 
+    state_dependent = True
+
     def __str__(self) -> str:
         return "prev_hedge"
 
-    def __getitem__(self, i: int) -> Tensor:
+    def __getitem__(self, i: Optional[None]) -> Tensor:
+        if i is None:
+            raise ValueError("key of prev_hedge cannot be None")
         return prev_hedge(i, derivative=self.derivative, hedger=self.hedger)
 
 
@@ -106,8 +109,9 @@ class Zeros(Feature):
     def __str__(self) -> str:
         return "zeros"
 
-    def __getitem__(self, i: int) -> Tensor:
-        return zeros(i, derivative=self.derivative)
+    def __getitem__(self, i: Optional[int]) -> Tensor:
+        index = [i] if i is not None else ...
+        return torch.zeros_like(self.derivative.ul().spot[..., index])
 
 
 class Empty(Feature):
@@ -116,8 +120,9 @@ class Empty(Feature):
     def __str__(self) -> str:
         return "empty"
 
-    def __getitem__(self, i: int) -> Tensor:
-        return empty(i, derivative=self.derivative)
+    def __getitem__(self, i: Optional[int]) -> Tensor:
+        index = [i] if i is not None else ...
+        return torch.empty_like(self.derivative.ul().spot[..., index])
 
 
 class MaxMoneyness(Feature):
@@ -134,11 +139,8 @@ class MaxMoneyness(Feature):
     def __str__(self) -> str:
         return "max_log_moneyness" if self.log else "max_moneyness"
 
-    def __getitem__(self, i: int) -> Tensor:
-        if self.log:
-            return max_log_moneyness(i, derivative=self.derivative)
-        else:
-            return max_moneyness(i, derivative=self.derivative)
+    def __getitem__(self, i: Optional[int]) -> Tensor:
+        return self.derivative.max_moneyness(i, log=self.log)
 
 
 class MaxLogMoneyness(MaxMoneyness):
@@ -206,10 +208,14 @@ class ModuleOutput(Feature, Module):
     def forward(self, input: Tensor) -> Tensor:
         return self.module(input)
 
-    def __getitem__(self, i: int) -> Tensor:
+    def __getitem__(self, i: Optional[int]) -> Tensor:
         return self(torch.cat([f[i] for f in self.inputs], 1))
 
     def of(self, derivative=None, hedger=None):
         super().of(derivative, hedger)
         self.inputs = [feature.of(derivative, hedger) for feature in self.inputs]
         return self
+
+    @property
+    def state_dependent(self):
+        return any(map(lambda f: f.state_dependent, self.inputs))
