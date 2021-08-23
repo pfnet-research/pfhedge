@@ -42,7 +42,7 @@ def generate_heston(
     dtype: Optional[torch.dtype] = None,
     device: Optional[torch.device] = None,
 ) -> HestonTuple:
-    """Returns time series following Heston model
+    """Returns time series following Heston model.
 
     The time evolution of the process is given by:
 
