@@ -16,7 +16,7 @@ class BSEuropeanOption(BSModuleMixin):
         strike (float, default=1.0): The strike price of the option.
 
     Shape:
-        - Input : :math:`(N, *, 3)` where
+        - Input: :math:`(N, *, 3)` where
           :math:`*` means any number of additional dimensions.
           See ``inputs`` for the names of input features.
         - Output: :math:`(N, *, 1)`.
