@@ -270,8 +270,9 @@ def realized_variance(input: Tensor, dt: Union[Tensor, float]) -> Tensor:
         dt (torch.Tensor or float): The intervals of the time steps.
 
     Shape:
-        - input: :math:`(*, T)` where :math:`T` stands for the number of time steps
-          and :math:`*` means any number of additional dimensions.
+        - input: :math:`(*, T)` where
+          :math:`T` stands for the number of time steps and
+          :math:`*` means any number of additional dimensions.
         - output: :math:`(*)`
 
     Returns:
@@ -289,8 +290,9 @@ def realized_volatility(input: Tensor, dt: Union[Tensor, float]) -> Tensor:
         dt (torch.Tensor or float): The intervals of the time steps.
 
     Shape:
-        - input: :math:`(*, T)` where :math:`T` stands for the number of time steps
-          and :math:`*` means any number of additional dimensions.
+        - input: :math:`(*, T)` where
+          :math:`T` stands for the number of time steps and
+          :math:`*` means any number of additional dimensions.
         - output: :math:`(*)`
 
     Returns:

@@ -20,8 +20,9 @@ class BSEuropeanBinaryOption(BSModuleMixin):
         strike (float, default=1.0): The strike price of the option.
 
     Shape:
-        - Input: :math:`(N, *, 3)`, where :math:`*` means any number of additional
-          dimensions. See :func:`inputs` for the names of input features.
+        - Input: :math:`(N, *, 3)`, where
+          :math:`*` means any number of additional dimensions.
+          See :func:`inputs` for the names of input features.
         - Output: :math:`(N, *, 1)` Delta of the derivative.
           All but the last dimension are the same shape as the input.
 

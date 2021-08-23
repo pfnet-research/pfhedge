@@ -62,12 +62,12 @@ class ModuleOutput(Feature, Module):
 
     Args:
         module (torch.nn.Module): Module to compute the value of the feature.
-            The input and output shapes should be :math:`(N, *, H_in) -> (N, *, 1)`,
-            where :math:`N` stands for the number of Monte Carlo paths of
-            the underlier of the derivative,
-            :math:`H_in` stands for the number of input features
-            (namely, ``len(inputs)``),
-            and :math:`*` means any number of additional dimensions.
+            The input and output shapes should be
+            :math:`(N, *, H_in) -> (N, *, 1)` where
+            :math:`N` is the number of simulated paths of the underlying instrument,
+            :math:`H_{\\math{in}}` is the number of input features
+            (namely, ``len(inputs)``), and
+            :math:`*` means any number of additional dimensions.
         inputs (list[Feature]): The input features to the module.
 
     Examples:
