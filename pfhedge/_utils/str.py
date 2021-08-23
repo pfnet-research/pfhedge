@@ -1,6 +1,10 @@
 import torch
 
 
+def _addindent(string: str, n_spaces: int = 2) -> str:
+    return "\n".join(" " * n_spaces + line for line in string.split("\n"))
+
+
 def _format_float(value: float) -> str:
     """
     >>> _format_float(1)

@@ -11,19 +11,13 @@ from torch import Tensor
 
 from pfhedge._utils.doc import set_attr_and_docstring
 from pfhedge._utils.doc import set_docstring
+from pfhedge._utils.str import _addindent
 
 from ..base import Instrument
 from ..primary.base import Primary
 
 T = TypeVar("T", bound="Derivative")
 TensorOrFloat = Union[Tensor, float]
-
-
-def _addindent(string: str, n_spaces: int = 2) -> str:
-    lines = []
-    for line in string.split("\n"):
-        lines.append(" " * n_spaces + line)
-    return "\n".join(lines)
 
 
 class Derivative(Instrument):

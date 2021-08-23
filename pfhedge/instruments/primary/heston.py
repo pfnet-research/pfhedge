@@ -125,7 +125,7 @@ class HestonStock(Primary):
         if init_state is None:
             init_state = self.default_init_state
 
-        spot, variance = generate_heston(
+        output = generate_heston(
             n_paths=n_paths,
             n_steps=int(time_horizon / self.dt + 1),
             init_state=init_state,
@@ -138,8 +138,8 @@ class HestonStock(Primary):
             device=self.device,
         )
 
-        self.register_buffer("spot", spot)
-        self.register_buffer("variance", variance)
+        self.register_buffer("spot", output.spot)
+        self.register_buffer("variance", output.variance)
 
     def extra_repr(self) -> str:
         params = [
