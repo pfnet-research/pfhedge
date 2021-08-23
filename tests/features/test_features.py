@@ -6,6 +6,7 @@ from torch.testing import assert_close
 from pfhedge.features import Barrier
 from pfhedge.features import Empty
 from pfhedge.features import ExpiryTime
+from pfhedge.features import FeatureList
 from pfhedge.features import LogMoneyness
 from pfhedge.features import MaxLogMoneyness
 from pfhedge.features import MaxMoneyness
@@ -258,7 +259,6 @@ class TestPrevHedge(_TestFeature):
         derivative = EuropeanOption(BrownianStock(volatility))
         derivative.ul().register_buffer("spot", torch.randn(N, T))
         hedger = Hedger(Linear(2, 1), ["empty", "empty"])
-        hedger.inputs = [feature.of(derivative) for feature in hedger.inputs]
 
         f = PrevHedge().of(derivative, hedger)
 
@@ -635,4 +635,73 @@ class TestModuleOutput(_TestFeature):
 
         f = ModuleOutput(Linear(2, 1), [Moneyness(), PrevHedge()])
         f = f.of(derivative, hedger)
+        assert f.is_state_dependent()
+
+
+class TestFeatureList:
+    def test_repr(self):
+        derivative = EuropeanOption(BrownianStock())
+        derivative.simulate()
+        hedger = Hedger(Naked(), inputs=["empty"])
+        f = FeatureList(["moneyness", "expiry_time"])
+        f = f.of(derivative, hedger)
+
+        assert repr(f) == "['moneyness', 'expiry_time']"
+
+    def test_len(self):
+        f = FeatureList(["empty", "empty"])
+        assert len(f) == 2
+
+    def test_value(self):
+        torch.manual_seed(42)
+
+        derivative = EuropeanOption(BrownianStock())
+        derivative.simulate()
+        hedger = Hedger(Naked(), inputs=["empty"])
+
+        f0 = Moneyness().of(derivative, hedger)
+        f1 = ExpiryTime().of(derivative, hedger)
+        f = FeatureList([f0, f1]).of(derivative, hedger)
+
+        result = f[0]
+        expect = torch.cat([f0[0], f1[0]], dim=-1)
+        assert_close(result, expect)
+
+        result = f[1]
+        expect = torch.cat([f0[1], f1[1]], dim=-1)
+        assert_close(result, expect)
+
+        result = f[None]
+        expect = torch.cat([f0[None], f1[None]], dim=-1)
+        assert_close(result, expect)
+
+        torch.manual_seed(42)
+
+        f0 = Moneyness().of(derivative, hedger)
+        f1 = PrevHedge().of(derivative, hedger)
+        f = FeatureList([f0, f1]).of(derivative, hedger)
+
+        hedger(torch.ones(derivative.ul().spot.size(0), 1, 2))
+        result = f[1]
+        expect = torch.cat([f0[1], f1[1]], dim=-1)
+        assert_close(result, expect)
+
+        hedger(torch.ones(derivative.ul().spot.size(0), 1, 2))
+        result = f[2]
+        expect = torch.cat([f0[2], f1[2]], dim=-1)
+        assert_close(result, expect)
+
+    def test_is_state_dependent(self):
+        derivative = EuropeanOption(BrownianStock())
+        derivative.simulate()
+        hedger = Hedger(Naked(), inputs=["empty"])
+
+        f = FeatureList(["moneyness", "expiry_time"])
+        f = f.of(derivative, hedger)
+
+        assert not f.is_state_dependent()
+
+        f = FeatureList(["moneyness", "prev_hedge"])
+        f = f.of(derivative, hedger)
+
         assert f.is_state_dependent()

@@ -16,7 +16,8 @@ from pfhedge._utils.hook import save_prev_output
 from pfhedge._utils.lazy import has_lazy
 from pfhedge._utils.operations import ensemble_mean
 from pfhedge._utils.str import _format_float
-from pfhedge.features import get_feature
+from pfhedge.features import FeatureList
+from pfhedge.features._base import Feature
 from pfhedge.instruments.derivative.base import Derivative
 from pfhedge.instruments.primary.base import Primary
 from pfhedge.nn.functional import terminal_value
@@ -150,16 +151,18 @@ class Hedger(Module):
         tensor(...)
     """
 
+    inputs: FeatureList
+
     def __init__(
         self,
         model: Module,
-        inputs: List[str],
+        inputs: List[Union[str, Feature]],
         criterion: HedgeLoss = EntropicRiskMeasure(),
     ):
         super().__init__()
 
         self.model = model
-        self.inputs = [get_feature(i) for i in inputs]
+        self.inputs = FeatureList(inputs)
         self.criterion = criterion
 
         self.register_forward_hook(save_prev_output)
@@ -172,10 +175,17 @@ class Hedger(Module):
         return self.model(input)
 
     def extra_repr(self) -> str:
-        return "inputs=" + str(list(map(str, self.inputs)))
+        return "inputs=" + str(self.inputs)
 
     def get_input(self, time_step: Optional[int]) -> Tensor:
         """Returns the input tensor to the model at the given time step.
+
+        Note:
+            This method assumes that a derivative is already registered to
+            the features. If self has not yet hedged a derivative,
+            run a placeholder computation
+            ``_ = self.compute_pnl(derivative, n_paths=1)``
+            before calling this method.
 
         Args:
             time_step (int, optional): The time step to get the input tensor.
@@ -203,7 +213,7 @@ class Hedger(Module):
             >>> hedger.get_input(0)
             tensor([[[0.0800, 0.2000]]])
         """
-        return torch.cat([f[time_step] for f in self.inputs], dim=-1)
+        return self.inputs[time_step]
 
     def compute_hedge(
         self, derivative: Derivative, hedge: Optional[Union[Primary, Derivative]] = None
@@ -242,12 +252,12 @@ class Hedger(Module):
             tensor([[0.5056, 0.5295, 0.5845, 0.6610, 0.2918, 0.2918],
                     [0.5056, 0.3785, 0.4609, 0.5239, 0.7281, 0.7281]])
         """
-        self.inputs = [f.of(derivative, self) for f in self.inputs]
+        self.inputs = self.inputs.of(derivative, self)
 
         hedge = derivative.ul() if hedge is None else hedge
         hedge = cast(Union[Primary, Derivative], hedge)
 
-        if any(map(lambda f: f.is_state_dependent(), self.inputs)):
+        if self.inputs.is_state_dependent():
             save_prev_output(
                 self, None, torch.zeros_like(hedge.spot[..., :1]).unsqueeze(-1)
             )
