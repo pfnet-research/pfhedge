@@ -49,12 +49,12 @@ class Derivative(Instrument):
     underlier: Primary
     maturity: float
     pricer: Optional[Callable[[Any], Tensor]]
-    cost: Optional[float]
+    cost: float
 
     def __init__(self):
         super().__init__()
         self.pricer = None
-        self.cost = None
+        self.cost = 0.0
 
     @property
     def dtype(self) -> torch.dtype:
@@ -133,8 +133,8 @@ class Derivative(Instrument):
         return main_str
 
 
-class OptionMixin:
-    """Mixin class of options."""
+class BaseOption(Derivative):
+    """Base class of options."""
 
     underlier: Primary
     strike: float
@@ -218,8 +218,8 @@ class OptionMixin:
             return moneyness[..., : time_step + 1].max(dim=-1, keepdim=True).values
 
     def max_log_moneyness(self, time_step: Optional[int] = None) -> Tensor:
-        """Returns ``self.moneyness(time_step).log()``."""
-        return self.moneyness(time_step, log=True)
+        """Returns ``self.max_moneyness(time_step).log()``."""
+        return self.max_moneyness(time_step, log=True)
 
 
 # Assign docstrings so they appear in Sphinx documentation

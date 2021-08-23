@@ -17,7 +17,6 @@ from pfhedge._utils.lazy import has_lazy
 from pfhedge._utils.operations import ensemble_mean
 from pfhedge._utils.str import _format_float
 from pfhedge.features import get_feature
-from pfhedge.instruments.base import Instrument
 from pfhedge.instruments.derivative.base import Derivative
 from pfhedge.instruments.primary.base import Primary
 from pfhedge.nn.functional import terminal_value
@@ -175,29 +174,101 @@ class Hedger(Module):
     def extra_repr(self) -> str:
         return "inputs=" + str(list(map(str, self.inputs)))
 
+    def get_input(self, time_step: Optional[int]) -> Tensor:
+        """Returns the input tensor to the model at the given time step.
+
+        Args:
+            time_step (int, optional): The time step to get the input tensor.
+                If ``None`` an input tensor for all time steps is returned.
+
+        Shape:
+            - Output: :math:`(N, T, F)` where :math:`N` is the number of paths,
+              :math:`T` is the number of time steps, and
+              :math:`F` is the number of input features.
+              If ``time_step`` is specified, :math:`T = 1`.
+
+        Returns:
+            torch.Tensor
+
+        Examples:
+
+            >>> from pfhedge.instruments import BrownianStock
+            >>> from pfhedge.instruments import EuropeanOption
+            >>> from pfhedge.nn import Naked
+            >>>
+            >>> derivative = EuropeanOption(BrownianStock())
+            >>> derivative.simulate()
+            >>> hedger = Hedger(Naked(), ["expiry_time", "volatility"])
+            >>> _ = hedger.compute_pnl(derivative, n_paths=1)  # Materialize features
+            >>> hedger.get_input(0)
+            tensor([[[0.0800, 0.2000]]])
+        """
+        return torch.cat([f[time_step] for f in self.inputs], dim=-1)
+
     def compute_hedge(
         self, derivative: Derivative, hedge: Optional[Union[Primary, Derivative]] = None
     ) -> Tensor:
-        """
+        """Compute the hedge ratio at each time step.
+        It assumes that the derivative is already simulated.
+
+        Args:
+            derivative (Derivative): The derivative to hedge.
+            hedge (Instrument, optional): The hedging instrument.
+                If ``None`` (default), use ``derivative.underlier``.
 
         Shape:
-            - Output: :math:`(N, 1, T)`
+            - Output: :math:`(N, H, T)` where :math:`N` is the number of paths,
+              :math:`H = 1` is the number of hedging instruments, and
+              :math:`T` is the number of time steps.
+
+        Returns:
+            torch.Tensor
+
+        Examples:
+
+            >>> from pfhedge.instruments import BrownianStock
+            >>> from pfhedge.instruments import EuropeanOption
+            >>> from pfhedge.nn import BlackScholes
+            >>>
+            >>> _ = torch.manual_seed(42)
+            >>> derivative = EuropeanOption(BrownianStock(), maturity=5/250)
+            >>> derivative.simulate(n_paths=2)
+            >>> derivative.ul().spot
+            tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930, 0.9906],
+                    [1.0000, 0.9919, 0.9976, 1.0009, 1.0076, 1.0179]])
+            >>> model = BlackScholes(derivative)
+            >>> hedger = Hedger(model, model.inputs())
+            >>> hedger.compute_hedge(derivative).squeeze(1)
+            tensor([[0.5056, 0.5295, 0.5845, 0.6610, 0.2918, 0.2918],
+                    [0.5056, 0.3785, 0.4609, 0.5239, 0.7281, 0.7281]])
         """
         self.inputs = [f.of(derivative, self) for f in self.inputs]
-        hedge = hedge if hedge is not None else derivative.ul()
+
+        hedge = derivative.ul() if hedge is None else hedge
         hedge = cast(Union[Primary, Derivative], hedge)
 
-        if any(map(lambda f: f.state_dependent, self.inputs)):
-            outputs: List[Tensor] = []
-            save_prev_output(self, None, torch.zeros_like(hedge.spot[..., :1]))
-            for i in range(hedge.spot.size(1) - 1):
-                # out: shape (N, 1)
-                out = self(torch.cat([f[i] for f in self.inputs], 1)).reshape(-1)
-                outputs.append(out.unsqueeze(-1))
-            output = torch.cat(outputs, dim=-1)
+        if any(map(lambda f: f.is_state_dependent(), self.inputs)):
+            save_prev_output(
+                self, None, torch.zeros_like(hedge.spot[..., :1]).unsqueeze(-1)
+            )
+            outputs = []
+            for time_step in range(hedge.spot.size(-1) - 1):
+                input = self.get_input(time_step)  # (N, T=1, F)
+                outputs.append(self(input))  # (N, T=1, H=1)
+            outputs.append(outputs[-1])
+            output = torch.cat(outputs, dim=-2)  # (N, T, H=1)
         else:
-            input = torch.cat([f[None].unsqueeze(-1) for f in self.inputs], dim=-1)
-            output = self(input)
+            # If all features are state-independent, compute the output at all
+            # time steps at once, which would be faster.
+            input = self.get_input(None)  # (N, T, F)
+            output = self(input)  # (N, T, H=1)
+            # This maintains consistency with the previous implementations.
+            # In previous implementation for loop is computed for 0...T-2 and
+            # the last time step is not included.
+            output[..., -1, :] = output[..., -2, :]
+
+        output = output.transpose(-1, -2)  #  (N, H=1, T)
+
         return output
 
     def compute_pnl(
@@ -216,10 +287,9 @@ class Hedger(Module):
         customer, capital gains from the underlying asset, and the transaction cost.
 
         Args:
-            derivative (pfhedge.instruments.Derivative): The derivative to hedge.
-            hedge (pfhedge.instruments.Instrument, optional): The instrument to hedge
-                the risk of ``derivative``.
-                If ``None`` (default), use ``derivative.ul()``.
+            derivative (Derivative): The derivative to hedge.
+            hedge (Instrument, optional): The hedging instrument.
+                If ``None`` (default), use ``derivative.underlier``.
             n_paths (int, default=1000): The number of simulated price paths of the
                 underlying instrument.
             init_state (tuple[torch.Tensor | float], optional): The initial state of
@@ -245,48 +315,17 @@ class Hedger(Module):
             >>> hedger.compute_pnl(derivative, n_paths=2)
             tensor([..., ...])
         """
+        hedge = derivative.ul() if hedge is None else hedge
+        hedge = cast(Union[Primary, Derivative], hedge)
+
         derivative.simulate(n_paths=n_paths, init_state=init_state)
-        unit = self.compute_hedge(derivative, hedge=hedge)
+
+        unit = self.compute_hedge(derivative, hedge=hedge)  # (N, H=1, T)
+        unit = unit.squeeze(-2)  # (N, T)
+
         return terminal_value(
-            derivative.ul().spot,
-            unit=unit,
-            cost=derivative.ul().cost,
-            payoff=derivative.payoff(),
+            hedge.spot, unit=unit, cost=hedge.cost, payoff=derivative.payoff()
         )
-
-        # cashflow: shape (N, T - 1)
-        cashflow = hedge.spot.diff(dim=-1)
-
-        # prev_output: shape (N)
-        save_prev_output(self, None, torch.zeros_like(hedge.spot[..., :1]))
-        pnl = torch.zeros_like(hedge.spot[..., 0])
-
-        # Simulate hedging over time.
-        for i in range(hedge.spot.size(1) - 1):
-            prev_output = self.get_buffer("prev_output").reshape(-1)
-
-            # Compute the hedge ratio at the next time step.
-            output = self(torch.cat([f[i] for f in self.inputs], 1)).reshape(-1)
-
-            # Receive profit and loss from the underlying asset.
-            pnl += output * cashflow[..., i]
-
-            # Deduct transaction cost.
-            pnl -= hedge.cost * (output - prev_output).abs() * hedge.spot[..., i]
-
-        # Settle the derivative's payoff.
-        pnl -= derivative.payoff()
-
-        # Delete the attribute `prev_output` in case a hedger has a feature
-        # `PrevHedge` and one calls `compute_pnl` twice.
-        # If `prev_output` is not deleted, `prev_output` at the last time step
-        # in the first call could be referred to by `PrevHedge` at the first
-        # time step at the second call,
-        # which results in an unexpected output (while we expect zeros).
-        if hasattr(self, "prev_output"):
-            delattr(self, "prev_output")
-
-        return pnl
 
     def compute_loss(
         self,
@@ -300,14 +339,15 @@ class Hedger(Module):
         """Returns the loss of the profit and loss distribution after hedging.
 
         Args:
-            derivative (pfhedge.instruments.Derivative): The derivative to hedge.
+            derivative (Derivative): The derivative to hedge.
             n_paths (int, default=1000): The number of simulated price paths of the
                 underlying instrument.
             n_times (int, default=1): If ``n_times > 1``, returns the ensemble mean
                 of the losses computed through multiple simulations.
             init_state (tuple, optional): The initial price of the underlying
                 instrument of the derivative.
-                If ``None`` (default), sensible default value is used.
+                If ``None`` (default), it uses the default value of
+                the underlying instrument.
             enable_grad (bool, default=True): Context-manager that sets gradient
                 calculation to on or off.
 
@@ -355,7 +395,7 @@ class Hedger(Module):
         It returns the trade history, that is, validation loss after each simulation.
 
         Args:
-            derivative (pfhedge.instruments.Derivative): The derivative to hedge.
+            derivative (Derivative): The derivative to hedge.
             n_epochs (int, default=100): Number of Monte-Carlo simulations.
             n_paths (int, default=1000): The number of simulated price paths of the
                 underlying instrument.
@@ -463,14 +503,15 @@ class Hedger(Module):
         """Evaluate the premium of the given derivative.
 
         Args:
-            derivative (pfhedge.instruments.Derivative): The derivative to price.
+            derivative (Derivative): The derivative to price.
             n_paths (int, default=1000): The number of simulated price paths of the
                 underlying instrument.
             n_times (int, default=1): If ``n_times > 1``, returns the ensemble mean of
                 the losses computed through multiple simulations.
             init_state (tuple, optional): The initial price of the underlying
                 instrument of the derivative.
-                If ``None`` (default), sensible default value is used.
+                If ``None`` (default), it uses the default value of
+                the underlying instrument.
             enable_grad (bool, default=False): Context-manager that sets gradient
                 calculation to on or off.
 
