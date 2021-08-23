@@ -12,31 +12,31 @@ class TestWhalleyWilmott:
     def test_repr(self):
         derivative = EuropeanOption(BrownianStock())
         m = WhalleyWilmott(derivative)
-        expect = """\
-WhalleyWilmott(
-  (bs): BSEuropeanOption(strike=1.)
-  (clamp): Clamp()
-)"""
-        assert repr(m) == expect
+        assert repr(m) == (
+            "WhalleyWilmott(\n"
+            "  (bs): BSEuropeanOption()\n"
+            "  (clamp): Clamp()\n"
+            ")"
+        )
 
         derivative = EuropeanOption(BrownianStock())
-        m = WhalleyWilmott(derivative, a=2.0)
-        expect = """\
-WhalleyWilmott(
-  a=2.
-  (bs): BSEuropeanOption(strike=1.)
-  (clamp): Clamp()
-)"""
-        assert repr(m) == expect
+        m = WhalleyWilmott(derivative, a=2)
+        assert repr(m) == (
+            "WhalleyWilmott(\n"
+            "  a=2\n"
+            "  (bs): BSEuropeanOption()\n"
+            "  (clamp): Clamp()\n"
+            ")"
+        )
 
         derivative = LookbackOption(BrownianStock())
         m = WhalleyWilmott(derivative)
-        expect = """\
-WhalleyWilmott(
-  (bs): BSLookbackOption(strike=1.)
-  (clamp): Clamp()
-)"""
-        assert repr(m) == expect
+        assert repr(m) == (
+            "WhalleyWilmott(\n"
+            "  (bs): BSLookbackOption()\n"
+            "  (clamp): Clamp()\n"
+            ")"
+        )
 
     def test_shape(self):
         torch.distributions.Distribution.set_default_validate_args(False)
@@ -65,7 +65,7 @@ WhalleyWilmott(
         pnl = hedger.compute_pnl(derivative)
         assert not pnl.isnan().any()
 
-    def test_autogreek_generate_nan_for_float64(self):
+    def test_autogreek(self):
         with torch.autograd.detect_anomaly():
             derivative = EuropeanOption(BrownianStock(cost=1e-4)).to(torch.float64)
             model = WhalleyWilmott(derivative).to(torch.float64)

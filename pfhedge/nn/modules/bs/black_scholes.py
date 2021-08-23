@@ -41,7 +41,7 @@ class BlackScholes(Module):
         >>> derivative = EuropeanOption(BrownianStock(), strike=1.1)
         >>> m = BlackScholes(derivative)
         >>> m
-        BSEuropeanOption(strike=1.1000)
+        BSEuropeanOption(strike=1.1)
         >>> m.inputs()
         ['log_moneyness', 'expiry_time', 'volatility']
         >>> input = torch.tensor([
@@ -61,7 +61,7 @@ class BlackScholes(Module):
         >>> derivative = LookbackOption(BrownianStock(), strike=1.03)
         >>> m = BlackScholes(derivative)
         >>> m
-        BSLookbackOption(strike=1.0300)
+        BSLookbackOption(strike=1.03)
         >>> m.inputs()
         ['log_moneyness', 'max_log_moneyness', 'expiry_time', 'volatility']
         >>> input = torch.tensor([
