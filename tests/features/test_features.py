@@ -18,6 +18,7 @@ from pfhedge.instruments import BrownianStock
 from pfhedge.instruments import EuropeanOption
 from pfhedge.instruments import HestonStock
 from pfhedge.nn import Hedger
+from pfhedge.nn import Naked
 
 
 class _TestFeature:
@@ -27,32 +28,38 @@ class _TestFeature:
 
 
 class TestMoneyness(_TestFeature):
-    """
-    pfhedge.features.Moneyness
-    """
-
     @pytest.mark.parametrize("strike", [1.0, 2.0])
     @pytest.mark.parametrize("log", [True, False])
-    def test(self, strike, log):
+    def test_value(self, strike, log):
         derivative = EuropeanOption(BrownianStock(), strike=strike)
-        derivative.underlier.register_buffer(
-            "spot", torch.arange(1.0, 7.0).reshape(2, 3)
-        )
+        spot = torch.arange(1.0, 7.0).reshape(2, 3)
         # tensor([[1., 2., 3.],
         #         [4., 5., 6.]])
+        derivative.underlier.register_buffer("spot", spot)
         f = Moneyness(log=log).of(derivative)
 
         result = f[0]
         expect = torch.tensor([[1.0], [4.0]]) / strike
-        expect = torch.log(expect) if log else expect
+        expect = expect.log() if log else expect
+        expect = expect.unsqueeze(-1)
         assert_close(result, expect)
+
         result = f[1]
         expect = torch.tensor([[2.0], [5.0]]) / strike
-        expect = torch.log(expect) if log else expect
+        expect = expect.log() if log else expect
+        expect = expect.unsqueeze(-1)
         assert_close(result, expect)
+
         result = f[2]
         expect = torch.tensor([[3.0], [6.0]]) / strike
-        expect = torch.log(expect) if log else expect
+        expect = expect.log() if log else expect
+        expect = expect.unsqueeze(-1)
+        assert_close(result, expect)
+
+        result = f[None]
+        expect = spot / strike
+        expect = expect.log() if log else expect
+        expect = expect.unsqueeze(-1)
         assert_close(result, expect)
 
     def test_str(self):
@@ -64,14 +71,16 @@ class TestMoneyness(_TestFeature):
         derivative = EuropeanOption(BrownianStock())
         self.assert_same_dtype(Moneyness(), derivative, dtype)
 
+    def test_is_state_dependent(self):
+        derivative = EuropeanOption(BrownianStock())
+        hedger = Hedger(Naked(), inputs=["empty"])
+        f = Moneyness().of(derivative, hedger)
+        assert not f.is_state_dependent()
+
 
 class TestLogMoneyness(_TestFeature):
-    """
-    pfhedge.features.LogMoneyness
-    """
-
     @pytest.mark.parametrize("strike", [1.0, 2.0])
-    def test(self, strike):
+    def test_value(self, strike):
         derivative = EuropeanOption(BrownianStock(), strike=strike)
         derivative.underlier.spot = torch.arange(1.0, 7.0).reshape(2, 3)
         # tensor([[1., 2., 3.],
@@ -79,16 +88,18 @@ class TestLogMoneyness(_TestFeature):
         f = LogMoneyness().of(derivative)
 
         result = f[0]
-        expect = torch.tensor([[1.0], [4.0]]) / strike
-        expect = torch.log(expect)
+        expect = (torch.tensor([[1.0], [4.0]]) / strike).log()
+        expect = expect.unsqueeze(-1)
         assert_close(result, expect)
+
         result = f[1]
-        expect = torch.tensor([[2.0], [5.0]]) / strike
-        expect = torch.log(expect)
+        expect = (torch.tensor([[2.0], [5.0]]) / strike).log()
+        expect = expect.unsqueeze(-1)
         assert_close(result, expect)
+
         result = f[2]
-        expect = torch.tensor([[3.0], [6.0]]) / strike
-        expect = torch.log(expect)
+        expect = (torch.tensor([[3.0], [6.0]]) / strike).log()
+        expect = expect.unsqueeze(-1)
         assert_close(result, expect)
 
     def test_str(self):
@@ -99,27 +110,37 @@ class TestLogMoneyness(_TestFeature):
         derivative = EuropeanOption(BrownianStock())
         self.assert_same_dtype(LogMoneyness(), derivative, dtype)
 
+    def test_is_state_dependent(self):
+        derivative = EuropeanOption(BrownianStock())
+        hedger = Hedger(Naked(), inputs=["empty"])
+        f = LogMoneyness().of(derivative, hedger)
+        assert not f.is_state_dependent()
+
 
 class TestExpiryTime(_TestFeature):
-    """
-    pfhedge.features.ExpiryTime
-    """
-
     def test(self):
         derivative = EuropeanOption(BrownianStock(dt=0.1), maturity=0.2)
-        derivative.underlier.spot = torch.empty(2, 3)
+        derivative.ul().register_buffer("spot", torch.empty(2, 3))
         f = ExpiryTime().of(derivative)
 
         result = f[0]
         expect = torch.full((2, 1), 0.2)
+        expect = expect.unsqueeze(-1)
         assert_close(result, expect, check_stride=False)
 
         result = f[1]
         expect = torch.full((2, 1), 0.1)
+        expect = expect.unsqueeze(-1)
         assert_close(result, expect, check_stride=False)
 
         result = f[2]
         expect = torch.full((2, 1), 0.0)
+        expect = expect.unsqueeze(-1)
+        assert_close(result, expect, check_stride=False)
+
+        result = f[None]
+        expect = torch.tensor([[0.2, 0.1, 0.0], [0.2, 0.1, 0.0]])
+        expect = expect.unsqueeze(-1)
         assert_close(result, expect, check_stride=False)
 
     def test_2(self):
@@ -129,14 +150,22 @@ class TestExpiryTime(_TestFeature):
 
         result = f[0]
         expect = torch.full((2, 1), 0.2)
+        expect = expect.unsqueeze(-1)
         assert_close(result, expect, check_stride=False)
 
         result = f[1]
         expect = torch.full((2, 1), 0.1)
+        expect = expect.unsqueeze(-1)
         assert_close(result, expect, check_stride=False)
 
         result = f[2]
         expect = torch.full((2, 1), 0.0)
+        expect = expect.unsqueeze(-1)
+        assert_close(result, expect, check_stride=False)
+
+        result = f[None]
+        expect = torch.tensor([[0.2, 0.1, 0.0], [0.2, 0.1, 0.0]])
+        expect = expect.unsqueeze(-1)
         assert_close(result, expect, check_stride=False)
 
     def test_str(self):
@@ -147,14 +176,16 @@ class TestExpiryTime(_TestFeature):
         derivative = EuropeanOption(BrownianStock())
         self.assert_same_dtype(ExpiryTime(), derivative, dtype)
 
+    def test_is_state_dependent(self):
+        derivative = EuropeanOption(BrownianStock())
+        hedger = Hedger(Naked(), inputs=["empty"])
+        f = ExpiryTime().of(derivative, hedger)
+        assert not f.is_state_dependent()
+
 
 class TestVolatility(_TestFeature):
-    """
-    pfhedge.features.Volatility
-    """
-
     @pytest.mark.parametrize("sigma", [0.2, 0.1])
-    def test(self, sigma):
+    def test_constant_volatility(self, sigma):
         derivative = EuropeanOption(BrownianStock(sigma=sigma))
         derivative.underlier.spot = torch.empty(2, 3)
 
@@ -162,27 +193,44 @@ class TestVolatility(_TestFeature):
 
         result = f[0]
         expect = torch.full((2, 1), sigma)
+        expect = expect.unsqueeze(-1)
         assert_close(result, expect, check_stride=False)
+
         result = f[1]
         expect = torch.full((2, 1), sigma)
+        expect = expect.unsqueeze(-1)
         assert_close(result, expect, check_stride=False)
+
         result = f[2]
         expect = torch.full((2, 1), sigma)
+        expect = expect.unsqueeze(-1)
+        assert_close(result, expect, check_stride=False)
+
+        result = f[None]
+        expect = torch.full((2, 3), sigma)
+        expect = expect.unsqueeze(-1)
         assert_close(result, expect, check_stride=False)
 
     def test_stochastic_volatility(self):
-        derivative = EuropeanOption(HestonStock())
-        variance = torch.arange(6).resize(2, 3)
-        derivative.ul().register_buffer("spot", torch.empty_like(variance))
-        derivative.ul().register_buffer("variance", variance)
+        derivative = EuropeanOption(HestonStock(dt=0.1), maturity=0.2)
+        derivative.simulate(n_paths=2)
+        variance = derivative.ul().variance
 
         f = Volatility().of(derivative)
 
         result = f[0]
         expect = variance[:, [0]].sqrt()
+        expect = expect.unsqueeze(-1)
         assert_close(result, expect, check_stride=False)
+
         result = f[1]
         expect = variance[:, [1]].sqrt()
+        expect = expect.unsqueeze(-1)
+        assert_close(result, expect, check_stride=False)
+
+        result = f[None]
+        expect = variance.sqrt()
+        expect = expect.unsqueeze(-1)
         assert_close(result, expect, check_stride=False)
 
     def test_str(self):
@@ -193,43 +241,60 @@ class TestVolatility(_TestFeature):
         derivative = EuropeanOption(BrownianStock())
         self.assert_same_dtype(Volatility(), derivative, dtype)
 
+    def test_is_state_dependent(self):
+        derivative = EuropeanOption(BrownianStock())
+        hedger = Hedger(Naked(), inputs=["empty"])
+        f = Volatility().of(derivative, hedger)
+        assert not f.is_state_dependent()
+
 
 class TestPrevHedge(_TestFeature):
-    """
-    pfhedge.features.PrevHedge
-    """
-
     @pytest.mark.parametrize("volatility", [0.2, 0.1])
     def test(self, volatility):
+        N, T = 10, 20
         torch.manual_seed(42)
         derivative = EuropeanOption(BrownianStock(volatility))
-        derivative.underlier.spot = torch.randn(2, 3)
-        hedger = Hedger(Linear(2, 1), ["moneyness", "expiry_time"])
+        derivative.ul().register_buffer("spot", torch.randn(N, T))
+        hedger = Hedger(Linear(2, 1), ["empty", "empty"])
         hedger.inputs = [feature.of(derivative) for feature in hedger.inputs]
 
         f = PrevHedge().of(derivative, hedger)
 
-        result = f[0]
-        expect = torch.zeros((2, 1))
-        assert_close(result, expect)
-        h = hedger(torch.cat([feature[0] for feature in hedger.inputs], 1))
+        with pytest.raises(AttributeError):
+            _ = f[0]
+            # expect = torch.zeros((N, 1, 1))
+            # assert_close(result, expect)
+
+        # input = torch.cat([feature[0] for feature in hedger.inputs], dim=-1)
+        input = torch.randn(N, 1, 2)
+        expect = hedger(input)
         result = f[1]
-        expect = h.reshape(-1, 1)
         assert_close(result, expect)
-        h = hedger(torch.cat([feature[1] for feature in hedger.inputs], 1))
+
+        # input = torch.cat([feature[1] for feature in hedger.inputs], dim=-1)
+        input = torch.randn(N, 1, 2)
+        expect = hedger(input)
         result = f[2]
-        expect = h.reshape(-1, 1)
         assert_close(result, expect)
 
     def test_str(self):
         assert str(PrevHedge()) == "prev_hedge"
 
+    def test_is_state_dependent(self):
+        derivative = EuropeanOption(BrownianStock())
+        hedger = Hedger(Naked(), inputs=["empty"])
+        f = PrevHedge().of(derivative, hedger)
+        assert f.is_state_dependent()
+
+    def test_error_time_step_is_none(self):
+        derivative = EuropeanOption(BrownianStock())
+        hedger = Hedger(Naked(), inputs=["empty"])
+        f = PrevHedge().of(derivative, hedger)
+        with pytest.raises(ValueError):
+            _ = f[None]
+
 
 class TestBarrier(_TestFeature):
-    """
-    pfhedge.inputs.Barrier
-    """
-
     def test(self):
         derivative = EuropeanOption(BrownianStock())
         derivative.underlier.spot = torch.tensor(
@@ -244,15 +309,22 @@ class TestBarrier(_TestFeature):
 
         result = f[0]
         expect = torch.tensor([0.0, 1.0, 1.0, 0.0]).reshape(-1, 1)
+        expect = expect.unsqueeze(-1)
         assert_close(result, expect)
+
         result = f[1]
         expect = torch.tensor([0.0, 1.0, 1.0, 0.0]).reshape(-1, 1)
+        expect = expect.unsqueeze(-1)
         assert_close(result, expect)
+
         result = f[2]
         expect = torch.tensor([1.0, 1.0, 1.0, 0.0]).reshape(-1, 1)
+        expect = expect.unsqueeze(-1)
         assert_close(result, expect)
+
         result = f[3]
         expect = torch.tensor([1.0, 1.0, 1.0, 0.0]).reshape(-1, 1)
+        expect = expect.unsqueeze(-1)
         assert_close(result, expect)
 
         derivative = EuropeanOption(BrownianStock())
@@ -268,15 +340,22 @@ class TestBarrier(_TestFeature):
 
         result = f[0]
         expect = torch.tensor([0.0, 1.0, 0.0, 1.0]).reshape(-1, 1)
+        expect = expect.unsqueeze(-1)
         assert_close(result, expect)
+
         result = f[1]
         expect = torch.tensor([1.0, 1.0, 0.0, 1.0]).reshape(-1, 1)
+        expect = expect.unsqueeze(-1)
         assert_close(result, expect)
+
         result = f[2]
         expect = torch.tensor([1.0, 1.0, 0.0, 1.0]).reshape(-1, 1)
+        expect = expect.unsqueeze(-1)
         assert_close(result, expect)
+
         result = f[3]
         expect = torch.tensor([1.0, 1.0, 0.0, 1.0]).reshape(-1, 1)
+        expect = expect.unsqueeze(-1)
         assert_close(result, expect)
 
     def test_repr(self):
@@ -290,6 +369,19 @@ class TestBarrier(_TestFeature):
         derivative = EuropeanOption(BrownianStock())
         self.assert_same_dtype(Barrier(1.0), derivative, dtype)
 
+    def test_is_state_dependent(self):
+        derivative = EuropeanOption(BrownianStock())
+        hedger = Hedger(Naked(), inputs=["empty"])
+        f = Barrier(1.0).of(derivative, hedger)
+        assert not f.is_state_dependent()
+
+    def test_error_time_step_is_none(self):
+        derivative = EuropeanOption(BrownianStock())
+        hedger = Hedger(Naked(), inputs=["empty"])
+        f = Barrier(1.0).of(derivative, hedger)
+        with pytest.raises(ValueError):
+            _ = f[None]
+
 
 class TestZeros(_TestFeature):
     """
@@ -299,18 +391,28 @@ class TestZeros(_TestFeature):
     def test(self):
         torch.manual_seed(42)
         derivative = EuropeanOption(BrownianStock())
-        derivative.underlier.spot = torch.empty(2, 3)
+        derivative.ul().register_buffer("spot", torch.empty(2, 3))
 
         f = Zeros().of(derivative)
 
         result = f[0]
         expect = torch.zeros((2, 1))
+        expect = expect.unsqueeze(-1)
         assert_close(result, expect)
+
         result = f[1]
         expect = torch.zeros((2, 1))
+        expect = expect.unsqueeze(-1)
         assert_close(result, expect)
+
         result = f[2]
         expect = torch.zeros((2, 1))
+        expect = expect.unsqueeze(-1)
+        assert_close(result, expect)
+
+        result = f[None]
+        expect = torch.zeros((2, 3))
+        expect = expect.unsqueeze(-1)
         assert_close(result, expect)
 
     def test_str(self):
@@ -321,12 +423,14 @@ class TestZeros(_TestFeature):
         derivative = EuropeanOption(BrownianStock())
         self.assert_same_dtype(Zeros(), derivative, dtype)
 
+    def test_is_state_dependent(self):
+        derivative = EuropeanOption(BrownianStock())
+        hedger = Hedger(Naked(), inputs=["empty"])
+        f = Zeros().of(derivative, hedger)
+        assert not f.is_state_dependent()
+
 
 class TestEmpty(_TestFeature):
-    """
-    pfhedge.features.Zeros
-    """
-
     def test(self):
         torch.manual_seed(42)
         derivative = EuropeanOption(BrownianStock())
@@ -335,11 +439,16 @@ class TestEmpty(_TestFeature):
         f = Empty().of(derivative)
 
         result = f[0]
-        assert result.size() == torch.Size((2, 1))
+        assert result.size() == torch.Size((2, 1, 1))
+
         result = f[1]
-        assert result.size() == torch.Size((2, 1))
+        assert result.size() == torch.Size((2, 1, 1))
+
         result = f[2]
-        assert result.size() == torch.Size((2, 1))
+        assert result.size() == torch.Size((2, 1, 1))
+
+        result = f[None]
+        assert result.size() == torch.Size((2, 3, 1))
 
     def test_str(self):
         assert str(Empty()) == "empty"
@@ -349,33 +458,48 @@ class TestEmpty(_TestFeature):
         derivative = EuropeanOption(BrownianStock())
         self.assert_same_dtype(Empty(), derivative, dtype)
 
+    def test_is_state_dependent(self):
+        derivative = EuropeanOption(BrownianStock())
+        hedger = Hedger(Naked(), inputs=["empty"])
+        f = Empty().of(derivative, hedger)
+        assert not f.is_state_dependent()
+
 
 class TestMaxMoneyness(_TestFeature):
-    """
-    pfhedge.features.MaxMoneyness
-    """
-
     @pytest.mark.parametrize("strike", [1.0, 2.0])
     @pytest.mark.parametrize("log", [True, False])
     def test(self, strike, log):
         derivative = EuropeanOption(BrownianStock(), strike=strike)
-        derivative.underlier.spot = torch.tensor(
-            [[1.0, 2.0, 1.5], [2.0, 3.0, 4.0], [3.0, 2.0, 1.0]]
+        derivative.ul().register_buffer(
+            "spot", torch.tensor([[1.0, 2.0, 1.5], [2.0, 3.0, 4.0], [3.0, 2.0, 1.0]])
         )
 
         f = MaxMoneyness(log=log).of(derivative)
 
         result = f[0]
         expect = torch.tensor([[1.0], [2.0], [3.0]]) / strike
-        expect = torch.log(expect) if log else expect
+        expect = expect.log() if log else expect
+        expect = expect.unsqueeze(-1)
         assert_close(result, expect)
+
         result = f[1]
         expect = torch.tensor([[2.0], [3.0], [3.0]]) / strike
-        expect = torch.log(expect) if log else expect
+        expect = expect.log() if log else expect
+        expect = expect.unsqueeze(-1)
         assert_close(result, expect)
+
         result = f[2]
         expect = torch.tensor([[2.0], [4.0], [3.0]]) / strike
-        expect = torch.log(expect) if log else expect
+        expect = expect.log() if log else expect
+        expect = expect.unsqueeze(-1)
+        assert_close(result, expect)
+
+        result = f[None]
+        expect = (
+            torch.tensor([[1.0, 2.0, 2.0], [2.0, 3.0, 4.0], [3.0, 3.0, 3.0]]) / strike
+        )
+        expect = expect.log() if log else expect
+        expect = expect.unsqueeze(-1)
         assert_close(result, expect)
 
     def test_str(self):
@@ -387,32 +511,43 @@ class TestMaxMoneyness(_TestFeature):
         derivative = EuropeanOption(BrownianStock())
         self.assert_same_dtype(MaxMoneyness(), derivative, dtype)
 
+    def test_is_state_dependent(self):
+        derivative = EuropeanOption(BrownianStock())
+        hedger = Hedger(Naked(), inputs=["empty"])
+        f = MaxMoneyness().of(derivative, hedger)
+        assert not f.is_state_dependent()
+
 
 class TestMaxLogMoneyness(_TestFeature):
-    """
-    pfhedge.features.MaxLogMoneyness
-    """
-
     @pytest.mark.parametrize("strike", [1.0, 2.0])
     def test(self, strike):
         derivative = EuropeanOption(BrownianStock(), strike=strike)
-        derivative.underlier.spot = torch.tensor(
-            [[1.0, 2.0, 1.5], [2.0, 3.0, 4.0], [3.0, 2.0, 1.0]]
+        derivative.ul().register_buffer(
+            "spot", torch.tensor([[1.0, 2.0, 1.5], [2.0, 3.0, 4.0], [3.0, 2.0, 1.0]])
         )
 
         f = MaxLogMoneyness().of(derivative)
 
         result = f[0]
-        expect = torch.tensor([[1.0], [2.0], [3.0]]) / strike
-        expect = torch.log(expect)
+        expect = (torch.tensor([[1.0], [2.0], [3.0]]) / strike).log()
+        expect = expect.unsqueeze(-1)
         assert_close(result, expect)
+
         result = f[1]
-        expect = torch.tensor([[2.0], [3.0], [3.0]]) / strike
-        expect = torch.log(expect)
+        expect = (torch.tensor([[2.0], [3.0], [3.0]]) / strike).log()
+        expect = expect.unsqueeze(-1)
         assert_close(result, expect)
+
         result = f[2]
-        expect = torch.tensor([[2.0], [4.0], [3.0]]) / strike
-        expect = torch.log(expect)
+        expect = (torch.tensor([[2.0], [4.0], [3.0]]) / strike).log()
+        expect = expect.unsqueeze(-1)
+        assert_close(result, expect)
+
+        result = f[None]
+        expect = (
+            torch.tensor([[1.0, 2.0, 2.0], [2.0, 3.0, 4.0], [3.0, 3.0, 3.0]]) / strike
+        ).log()
+        expect = expect.unsqueeze(-1)
         assert_close(result, expect)
 
     def test_str(self):
@@ -423,8 +558,14 @@ class TestMaxLogMoneyness(_TestFeature):
         derivative = EuropeanOption(BrownianStock())
         self.assert_same_dtype(MaxLogMoneyness(), derivative, dtype)
 
+    def test_is_state_dependent(self):
+        derivative = EuropeanOption(BrownianStock())
+        hedger = Hedger(Naked(), inputs=["empty"])
+        f = MaxLogMoneyness().of(derivative, hedger)
+        assert not f.is_state_dependent()
 
-class TestModelOutput(_TestFeature):
+
+class TestModuleOutput(_TestFeature):
     def test(self):
         derivative = EuropeanOption(BrownianStock())
         derivative.simulate()
@@ -434,13 +575,15 @@ class TestModelOutput(_TestFeature):
         f = ModuleOutput(module, [x1, x2]).of(derivative)
 
         result = f[0]
-        expect = module(torch.cat([x1[0], x2[0]], 1))
+        expect = module(torch.cat([x1[0], x2[0]], dim=-1))
         assert_close(result, expect)
+
         result = f[1]
-        expect = module(torch.cat([x1[1], x2[1]], 1))
+        expect = module(torch.cat([x1[1], x2[1]], dim=-1))
         assert_close(result, expect)
+
         result = f[2]
-        expect = module(torch.cat([x1[2], x2[2]], 1))
+        expect = module(torch.cat([x1[2], x2[2]], dim=-1))
         assert_close(result, expect)
 
     def test_repr(self):
@@ -461,3 +604,15 @@ class TestModelOutput(_TestFeature):
         m = Linear(2, 1).to(derivative.dtype)
         f = ModuleOutput(m, [Moneyness(), ExpiryTime()])
         self.assert_same_dtype(f, derivative, dtype)
+
+    def test_is_state_dependent(self):
+        derivative = EuropeanOption(BrownianStock())
+        hedger = Hedger(Naked(), inputs=["empty"])
+
+        f = ModuleOutput(Linear(2, 1), [Moneyness(), ExpiryTime()])
+        f = f.of(derivative, hedger)
+        assert not f.is_state_dependent()
+
+        f = ModuleOutput(Linear(2, 1), [Moneyness(), PrevHedge()])
+        f = f.of(derivative, hedger)
+        assert f.is_state_dependent()

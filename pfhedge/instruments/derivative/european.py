@@ -9,11 +9,11 @@ from pfhedge._utils.str import _format_float
 from pfhedge.nn.functional import european_payoff
 
 from ..primary.base import Primary
+from .base import BaseOption
 from .base import Derivative
-from .base import OptionMixin
 
 
-class EuropeanOption(Derivative, OptionMixin):
+class EuropeanOption(BaseOption):
     """A European option.
 
     A European option provides its holder the right to buy (for call option)
@@ -132,6 +132,6 @@ set_attr_and_docstring(EuropeanOption, "to", Derivative.to)
 set_attr_and_docstring(EuropeanOption, "ul", Derivative.ul)
 set_attr_and_docstring(EuropeanOption, "list", Derivative.list)
 set_docstring(EuropeanOption, "payoff", Derivative.payoff)
-set_attr_and_docstring(EuropeanOption, "moneyness", OptionMixin.moneyness)
-set_attr_and_docstring(EuropeanOption, "log_moneyness", OptionMixin.log_moneyness)
-set_attr_and_docstring(EuropeanOption, "time_to_maturity", OptionMixin.time_to_maturity)
+set_attr_and_docstring(EuropeanOption, "moneyness", BaseOption.moneyness)
+set_attr_and_docstring(EuropeanOption, "log_moneyness", BaseOption.log_moneyness)
+set_attr_and_docstring(EuropeanOption, "time_to_maturity", BaseOption.time_to_maturity)
