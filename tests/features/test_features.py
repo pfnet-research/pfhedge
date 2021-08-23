@@ -6,6 +6,7 @@ from torch.testing import assert_close
 from pfhedge.features import Barrier
 from pfhedge.features import Empty
 from pfhedge.features import ExpiryTime
+from pfhedge.features import TimeToMaturity
 from pfhedge.features import LogMoneyness
 from pfhedge.features import MaxLogMoneyness
 from pfhedge.features import MaxMoneyness
@@ -117,11 +118,11 @@ class TestLogMoneyness(_TestFeature):
         assert not f.is_state_dependent()
 
 
-class TestExpiryTime(_TestFeature):
+class TestTimeToMaturity(_TestFeature):
     def test(self):
         derivative = EuropeanOption(BrownianStock(dt=0.1), maturity=0.2)
         derivative.ul().register_buffer("spot", torch.empty(2, 3))
-        f = ExpiryTime().of(derivative)
+        f = TimeToMaturity().of(derivative)
 
         result = f[0]
         expect = torch.full((2, 1), 0.2)
@@ -146,7 +147,7 @@ class TestExpiryTime(_TestFeature):
     def test_2(self):
         derivative = EuropeanOption(BrownianStock(dt=0.1), maturity=0.15)
         derivative.underlier.spot = torch.empty(2, 3)
-        f = ExpiryTime().of(derivative)
+        f = TimeToMaturity().of(derivative)
 
         result = f[0]
         expect = torch.full((2, 1), 0.2)
@@ -169,17 +170,18 @@ class TestExpiryTime(_TestFeature):
         assert_close(result, expect, check_stride=False)
 
     def test_str(self):
+        assert str(TimeToMaturity()) == "time_to_maturity"
         assert str(ExpiryTime()) == "expiry_time"
 
     @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
     def test_dtype(self, dtype):
         derivative = EuropeanOption(BrownianStock())
-        self.assert_same_dtype(ExpiryTime(), derivative, dtype)
+        self.assert_same_dtype(TimeToMaturity(), derivative, dtype)
 
     def test_is_state_dependent(self):
         derivative = EuropeanOption(BrownianStock())
         hedger = Hedger(Naked(), inputs=["empty"])
-        f = ExpiryTime().of(derivative, hedger)
+        f = TimeToMaturity().of(derivative, hedger)
         assert not f.is_state_dependent()
 
 
@@ -571,7 +573,7 @@ class TestModuleOutput(_TestFeature):
         derivative.simulate()
 
         module = torch.nn.Linear(2, 1)
-        x1, x2 = Moneyness(), ExpiryTime()
+        x1, x2 = Moneyness(), TimeToMaturity()
         f = ModuleOutput(module, [x1, x2]).of(derivative)
 
         result = f[0]
@@ -588,11 +590,11 @@ class TestModuleOutput(_TestFeature):
 
     def test_repr(self):
         module = torch.nn.Linear(2, 1)
-        x1, x2 = Moneyness(), ExpiryTime()
+        x1, x2 = Moneyness(), TimeToMaturity()
         f = ModuleOutput(module, [x1, x2])
         expect = (
             "ModuleOutput(\n"
-            "  inputs=['moneyness', 'expiry_time']\n"
+            "  inputs=['moneyness', 'time_to_maturity']\n"
             "  (module): Linear(in_features=2, out_features=1, bias=True)\n"
             ")"
         )
@@ -602,14 +604,14 @@ class TestModuleOutput(_TestFeature):
     def test_dtype(self, dtype):
         derivative = EuropeanOption(BrownianStock()).to(dtype)
         m = Linear(2, 1).to(derivative.dtype)
-        f = ModuleOutput(m, [Moneyness(), ExpiryTime()])
+        f = ModuleOutput(m, [Moneyness(), TimeToMaturity()])
         self.assert_same_dtype(f, derivative, dtype)
 
     def test_is_state_dependent(self):
         derivative = EuropeanOption(BrownianStock())
         hedger = Hedger(Naked(), inputs=["empty"])
 
-        f = ModuleOutput(Linear(2, 1), [Moneyness(), ExpiryTime()])
+        f = ModuleOutput(Linear(2, 1), [Moneyness(), TimeToMaturity()])
         f = f.of(derivative, hedger)
         assert not f.is_state_dependent()
 

@@ -36,7 +36,7 @@ class BSAmericanBinaryOption(BSModuleMixin):
         >>>
         >>> m = BSAmericanBinaryOption(strike=1.0)
         >>> m.inputs()
-        ['log_moneyness', 'max_log_moneyness', 'expiry_time', 'volatility']
+        ['log_moneyness', 'max_log_moneyness', 'time_to_maturity', 'volatility']
         >>> input = torch.tensor([
         ...     [-0.01, -0.01, 0.1, 0.2],
         ...     [ 0.00,  0.00, 0.1, 0.2],
@@ -93,7 +93,7 @@ class BSAmericanBinaryOption(BSModuleMixin):
         self,
         log_moneyness: Tensor,
         max_log_moneyness: Tensor,
-        expiry_time: Tensor,
+        time_to_maturity: Tensor,
         volatility: Tensor,
     ) -> Tensor:
         """Returns price of the derivative.
@@ -101,13 +101,13 @@ class BSAmericanBinaryOption(BSModuleMixin):
         Args:
             log_moneyness (torch.Tensor): Log moneyness of the underlying asset.
             max_log_moneyness (torch.Tensor): Cumulative maximum of the log moneyness.
-            expiry_time (torch.Tensor): Time to expiry of the option.
+            time_to_maturity (torch.Tensor): Time to expiry of the option.
             volatility (torch.Tensor): Volatility of the underlying asset.
 
         Shape:
             - log_moneyness: :math:`(N, *)`
             - max_log_moneyness: :math:`(N, *)`
-            - expiry_time: :math:`(N, *)`
+            - time_to_maturity: :math:`(N, *)`
             - volatility: :math:`(N, *)`
             - output: :math:`(N, *)`
 
@@ -115,7 +115,7 @@ class BSAmericanBinaryOption(BSModuleMixin):
             Tensor
         """
         s, m, t, v = map(
-            torch.as_tensor, (log_moneyness, max_log_moneyness, expiry_time, volatility)
+            torch.as_tensor, (log_moneyness, max_log_moneyness, time_to_maturity, volatility)
         )
 
         sqrt2 = torch.tensor(2.0).sqrt().item()
@@ -130,7 +130,7 @@ class BSAmericanBinaryOption(BSModuleMixin):
         self,
         log_moneyness: Tensor,
         max_log_moneyness: Tensor,
-        expiry_time: Tensor,
+        time_to_maturity: Tensor,
         volatility: Tensor,
     ) -> Tensor:
         """Returns delta of the derivative.
@@ -138,13 +138,13 @@ class BSAmericanBinaryOption(BSModuleMixin):
         Args:
             log_moneyness (torch.Tensor): Log moneyness of the underlying asset.
             max_log_moneyness (torch.Tensor): Cumulative maximum of the log moneyness.
-            expiry_time (torch.Tensor): Time to expiry of the option.
+            time_to_maturity (torch.Tensor): Time to expiry of the option.
             volatility (torch.Tensor): Volatility of the underlying asset.
 
         Shape:
             - log_moneyness: :math:`(N, *)`
             - max_log_moneyness: :math:`(N, *)`
-            - expiry_time: :math:`(N, *)`
+            - time_to_maturity: :math:`(N, *)`
             - volatility: :math:`(N, *)`
             - output: :math:`(N, *)`
 
@@ -152,7 +152,7 @@ class BSAmericanBinaryOption(BSModuleMixin):
             torch.Tensor
         """
         s, m, t, v = map(
-            torch.as_tensor, (log_moneyness, max_log_moneyness, expiry_time, volatility)
+            torch.as_tensor, (log_moneyness, max_log_moneyness, time_to_maturity, volatility)
         )
 
         sqrt2 = torch.tensor(2.0).sqrt().item()
@@ -171,7 +171,7 @@ class BSAmericanBinaryOption(BSModuleMixin):
         self,
         log_moneyness: Tensor,
         max_log_moneyness: Tensor,
-        expiry_time: Tensor,
+        time_to_maturity: Tensor,
         volatility: Tensor,
     ) -> Tensor:
         """Returns gamma of the derivative.
@@ -179,13 +179,13 @@ class BSAmericanBinaryOption(BSModuleMixin):
         Args:
             log_moneyness (torch.Tensor): Log moneyness of the underlying asset.
             max_log_moneyness (torch.Tensor): Cumulative maximum of the log moneyness.
-            expiry_time (torch.Tensor): Time to expiry of the option.
+            time_to_maturity (torch.Tensor): Time to expiry of the option.
             volatility (torch.Tensor): Volatility of the underlying asset.
 
         Shape:
             - log_moneyness: :math:`(N, *)`
             - max_log_moneyness: :math:`(N, *)`
-            - expiry_time: :math:`(N, *)`
+            - time_to_maturity: :math:`(N, *)`
             - volatility: :math:`(N, *)`
             - output: :math:`(N, *)`
 
@@ -197,7 +197,7 @@ class BSAmericanBinaryOption(BSModuleMixin):
             strike=self.strike,
             log_moneyness=log_moneyness,
             max_log_moneyness=max_log_moneyness,
-            expiry_time=expiry_time,
+            time_to_maturity=time_to_maturity,
             volatility=volatility,
         )
 
@@ -205,7 +205,7 @@ class BSAmericanBinaryOption(BSModuleMixin):
         self,
         log_moneyness: Tensor,
         max_log_moneyness: Tensor,
-        expiry_time: Tensor,
+        time_to_maturity: Tensor,
         price: Tensor,
         precision: float = 1e-6,
     ) -> Tensor:
@@ -214,7 +214,7 @@ class BSAmericanBinaryOption(BSModuleMixin):
         Args:
             log_moneyness (torch.Tensor): Log moneyness of the underlying asset.
             max_log_moneyness (torch.Tensor): Cumulative maximum of the log moneyness.
-            expiry_time (torch.Tensor): Time to expiry of the option.
+            time_to_maturity (torch.Tensor): Time to expiry of the option.
             volatility (torch.Tensor): Volatility of the underlying asset.
             precision (float, default=1e-6): Computational precision of the implied
                 volatility.
@@ -222,7 +222,7 @@ class BSAmericanBinaryOption(BSModuleMixin):
         Shape:
             - log_moneyness: :math:`(N, *)`
             - max_log_moneyness: :math:`(N, *)`
-            - expiry_time: :math:`(N, *)`
+            - time_to_maturity: :math:`(N, *)`
             - volatility: :math:`(N, *)`
             - output: :math:`(N, *)`
 
@@ -230,7 +230,7 @@ class BSAmericanBinaryOption(BSModuleMixin):
             torch.Tensor
         """
         s, m, t, p = map(
-            torch.as_tensor, (log_moneyness, max_log_moneyness, expiry_time, price)
+            torch.as_tensor, (log_moneyness, max_log_moneyness, time_to_maturity, price)
         )
         pricer = lambda volatility: self.price(s, m, t, volatility)
         return bisect(pricer, p, lower=0.001, upper=1.000, precision=precision)

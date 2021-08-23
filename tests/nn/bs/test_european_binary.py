@@ -40,7 +40,7 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
 
     def test_features(self):
         m = BSEuropeanBinaryOption()
-        assert m.inputs() == ["log_moneyness", "expiry_time", "volatility"]
+        assert m.inputs() == ["log_moneyness", "time_to_maturity", "volatility"]
         _ = [get_feature(f) for f in m.inputs()]
 
     def test_forward(self):
@@ -79,7 +79,7 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
         assert_close(result, expect, atol=1e-4, rtol=1e-4)
 
     def test_implied_volatility(self):
-        # log_moneyness, expiry_time, price
+        # log_moneyness, time_to_maturity, price
         input = torch.tensor(
             [[-0.01, 0.1, 0.40], [-0.01, 0.1, 0.41], [-0.01, 0.1, 0.42]]
         )

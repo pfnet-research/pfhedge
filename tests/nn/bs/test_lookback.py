@@ -39,7 +39,7 @@ class TestBSLookbackOption(_TestBSModule):
         assert m.inputs() == [
             "log_moneyness",
             "max_log_moneyness",
-            "expiry_time",
+            "time_to_maturity",
             "volatility",
         ]
         _ = [get_feature(f) for f in m.inputs()]

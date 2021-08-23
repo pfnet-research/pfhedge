@@ -55,31 +55,31 @@ class BSModuleMixin(Module):
         return Normal(torch.tensor(0.0), torch.tensor(1.0))
 
     @staticmethod
-    def d1(log_moneyness: Tensor, expiry_time: Tensor, volatility: Tensor) -> Tensor:
+    def d1(log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor) -> Tensor:
         """Returns :math:`d_1` in the Black-Scholes formula.
 
         Args:
             log_moneyness (torch.Tensor): Log moneyness of the underlying asset.
-            expiry_time (torch.Tensor): Time to expiry of the option.
+            time_to_maturity (torch.Tensor): Time to expiry of the option.
             volatility (torch.Tensor): Volatility of the underlying asset.
 
         Returns:
             torch.Tensor
         """
-        s, t, v = map(torch.as_tensor, (log_moneyness, expiry_time, volatility))
+        s, t, v = map(torch.as_tensor, (log_moneyness, time_to_maturity, volatility))
         return (s + (v ** 2 / 2) * t) / (v * t.sqrt())
 
     @staticmethod
-    def d2(log_moneyness: Tensor, expiry_time: Tensor, volatility: Tensor) -> Tensor:
+    def d2(log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor) -> Tensor:
         """Returns :math:`d_2` in the Black-Scholes formula.
 
         Args:
             log_moneyness (torch.Tensor): Log moneyness of the underlying asset.
-            expiry_time (torch.Tensor): Time to expiry of the option.
+            time_to_maturity (torch.Tensor): Time to expiry of the option.
             volatility (torch.Tensor): Volatility of the underlying asset.
 
         Returns:
             torch.Tensor
         """
-        s, t, v = map(torch.as_tensor, (log_moneyness, expiry_time, volatility))
+        s, t, v = map(torch.as_tensor, (log_moneyness, time_to_maturity, volatility))
         return (s - (v ** 2 / 2) * t) / (v * t.sqrt())
