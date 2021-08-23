@@ -1,4 +1,6 @@
+from .base import Instrument
 from .derivative.american_binary import AmericanBinaryOption
+from .derivative.base import BaseOption
 from .derivative.base import Derivative
 from .derivative.european import EuropeanOption
 from .derivative.european_binary import EuropeanBinaryOption

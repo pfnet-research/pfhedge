@@ -20,11 +20,11 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
 
     def test_repr(self):
         m = BSEuropeanBinaryOption()
-        assert repr(m) == "BSEuropeanBinaryOption()"
+        assert repr(m) == "BSEuropeanBinaryOption(strike=1.)"
 
         derivative = EuropeanBinaryOption(BrownianStock(), strike=1.1)
         m = BSEuropeanBinaryOption.from_derivative(derivative)
-        assert repr(m) == "BSEuropeanBinaryOption(strike=1.1)"
+        assert repr(m) == "BSEuropeanBinaryOption(strike=1.1000)"
 
         with pytest.raises(ValueError):
             # not yet supported
@@ -95,11 +95,14 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
         from pfhedge.instruments import EuropeanBinaryOption
         from pfhedge.nn import Hedger
 
-        deriv = EuropeanBinaryOption(BrownianStock())
-        model = BSEuropeanBinaryOption(deriv)
+        derivative = EuropeanBinaryOption(BrownianStock())
+        model = BSEuropeanBinaryOption.from_derivative(derivative)
         hedger = Hedger(model, model.inputs())
-        result = hedger.price(deriv)
+        result = hedger.price(derivative)
         expect = torch.tensor(0.4922)
+        x = hedger.compute_hedge(derivative)
+        print(x)
+        assert not x.isnan().any()
         assert_close(result, expect, atol=1e-2, rtol=1e-2)
 
     def test_shape(self):
