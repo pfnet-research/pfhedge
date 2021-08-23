@@ -3,7 +3,6 @@ from torch import Tensor
 
 from pfhedge._utils.bisect import bisect
 from pfhedge._utils.doc import set_attr_and_docstring
-from pfhedge._utils.str import _format_float
 
 from ._base import BSModuleMixin
 
@@ -72,15 +71,16 @@ class BSEuropeanOption(BSModuleMixin):
             >>> derivative = EuropeanOption(BrownianStock(), call=False)
             >>> m = BSEuropeanOption.from_derivative(derivative)
             >>> m
-            BSEuropeanOption(call=False, strike=1.)
+            BSEuropeanOption(call=False)
         """
         return cls(call=derivative.call, strike=derivative.strike)
 
     def extra_repr(self) -> str:
         params = []
         if not self.call:
-            params.append("call=" + str(self.call))
-        params.append("strike=" + _format_float(self.strike))
+            params.append(f"call={self.call}")
+        if self.strike != 1.0:
+            params.append(f"strike={self.strike}")
         return ", ".join(params)
 
     def delta(

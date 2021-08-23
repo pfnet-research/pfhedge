@@ -104,7 +104,7 @@ class EntropicRiskMeasure(HedgeLoss):
         self.a = a
 
     def extra_repr(self) -> str:
-        return "a=" + _format_float(self.a) if self.a != 1 else ""
+        return f"a=" + _format_float(self.a) if self.a != 1 else ""
 
     def forward(self, input: Tensor) -> Tensor:
         return (-exp_utility(input, a=self.a).mean(0)).log() / self.a
@@ -166,7 +166,7 @@ class EntropicLoss(HedgeLoss):
         self.a = a
 
     def extra_repr(self) -> str:
-        return "a=" + _format_float(self.a) if self.a != 1 else ""
+        return f"a=" + _format_float(self.a) if self.a != 1 else ""
 
     def forward(self, input: Tensor) -> Tensor:
         return -exp_utility(input, a=self.a).mean(0)
@@ -241,7 +241,7 @@ class IsoelasticLoss(HedgeLoss):
         self.a = a
 
     def extra_repr(self) -> str:
-        return "a=" + _format_float(self.a) if self.a != 1 else ""
+        return f"a=" + _format_float(self.a) if self.a != 1 else ""
 
     def forward(self, input: Tensor) -> Tensor:
         return -isoelastic_utility(input, a=self.a).mean(0)

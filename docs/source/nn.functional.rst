@@ -29,4 +29,3 @@ Other Functions
 .. autofunction:: topp
 .. autofunction:: realized_variance
 .. autofunction:: realized_volatility
-.. autofunction:: terminal_value
