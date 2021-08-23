@@ -84,7 +84,7 @@ class EuropeanOption(BaseOption):
         >>>
         >>> pricer = lambda derivative: BlackScholes(derivative).price(
         ...     log_moneyness=derivative.log_moneyness(),
-        ...     expiry_time=derivative.time_to_maturity(),
+        ...     time_to_maturity=derivative.time_to_maturity(),
         ...     volatility=derivative.ul().volatility)
         >>> derivative = EuropeanOption(BrownianStock(), maturity=5/250)
         >>> derivative.list(pricer, cost=1e-4)

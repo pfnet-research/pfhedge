@@ -41,16 +41,23 @@ class LogMoneyness(Moneyness):
         super().__init__(log=True)
 
 
-class ExpiryTime(StateIndependentFeature):
+class TimeToMaturity(StateIndependentFeature):
     """Remaining time to the maturity of the derivative."""
 
     derivative: BaseOption
 
     def __str__(self) -> str:
-        return "expiry_time"
+        return "time_to_maturity"
 
     def __getitem__(self, time_step: Optional[int]) -> Tensor:
         return self.derivative.time_to_maturity(time_step).unsqueeze(-1)
+
+
+class ExpiryTime(TimeToMaturity):
+    """Alias for ``TimeToMaturity``."""
+
+    def __str__(self) -> str:
+        return "expiry_time"
 
 
 class Volatility(StateIndependentFeature):

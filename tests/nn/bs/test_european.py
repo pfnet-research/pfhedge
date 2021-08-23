@@ -29,7 +29,7 @@ class TestBSEuropeanOption(_TestBSModule):
 
     def test_features(self):
         m = BSEuropeanOption()
-        assert m.inputs() == ["log_moneyness", "expiry_time", "volatility"]
+        assert m.inputs() == ["log_moneyness", "time_to_maturity", "volatility"]
         _ = [get_feature(f) for f in m.inputs()]
 
     def test_forward_1(self):

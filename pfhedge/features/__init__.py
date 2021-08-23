@@ -9,5 +9,6 @@ from .features import MaxMoneyness
 from .features import ModuleOutput
 from .features import Moneyness
 from .features import PrevHedge
+from .features import TimeToMaturity
 from .features import Volatility
 from .features import Zeros
