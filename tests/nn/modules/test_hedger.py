@@ -35,14 +35,14 @@ class ZeroDerivative(Derivative):
 
 class FakeModule(Module):
     def __init__(self, output: Tensor):
-        # output: shape (N, T)
+        # output: shape (N, T, *)
         super().__init__()
         self.i = 0
         self.register_buffer("output", output)
 
     def forward(self, input: Tensor):
-        # output: shape (N, 1)
-        output = self.get_buffer("output")[..., [self.i]]
+        # output: shape (N, 1, *)
+        output = self.get_buffer("output")[:, [self.i]]
         self.i += 1
         return output
 
@@ -75,6 +75,25 @@ class TestHedger:
             ")"
         )
 
+    @pytest.mark.parametrize("hin", [1, 2])
+    def test_compute_pnl_size(self, hin):
+        torch.manual_seed(42)
+
+        derivative = EuropeanOption(BrownianStock())
+        hedger = Hedger(Linear(hin, 1), inputs=["empty"] * hin)
+        pnl = hedger.compute_pnl(derivative)
+
+        N = derivative.ul().spot.size(0)
+        assert pnl.size() == torch.Size((N,))
+
+        torch.manual_seed(42)
+        derivative = EuropeanOption(BrownianStock())
+        hedger = Hedger(Linear(hin + 1, 1), inputs=["empty"] * hin + ["prev_hedge"])
+        pnl = hedger.compute_pnl(derivative)
+
+        N = derivative.ul().spot.size(0)
+        assert pnl.size() == torch.Size((N,))
+
     @pytest.mark.parametrize("cost", [0.0, 1e-3])
     def test_compute_pnl_1(self, cost):
         # pnl = -payoff if output = 0
@@ -93,13 +112,12 @@ class TestHedger:
 
     def test_compute_pnl_2(self):
         torch.manual_seed(42)
-        N, T = 10, 20
-
+        N, T = 2, 4
         derivative = ZeroDerivative(BrownianStock())
         output = torch.randn(N, T - 1)
 
-        m = FakeModule(output)
-        hedger = Hedger(m, ["empty"])
+        m = FakeModule(output.unsqueeze(-1))
+        hedger = Hedger(m, ["empty", "prev_hedge"])
 
         spot = torch.randn(N, T).exp()
         derivative.ul().register_buffer("spot", spot)
@@ -108,16 +126,23 @@ class TestHedger:
             result = hedger.compute_pnl(derivative)
 
         expect = (spot.diff(dim=-1) * output).sum(-1)
+        print("spot\n", spot)
+        print("spot.diff\n", spot.diff(dim=-1))
+        print("output\n", output)
+        print("result\n", result)
+        print("expect\n", expect)
         assert_close(result, expect)
 
     def test_compute_pnl_payoff(self):
+        torch.manual_seed(42)
+
         N, T = 10, 20
         derivative0 = EuropeanOption(BrownianStock())
         derivative1 = ZeroDerivative(BrownianStock())
         output = torch.randn(N, T - 1)
 
-        hedger0 = Hedger(FakeModule(output), ["empty"])
-        hedger1 = Hedger(FakeModule(output), ["empty"])
+        hedger0 = Hedger(FakeModule(output.unsqueeze(-1)), ["empty", "prev_hedge"])
+        hedger1 = Hedger(FakeModule(output.unsqueeze(-1)), ["empty", "prev_hedge"])
 
         spot = torch.randn(N, T).exp()
         derivative0.ul().register_buffer("spot", spot)
@@ -138,8 +163,8 @@ class TestHedger:
         derivative1 = EuropeanOption(BrownianStock(cost=cost))
         output = torch.randn(N, T - 1)
 
-        hedger0 = Hedger(FakeModule(output), ["empty"])
-        hedger1 = Hedger(FakeModule(output), ["empty"])
+        hedger0 = Hedger(FakeModule(output.unsqueeze(-1)), ["empty", "prev_hedge"])
+        hedger1 = Hedger(FakeModule(output.unsqueeze(-1)), ["empty", "prev_hedge"])
 
         spot = torch.randn(N, T).exp()
         derivative0.ul().register_buffer("spot", spot)
@@ -183,6 +208,38 @@ class TestHedger:
         input = torch.empty((N, M_1, M_2, 10))
         assert m(input).size() == torch.Size((N, M_1, M_2, 1))
 
+    @pytest.mark.parametrize("h_in", [1, 2, 3])
+    def test_get_input(self, h_in):
+        hedger = Hedger(Naked(), ["zeros"] * h_in)
+        derivative = EuropeanOption(BrownianStock())
+        derivative.simulate()
+        hedger.inputs = [f.of(derivative, self) for f in hedger.inputs]
+        N, T = derivative.ul().spot.size()
+        input = hedger.get_input(0)
+        assert input.size() == torch.Size((N, 1, h_in))
+        input = hedger.get_input(None)
+        assert input.size() == torch.Size((N, T, h_in))
+
+    @pytest.mark.parametrize("h_in", [1, 2, 3])
+    def test_compute_hedge(self, h_in):
+        # test size
+        hedger = Hedger(Naked(), ["zeros"] * h_in)
+        derivative = EuropeanOption(BrownianStock())
+        derivative.simulate()
+        hedge = hedger.compute_hedge(derivative)
+        N, T = derivative.ul().spot.size()
+        H = 1
+        assert hedge.size() == torch.Size((N, H, T))
+
+        # test size
+        hedger = Hedger(Naked(), ["zeros"] * h_in + ["prev_hedge"])
+        derivative = EuropeanOption(BrownianStock())
+        derivative.simulate()
+        hedge = hedger.compute_hedge(derivative)
+        N, T = derivative.ul().spot.size()
+        H = 1
+        assert hedge.size() == torch.Size((N, H, T))
+
     def test_compute_loss(self):
         torch.manual_seed(42)
         deriv = EuropeanOption(BrownianStock())
@@ -197,7 +254,7 @@ class TestHedger:
 
         class Ones(Module):
             def forward(self, input: Tensor):
-                return torch.ones_like(input[:, :1])
+                return torch.ones_like(input[..., :1])
 
         pricer = lambda derivative: BlackScholes(derivative).price(
             log_moneyness=derivative.log_moneyness(),
@@ -207,12 +264,18 @@ class TestHedger:
 
         derivative = EuropeanOption(BrownianStock(), maturity=5 / 250)
         derivative.list(pricer)
-        hedger = Hedger(Ones(), ["empty"])
+        hedger = Hedger(Ones(), ["empty", "prev_hedge"])
 
         torch.manual_seed(42)
         result = hedger.compute_pnl(derivative, hedge=derivative, n_paths=2)
         # value of a short position of the derivative
         expect = -derivative.spot[:, 0]
+        print("spot\n", derivative.spot)
+        print("spot.diff\n", derivative.spot.diff(dim=-1))
+        print("spot.diff.sum\n", derivative.spot.diff(dim=-1).sum(-1))
+        print("payoff\n", derivative.payoff())
+        print("result\n", result)
+        print("expect\n", expect)
         assert_close(result, expect, check_stride=False)
 
         torch.manual_seed(42)

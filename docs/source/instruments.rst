@@ -37,6 +37,7 @@ Derivative Instruments
     :template: classtemplate.rst
 
     instruments.Derivative
+    instruments.BaseOption
     instruments.EuropeanOption
     instruments.LookbackOption
     instruments.EuropeanBinaryOption

@@ -45,6 +45,7 @@ class Primary(Instrument):
     dt: float
     _buffers: Dict[str, Optional[Tensor]]
     spot: Tensor
+    cost: float
 
     def __init__(self) -> None:
         super().__init__()
@@ -132,7 +133,7 @@ class Primary(Instrument):
         for _, buffer in self.named_buffers():
             yield buffer
 
-    def __getattr__(self, name: str) -> Union[Tensor, Module]:
+    def __getattr__(self, name: str) -> Tensor:
         if "_buffers" in self.__dict__:
             _buffers = self.__dict__["_buffers"]
             if name in _buffers:

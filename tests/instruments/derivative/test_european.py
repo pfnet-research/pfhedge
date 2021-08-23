@@ -63,6 +63,14 @@ class TestEuropeanOption:
         expect = (stock.spot[:, [0]] / strike).log()
         assert_close(result, expect)
 
+    def test_max_log_moneyness(self):
+        derivative = EuropeanOption(BrownianStock())
+        derivative.simulate()
+
+        result = derivative.max_log_moneyness(10)
+        expect = derivative.max_moneyness(10).log()
+        assert_close(result, expect)
+
     def test_time_to_maturity(self):
         stock = BrownianStock(dt=0.1)
         derivative = EuropeanOption(stock, maturity=0.2)
