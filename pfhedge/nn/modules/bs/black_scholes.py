@@ -16,8 +16,8 @@ class BlackScholes(Module):
     The ``forward`` method returns the Black-Scholes delta.
 
     Args:
-        derivative (:class:`pfhedge.instruments.Derivative`):
-            The derivative to get the Black-Scholes formula.
+        derivative (:class:`Derivative`): The derivative to get
+            the Black-Scholes formula.
 
     Shape:
         - Input : :math:`(N, *, H_{\\mathrm{in}})`, where :math:`*` means any number of

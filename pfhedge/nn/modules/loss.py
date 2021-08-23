@@ -26,8 +26,8 @@ class HedgeLoss(Module, ABC):
             input (torch.Tensor): The distribution of the profit and loss.
 
         Shape:
-            - Input: :math:`(N, *)` where, :math:`*` means any number of additional
-              dimensions.
+            - Input: :math:`(N, *)` where
+              :math:`*` means any number of additional dimensions.
             - Output: :math:`(*)`
 
         Returns:
@@ -52,8 +52,8 @@ class HedgeLoss(Module, ABC):
             input (torch.Tensor): The distribution of the profit and loss.
 
         Shape:
-            - Input: :math:`(N, *)` where, :math:`*` means any number of additional
-              dimensions.
+            - Input: :math:`(N, *)` where
+              :math:`*` means any number of additional dimensions.
             - Output: :math:`(*)`
 
         Returns:
@@ -80,8 +80,8 @@ class EntropicRiskMeasure(HedgeLoss):
             utility.
 
     Shape:
-        - Input: :math:`(N, *)`, where :math:`*` means any number of additional
-          dimensions.
+        - Input: :math:`(N, *)` where
+          :math:`*` means any number of additional dimensions.
         - Output: :math:`(*)`
 
     Examples:
@@ -116,8 +116,8 @@ class EntropicRiskMeasure(HedgeLoss):
             input (torch.Tensor): The distribution of the profit and loss.
 
         Shape:
-            - Input: :math:`(N, *)`, where :math:`*` means any number of additional
-              dimensions.
+            - Input: :math:`(N, *)`
+              where :math:`*` means any number of additional dimensions.
             - Output: :math:`(*)`
 
         Returns:
@@ -142,8 +142,8 @@ class EntropicLoss(HedgeLoss):
             utility.
 
     Shape:
-        - Input: :math:`(N, *)`, where :math:`*` means any number of additional
-          dimensions.
+        - Input: :math:`(N, *)` where
+          :math:`*` means any number of additional dimensions.
         - Output: :math:`(*)`
 
     Examples:
@@ -208,8 +208,8 @@ class IsoelasticLoss(HedgeLoss):
             This parameter should satisfy :math:`0 < a \\leq 1`.
 
     Shape:
-        - Input: :math:`(N, *)`, where :math:`*` means any number of additional
-          dimensions.
+        - Input: :math:`(N, *)` where
+          :math:`*` means any number of additional dimensions.
         - Output: :math:`(*)`
 
     Examples:

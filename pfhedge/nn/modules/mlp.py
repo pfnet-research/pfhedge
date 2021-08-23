@@ -35,12 +35,12 @@ class MultiLayerPerceptron(Sequential):
             Default: :class:`torch.nn.Identity` instance.
 
     Shape:
-        - Input: :math:`(N, *, H_{\\text{in}})`, where where * means any number of
-          additional dimensions and :math:`H_{\\text{in}}` is the number of input
-          features.
-        - Output: :math:`(N, *, H_{\\text{out}})`, where all but the last dimension
-          are the same shape as the input and :math:`H_{\\text{in}}` is
-          ``out_features``.
+        - Input: :math:`(N, *, H_{\\text{in}})` where
+          :math:`*` means any number of additional dimensions and
+          :math:`H_{\\text{in}}` is the number of input features.
+        - Output: :math:`(N, *, H_{\\text{out}})` where
+          all but the last dimension are the same shape as the input and
+          :math:`H_{\\text{out}}` is the number of output features.
 
     Examples:
 
@@ -63,10 +63,7 @@ class MultiLayerPerceptron(Sequential):
           (8): Linear(in_features=32, out_features=1, bias=True)
           (9): Identity()
         )
-        >>> m(torch.empty(3, 2))
-        tensor([[...],
-                [...],
-                [...]], grad_fn=<AddmmBackward>)
+        >>> _ = m(torch.empty(3, 2))
         >>> m
         MultiLayerPerceptron(
           (0): Linear(in_features=2, out_features=32, bias=True)
