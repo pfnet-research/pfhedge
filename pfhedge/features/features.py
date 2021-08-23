@@ -110,10 +110,10 @@ class Barrier(StateIndependentFeature):
                 output = (min <= self.threshold).to(spot.dtype)
         else:
             if self.up:
-                max = spot[..., :time_step + 1].max(-1, keepdim=True).values
+                max = spot[..., : time_step + 1].max(-1, keepdim=True).values
                 output = (max >= self.threshold).to(spot.dtype)
             else:
-                min = spot[..., :time_step + 1].min(-1, keepdim=True).values
+                min = spot[..., : time_step + 1].min(-1, keepdim=True).values
                 output = (min <= self.threshold).to(self.derivative.ul().spot.dtype)
         return output.unsqueeze(-1)
 
