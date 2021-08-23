@@ -121,6 +121,7 @@ jobs:
       uses: peter-evans/create-pull-request@v3
       with:
         author: GitHub Actions <action@github.com>
+        base: ${{ github.event.pull_request.head.ref }}
         commit-message: format
         delete-branch: true
         branch-suffix: short-commit-hash
