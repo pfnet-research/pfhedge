@@ -259,7 +259,7 @@ def clamp(
     if inverted_output == "mean":
         output = leaky_clamp(input, min, max, clamped_slope=0.0, inverted_output="mean")
     elif inverted_output == "max":
-        output = torch.clamp(input, min=min, max=max)
+        output = torch.clamp(input, min, max)
     else:
         raise ValueError("inverted_output must be 'mean' or 'max'.")
     return output
