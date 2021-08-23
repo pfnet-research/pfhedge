@@ -180,10 +180,12 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../nn.functional.html">pfhedge.nn.functional</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../../../instruments.html">pfhedge.instruments</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.Instrument.html">Instrument</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.Primary.html">Primary</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.HestonStock.html">HestonStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.Derivative.html">Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
@@ -228,6 +230,7 @@
 
 <span class="kn">from</span> <span class="nn">pfhedge._utils.bisect</span> <span class="kn">import</span> <span class="n">bisect</span>
 <span class="kn">from</span> <span class="nn">pfhedge._utils.doc</span> <span class="kn">import</span> <span class="n">set_attr_and_docstring</span>
+<span class="kn">from</span> <span class="nn">pfhedge._utils.str</span> <span class="kn">import</span> <span class="n">_format_float</span>
 
 <span class="kn">from</span> <span class="nn">._base</span> <span class="kn">import</span> <span class="n">BSModuleMixin</span>
 
@@ -296,16 +299,15 @@
 <span class="sd">            &gt;&gt;&gt; derivative = EuropeanOption(BrownianStock(), call=False)</span>
 <span class="sd">            &gt;&gt;&gt; m = BSEuropeanOption.from_derivative(derivative)</span>
 <span class="sd">            &gt;&gt;&gt; m</span>
-<span class="sd">            BSEuropeanOption(call=False)</span>
+<span class="sd">            BSEuropeanOption(call=False, strike=1.)</span>
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">call</span><span class="o">=</span><span class="n">derivative</span><span class="o">.</span><span class="n">call</span><span class="p">,</span> <span class="n">strike</span><span class="o">=</span><span class="n">derivative</span><span class="o">.</span><span class="n">strike</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">extra_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">:</span>
-            <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"call=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">strike</span> <span class="o">!=</span> <span class="mf">1.0</span><span class="p">:</span>
-            <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"strike=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">strike</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"call="</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">))</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"strike="</span> <span class="o">+</span> <span class="n">_format_float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">strike</span><span class="p">))</span>
         <span class="k">return</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
 
 <div class="viewcode-block" id="BSEuropeanOption.delta"><a class="viewcode-back" href="../../../../../generated/pfhedge.nn.BSEuropeanOption.html#pfhedge.nn.BSEuropeanOption.delta">[docs]</a>    <span class="k">def</span> <span class="nf">delta</span><span class="p">(</span>

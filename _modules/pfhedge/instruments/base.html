@@ -1,0 +1,424 @@
+<!doctype html>
+<html class="no-js">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
+
+    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.17.beta43"/>
+        <title>pfhedge.instruments.base - PFHedge documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=910ac4ccc9d7c023151c34010d7b500fb9777a51" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  --color-brand-primary: #0D318F;
+  --color-brand-content: #0D318F;
+  
+  }
+  body[data-theme="dark"] {
+    --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-brand-primary: #0D318F;
+  --color-brand-content: #0D318F;
+  
+  }
+  @media (prefers-color-scheme: dark) {
+    body:not([data-theme="light"]) {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-brand-primary: #0D318F;
+  --color-brand-content: #0D318F;
+  
+    }
+  }
+</style>
+    <link media="(prefers-color-scheme: dark)" rel="stylesheet" href="../../../_static/pygments_dark.css"></head>
+  <body>
+    
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke="none" d="M0 0h24v24H0z" />
+      <line x1="4" y1="6" x2="20" y2="6" />
+      <line x1="10" y1="12" x2="20" y2="12" />
+      <line x1="6" y1="18" x2="20" y2="18" />
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../../index.html"><div class="brand">PFHedge  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
+  
+  
+  <span class="sidebar-brand-text">PFHedge  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
+  <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../nn.html">pfhedge.nn</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.nn.Hedger.html">Hedger</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.nn.BlackScholes.html">BlackScholes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.nn.BSAmericanBinaryOption.html">BSAmericanBinaryOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.nn.BSEuropeanOption.html">BSEuropeanOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.nn.BSEuropeanBinaryOption.html">BSEuropeanBinaryOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.nn.BSLookbackOption.html">BSLookbackOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.nn.WhalleyWilmott.html">WhalleyWilmott</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.nn.Clamp.html">Clamp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.nn.LeakyClamp.html">LeakyClamp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.nn.HedgeLoss.html">HedgeLoss</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.nn.EntropicLoss.html">EntropicLoss</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.nn.EntropicRiskMeasure.html">EntropicRiskMeasure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.nn.ExpectedShortfall.html">ExpectedShortfall</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.nn.IsoelasticLoss.html">IsoelasticLoss</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.nn.MultiLayerPerceptron.html">MultiLayerPerceptron</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.nn.Naked.html">Naked</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nn.functional.html">pfhedge.nn.functional</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../instruments.html">pfhedge.instruments</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.Instrument.html">Instrument</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.Primary.html">Primary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.HestonStock.html">HestonStock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.Derivative.html">Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.BaseOption.html">BaseOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.VarianceSwap.html">VarianceSwap</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../stochastic.html">pfhedge.stochastic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autogreek.html">pfhedge.autogreek</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/pfnet-research/pfhedge">GitHub</a></li>
+</ul>
+
+</div>
+</div>
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <article role="main">
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <h1>Source code for pfhedge.instruments.base</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TypeVar</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">no_type_check</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
+
+<span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"T"</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">"Instrument"</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Instrument"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.Instrument.html#pfhedge.instruments.Instrument">[docs]</a><span class="k">class</span> <span class="nc">Instrument</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="sd">"""Base class for all financial instruments."""</span>
+
+<div class="viewcode-block" id="Instrument.simulate"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.Instrument.html#pfhedge.instruments.Instrument.simulate">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="nd">@no_type_check</span>
+    <span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_paths</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">time_horizon</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">"""Simulate time series associated with the instrument itself</span>
+<span class="sd">        (for a primary instrument) or its underlier (for a derivative)</span>
+<span class="sd">        and add them as buffers.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            n_paths (int): The number of paths to simulate.</span>
+<span class="sd">            time_horizon (float): The period of time to simulate the price.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        """</span></div>
+
+<div class="viewcode-block" id="Instrument.to"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.Instrument.html#pfhedge.instruments.Instrument.to">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">to</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+        <span class="sd">"""Moves and/or casts the buffers.</span>
+
+<span class="sd">        This can be called like :meth:`torch.nn.Module.to`.</span>
+<span class="sd">        See below for examples.</span>
+
+<span class="sd">        .. note::</span>
+
+<span class="sd">            This method modifies the instrument in-place.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dtype (torch.dtype): The desired floating point dtype of</span>
+<span class="sd">                the buffers in this instrument.</span>
+<span class="sd">            device (torch.device): The desired device of the buffers in this instrument.</span>
+<span class="sd">            tensor (torch.Tensor): Tensor whose dtype and device are the desired</span>
+<span class="sd">                dtype and device for all buffers in this module.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            self</span>
+
+<span class="sd">        Examples:</span>
+
+<span class="sd">            &gt;&gt;&gt; from pfhedge.instruments import BrownianStock</span>
+<span class="sd">            &gt;&gt;&gt;</span>
+<span class="sd">            &gt;&gt;&gt; _ = torch.manual_seed(42)</span>
+<span class="sd">            &gt;&gt;&gt; stock = BrownianStock()</span>
+<span class="sd">            &gt;&gt;&gt; stock.simulate(n_paths=2, time_horizon=2 / 250)</span>
+<span class="sd">            &gt;&gt;&gt; stock.spot</span>
+<span class="sd">            tensor([[1.0000, 1.0016, 1.0044],</span>
+<span class="sd">                    [1.0000, 0.9858, 0.9834]])</span>
+<span class="sd">            &gt;&gt;&gt; stock.to(torch.float64)</span>
+<span class="sd">            BrownianStock(..., dtype=torch.float64)</span>
+<span class="sd">            &gt;&gt;&gt; stock.spot</span>
+<span class="sd">            tensor([[1.0000, 1.0016, 1.0044],</span>
+<span class="sd">                    [1.0000, 0.9858, 0.9834]], dtype=torch.float64)</span>
+
+<span class="sd">            &gt;&gt;&gt; from pfhedge.instruments import EuropeanOption</span>
+<span class="sd">            &gt;&gt;&gt;</span>
+<span class="sd">            &gt;&gt;&gt; _ = torch.manual_seed(42)</span>
+<span class="sd">            &gt;&gt;&gt; derivative = EuropeanOption(BrownianStock(), maturity=2 / 250)</span>
+<span class="sd">            &gt;&gt;&gt; derivative.simulate(n_paths=2)</span>
+<span class="sd">            &gt;&gt;&gt; derivative.ul().spot</span>
+<span class="sd">            tensor([[1.0000, 1.0016, 1.0044],</span>
+<span class="sd">                    [1.0000, 0.9858, 0.9834]])</span>
+<span class="sd">            &gt;&gt;&gt; derivative.to(torch.float64)</span>
+<span class="sd">            EuropeanOption(</span>
+<span class="sd">              ...</span>
+<span class="sd">              (underlier): BrownianStock(..., dtype=torch.float64)</span>
+<span class="sd">            )</span>
+<span class="sd">            &gt;&gt;&gt; derivative.ul()</span>
+<span class="sd">            BrownianStock(..., dtype=torch.float64)</span>
+<span class="sd">            &gt;&gt;&gt; derivative.ul().spot</span>
+<span class="sd">            tensor([[1.0000, 1.0016, 1.0044],</span>
+<span class="sd">                    [1.0000, 0.9858, 0.9834]], dtype=torch.float64)</span>
+<span class="sd">        """</span></div>
+
+<div class="viewcode-block" id="Instrument.cpu"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.Instrument.html#pfhedge.instruments.Instrument.cpu">[docs]</a>    <span class="k">def</span> <span class="nf">cpu</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+        <span class="sd">"""Returns a copy of this object in CPU memory.</span>
+
+<span class="sd">        If this object is already in CPU memory and on the correct device,</span>
+<span class="sd">        then no copy is performed and the original object is returned.</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">"cpu"</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Instrument.cuda"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.Instrument.html#pfhedge.instruments.Instrument.cuda">[docs]</a>    <span class="k">def</span> <span class="nf">cuda</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+        <span class="sd">"""Returns a copy of this object in CUDA memory.</span>
+
+<span class="sd">        If this object is already in CUDA memory and on the correct device,</span>
+<span class="sd">        then no copy is performed and the original object is returned.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            device (torch.device): The destination GPU device.</span>
+<span class="sd">                Defaults to the current CUDA device.</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="sa">f</span><span class="s2">"cuda:</span><span class="si">{</span><span class="n">device</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="n">device</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">"cuda"</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Instrument.double"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.Instrument.html#pfhedge.instruments.Instrument.double">[docs]</a>    <span class="k">def</span> <span class="nf">double</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+        <span class="sd">"""It is equivalent to ``self.to(torch.float64)``.</span>
+<span class="sd">        See :func:`to()`.</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Instrument.float"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.Instrument.html#pfhedge.instruments.Instrument.float">[docs]</a>    <span class="k">def</span> <span class="nf">float</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+        <span class="sd">"""It is equivalent to ``self.to(torch.float32)``.</span>
+<span class="sd">        See :func:`to()`.</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Instrument.half"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.Instrument.html#pfhedge.instruments.Instrument.half">[docs]</a>    <span class="k">def</span> <span class="nf">half</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+        <span class="sd">"""It is equivalent to ``self.to(torch.float16)``.</span>
+<span class="sd">        See :func:`to()`.</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">float16</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Instrument.bfloat16"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.Instrument.html#pfhedge.instruments.Instrument.bfloat16">[docs]</a>    <span class="k">def</span> <span class="nf">bfloat16</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+        <span class="sd">"""It is equivalent to ``self.to(torch.bfloat16)``.</span>
+<span class="sd">        See :func:`to()`.</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">bfloat16</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">extra_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">""</span>
+
+    <span class="k">def</span> <span class="nf">_get_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+
+    <span class="k">def</span> <span class="nf">_dinfo</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="c1"># Returns list of strings that tell ``dtype`` and ``device`` of self.</span>
+        <span class="c1"># Intended to be used in :func:`__repr__`.</span>
+        <span class="c1"># If ``dtype`` (``device``) is the one specified in default type,</span>
+        <span class="c1"># ``dinfo`` will not have the information of it.</span>
+        <span class="c1"># Implementation here refers to the function _str_intern in</span>
+        <span class="c1"># pytorch/_tensor_str.py.</span>
+        <span class="n">dinfo</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">dtype</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"dtype"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dtype</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">dtype</span> <span class="o">!=</span> <span class="n">torch</span><span class="o">.</span><span class="n">get_default_dtype</span><span class="p">():</span>
+                <span class="n">dinfo</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"dtype="</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">dtype</span><span class="p">))</span>
+
+        <span class="c1"># A general logic here is we only print device when it doesn't match</span>
+        <span class="c1"># the device specified in default tensor type.</span>
+        <span class="n">device</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"device"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">device</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">device</span><span class="o">.</span><span class="n">type</span> <span class="o">!=</span> <span class="n">torch</span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n">_get_default_device</span><span class="p">()</span> <span class="ow">or</span> <span class="p">(</span>
+                <span class="n">device</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">"cuda"</span> <span class="ow">and</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">current_device</span><span class="p">()</span> <span class="o">!=</span> <span class="n">device</span><span class="o">.</span><span class="n">index</span>
+            <span class="p">):</span>
+                <span class="n">dinfo</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"device='"</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">device</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"'"</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">dinfo</span></div>
+</pre></div>
+      </article>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+
+        <div class="related-information">
+              Copyright &#169; 2021, pfnet-research
+            |
+            Built with <a href="https://www.sphinx-doc.org/">Sphinx</a>
+              and
+              <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+              <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/scripts/main.js"></script>
+    <script src="../../../_static/clipboard.min.js"></script>
+    <script src="../../../_static/copybutton.js"></script>
+    </body>
+</html>

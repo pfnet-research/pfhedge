@@ -181,10 +181,12 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../nn.functional.html">pfhedge.nn.functional</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../instruments.html">pfhedge.instruments</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.Instrument.html">Instrument</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.Primary.html">Primary</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.HestonStock.html">HestonStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.Derivative.html">Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
@@ -334,7 +336,7 @@ See <a class="reference internal" href="#pfhedge.nn.BSEuropeanOption.inputs" tit
 <span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span> <span class="o">=</span> <span class="n">EuropeanOption</span><span class="p">(</span><span class="n">BrownianStock</span><span class="p">(),</span> <span class="n">call</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">BSEuropeanOption</span><span class="o">.</span><span class="n">from_derivative</span><span class="p">(</span><span class="n">derivative</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">m</span>
-<span class="go">BSEuropeanOption(call=False)</span>
+<span class="go">BSEuropeanOption(call=False, strike=1.)</span>
 </pre></div>
 </div>
 </dd></dl>
