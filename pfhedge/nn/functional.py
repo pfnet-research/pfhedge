@@ -257,9 +257,7 @@ def clamp(
     See :class:`pfhedge.nn.Clamp` for details.
     """
     if inverted_output == "mean":
-        output = leaky_clamp(
-            input, min=min, max=max, clamped_slope=0.0, inverted_output=inverted_output
-        )
+        output = leaky_clamp(input, min, max, clamped_slope=0.0, inverted_output="mean")
     elif inverted_output == "max":
         output = torch.clamp(input, min=min, max=max)
     else:
