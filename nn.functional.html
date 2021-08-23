@@ -181,12 +181,10 @@
 </li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">pfhedge.nn.functional</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="instruments.html">pfhedge.instruments</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.Instrument.html">Instrument</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.Primary.html">Primary</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.HestonStock.html">HestonStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.Derivative.html">Derivative</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
@@ -516,50 +514,6 @@ It is square root of <a class="reference internal" href="#pfhedge.nn.functional.
 <li><p>input: <span class="math notranslate nohighlight">\((*, T)\)</span> where <span class="math notranslate nohighlight">\(T\)</span> stands for the number of time steps
 and <span class="math notranslate nohighlight">\(*\)</span> means any number of additional dimensions.</p></li>
 <li><p>output: <span class="math notranslate nohighlight">\((*)\)</span></p></li>
-</ul>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>torch.Tensor</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py function">
-<dt class="sig sig-object py" id="pfhedge.nn.functional.terminal_value">
-<span class="sig-prename descclassname"><span class="pre">pfhedge.nn.functional.</span></span><span class="sig-name descname"><span class="pre">terminal_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spot</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">payoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deduct_first_cost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfhedge/nn/functional.html#terminal_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.functional.terminal_value" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the terminal portfolio value.</p>
-<p>The terminal value of a hedger’s portfolio is given by</p>
-<div class="math-wrapper"><div class="math notranslate nohighlight">
-\[\text{PL}(Z, \delta, S) =
-- Z
-+ \sum_{i = 1}^{T - 1} \delta_{i} (S_{i + 1} - S_i)
-- c \sum_{i = 1}^{T - 1} |\delta_{i + 1} - \delta_{i}| S_{i + 1}\]</div></div>
-<p>where <span class="math notranslate nohighlight">\(Z\)</span> is the payoff of the derivative, <span class="math notranslate nohighlight">\(T\)</span> is the number of
-time steps, <span class="math notranslate nohighlight">\(S\)</span> is the spot price, <span class="math notranslate nohighlight">\(\delta\)</span> is the signed number
-of shares held at each time step.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>spot</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a>) – The spot price of the underlying asset <span class="math notranslate nohighlight">\(S\)</span>.</p></li>
-<li><p><strong>unit</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a>) – The signed number of shares of the underlying asset
-<span class="math notranslate nohighlight">\(\delta\)</span>.</p></li>
-<li><p><strong>cost</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>default=0.0</em>) – The proportional transaction cost rate of
-the underlying asset <span class="math notranslate nohighlight">\(c\)</span>.</p></li>
-<li><p><strong>payoff</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – The payoff of the derivative <span class="math notranslate nohighlight">\(Z\)</span>.</p></li>
-<li><p><strong>deduct_first_cost</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>default=True</em>) – Whether to deduct the transaction
-cost of transacting stocks at the first time step.
-If <code class="docutils literal notranslate"><span class="pre">True</span></code>, <span class="math notranslate nohighlight">\(c |\delta_1| S_1\)</span> will be deducted from the above
-equation of the terminal value.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="simple">
-<dt>Shape:</dt><dd><ul class="simple">
-<li><p>spot: <span class="math notranslate nohighlight">\((*, T)\)</span> where <span class="math notranslate nohighlight">\(T\)</span> is the number of time steps.</p></li>
-<li><p>unit: <span class="math notranslate nohighlight">\((*, T)\)</span></p></li>
-<li><p>payoff: <span class="math notranslate nohighlight">\((*)\)</span></p></li>
-<li><p>output: <span class="math notranslate nohighlight">\((*)\)</span>.</p></li>
 </ul>
 </dd>
 </dl>

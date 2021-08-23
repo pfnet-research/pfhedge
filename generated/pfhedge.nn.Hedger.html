@@ -181,12 +181,10 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../nn.functional.html">pfhedge.nn.functional</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../instruments.html">pfhedge.instruments</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.Instrument.html">Instrument</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.Primary.html">Primary</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.HestonStock.html">HestonStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.Derivative.html">Derivative</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
@@ -269,7 +267,7 @@ See <a class="reference internal" href="pfhedge.nn.BlackScholes.html#pfhedge.nn.
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hedger</span>
 <span class="go">Hedger(</span>
 <span class="go">  inputs=['log_moneyness', 'expiry_time', 'volatility']</span>
-<span class="go">  (model): BSEuropeanOption(strike=1.)</span>
+<span class="go">  (model): BSEuropeanOption()</span>
 <span class="go">  (criterion): EntropicRiskMeasure()</span>
 <span class="go">)</span>
 </pre></div>
@@ -284,7 +282,7 @@ See <a class="reference internal" href="pfhedge.nn.WhalleyWilmott.html#pfhedge.n
 <span class="go">Hedger(</span>
 <span class="go">  inputs=['log_moneyness', 'expiry_time', 'volatility', 'prev_hedge']</span>
 <span class="go">  (model): WhalleyWilmott(</span>
-<span class="go">    (bs): BSEuropeanOption(strike=1.)</span>
+<span class="go">    (bs): BSEuropeanOption()</span>
 <span class="go">    (clamp): Clamp()</span>
 <span class="go">  )</span>
 <span class="go">  (criterion): EntropicRiskMeasure()</span>
@@ -356,67 +354,20 @@ See <a class="reference internal" href="pfhedge.nn.MultiLayerPerceptron.html#pfh
 </pre></div>
 </div>
 <dl class="py method">
-<dt class="sig sig-object py" id="pfhedge.nn.Hedger.compute_hedge">
-<span class="sig-name descname"><span class="pre">compute_hedge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">derivative</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hedge</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/hedger.html#Hedger.compute_hedge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.Hedger.compute_hedge" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute the hedge ratio at each time step.
-It assumes that the derivative is already simulated.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>derivative</strong> (<a class="reference internal" href="pfhedge.instruments.Derivative.html#pfhedge.instruments.Derivative" title="pfhedge.instruments.Derivative"><em>Derivative</em></a>) – The derivative to hedge.</p></li>
-<li><p><strong>hedge</strong> (<a class="reference internal" href="pfhedge.instruments.Instrument.html#pfhedge.instruments.Instrument" title="pfhedge.instruments.Instrument"><em>Instrument</em></a><em>, </em><em>optional</em>) – The hedging instrument.
-If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), use <code class="docutils literal notranslate"><span class="pre">derivative.underlier</span></code>.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="simple">
-<dt>Shape:</dt><dd><ul class="simple">
-<li><p>Output: <span class="math notranslate nohighlight">\((N, H, T)\)</span> where <span class="math notranslate nohighlight">\(N\)</span> is the number of paths,
-<span class="math notranslate nohighlight">\(H = 1\)</span> is the number of hedging instruments, and
-<span class="math notranslate nohighlight">\(T\)</span> is the number of time steps.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>torch.Tensor</p>
-</dd>
-</dl>
-<p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">BrownianStock</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">EuropeanOption</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">BlackScholes</span>
-<span class="go">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span> <span class="o">=</span> <span class="n">EuropeanOption</span><span class="p">(</span><span class="n">BrownianStock</span><span class="p">(),</span> <span class="n">maturity</span><span class="o">=</span><span class="mi">5</span><span class="o">/</span><span class="mi">250</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">n_paths</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span><span class="o">.</span><span class="n">ul</span><span class="p">()</span><span class="o">.</span><span class="n">spot</span>
-<span class="go">tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930, 0.9906],</span>
-<span class="go">        [1.0000, 0.9919, 0.9976, 1.0009, 1.0076, 1.0179]])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">BlackScholes</span><span class="p">(</span><span class="n">derivative</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">hedger</span> <span class="o">=</span> <span class="n">Hedger</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">inputs</span><span class="p">())</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">hedger</span><span class="o">.</span><span class="n">compute_hedge</span><span class="p">(</span><span class="n">derivative</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-<span class="go">tensor([[0.5056, 0.5295, 0.5845, 0.6610, 0.2918, 0.2918],</span>
-<span class="go">        [0.5056, 0.3785, 0.4609, 0.5239, 0.7281, 0.7281]])</span>
-</pre></div>
-</div>
-</dd></dl>
-<dl class="py method">
 <dt class="sig sig-object py" id="pfhedge.nn.Hedger.compute_loss">
 <span class="sig-name descname"><span class="pre">compute_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">derivative</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hedge</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_times</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_grad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/hedger.html#Hedger.compute_loss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.Hedger.compute_loss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the loss of the profit and loss distribution after hedging.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>derivative</strong> (<a class="reference internal" href="pfhedge.instruments.Derivative.html#pfhedge.instruments.Derivative" title="pfhedge.instruments.Derivative"><em>Derivative</em></a>) – The derivative to hedge.</p></li>
+<li><p><strong>derivative</strong> (<a class="reference internal" href="pfhedge.instruments.Derivative.html#pfhedge.instruments.Derivative" title="pfhedge.instruments.Derivative"><em>pfhedge.instruments.Derivative</em></a>) – The derivative to hedge.</p></li>
 <li><p><strong>n_paths</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><em>default=1000</em>) – The number of simulated price paths of the
 underlying instrument.</p></li>
 <li><p><strong>n_times</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><em>default=1</em>) – If <code class="docutils literal notranslate"><span class="pre">n_times</span> <span class="pre">&gt;</span> <span class="pre">1</span></code>, returns the ensemble mean
 of the losses computed through multiple simulations.</p></li>
 <li><p><strong>init_state</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)"><em>tuple</em></a><em>, </em><em>optional</em>) – The initial price of the underlying
 instrument of the derivative.
-If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), it uses the default value of
-the underlying instrument.</p></li>
+If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), sensible default value is used.</p></li>
 <li><p><strong>enable_grad</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>default=True</em>) – Context-manager that sets gradient
 calculation to on or off.</p></li>
 </ul>
@@ -458,9 +409,10 @@ customer, capital gains from the underlying asset, and the transaction cost.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>derivative</strong> (<a class="reference internal" href="pfhedge.instruments.Derivative.html#pfhedge.instruments.Derivative" title="pfhedge.instruments.Derivative"><em>Derivative</em></a>) – The derivative to hedge.</p></li>
-<li><p><strong>hedge</strong> (<a class="reference internal" href="pfhedge.instruments.Instrument.html#pfhedge.instruments.Instrument" title="pfhedge.instruments.Instrument"><em>Instrument</em></a><em>, </em><em>optional</em>) – The hedging instrument.
-If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), use <code class="docutils literal notranslate"><span class="pre">derivative.underlier</span></code>.</p></li>
+<li><p><strong>derivative</strong> (<a class="reference internal" href="pfhedge.instruments.Derivative.html#pfhedge.instruments.Derivative" title="pfhedge.instruments.Derivative"><em>pfhedge.instruments.Derivative</em></a>) – The derivative to hedge.</p></li>
+<li><p><strong>hedge</strong> (<em>pfhedge.instruments.Instrument</em><em>, </em><em>optional</em>) – The instrument to hedge
+the risk of <code class="docutils literal notranslate"><span class="pre">derivative</span></code>.
+If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), use <code class="docutils literal notranslate"><span class="pre">derivative.ul()</span></code>.</p></li>
 <li><p><strong>n_paths</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><em>default=1000</em>) – The number of simulated price paths of the
 underlying instrument.</p></li>
 <li><p><strong>init_state</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>]</em><em>, </em><em>optional</em>) – The initial state of
@@ -502,7 +454,7 @@ If <code class="docutils literal notranslate"><span class="pre">None</span></cod
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>derivative</strong> (<a class="reference internal" href="pfhedge.instruments.Derivative.html#pfhedge.instruments.Derivative" title="pfhedge.instruments.Derivative"><em>Derivative</em></a>) – The derivative to hedge.</p></li>
+<li><p><strong>derivative</strong> (<a class="reference internal" href="pfhedge.instruments.Derivative.html#pfhedge.instruments.Derivative" title="pfhedge.instruments.Derivative"><em>pfhedge.instruments.Derivative</em></a>) – The derivative to hedge.</p></li>
 <li><p><strong>n_epochs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><em>default=100</em>) – Number of Monte-Carlo simulations.</p></li>
 <li><p><strong>n_paths</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><em>default=1000</em>) – The number of simulated price paths of the
 underlying instrument.</p></li>
@@ -571,67 +523,20 @@ The optimizer will be initialized as <code class="docutils literal notranslate">
 <p>The output represents the hedge ratio at the next time step.</p>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="pfhedge.nn.Hedger.get_input">
-<span class="sig-name descname"><span class="pre">get_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_step</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/hedger.html#Hedger.get_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.Hedger.get_input" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the input tensor to the model at the given time step.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This method assumes that a derivative is already registered to
-the features. If self has not yet hedged a derivative,
-run a placeholder computation
-<code class="docutils literal notranslate"><span class="pre">_</span> <span class="pre">=</span> <span class="pre">self.compute_pnl(derivative,</span> <span class="pre">n_paths=1)</span></code>
-before calling this method.</p>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>time_step</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><em>optional</em>) – The time step to get the input tensor.
-If <code class="docutils literal notranslate"><span class="pre">None</span></code> an input tensor for all time steps is returned.</p>
-</dd>
-</dl>
-<dl class="simple">
-<dt>Shape:</dt><dd><ul class="simple">
-<li><p>Output: <span class="math notranslate nohighlight">\((N, T, F)\)</span> where <span class="math notranslate nohighlight">\(N\)</span> is the number of paths,
-<span class="math notranslate nohighlight">\(T\)</span> is the number of time steps, and
-<span class="math notranslate nohighlight">\(F\)</span> is the number of input features.
-If <code class="docutils literal notranslate"><span class="pre">time_step</span></code> is specified, <span class="math notranslate nohighlight">\(T = 1\)</span>.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>torch.Tensor</p>
-</dd>
-</dl>
-<p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">BrownianStock</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">EuropeanOption</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">Naked</span>
-<span class="go">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span> <span class="o">=</span> <span class="n">EuropeanOption</span><span class="p">(</span><span class="n">BrownianStock</span><span class="p">())</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span><span class="o">.</span><span class="n">simulate</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">hedger</span> <span class="o">=</span> <span class="n">Hedger</span><span class="p">(</span><span class="n">Naked</span><span class="p">(),</span> <span class="p">[</span><span class="s2">"expiry_time"</span><span class="p">,</span> <span class="s2">"volatility"</span><span class="p">])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">hedger</span><span class="o">.</span><span class="n">compute_pnl</span><span class="p">(</span><span class="n">derivative</span><span class="p">,</span> <span class="n">n_paths</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># Materialize features</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">hedger</span><span class="o">.</span><span class="n">get_input</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-<span class="go">tensor([[[0.0800, 0.2000]]])</span>
-</pre></div>
-</div>
-</dd></dl>
-<dl class="py method">
 <dt class="sig sig-object py" id="pfhedge.nn.Hedger.price">
 <span class="sig-name descname"><span class="pre">price</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">derivative</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hedge</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_times</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_grad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/hedger.html#Hedger.price"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.Hedger.price" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate the premium of the given derivative.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>derivative</strong> (<a class="reference internal" href="pfhedge.instruments.Derivative.html#pfhedge.instruments.Derivative" title="pfhedge.instruments.Derivative"><em>Derivative</em></a>) – The derivative to price.</p></li>
+<li><p><strong>derivative</strong> (<a class="reference internal" href="pfhedge.instruments.Derivative.html#pfhedge.instruments.Derivative" title="pfhedge.instruments.Derivative"><em>pfhedge.instruments.Derivative</em></a>) – The derivative to price.</p></li>
 <li><p><strong>n_paths</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><em>default=1000</em>) – The number of simulated price paths of the
 underlying instrument.</p></li>
 <li><p><strong>n_times</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><em>default=1</em>) – If <code class="docutils literal notranslate"><span class="pre">n_times</span> <span class="pre">&gt;</span> <span class="pre">1</span></code>, returns the ensemble mean of
 the losses computed through multiple simulations.</p></li>
 <li><p><strong>init_state</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)"><em>tuple</em></a><em>, </em><em>optional</em>) – The initial price of the underlying
 instrument of the derivative.
-If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), it uses the default value of
-the underlying instrument.</p></li>
+If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), sensible default value is used.</p></li>
 <li><p><strong>enable_grad</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>default=False</em>) – Context-manager that sets gradient
 calculation to on or off.</p></li>
 </ul>

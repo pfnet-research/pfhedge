@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Instrument" href="generated/pfhedge.instruments.Instrument.html" /><link rel="prev" title="pfhedge.nn.functional" href="nn.functional.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Primary" href="generated/pfhedge.instruments.Primary.html" /><link rel="prev" title="pfhedge.nn.functional" href="nn.functional.html" />
 
     <meta name="generator" content="sphinx-4.1.2, furo 2021.08.17.beta43"/>
         <title>pfhedge.instruments - PFHedge documentation</title>
@@ -181,12 +181,10 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="nn.functional.html">pfhedge.nn.functional</a></li>
 <li class="toctree-l1 current has-children current-page"><a class="current reference internal" href="#">pfhedge.instruments</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.Instrument.html">Instrument</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.Primary.html">Primary</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.HestonStock.html">HestonStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.Derivative.html">Derivative</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
@@ -227,20 +225,6 @@
         </div>
         <section id="pfhedge-instruments">
 <h1>pfhedge.instruments<a class="headerlink" href="#pfhedge-instruments" title="Permalink to this headline">¶</a></h1>
-<section id="base-class">
-<h2>Base Class<a class="headerlink" href="#base-class" title="Permalink to this headline">¶</a></h2>
-<div class="table-wrapper"><table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%"/>
-<col style="width: 90%"/>
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/pfhedge.instruments.Instrument.html#pfhedge.instruments.Instrument" title="pfhedge.instruments.Instrument"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instruments.Instrument</span></code></a></p></td>
-<td><p>Base class for all financial instruments.</p></td>
-</tr>
-</tbody>
-</table></div>
-</section>
 <section id="primary-instruments">
 <h2>Primary Instruments<a class="headerlink" href="#primary-instruments" title="Permalink to this headline">¶</a></h2>
 <div class="table-wrapper"><table class="longtable docutils align-default">
@@ -272,22 +256,19 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/pfhedge.instruments.Derivative.html#pfhedge.instruments.Derivative" title="pfhedge.instruments.Derivative"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instruments.Derivative</span></code></a></p></td>
 <td><p>Base class for all derivatives.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/pfhedge.instruments.BaseOption.html#pfhedge.instruments.BaseOption" title="pfhedge.instruments.BaseOption"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instruments.BaseOption</span></code></a></p></td>
-<td><p>Base class of options.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/pfhedge.instruments.EuropeanOption.html#pfhedge.instruments.EuropeanOption" title="pfhedge.instruments.EuropeanOption"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instruments.EuropeanOption</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pfhedge.instruments.EuropeanOption.html#pfhedge.instruments.EuropeanOption" title="pfhedge.instruments.EuropeanOption"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instruments.EuropeanOption</span></code></a></p></td>
 <td><p>A European option.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/pfhedge.instruments.LookbackOption.html#pfhedge.instruments.LookbackOption" title="pfhedge.instruments.LookbackOption"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instruments.LookbackOption</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pfhedge.instruments.LookbackOption.html#pfhedge.instruments.LookbackOption" title="pfhedge.instruments.LookbackOption"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instruments.LookbackOption</span></code></a></p></td>
 <td><p>A lookback option with fixed strike.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/pfhedge.instruments.EuropeanBinaryOption.html#pfhedge.instruments.EuropeanBinaryOption" title="pfhedge.instruments.EuropeanBinaryOption"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instruments.EuropeanBinaryOption</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pfhedge.instruments.EuropeanBinaryOption.html#pfhedge.instruments.EuropeanBinaryOption" title="pfhedge.instruments.EuropeanBinaryOption"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instruments.EuropeanBinaryOption</span></code></a></p></td>
 <td><p>A European binary option.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/pfhedge.instruments.AmericanBinaryOption.html#pfhedge.instruments.AmericanBinaryOption" title="pfhedge.instruments.AmericanBinaryOption"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instruments.AmericanBinaryOption</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pfhedge.instruments.AmericanBinaryOption.html#pfhedge.instruments.AmericanBinaryOption" title="pfhedge.instruments.AmericanBinaryOption"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instruments.AmericanBinaryOption</span></code></a></p></td>
 <td><p>An American binary Option.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/pfhedge.instruments.VarianceSwap.html#pfhedge.instruments.VarianceSwap" title="pfhedge.instruments.VarianceSwap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instruments.VarianceSwap</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pfhedge.instruments.VarianceSwap.html#pfhedge.instruments.VarianceSwap" title="pfhedge.instruments.VarianceSwap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instruments.VarianceSwap</span></code></a></p></td>
 <td><p>A variance swap.</p></td>
 </tr>
 </tbody>
@@ -299,12 +280,12 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="generated/pfhedge.instruments.Instrument.html">
+          <a class="next-page" href="generated/pfhedge.instruments.Primary.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Instrument</div>
+                <div class="title">Primary</div>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -350,7 +331,6 @@
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">pfhedge.instruments</a><ul>
-<li><a class="reference internal" href="#base-class">Base Class</a></li>
 <li><a class="reference internal" href="#primary-instruments">Primary Instruments</a></li>
 <li><a class="reference internal" href="#derivative-instruments">Derivative Instruments</a></li>
 </ul>

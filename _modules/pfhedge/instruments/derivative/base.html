@@ -180,12 +180,10 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../nn.functional.html">pfhedge.nn.functional</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../../instruments.html">pfhedge.instruments</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.Instrument.html">Instrument</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.Primary.html">Primary</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.HestonStock.html">HestonStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.Derivative.html">Derivative</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
@@ -276,12 +274,12 @@
     <span class="n">underlier</span><span class="p">:</span> <span class="n">Primary</span>
     <span class="n">maturity</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">pricer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Tensor</span><span class="p">]]</span>
-    <span class="n">cost</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">cost</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pricer</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cost</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cost</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">dtype</span><span class="p">:</span>
@@ -360,21 +358,20 @@
         <span class="k">return</span> <span class="n">main_str</span></div>
 
 
-<div class="viewcode-block" id="BaseOption"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.BaseOption.html#pfhedge.instruments.BaseOption">[docs]</a><span class="k">class</span> <span class="nc">BaseOption</span><span class="p">(</span><span class="n">Derivative</span><span class="p">):</span>
-    <span class="sd">"""Base class of options."""</span>
+<span class="k">class</span> <span class="nc">OptionMixin</span><span class="p">:</span>
+    <span class="sd">"""Mixin class of options."""</span>
 
     <span class="n">underlier</span><span class="p">:</span> <span class="n">Primary</span>
     <span class="n">strike</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">maturity</span><span class="p">:</span> <span class="nb">float</span>
 
-<div class="viewcode-block" id="BaseOption.moneyness"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.BaseOption.html#pfhedge.instruments.BaseOption.moneyness">[docs]</a>    <span class="k">def</span> <span class="nf">moneyness</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_step</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">log</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">moneyness</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_step</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
         <span class="sd">"""Returns the moneyness of self.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            time_step (int, optional): The time step to calculate</span>
 <span class="sd">                the moneyness. If ``None`` (default), the moneyness is calculated</span>
 <span class="sd">                at all time steps.</span>
-<span class="sd">            log (bool, default=False): If ``True``, returns log moneyness.</span>
 
 <span class="sd">        Shape:</span>
 <span class="sd">            - Output: :math:`(N, T)` where :math:`N` is the number of paths and</span>
@@ -385,16 +382,27 @@
 <span class="sd">            torch.Tensor</span>
 <span class="sd">        """</span>
         <span class="n">index</span> <span class="o">=</span> <span class="o">...</span> <span class="k">if</span> <span class="n">time_step</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[</span><span class="n">time_step</span><span class="p">]</span>
-        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">underlier</span><span class="o">.</span><span class="n">spot</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">index</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">strike</span>
-        <span class="k">if</span> <span class="n">log</span><span class="p">:</span>
-            <span class="n">output</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">log</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">output</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">underlier</span><span class="o">.</span><span class="n">spot</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">index</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">strike</span>
 
-<div class="viewcode-block" id="BaseOption.log_moneyness"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.BaseOption.html#pfhedge.instruments.BaseOption.log_moneyness">[docs]</a>    <span class="k">def</span> <span class="nf">log_moneyness</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_step</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">"""Returns ``self.moneyness(time_step).log()``."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">moneyness</span><span class="p">(</span><span class="n">time_step</span><span class="o">=</span><span class="n">time_step</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+    <span class="k">def</span> <span class="nf">log_moneyness</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_step</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+        <span class="sd">"""Returns the log moneyness of self.</span>
 
-<div class="viewcode-block" id="BaseOption.time_to_maturity"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.BaseOption.html#pfhedge.instruments.BaseOption.time_to_maturity">[docs]</a>    <span class="k">def</span> <span class="nf">time_to_maturity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_step</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+<span class="sd">        Args:</span>
+<span class="sd">            time_step (int, optional): The time step to calculate the log</span>
+<span class="sd">                moneyness. If ``None`` (default), the moneyness is calculated</span>
+<span class="sd">                at all time steps.</span>
+
+<span class="sd">        Shape:</span>
+<span class="sd">            - Output: :math:`(N, T)` where :math:`N` is the number of paths and</span>
+<span class="sd">              :math:`T` is the number of time steps.</span>
+<span class="sd">              If ``time_step`` is given, the shape is :math:`(N, 1)`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            torch.Tensor</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">moneyness</span><span class="p">(</span><span class="n">time_step</span><span class="o">=</span><span class="n">time_step</span><span class="p">)</span><span class="o">.</span><span class="n">log</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">time_to_maturity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_step</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
         <span class="sd">"""Returns the time to maturity of self.</span>
 
 <span class="sd">        Args:</span>
@@ -418,35 +426,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">time</span> <span class="o">=</span> <span class="n">n_steps</span> <span class="o">-</span> <span class="p">(</span><span class="n">time_step</span> <span class="o">%</span> <span class="n">n_steps</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
             <span class="n">t</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([[</span><span class="n">time</span><span class="p">]])</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">underlier</span><span class="o">.</span><span class="n">spot</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">underlier</span><span class="o">.</span><span class="n">dt</span>
-            <span class="k">return</span> <span class="n">t</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="n">n_paths</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="BaseOption.max_moneyness"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.BaseOption.html#pfhedge.instruments.BaseOption.max_moneyness">[docs]</a>    <span class="k">def</span> <span class="nf">max_moneyness</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_step</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">"""Returns the cumulative maximum of the moneyness.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            time_step (int, optional): The time step to calculate</span>
-<span class="sd">                the time to maturity. If ``None`` (default), the time to</span>
-<span class="sd">                maturity is calculated at all time steps.</span>
-<span class="sd">            log (bool, default=False): If ``True``, returns the cumulative</span>
-<span class="sd">                maximum of the log moneyness.</span>
-
-<span class="sd">        Shape:</span>
-<span class="sd">            - Output: :math:`(N, T)` where :math:`N` is the number of paths and</span>
-<span class="sd">              :math:`T` is the number of time steps.</span>
-<span class="sd">              If ``time_step`` is given, the shape is :math:`(N, 1)`.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            torch.Tensor</span>
-<span class="sd">        """</span>
-        <span class="n">moneyness</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moneyness</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="n">log</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">time_step</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">moneyness</span><span class="o">.</span><span class="n">cummax</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">moneyness</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span> <span class="n">time_step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">values</span></div>
-
-<div class="viewcode-block" id="BaseOption.max_log_moneyness"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.BaseOption.html#pfhedge.instruments.BaseOption.max_log_moneyness">[docs]</a>    <span class="k">def</span> <span class="nf">max_log_moneyness</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_step</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">"""Returns ``self.max_moneyness(time_step).log()``."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_moneyness</span><span class="p">(</span><span class="n">time_step</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div></div>
+            <span class="k">return</span> <span class="n">t</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="n">n_paths</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 
 
 <span class="c1"># Assign docstrings so they appear in Sphinx documentation</span>
