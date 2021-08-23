@@ -19,22 +19,30 @@ class LeakyClamp(Module):
     .. math ::
 
         \\text{output} = \\begin{cases}
-        \\min + \\text{clampled_slope} * (\\text{input} - \\min) &
-        \\text{input} < \\min \\\\
-        \\text{input} & \\min \\leq \\text{input} \\leq \\max \\\\
-        \\max + \\text{clampled_slope} * (\\text{input} - \\max) &
-        \\max < \\text{input}
+            \\min + \\text{clampled_slope} * (\\text{input} - \\min) &
+            \\text{input} < \\min \\\\
+            \\text{input} & \\min \\leq \\text{input} \\leq \\max \\\\
+            \\max + \\text{clampled_slope} * (\\text{input} - \\max) &
+            \\max < \\text{input}
         \\end{cases}
 
     If :math:`\\min > \\max`:
 
     .. math ::
 
-        \\text{output} = \\frac12 (\\min + \\max)
+        \\text{output} = \\begin{cases}
+            \\frac12 (\\min + \\max)
+            & \\text{inverted_output} = \\text{'mean'} \\\\
+            \\max
+            & \\text{inverted_output} = \\text{'max'} \\\\
+        \\end{cases}
 
     Args:
         clamped_slope (float, default=0.01):
             Controls the slope in the clampled regions.
+        inverted_output ({'mean', ''max'}, default='mean'):
+            Controls the output when :math:`\\min > \\max`.
+            'max' is consistent with :func:`torch.clamp`.
 
     Shape:
         - input: :math:`(N, *)`, where :math:`*` means any number of additional
@@ -60,9 +68,10 @@ class LeakyClamp(Module):
                  8.0000e-01,  9.0000e-01,  1.0000e+00,  1.0010e+00,  1.0020e+00])
     """
 
-    def __init__(self, clamped_slope: float = 0.01):
+    def __init__(self, clamped_slope: float = 0.01, inverted_output: str = "mean"):
         super().__init__()
         self.clamped_slope = clamped_slope
+        self.inverted_output = inverted_output
 
     def extra_repr(self) -> str:
         return (
@@ -113,7 +122,17 @@ class Clamp(Module):
 
     .. math ::
 
-        \\text{output} = \\frac12 (\\min + \\max)
+        \\text{output} = \\begin{cases}
+            \\frac12 (\\min + \\max)
+            & \\text{inverted_output} = \\text{'mean'} \\\\
+            \\max
+            & \\text{inverted_output} = \\text{'max'} \\\\
+        \\end{cases}
+
+    Args:
+        inverted_output ({'mean', ''max'}, default='mean'):
+            Controls the output when :math:`\\min > \\max`.
+            'max' is consistent with :func:`torch.clamp`.
 
     Shape:
         - input: :math:`(N, *)`, where :math:`*` means any number of additional

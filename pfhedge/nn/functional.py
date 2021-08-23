@@ -214,6 +214,7 @@ def leaky_clamp(
     min: Optional[Tensor] = None,
     max: Optional[Tensor] = None,
     clamped_slope: float = 0.01,
+    inverted_output: str = "mean",
 ) -> Tensor:
     """Leakily clamp all elements in ``input`` into the range :math:`[\\min, \\max]`.
 
@@ -224,21 +225,30 @@ def leaky_clamp(
     x = input
 
     if min is not None:
-        min = torch.as_tensor(min)
+        min = torch.as_tensor(min).to(x)
         x = x.maximum(min + clamped_slope * (x - min))
 
     if max is not None:
-        max = torch.as_tensor(max)
+        max = torch.as_tensor(max).to(x)
         x = x.minimum(max + clamped_slope * (x - max))
 
     if min is not None and max is not None:
-        x = x.where(min <= max, (min + max) / 2)
+        if inverted_output == "mean":
+            y = (min + max) / 2
+        elif inverted_output == "max":
+            y = max
+        else:
+            raise ValueError("inverted_output must be 'mean' or 'max'.")
+        x = x.where(min <= max, y)
 
     return x
 
 
 def clamp(
-    input: Tensor, min: Optional[Tensor] = None, max: Optional[Tensor] = None
+    input: Tensor,
+    min: Optional[Tensor] = None,
+    max: Optional[Tensor] = None,
+    inverted_output: str = "mean",
 ) -> Tensor:
     """Clamp all elements in ``input`` into the range :math:`[\\min, \\max]`.
 
@@ -246,7 +256,15 @@ def clamp(
 
     See :class:`pfhedge.nn.Clamp` for details.
     """
-    return leaky_clamp(input, min=min, max=max, clamped_slope=0.0)
+    if inverted_output == "mean":
+        output = leaky_clamp(
+            input, min=min, max=max, clamped_slope=0.0, inverted_output=inverted_output
+        )
+    elif inverted_output == "max":
+        output = torch.clamp(input, min=min, max=max)
+    else:
+        raise ValueError("inverted_output must be 'mean' or 'max'.")
+    return output
 
 
 def realized_variance(input: Tensor, dt: Union[Tensor, float]) -> Tensor:
