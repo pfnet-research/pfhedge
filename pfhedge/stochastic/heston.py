@@ -22,8 +22,7 @@ class HestonTuple(namedtuple("HestonTuple", ["spot", "variance"])):
         items_str_list = []
         for field, tensor in self._asdict().items():
             items_str_list.append(field + "=\n" + str(tensor))
-        items_str = "\n".join(items_str_list)
-        items_str = _addindent(items_str, 2)
+        items_str = _addindent("\n".join(items_str_list), 2)
         main_str = self.__class__.__name__ + "(\n" + items_str + "\n)"
         return main_str
 
