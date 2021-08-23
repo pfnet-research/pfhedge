@@ -1,6 +1,5 @@
 import pytest
 import torch
-from black import get_features_used
 from torch.nn import Linear
 from torch.testing import assert_close
 
