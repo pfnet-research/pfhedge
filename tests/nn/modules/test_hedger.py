@@ -213,7 +213,7 @@ class TestHedger:
         hedger = Hedger(Naked(), ["zeros"] * h_in)
         derivative = EuropeanOption(BrownianStock())
         derivative.simulate()
-        hedger.inputs = [f.of(derivative, self) for f in hedger.inputs]
+        _ = hedger.compute_pnl(derivative, n_paths=1)
         N, T = derivative.ul().spot.size()
         input = hedger.get_input(0)
         assert input.size() == torch.Size((N, 1, h_in))
