@@ -77,7 +77,8 @@ def generate_heston(
             for CUDA tensor types.
 
     Shape:
-        - spot: :math:`(N, T)`, where :math:`N` is the number of paths and
+        - spot: :math:`(N, T)`, where
+          :math:`N` is the number of paths and
           :math:`T` is the number of time steps.
         - variance: :math:`(N, T)`.
 
