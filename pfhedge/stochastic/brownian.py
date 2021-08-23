@@ -20,8 +20,6 @@ def generate_brownian(
 ) -> Tensor:
     """Returns time series following the Brownian motion.
 
-    The drift of the time series is assumed to be vanishing.
-
     The time evolution of the process is given by:
 
     .. math ::
@@ -33,11 +31,10 @@ def generate_brownian(
         n_steps (int): The number of time steps.
         init_state (tuple[torch.Tensor | float], default=(0.0,)): The initial state of
             the time series.
-            This is specified by ``(S0,)``, where ``S0`` is
-            the initial value of :math:`S`.
+            This is specified by a tuple :math:`(S(0),)`.
             It also accepts a :class:`torch.Tensor` or a :class:`float`.
-        sigma (float, default=0.2): The parameter :math:`sigma`, which stands for
-            the volatility of the time series.
+        sigma (float, default=0.2): The parameter :math:`\\sigma`,
+            which stands for the volatility of the time series.
         dt (float, default=1/250): The intervals of the time steps.
         dtype (torch.dtype, optional): The desired data type of returned tensor.
             Default: If ``None``, uses a global default
@@ -49,7 +46,8 @@ def generate_brownian(
             for CUDA tensor types.
 
     Shape:
-        - Output: :math:`(N, T)`, where :math:`N` is the number of paths and
+        - Output: :math:`(N, T)` where
+          :math:`N` is the number of paths and
           :math:`T` is the number of time steps.
 
     Returns:
@@ -90,8 +88,6 @@ def generate_geometric_brownian(
 ) -> Tensor:
     """Returns time series following the geometric Brownian motion.
 
-    The drift of the time series is assumed to be vanishing.
-
     The time evolution of the process is given by:
 
     .. math ::
@@ -101,12 +97,12 @@ def generate_geometric_brownian(
     Args:
         n_paths (int): The number of simulated paths.
         n_steps (int): The number of time steps.
-        init_state (tuple[torch.Tensor | float], default=(1.0,)): The initial state of
+        init_state (tuple[torch.Tensor | float], default=(0.0,)): The initial state of
             the time series.
-            This is specified by ``(S0,)``, where ``S0`` is the initial value of :math:`S`.
+            This is specified by a tuple :math:`(S(0),)`.
             It also accepts a :class:`torch.Tensor` or a :class:`float`.
-        sigma (float, default=0.2): The parameter :math:`sigma`, which stands for
-            the volatility of the time series.
+        sigma (float, default=0.2): The parameter :math:`sigma`,
+            which stands for the volatility of the time series.
         dt (float, default=1/250): The intervals of the time steps.
         dtype (torch.dtype, optional): The desired data type of returned tensor.
             Default: If ``None``, uses a global default
@@ -118,8 +114,9 @@ def generate_geometric_brownian(
             for CUDA tensor types.
 
     Shape:
-        - Output: :math:`(N, T)`, where :math:`T` is the number of time steps and
-          :math:`N` is the number of paths.
+        - Output: :math:`(N, T)` where
+          :math:`N` is the number of paths and
+          :math:`T` is the number of time steps.
 
     Returns:
         torch.Tensor

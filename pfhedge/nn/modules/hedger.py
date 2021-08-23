@@ -29,25 +29,27 @@ TensorOrFloat = Union[Tensor, float]
 
 
 class Hedger(Module):
-    """A :class:`torch.nn.Module` to hedge and price derivatives.
+    """Module to hedge and price derivatives.
 
     Args:
         model (torch.nn.Module): Hedging model to compute the hedge ratio at the
             next time step from the input features at the current time step.
             The input and output shapes should be :math:`(N, H_\\text{in})` and
-            :math:`(N, 1)` respectively, where :math:`N` stands for the number simulated
-            paths of the asset prices and :math:`H_\\text{in}` stands for the number of
-            input features (namely, ``len(inputs)``).
-        inputs (list[str|Feature]): List of (names of) input features to feed to model.
+            :math:`(N, 1)` respectively, where
+            :math:`N` stands for the number simulated paths of the asset prices and
+            :math:`H_\\text{in}` is the number of input features (``len(inputs)``).
+        inputs (list[str|Feature]): List of the names of the input features that
+            will be fed to the model.
             See ``list(map(str, pfhedge.features.FEATURES))`` for valid options.
         criterion (HedgeLoss, default=EntropicRiskMeasure()):
             Loss function to minimize by hedging.
             Default: :class:`pfhedge.nn.EntropicRiskMeasure()` .
 
     Shape:
-        - Input: :math:`(N, H_{\\text{in}})` where :math:`H_{\\text{in}}` is
-          the number of input features.
-        - Output: :math:`(N, 1)`
+        - input: :math:`(N, H_{\\text{in}})` where
+          :math:`N` is the number of simulated paths and
+          :math:`H_{\\text{in}}` is the number of input features.
+        - output: :math:`(N, 1)`
 
     Examples:
 
@@ -192,7 +194,8 @@ class Hedger(Module):
                 If ``None`` an input tensor for all time steps is returned.
 
         Shape:
-            - Output: :math:`(N, T, F)` where :math:`N` is the number of paths,
+            - Output: :math:`(N, T, F)` where
+              :math:`N` is the number of paths,
               :math:`T` is the number of time steps, and
               :math:`F` is the number of input features.
               If ``time_step`` is specified, :math:`T = 1`.
@@ -227,7 +230,8 @@ class Hedger(Module):
                 If ``None`` (default), use ``derivative.underlier``.
 
         Shape:
-            - Output: :math:`(N, H, T)` where :math:`N` is the number of paths,
+            - Output: :math:`(N, H, T)` where
+              :math:`N` is the number of paths,
               :math:`H = 1` is the number of hedging instruments, and
               :math:`T` is the number of time steps.
 
@@ -307,7 +311,8 @@ class Hedger(Module):
                 If ``None`` (default), it uses the default value.
 
         Shape:
-            - Output: :math:`(N)`, where :math:`N` is the number of paths.
+            - Output: :math:`(N)` where
+              :math:`N` is the number of paths.
 
         Returns:
             torch.Tensor

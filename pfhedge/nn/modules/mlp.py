@@ -18,21 +18,22 @@ class MultiLayerPerceptron(Sequential):
     Number of input features is lazily determined.
 
     Args:
-        in_features (int, default=None): Size of each input sample.
+        in_features (int, optional): Size of each input sample.
             If ``None`` (default), the number of input features will be
             will be inferred from the ``input.shape[-1]`` after the first call to
             ``forward`` is done. Also, before the first ``forward`` parameters in the
             module are of :class:`torch.nn.UninitializedParameter` class.
         out_features (int, default=1): Size of each output sample.
-        n_layers (int, default=4): Number of hidden layers.
-        n_units (int or tuple[int], default=32): Number of units in each hidden layer.
+        n_layers (int, default=4): The number of hidden layers.
+        n_units (int or tuple[int], default=32): The number of units in
+            each hidden layer.
             If ``tuple[int]``, it specifies different number of units for each layer.
         activation (torch.nn.Module, default=torch.nn.ReLU()):
-            Activation module of the hidden layers.
-            Default: :class:`torch.nn.ReLU` instance.
+            The activation module of the hidden layers.
+            Default is a :class:`torch.nn.ReLU` instance.
         out_activation (torch.nn.Module, default=torch.nn.Identity()):
-            Activation module of the output layer.
-            Default: :class:`torch.nn.Identity` instance.
+            The activation module of the output layer.
+            Default is a :class:`torch.nn.Identity` instance.
 
     Shape:
         - Input: :math:`(N, *, H_{\\text{in}})` where

@@ -40,11 +40,11 @@ class WhalleyWilmott(Module):
         a (float, default=1.0): Risk aversion parameter in exponential utility.
 
     Shape:
-        - Input: :math:`(N, *, H_{\\text{in}})`.  Here, :math:`*` means any number of
-          additional dimensions and :math:`H_{\\text{in}}` is
-          the number of input features.
+        - Input: :math:`(N, *, H_{\\text{in}})` where
+          :math:`*` means any number of additional dimensions and
+          :math:`H_{\\text{in}}` is the number of input features.
           See :func:`inputs()` for the names of input features.
-        - Output: :math:`(N, *, 1)`. The hedge ratio at the next time step.
+        - Output: :math:`(N, *, 1)`.
 
     Examples:
 
@@ -109,7 +109,7 @@ class WhalleyWilmott(Module):
         """Returns the names of input features.
 
         Returns:
-            list
+            list[str]
         """
         return self.bs.inputs() + ["prev_hedge"]
 
@@ -133,7 +133,10 @@ class WhalleyWilmott(Module):
             input (Tensor): The input tensor.
 
         Shape:
-            - Input: :math:`(N, *, H_{\\text{in}} - 1)`
+            - Input: :math:`(N, *, H_{\\text{in}} - 1)` where
+              :math:`*` means any number of additional dimensions and
+              :math:`H_{\\text{in}}` is the number of input features.
+              See :func:`inputs()` for the names of input features.
             - Output: :math:`(N, *, 1)`
 
         Returns:

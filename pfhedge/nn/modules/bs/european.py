@@ -16,9 +16,10 @@ class BSEuropeanOption(BSModuleMixin):
         strike (float, default=1.0): The strike price of the option.
 
     Shape:
-        - Input : :math:`(N, *, 3)`, where :math:`*` means any number
-          of additional dimensions. See ``inputs`` for the names of input features.
-        - Output: :math:`(N, *, 1)`. Delta of the derivative.
+        - Input : :math:`(N, *, 3)` where
+          :math:`*` means any number of additional dimensions.
+          See ``inputs`` for the names of input features.
+        - Output: :math:`(N, *, 1)`.
           All but the last dimension are the same shape as the input.
 
     .. seealso ::
@@ -45,7 +46,7 @@ class BSEuropeanOption(BSModuleMixin):
                 [0.5752]])
 
     References:
-        John C. Hull, 2003. Options futures and other derivatives. Pearson.
+        - John C. Hull, 2003. Options futures and other derivatives. Pearson.
     """
 
     def __init__(self, call: bool = True, strike: float = 1.0):
@@ -94,7 +95,8 @@ class BSEuropeanOption(BSModuleMixin):
             volatility (torch.Tensor): Volatility of the underlying asset.
 
         Shape:
-            - log_moneyness: :math:`(N, *)`
+            - log_moneyness: :math:`(N, *)` where
+              :math:`*` means any number of additional dimensions.
             - time_to_maturity: :math:`(N, *)`
             - volatility: :math:`(N, *)`
             - output: :math:`(N, *)`
@@ -120,7 +122,8 @@ class BSEuropeanOption(BSModuleMixin):
             volatility (torch.Tensor): Volatility of the underlying asset.
 
         Shape:
-            - log_moneyness: :math:`(N, *)`
+            - log_moneyness: :math:`(N, *)` where
+              :math:`*` means any number of additional dimensions.
             - time_to_maturity: :math:`(N, *)`
             - volatility: :math:`(N, *)`
             - output: :math:`(N, *)`
@@ -150,7 +153,8 @@ class BSEuropeanOption(BSModuleMixin):
             volatility (torch.Tensor): Volatility of the underlying asset.
 
         Shape:
-            - log_moneyness: :math:`(N, *)`
+            - log_moneyness: :math:`(N, *)` where
+              :math:`*` means any number of additional dimensions.
             - time_to_maturity: :math:`(N, *)`
             - volatility: :math:`(N, *)`
             - output: :math:`(N, *)`
@@ -187,7 +191,8 @@ class BSEuropeanOption(BSModuleMixin):
                 implied volatility.
 
         Shape:
-            - log_moneyness: :math:`(N, *)`
+            - log_moneyness: :math:`(N, *)` where
+              :math:`*` means any number of additional dimensions.
             - time_to_maturity: :math:`(N, *)`
             - price: :math:`(N, *)`
             - output: :math:`(N, *)`

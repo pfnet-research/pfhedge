@@ -16,8 +16,9 @@ def european_payoff(input: Tensor, call: bool = True, strike: float = 1.0) -> Te
         strike (float, default=1.0): The strike price of the option.
 
     Shape:
-        - input: :math:`(*, T)` where :math:`T` stands for the number of time steps
-          and :math:`*` means any number of additional dimensions.
+        - input: :math:`(*, T)` where
+          :math:`T` is the number of time steps and
+          :math:`*` means any number of additional dimensions.
         - output: :math:`(*)`
 
     Returns:
@@ -38,8 +39,9 @@ def lookback_payoff(input: Tensor, call: bool = True, strike: float = 1.0) -> Te
         strike (float, default=1.0): The strike price of the option.
 
     Shape:
-        - input: :math:`(*, T)` where :math:`T` stands for the number of time steps
-          and :math:`*` means any number of additional dimensions.
+        - input: :math:`(*, T)` where
+          :math:`T` is the number of time steps and
+          :math:`*` means any number of additional dimensions.
         - output: :math:`(*)`
 
     Returns:
@@ -62,8 +64,9 @@ def american_binary_payoff(
         strike (float, default=1.0): The strike price of the option.
 
     Shape:
-        - input: :math:`(*, T)` where :math:`T` stands for the number of time steps
-          and :math:`*` means any number of additional dimensions.
+        - input: :math:`(*, T)` where
+          :math:`T` is the number of time steps and
+          :math:`*` means any number of additional dimensions.
         - output: :math:`(*)`
 
     Returns:
@@ -86,8 +89,9 @@ def european_binary_payoff(
         strike (float, default=1.0): The strike price of the option.
 
     Shape:
-        - input: :math:`(*, T)` where :math:`T` stands for the number of time steps
-          and :math:`*` means any number of additional dimensions.
+        - input: :math:`(*, T)` where
+          :math:`T` is the number of time steps and
+          :math:`*` means any number of additional dimensions.
         - output: :math:`(*)`
 
     Returns:
@@ -217,8 +221,6 @@ def leaky_clamp(
 ) -> Tensor:
     """Leakily clamp all elements in ``input`` into the range :math:`[\\min, \\max]`.
 
-    The bounds :math:`\\min` and :math:`\\max` can be tensors.
-
     See :class:`pfhedge.nn.LeakyClamp` for details.
     """
     x = input
@@ -241,8 +243,6 @@ def clamp(
     input: Tensor, min: Optional[Tensor] = None, max: Optional[Tensor] = None
 ) -> Tensor:
     """Clamp all elements in ``input`` into the range :math:`[\\min, \\max]`.
-
-    The bounds :math:`\\min` and :math:`\\max` can be tensors.
 
     See :class:`pfhedge.nn.Clamp` for details.
     """
@@ -334,7 +334,9 @@ def terminal_value(
             equation of the terminal value.
 
     Shape:
-        - spot: :math:`(*, T)` where :math:`T` is the number of time steps.
+        - spot: :math:`(*, T)` where
+          :math:`T` is the number of time steps and
+          :math:`*` means any number of additional dimensions.
         - unit: :math:`(*, T)`
         - payoff: :math:`(*)`
         - output: :math:`(*)`.
