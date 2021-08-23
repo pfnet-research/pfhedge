@@ -6,14 +6,14 @@ from torch import Tensor
 from pfhedge._utils.doc import set_attr_and_docstring
 from pfhedge._utils.doc import set_docstring
 from pfhedge._utils.str import _format_float
+from pfhedge.nn.functional import american_binary_payoff
 
-from ...nn.functional import american_binary_payoff
 from ..primary.base import Primary
+from .base import BaseOption
 from .base import Derivative
-from .base import OptionMixin
 
 
-class AmericanBinaryOption(Derivative, OptionMixin):
+class AmericanBinaryOption(BaseOption):
     """An American binary Option.
 
     An American binary call option pays an unit amount of cash if and only if
@@ -111,7 +111,7 @@ maturity=5/250, strike=1.01)
 
     def payoff(self) -> Tensor:
         return american_binary_payoff(
-            self.underlier.spot, call=self.call, strike=self.strike
+            self.ul().spot, call=self.call, strike=self.strike
         )
 
 
@@ -121,8 +121,8 @@ set_attr_and_docstring(AmericanBinaryOption, "to", Derivative.to)
 set_attr_and_docstring(AmericanBinaryOption, "ul", Derivative.ul)
 set_attr_and_docstring(AmericanBinaryOption, "list", Derivative.list)
 set_docstring(AmericanBinaryOption, "payoff", Derivative.payoff)
-set_attr_and_docstring(AmericanBinaryOption, "moneyness", OptionMixin.moneyness)
-set_attr_and_docstring(AmericanBinaryOption, "log_moneyness", OptionMixin.log_moneyness)
+set_attr_and_docstring(AmericanBinaryOption, "moneyness", BaseOption.moneyness)
+set_attr_and_docstring(AmericanBinaryOption, "log_moneyness", BaseOption.log_moneyness)
 set_attr_and_docstring(
-    AmericanBinaryOption, "time_to_maturity", OptionMixin.time_to_maturity
+    AmericanBinaryOption, "time_to_maturity", BaseOption.time_to_maturity
 )

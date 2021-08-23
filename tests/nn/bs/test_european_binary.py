@@ -20,11 +20,11 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
 
     def test_repr(self):
         m = BSEuropeanBinaryOption()
-        assert repr(m) == "BSEuropeanBinaryOption()"
+        assert repr(m) == "BSEuropeanBinaryOption(strike=1.)"
 
         derivative = EuropeanBinaryOption(BrownianStock(), strike=1.1)
         m = BSEuropeanBinaryOption.from_derivative(derivative)
-        assert repr(m) == "BSEuropeanBinaryOption(strike=1.1)"
+        assert repr(m) == "BSEuropeanBinaryOption(strike=1.1000)"
 
         with pytest.raises(ValueError):
             # not yet supported
@@ -40,7 +40,7 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
 
     def test_features(self):
         m = BSEuropeanBinaryOption()
-        assert m.inputs() == ["log_moneyness", "expiry_time", "volatility"]
+        assert m.inputs() == ["log_moneyness", "time_to_maturity", "volatility"]
         _ = [get_feature(f) for f in m.inputs()]
 
     def test_forward(self):
@@ -79,7 +79,7 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
         assert_close(result, expect, atol=1e-4, rtol=1e-4)
 
     def test_implied_volatility(self):
-        # log_moneyness, expiry_time, price
+        # log_moneyness, time_to_maturity, price
         input = torch.tensor(
             [[-0.01, 0.1, 0.40], [-0.01, 0.1, 0.41], [-0.01, 0.1, 0.42]]
         )
@@ -95,11 +95,14 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
         from pfhedge.instruments import EuropeanBinaryOption
         from pfhedge.nn import Hedger
 
-        deriv = EuropeanBinaryOption(BrownianStock())
-        model = BSEuropeanBinaryOption(deriv)
+        derivative = EuropeanBinaryOption(BrownianStock())
+        model = BSEuropeanBinaryOption.from_derivative(derivative)
         hedger = Hedger(model, model.inputs())
-        result = hedger.price(deriv)
+        result = hedger.price(derivative)
         expect = torch.tensor(0.4922)
+        x = hedger.compute_hedge(derivative)
+        print(x)
+        assert not x.isnan().any()
         assert_close(result, expect, atol=1e-2, rtol=1e-2)
 
     def test_shape(self):

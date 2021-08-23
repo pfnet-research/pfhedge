@@ -9,12 +9,14 @@ from .features import MaxLogMoneyness
 from .features import MaxMoneyness
 from .features import Moneyness
 from .features import PrevHedge
+from .features import TimeToMaturity
 from .features import Volatility
 from .features import Zeros
 
 FEATURES = [
     Empty(),
     ExpiryTime(),
+    TimeToMaturity(),
     LogMoneyness(),
     MaxLogMoneyness(),
     MaxMoneyness(),

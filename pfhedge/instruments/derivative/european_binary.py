@@ -6,14 +6,14 @@ from torch import Tensor
 from pfhedge._utils.doc import set_attr_and_docstring
 from pfhedge._utils.doc import set_docstring
 from pfhedge._utils.str import _format_float
+from pfhedge.nn.functional import european_binary_payoff
 
-from ...nn.functional import european_binary_payoff
 from ..primary.base import Primary
+from .base import BaseOption
 from .base import Derivative
-from .base import OptionMixin
 
 
-class EuropeanBinaryOption(Derivative, OptionMixin):
+class EuropeanBinaryOption(BaseOption):
     """A European binary option.
 
     An American binary call option pays an unit amount of cash if and only if
@@ -117,8 +117,8 @@ set_attr_and_docstring(EuropeanBinaryOption, "to", Derivative.to)
 set_attr_and_docstring(EuropeanBinaryOption, "ul", Derivative.ul)
 set_attr_and_docstring(EuropeanBinaryOption, "list", Derivative.list)
 set_docstring(EuropeanBinaryOption, "payoff", Derivative.payoff)
-set_attr_and_docstring(EuropeanBinaryOption, "moneyness", OptionMixin.moneyness)
-set_attr_and_docstring(EuropeanBinaryOption, "log_moneyness", OptionMixin.log_moneyness)
+set_attr_and_docstring(EuropeanBinaryOption, "moneyness", BaseOption.moneyness)
+set_attr_and_docstring(EuropeanBinaryOption, "log_moneyness", BaseOption.log_moneyness)
 set_attr_and_docstring(
-    EuropeanBinaryOption, "time_to_maturity", OptionMixin.time_to_maturity
+    EuropeanBinaryOption, "time_to_maturity", BaseOption.time_to_maturity
 )

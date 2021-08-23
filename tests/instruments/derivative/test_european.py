@@ -13,8 +13,11 @@ class TestEuropeanOption:
 
     def test_payoff(self):
         derivative = EuropeanOption(BrownianStock(), strike=2.0)
-        derivative.underlier.spot = torch.tensor(
-            [[1.0, 1.0, 1.9], [1.0, 1.0, 2.0], [1.0, 1.0, 2.1], [1.0, 1.0, 3.0]]
+        derivative.underlier.register_buffer(
+            "spot",
+            torch.tensor(
+                [[1.0, 1.0, 1.9], [1.0, 1.0, 2.0], [1.0, 1.0, 2.1], [1.0, 1.0, 3.0]]
+            ),
         )
         result = derivative.payoff()
         expect = torch.tensor([0.0, 0.0, 0.1, 1.0])
@@ -58,6 +61,14 @@ class TestEuropeanOption:
 
         result = derivative.log_moneyness(0)
         expect = (stock.spot[:, [0]] / strike).log()
+        assert_close(result, expect)
+
+    def test_max_log_moneyness(self):
+        derivative = EuropeanOption(BrownianStock())
+        derivative.simulate()
+
+        result = derivative.max_log_moneyness(10)
+        expect = derivative.max_moneyness(10).log()
         assert_close(result, expect)
 
     def test_time_to_maturity(self):

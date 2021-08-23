@@ -6,14 +6,14 @@ from torch import Tensor
 from pfhedge._utils.doc import set_attr_and_docstring
 from pfhedge._utils.doc import set_docstring
 from pfhedge._utils.str import _format_float
+from pfhedge.nn.functional import lookback_payoff
 
-from ...nn.functional import lookback_payoff
 from ..primary.base import Primary
+from .base import BaseOption
 from .base import Derivative
-from .base import OptionMixin
 
 
-class LookbackOption(Derivative, OptionMixin):
+class LookbackOption(BaseOption):
     """A lookback option with fixed strike.
 
     A lookback call option provides its holder the right to buy an underlying with
@@ -109,6 +109,6 @@ set_attr_and_docstring(LookbackOption, "to", Derivative.to)
 set_attr_and_docstring(LookbackOption, "ul", Derivative.ul)
 set_attr_and_docstring(LookbackOption, "list", Derivative.list)
 set_docstring(LookbackOption, "payoff", Derivative.payoff)
-set_attr_and_docstring(LookbackOption, "moneyness", OptionMixin.moneyness)
-set_attr_and_docstring(LookbackOption, "log_moneyness", OptionMixin.log_moneyness)
-set_attr_and_docstring(LookbackOption, "time_to_maturity", OptionMixin.time_to_maturity)
+set_attr_and_docstring(LookbackOption, "moneyness", BaseOption.moneyness)
+set_attr_and_docstring(LookbackOption, "log_moneyness", BaseOption.log_moneyness)
+set_attr_and_docstring(LookbackOption, "time_to_maturity", BaseOption.time_to_maturity)

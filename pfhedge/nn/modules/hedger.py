@@ -16,10 +16,11 @@ from pfhedge._utils.hook import save_prev_output
 from pfhedge._utils.lazy import has_lazy
 from pfhedge._utils.operations import ensemble_mean
 from pfhedge._utils.str import _format_float
-from pfhedge.features import get_feature
-from pfhedge.instruments.base import Instrument
+from pfhedge.features import FeatureList
+from pfhedge.features._base import Feature
 from pfhedge.instruments.derivative.base import Derivative
 from pfhedge.instruments.primary.base import Primary
+from pfhedge.nn.functional import terminal_value
 
 from .loss import EntropicRiskMeasure
 from .loss import HedgeLoss
@@ -63,8 +64,8 @@ class Hedger(Module):
         >>> hedger = Hedger(model, model.inputs())
         >>> hedger
         Hedger(
-          inputs=['log_moneyness', 'expiry_time', 'volatility']
-          (model): BSEuropeanOption()
+          inputs=['log_moneyness', 'time_to_maturity', 'volatility']
+          (model): BSEuropeanOption(strike=1.)
           (criterion): EntropicRiskMeasure()
         )
 
@@ -77,9 +78,9 @@ class Hedger(Module):
         >>> hedger = Hedger(model, model.inputs())
         >>> hedger
         Hedger(
-          inputs=['log_moneyness', 'expiry_time', 'volatility', 'prev_hedge']
+          inputs=['log_moneyness', 'time_to_maturity', 'volatility', 'prev_hedge']
           (model): WhalleyWilmott(
-            (bs): BSEuropeanOption()
+            (bs): BSEuropeanOption(strike=1.)
             (clamp): Clamp()
           )
           (criterion): EntropicRiskMeasure()
@@ -98,11 +99,11 @@ class Hedger(Module):
         >>> from pfhedge.nn import MultiLayerPerceptron
         >>>
         >>> model = MultiLayerPerceptron()
-        >>> hedger = Hedger(model, ["moneyness", "expiry_time", "volatility"])
+        >>> hedger = Hedger(model, ["moneyness", "time_to_maturity", "volatility"])
         >>> _ = hedger.compute_pnl(derivative, n_paths=1)  # Lazily materialize
         >>> hedger
         Hedger(
-          inputs=['moneyness', 'expiry_time', 'volatility']
+          inputs=['moneyness', 'time_to_maturity', 'volatility']
           (model): MultiLayerPerceptron(
             (0): Linear(in_features=3, out_features=32, bias=True)
             (1): ReLU()
@@ -129,7 +130,7 @@ class Hedger(Module):
         >>>
         >>> pricer = lambda derivative: BlackScholes(derivative).price(
         ...     log_moneyness=derivative.log_moneyness(),
-        ...     expiry_time=derivative.time_to_maturity(),
+        ...     time_to_maturity=derivative.time_to_maturity(),
         ...     volatility=derivative.ul().volatility)
         >>>
         >>> stock = BrownianStock()
@@ -139,7 +140,7 @@ class Hedger(Module):
         >>>
         >>> hedger = Hedger(
         ...     MultiLayerPerceptron(),
-        ...     inputs=["moneyness", "expiry_time", "volatility"])
+        ...     inputs=["moneyness", "time_to_maturity", "volatility"])
         >>> _ = hedger.fit(
         ...     derivative,
         ...     hedge=hedging_instrument,
@@ -150,16 +151,18 @@ class Hedger(Module):
         tensor(...)
     """
 
+    inputs: FeatureList
+
     def __init__(
         self,
         model: Module,
-        inputs: List[str],
+        inputs: List[Union[str, Feature]],
         criterion: HedgeLoss = EntropicRiskMeasure(),
     ):
         super().__init__()
 
         self.model = model
-        self.inputs = [get_feature(i) for i in inputs]
+        self.inputs = FeatureList(inputs)
         self.criterion = criterion
 
         self.register_forward_hook(save_prev_output)
@@ -172,7 +175,111 @@ class Hedger(Module):
         return self.model(input)
 
     def extra_repr(self) -> str:
-        return "inputs=" + str(list(map(str, self.inputs)))
+        return "inputs=" + str(self.inputs)
+
+    def get_input(self, time_step: Optional[int]) -> Tensor:
+        """Returns the input tensor to the model at the given time step.
+
+        Note:
+            This method assumes that a derivative is already registered to
+            the features. If self has not yet hedged a derivative,
+            run a placeholder computation
+            ``_ = self.compute_pnl(derivative, n_paths=1)``
+            before calling this method.
+
+        Args:
+            time_step (int, optional): The time step to get the input tensor.
+                If ``None`` an input tensor for all time steps is returned.
+
+        Shape:
+            - Output: :math:`(N, T, F)` where :math:`N` is the number of paths,
+              :math:`T` is the number of time steps, and
+              :math:`F` is the number of input features.
+              If ``time_step`` is specified, :math:`T = 1`.
+
+        Returns:
+            torch.Tensor
+
+        Examples:
+
+            >>> from pfhedge.instruments import BrownianStock
+            >>> from pfhedge.instruments import EuropeanOption
+            >>> from pfhedge.nn import Naked
+            >>>
+            >>> derivative = EuropeanOption(BrownianStock())
+            >>> derivative.simulate()
+            >>> hedger = Hedger(Naked(), ["time_to_maturity", "volatility"])
+            >>> _ = hedger.compute_pnl(derivative, n_paths=1)  # Materialize features
+            >>> hedger.get_input(0)
+            tensor([[[0.0800, 0.2000]]])
+        """
+        return self.inputs[time_step]
+
+    def compute_hedge(
+        self, derivative: Derivative, hedge: Optional[Union[Primary, Derivative]] = None
+    ) -> Tensor:
+        """Compute the hedge ratio at each time step.
+        It assumes that the derivative is already simulated.
+
+        Args:
+            derivative (Derivative): The derivative to hedge.
+            hedge (Instrument, optional): The hedging instrument.
+                If ``None`` (default), use ``derivative.underlier``.
+
+        Shape:
+            - Output: :math:`(N, H, T)` where :math:`N` is the number of paths,
+              :math:`H = 1` is the number of hedging instruments, and
+              :math:`T` is the number of time steps.
+
+        Returns:
+            torch.Tensor
+
+        Examples:
+
+            >>> from pfhedge.instruments import BrownianStock
+            >>> from pfhedge.instruments import EuropeanOption
+            >>> from pfhedge.nn import BlackScholes
+            >>>
+            >>> _ = torch.manual_seed(42)
+            >>> derivative = EuropeanOption(BrownianStock(), maturity=5/250)
+            >>> derivative.simulate(n_paths=2)
+            >>> derivative.ul().spot
+            tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930, 0.9906],
+                    [1.0000, 0.9919, 0.9976, 1.0009, 1.0076, 1.0179]])
+            >>> model = BlackScholes(derivative)
+            >>> hedger = Hedger(model, model.inputs())
+            >>> hedger.compute_hedge(derivative).squeeze(1)
+            tensor([[0.5056, 0.5295, 0.5845, 0.6610, 0.2918, 0.2918],
+                    [0.5056, 0.3785, 0.4609, 0.5239, 0.7281, 0.7281]])
+        """
+        self.inputs = self.inputs.of(derivative, self)
+
+        hedge = derivative.ul() if hedge is None else hedge
+        hedge = cast(Union[Primary, Derivative], hedge)
+
+        if self.inputs.is_state_dependent():
+            save_prev_output(
+                self, None, torch.zeros_like(hedge.spot[..., :1]).unsqueeze(-1)
+            )
+            outputs = []
+            for time_step in range(hedge.spot.size(-1) - 1):
+                input = self.get_input(time_step)  # (N, T=1, F)
+                outputs.append(self(input))  # (N, T=1, H=1)
+            outputs.append(outputs[-1])
+            output = torch.cat(outputs, dim=-2)  # (N, T, H=1)
+        else:
+            # If all features are state-independent, compute the output at all
+            # time steps at once, which would be faster.
+            input = self.get_input(None)  # (N, T, F)
+            output = self(input)  # (N, T, H=1)
+            # This maintains consistency with the previous implementations.
+            # In previous implementation for loop is computed for 0...T-2 and
+            # the last time step is not included.
+            output[..., -1, :] = output[..., -2, :]
+
+        output = output.transpose(-1, -2)  #  (N, H=1, T)
+
+        return output
 
     def compute_pnl(
         self,
@@ -190,10 +297,9 @@ class Hedger(Module):
         customer, capital gains from the underlying asset, and the transaction cost.
 
         Args:
-            derivative (pfhedge.instruments.Derivative): The derivative to hedge.
-            hedge (pfhedge.instruments.Instrument, optional): The instrument to hedge
-                the risk of ``derivative``.
-                If ``None`` (default), use ``derivative.ul()``.
+            derivative (Derivative): The derivative to hedge.
+            hedge (Instrument, optional): The hedging instrument.
+                If ``None`` (default), use ``derivative.underlier``.
             n_paths (int, default=1000): The number of simulated price paths of the
                 underlying instrument.
             init_state (tuple[torch.Tensor | float], optional): The initial state of
@@ -219,44 +325,17 @@ class Hedger(Module):
             >>> hedger.compute_pnl(derivative, n_paths=2)
             tensor([..., ...])
         """
-        self.inputs = [f.of(derivative, self) for f in self.inputs]
-        hedge = hedge if hedge is not None else derivative.ul()
+        hedge = derivative.ul() if hedge is None else hedge
         hedge = cast(Union[Primary, Derivative], hedge)
 
         derivative.simulate(n_paths=n_paths, init_state=init_state)
-        # cashflow: shape (N, T - 1)
-        cashflow = hedge.spot.diff(dim=-1)
 
-        # prev_output: shape (N)
-        save_prev_output(self, None, torch.zeros_like(hedge.spot[..., :1]))
-        pnl = torch.zeros_like(hedge.spot[..., 0])
+        unit = self.compute_hedge(derivative, hedge=hedge)  # (N, H=1, T)
+        unit = unit.squeeze(-2)  # (N, T)
 
-        # Simulate hedging over time.
-        for i in range(hedge.spot.size(1) - 1):
-            prev_output = self.get_buffer("prev_output").reshape(-1)
-
-            # Compute the hedge ratio at the next time step.
-            output = self(torch.cat([f[i] for f in self.inputs], 1)).reshape(-1)
-
-            # Receive profit and loss from the underlying asset.
-            pnl += output * cashflow[..., i]
-
-            # Deduct transaction cost.
-            pnl -= hedge.cost * (output - prev_output).abs() * hedge.spot[..., i]
-
-        # Settle the derivative's payoff.
-        pnl -= derivative.payoff()
-
-        # Delete the attribute `prev_output` in case a hedger has a feature
-        # `PrevHedge` and one calls `compute_pnl` twice.
-        # If `prev_output` is not deleted, `prev_output` at the last time step
-        # in the first call could be referred to by `PrevHedge` at the first
-        # time step at the second call,
-        # which results in an unexpected output (while we expect zeros).
-        if hasattr(self, "prev_output"):
-            delattr(self, "prev_output")
-
-        return pnl
+        return terminal_value(
+            hedge.spot, unit=unit, cost=hedge.cost, payoff=derivative.payoff()
+        )
 
     def compute_loss(
         self,
@@ -270,14 +349,15 @@ class Hedger(Module):
         """Returns the loss of the profit and loss distribution after hedging.
 
         Args:
-            derivative (pfhedge.instruments.Derivative): The derivative to hedge.
+            derivative (Derivative): The derivative to hedge.
             n_paths (int, default=1000): The number of simulated price paths of the
                 underlying instrument.
             n_times (int, default=1): If ``n_times > 1``, returns the ensemble mean
                 of the losses computed through multiple simulations.
             init_state (tuple, optional): The initial price of the underlying
                 instrument of the derivative.
-                If ``None`` (default), sensible default value is used.
+                If ``None`` (default), it uses the default value of
+                the underlying instrument.
             enable_grad (bool, default=True): Context-manager that sets gradient
                 calculation to on or off.
 
@@ -325,7 +405,7 @@ class Hedger(Module):
         It returns the trade history, that is, validation loss after each simulation.
 
         Args:
-            derivative (pfhedge.instruments.Derivative): The derivative to hedge.
+            derivative (Derivative): The derivative to hedge.
             n_epochs (int, default=100): Number of Monte-Carlo simulations.
             n_paths (int, default=1000): The number of simulated price paths of the
                 underlying instrument.
@@ -351,7 +431,7 @@ class Hedger(Module):
             >>>
             >>> derivative = EuropeanOption(BrownianStock())
             >>> model = MultiLayerPerceptron()
-            >>> hedger = Hedger(model, ["moneyness", "expiry_time", "volatility"])
+            >>> hedger = Hedger(model, ["moneyness", "time_to_maturity", "volatility"])
             >>> history = hedger.fit(derivative, n_paths=1, n_epochs=1, verbose=False)
 
             One can use a custom optimizer as follows.
@@ -433,14 +513,15 @@ class Hedger(Module):
         """Evaluate the premium of the given derivative.
 
         Args:
-            derivative (pfhedge.instruments.Derivative): The derivative to price.
+            derivative (Derivative): The derivative to price.
             n_paths (int, default=1000): The number of simulated price paths of the
                 underlying instrument.
             n_times (int, default=1): If ``n_times > 1``, returns the ensemble mean of
                 the losses computed through multiple simulations.
             init_state (tuple, optional): The initial price of the underlying
                 instrument of the derivative.
-                If ``None`` (default), sensible default value is used.
+                If ``None`` (default), it uses the default value of
+                the underlying instrument.
             enable_grad (bool, default=False): Context-manager that sets gradient
                 calculation to on or off.
 
