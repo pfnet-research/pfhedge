@@ -10,7 +10,6 @@ from pfhedge.instruments.derivative.base import BaseOption
 
 from ._base import Feature
 from ._base import StateIndependentFeature
-from .functional import barrier
 
 
 class Moneyness(StateIndependentFeature):
@@ -101,9 +100,22 @@ class Barrier(StateIndependentFeature):
         return self._get_name() + "(" + ", ".join(params) + ")"
 
     def __getitem__(self, time_step: Optional[int]) -> Tensor:
-        return barrier(
-            time_step, derivative=self.derivative, threshold=self.threshold, up=self.up
-        ).unsqueeze(-1)
+        spot = self.derivative.ul().spot
+        if time_step is None:
+            if self.up:
+                max = spot.cummax(-1).values
+                output = (max >= self.threshold).to(spot.dtype)
+            else:
+                min = spot.cummin(-1).values
+                output = (min <= self.threshold).to(spot.dtype)
+        else:
+            if self.up:
+                max = spot[..., :time_step + 1].max(-1, keepdim=True).values
+                output = (max >= self.threshold).to(spot.dtype)
+            else:
+                min = spot[..., :time_step + 1].min(-1, keepdim=True).values
+                output = (min <= self.threshold).to(self.derivative.ul().spot.dtype)
+        return output.unsqueeze(-1)
 
 
 class Zeros(StateIndependentFeature):
