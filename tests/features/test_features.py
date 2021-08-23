@@ -297,34 +297,48 @@ class TestPrevHedge(_TestFeature):
 class TestBarrier(_TestFeature):
     def test(self):
         derivative = EuropeanOption(BrownianStock())
-        derivative.underlier.spot = torch.tensor(
-            [
-                [1.0, 1.5, 2.0, 3.0],
-                [2.0, 1.0, 1.0, 1.0],
-                [3.0, 4.0, 5.0, 6.0],
-                [1.0, 1.1, 1.2, 1.3],
-            ]
+        derivative.ul().register_buffer(
+            "spot",
+            torch.tensor(
+                [
+                    [1.0, 1.5, 2.0, 3.0],
+                    [2.0, 1.0, 1.0, 1.0],
+                    [3.0, 4.0, 5.0, 6.0],
+                    [1.0, 1.1, 1.2, 1.3],
+                ]
+            ),
         )
         f = Barrier(2.0, up=True).of(derivative)
 
         result = f[0]
-        expect = torch.tensor([0.0, 1.0, 1.0, 0.0]).reshape(-1, 1)
-        expect = expect.unsqueeze(-1)
+        expect = torch.tensor([0.0, 1.0, 1.0, 0.0])
+        expect = expect.unsqueeze(-1).unsqueeze(-1)
         assert_close(result, expect)
 
         result = f[1]
-        expect = torch.tensor([0.0, 1.0, 1.0, 0.0]).reshape(-1, 1)
-        expect = expect.unsqueeze(-1)
+        expect = torch.tensor([0.0, 1.0, 1.0, 0.0])
+        expect = expect.unsqueeze(-1).unsqueeze(-1)
         assert_close(result, expect)
 
         result = f[2]
-        expect = torch.tensor([1.0, 1.0, 1.0, 0.0]).reshape(-1, 1)
-        expect = expect.unsqueeze(-1)
+        expect = torch.tensor([1.0, 1.0, 1.0, 0.0])
+        expect = expect.unsqueeze(-1).unsqueeze(-1)
         assert_close(result, expect)
 
         result = f[3]
-        expect = torch.tensor([1.0, 1.0, 1.0, 0.0]).reshape(-1, 1)
-        expect = expect.unsqueeze(-1)
+        expect = torch.tensor([1.0, 1.0, 1.0, 0.0])
+        expect = expect.unsqueeze(-1).unsqueeze(-1)
+        assert_close(result, expect)
+
+        result = f[None]
+        expect = torch.tensor(
+            [
+                [0.0, 0.0, 1.0, 1.0],
+                [1.0, 1.0, 1.0, 1.0],
+                [1.0, 1.0, 1.0, 1.0],
+                [0.0, 0.0, 0.0, 0.0],
+            ]
+        ).unsqueeze(-1)
         assert_close(result, expect)
 
         derivative = EuropeanOption(BrownianStock())
@@ -358,6 +372,17 @@ class TestBarrier(_TestFeature):
         expect = expect.unsqueeze(-1)
         assert_close(result, expect)
 
+        result = f[None]
+        expect = torch.tensor(
+            [
+                [0.0, 1.0, 1.0, 1.0],
+                [1.0, 1.0, 1.0, 1.0],
+                [0.0, 0.0, 0.0, 0.0],
+                [1.0, 1.0, 1.0, 1.0],
+            ]
+        ).unsqueeze(-1)
+        assert_close(result, expect)
+
     def test_repr(self):
         assert repr(Barrier(1.0, up=True)) == "Barrier(1., up=True)"
         assert repr(Barrier(2.0, up=True)) == "Barrier(2., up=True)"
@@ -374,13 +399,6 @@ class TestBarrier(_TestFeature):
         hedger = Hedger(Naked(), inputs=["empty"])
         f = Barrier(1.0).of(derivative, hedger)
         assert not f.is_state_dependent()
-
-    def test_error_time_step_is_none(self):
-        derivative = EuropeanOption(BrownianStock())
-        hedger = Hedger(Naked(), inputs=["empty"])
-        f = Barrier(1.0).of(derivative, hedger)
-        with pytest.raises(ValueError):
-            _ = f[None]
 
 
 class TestZeros(_TestFeature):
