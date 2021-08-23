@@ -180,10 +180,12 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../nn.functional.html">pfhedge.nn.functional</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../instruments.html">pfhedge.instruments</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../generated/pfhedge.instruments.Instrument.html">Instrument</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../generated/pfhedge.instruments.Primary.html">Primary</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../generated/pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../generated/pfhedge.instruments.HestonStock.html">HestonStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../generated/pfhedge.instruments.Derivative.html">Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../generated/pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../generated/pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../generated/pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../generated/pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
@@ -261,7 +263,7 @@
 <span class="sd">        &gt;&gt;&gt; autogreek.delta(</span>
 <span class="sd">        ...     pricer,</span>
 <span class="sd">        ...     log_moneyness=torch.zeros(3),</span>
-<span class="sd">        ...     expiry_time=torch.ones(3),</span>
+<span class="sd">        ...     time_to_maturity=torch.ones(3),</span>
 <span class="sd">        ...     volatility=torch.tensor([0.18, 0.20, 0.22]),</span>
 <span class="sd">        ... )</span>
 <span class="sd">        tensor([0.5359, 0.5398, 0.5438])</span>
@@ -270,7 +272,7 @@
 
 <span class="sd">        &gt;&gt;&gt; BSEuropeanOption().delta(</span>
 <span class="sd">        ...     log_moneyness=torch.zeros(3),</span>
-<span class="sd">        ...     expiry_time=torch.ones(3),</span>
+<span class="sd">        ...     time_to_maturity=torch.ones(3),</span>
 <span class="sd">        ...     volatility=torch.tensor([0.18, 0.20, 0.22]),</span>
 <span class="sd">        ... )</span>
 <span class="sd">        tensor([0.5359, 0.5398, 0.5438])</span>
@@ -352,7 +354,7 @@
 <span class="sd">        ...     pricer,</span>
 <span class="sd">        ...     strike=torch.ones(3),</span>
 <span class="sd">        ...     log_moneyness=torch.zeros(3),</span>
-<span class="sd">        ...     expiry_time=torch.ones(3),</span>
+<span class="sd">        ...     time_to_maturity=torch.ones(3),</span>
 <span class="sd">        ...     volatility=torch.tensor([0.18, 0.20, 0.22]),</span>
 <span class="sd">        ... )</span>
 <span class="sd">        tensor([2.2074, 1.9848, 1.8024])</span>
@@ -361,7 +363,7 @@
 
 <span class="sd">        &gt;&gt;&gt; BSEuropeanOption().gamma(</span>
 <span class="sd">        ...     log_moneyness=torch.zeros(3),</span>
-<span class="sd">        ...     expiry_time=torch.ones(3),</span>
+<span class="sd">        ...     time_to_maturity=torch.ones(3),</span>
 <span class="sd">        ...     volatility=torch.tensor([0.18, 0.20, 0.22]),</span>
 <span class="sd">        ... )</span>
 <span class="sd">        tensor([2.2074, 1.9848, 1.8024])</span>

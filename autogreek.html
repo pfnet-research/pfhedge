@@ -181,10 +181,12 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="nn.functional.html">pfhedge.nn.functional</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="instruments.html">pfhedge.instruments</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.Instrument.html">Instrument</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.Primary.html">Primary</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.HestonStock.html">HestonStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.Derivative.html">Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
@@ -255,7 +257,7 @@ products.</p></li>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">autogreek</span><span class="o">.</span><span class="n">delta</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">pricer</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">log_moneyness</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
-<span class="gp">... </span>    <span class="n">expiry_time</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="n">time_to_maturity</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
 <span class="gp">... </span>    <span class="n">volatility</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.20</span><span class="p">,</span> <span class="mf">0.22</span><span class="p">]),</span>
 <span class="gp">... </span><span class="p">)</span>
 <span class="go">tensor([0.5359, 0.5398, 0.5438])</span>
@@ -264,7 +266,7 @@ products.</p></li>
 <p>The result matches the analytical solution (as it should).</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">BSEuropeanOption</span><span class="p">()</span><span class="o">.</span><span class="n">delta</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">log_moneyness</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
-<span class="gp">... </span>    <span class="n">expiry_time</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="n">time_to_maturity</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
 <span class="gp">... </span>    <span class="n">volatility</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.20</span><span class="p">,</span> <span class="mf">0.22</span><span class="p">]),</span>
 <span class="gp">... </span><span class="p">)</span>
 <span class="go">tensor([0.5359, 0.5398, 0.5438])</span>
@@ -321,7 +323,7 @@ constructed, allowing to compute higher order derivative products.</p></li>
 <span class="gp">... </span>    <span class="n">pricer</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">strike</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
 <span class="gp">... </span>    <span class="n">log_moneyness</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
-<span class="gp">... </span>    <span class="n">expiry_time</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="n">time_to_maturity</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
 <span class="gp">... </span>    <span class="n">volatility</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.20</span><span class="p">,</span> <span class="mf">0.22</span><span class="p">]),</span>
 <span class="gp">... </span><span class="p">)</span>
 <span class="go">tensor([2.2074, 1.9848, 1.8024])</span>
@@ -330,7 +332,7 @@ constructed, allowing to compute higher order derivative products.</p></li>
 <p>The result matches the analytical solution (as it should).</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">BSEuropeanOption</span><span class="p">()</span><span class="o">.</span><span class="n">gamma</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">log_moneyness</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
-<span class="gp">... </span>    <span class="n">expiry_time</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="n">time_to_maturity</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
 <span class="gp">... </span>    <span class="n">volatility</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.20</span><span class="p">,</span> <span class="mf">0.22</span><span class="p">]),</span>
 <span class="gp">... </span><span class="p">)</span>
 <span class="go">tensor([2.2074, 1.9848, 1.8024])</span>

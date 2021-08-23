@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="IsoelasticLoss" href="pfhedge.nn.IsoelasticLoss.html" /><link rel="prev" title="EntropicRiskMeasure" href="pfhedge.nn.EntropicRiskMeasure.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="EuropeanOption" href="pfhedge.instruments.EuropeanOption.html" /><link rel="prev" title="Derivative" href="pfhedge.instruments.Derivative.html" />
 
     <meta name="generator" content="sphinx-4.1.2, furo 2021.08.17.beta43"/>
-        <title>ExpectedShortfall - PFHedge documentation</title>
+        <title>BaseOption - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=910ac4ccc9d7c023151c34010d7b500fb9777a51" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
@@ -160,7 +160,7 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
-<li class="toctree-l1 current has-children"><a class="reference internal" href="../nn.html">pfhedge.nn</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../nn.html">pfhedge.nn</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.Hedger.html">Hedger</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.BlackScholes.html">BlackScholes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.BSAmericanBinaryOption.html">BSAmericanBinaryOption</a></li>
@@ -173,20 +173,20 @@
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.HedgeLoss.html">HedgeLoss</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.EntropicLoss.html">EntropicLoss</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.EntropicRiskMeasure.html">EntropicRiskMeasure</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">ExpectedShortfall</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.ExpectedShortfall.html">ExpectedShortfall</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.IsoelasticLoss.html">IsoelasticLoss</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.MultiLayerPerceptron.html">MultiLayerPerceptron</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.Naked.html">Naked</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../nn.functional.html">pfhedge.nn.functional</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../instruments.html">pfhedge.instruments</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../instruments.html">pfhedge.instruments</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.Instrument.html">Instrument</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.Primary.html">Primary</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.HestonStock.html">HestonStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.Derivative.html">Derivative</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BaseOption.html">BaseOption</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
@@ -225,37 +225,104 @@
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
-        <section id="expectedshortfall">
-<h1>ExpectedShortfall<a class="headerlink" href="#expectedshortfall" title="Permalink to this headline">¶</a></h1>
+        <section id="baseoption">
+<h1>BaseOption<a class="headerlink" href="#baseoption" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="pfhedge.nn.ExpectedShortfall">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pfhedge.nn.</span></span><span class="sig-name descname"><span class="pre">ExpectedShortfall</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/loss.html#ExpectedShortfall"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.ExpectedShortfall" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates a criterion that measures the expected shortfall.</p>
+<dt class="sig sig-object py" id="pfhedge.instruments.BaseOption">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pfhedge.instruments.</span></span><span class="sig-name descname"><span class="pre">BaseOption</span></span><a class="reference internal" href="../_modules/pfhedge/instruments/derivative/base.html#BaseOption"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.BaseOption" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class of options.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pfhedge.instruments.BaseOption.log_moneyness">
+<span class="sig-name descname"><span class="pre">log_moneyness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/derivative/base.html#BaseOption.log_moneyness"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.BaseOption.log_moneyness" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <code class="docutils literal notranslate"><span class="pre">self.moneyness(time_step).log()</span></code>.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pfhedge.instruments.BaseOption.max_log_moneyness">
+<span class="sig-name descname"><span class="pre">max_log_moneyness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/derivative/base.html#BaseOption.max_log_moneyness"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.BaseOption.max_log_moneyness" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <code class="docutils literal notranslate"><span class="pre">self.max_moneyness(time_step).log()</span></code>.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pfhedge.instruments.BaseOption.max_moneyness">
+<span class="sig-name descname"><span class="pre">max_moneyness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/derivative/base.html#BaseOption.max_moneyness"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.BaseOption.max_moneyness" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the cumulative maximum of the moneyness.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>p</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>default=0.1</em>) – Quantile level.
-This parameter should satisfy <span class="math notranslate nohighlight">\(0 &lt; p \leq 1\)</span>.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time_step</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><em>optional</em>) – The time step to calculate
+the time to maturity. If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), the time to
+maturity is calculated at all time steps.</p></li>
+<li><p><strong>log</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>default=False</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, returns the cumulative
+maximum of the log moneyness.</p></li>
+</ul>
 </dd>
 </dl>
 <dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
-<li><p>Input: <span class="math notranslate nohighlight">\((N, *)\)</span>, where <span class="math notranslate nohighlight">\(*\)</span> means any number of additional
-dimensions.</p></li>
-<li><p>Output: <span class="math notranslate nohighlight">\((*)\)</span></p></li>
+<li><p>Output: <span class="math notranslate nohighlight">\((N, T)\)</span> where <span class="math notranslate nohighlight">\(N\)</span> is the number of paths and
+<span class="math notranslate nohighlight">\(T\)</span> is the number of time steps.
+If <code class="docutils literal notranslate"><span class="pre">time_step</span></code> is given, the shape is <span class="math notranslate nohighlight">\((N, 1)\)</span>.</p></li>
 </ul>
 </dd>
 </dl>
-<p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">ExpectedShortfall</span>
-<span class="go">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">loss</span> <span class="o">=</span> <span class="n">ExpectedShortfall</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">input</span> <span class="o">=</span> <span class="o">-</span><span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">4.0</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">loss</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
-<span class="go">tensor(2.5000)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">loss</span><span class="o">.</span><span class="n">cash</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
-<span class="go">tensor(-2.5000)</span>
-</pre></div>
-</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pfhedge.instruments.BaseOption.moneyness">
+<span class="sig-name descname"><span class="pre">moneyness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/derivative/base.html#BaseOption.moneyness"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.BaseOption.moneyness" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the moneyness of self.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time_step</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><em>optional</em>) – The time step to calculate
+the moneyness. If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), the moneyness is calculated
+at all time steps.</p></li>
+<li><p><strong>log</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>default=False</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, returns log moneyness.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Shape:</dt><dd><ul class="simple">
+<li><p>Output: <span class="math notranslate nohighlight">\((N, T)\)</span> where <span class="math notranslate nohighlight">\(N\)</span> is the number of paths and
+<span class="math notranslate nohighlight">\(T\)</span> is the number of time steps.
+If <code class="docutils literal notranslate"><span class="pre">time_step</span></code> is given, the shape is <span class="math notranslate nohighlight">\((N, 1)\)</span>.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pfhedge.instruments.BaseOption.time_to_maturity">
+<span class="sig-name descname"><span class="pre">time_to_maturity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/derivative/base.html#BaseOption.time_to_maturity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.BaseOption.time_to_maturity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the time to maturity of self.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>time_step</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><em>optional</em>) – The time step to calculate
+the time to maturity. If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), the time to
+maturity is calculated at all time steps.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Shape:</dt><dd><ul class="simple">
+<li><p>Output: <span class="math notranslate nohighlight">\((N, T)\)</span> where <span class="math notranslate nohighlight">\(N\)</span> is the number of paths and
+<span class="math notranslate nohighlight">\(T\)</span> is the number of time steps.
+If <code class="docutils literal notranslate"><span class="pre">time_step</span></code> is given, the shape is <span class="math notranslate nohighlight">\((N, 1)\)</span>.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
 </dd></dl>
 </section>
 
@@ -263,23 +330,23 @@ dimensions.</p></li>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="pfhedge.nn.IsoelasticLoss.html">
+          <a class="next-page" href="pfhedge.instruments.EuropeanOption.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">IsoelasticLoss</div>
+                <div class="title">EuropeanOption</div>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="pfhedge.nn.EntropicRiskMeasure.html">
+          <a class="prev-page" href="pfhedge.instruments.Derivative.html">
               <svg><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">EntropicRiskMeasure</div>
+                <div class="title">Derivative</div>
                 
               </div>
             </a>
@@ -293,7 +360,7 @@ dimensions.</p></li>
               <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
               <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
             |
-            <a class="muted-link" href="../_sources/generated/pfhedge.nn.ExpectedShortfall.rst.txt"
+            <a class="muted-link" href="../_sources/generated/pfhedge.instruments.BaseOption.rst.txt"
                rel="nofollow">
               Show Source
             </a>

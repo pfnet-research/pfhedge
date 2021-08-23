@@ -180,10 +180,12 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../nn.functional.html">pfhedge.nn.functional</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../instruments.html">pfhedge.instruments</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.Instrument.html">Instrument</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.Primary.html">Primary</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.HestonStock.html">HestonStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.Derivative.html">Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
@@ -522,6 +524,66 @@
 <span class="sd">        torch.Tensor</span>
 <span class="sd">    """</span>
     <span class="k">return</span> <span class="n">realized_variance</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="n">dt</span><span class="p">)</span><span class="o">.</span><span class="n">sqrt</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="terminal_value"><a class="viewcode-back" href="../../../nn.functional.html#pfhedge.nn.functional.terminal_value">[docs]</a><span class="k">def</span> <span class="nf">terminal_value</span><span class="p">(</span>
+    <span class="n">spot</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">unit</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">cost</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">payoff</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">deduct_first_cost</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">"""Returns the terminal portfolio value.</span>
+
+<span class="sd">    The terminal value of a hedger's portfolio is given by</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \\text{PL}(Z, \\delta, S) =</span>
+<span class="sd">        - Z</span>
+<span class="sd">        + \\sum_{i = 1}^{T - 1} \\delta_{i} (S_{i + 1} - S_i)</span>
+<span class="sd">        - c \\sum_{i = 1}^{T - 1} |\\delta_{i + 1} - \\delta_{i}| S_{i + 1}</span>
+
+<span class="sd">    where :math:`Z` is the payoff of the derivative, :math:`T` is the number of</span>
+<span class="sd">    time steps, :math:`S` is the spot price, :math:`\\delta` is the signed number</span>
+<span class="sd">    of shares held at each time step.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        spot (torch.Tensor): The spot price of the underlying asset :math:`S`.</span>
+<span class="sd">        unit (torch.Tensor): The signed number of shares of the underlying asset</span>
+<span class="sd">            :math:`\\delta`.</span>
+<span class="sd">        cost (float, default=0.0): The proportional transaction cost rate of</span>
+<span class="sd">            the underlying asset :math:`c`.</span>
+<span class="sd">        payoff (torch.Tensor, optional): The payoff of the derivative :math:`Z`.</span>
+<span class="sd">        deduct_first_cost (bool, default=True): Whether to deduct the transaction</span>
+<span class="sd">            cost of transacting stocks at the first time step.</span>
+<span class="sd">            If ``True``, :math:`c |\delta_1| S_1` will be deducted from the above</span>
+<span class="sd">            equation of the terminal value.</span>
+
+<span class="sd">    Shape:</span>
+<span class="sd">        - spot: :math:`(*, T)` where :math:`T` is the number of time steps.</span>
+<span class="sd">        - unit: :math:`(*, T)`</span>
+<span class="sd">        - payoff: :math:`(*)`</span>
+<span class="sd">        - output: :math:`(*)`.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        torch.Tensor</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">spot</span><span class="o">.</span><span class="n">size</span><span class="p">()</span> <span class="o">!=</span> <span class="n">unit</span><span class="o">.</span><span class="n">size</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"unmatched sizes: spot </span><span class="si">{</span><span class="n">spot</span><span class="o">.</span><span class="n">size</span><span class="p">()</span><span class="si">}</span><span class="s2">, unit </span><span class="si">{</span><span class="n">unit</span><span class="o">.</span><span class="n">size</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">payoff</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">spot</span><span class="o">.</span><span class="n">size</span><span class="p">()[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">payoff</span><span class="o">.</span><span class="n">size</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"unmatched sizes: spot </span><span class="si">{</span><span class="n">spot</span><span class="o">.</span><span class="n">size</span><span class="p">()</span><span class="si">}</span><span class="s2">, payoff </span><span class="si">{</span><span class="n">payoff</span><span class="o">.</span><span class="n">size</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">)</span>
+
+    <span class="n">value</span> <span class="o">=</span> <span class="n">unit</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">mul</span><span class="p">(</span><span class="n">spot</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">value</span> <span class="o">+=</span> <span class="o">-</span><span class="n">cost</span> <span class="o">*</span> <span class="n">unit</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span><span class="o">.</span><span class="n">mul</span><span class="p">(</span><span class="n">spot</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:])</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">payoff</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">value</span> <span class="o">-=</span> <span class="n">payoff</span>
+    <span class="k">if</span> <span class="n">deduct_first_cost</span><span class="p">:</span>
+        <span class="n">value</span> <span class="o">-=</span> <span class="n">cost</span> <span class="o">*</span> <span class="n">unit</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span> <span class="o">*</span> <span class="n">spot</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">value</span></div>
 </pre></div>
       </article>
       <footer>
