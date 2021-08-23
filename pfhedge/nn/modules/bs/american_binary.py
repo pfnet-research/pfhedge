@@ -115,7 +115,8 @@ class BSAmericanBinaryOption(BSModuleMixin):
             Tensor
         """
         s, m, t, v = map(
-            torch.as_tensor, (log_moneyness, max_log_moneyness, time_to_maturity, volatility)
+            torch.as_tensor,
+            (log_moneyness, max_log_moneyness, time_to_maturity, volatility),
         )
 
         sqrt2 = torch.tensor(2.0).sqrt().item()
@@ -152,7 +153,8 @@ class BSAmericanBinaryOption(BSModuleMixin):
             torch.Tensor
         """
         s, m, t, v = map(
-            torch.as_tensor, (log_moneyness, max_log_moneyness, time_to_maturity, volatility)
+            torch.as_tensor,
+            (log_moneyness, max_log_moneyness, time_to_maturity, volatility),
         )
 
         sqrt2 = torch.tensor(2.0).sqrt().item()

@@ -55,7 +55,9 @@ class BSModuleMixin(Module):
         return Normal(torch.tensor(0.0), torch.tensor(1.0))
 
     @staticmethod
-    def d1(log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor) -> Tensor:
+    def d1(
+        log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor
+    ) -> Tensor:
         """Returns :math:`d_1` in the Black-Scholes formula.
 
         Args:
@@ -70,7 +72,9 @@ class BSModuleMixin(Module):
         return (s + (v ** 2 / 2) * t) / (v * t.sqrt())
 
     @staticmethod
-    def d2(log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor) -> Tensor:
+    def d2(
+        log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor
+    ) -> Tensor:
         """Returns :math:`d_2` in the Black-Scholes formula.
 
         Args:

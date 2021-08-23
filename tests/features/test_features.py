@@ -6,13 +6,13 @@ from torch.testing import assert_close
 from pfhedge.features import Barrier
 from pfhedge.features import Empty
 from pfhedge.features import ExpiryTime
-from pfhedge.features import TimeToMaturity
 from pfhedge.features import LogMoneyness
 from pfhedge.features import MaxLogMoneyness
 from pfhedge.features import MaxMoneyness
 from pfhedge.features import ModuleOutput
 from pfhedge.features import Moneyness
 from pfhedge.features import PrevHedge
+from pfhedge.features import TimeToMaturity
 from pfhedge.features import Volatility
 from pfhedge.features import Zeros
 from pfhedge.instruments import BrownianStock

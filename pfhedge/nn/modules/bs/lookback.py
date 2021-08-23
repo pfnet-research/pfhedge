@@ -121,7 +121,8 @@ class BSLookbackOption(BSModuleMixin):
             Tensor
         """
         s, m, t, v = map(
-            torch.as_tensor, (log_moneyness, max_log_moneyness, time_to_maturity, volatility)
+            torch.as_tensor,
+            (log_moneyness, max_log_moneyness, time_to_maturity, volatility),
         )
 
         d1 = self.d1(s, t, v)
