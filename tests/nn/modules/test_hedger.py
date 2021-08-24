@@ -48,7 +48,7 @@ class FakeModule(Module):
 
 
 class TestHedger:
-    def test_fit_error_optimizer(self):
+    def test_error_optimizer(self):
         hedger = Hedger(Linear(2, 1), ["moneyness", "time_to_maturity"])
         derivative = EuropeanOption(BrownianStock())
         with pytest.raises(TypeError):
@@ -56,24 +56,38 @@ class TestHedger:
 
     def test_repr(self):
         hedger = Hedger(Linear(2, 1), ["moneyness", "time_to_maturity"])
-        assert repr(hedger) == (
-            "Hedger(\n"
-            "  inputs=['moneyness', 'time_to_maturity']\n"
-            "  (model): Linear(in_features=2, out_features=1, bias=True)\n"
-            "  (criterion): EntropicRiskMeasure()\n"
-            ")"
-        )
+        expect = """\
+Hedger(
+  inputs=['moneyness', 'time_to_maturity']
+  (model): Linear(in_features=2, out_features=1, bias=True)
+  (criterion): EntropicRiskMeasure()
+)"""
+        assert repr(hedger) == expect
 
         derivative = EuropeanOption(BrownianStock())
         model = BlackScholes(derivative)
         hedger = Hedger(model, model.inputs())
-        assert repr(hedger) == (
-            "Hedger(\n"
-            "  inputs=['log_moneyness', 'time_to_maturity', 'volatility']\n"
-            "  (model): BSEuropeanOption(strike=1.)\n"
-            "  (criterion): EntropicRiskMeasure()\n"
-            ")"
-        )
+        expect = """\
+Hedger(
+  inputs=['log_moneyness', 'time_to_maturity', 'volatility']
+  (model): BSEuropeanOption(strike=1.)
+  (criterion): EntropicRiskMeasure()
+)"""
+        assert repr(hedger) == expect
+
+    def test_compute_hedge_error_not_same_size(self):
+        stock0 = BrownianStock()
+        stock1 = BrownianStock()
+        stock0.register_buffer("spot", torch.ones(2, 3))
+        derivative = EuropeanOption(stock0)
+        hedger = Hedger(Naked(), ["empty"])
+
+        stock1.register_buffer("spot", torch.ones(2, 4))
+        with pytest.raises(ValueError):
+            _ = hedger.compute_hedge(derivative, hedge=[stock0, stock1])
+        stock1.register_buffer("spot", torch.ones(3, 3))
+        with pytest.raises(ValueError):
+            _ = hedger.compute_hedge(derivative, hedge=[stock0, stock1])
 
     @pytest.mark.parametrize("hin", [1, 2])
     def test_compute_pnl_size(self, hin):
@@ -126,11 +140,51 @@ class TestHedger:
             result = hedger.compute_pnl(derivative)
 
         expect = (spot.diff(dim=-1) * output).sum(-1)
-        print("spot\n", spot)
-        print("spot.diff\n", spot.diff(dim=-1))
-        print("output\n", output)
-        print("result\n", result)
-        print("expect\n", expect)
+        assert_close(result, expect)
+
+    def test_compute_pnl_2_multiple_hedges(self):
+        torch.manual_seed(42)
+        N, T = 2, 4
+
+        stock0 = BrownianStock()
+        stock1 = BrownianStock()
+        stock0.register_buffer("spot", torch.randn(N, T).exp())
+        stock1.register_buffer("spot", torch.randn(N, T).exp())
+        derivative = ZeroDerivative(stock0)
+
+        output = torch.randn(N, T - 1, 2)
+        m = FakeModule(output)
+        hedger = Hedger(m, ["empty", "prev_hedge"])
+
+        with patch("pfhedge.instruments.BrownianStock.simulate", void):
+            # so that the simulation is not performed
+            result = hedger.compute_pnl(derivative, hedge=[stock0, stock1])
+
+        pnl0 = (stock0.spot.diff(dim=-1) * output[..., 0]).sum(-1)
+        pnl1 = (stock1.spot.diff(dim=-1) * output[..., 1]).sum(-1)
+        expect = pnl0 + pnl1
+        assert_close(result, expect)
+
+    def test_compute_pnl_2_multiple_hedges_payoff(self):
+        torch.manual_seed(42)
+
+        N, T = 2, 4
+
+        stock0 = BrownianStock()
+        stock1 = BrownianStock()
+        stock0.register_buffer("spot", torch.randn(N, T).exp())
+        stock1.register_buffer("spot", torch.randn(N, T).exp())
+        derivative = EuropeanOption(stock0)
+        payoff = derivative.payoff()
+
+        output = torch.randn(N, T - 1, 2)
+        m = FakeModule(output)
+        hedger = Hedger(m, ["empty", "prev_hedge"])
+        with patch("pfhedge.instruments.BrownianStock.simulate", void):
+            result = hedger.compute_pnl(derivative, hedge=[stock0, stock1])
+        pnl0 = (stock0.spot.diff(dim=-1) * output[..., 0]).sum(-1)
+        pnl1 = (stock1.spot.diff(dim=-1) * output[..., 1]).sum(-1)
+        expect = pnl0 + pnl1 - payoff
         assert_close(result, expect)
 
     def test_compute_pnl_payoff(self):
@@ -267,18 +321,12 @@ class TestHedger:
         hedger = Hedger(Ones(), ["empty", "prev_hedge"])
 
         torch.manual_seed(42)
-        result = hedger.compute_pnl(derivative, hedge=derivative, n_paths=2)
+        result = hedger.compute_pnl(derivative, hedge=[derivative], n_paths=2)
         # value of a short position of the derivative
         expect = -derivative.spot[:, 0]
-        print("spot\n", derivative.spot)
-        print("spot.diff\n", derivative.spot.diff(dim=-1))
-        print("spot.diff.sum\n", derivative.spot.diff(dim=-1).sum(-1))
-        print("payoff\n", derivative.payoff())
-        print("result\n", result)
-        print("expect\n", expect)
         assert_close(result, expect, check_stride=False)
 
         torch.manual_seed(42)
-        result = hedger.price(derivative, hedge=derivative, n_paths=2)
+        result = hedger.price(derivative, hedge=[derivative], n_paths=2)
         expect = derivative.spot[0, 0]
         assert_close(result, expect, check_stride=False)

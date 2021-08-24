@@ -12,7 +12,7 @@ TensorOrFloat = Union[Tensor, float]
 def generate_brownian(
     n_paths: int,
     n_steps: int,
-    init_state: Tuple[TensorOrFloat, ...] = (0.0,),
+    init_state: Union[Tuple[TensorOrFloat, ...], TensorOrFloat] = (0.0,),
     sigma: float = 0.2,
     dt: float = 1 / 250,
     dtype: Optional[torch.dtype] = None,
@@ -74,13 +74,13 @@ def generate_brownian(
     init_value = init_state[0]
     randn = torch.randn((n_paths, n_steps), dtype=dtype, device=device)
     randn[:, 0] = 0.0
-    return init_value + sigma * torch.tensor(dt).to(randn).sqrt() * randn.cumsum(1)
+    return sigma * torch.tensor(dt).to(randn).sqrt() * randn.cumsum(1) + init_value
 
 
 def generate_geometric_brownian(
     n_paths: int,
     n_steps: int,
-    init_state: Tuple[TensorOrFloat, ...] = (1.0,),
+    init_state: Union[Tuple[TensorOrFloat, ...], TensorOrFloat] = (1.0,),
     sigma: float = 0.2,
     dt: float = 1 / 250,
     dtype: Optional[torch.dtype] = None,
