@@ -73,8 +73,6 @@ class TestBSLookbackOption(_TestBSModule):
         iv = m.implied_volatility(input[:, 0], input[:, 1], input[:, 2], input[:, 3])
         result = BSLookbackOption().price(input[:, 0], input[:, 1], input[:, 2], iv)
         expect = input[:, -1]
-        print(result)
-        print(expect)
         assert_close(result, expect, atol=1e-4, rtol=1e-4, check_stride=False)
 
     def test_put_notimplemented(self):

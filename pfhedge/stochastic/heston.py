@@ -1,3 +1,4 @@
+from collections import namedtuple
 from typing import Optional
 from typing import Tuple
 from typing import Union
@@ -6,9 +7,27 @@ from typing import cast
 import torch
 from torch import Tensor
 
+from pfhedge._utils.str import _addindent
+
 from .cir import generate_cir
 
 TensorOrFloat = Union[Tensor, float]
+
+
+class HestonTuple(namedtuple("HestonTuple", ["spot", "variance"])):
+
+    __module__ = "pfhedge.stochastic"
+
+    def __repr__(self):
+        items_str_list = []
+        for field, tensor in self._asdict().items():
+            items_str_list.append(field + "=\n" + str(tensor))
+        items_str = _addindent("\n".join(items_str_list), 2)
+        return self.__class__.__name__ + "(\n" + items_str + "\n)"
+
+    @property
+    def volatility(self) -> Tensor:
+        return self.variance.clamp(min=0.0).sqrt()
 
 
 def generate_heston(
@@ -22,7 +41,7 @@ def generate_heston(
     dt: float = 1 / 250,
     dtype: Optional[torch.dtype] = None,
     device: Optional[torch.device] = None,
-) -> Tuple[Tensor, Tensor]:
+) -> HestonTuple:
     """Returns time series following Heston model.
 
     The time evolution of the process is given by:
@@ -41,8 +60,7 @@ def generate_heston(
         n_steps (int): The number of time steps.
         init_state (tuple[torch.Tensor | float], default=(1.0,)): The initial state of
             the time series.
-            This is specified by ``(S0, V0)``, where ``S0`` and ``V0`` are the initial values
-            of :math:`S` and :math:`V`, respectively.
+            This is specified by a tuple :math:`(S(0), V(0))`.
         kappa (float, default=1.0): The parameter :math:`\\kappa`.
         theta (float, default=0.04): The parameter :math:`\\theta`.
         sigma (float, default=2.0): The parameter :math:`\\sigma`.
@@ -58,11 +76,13 @@ def generate_heston(
             for CUDA tensor types.
 
     Shape:
-        - Output: :math:`(N, T)`, where :math:`N` is the number of paths and
+        - spot: :math:`(N, T)` where
+          :math:`N` is the number of paths and
           :math:`T` is the number of time steps.
+        - variance: :math:`(N, T)`.
 
     Returns:
-        (torch.Tensor, torch.Tensor): A tuple of spot and variance.
+        (torch.Tensor, torch.Tensor): A namedtuple ``(spot, variance)``.
 
     Examples:
 
@@ -122,4 +142,4 @@ def generate_heston(
             + (k3 * v0 + k4 * v1).sqrt() * randn[:, i_step]
         )
 
-    return (log_spot.exp(), variance)
+    return HestonTuple(log_spot.exp(), variance)

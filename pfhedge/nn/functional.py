@@ -16,8 +16,9 @@ def european_payoff(input: Tensor, call: bool = True, strike: float = 1.0) -> Te
         strike (float, default=1.0): The strike price of the option.
 
     Shape:
-        - input: :math:`(*, T)` where :math:`T` stands for the number of time steps
-          and :math:`*` means any number of additional dimensions.
+        - input: :math:`(*, T)` where
+          :math:`T` is the number of time steps and
+          :math:`*` means any number of additional dimensions.
         - output: :math:`(*)`
 
     Returns:
@@ -38,8 +39,9 @@ def lookback_payoff(input: Tensor, call: bool = True, strike: float = 1.0) -> Te
         strike (float, default=1.0): The strike price of the option.
 
     Shape:
-        - input: :math:`(*, T)` where :math:`T` stands for the number of time steps
-          and :math:`*` means any number of additional dimensions.
+        - input: :math:`(*, T)` where
+          :math:`T` is the number of time steps and
+          :math:`*` means any number of additional dimensions.
         - output: :math:`(*)`
 
     Returns:
@@ -62,8 +64,9 @@ def american_binary_payoff(
         strike (float, default=1.0): The strike price of the option.
 
     Shape:
-        - input: :math:`(*, T)` where :math:`T` stands for the number of time steps
-          and :math:`*` means any number of additional dimensions.
+        - input: :math:`(*, T)` where
+          :math:`T` is the number of time steps and
+          :math:`*` means any number of additional dimensions.
         - output: :math:`(*)`
 
     Returns:
@@ -86,8 +89,9 @@ def european_binary_payoff(
         strike (float, default=1.0): The strike price of the option.
 
     Shape:
-        - input: :math:`(*, T)` where :math:`T` stands for the number of time steps
-          and :math:`*` means any number of additional dimensions.
+        - input: :math:`(*, T)` where
+          :math:`T` is the number of time steps and
+          :math:`*` means any number of additional dimensions.
         - output: :math:`(*)`
 
     Returns:
@@ -214,39 +218,51 @@ def leaky_clamp(
     min: Optional[Tensor] = None,
     max: Optional[Tensor] = None,
     clamped_slope: float = 0.01,
+    inverted_output: str = "mean",
 ) -> Tensor:
     """Leakily clamp all elements in ``input`` into the range :math:`[\\min, \\max]`.
-
-    The bounds :math:`\\min` and :math:`\\max` can be tensors.
 
     See :class:`pfhedge.nn.LeakyClamp` for details.
     """
     x = input
 
     if min is not None:
-        min = torch.as_tensor(min)
+        min = torch.as_tensor(min).to(x)
         x = x.maximum(min + clamped_slope * (x - min))
 
     if max is not None:
-        max = torch.as_tensor(max)
+        max = torch.as_tensor(max).to(x)
         x = x.minimum(max + clamped_slope * (x - max))
 
     if min is not None and max is not None:
-        x = x.where(min <= max, (min + max) / 2)
+        if inverted_output == "mean":
+            y = (min + max) / 2
+        elif inverted_output == "max":
+            y = max
+        else:
+            raise ValueError("inverted_output must be 'mean' or 'max'.")
+        x = x.where(min <= max, y)
 
     return x
 
 
 def clamp(
-    input: Tensor, min: Optional[Tensor] = None, max: Optional[Tensor] = None
+    input: Tensor,
+    min: Optional[Tensor] = None,
+    max: Optional[Tensor] = None,
+    inverted_output: str = "mean",
 ) -> Tensor:
     """Clamp all elements in ``input`` into the range :math:`[\\min, \\max]`.
 
-    The bounds :math:`\\min` and :math:`\\max` can be tensors.
-
     See :class:`pfhedge.nn.Clamp` for details.
     """
-    return leaky_clamp(input, min=min, max=max, clamped_slope=0.0)
+    if inverted_output == "mean":
+        output = leaky_clamp(input, min, max, clamped_slope=0.0, inverted_output="mean")
+    elif inverted_output == "max":
+        output = torch.clamp(input, min, max)
+    else:
+        raise ValueError("inverted_output must be 'mean' or 'max'.")
+    return output
 
 
 def realized_variance(input: Tensor, dt: Union[Tensor, float]) -> Tensor:
@@ -270,8 +286,9 @@ def realized_variance(input: Tensor, dt: Union[Tensor, float]) -> Tensor:
         dt (torch.Tensor or float): The intervals of the time steps.
 
     Shape:
-        - input: :math:`(*, T)` where :math:`T` stands for the number of time steps
-          and :math:`*` means any number of additional dimensions.
+        - input: :math:`(*, T)` where
+          :math:`T` stands for the number of time steps and
+          :math:`*` means any number of additional dimensions.
         - output: :math:`(*)`
 
     Returns:
@@ -289,8 +306,9 @@ def realized_volatility(input: Tensor, dt: Union[Tensor, float]) -> Tensor:
         dt (torch.Tensor or float): The intervals of the time steps.
 
     Shape:
-        - input: :math:`(*, T)` where :math:`T` stands for the number of time steps
-          and :math:`*` means any number of additional dimensions.
+        - input: :math:`(*, T)` where
+          :math:`T` stands for the number of time steps and
+          :math:`*` means any number of additional dimensions.
         - output: :math:`(*)`
 
     Returns:
@@ -334,7 +352,9 @@ def terminal_value(
             equation of the terminal value.
 
     Shape:
-        - spot: :math:`(*, T)` where :math:`T` is the number of time steps.
+        - spot: :math:`(*, T)` where
+          :math:`T` is the number of time steps and
+          :math:`*` means any number of additional dimensions.
         - unit: :math:`(*, T)`
         - payoff: :math:`(*)`
         - output: :math:`(*)`.

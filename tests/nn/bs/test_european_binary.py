@@ -101,7 +101,6 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
         result = hedger.price(derivative)
         expect = torch.tensor(0.4922)
         x = hedger.compute_hedge(derivative)
-        print(x)
         assert not x.isnan().any()
         assert_close(result, expect, atol=1e-2, rtol=1e-2)
 

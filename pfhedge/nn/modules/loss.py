@@ -26,8 +26,8 @@ class HedgeLoss(Module, ABC):
             input (torch.Tensor): The distribution of the profit and loss.
 
         Shape:
-            - Input: :math:`(N, *)` where, :math:`*` means any number of additional
-              dimensions.
+            - Input: :math:`(N, *)` where
+              :math:`*` means any number of additional dimensions.
             - Output: :math:`(*)`
 
         Returns:
@@ -52,8 +52,8 @@ class HedgeLoss(Module, ABC):
             input (torch.Tensor): The distribution of the profit and loss.
 
         Shape:
-            - Input: :math:`(N, *)` where, :math:`*` means any number of additional
-              dimensions.
+            - Input: :math:`(N, *)` where
+              :math:`*` means any number of additional dimensions.
             - Output: :math:`(*)`
 
         Returns:
@@ -76,12 +76,13 @@ class EntropicRiskMeasure(HedgeLoss):
         u(x) = -\\exp(-a x) \\,.
 
     Args:
-        a (float > 0, default=1.0): Risk aversion coefficient of the exponential
-            utility.
+        a (float, default=1.0): Risk aversion coefficient of
+            the exponential utility.
+            This parameter should be positive.
 
     Shape:
-        - Input: :math:`(N, *)`, where :math:`*` means any number of additional
-          dimensions.
+        - Input: :math:`(N, *)` where
+          :math:`*` means any number of additional dimensions.
         - Output: :math:`(*)`
 
     Examples:
@@ -110,19 +111,6 @@ class EntropicRiskMeasure(HedgeLoss):
         return (-exp_utility(input, a=self.a).mean(0)).log() / self.a
 
     def cash(self, input: Tensor) -> Tensor:
-        """
-
-        Args:
-            input (torch.Tensor): The distribution of the profit and loss.
-
-        Shape:
-            - Input: :math:`(N, *)`, where :math:`*` means any number of additional
-              dimensions.
-            - Output: :math:`(*)`
-
-        Returns:
-            torch.Tensor
-        """
         return -self(input)
 
 
@@ -138,12 +126,12 @@ class EntropicLoss(HedgeLoss):
         u(x) = -\\exp(-a x) \\,.
 
     Args:
-        a (float > 0, default=1.0): Risk aversion coefficient of the exponential
-            utility.
+        a (float > 0, default=1.0): Risk aversion coefficient of
+            the exponential utility.
 
     Shape:
-        - Input: :math:`(N, *)`, where :math:`*` means any number of additional
-          dimensions.
+        - Input: :math:`(N, *)` where
+          :math:`*` means any number of additional dimensions.
         - Output: :math:`(*)`
 
     Examples:
@@ -172,20 +160,6 @@ class EntropicLoss(HedgeLoss):
         return -exp_utility(input, a=self.a).mean(0)
 
     def cash(self, input: Tensor) -> Tensor:
-        """Returns the cash amount which is as preferable as
-        the given profit-loss distribution in terms of the loss.
-
-        Args:
-            input (torch.Tensor): The distribution of the profit and loss.
-
-        Shape:
-            - Input: :math:`(N, *)`, where :math:`*` means any number of additional
-              dimensions.
-            - Output: :math:`(*)`
-
-        Returns:
-            torch.Tensor
-        """
         return -(-exp_utility(input, a=self.a).mean(0)).log() / self.a
 
 
@@ -208,8 +182,8 @@ class IsoelasticLoss(HedgeLoss):
             This parameter should satisfy :math:`0 < a \\leq 1`.
 
     Shape:
-        - Input: :math:`(N, *)`, where :math:`*` means any number of additional
-          dimensions.
+        - Input: :math:`(N, *)` where
+          :math:`*` means any number of additional dimensions.
         - Output: :math:`(*)`
 
     Examples:
@@ -255,8 +229,8 @@ class ExpectedShortfall(HedgeLoss):
             This parameter should satisfy :math:`0 < p \\leq 1`.
 
     Shape:
-        - Input: :math:`(N, *)`, where :math:`*` means any number of additional
-          dimensions.
+        - Input: :math:`(N, *)` where
+          :math:`*` means any number of additional dimensions.
         - Output: :math:`(*)`
 
     Examples:
