@@ -27,14 +27,15 @@ class Feature(ABC):
     def __getitem__(self, time_step: Optional[int]) -> Tensor:
         """Return feature tensor.
 
-        Returned tensor should have a shape :math:`(N, 1)`, where :math:`N` is
-        the number of simulated paths.
+        Returned tensor should have a shape :math:`(N, 1)` where
+        :math:`N` is the number of simulated paths.
 
         Args:
             time_step (int): The index of the time step to get the feature.
 
         Shape:
-            - Output: :math:`(N, T, F=1)` where :math:`N` is the number of paths,
+            - Output: :math:`(N, T, F=1)` where
+              :math:`N` is the number of paths,
               :math:`T` is the number of time steps, and
               :math:`F` is the number of feature size.
               If ``time_step`` is given, the shape is :math:`(N, 1, F)`.

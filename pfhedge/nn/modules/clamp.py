@@ -45,10 +45,10 @@ class LeakyClamp(Module):
             'max' is consistent with :func:`torch.clamp`.
 
     Shape:
-        - input: :math:`(N, *)`, where :math:`*` means any number of additional
-          dimensions.
-        - min: :math:`(N, *)`
-        - max: :math:`(N, *)`
+        - input: :math:`(N, *)` where
+          :math:`*` means any number of additional dimensions.
+        - min: :math:`(N, *)` or any size broadcastable to ``input``.
+        - max: :math:`(N, *)` or any size broadcastable to ``input``.
         - output: :math:`(N, *)`, same shape as the input.
 
     Examples:
@@ -90,13 +90,6 @@ class LeakyClamp(Module):
             min (torch.Tensor, optional): Lower-bound of the range to be clamped to.
             max (torch.Tensor, optional): Upper-bound of the range to be clamped to.
 
-        Shape:
-            - input: :math:`(N, *)`, where :math:`*` means any number of additional
-              dimensions.
-            - min: :math:`(N, *)`
-            - max: :math:`(N, *)`
-            - output: :math:`(N, *)`, same shape as the input.
-
         Returns:
             torch.Tensor
         """
@@ -135,10 +128,10 @@ class Clamp(Module):
             'max' is consistent with :func:`torch.clamp`.
 
     Shape:
-        - input: :math:`(N, *)`, where :math:`*` means any number of additional
-          dimensions.
-        - min: :math:`(N, *)`
-        - max: :math:`(N, *)`
+        - input: :math:`(N, *)` where
+          :math:`*` means any number of additional dimensions.
+        - min: :math:`(N, *)` or any size broadcastable to ``input``.
+        - max: :math:`(N, *)` or any size broadcastable to ``input``.
         - output: :math:`(N, *)`, same shape as the input.
 
     Examples:
@@ -175,13 +168,6 @@ class Clamp(Module):
             input (torch.Tensor): The input tensor.
             min (torch.Tensor, optional): Lower-bound of the range to be clamped to.
             max (torch.Tensor, optional): Upper-bound of the range to be clamped to.
-
-        Shape:
-            - input: :math:`(N, *)`, where :math:`*` means any number of additional
-              dimensions.
-            - min: :math:`(N, *)`
-            - max: :math:`(N, *)`
-            - output: :math:`(N, *)`, same shape as the input.
 
         Returns:
             torch.Tensor

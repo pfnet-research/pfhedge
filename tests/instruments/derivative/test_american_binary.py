@@ -17,17 +17,23 @@ class TestAmericanBinaryOption:
 
     def test_payoff(self):
         derivative = AmericanBinaryOption(BrownianStock(), strike=2.0)
-        derivative.underlier.spot = torch.tensor(
-            [[1.0, 1.0, 1.0, 1.0], [1.0, 1.0, 1.0, 2.0], [1.9, 2.0, 2.1, 1.0]]
-        ).T
+        derivative.underlier.register_buffer(
+            "spot",
+            torch.tensor(
+                [[1.0, 1.0, 1.0, 1.0], [1.0, 1.0, 1.0, 2.0], [1.9, 2.0, 2.1, 1.0]]
+            ).T,
+        )
         result = derivative.payoff()
         expect = torch.tensor([0.0, 1.0, 1.0, 1.0])
         assert_close(result, expect)
 
         derivative = AmericanBinaryOption(BrownianStock(), strike=1.0, call=False)
-        derivative.underlier.spot = torch.tensor(
-            [[2.0, 2.0, 2.0, 2.0], [2.0, 2.0, 2.0, 1.0], [1.1, 1.0, 0.9, 2.0]]
-        ).T
+        derivative.underlier.register_buffer(
+            "spot",
+            torch.tensor(
+                [[2.0, 2.0, 2.0, 2.0], [2.0, 2.0, 2.0, 1.0], [1.1, 1.0, 0.9, 2.0]]
+            ).T,
+        )
         result = derivative.payoff()
         expect = torch.tensor([0.0, 1.0, 1.0, 1.0])
         assert_close(result, expect)
