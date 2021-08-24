@@ -5,6 +5,7 @@ from typing import Optional
 from typing import Tuple
 from typing import TypeVar
 from typing import Union
+from typing import no_type_check
 
 import torch
 from torch import Tensor
@@ -41,9 +42,9 @@ class Derivative(Instrument):
     """
 
     underlier: Primary
+    cost: float
     maturity: float
     pricer: Optional[Callable[[Any], Tensor]]
-    cost: float
 
     def __init__(self):
         super().__init__()
@@ -51,11 +52,11 @@ class Derivative(Instrument):
         self.cost = 0.0
 
     @property
-    def dtype(self) -> torch.dtype:
+    def dtype(self) -> Optional[torch.dtype]:
         return self.underlier.dtype
 
     @property
-    def device(self) -> torch.device:
+    def device(self) -> Optional[torch.device]:
         return self.underlier.device
 
     def simulate(
@@ -86,8 +87,8 @@ class Derivative(Instrument):
         """Returns the payoffs of the derivative.
 
         Shape:
-            - Output: :math:`(N)` where :math:`N` stands for the number of simulated
-              paths.
+            - Output: :math:`(N)` where
+              :math:`N` stands for the number of simulated paths.
 
         Returns:
             torch.Tensor
@@ -144,7 +145,8 @@ class BaseOption(Derivative):
             log (bool, default=False): If ``True``, returns log moneyness.
 
         Shape:
-            - Output: :math:`(N, T)` where :math:`N` is the number of paths and
+            - Output: :math:`(N, T)` where
+              :math:`N` is the number of paths and
               :math:`T` is the number of time steps.
               If ``time_step`` is given, the shape is :math:`(N, 1)`.
 
@@ -170,7 +172,8 @@ class BaseOption(Derivative):
                 maturity is calculated at all time steps.
 
         Shape:
-            - Output: :math:`(N, T)` where :math:`N` is the number of paths and
+            - Output: :math:`(N, T)` where
+              :math:`N` is the number of paths and
               :math:`T` is the number of time steps.
               If ``time_step`` is given, the shape is :math:`(N, 1)`.
 
@@ -198,7 +201,8 @@ class BaseOption(Derivative):
                 maximum of the log moneyness.
 
         Shape:
-            - Output: :math:`(N, T)` where :math:`N` is the number of paths and
+            - Output: :math:`(N, T)` where
+              :math:`N` is the number of paths and
               :math:`T` is the number of time steps.
               If ``time_step`` is given, the shape is :math:`(N, 1)`.
 

@@ -40,12 +40,11 @@ class Primary(Instrument):
         device (torch.device): The device where the simulated time-series are.
     """
 
-    dtype: torch.dtype
-    device: torch.device
     dt: float
-    _buffers: Dict[str, Optional[Tensor]]
-    spot: Tensor
     cost: float
+    _buffers: Dict[str, Optional[Tensor]]
+    dtype: Optional[torch.dtype]
+    device: Optional[torch.device]
 
     def __init__(self) -> None:
         super().__init__()
@@ -140,6 +139,18 @@ class Primary(Instrument):
                 return _buffers[name]
         raise AttributeError(
             "'{}' object has no attribute '{}'".format(type(self).__name__, name)
+        )
+
+    @property
+    def spot(self) -> Tensor:
+        name = "spot"
+        if "_buffers" in self.__dict__:
+            _buffers = self.__dict__["_buffers"]
+            if name in _buffers:
+                return _buffers["spot"]
+        raise AttributeError(
+            f"'{self._get_name()}' object has no attribute '{name}'. "
+            "Asset may not be simulated."
         )
 
     def to(self: T, *args, **kwargs) -> T:

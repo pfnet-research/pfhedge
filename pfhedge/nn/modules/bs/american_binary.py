@@ -18,10 +18,11 @@ class BSAmericanBinaryOption(BSModuleMixin):
         strike (float, default=1.0): The strike price of the option.
 
     Shape:
-        - Input: :math:`(N, *, 4)`, where :math:`*` means any number of additional
-          dimensions. See :func:`inputs` for the names of input features.
-        - Output: :math:`(N, *, 1)`. Delta of the derivative.
-          All but the last dimension are the same shape as the input.
+        - Input: :math:`(N, *, 4)` where
+          :math:`*` means any number of additional dimensions.
+          See :func:`inputs` for the names of input features.
+        - Output: :math:`(N, *, 1)`,
+          all but the last dimension are the same shape as the input.
 
     .. seealso ::
 
@@ -47,8 +48,8 @@ class BSAmericanBinaryOption(BSModuleMixin):
                 [0.0000]])
 
     References:
-        Dai, M., 2000. A closed-form solution for perpetual American floating strike
-        lookback options. Journal of Computational Finance, 4(2), pp.63-68.
+        - Dai, M., 2000. A closed-form solution for perpetual American floating strike
+          lookback options. Journal of Computational Finance, 4(2), pp.63-68.
     """
 
     def __init__(self, call: bool = True, strike: float = 1.0):
@@ -105,7 +106,8 @@ class BSAmericanBinaryOption(BSModuleMixin):
             volatility (torch.Tensor): Volatility of the underlying asset.
 
         Shape:
-            - log_moneyness: :math:`(N, *)`
+            - log_moneyness: :math:`(N, *)` where
+              :math:`*` means any number of additional dimensions.
             - max_log_moneyness: :math:`(N, *)`
             - time_to_maturity: :math:`(N, *)`
             - volatility: :math:`(N, *)`
@@ -143,7 +145,8 @@ class BSAmericanBinaryOption(BSModuleMixin):
             volatility (torch.Tensor): Volatility of the underlying asset.
 
         Shape:
-            - log_moneyness: :math:`(N, *)`
+            - log_moneyness: :math:`(N, *)` where
+              :math:`*` means any number of additional dimensions.
             - max_log_moneyness: :math:`(N, *)`
             - time_to_maturity: :math:`(N, *)`
             - volatility: :math:`(N, *)`
@@ -185,7 +188,8 @@ class BSAmericanBinaryOption(BSModuleMixin):
             volatility (torch.Tensor): Volatility of the underlying asset.
 
         Shape:
-            - log_moneyness: :math:`(N, *)`
+            - log_moneyness: :math:`(N, *)` where
+              :math:`*` means any number of additional dimensions.
             - max_log_moneyness: :math:`(N, *)`
             - time_to_maturity: :math:`(N, *)`
             - volatility: :math:`(N, *)`
@@ -222,7 +226,8 @@ class BSAmericanBinaryOption(BSModuleMixin):
                 volatility.
 
         Shape:
-            - log_moneyness: :math:`(N, *)`
+            - log_moneyness: :math:`(N, *)` where
+              :math:`*` means any number of additional dimensions.
             - max_log_moneyness: :math:`(N, *)`
             - time_to_maturity: :math:`(N, *)`
             - volatility: :math:`(N, *)`

@@ -107,8 +107,9 @@ class HestonStock(Primary):
     ) -> None:
         """Simulate the spot price and add it as a buffer named ``spot``.
 
-        The shape of the spot is :math:`(N, T)`, where :math:`N` is the number of
-        simulated paths and :math:`T` is the number of time steps.
+        The shape of the spot is :math:`(N, T)`, where
+        :math:`N` is the number of simulated paths and
+        :math:`T` is the number of time steps.
         The number of time steps is determinded from ``dt`` and ``time_horizon``.
 
         Args:

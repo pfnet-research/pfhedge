@@ -18,6 +18,7 @@ from pfhedge._utils.operations import ensemble_mean
 from pfhedge._utils.str import _format_float
 from pfhedge.features import FeatureList
 from pfhedge.features._base import Feature
+from pfhedge.instruments.base import Instrument
 from pfhedge.instruments.derivative.base import Derivative
 from pfhedge.instruments.primary.base import Primary
 from pfhedge.nn.functional import terminal_value
@@ -29,25 +30,27 @@ TensorOrFloat = Union[Tensor, float]
 
 
 class Hedger(Module):
-    """A :class:`torch.nn.Module` to hedge and price derivatives.
+    """Module to hedge and price derivatives.
 
     Args:
         model (torch.nn.Module): Hedging model to compute the hedge ratio at the
             next time step from the input features at the current time step.
             The input and output shapes should be :math:`(N, H_\\text{in})` and
-            :math:`(N, 1)` respectively, where :math:`N` stands for the number simulated
-            paths of the asset prices and :math:`H_\\text{in}` stands for the number of
-            input features (namely, ``len(inputs)``).
-        inputs (list[str|Feature]): List of (names of) input features to feed to model.
+            :math:`(N, 1)` respectively, where
+            :math:`N` stands for the number simulated paths of the asset prices and
+            :math:`H_\\text{in}` is the number of input features (``len(inputs)``).
+        inputs (list[str|Feature]): List of the names of the input features that
+            will be fed to the model.
             See ``list(map(str, pfhedge.features.FEATURES))`` for valid options.
         criterion (HedgeLoss, default=EntropicRiskMeasure()):
             Loss function to minimize by hedging.
             Default: :class:`pfhedge.nn.EntropicRiskMeasure()` .
 
     Shape:
-        - Input: :math:`(N, H_{\\text{in}})` where :math:`H_{\\text{in}}` is
-          the number of input features.
-        - Output: :math:`(N, 1)`
+        - input: :math:`(N, H_{\\text{in}})` where
+          :math:`N` is the number of simulated paths and
+          :math:`H_{\\text{in}}` is the number of input features.
+        - output: :math:`(N, 1)`
 
     Examples:
 
@@ -192,7 +195,8 @@ class Hedger(Module):
                 If ``None`` an input tensor for all time steps is returned.
 
         Shape:
-            - Output: :math:`(N, T, F)` where :math:`N` is the number of paths,
+            - Output: :math:`(N, T, F)` where
+              :math:`N` is the number of paths,
               :math:`T` is the number of time steps, and
               :math:`F` is the number of input features.
               If ``time_step`` is specified, :math:`T = 1`.
@@ -216,7 +220,7 @@ class Hedger(Module):
         return self.inputs[time_step]
 
     def compute_hedge(
-        self, derivative: Derivative, hedge: Optional[Union[Primary, Derivative]] = None
+        self, derivative: Derivative, hedge: Optional[Instrument] = None
     ) -> Tensor:
         """Compute the hedge ratio at each time step.
         It assumes that the derivative is already simulated.
@@ -227,7 +231,8 @@ class Hedger(Module):
                 If ``None`` (default), use ``derivative.underlier``.
 
         Shape:
-            - Output: :math:`(N, H, T)` where :math:`N` is the number of paths,
+            - Output: :math:`(N, H, T)` where
+              :math:`N` is the number of paths,
               :math:`H = 1` is the number of hedging instruments, and
               :math:`T` is the number of time steps.
 
@@ -253,9 +258,7 @@ class Hedger(Module):
                     [0.5056, 0.3785, 0.4609, 0.5239, 0.7281, 0.7281]])
         """
         self.inputs = self.inputs.of(derivative, self)
-
         hedge = derivative.ul() if hedge is None else hedge
-        hedge = cast(Union[Primary, Derivative], hedge)
 
         if self.inputs.is_state_dependent():
             save_prev_output(
@@ -284,7 +287,7 @@ class Hedger(Module):
     def compute_pnl(
         self,
         derivative: Derivative,
-        hedge: Optional[Union[Primary, Derivative]] = None,
+        hedge: Optional[Instrument] = None,
         n_paths: int = 1000,
         init_state: Optional[Tuple[TensorOrFloat, ...]] = None,
     ) -> Tensor:
@@ -307,7 +310,8 @@ class Hedger(Module):
                 If ``None`` (default), it uses the default value.
 
         Shape:
-            - Output: :math:`(N)`, where :math:`N` is the number of paths.
+            - Output: :math:`(N)` where
+              :math:`N` is the number of paths.
 
         Returns:
             torch.Tensor
@@ -325,16 +329,14 @@ class Hedger(Module):
             >>> hedger.compute_pnl(derivative, n_paths=2)
             tensor([..., ...])
         """
-        hedge = derivative.ul() if hedge is None else hedge
-        hedge = cast(Union[Primary, Derivative], hedge)
-
         derivative.simulate(n_paths=n_paths, init_state=init_state)
-
-        unit = self.compute_hedge(derivative, hedge=hedge)  # (N, H=1, T)
-        unit = unit.squeeze(-2)  # (N, T)
+        hedge = derivative.ul() if hedge is None else hedge
 
         return terminal_value(
-            hedge.spot, unit=unit, cost=hedge.cost, payoff=derivative.payoff()
+            hedge.spot,
+            unit=self.compute_hedge(derivative, hedge=hedge).squeeze(-2),
+            cost=hedge.cost,
+            payoff=derivative.payoff(),
         )
 
     def compute_loss(
@@ -373,6 +375,7 @@ class Hedger(Module):
             >>> from pfhedge.instruments import EuropeanOption
             >>> from pfhedge.nn import BlackScholes
             >>> from pfhedge.nn import Hedger
+            >>>
             >>> derivative = EuropeanOption(BrownianStock())
             >>> model = BlackScholes(derivative)
             >>> hedger = Hedger(model, model.inputs())
