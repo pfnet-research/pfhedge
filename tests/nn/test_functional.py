@@ -79,9 +79,31 @@ def test_leaky_clamp():
     expect = torch.full_like(result, 0.5)
     assert_close(result, expect)
 
+    result = leaky_clamp(input, 1, 0, clamped_slope=0.01, inverted_output="max")
+    expect = torch.full_like(result, 0.0)
+    assert_close(result, expect)
+
+    result = clamp(input, 1, 0, inverted_output="max")
+    expect = torch.full_like(result, 0.0)
+    assert_close(result, expect)
+
     result = leaky_clamp(input, 0, 1, clamped_slope=0.0)
     expect = clamp(input, 0, 1)
     assert_close(result, expect)
+
+
+def test_clamp_error_invalid_inverted_output():
+    input = torch.empty(10)
+    min = torch.empty(10)
+    max = torch.empty(10)
+    with pytest.raises(ValueError):
+        _ = leaky_clamp(input, min, max, inverted_output="min")
+    with pytest.raises(ValueError):
+        _ = leaky_clamp(input, min, max, inverted_output="foo")
+    with pytest.raises(ValueError):
+        _ = clamp(input, min, max, inverted_output="min")
+    with pytest.raises(ValueError):
+        _ = clamp(input, min, max, inverted_output="foo")
 
 
 def test_realized_variance():
