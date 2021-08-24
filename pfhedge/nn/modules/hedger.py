@@ -397,9 +397,13 @@ class Hedger(Module):
             if has_lazy(self):
                 # Run a placeholder forward to initialize lazy parameters
                 _ = self.compute_pnl(derivative, n_paths=1)
-            optimizer = optimizer(self.model.parameters())
-            if not isinstance(optimizer, torch.optim.Optimizer):
-                raise TypeError("optimizer is not torch.optim.Optimizer")
+            # If we use `if issubclass(optimizer, Optimizer)` here, mypy thinks that
+            # optimizer is Optimizer rather than its subclass (e.g. Adam)
+            # and complains that the required parameter default is missing.
+            if Optimizer in optimizer.__mro__:
+                optimizer = cast(Optimizer, optimizer(self.model.parameters()))
+            else:
+                raise TypeError("optimizer is not an Optimizer type")
         return optimizer
 
     def fit(
