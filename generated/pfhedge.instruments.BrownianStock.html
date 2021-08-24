@@ -159,7 +159,8 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <ul class="current">
+  <p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul class="current">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../nn.html">pfhedge.nn</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.Hedger.html">Hedger</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.BlackScholes.html">BlackScholes</a></li>
@@ -196,6 +197,15 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../stochastic.html">pfhedge.stochastic</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../autogreek.html">pfhedge.autogreek</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../examples/getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/pfnet-research/pfhedge/tree/main/examples">Example Codes</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Notes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../notes/instrument_attributes.html">Instrument dtype and device</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Development</span></p>
 <ul>
@@ -320,19 +330,41 @@ It also accepts a <a class="reference external" href="https://docs.python.org/3/
 <dl class="py method">
 <dt class="sig sig-object py" id="pfhedge.instruments.BrownianStock.to">
 <span class="sig-name descname"><span class="pre">to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.BrownianStock.to" title="Permalink to this definition">¶</a></dt>
-<dd><p>Moves and/or casts the buffers.</p>
-<p>This can be called like <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module.to" title="(in PyTorch v1.9.0a0+gitd69c22d)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">torch.nn.Module.to()</span></code></a>.
-See below for examples.</p>
+<dd><p>Moves and/or casts the buffers of the instrument.</p>
+<p>This can be called as</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="id1">
+<span class="sig-name descname"><span class="pre">to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id1" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<p>Its signature is similar to <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module.to" title="(in PyTorch v1.9.0a0+gitd69c22d)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">torch.nn.Module.to()</span></code></a>.
+It only accepts floating point dtypes.
+See <a class="reference internal" href="../notes/instrument_attributes.html#instrument-attributes-doc"><span class="std std-ref">Instrument dtype and device</span></a> for details.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This method modifies the instrument in-place.</p>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<ul class="simple">
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">float()</span></code>: Cast to <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.float32</span></code>.</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">double()</span></code>: Cast to <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.float64</span></code>.</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">half()</span></code>: Cast to <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.float16</span></code>.</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">bfloat16()</span></code>: Cast to <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.bfloat16</span></code>.</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">cuda()</span></code>: Move to CUDA memory.</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">cpu()</span></code>: Move to CPU memory.</p></li>
+</ul>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>dtype</strong> (<em>torch.dtype</em>) – The desired floating point dtype of
 the buffers in this instrument.</p></li>
-<li><p><strong>device</strong> (<em>torch.device</em>) – The desired device of the buffers in this instrument.</p></li>
+<li><p><strong>device</strong> (<em>torch.device</em>) – The desired device of the buffers
+in this instrument.</p></li>
 <li><p><strong>tensor</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a>) – Tensor whose dtype and device are the desired
 dtype and device for all buffers in this module.</p></li>
 </ul>
@@ -341,42 +373,6 @@ dtype and device for all buffers in this module.</p></li>
 <dd class="field-even"><p>self</p>
 </dd>
 </dl>
-<p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">BrownianStock</span>
-<span class="go">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span> <span class="o">=</span> <span class="n">BrownianStock</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">n_paths</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">time_horizon</span><span class="o">=</span><span class="mi">2</span> <span class="o">/</span> <span class="mi">250</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span><span class="o">.</span><span class="n">spot</span>
-<span class="go">tensor([[1.0000, 1.0016, 1.0044],</span>
-<span class="go">        [1.0000, 0.9858, 0.9834]])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
-<span class="go">BrownianStock(..., dtype=torch.float64)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span><span class="o">.</span><span class="n">spot</span>
-<span class="go">tensor([[1.0000, 1.0016, 1.0044],</span>
-<span class="go">        [1.0000, 0.9858, 0.9834]], dtype=torch.float64)</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">EuropeanOption</span>
-<span class="go">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span> <span class="o">=</span> <span class="n">EuropeanOption</span><span class="p">(</span><span class="n">BrownianStock</span><span class="p">(),</span> <span class="n">maturity</span><span class="o">=</span><span class="mi">2</span> <span class="o">/</span> <span class="mi">250</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">n_paths</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span><span class="o">.</span><span class="n">ul</span><span class="p">()</span><span class="o">.</span><span class="n">spot</span>
-<span class="go">tensor([[1.0000, 1.0016, 1.0044],</span>
-<span class="go">        [1.0000, 0.9858, 0.9834]])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
-<span class="go">EuropeanOption(</span>
-<span class="go">  ...</span>
-<span class="go">  (underlier): BrownianStock(..., dtype=torch.float64)</span>
-<span class="go">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span><span class="o">.</span><span class="n">ul</span><span class="p">()</span>
-<span class="go">BrownianStock(..., dtype=torch.float64)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span><span class="o">.</span><span class="n">ul</span><span class="p">()</span><span class="o">.</span><span class="n">spot</span>
-<span class="go">tensor([[1.0000, 1.0016, 1.0044],</span>
-<span class="go">        [1.0000, 0.9858, 0.9834]], dtype=torch.float64)</span>
-</pre></div>
-</div>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pfhedge.instruments.BrownianStock.variance">

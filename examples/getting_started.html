@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="EntropicLoss" href="pfhedge.nn.EntropicLoss.html" /><link rel="prev" title="LeakyClamp" href="pfhedge.nn.LeakyClamp.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Instrument dtype and device" href="../notes/instrument_attributes.html" /><link rel="prev" title="pfhedge.autogreek" href="../autogreek.html" />
 
     <meta name="generator" content="sphinx-4.1.2, furo 2021.08.17.beta43"/>
-        <title>HedgeLoss - PFHedge documentation</title>
+        <title>Getting Started - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=910ac4ccc9d7c023151c34010d7b500fb9777a51" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
@@ -160,47 +160,47 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <p class="caption" role="heading"><span class="caption-text">API</span></p>
-<ul class="current">
-<li class="toctree-l1 current has-children"><a class="reference internal" href="../nn.html">pfhedge.nn</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.Hedger.html">Hedger</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.BlackScholes.html">BlackScholes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.BSAmericanBinaryOption.html">BSAmericanBinaryOption</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.BSEuropeanOption.html">BSEuropeanOption</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.BSEuropeanBinaryOption.html">BSEuropeanBinaryOption</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.BSLookbackOption.html">BSLookbackOption</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.WhalleyWilmott.html">WhalleyWilmott</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.Clamp.html">Clamp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.LeakyClamp.html">LeakyClamp</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">HedgeLoss</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.EntropicLoss.html">EntropicLoss</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.EntropicRiskMeasure.html">EntropicRiskMeasure</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.ExpectedShortfall.html">ExpectedShortfall</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.IsoelasticLoss.html">IsoelasticLoss</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.MultiLayerPerceptron.html">MultiLayerPerceptron</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.Naked.html">Naked</a></li>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../nn.html">pfhedge.nn</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.nn.Hedger.html">Hedger</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.nn.BlackScholes.html">BlackScholes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.nn.BSAmericanBinaryOption.html">BSAmericanBinaryOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.nn.BSEuropeanOption.html">BSEuropeanOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.nn.BSEuropeanBinaryOption.html">BSEuropeanBinaryOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.nn.BSLookbackOption.html">BSLookbackOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.nn.WhalleyWilmott.html">WhalleyWilmott</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.nn.Clamp.html">Clamp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.nn.LeakyClamp.html">LeakyClamp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.nn.HedgeLoss.html">HedgeLoss</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.nn.EntropicLoss.html">EntropicLoss</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.nn.EntropicRiskMeasure.html">EntropicRiskMeasure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.nn.ExpectedShortfall.html">ExpectedShortfall</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.nn.IsoelasticLoss.html">IsoelasticLoss</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.nn.MultiLayerPerceptron.html">MultiLayerPerceptron</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.nn.Naked.html">Naked</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../nn.functional.html">pfhedge.nn.functional</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../instruments.html">pfhedge.instruments</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.Instrument.html">Instrument</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.Primary.html">Primary</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.HestonStock.html">HestonStock</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.Derivative.html">Derivative</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BaseOption.html">BaseOption</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.VarianceSwap.html">VarianceSwap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.instruments.Instrument.html">Instrument</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.instruments.Primary.html">Primary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.instruments.HestonStock.html">HestonStock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.instruments.Derivative.html">Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.instruments.BaseOption.html">BaseOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.instruments.VarianceSwap.html">VarianceSwap</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../stochastic.html">pfhedge.stochastic</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../autogreek.html">pfhedge.autogreek</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Examples</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../examples/getting_started.html">Getting Started</a></li>
+<ul class="current">
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/pfnet-research/pfhedge/tree/main/examples">Example Codes</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Notes</span></p>
@@ -235,91 +235,52 @@
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
-        <section id="hedgeloss">
-<h1>HedgeLoss<a class="headerlink" href="#hedgeloss" title="Permalink to this headline">¶</a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="pfhedge.nn.HedgeLoss">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pfhedge.nn.</span></span><span class="sig-name descname"><span class="pre">HedgeLoss</span></span><a class="reference internal" href="../_modules/pfhedge/nn/modules/loss.html#HedgeLoss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.HedgeLoss" title="Permalink to this definition">¶</a></dt>
-<dd><p>Base class for hedging criteria.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="pfhedge.nn.HedgeLoss.cash">
-<span class="sig-name descname"><span class="pre">cash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/loss.html#HedgeLoss.cash"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.HedgeLoss.cash" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the cash amount which is as preferable as
-the given profit-loss distribution in terms of the loss.</p>
-<p>The output <code class="docutils literal notranslate"><span class="pre">cash</span></code> is expected to satisfy the following relation:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">loss</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">pnl</span><span class="p">,</span> <span class="n">cash</span><span class="p">))</span> <span class="o">=</span> <span class="n">loss</span><span class="p">(</span><span class="n">pnl</span><span class="p">)</span>
+        <section id="getting-started">
+<h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
+<a class="reference external image-reference" href="https://colab.research.google.com/github/pfnet-research/pfhedge/blob/main/examples/example_readme.ipynb"><img alt="https://colab.research.google.com/assets/colab-badge.svg" src="https://colab.research.google.com/assets/colab-badge.svg"/></a>
+<p>Here is a minimal example to try out Deep Hedging.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">BrownianStock</span>
+<span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">EuropeanOption</span>
+<span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">Hedger</span>
+<span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">MultiLayerPerceptron</span>
+
+<span class="c1"># Prepare a derivative to hedge</span>
+<span class="n">deriv</span> <span class="o">=</span> <span class="n">EuropeanOption</span><span class="p">(</span><span class="n">BrownianStock</span><span class="p">(</span><span class="n">cost</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">))</span>
+
+<span class="c1"># Create your hedger</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">MultiLayerPerceptron</span><span class="p">()</span>
+<span class="n">hedger</span> <span class="o">=</span> <span class="n">Hedger</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="p">[</span><span class="s2">"log_moneyness"</span><span class="p">,</span> <span class="s2">"expiry_time"</span><span class="p">,</span> <span class="s2">"volatility"</span><span class="p">,</span> <span class="s2">"prev_hedge"</span><span class="p">]</span>
+<span class="p">)</span>
+
+<span class="c1"># Fit and price</span>
+<span class="n">hedger</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">deriv</span><span class="p">)</span>
+<span class="n">price</span> <span class="o">=</span> <span class="n">hedger</span><span class="o">.</span><span class="n">price</span><span class="p">(</span><span class="n">deriv</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>By default, the output is computed by binary search.
-If analytic form is known, it is recommended to override this method
-for faster computation.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>input</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a>) – The distribution of the profit and loss.</p>
-</dd>
-</dl>
-<dl class="simple">
-<dt>Shape:</dt><dd><ul class="simple">
-<li><p>Input: <span class="math notranslate nohighlight">\((N, *)\)</span> where
-<span class="math notranslate nohighlight">\(*\)</span> means any number of additional dimensions.</p></li>
-<li><p>Output: <span class="math notranslate nohighlight">\((*)\)</span></p></li>
-</ul>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>torch.Tensor</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="pfhedge.nn.HedgeLoss.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/loss.html#HedgeLoss.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.HedgeLoss.forward" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the loss of the profit-loss distribution.</p>
-<p>This method should be overridden.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>input</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a>) – The distribution of the profit and loss.</p>
-</dd>
-</dl>
-<dl class="simple">
-<dt>Shape:</dt><dd><ul class="simple">
-<li><p>Input: <span class="math notranslate nohighlight">\((N, *)\)</span> where
-<span class="math notranslate nohighlight">\(*\)</span> means any number of additional dimensions.</p></li>
-<li><p>Output: <span class="math notranslate nohighlight">\((*)\)</span></p></li>
-</ul>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>torch.Tensor</p>
-</dd>
-</dl>
-</dd></dl>
-</dd></dl>
 </section>
 
       </article>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="pfhedge.nn.EntropicLoss.html">
+          <a class="next-page" href="../notes/instrument_attributes.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">EntropicLoss</div>
+                <div class="title">Instrument dtype and device</div>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="pfhedge.nn.LeakyClamp.html">
+          <a class="prev-page" href="../autogreek.html">
               <svg><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">LeakyClamp</div>
+                <div class="title">pfhedge.autogreek</div>
                 
               </div>
             </a>
@@ -333,7 +294,7 @@ for faster computation.</p>
               <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
               <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
             |
-            <a class="muted-link" href="../_sources/generated/pfhedge.nn.HedgeLoss.rst.txt"
+            <a class="muted-link" href="../_sources/examples/getting_started.rst.txt"
                rel="nofollow">
               Show Source
             </a>
@@ -354,6 +315,5 @@ for faster computation.</p>
     <script src="../_static/scripts/main.js"></script>
     <script src="../_static/clipboard.min.js"></script>
     <script src="../_static/copybutton.js"></script>
-    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     </body>
 </html>

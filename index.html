@@ -139,7 +139,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -159,7 +159,8 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <ul>
+  <p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
 <li class="toctree-l1 has-children"><a class="reference internal" href="nn.html">pfhedge.nn</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.Hedger.html">Hedger</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.BlackScholes.html">BlackScholes</a></li>
@@ -197,6 +198,15 @@
 <li class="toctree-l1"><a class="reference internal" href="stochastic.html">pfhedge.stochastic</a></li>
 <li class="toctree-l1"><a class="reference internal" href="autogreek.html">pfhedge.autogreek</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="examples/getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/pfnet-research/pfhedge/tree/main/examples">Example Codes</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Notes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="notes/instrument_attributes.html">Instrument dtype and device</a></li>
+</ul>
 <p class="caption" role="heading"><span class="caption-text">Development</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/pfnet-research/pfhedge">GitHub</a></li>
@@ -220,7 +230,7 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
@@ -228,9 +238,18 @@
         <section id="pfhedge-documentation">
 <h1>PFHedge Documentation<a class="headerlink" href="#pfhedge-documentation" title="Permalink to this headline">¶</a></h1>
 <p>PFHedge is a <a class="reference external" href="https://pytorch.org">PyTorch</a>-based framework for <a class="reference external" href="https://arxiv.org/abs/1802.03042">Deep Hedging</a>.</p>
-<section id="api">
-<h2>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h2>
+<div class="line-block">
+<div class="line"><br/></div>
+</div>
+<p>Install:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>pip install pfhedge
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><br/></div>
+</div>
 <div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="nn.html">pfhedge.nn</a></li>
 <li class="toctree-l1"><a class="reference internal" href="nn.functional.html">pfhedge.nn.functional</a></li>
@@ -239,43 +258,19 @@
 <li class="toctree-l1"><a class="reference internal" href="autogreek.html">pfhedge.autogreek</a></li>
 </ul>
 </div>
-</section>
-<section id="install">
-<h2>Install<a class="headerlink" href="#install" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>pip install pfhedge
-</pre></div>
+<div class="line-block">
+<div class="line"><br/></div>
 </div>
-</section>
-<section id="getting-started">
-<h2>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
-<a class="reference external image-reference" href="https://colab.research.google.com/github/pfnet-research/pfhedge/blob/main/examples/example_readme.ipynb"><img alt="https://colab.research.google.com/assets/colab-badge.svg" src="https://colab.research.google.com/assets/colab-badge.svg"/></a>
-<p>Here is a minimal example to try out Deep Hedging.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">BrownianStock</span>
-<span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">EuropeanOption</span>
-<span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">Hedger</span>
-<span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">MultiLayerPerceptron</span>
-
-<span class="c1"># Prepare a derivative to hedge</span>
-<span class="n">deriv</span> <span class="o">=</span> <span class="n">EuropeanOption</span><span class="p">(</span><span class="n">BrownianStock</span><span class="p">(</span><span class="n">cost</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">))</span>
-
-<span class="c1"># Create your hedger</span>
-<span class="n">model</span> <span class="o">=</span> <span class="n">MultiLayerPerceptron</span><span class="p">()</span>
-<span class="n">hedger</span> <span class="o">=</span> <span class="n">Hedger</span><span class="p">(</span>
-    <span class="n">model</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="p">[</span><span class="s2">"log_moneyness"</span><span class="p">,</span> <span class="s2">"expiry_time"</span><span class="p">,</span> <span class="s2">"volatility"</span><span class="p">,</span> <span class="s2">"prev_hedge"</span><span class="p">]</span>
-<span class="p">)</span>
-
-<span class="c1"># Fit and price</span>
-<span class="n">hedger</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">deriv</span><span class="p">)</span>
-<span class="n">price</span> <span class="o">=</span> <span class="n">hedger</span><span class="o">.</span><span class="n">price</span><span class="p">(</span><span class="n">deriv</span><span class="p">)</span>
-</pre></div>
-</div>
-</section>
-<section id="examples">
-<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
-<p>More examples are provided in <a class="reference external" href="https://github.com/pfnet-research/pfhedge/tree/main/examples">GitHub repository</a>.</p>
 <div class="toctree-wrapper compound">
 </div>
-</section>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Notes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="notes/instrument_attributes.html">Instrument dtype and device</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+</div>
 </section>
 
       </article>
@@ -310,30 +305,8 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer">
+    <aside class="toc-drawer no-toc">
       
-      
-      <div class="toc-sticky toc-scroll">
-        <div class="toc-title-container">
-          <span class="toc-title">
-            Contents
-          </span>
-        </div>
-        <div class="toc-tree-container">
-          <div class="toc-tree">
-            <ul>
-<li><a class="reference internal" href="#">PFHedge Documentation</a><ul>
-<li><a class="reference internal" href="#api">API</a></li>
-<li><a class="reference internal" href="#install">Install</a></li>
-<li><a class="reference internal" href="#getting-started">Getting Started</a></li>
-<li><a class="reference internal" href="#examples">Examples</a></li>
-</ul>
-</li>
-</ul>
-
-          </div>
-        </div>
-      </div>
       
       
     </aside>

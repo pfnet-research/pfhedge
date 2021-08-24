@@ -158,7 +158,8 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <ul>
+  <p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../nn.html">pfhedge.nn</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.nn.Hedger.html">Hedger</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.nn.BlackScholes.html">BlackScholes</a></li>
@@ -195,6 +196,15 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../stochastic.html">pfhedge.stochastic</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../autogreek.html">pfhedge.autogreek</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/pfnet-research/pfhedge/tree/main/examples">Example Codes</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Notes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/instrument_attributes.html">Instrument dtype and device</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Development</span></p>
 <ul>
@@ -265,59 +275,38 @@
 
 <div class="viewcode-block" id="Instrument.to"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.Instrument.html#pfhedge.instruments.Instrument.to">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">to</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
-        <span class="sd">"""Moves and/or casts the buffers.</span>
+        <span class="sd">"""Moves and/or casts the buffers of the instrument.</span>
 
-<span class="sd">        This can be called like :meth:`torch.nn.Module.to`.</span>
-<span class="sd">        See below for examples.</span>
+<span class="sd">        This can be called as</span>
+
+<span class="sd">        .. function:: to(device=None, dtype=None)</span>
+<span class="sd">        .. function:: to(tensor)</span>
+
+<span class="sd">        Its signature is similar to :meth:`torch.nn.Module.to`.</span>
+<span class="sd">        It only accepts floating point dtypes.</span>
+<span class="sd">        See :ref:`instrument-attributes-doc` for details.</span>
 
 <span class="sd">        .. note::</span>
-
 <span class="sd">            This method modifies the instrument in-place.</span>
+
+<span class="sd">        .. seealso::</span>
+<span class="sd">            - :meth:`float()`: Cast to :class:`torch.float32`.</span>
+<span class="sd">            - :meth:`double()`: Cast to :class:`torch.float64`.</span>
+<span class="sd">            - :meth:`half()`: Cast to :class:`torch.float16`.</span>
+<span class="sd">            - :meth:`bfloat16()`: Cast to :class:`torch.bfloat16`.</span>
+<span class="sd">            - :meth:`cuda()`: Move to CUDA memory.</span>
+<span class="sd">            - :meth:`cpu()`: Move to CPU memory.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            dtype (torch.dtype): The desired floating point dtype of</span>
 <span class="sd">                the buffers in this instrument.</span>
-<span class="sd">            device (torch.device): The desired device of the buffers in this instrument.</span>
+<span class="sd">            device (torch.device): The desired device of the buffers</span>
+<span class="sd">                in this instrument.</span>
 <span class="sd">            tensor (torch.Tensor): Tensor whose dtype and device are the desired</span>
 <span class="sd">                dtype and device for all buffers in this module.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            self</span>
-
-<span class="sd">        Examples:</span>
-
-<span class="sd">            &gt;&gt;&gt; from pfhedge.instruments import BrownianStock</span>
-<span class="sd">            &gt;&gt;&gt;</span>
-<span class="sd">            &gt;&gt;&gt; _ = torch.manual_seed(42)</span>
-<span class="sd">            &gt;&gt;&gt; stock = BrownianStock()</span>
-<span class="sd">            &gt;&gt;&gt; stock.simulate(n_paths=2, time_horizon=2 / 250)</span>
-<span class="sd">            &gt;&gt;&gt; stock.spot</span>
-<span class="sd">            tensor([[1.0000, 1.0016, 1.0044],</span>
-<span class="sd">                    [1.0000, 0.9858, 0.9834]])</span>
-<span class="sd">            &gt;&gt;&gt; stock.to(torch.float64)</span>
-<span class="sd">            BrownianStock(..., dtype=torch.float64)</span>
-<span class="sd">            &gt;&gt;&gt; stock.spot</span>
-<span class="sd">            tensor([[1.0000, 1.0016, 1.0044],</span>
-<span class="sd">                    [1.0000, 0.9858, 0.9834]], dtype=torch.float64)</span>
-
-<span class="sd">            &gt;&gt;&gt; from pfhedge.instruments import EuropeanOption</span>
-<span class="sd">            &gt;&gt;&gt;</span>
-<span class="sd">            &gt;&gt;&gt; _ = torch.manual_seed(42)</span>
-<span class="sd">            &gt;&gt;&gt; derivative = EuropeanOption(BrownianStock(), maturity=2 / 250)</span>
-<span class="sd">            &gt;&gt;&gt; derivative.simulate(n_paths=2)</span>
-<span class="sd">            &gt;&gt;&gt; derivative.ul().spot</span>
-<span class="sd">            tensor([[1.0000, 1.0016, 1.0044],</span>
-<span class="sd">                    [1.0000, 0.9858, 0.9834]])</span>
-<span class="sd">            &gt;&gt;&gt; derivative.to(torch.float64)</span>
-<span class="sd">            EuropeanOption(</span>
-<span class="sd">              ...</span>
-<span class="sd">              (underlier): BrownianStock(..., dtype=torch.float64)</span>
-<span class="sd">            )</span>
-<span class="sd">            &gt;&gt;&gt; derivative.ul()</span>
-<span class="sd">            BrownianStock(..., dtype=torch.float64)</span>
-<span class="sd">            &gt;&gt;&gt; derivative.ul().spot</span>
-<span class="sd">            tensor([[1.0000, 1.0016, 1.0044],</span>
-<span class="sd">                    [1.0000, 0.9858, 0.9834]], dtype=torch.float64)</span>
 <span class="sd">        """</span></div>
 
 <div class="viewcode-block" id="Instrument.cpu"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.Instrument.html#pfhedge.instruments.Instrument.cpu">[docs]</a>    <span class="k">def</span> <span class="nf">cpu</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
