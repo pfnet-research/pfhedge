@@ -74,7 +74,7 @@ class EuropeanOption(BaseOption):
         >>> derivative = EuropeanOption(BrownianStock())
         >>> derivative.to(dtype=torch.float64, device="cuda:0")
         EuropeanOption(
-          strike=..., maturity=...
+          ...
           (underlier): BrownianStock(..., dtype=torch.float64, device='cuda:0')
         )
 

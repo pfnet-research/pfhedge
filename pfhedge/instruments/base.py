@@ -38,59 +38,38 @@ class Instrument(ABC):
 
     @abstractmethod
     def to(self: T, *args, **kwargs) -> T:
-        """Moves and/or casts the buffers.
+        """Moves and/or casts the buffers of the instrument.
 
-        This can be called like :meth:`torch.nn.Module.to`.
-        See below for examples.
+        This can be called as
+
+        .. function:: to(device=None, dtype=None)
+        .. function:: to(tensor)
+
+        Its signature is similar to :meth:`torch.nn.Module.to`.
+        It only accepts floating point dtypes.
+        See :ref:`instrument-attributes-doc` for details.
 
         .. note::
-
             This method modifies the instrument in-place.
+
+        .. seealso::
+            - :meth:`float()`: Cast to :class:`torch.float32`.
+            - :meth:`double()`: Cast to :class:`torch.float64`.
+            - :meth:`half()`: Cast to :class:`torch.float16`.
+            - :meth:`bfloat16()`: Cast to :class:`torch.bfloat16`.
+            - :meth:`cuda()`: Move to CUDA memory.
+            - :meth:`cpu()`: Move to CPU memory.
 
         Args:
             dtype (torch.dtype): The desired floating point dtype of
                 the buffers in this instrument.
-            device (torch.device): The desired device of the buffers in this instrument.
+            device (torch.device): The desired device of the buffers
+                in this instrument.
             tensor (torch.Tensor): Tensor whose dtype and device are the desired
                 dtype and device for all buffers in this module.
 
         Returns:
             self
-
-        Examples:
-
-            >>> from pfhedge.instruments import BrownianStock
-            >>>
-            >>> _ = torch.manual_seed(42)
-            >>> stock = BrownianStock()
-            >>> stock.simulate(n_paths=2, time_horizon=2 / 250)
-            >>> stock.spot
-            tensor([[1.0000, 1.0016, 1.0044],
-                    [1.0000, 0.9858, 0.9834]])
-            >>> stock.to(torch.float64)
-            BrownianStock(..., dtype=torch.float64)
-            >>> stock.spot
-            tensor([[1.0000, 1.0016, 1.0044],
-                    [1.0000, 0.9858, 0.9834]], dtype=torch.float64)
-
-            >>> from pfhedge.instruments import EuropeanOption
-            >>>
-            >>> _ = torch.manual_seed(42)
-            >>> derivative = EuropeanOption(BrownianStock(), maturity=2 / 250)
-            >>> derivative.simulate(n_paths=2)
-            >>> derivative.ul().spot
-            tensor([[1.0000, 1.0016, 1.0044],
-                    [1.0000, 0.9858, 0.9834]])
-            >>> derivative.to(torch.float64)
-            EuropeanOption(
-              ...
-              (underlier): BrownianStock(..., dtype=torch.float64)
-            )
-            >>> derivative.ul()
-            BrownianStock(..., dtype=torch.float64)
-            >>> derivative.ul().spot
-            tensor([[1.0000, 1.0016, 1.0044],
-                    [1.0000, 0.9858, 0.9834]], dtype=torch.float64)
         """
 
     def cpu(self: T) -> T:
