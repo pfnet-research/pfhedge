@@ -21,9 +21,10 @@ class BSLookbackOption(BSModuleMixin):
         strike (float, default=1.0): The strike price of the option.
 
     Shape:
-        - Input: :math:`(N, *, 4)`, where :math:`*` means any number of additional
-          dimensions.  See :func:`inputs` for the names of input features.
-        - Output: :math:`(N, *, 1)`. Delta of the derivative.
+        - Input: :math:`(N, *, 4)` where
+          :math:`*` means any number of additional dimensions.
+          See :func:`inputs` for the names of input features.
+        - Output: :math:`(N, *, 1)`.
           All but the last dimension are the same shape as the input.
 
     .. seealso ::
@@ -50,8 +51,8 @@ class BSLookbackOption(BSModuleMixin):
                 [1.0515]])
 
     References:
-        Conze, A., 1991. Path dependent options: The case of lookback options.
-        The Journal of Finance, 46(5), pp.1893-1907.
+        - Conze, A., 1991. Path dependent options: The case of lookback options.
+          The Journal of Finance, 46(5), pp.1893-1907.
     """
 
     def __init__(self, call: bool = True, strike: float = 1.0):
@@ -111,7 +112,8 @@ class BSLookbackOption(BSModuleMixin):
             volatility (torch.Tensor): Volatility of the underlying asset.
 
         Shape:
-            - log_moneyness: :math:`(N, *)`
+            - log_moneyness: :math:`(N, *)` where
+              :math:`*` means any number of additional dimensions.
             - max_log_moneyness: :math:`(N, *)`
             - time_to_maturity: :math:`(N, *)`
             - volatility: :math:`(N, *)`
@@ -168,7 +170,8 @@ class BSLookbackOption(BSModuleMixin):
                 will be constructed. This option is used to compute gamma.
 
         Shape:
-            - log_moneyness: :math:`(N, *)`
+            - log_moneyness: :math:`(N, *)` where
+              :math:`*` means any number of additional dimensions.
             - max_log_moneyness: :math:`(N, *)`
             - time_to_maturity: :math:`(N, *)`
             - volatility: :math:`(N, *)`
@@ -204,7 +207,8 @@ class BSLookbackOption(BSModuleMixin):
                 Volatility of the underlying asset.
 
         Shape:
-            - log_moneyness: :math:`(N, *)`
+            - log_moneyness: :math:`(N, *)` where
+              :math:`*` means any number of additional dimensions.
             - max_log_moneyness: :math:`(N, *)`
             - time_to_maturity: :math:`(N, *)`
             - volatility: :math:`(N, *)`
@@ -240,7 +244,8 @@ class BSLookbackOption(BSModuleMixin):
             precision (float, default=1e-6): Precision of the implied volatility.
 
         Shape:
-            - log_moneyness: :math:`(N, *)`
+            - log_moneyness: :math:`(N, *)` where
+              :math:`*` means any number of additional dimensions.
             - max_log_moneyness: :math:`(N, *)`
             - time_to_maturity: :math:`(N, *)`
             - price: :math:`(N, *)`

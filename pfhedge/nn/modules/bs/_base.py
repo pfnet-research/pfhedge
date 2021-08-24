@@ -13,10 +13,11 @@ class BSModuleMixin(Module):
     """A mixin class for Black-Scholes formula modules.
 
     Shape:
-        - Input: :math:`(N, *, H_\\text{in})`, where :math:`*` means any number of
-          additional dimensions. See :func:`inputs` for the names of input features.
-        - Output: :math:`(N, *, 1)`: All but the last dimension are the same shape
-          as the input.
+        - Input: :math:`(N, *, H_\\text{in})` where
+          :math:`*` means any number of additional dimensions.
+          See :func:`inputs` for the names of input features.
+        - Output: :math:`(N, *, 1)`.
+          All but the last dimension are the same shape as the input.
     """
 
     def forward(self, input: Tensor) -> Tensor:
