@@ -73,7 +73,7 @@ $ pip install pfhedge
 Financial instruments are provided in [`pfhedge.instruments`](https://pfnet-research.github.io/pfhedge/instruments.html) and classified into two types:
 
 * **`Primary` instruments**: A primary instrument is a basic financial instrument that is traded on a market, and therefore their prices are accessible as the market prices. Examples include stocks, bonds, commodities, and currencies.
-* **`Derivative` instruments**: A derivative is a financial instrument whose payoff is contingent on a primary instrument. An (over-the-counter) derivative is not traded on the market, and therefore the price is not directly accessible. Examples include [`EuropeanOption`](https://en.wikipedia.org/wiki/Option_style#American_and_European_options), [`LookbackOption`](https://en.wikipedia.org/wiki/Lookback_option), [`VarianceSwap`](https://en.wikipedia.org/wiki/Variance_swap), and so forth.
+* **`Derivative` instruments**: A derivative is a financial instrument whose payoff is contingent on a primary instrument. An (over-the-counter) derivative is not traded on the market, and therefore the price is not directly accessible. Examples include [`EuropeanOption`](https://pfnet-research.github.io/pfhedge/generated/pfhedge.instruments.EuropeanOption.html), [`LookbackOption`](https://pfnet-research.github.io/pfhedge/generated/pfhedge.instruments.LookbackOption.html), [`VarianceSwap`](https://pfnet-research.github.io/pfhedge/generated/pfhedge.instruments.VarianceSwap.html), and so forth.
 
 We consider a [`BrownianStock`](https://pfnet-research.github.io/pfhedge/generated/pfhedge.instruments.BrownianStock.html), which is a stock following the [geometric Brownian motion](https://en.wikipedia.org/wiki/Geometric_Brownian_motion), and a [`EuropeanOption`](https://pfnet-research.github.io/pfhedge/generated/pfhedge.instruments.EuropeanOption.html) which is contingent on it.
 We assume that the stock has a transaction cost of 1 basis point.
@@ -84,6 +84,12 @@ from pfhedge.instruments import EuropeanOption
 
 stock = BrownianStock(cost=1e-4)
 derivative = EuropeanOption(stock)
+
+derivative
+# EuropeanOption(
+#   strike=1., maturity=0.0800
+#   (underlier): BrownianStock(sigma=0.2000, cost=1.0000e-04, dt=0.0040)
+# )
 ```
 
 ### Create Your Hedger
@@ -165,7 +171,6 @@ dtype = torch.float64
 device = torch.device("cuda:0")
 
 derivative = EuropeanOption(BrownianStock()).to(dtype, device)
-
 hedger = Hedger(...).to(dtype, device)
 ```
 
