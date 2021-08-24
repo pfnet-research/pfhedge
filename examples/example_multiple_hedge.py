@@ -7,8 +7,8 @@ from torch import Tensor
 
 sys.path.append("..")
 
-from pfhedge.instruments import HestonStock
 from pfhedge.instruments import EuropeanOption
+from pfhedge.instruments import HestonStock
 from pfhedge.instruments import VarianceSwap
 from pfhedge.nn import Hedger
 from pfhedge.nn import MultiLayerPerceptron
