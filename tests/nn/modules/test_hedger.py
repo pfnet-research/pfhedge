@@ -52,7 +52,7 @@ class TestHedger:
         hedger = Hedger(Linear(2, 1), ["moneyness", "time_to_maturity"])
         derivative = EuropeanOption(BrownianStock())
         with pytest.raises(TypeError):
-            hedger.fit(derivative, optimizer=Identity)
+            hedger._configure_optimizer(derivative, optimizer=Identity)
 
     def test_repr(self):
         hedger = Hedger(Linear(2, 1), ["moneyness", "time_to_maturity"])

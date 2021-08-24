@@ -8,6 +8,7 @@ import torch
 from torch import Tensor
 from torch.nn import Module
 from torch.optim import Adam
+from torch.optim import Optimizer
 
 # error: Skipping analyzing "tqdm": found module but no type hints or library stubs
 from tqdm import tqdm  # type: ignore
@@ -392,6 +393,22 @@ class Hedger(Module):
 
         return mean_loss
 
+    def _configure_optimizer(
+        self, derivative: Derivative, optimizer: Union[Optimizer, type]
+    ) -> Optimizer:
+        if isinstance(optimizer, type):
+            if has_lazy(self):
+                # Run a placeholder forward to initialize lazy parameters
+                _ = self.compute_pnl(derivative, n_paths=1)
+            # If we use `if issubclass(optimizer, Optimizer)` here, mypy thinks that
+            # optimizer is Optimizer rather than its subclass (e.g. Adam)
+            # and complains that the required parameter default is missing.
+            if Optimizer in optimizer.__mro__:
+                optimizer = cast(Optimizer, optimizer(self.model.parameters()))
+            else:
+                raise TypeError("optimizer is not an Optimizer type")
+        return optimizer
+
     def fit(
         self,
         derivative: Derivative,
@@ -467,13 +484,7 @@ class Hedger(Module):
             ...     n_epochs=1,
             ...     verbose=False)
         """
-        if isinstance(optimizer, type):
-            if has_lazy(self):
-                # Run a placeholder forward to initialize lazy parameters
-                _ = self.compute_pnl(derivative, n_paths=1)
-            optimizer = optimizer(self.model.parameters())
-            if not isinstance(optimizer, torch.optim.Optimizer):
-                raise TypeError("optimizer is not torch.optim.Optimizer")
+        optimizer = self._configure_optimizer(derivative, optimizer)
 
         def compute_loss(**kwargs) -> Tensor:
             return self.compute_loss(
@@ -499,8 +510,7 @@ class Hedger(Module):
             loss = compute_loss(n_times=n_times, enable_grad=False)
             history.append(loss.item())
 
-            if verbose:
-                progress.desc = "Loss=" + _format_float(float(loss.item()))
+            progress.desc = "Loss=" + _format_float(float(loss.item()))
 
         return history
 
