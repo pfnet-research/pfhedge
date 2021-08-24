@@ -279,7 +279,7 @@ class Hedger(Module):
                     [0.5056, 0.3785, 0.4609, 0.5239, 0.7281, 0.7281]])
         """
         self.inputs = self.inputs.of(derivative, self)
-        hedge = [derivative.ul()] if hedge is None else hedge
+        hedge = cast(List[Instrument], [derivative.ul()] if hedge is None else hedge)
 
         # Check that the spot prices of the hedges have the same sizes
         if not all(h.spot.size() == hedge[0].spot.size() for h in hedge):
@@ -356,7 +356,7 @@ class Hedger(Module):
             tensor([..., ...])
         """
         derivative.simulate(n_paths=n_paths, init_state=init_state)
-        hedge = [derivative.ul()] if hedge is None else hedge
+        hedge = cast(List[Instrument], [derivative.ul()] if hedge is None else hedge)
 
         unit = self.compute_hedge(derivative, hedge=hedge)
 
