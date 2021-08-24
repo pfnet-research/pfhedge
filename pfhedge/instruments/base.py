@@ -47,11 +47,7 @@ class Instrument(ABC):
 
         Its signature is similar to :meth:`torch.nn.Module.to`.
         It only accepts floating point dtypes.
-
-        .. note::
-            For more information about :class:`torch.dtype` and :class:`torch.device`
-            attributes of :class:`Primary` and :class:`Derivative` instruments,
-            see :ref:`instrument-attributes-doc`.
+        See :ref:`instrument-attributes-doc` for details.
 
         .. note::
             This method modifies the instrument in-place.
