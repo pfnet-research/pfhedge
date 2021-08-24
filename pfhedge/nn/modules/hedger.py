@@ -287,7 +287,6 @@ class Hedger(Module):
 
         (n_paths, n_steps), n_hedges = hedge[0].spot.size(), len(hedge)
         if self.inputs.is_state_dependent():
-            assert hedge[0].spot[..., :1].dim() == 2, str(hedge[0].spot)
             zeros = torch.zeros((n_paths, 1, n_hedges)).to(hedge[0].spot)
             save_prev_output(self, input=None, output=zeros)
             outputs = []
