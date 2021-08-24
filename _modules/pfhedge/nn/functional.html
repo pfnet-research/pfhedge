@@ -243,8 +243,9 @@
 <span class="sd">        strike (float, default=1.0): The strike price of the option.</span>
 
 <span class="sd">    Shape:</span>
-<span class="sd">        - input: :math:`(*, T)` where :math:`T` stands for the number of time steps</span>
-<span class="sd">          and :math:`*` means any number of additional dimensions.</span>
+<span class="sd">        - input: :math:`(*, T)` where</span>
+<span class="sd">          :math:`T` is the number of time steps and</span>
+<span class="sd">          :math:`*` means any number of additional dimensions.</span>
 <span class="sd">        - output: :math:`(*)`</span>
 
 <span class="sd">    Returns:</span>
@@ -265,8 +266,9 @@
 <span class="sd">        strike (float, default=1.0): The strike price of the option.</span>
 
 <span class="sd">    Shape:</span>
-<span class="sd">        - input: :math:`(*, T)` where :math:`T` stands for the number of time steps</span>
-<span class="sd">          and :math:`*` means any number of additional dimensions.</span>
+<span class="sd">        - input: :math:`(*, T)` where</span>
+<span class="sd">          :math:`T` is the number of time steps and</span>
+<span class="sd">          :math:`*` means any number of additional dimensions.</span>
 <span class="sd">        - output: :math:`(*)`</span>
 
 <span class="sd">    Returns:</span>
@@ -289,8 +291,9 @@
 <span class="sd">        strike (float, default=1.0): The strike price of the option.</span>
 
 <span class="sd">    Shape:</span>
-<span class="sd">        - input: :math:`(*, T)` where :math:`T` stands for the number of time steps</span>
-<span class="sd">          and :math:`*` means any number of additional dimensions.</span>
+<span class="sd">        - input: :math:`(*, T)` where</span>
+<span class="sd">          :math:`T` is the number of time steps and</span>
+<span class="sd">          :math:`*` means any number of additional dimensions.</span>
 <span class="sd">        - output: :math:`(*)`</span>
 
 <span class="sd">    Returns:</span>
@@ -313,8 +316,9 @@
 <span class="sd">        strike (float, default=1.0): The strike price of the option.</span>
 
 <span class="sd">    Shape:</span>
-<span class="sd">        - input: :math:`(*, T)` where :math:`T` stands for the number of time steps</span>
-<span class="sd">          and :math:`*` means any number of additional dimensions.</span>
+<span class="sd">        - input: :math:`(*, T)` where</span>
+<span class="sd">          :math:`T` is the number of time steps and</span>
+<span class="sd">          :math:`*` means any number of additional dimensions.</span>
 <span class="sd">        - output: :math:`(*)`</span>
 
 <span class="sd">    Returns:</span>
@@ -441,39 +445,51 @@
     <span class="nb">min</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="nb">max</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">clamped_slope</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span>
+    <span class="n">inverted_output</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"mean"</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
     <span class="sd">"""Leakily clamp all elements in ``input`` into the range :math:`[\\min, \\max]`.</span>
-
-<span class="sd">    The bounds :math:`\\min` and :math:`\\max` can be tensors.</span>
 
 <span class="sd">    See :class:`pfhedge.nn.LeakyClamp` for details.</span>
 <span class="sd">    """</span>
     <span class="n">x</span> <span class="o">=</span> <span class="nb">input</span>
 
     <span class="k">if</span> <span class="nb">min</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">min</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="nb">min</span><span class="p">)</span>
+        <span class="nb">min</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="nb">min</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="nb">min</span> <span class="o">+</span> <span class="n">clamped_slope</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="nb">min</span><span class="p">))</span>
 
     <span class="k">if</span> <span class="nb">max</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">max</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="nb">max</span><span class="p">)</span>
+        <span class="nb">max</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="nb">max</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="nb">max</span> <span class="o">+</span> <span class="n">clamped_slope</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="nb">max</span><span class="p">))</span>
 
     <span class="k">if</span> <span class="nb">min</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">max</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="nb">min</span> <span class="o">&lt;=</span> <span class="nb">max</span><span class="p">,</span> <span class="p">(</span><span class="nb">min</span> <span class="o">+</span> <span class="nb">max</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">inverted_output</span> <span class="o">==</span> <span class="s2">"mean"</span><span class="p">:</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="p">(</span><span class="nb">min</span> <span class="o">+</span> <span class="nb">max</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="k">elif</span> <span class="n">inverted_output</span> <span class="o">==</span> <span class="s2">"max"</span><span class="p">:</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="nb">max</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"inverted_output must be 'mean' or 'max'."</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="nb">min</span> <span class="o">&lt;=</span> <span class="nb">max</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">x</span></div>
 
 
 <div class="viewcode-block" id="clamp"><a class="viewcode-back" href="../../../nn.functional.html#pfhedge.nn.functional.clamp">[docs]</a><span class="k">def</span> <span class="nf">clamp</span><span class="p">(</span>
-    <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="nb">min</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">max</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
+    <span class="nb">min</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="nb">max</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">inverted_output</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"mean"</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
     <span class="sd">"""Clamp all elements in ``input`` into the range :math:`[\\min, \\max]`.</span>
 
-<span class="sd">    The bounds :math:`\\min` and :math:`\\max` can be tensors.</span>
-
 <span class="sd">    See :class:`pfhedge.nn.Clamp` for details.</span>
 <span class="sd">    """</span>
-    <span class="k">return</span> <span class="n">leaky_clamp</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="nb">max</span><span class="p">,</span> <span class="n">clamped_slope</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span></div>
+    <span class="k">if</span> <span class="n">inverted_output</span> <span class="o">==</span> <span class="s2">"mean"</span><span class="p">:</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">leaky_clamp</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="p">,</span> <span class="n">clamped_slope</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">inverted_output</span><span class="o">=</span><span class="s2">"mean"</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">inverted_output</span> <span class="o">==</span> <span class="s2">"max"</span><span class="p">:</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"inverted_output must be 'mean' or 'max'."</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">output</span></div>
 
 
 <div class="viewcode-block" id="realized_variance"><a class="viewcode-back" href="../../../nn.functional.html#pfhedge.nn.functional.realized_variance">[docs]</a><span class="k">def</span> <span class="nf">realized_variance</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">dt</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Tensor</span><span class="p">,</span> <span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
@@ -497,8 +513,9 @@
 <span class="sd">        dt (torch.Tensor or float): The intervals of the time steps.</span>
 
 <span class="sd">    Shape:</span>
-<span class="sd">        - input: :math:`(*, T)` where :math:`T` stands for the number of time steps</span>
-<span class="sd">          and :math:`*` means any number of additional dimensions.</span>
+<span class="sd">        - input: :math:`(*, T)` where</span>
+<span class="sd">          :math:`T` stands for the number of time steps and</span>
+<span class="sd">          :math:`*` means any number of additional dimensions.</span>
 <span class="sd">        - output: :math:`(*)`</span>
 
 <span class="sd">    Returns:</span>
@@ -516,8 +533,9 @@
 <span class="sd">        dt (torch.Tensor or float): The intervals of the time steps.</span>
 
 <span class="sd">    Shape:</span>
-<span class="sd">        - input: :math:`(*, T)` where :math:`T` stands for the number of time steps</span>
-<span class="sd">          and :math:`*` means any number of additional dimensions.</span>
+<span class="sd">        - input: :math:`(*, T)` where</span>
+<span class="sd">          :math:`T` stands for the number of time steps and</span>
+<span class="sd">          :math:`*` means any number of additional dimensions.</span>
 <span class="sd">        - output: :math:`(*)`</span>
 
 <span class="sd">    Returns:</span>
@@ -561,7 +579,9 @@
 <span class="sd">            equation of the terminal value.</span>
 
 <span class="sd">    Shape:</span>
-<span class="sd">        - spot: :math:`(*, T)` where :math:`T` is the number of time steps.</span>
+<span class="sd">        - spot: :math:`(*, T)` where</span>
+<span class="sd">          :math:`T` is the number of time steps and</span>
+<span class="sd">          :math:`*` means any number of additional dimensions.</span>
 <span class="sd">        - unit: :math:`(*, T)`</span>
 <span class="sd">        - payoff: :math:`(*)`</span>
 <span class="sd">        - output: :math:`(*)`.</span>

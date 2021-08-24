@@ -239,15 +239,13 @@
 <div class="viewcode-block" id="generate_brownian"><a class="viewcode-back" href="../../../stochastic.html#pfhedge.stochastic.generate_brownian">[docs]</a><span class="k">def</span> <span class="nf">generate_brownian</span><span class="p">(</span>
     <span class="n">n_paths</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">n_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">init_state</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">TensorOrFloat</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,),</span>
+    <span class="n">init_state</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">TensorOrFloat</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">TensorOrFloat</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,),</span>
     <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
     <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">250</span><span class="p">,</span>
     <span class="n">dtype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">device</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
     <span class="sd">"""Returns time series following the Brownian motion.</span>
-
-<span class="sd">    The drift of the time series is assumed to be vanishing.</span>
 
 <span class="sd">    The time evolution of the process is given by:</span>
 
@@ -260,11 +258,10 @@
 <span class="sd">        n_steps (int): The number of time steps.</span>
 <span class="sd">        init_state (tuple[torch.Tensor | float], default=(0.0,)): The initial state of</span>
 <span class="sd">            the time series.</span>
-<span class="sd">            This is specified by ``(S0,)``, where ``S0`` is</span>
-<span class="sd">            the initial value of :math:`S`.</span>
+<span class="sd">            This is specified by a tuple :math:`(S(0),)`.</span>
 <span class="sd">            It also accepts a :class:`torch.Tensor` or a :class:`float`.</span>
-<span class="sd">        sigma (float, default=0.2): The parameter :math:`sigma`, which stands for</span>
-<span class="sd">            the volatility of the time series.</span>
+<span class="sd">        sigma (float, default=0.2): The parameter :math:`\\sigma`,</span>
+<span class="sd">            which stands for the volatility of the time series.</span>
 <span class="sd">        dt (float, default=1/250): The intervals of the time steps.</span>
 <span class="sd">        dtype (torch.dtype, optional): The desired data type of returned tensor.</span>
 <span class="sd">            Default: If ``None``, uses a global default</span>
@@ -276,7 +273,8 @@
 <span class="sd">            for CUDA tensor types.</span>
 
 <span class="sd">    Shape:</span>
-<span class="sd">        - Output: :math:`(N, T)`, where :math:`N` is the number of paths and</span>
+<span class="sd">        - Output: :math:`(N, T)` where</span>
+<span class="sd">          :math:`N` is the number of paths and</span>
 <span class="sd">          :math:`T` is the number of time steps.</span>
 
 <span class="sd">    Returns:</span>
@@ -303,21 +301,19 @@
     <span class="n">init_value</span> <span class="o">=</span> <span class="n">init_state</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">randn</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">((</span><span class="n">n_paths</span><span class="p">,</span> <span class="n">n_steps</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
     <span class="n">randn</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
-    <span class="k">return</span> <span class="n">init_value</span> <span class="o">+</span> <span class="n">sigma</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">randn</span><span class="p">)</span><span class="o">.</span><span class="n">sqrt</span><span class="p">()</span> <span class="o">*</span> <span class="n">randn</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">sigma</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">randn</span><span class="p">)</span><span class="o">.</span><span class="n">sqrt</span><span class="p">()</span> <span class="o">*</span> <span class="n">randn</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">init_value</span></div>
 
 
 <div class="viewcode-block" id="generate_geometric_brownian"><a class="viewcode-back" href="../../../stochastic.html#pfhedge.stochastic.generate_geometric_brownian">[docs]</a><span class="k">def</span> <span class="nf">generate_geometric_brownian</span><span class="p">(</span>
     <span class="n">n_paths</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">n_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">init_state</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">TensorOrFloat</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,),</span>
+    <span class="n">init_state</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">TensorOrFloat</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">TensorOrFloat</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,),</span>
     <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
     <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">250</span><span class="p">,</span>
     <span class="n">dtype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">device</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
     <span class="sd">"""Returns time series following the geometric Brownian motion.</span>
-
-<span class="sd">    The drift of the time series is assumed to be vanishing.</span>
 
 <span class="sd">    The time evolution of the process is given by:</span>
 
@@ -328,12 +324,12 @@
 <span class="sd">    Args:</span>
 <span class="sd">        n_paths (int): The number of simulated paths.</span>
 <span class="sd">        n_steps (int): The number of time steps.</span>
-<span class="sd">        init_state (tuple[torch.Tensor | float], default=(1.0,)): The initial state of</span>
+<span class="sd">        init_state (tuple[torch.Tensor | float], default=(0.0,)): The initial state of</span>
 <span class="sd">            the time series.</span>
-<span class="sd">            This is specified by ``(S0,)``, where ``S0`` is the initial value of :math:`S`.</span>
+<span class="sd">            This is specified by a tuple :math:`(S(0),)`.</span>
 <span class="sd">            It also accepts a :class:`torch.Tensor` or a :class:`float`.</span>
-<span class="sd">        sigma (float, default=0.2): The parameter :math:`sigma`, which stands for</span>
-<span class="sd">            the volatility of the time series.</span>
+<span class="sd">        sigma (float, default=0.2): The parameter :math:`sigma`,</span>
+<span class="sd">            which stands for the volatility of the time series.</span>
 <span class="sd">        dt (float, default=1/250): The intervals of the time steps.</span>
 <span class="sd">        dtype (torch.dtype, optional): The desired data type of returned tensor.</span>
 <span class="sd">            Default: If ``None``, uses a global default</span>
@@ -345,8 +341,9 @@
 <span class="sd">            for CUDA tensor types.</span>
 
 <span class="sd">    Shape:</span>
-<span class="sd">        - Output: :math:`(N, T)`, where :math:`T` is the number of time steps and</span>
-<span class="sd">          :math:`N` is the number of paths.</span>
+<span class="sd">        - Output: :math:`(N, T)` where</span>
+<span class="sd">          :math:`N` is the number of paths and</span>
+<span class="sd">          :math:`T` is the number of time steps.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        torch.Tensor</span>

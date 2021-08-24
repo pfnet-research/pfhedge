@@ -242,10 +242,11 @@ or put.</p></li>
 </dl>
 <dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
-<li><p>Input: <span class="math notranslate nohighlight">\((N, *, 4)\)</span>, where <span class="math notranslate nohighlight">\(*\)</span> means any number of additional
-dimensions. See <a class="reference internal" href="#pfhedge.nn.BSAmericanBinaryOption.inputs" title="pfhedge.nn.BSAmericanBinaryOption.inputs"><code class="xref py py-func docutils literal notranslate"><span class="pre">inputs()</span></code></a> for the names of input features.</p></li>
-<li><p>Output: <span class="math notranslate nohighlight">\((N, *, 1)\)</span>. Delta of the derivative.
-All but the last dimension are the same shape as the input.</p></li>
+<li><p>Input: <span class="math notranslate nohighlight">\((N, *, 4)\)</span> where
+<span class="math notranslate nohighlight">\(*\)</span> means any number of additional dimensions.
+See <a class="reference internal" href="#pfhedge.nn.BSAmericanBinaryOption.inputs" title="pfhedge.nn.BSAmericanBinaryOption.inputs"><code class="xref py py-func docutils literal notranslate"><span class="pre">inputs()</span></code></a> for the names of input features.</p></li>
+<li><p>Output: <span class="math notranslate nohighlight">\((N, *, 1)\)</span>,
+all but the last dimension are the same shape as the input.</p></li>
 </ul>
 </dd>
 </dl>
@@ -274,8 +275,10 @@ Initialize Black-Scholes formula module from a derivative.</p></li>
 </pre></div>
 </div>
 <p class="rubric">References</p>
-<p>Dai, M., 2000. A closed-form solution for perpetual American floating strike
-lookback options. Journal of Computational Finance, 4(2), pp.63-68.</p>
+<ul class="simple">
+<li><p>Dai, M., 2000. A closed-form solution for perpetual American floating strike
+lookback options. Journal of Computational Finance, 4(2), pp.63-68.</p></li>
+</ul>
 <dl class="py method">
 <dt class="sig sig-object py" id="pfhedge.nn.BSAmericanBinaryOption.delta">
 <span class="sig-name descname"><span class="pre">delta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_moneyness</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_log_moneyness</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_to_maturity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volatility</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/bs/american_binary.html#BSAmericanBinaryOption.delta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.BSAmericanBinaryOption.delta" title="Permalink to this definition">¶</a></dt>
@@ -292,7 +295,8 @@ lookback options. Journal of Computational Finance, 4(2), pp.63-68.</p>
 </dl>
 <dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
-<li><p>log_moneyness: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
+<li><p>log_moneyness: <span class="math notranslate nohighlight">\((N, *)\)</span> where
+<span class="math notranslate nohighlight">\(*\)</span> means any number of additional dimensions.</p></li>
 <li><p>max_log_moneyness: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
 <li><p>time_to_maturity: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
 <li><p>volatility: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
@@ -360,7 +364,8 @@ See <a class="reference internal" href="#pfhedge.nn.BSAmericanBinaryOption.input
 </dl>
 <dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
-<li><p>log_moneyness: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
+<li><p>log_moneyness: <span class="math notranslate nohighlight">\((N, *)\)</span> where
+<span class="math notranslate nohighlight">\(*\)</span> means any number of additional dimensions.</p></li>
 <li><p>max_log_moneyness: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
 <li><p>time_to_maturity: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
 <li><p>volatility: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
@@ -392,7 +397,8 @@ volatility.</p></li>
 </dl>
 <dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
-<li><p>log_moneyness: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
+<li><p>log_moneyness: <span class="math notranslate nohighlight">\((N, *)\)</span> where
+<span class="math notranslate nohighlight">\(*\)</span> means any number of additional dimensions.</p></li>
 <li><p>max_log_moneyness: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
 <li><p>time_to_maturity: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
 <li><p>volatility: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
@@ -432,7 +438,8 @@ volatility.</p></li>
 </dl>
 <dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
-<li><p>log_moneyness: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
+<li><p>log_moneyness: <span class="math notranslate nohighlight">\((N, *)\)</span> where
+<span class="math notranslate nohighlight">\(*\)</span> means any number of additional dimensions.</p></li>
 <li><p>max_log_moneyness: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
 <li><p>time_to_maturity: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
 <li><p>volatility: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>

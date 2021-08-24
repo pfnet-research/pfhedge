@@ -230,17 +230,19 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="pfhedge.nn.Hedger">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pfhedge.nn.</span></span><span class="sig-name descname"><span class="pre">Hedger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criterion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">EntropicRiskMeasure()</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/hedger.html#Hedger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.Hedger" title="Permalink to this definition">¶</a></dt>
-<dd><p>A <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module" title="(in PyTorch v1.9.0a0+gitd69c22d)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></a> to hedge and price derivatives.</p>
+<dd><p>Module to hedge and price derivatives.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.nn.Module</em></a>) – Hedging model to compute the hedge ratio at the
 next time step from the input features at the current time step.
 The input and output shapes should be <span class="math notranslate nohighlight">\((N, H_\text{in})\)</span> and
-<span class="math notranslate nohighlight">\((N, 1)\)</span> respectively, where <span class="math notranslate nohighlight">\(N\)</span> stands for the number simulated
-paths of the asset prices and <span class="math notranslate nohighlight">\(H_\text{in}\)</span> stands for the number of
-input features (namely, <code class="docutils literal notranslate"><span class="pre">len(inputs)</span></code>).</p></li>
-<li><p><strong>inputs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>|</em><em>Feature</em><em>]</em>) – List of (names of) input features to feed to model.
+<span class="math notranslate nohighlight">\((N, H)\)</span> respectively, where
+<span class="math notranslate nohighlight">\(N\)</span> stands for the number simulated paths of the asset prices and
+<span class="math notranslate nohighlight">\(H_\text{in}\)</span> is the number of input features (<code class="docutils literal notranslate"><span class="pre">len(inputs)</span></code>), and
+<span class="math notranslate nohighlight">\(H\)</span> is the number of hedging instruments.</p></li>
+<li><p><strong>inputs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>|</em><em>Feature</em><em>]</em>) – List of the names of the input features that
+will be fed to the model.
 See <code class="docutils literal notranslate"><span class="pre">list(map(str,</span> <span class="pre">pfhedge.features.FEATURES))</span></code> for valid options.</p></li>
 <li><p><strong>criterion</strong> (<a class="reference internal" href="pfhedge.nn.HedgeLoss.html#pfhedge.nn.HedgeLoss" title="pfhedge.nn.HedgeLoss"><em>HedgeLoss</em></a><em>, </em><em>default=EntropicRiskMeasure</em><em>(</em><em>)</em>) – Loss function to minimize by hedging.
 Default: <a class="reference internal" href="pfhedge.nn.EntropicRiskMeasure.html#pfhedge.nn.EntropicRiskMeasure" title="pfhedge.nn.EntropicRiskMeasure"><code class="xref py py-class docutils literal notranslate"><span class="pre">pfhedge.nn.EntropicRiskMeasure()</span></code></a> .</p></li>
@@ -249,9 +251,11 @@ Default: <a class="reference internal" href="pfhedge.nn.EntropicRiskMeasure.html
 </dl>
 <dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
-<li><p>Input: <span class="math notranslate nohighlight">\((N, H_{\text{in}})\)</span> where <span class="math notranslate nohighlight">\(H_{\text{in}}\)</span> is
-the number of input features.</p></li>
-<li><p>Output: <span class="math notranslate nohighlight">\((N, 1)\)</span></p></li>
+<li><p>input: <span class="math notranslate nohighlight">\((N, H_{\text{in}})\)</span> where
+<span class="math notranslate nohighlight">\(N\)</span> is the number of simulated paths and
+<span class="math notranslate nohighlight">\(H_{\text{in}}\)</span> is the number of input features.</p></li>
+<li><p>output: <span class="math notranslate nohighlight">\((N, H)\)</span> where
+<span class="math notranslate nohighlight">\(H\)</span> is the number of hedging instruments.</p></li>
 </ul>
 </dd>
 </dl>
@@ -347,11 +351,30 @@ See <a class="reference internal" href="pfhedge.nn.MultiLayerPerceptron.html#pfh
 <span class="gp">... </span>    <span class="n">inputs</span><span class="o">=</span><span class="p">[</span><span class="s2">"moneyness"</span><span class="p">,</span> <span class="s2">"time_to_maturity"</span><span class="p">,</span> <span class="s2">"volatility"</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">hedger</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">derivative</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">hedge</span><span class="o">=</span><span class="n">hedging_instrument</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">hedge</span><span class="o">=</span><span class="p">[</span><span class="n">hedging_instrument</span><span class="p">],</span>
 <span class="gp">... </span>    <span class="n">n_paths</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">n_epochs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hedger</span><span class="o">.</span><span class="n">price</span><span class="p">(</span><span class="n">derivative</span><span class="p">)</span>
+<span class="go">tensor(...)</span>
+</pre></div>
+</div>
+<p>Hedging a derivative with multiple instruments.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">HestonStock</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">EuropeanOption</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">VarianceSwap</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">BlackScholes</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span> <span class="o">=</span> <span class="n">HestonStock</span><span class="p">(</span><span class="n">cost</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">option</span> <span class="o">=</span> <span class="n">EuropeanOption</span><span class="p">(</span><span class="n">stock</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">varswap</span> <span class="o">=</span> <span class="n">VarianceSwap</span><span class="p">(</span><span class="n">stock</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pricer</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">varswap</span><span class="p">:</span> <span class="n">varswap</span><span class="o">.</span><span class="n">ul</span><span class="p">()</span><span class="o">.</span><span class="n">variance</span> <span class="o">-</span> <span class="n">varswap</span><span class="o">.</span><span class="n">strike</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">varswap</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">pricer</span><span class="p">,</span> <span class="n">cost</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hedger</span> <span class="o">=</span> <span class="n">Hedger</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">MultiLayerPerceptron</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="n">inputs</span><span class="o">=</span><span class="p">[</span><span class="s2">"moneyness"</span><span class="p">,</span> <span class="s2">"time_to_maturity"</span><span class="p">,</span> <span class="s2">"volatility"</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hedger</span><span class="o">.</span><span class="n">price</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="n">hedge</span><span class="o">=</span><span class="p">[</span><span class="n">stock</span><span class="p">,</span> <span class="n">varswap</span><span class="p">],</span> <span class="n">n_paths</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 <span class="go">tensor(...)</span>
 </pre></div>
 </div>
@@ -371,8 +394,9 @@ If <code class="docutils literal notranslate"><span class="pre">None</span></cod
 </dl>
 <dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
-<li><p>Output: <span class="math notranslate nohighlight">\((N, H, T)\)</span> where <span class="math notranslate nohighlight">\(N\)</span> is the number of paths,
-<span class="math notranslate nohighlight">\(H = 1\)</span> is the number of hedging instruments, and
+<li><p>Output: <span class="math notranslate nohighlight">\((N, H, T)\)</span> where
+<span class="math notranslate nohighlight">\(N\)</span> is the number of paths,
+<span class="math notranslate nohighlight">\(H\)</span> is the number of hedging instruments, and
 <span class="math notranslate nohighlight">\(T\)</span> is the number of time steps.</p></li>
 </ul>
 </dd>
@@ -438,6 +462,7 @@ calculation to on or off.</p></li>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">EuropeanOption</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">BlackScholes</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">Hedger</span>
+<span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span> <span class="o">=</span> <span class="n">EuropeanOption</span><span class="p">(</span><span class="n">BrownianStock</span><span class="p">())</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">BlackScholes</span><span class="p">(</span><span class="n">derivative</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hedger</span> <span class="o">=</span> <span class="n">Hedger</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">inputs</span><span class="p">())</span>
@@ -471,7 +496,8 @@ If <code class="docutils literal notranslate"><span class="pre">None</span></cod
 </dl>
 <dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
-<li><p>Output: <span class="math notranslate nohighlight">\((N)\)</span>, where <span class="math notranslate nohighlight">\(N\)</span> is the number of paths.</p></li>
+<li><p>Output: <span class="math notranslate nohighlight">\((N)\)</span> where
+<span class="math notranslate nohighlight">\(N\)</span> is the number of paths.</p></li>
 </ul>
 </dd>
 </dl>
@@ -590,7 +616,8 @@ If <code class="docutils literal notranslate"><span class="pre">None</span></cod
 </dl>
 <dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
-<li><p>Output: <span class="math notranslate nohighlight">\((N, T, F)\)</span> where <span class="math notranslate nohighlight">\(N\)</span> is the number of paths,
+<li><p>Output: <span class="math notranslate nohighlight">\((N, T, F)\)</span> where
+<span class="math notranslate nohighlight">\(N\)</span> is the number of paths,
 <span class="math notranslate nohighlight">\(T\)</span> is the number of time steps, and
 <span class="math notranslate nohighlight">\(F\)</span> is the number of input features.
 If <code class="docutils literal notranslate"><span class="pre">time_step</span></code> is specified, <span class="math notranslate nohighlight">\(T = 1\)</span>.</p></li>

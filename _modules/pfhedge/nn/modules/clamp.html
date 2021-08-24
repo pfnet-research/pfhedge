@@ -246,28 +246,36 @@
 <span class="sd">    .. math ::</span>
 
 <span class="sd">        \\text{output} = \\begin{cases}</span>
-<span class="sd">        \\min + \\text{clampled_slope} * (\\text{input} - \\min) &amp;</span>
-<span class="sd">        \\text{input} &lt; \\min \\\\</span>
-<span class="sd">        \\text{input} &amp; \\min \\leq \\text{input} \\leq \\max \\\\</span>
-<span class="sd">        \\max + \\text{clampled_slope} * (\\text{input} - \\max) &amp;</span>
-<span class="sd">        \\max &lt; \\text{input}</span>
+<span class="sd">            \\min + \\text{clampled_slope} * (\\text{input} - \\min) &amp;</span>
+<span class="sd">            \\text{input} &lt; \\min \\\\</span>
+<span class="sd">            \\text{input} &amp; \\min \\leq \\text{input} \\leq \\max \\\\</span>
+<span class="sd">            \\max + \\text{clampled_slope} * (\\text{input} - \\max) &amp;</span>
+<span class="sd">            \\max &lt; \\text{input}</span>
 <span class="sd">        \\end{cases}</span>
 
 <span class="sd">    If :math:`\\min &gt; \\max`:</span>
 
 <span class="sd">    .. math ::</span>
 
-<span class="sd">        \\text{output} = \\frac12 (\\min + \\max)</span>
+<span class="sd">        \\text{output} = \\begin{cases}</span>
+<span class="sd">            \\frac12 (\\min + \\max)</span>
+<span class="sd">            &amp; \\text{inverted_output} = \\text{'mean'} \\\\</span>
+<span class="sd">            \\max</span>
+<span class="sd">            &amp; \\text{inverted_output} = \\text{'max'} \\\\</span>
+<span class="sd">        \\end{cases}</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        clamped_slope (float, default=0.01):</span>
 <span class="sd">            Controls the slope in the clampled regions.</span>
+<span class="sd">        inverted_output ({'mean', ''max'}, default='mean'):</span>
+<span class="sd">            Controls the output when :math:`\\min &gt; \\max`.</span>
+<span class="sd">            'max' is consistent with :func:`torch.clamp`.</span>
 
 <span class="sd">    Shape:</span>
-<span class="sd">        - input: :math:`(N, *)`, where :math:`*` means any number of additional</span>
-<span class="sd">          dimensions.</span>
-<span class="sd">        - min: :math:`(N, *)`</span>
-<span class="sd">        - max: :math:`(N, *)`</span>
+<span class="sd">        - input: :math:`(N, *)` where</span>
+<span class="sd">          :math:`*` means any number of additional dimensions.</span>
+<span class="sd">        - min: :math:`(N, *)` or any size broadcastable to ``input``.</span>
+<span class="sd">        - max: :math:`(N, *)` or any size broadcastable to ``input``.</span>
 <span class="sd">        - output: :math:`(N, *)`, same shape as the input.</span>
 
 <span class="sd">    Examples:</span>
@@ -287,9 +295,10 @@
 <span class="sd">                 8.0000e-01,  9.0000e-01,  1.0000e+00,  1.0010e+00,  1.0020e+00])</span>
 <span class="sd">    """</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clamped_slope</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clamped_slope</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span> <span class="n">inverted_output</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"mean"</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">clamped_slope</span> <span class="o">=</span> <span class="n">clamped_slope</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inverted_output</span> <span class="o">=</span> <span class="n">inverted_output</span>
 
     <span class="k">def</span> <span class="nf">extra_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">(</span>
@@ -307,13 +316,6 @@
 <span class="sd">            input (torch.Tensor): The input tensor.</span>
 <span class="sd">            min (torch.Tensor, optional): Lower-bound of the range to be clamped to.</span>
 <span class="sd">            max (torch.Tensor, optional): Upper-bound of the range to be clamped to.</span>
-
-<span class="sd">        Shape:</span>
-<span class="sd">            - input: :math:`(N, *)`, where :math:`*` means any number of additional</span>
-<span class="sd">              dimensions.</span>
-<span class="sd">            - min: :math:`(N, *)`</span>
-<span class="sd">            - max: :math:`(N, *)`</span>
-<span class="sd">            - output: :math:`(N, *)`, same shape as the input.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            torch.Tensor</span>
@@ -340,13 +342,23 @@
 
 <span class="sd">    .. math ::</span>
 
-<span class="sd">        \\text{output} = \\frac12 (\\min + \\max)</span>
+<span class="sd">        \\text{output} = \\begin{cases}</span>
+<span class="sd">            \\frac12 (\\min + \\max)</span>
+<span class="sd">            &amp; \\text{inverted_output} = \\text{'mean'} \\\\</span>
+<span class="sd">            \\max</span>
+<span class="sd">            &amp; \\text{inverted_output} = \\text{'max'} \\\\</span>
+<span class="sd">        \\end{cases}</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        inverted_output ({'mean', ''max'}, default='mean'):</span>
+<span class="sd">            Controls the output when :math:`\\min &gt; \\max`.</span>
+<span class="sd">            'max' is consistent with :func:`torch.clamp`.</span>
 
 <span class="sd">    Shape:</span>
-<span class="sd">        - input: :math:`(N, *)`, where :math:`*` means any number of additional</span>
-<span class="sd">          dimensions.</span>
-<span class="sd">        - min: :math:`(N, *)`</span>
-<span class="sd">        - max: :math:`(N, *)`</span>
+<span class="sd">        - input: :math:`(N, *)` where</span>
+<span class="sd">          :math:`*` means any number of additional dimensions.</span>
+<span class="sd">        - min: :math:`(N, *)` or any size broadcastable to ``input``.</span>
+<span class="sd">        - max: :math:`(N, *)` or any size broadcastable to ``input``.</span>
 <span class="sd">        - output: :math:`(N, *)`, same shape as the input.</span>
 
 <span class="sd">    Examples:</span>
@@ -383,13 +395,6 @@
 <span class="sd">            input (torch.Tensor): The input tensor.</span>
 <span class="sd">            min (torch.Tensor, optional): Lower-bound of the range to be clamped to.</span>
 <span class="sd">            max (torch.Tensor, optional): Upper-bound of the range to be clamped to.</span>
-
-<span class="sd">        Shape:</span>
-<span class="sd">            - input: :math:`(N, *)`, where :math:`*` means any number of additional</span>
-<span class="sd">              dimensions.</span>
-<span class="sd">            - min: :math:`(N, *)`</span>
-<span class="sd">            - max: :math:`(N, *)`</span>
-<span class="sd">            - output: :math:`(N, *)`, same shape as the input.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            torch.Tensor</span>

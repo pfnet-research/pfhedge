@@ -248,9 +248,10 @@
 <span class="sd">        strike (float, default=1.0): The strike price of the option.</span>
 
 <span class="sd">    Shape:</span>
-<span class="sd">        - Input: :math:`(N, *, 4)`, where :math:`*` means any number of additional</span>
-<span class="sd">          dimensions.  See :func:`inputs` for the names of input features.</span>
-<span class="sd">        - Output: :math:`(N, *, 1)`. Delta of the derivative.</span>
+<span class="sd">        - Input: :math:`(N, *, 4)` where</span>
+<span class="sd">          :math:`*` means any number of additional dimensions.</span>
+<span class="sd">          See :func:`inputs` for the names of input features.</span>
+<span class="sd">        - Output: :math:`(N, *, 1)`.</span>
 <span class="sd">          All but the last dimension are the same shape as the input.</span>
 
 <span class="sd">    .. seealso ::</span>
@@ -277,8 +278,8 @@
 <span class="sd">                [1.0515]])</span>
 
 <span class="sd">    References:</span>
-<span class="sd">        Conze, A., 1991. Path dependent options: The case of lookback options.</span>
-<span class="sd">        The Journal of Finance, 46(5), pp.1893-1907.</span>
+<span class="sd">        - Conze, A., 1991. Path dependent options: The case of lookback options.</span>
+<span class="sd">          The Journal of Finance, 46(5), pp.1893-1907.</span>
 <span class="sd">    """</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">call</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">strike</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">):</span>
@@ -338,7 +339,8 @@
 <span class="sd">            volatility (torch.Tensor): Volatility of the underlying asset.</span>
 
 <span class="sd">        Shape:</span>
-<span class="sd">            - log_moneyness: :math:`(N, *)`</span>
+<span class="sd">            - log_moneyness: :math:`(N, *)` where</span>
+<span class="sd">              :math:`*` means any number of additional dimensions.</span>
 <span class="sd">            - max_log_moneyness: :math:`(N, *)`</span>
 <span class="sd">            - time_to_maturity: :math:`(N, *)`</span>
 <span class="sd">            - volatility: :math:`(N, *)`</span>
@@ -395,7 +397,8 @@
 <span class="sd">                will be constructed. This option is used to compute gamma.</span>
 
 <span class="sd">        Shape:</span>
-<span class="sd">            - log_moneyness: :math:`(N, *)`</span>
+<span class="sd">            - log_moneyness: :math:`(N, *)` where</span>
+<span class="sd">              :math:`*` means any number of additional dimensions.</span>
 <span class="sd">            - max_log_moneyness: :math:`(N, *)`</span>
 <span class="sd">            - time_to_maturity: :math:`(N, *)`</span>
 <span class="sd">            - volatility: :math:`(N, *)`</span>
@@ -431,7 +434,8 @@
 <span class="sd">                Volatility of the underlying asset.</span>
 
 <span class="sd">        Shape:</span>
-<span class="sd">            - log_moneyness: :math:`(N, *)`</span>
+<span class="sd">            - log_moneyness: :math:`(N, *)` where</span>
+<span class="sd">              :math:`*` means any number of additional dimensions.</span>
 <span class="sd">            - max_log_moneyness: :math:`(N, *)`</span>
 <span class="sd">            - time_to_maturity: :math:`(N, *)`</span>
 <span class="sd">            - volatility: :math:`(N, *)`</span>
@@ -467,7 +471,8 @@
 <span class="sd">            precision (float, default=1e-6): Precision of the implied volatility.</span>
 
 <span class="sd">        Shape:</span>
-<span class="sd">            - log_moneyness: :math:`(N, *)`</span>
+<span class="sd">            - log_moneyness: :math:`(N, *)` where</span>
+<span class="sd">              :math:`*` means any number of additional dimensions.</span>
 <span class="sd">            - max_log_moneyness: :math:`(N, *)`</span>
 <span class="sd">            - time_to_maturity: :math:`(N, *)`</span>
 <span class="sd">            - price: :math:`(N, *)`</span>

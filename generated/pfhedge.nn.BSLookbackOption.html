@@ -241,9 +241,10 @@
 </dl>
 <dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
-<li><p>Input: <span class="math notranslate nohighlight">\((N, *, 4)\)</span>, where <span class="math notranslate nohighlight">\(*\)</span> means any number of additional
-dimensions.  See <a class="reference internal" href="#pfhedge.nn.BSLookbackOption.inputs" title="pfhedge.nn.BSLookbackOption.inputs"><code class="xref py py-func docutils literal notranslate"><span class="pre">inputs()</span></code></a> for the names of input features.</p></li>
-<li><p>Output: <span class="math notranslate nohighlight">\((N, *, 1)\)</span>. Delta of the derivative.
+<li><p>Input: <span class="math notranslate nohighlight">\((N, *, 4)\)</span> where
+<span class="math notranslate nohighlight">\(*\)</span> means any number of additional dimensions.
+See <a class="reference internal" href="#pfhedge.nn.BSLookbackOption.inputs" title="pfhedge.nn.BSLookbackOption.inputs"><code class="xref py py-func docutils literal notranslate"><span class="pre">inputs()</span></code></a> for the names of input features.</p></li>
+<li><p>Output: <span class="math notranslate nohighlight">\((N, *, 1)\)</span>.
 All but the last dimension are the same shape as the input.</p></li>
 </ul>
 </dd>
@@ -273,8 +274,10 @@ Initialize Black-Scholes formula module from a derivative.</p></li>
 </pre></div>
 </div>
 <p class="rubric">References</p>
-<p>Conze, A., 1991. Path dependent options: The case of lookback options.
-The Journal of Finance, 46(5), pp.1893-1907.</p>
+<ul class="simple">
+<li><p>Conze, A., 1991. Path dependent options: The case of lookback options.
+The Journal of Finance, 46(5), pp.1893-1907.</p></li>
+</ul>
 <dl class="py method">
 <dt class="sig sig-object py" id="pfhedge.nn.BSLookbackOption.delta">
 <span class="sig-name descname"><span class="pre">delta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_moneyness</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_log_moneyness</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_to_maturity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volatility</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">create_graph</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strike</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/bs/lookback.html#BSLookbackOption.delta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.BSLookbackOption.delta" title="Permalink to this definition">¶</a></dt>
@@ -293,7 +296,8 @@ will be constructed. This option is used to compute gamma.</p></li>
 </dl>
 <dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
-<li><p>log_moneyness: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
+<li><p>log_moneyness: <span class="math notranslate nohighlight">\((N, *)\)</span> where
+<span class="math notranslate nohighlight">\(*\)</span> means any number of additional dimensions.</p></li>
 <li><p>max_log_moneyness: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
 <li><p>time_to_maturity: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
 <li><p>volatility: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
@@ -361,7 +365,8 @@ See <a class="reference internal" href="#pfhedge.nn.BSLookbackOption.inputs" tit
 </dl>
 <dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
-<li><p>log_moneyness: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
+<li><p>log_moneyness: <span class="math notranslate nohighlight">\((N, *)\)</span> where
+<span class="math notranslate nohighlight">\(*\)</span> means any number of additional dimensions.</p></li>
 <li><p>max_log_moneyness: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
 <li><p>time_to_maturity: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
 <li><p>volatility: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
@@ -392,7 +397,8 @@ See <a class="reference internal" href="#pfhedge.nn.BSLookbackOption.inputs" tit
 </dl>
 <dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
-<li><p>log_moneyness: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
+<li><p>log_moneyness: <span class="math notranslate nohighlight">\((N, *)\)</span> where
+<span class="math notranslate nohighlight">\(*\)</span> means any number of additional dimensions.</p></li>
 <li><p>max_log_moneyness: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
 <li><p>time_to_maturity: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
 <li><p>price: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
@@ -432,7 +438,8 @@ See <a class="reference internal" href="#pfhedge.nn.BSLookbackOption.inputs" tit
 </dl>
 <dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
-<li><p>log_moneyness: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
+<li><p>log_moneyness: <span class="math notranslate nohighlight">\((N, *)\)</span> where
+<span class="math notranslate nohighlight">\(*\)</span> means any number of additional dimensions.</p></li>
 <li><p>max_log_moneyness: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
 <li><p>time_to_maturity: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
 <li><p>volatility: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>

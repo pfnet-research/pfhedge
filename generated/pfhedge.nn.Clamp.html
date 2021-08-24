@@ -241,13 +241,24 @@
 \end{cases}\end{split}\]</div></div>
 <p>If <span class="math notranslate nohighlight">\(\min &gt; \max\)</span>:</p>
 <div class="math-wrapper"><div class="math notranslate nohighlight">
-\[\text{output} = \frac12 (\min + \max)\]</div></div>
+\[\begin{split}\text{output} = \begin{cases}
+    \frac12 (\min + \max)
+    &amp; \text{inverted_output} = \text{'mean'} \\
+    \max
+    &amp; \text{inverted_output} = \text{'max'} \\
+\end{cases}\end{split}\]</div></div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>inverted_output</strong> (<em>{'mean'</em><em>, </em><em>''max'}</em><em>, </em><em>default='mean'</em>) – Controls the output when <span class="math notranslate nohighlight">\(\min &gt; \max\)</span>.
+‘max’ is consistent with <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.clamp.html#torch.clamp" title="(in PyTorch v1.9.0a0+gitd69c22d)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.clamp()</span></code></a>.</p>
+</dd>
+</dl>
 <dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
-<li><p>input: <span class="math notranslate nohighlight">\((N, *)\)</span>, where <span class="math notranslate nohighlight">\(*\)</span> means any number of additional
-dimensions.</p></li>
-<li><p>min: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
-<li><p>max: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
+<li><p>input: <span class="math notranslate nohighlight">\((N, *)\)</span> where
+<span class="math notranslate nohighlight">\(*\)</span> means any number of additional dimensions.</p></li>
+<li><p>min: <span class="math notranslate nohighlight">\((N, *)\)</span> or any size broadcastable to <code class="docutils literal notranslate"><span class="pre">input</span></code>.</p></li>
+<li><p>max: <span class="math notranslate nohighlight">\((N, *)\)</span> or any size broadcastable to <code class="docutils literal notranslate"><span class="pre">input</span></code>.</p></li>
 <li><p>output: <span class="math notranslate nohighlight">\((N, *)\)</span>, same shape as the input.</p></li>
 </ul>
 </dd>
@@ -288,20 +299,8 @@ dimensions.</p></li>
 <li><p><strong>max</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Upper-bound of the range to be clamped to.</p></li>
 </ul>
 </dd>
-</dl>
-<dl class="simple">
-<dt>Shape:</dt><dd><ul class="simple">
-<li><p>input: <span class="math notranslate nohighlight">\((N, *)\)</span>, where <span class="math notranslate nohighlight">\(*\)</span> means any number of additional
-dimensions.</p></li>
-<li><p>min: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
-<li><p>max: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
-<li><p>output: <span class="math notranslate nohighlight">\((N, *)\)</span>, same shape as the input.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>torch.Tensor</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>torch.Tensor</p>
 </dd>
 </dl>
 </dd></dl>

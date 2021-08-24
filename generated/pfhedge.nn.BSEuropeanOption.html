@@ -241,9 +241,10 @@
 </dl>
 <dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
-<li><p>Input : <span class="math notranslate nohighlight">\((N, *, 3)\)</span>, where <span class="math notranslate nohighlight">\(*\)</span> means any number
-of additional dimensions. See <code class="docutils literal notranslate"><span class="pre">inputs</span></code> for the names of input features.</p></li>
-<li><p>Output: <span class="math notranslate nohighlight">\((N, *, 1)\)</span>. Delta of the derivative.
+<li><p>Input: <span class="math notranslate nohighlight">\((N, *, 3)\)</span> where
+<span class="math notranslate nohighlight">\(*\)</span> means any number of additional dimensions.
+See <code class="docutils literal notranslate"><span class="pre">inputs</span></code> for the names of input features.</p></li>
+<li><p>Output: <span class="math notranslate nohighlight">\((N, *, 1)\)</span>.
 All but the last dimension are the same shape as the input.</p></li>
 </ul>
 </dd>
@@ -273,7 +274,9 @@ Initialize Black-Scholes formula module from a derivative.</p></li>
 </pre></div>
 </div>
 <p class="rubric">References</p>
-<p>John C. Hull, 2003. Options futures and other derivatives. Pearson.</p>
+<ul class="simple">
+<li><p>John C. Hull, 2003. Options futures and other derivatives. Pearson.</p></li>
+</ul>
 <dl class="py method">
 <dt class="sig sig-object py" id="pfhedge.nn.BSEuropeanOption.delta">
 <span class="sig-name descname"><span class="pre">delta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_moneyness</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_to_maturity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volatility</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/bs/european.html#BSEuropeanOption.delta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.BSEuropeanOption.delta" title="Permalink to this definition">¶</a></dt>
@@ -289,7 +292,8 @@ Initialize Black-Scholes formula module from a derivative.</p></li>
 </dl>
 <dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
-<li><p>log_moneyness: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
+<li><p>log_moneyness: <span class="math notranslate nohighlight">\((N, *)\)</span> where
+<span class="math notranslate nohighlight">\(*\)</span> means any number of additional dimensions.</p></li>
 <li><p>time_to_maturity: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
 <li><p>volatility: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
 <li><p>output: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
@@ -355,7 +359,8 @@ See <a class="reference internal" href="#pfhedge.nn.BSEuropeanOption.inputs" tit
 </dl>
 <dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
-<li><p>log_moneyness: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
+<li><p>log_moneyness: <span class="math notranslate nohighlight">\((N, *)\)</span> where
+<span class="math notranslate nohighlight">\(*\)</span> means any number of additional dimensions.</p></li>
 <li><p>time_to_maturity: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
 <li><p>volatility: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
 <li><p>output: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
@@ -385,7 +390,8 @@ implied volatility.</p></li>
 </dl>
 <dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
-<li><p>log_moneyness: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
+<li><p>log_moneyness: <span class="math notranslate nohighlight">\((N, *)\)</span> where
+<span class="math notranslate nohighlight">\(*\)</span> means any number of additional dimensions.</p></li>
 <li><p>time_to_maturity: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
 <li><p>price: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
 <li><p>output: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
@@ -420,7 +426,8 @@ implied volatility.</p></li>
 </dl>
 <dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
-<li><p>log_moneyness: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
+<li><p>log_moneyness: <span class="math notranslate nohighlight">\((N, *)\)</span> where
+<span class="math notranslate nohighlight">\(*\)</span> means any number of additional dimensions.</p></li>
 <li><p>time_to_maturity: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
 <li><p>volatility: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
 <li><p>output: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>

@@ -232,25 +232,20 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TypeVar</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">no_type_check</span>
 
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
 
 <span class="kn">from</span> <span class="nn">pfhedge._utils.doc</span> <span class="kn">import</span> <span class="n">set_attr_and_docstring</span>
 <span class="kn">from</span> <span class="nn">pfhedge._utils.doc</span> <span class="kn">import</span> <span class="n">set_docstring</span>
+<span class="kn">from</span> <span class="nn">pfhedge._utils.str</span> <span class="kn">import</span> <span class="n">_addindent</span>
 
 <span class="kn">from</span> <span class="nn">..base</span> <span class="kn">import</span> <span class="n">Instrument</span>
 <span class="kn">from</span> <span class="nn">..primary.base</span> <span class="kn">import</span> <span class="n">Primary</span>
 
 <span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"T"</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">"Derivative"</span><span class="p">)</span>
 <span class="n">TensorOrFloat</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">Tensor</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
-
-
-<span class="k">def</span> <span class="nf">_addindent</span><span class="p">(</span><span class="n">string</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">n_spaces</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-    <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">):</span>
-        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">" "</span> <span class="o">*</span> <span class="n">n_spaces</span> <span class="o">+</span> <span class="n">line</span><span class="p">)</span>
-    <span class="k">return</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="Derivative"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.Derivative.html#pfhedge.instruments.Derivative">[docs]</a><span class="k">class</span> <span class="nc">Derivative</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span>
@@ -274,9 +269,9 @@
 <span class="sd">    """</span>
 
     <span class="n">underlier</span><span class="p">:</span> <span class="n">Primary</span>
+    <span class="n">cost</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">maturity</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">pricer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Tensor</span><span class="p">]]</span>
-    <span class="n">cost</span><span class="p">:</span> <span class="nb">float</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -284,11 +279,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">cost</span> <span class="o">=</span> <span class="mf">0.0</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">dtype</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">dtype</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">underlier</span><span class="o">.</span><span class="n">dtype</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">device</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">device</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">underlier</span><span class="o">.</span><span class="n">device</span>
 
 <div class="viewcode-block" id="Derivative.simulate"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.Derivative.html#pfhedge.instruments.Derivative.simulate">[docs]</a>    <span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span>
@@ -319,8 +314,8 @@
         <span class="sd">"""Returns the payoffs of the derivative.</span>
 
 <span class="sd">        Shape:</span>
-<span class="sd">            - Output: :math:`(N)` where :math:`N` stands for the number of simulated</span>
-<span class="sd">              paths.</span>
+<span class="sd">            - Output: :math:`(N)` where</span>
+<span class="sd">              :math:`N` stands for the number of simulated paths.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            torch.Tensor</span>
@@ -377,7 +372,8 @@
 <span class="sd">            log (bool, default=False): If ``True``, returns log moneyness.</span>
 
 <span class="sd">        Shape:</span>
-<span class="sd">            - Output: :math:`(N, T)` where :math:`N` is the number of paths and</span>
+<span class="sd">            - Output: :math:`(N, T)` where</span>
+<span class="sd">              :math:`N` is the number of paths and</span>
 <span class="sd">              :math:`T` is the number of time steps.</span>
 <span class="sd">              If ``time_step`` is given, the shape is :math:`(N, 1)`.</span>
 
@@ -403,7 +399,8 @@
 <span class="sd">                maturity is calculated at all time steps.</span>
 
 <span class="sd">        Shape:</span>
-<span class="sd">            - Output: :math:`(N, T)` where :math:`N` is the number of paths and</span>
+<span class="sd">            - Output: :math:`(N, T)` where</span>
+<span class="sd">              :math:`N` is the number of paths and</span>
 <span class="sd">              :math:`T` is the number of time steps.</span>
 <span class="sd">              If ``time_step`` is given, the shape is :math:`(N, 1)`.</span>
 
@@ -431,7 +428,8 @@
 <span class="sd">                maximum of the log moneyness.</span>
 
 <span class="sd">        Shape:</span>
-<span class="sd">            - Output: :math:`(N, T)` where :math:`N` is the number of paths and</span>
+<span class="sd">            - Output: :math:`(N, T)` where</span>
+<span class="sd">              :math:`N` is the number of paths and</span>
 <span class="sd">              :math:`T` is the number of time steps.</span>
 <span class="sd">              If ``time_step`` is given, the shape is :math:`(N, 1)`.</span>
 

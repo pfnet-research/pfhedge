@@ -244,8 +244,9 @@
 </dl>
 <dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
-<li><p>input: <span class="math notranslate nohighlight">\((*, T)\)</span> where <span class="math notranslate nohighlight">\(T\)</span> stands for the number of time steps
-and <span class="math notranslate nohighlight">\(*\)</span> means any number of additional dimensions.</p></li>
+<li><p>input: <span class="math notranslate nohighlight">\((*, T)\)</span> where
+<span class="math notranslate nohighlight">\(T\)</span> is the number of time steps and
+<span class="math notranslate nohighlight">\(*\)</span> means any number of additional dimensions.</p></li>
 <li><p>output: <span class="math notranslate nohighlight">\((*)\)</span></p></li>
 </ul>
 </dd>
@@ -271,8 +272,9 @@ and <span class="math notranslate nohighlight">\(*\)</span> means any number of 
 </dl>
 <dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
-<li><p>input: <span class="math notranslate nohighlight">\((*, T)\)</span> where <span class="math notranslate nohighlight">\(T\)</span> stands for the number of time steps
-and <span class="math notranslate nohighlight">\(*\)</span> means any number of additional dimensions.</p></li>
+<li><p>input: <span class="math notranslate nohighlight">\((*, T)\)</span> where
+<span class="math notranslate nohighlight">\(T\)</span> is the number of time steps and
+<span class="math notranslate nohighlight">\(*\)</span> means any number of additional dimensions.</p></li>
 <li><p>output: <span class="math notranslate nohighlight">\((*)\)</span></p></li>
 </ul>
 </dd>
@@ -298,8 +300,9 @@ and <span class="math notranslate nohighlight">\(*\)</span> means any number of 
 </dl>
 <dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
-<li><p>input: <span class="math notranslate nohighlight">\((*, T)\)</span> where <span class="math notranslate nohighlight">\(T\)</span> stands for the number of time steps
-and <span class="math notranslate nohighlight">\(*\)</span> means any number of additional dimensions.</p></li>
+<li><p>input: <span class="math notranslate nohighlight">\((*, T)\)</span> where
+<span class="math notranslate nohighlight">\(T\)</span> is the number of time steps and
+<span class="math notranslate nohighlight">\(*\)</span> means any number of additional dimensions.</p></li>
 <li><p>output: <span class="math notranslate nohighlight">\((*)\)</span></p></li>
 </ul>
 </dd>
@@ -325,8 +328,9 @@ and <span class="math notranslate nohighlight">\(*\)</span> means any number of 
 </dl>
 <dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
-<li><p>input: <span class="math notranslate nohighlight">\((*, T)\)</span> where <span class="math notranslate nohighlight">\(T\)</span> stands for the number of time steps
-and <span class="math notranslate nohighlight">\(*\)</span> means any number of additional dimensions.</p></li>
+<li><p>input: <span class="math notranslate nohighlight">\((*, T)\)</span> where
+<span class="math notranslate nohighlight">\(T\)</span> is the number of time steps and
+<span class="math notranslate nohighlight">\(*\)</span> means any number of additional dimensions.</p></li>
 <li><p>output: <span class="math notranslate nohighlight">\((*)\)</span></p></li>
 </ul>
 </dd>
@@ -415,16 +419,14 @@ utility.</p></li>
 <h2>Other Functions<a class="headerlink" href="#other-functions" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="pfhedge.nn.functional.leaky_clamp">
-<span class="sig-prename descclassname"><span class="pre">pfhedge.nn.functional.</span></span><span class="sig-name descname"><span class="pre">leaky_clamp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clamped_slope</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfhedge/nn/functional.html#leaky_clamp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.functional.leaky_clamp" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pfhedge.nn.functional.</span></span><span class="sig-name descname"><span class="pre">leaky_clamp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clamped_slope</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inverted_output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfhedge/nn/functional.html#leaky_clamp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.functional.leaky_clamp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Leakily clamp all elements in <code class="docutils literal notranslate"><span class="pre">input</span></code> into the range <span class="math notranslate nohighlight">\([\min, \max]\)</span>.</p>
-<p>The bounds <span class="math notranslate nohighlight">\(\min\)</span> and <span class="math notranslate nohighlight">\(\max\)</span> can be tensors.</p>
 <p>See <a class="reference internal" href="generated/pfhedge.nn.LeakyClamp.html#pfhedge.nn.LeakyClamp" title="pfhedge.nn.LeakyClamp"><code class="xref py py-class docutils literal notranslate"><span class="pre">pfhedge.nn.LeakyClamp</span></code></a> for details.</p>
 </dd></dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="pfhedge.nn.functional.clamp">
-<span class="sig-prename descclassname"><span class="pre">pfhedge.nn.functional.</span></span><span class="sig-name descname"><span class="pre">clamp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfhedge/nn/functional.html#clamp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.functional.clamp" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pfhedge.nn.functional.</span></span><span class="sig-name descname"><span class="pre">clamp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inverted_output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfhedge/nn/functional.html#clamp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.functional.clamp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clamp all elements in <code class="docutils literal notranslate"><span class="pre">input</span></code> into the range <span class="math notranslate nohighlight">\([\min, \max]\)</span>.</p>
-<p>The bounds <span class="math notranslate nohighlight">\(\min\)</span> and <span class="math notranslate nohighlight">\(\max\)</span> can be tensors.</p>
 <p>See <a class="reference internal" href="generated/pfhedge.nn.Clamp.html#pfhedge.nn.Clamp" title="pfhedge.nn.Clamp"><code class="xref py py-class docutils literal notranslate"><span class="pre">pfhedge.nn.Clamp</span></code></a> for details.</p>
 </dd></dl>
 <dl class="py function">
@@ -486,8 +488,9 @@ elements.</p></li>
 </dl>
 <dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
-<li><p>input: <span class="math notranslate nohighlight">\((*, T)\)</span> where <span class="math notranslate nohighlight">\(T\)</span> stands for the number of time steps
-and <span class="math notranslate nohighlight">\(*\)</span> means any number of additional dimensions.</p></li>
+<li><p>input: <span class="math notranslate nohighlight">\((*, T)\)</span> where
+<span class="math notranslate nohighlight">\(T\)</span> stands for the number of time steps and
+<span class="math notranslate nohighlight">\(*\)</span> means any number of additional dimensions.</p></li>
 <li><p>output: <span class="math notranslate nohighlight">\((*)\)</span></p></li>
 </ul>
 </dd>
@@ -513,8 +516,9 @@ It is square root of <a class="reference internal" href="#pfhedge.nn.functional.
 </dl>
 <dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
-<li><p>input: <span class="math notranslate nohighlight">\((*, T)\)</span> where <span class="math notranslate nohighlight">\(T\)</span> stands for the number of time steps
-and <span class="math notranslate nohighlight">\(*\)</span> means any number of additional dimensions.</p></li>
+<li><p>input: <span class="math notranslate nohighlight">\((*, T)\)</span> where
+<span class="math notranslate nohighlight">\(T\)</span> stands for the number of time steps and
+<span class="math notranslate nohighlight">\(*\)</span> means any number of additional dimensions.</p></li>
 <li><p>output: <span class="math notranslate nohighlight">\((*)\)</span></p></li>
 </ul>
 </dd>
@@ -556,7 +560,9 @@ equation of the terminal value.</p></li>
 </dl>
 <dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
-<li><p>spot: <span class="math notranslate nohighlight">\((*, T)\)</span> where <span class="math notranslate nohighlight">\(T\)</span> is the number of time steps.</p></li>
+<li><p>spot: <span class="math notranslate nohighlight">\((*, T)\)</span> where
+<span class="math notranslate nohighlight">\(T\)</span> is the number of time steps and
+<span class="math notranslate nohighlight">\(*\)</span> means any number of additional dimensions.</p></li>
 <li><p>unit: <span class="math notranslate nohighlight">\((*, T)\)</span></p></li>
 <li><p>payoff: <span class="math notranslate nohighlight">\((*)\)</span></p></li>
 <li><p>output: <span class="math notranslate nohighlight">\((*)\)</span>.</p></li>

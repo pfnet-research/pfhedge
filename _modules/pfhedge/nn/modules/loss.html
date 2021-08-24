@@ -253,8 +253,8 @@
 <span class="sd">            input (torch.Tensor): The distribution of the profit and loss.</span>
 
 <span class="sd">        Shape:</span>
-<span class="sd">            - Input: :math:`(N, *)` where, :math:`*` means any number of additional</span>
-<span class="sd">              dimensions.</span>
+<span class="sd">            - Input: :math:`(N, *)` where</span>
+<span class="sd">              :math:`*` means any number of additional dimensions.</span>
 <span class="sd">            - Output: :math:`(*)`</span>
 
 <span class="sd">        Returns:</span>
@@ -279,8 +279,8 @@
 <span class="sd">            input (torch.Tensor): The distribution of the profit and loss.</span>
 
 <span class="sd">        Shape:</span>
-<span class="sd">            - Input: :math:`(N, *)` where, :math:`*` means any number of additional</span>
-<span class="sd">              dimensions.</span>
+<span class="sd">            - Input: :math:`(N, *)` where</span>
+<span class="sd">              :math:`*` means any number of additional dimensions.</span>
 <span class="sd">            - Output: :math:`(*)`</span>
 
 <span class="sd">        Returns:</span>
@@ -303,12 +303,13 @@
 <span class="sd">        u(x) = -\\exp(-a x) \\,.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        a (float &gt; 0, default=1.0): Risk aversion coefficient of the exponential</span>
-<span class="sd">            utility.</span>
+<span class="sd">        a (float, default=1.0): Risk aversion coefficient of</span>
+<span class="sd">            the exponential utility.</span>
+<span class="sd">            This parameter should be positive.</span>
 
 <span class="sd">    Shape:</span>
-<span class="sd">        - Input: :math:`(N, *)`, where :math:`*` means any number of additional</span>
-<span class="sd">          dimensions.</span>
+<span class="sd">        - Input: :math:`(N, *)` where</span>
+<span class="sd">          :math:`*` means any number of additional dimensions.</span>
 <span class="sd">        - Output: :math:`(*)`</span>
 
 <span class="sd">    Examples:</span>
@@ -336,21 +337,8 @@
     <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">(</span><span class="o">-</span><span class="n">exp_utility</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">log</span><span class="p">()</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">a</span>
 
-<div class="viewcode-block" id="EntropicRiskMeasure.cash"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.EntropicRiskMeasure.html#pfhedge.nn.EntropicRiskMeasure.cash">[docs]</a>    <span class="k">def</span> <span class="nf">cash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">"""</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            input (torch.Tensor): The distribution of the profit and loss.</span>
-
-<span class="sd">        Shape:</span>
-<span class="sd">            - Input: :math:`(N, *)`, where :math:`*` means any number of additional</span>
-<span class="sd">              dimensions.</span>
-<span class="sd">            - Output: :math:`(*)`</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            torch.Tensor</span>
-<span class="sd">        """</span>
-        <span class="k">return</span> <span class="o">-</span><span class="bp">self</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span></div></div>
+    <span class="k">def</span> <span class="nf">cash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+        <span class="k">return</span> <span class="o">-</span><span class="bp">self</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="EntropicLoss"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.EntropicLoss.html#pfhedge.nn.EntropicLoss">[docs]</a><span class="k">class</span> <span class="nc">EntropicLoss</span><span class="p">(</span><span class="n">HedgeLoss</span><span class="p">):</span>
@@ -365,12 +353,12 @@
 <span class="sd">        u(x) = -\\exp(-a x) \\,.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        a (float &gt; 0, default=1.0): Risk aversion coefficient of the exponential</span>
-<span class="sd">            utility.</span>
+<span class="sd">        a (float &gt; 0, default=1.0): Risk aversion coefficient of</span>
+<span class="sd">            the exponential utility.</span>
 
 <span class="sd">    Shape:</span>
-<span class="sd">        - Input: :math:`(N, *)`, where :math:`*` means any number of additional</span>
-<span class="sd">          dimensions.</span>
+<span class="sd">        - Input: :math:`(N, *)` where</span>
+<span class="sd">          :math:`*` means any number of additional dimensions.</span>
 <span class="sd">        - Output: :math:`(*)`</span>
 
 <span class="sd">    Examples:</span>
@@ -398,22 +386,8 @@
     <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
         <span class="k">return</span> <span class="o">-</span><span class="n">exp_utility</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
-<div class="viewcode-block" id="EntropicLoss.cash"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.EntropicLoss.html#pfhedge.nn.EntropicLoss.cash">[docs]</a>    <span class="k">def</span> <span class="nf">cash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">"""Returns the cash amount which is as preferable as</span>
-<span class="sd">        the given profit-loss distribution in terms of the loss.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            input (torch.Tensor): The distribution of the profit and loss.</span>
-
-<span class="sd">        Shape:</span>
-<span class="sd">            - Input: :math:`(N, *)`, where :math:`*` means any number of additional</span>
-<span class="sd">              dimensions.</span>
-<span class="sd">            - Output: :math:`(*)`</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            torch.Tensor</span>
-<span class="sd">        """</span>
-        <span class="k">return</span> <span class="o">-</span><span class="p">(</span><span class="o">-</span><span class="n">exp_utility</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">log</span><span class="p">()</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">a</span></div></div>
+    <span class="k">def</span> <span class="nf">cash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+        <span class="k">return</span> <span class="o">-</span><span class="p">(</span><span class="o">-</span><span class="n">exp_utility</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">log</span><span class="p">()</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">a</span></div>
 
 
 <div class="viewcode-block" id="IsoelasticLoss"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.IsoelasticLoss.html#pfhedge.nn.IsoelasticLoss">[docs]</a><span class="k">class</span> <span class="nc">IsoelasticLoss</span><span class="p">(</span><span class="n">HedgeLoss</span><span class="p">):</span>
@@ -435,8 +409,8 @@
 <span class="sd">            This parameter should satisfy :math:`0 &lt; a \\leq 1`.</span>
 
 <span class="sd">    Shape:</span>
-<span class="sd">        - Input: :math:`(N, *)`, where :math:`*` means any number of additional</span>
-<span class="sd">          dimensions.</span>
+<span class="sd">        - Input: :math:`(N, *)` where</span>
+<span class="sd">          :math:`*` means any number of additional dimensions.</span>
 <span class="sd">        - Output: :math:`(*)`</span>
 
 <span class="sd">    Examples:</span>
@@ -482,8 +456,8 @@
 <span class="sd">            This parameter should satisfy :math:`0 &lt; p \\leq 1`.</span>
 
 <span class="sd">    Shape:</span>
-<span class="sd">        - Input: :math:`(N, *)`, where :math:`*` means any number of additional</span>
-<span class="sd">          dimensions.</span>
+<span class="sd">        - Input: :math:`(N, *)` where</span>
+<span class="sd">          :math:`*` means any number of additional dimensions.</span>
 <span class="sd">        - Output: :math:`(*)`</span>
 
 <span class="sd">    Examples:</span>

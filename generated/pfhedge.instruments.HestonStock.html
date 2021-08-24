@@ -292,8 +292,9 @@ The shape is <span class="math notranslate nohighlight">\((N, T)\)</span>.</p></
 <dt class="sig sig-object py" id="pfhedge.instruments.HestonStock.simulate">
 <span class="sig-name descname"><span class="pre">simulate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_horizon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/primary/heston.html#HestonStock.simulate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.HestonStock.simulate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Simulate the spot price and add it as a buffer named <code class="docutils literal notranslate"><span class="pre">spot</span></code>.</p>
-<p>The shape of the spot is <span class="math notranslate nohighlight">\((N, T)\)</span>, where <span class="math notranslate nohighlight">\(N\)</span> is the number of
-simulated paths and <span class="math notranslate nohighlight">\(T\)</span> is the number of time steps.
+<p>The shape of the spot is <span class="math notranslate nohighlight">\((N, T)\)</span>, where
+<span class="math notranslate nohighlight">\(N\)</span> is the number of simulated paths and
+<span class="math notranslate nohighlight">\(T\)</span> is the number of time steps.
 The number of time steps is determinded from <code class="docutils literal notranslate"><span class="pre">dt</span></code> and <code class="docutils literal notranslate"><span class="pre">time_horizon</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>

@@ -235,30 +235,31 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>in_features</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><em>default=None</em>) – Size of each input sample.
+<li><p><strong>in_features</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><em>optional</em>) – Size of each input sample.
 If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), the number of input features will be
 will be inferred from the <code class="docutils literal notranslate"><span class="pre">input.shape[-1]</span></code> after the first call to
 <code class="docutils literal notranslate"><span class="pre">forward</span></code> is done. Also, before the first <code class="docutils literal notranslate"><span class="pre">forward</span></code> parameters in the
 module are of <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.UninitializedParameter</span></code> class.</p></li>
 <li><p><strong>out_features</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><em>default=1</em>) – Size of each output sample.</p></li>
-<li><p><strong>n_layers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><em>default=4</em>) – Number of hidden layers.</p></li>
-<li><p><strong>n_units</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>]</em><em>, </em><em>default=32</em>) – Number of units in each hidden layer.
+<li><p><strong>n_layers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><em>default=4</em>) – The number of hidden layers.</p></li>
+<li><p><strong>n_units</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>]</em><em>, </em><em>default=32</em>) – The number of units in
+each hidden layer.
 If <code class="docutils literal notranslate"><span class="pre">tuple[int]</span></code>, it specifies different number of units for each layer.</p></li>
-<li><p><strong>activation</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.nn.Module</em></a><em>, </em><em>default=torch.nn.ReLU</em><em>(</em><em>)</em>) – Activation module of the hidden layers.
-Default: <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.ReLU.html#torch.nn.ReLU" title="(in PyTorch v1.9.0a0+gitd69c22d)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.ReLU</span></code></a> instance.</p></li>
-<li><p><strong>out_activation</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.nn.Module</em></a><em>, </em><em>default=torch.nn.Identity</em><em>(</em><em>)</em>) – Activation module of the output layer.
-Default: <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Identity.html#torch.nn.Identity" title="(in PyTorch v1.9.0a0+gitd69c22d)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.Identity</span></code></a> instance.</p></li>
+<li><p><strong>activation</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.nn.Module</em></a><em>, </em><em>default=torch.nn.ReLU</em><em>(</em><em>)</em>) – The activation module of the hidden layers.
+Default is a <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.ReLU.html#torch.nn.ReLU" title="(in PyTorch v1.9.0a0+gitd69c22d)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.ReLU</span></code></a> instance.</p></li>
+<li><p><strong>out_activation</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.nn.Module</em></a><em>, </em><em>default=torch.nn.Identity</em><em>(</em><em>)</em>) – The activation module of the output layer.
+Default is a <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Identity.html#torch.nn.Identity" title="(in PyTorch v1.9.0a0+gitd69c22d)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.Identity</span></code></a> instance.</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
-<li><p>Input: <span class="math notranslate nohighlight">\((N, *, H_{\text{in}})\)</span>, where where * means any number of
-additional dimensions and <span class="math notranslate nohighlight">\(H_{\text{in}}\)</span> is the number of input
-features.</p></li>
-<li><p>Output: <span class="math notranslate nohighlight">\((N, *, H_{\text{out}})\)</span>, where all but the last dimension
-are the same shape as the input and <span class="math notranslate nohighlight">\(H_{\text{in}}\)</span> is
-<code class="docutils literal notranslate"><span class="pre">out_features</span></code>.</p></li>
+<li><p>Input: <span class="math notranslate nohighlight">\((N, *, H_{\text{in}})\)</span> where
+<span class="math notranslate nohighlight">\(*\)</span> means any number of additional dimensions and
+<span class="math notranslate nohighlight">\(H_{\text{in}}\)</span> is the number of input features.</p></li>
+<li><p>Output: <span class="math notranslate nohighlight">\((N, *, H_{\text{out}})\)</span> where
+all but the last dimension are the same shape as the input and
+<span class="math notranslate nohighlight">\(H_{\text{out}}\)</span> is the number of output features.</p></li>
 </ul>
 </dd>
 </dl>
@@ -281,10 +282,7 @@ are the same shape as the input and <span class="math notranslate nohighlight">\
 <span class="go">  (8): Linear(in_features=32, out_features=1, bias=True)</span>
 <span class="go">  (9): Identity()</span>
 <span class="go">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
-<span class="go">tensor([[...],</span>
-<span class="go">        [...],</span>
-<span class="go">        [...]], grad_fn=&lt;AddmmBackward&gt;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">m</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">m</span>
 <span class="go">MultiLayerPerceptron(</span>
 <span class="go">  (0): Linear(in_features=2, out_features=32, bias=True)</span>

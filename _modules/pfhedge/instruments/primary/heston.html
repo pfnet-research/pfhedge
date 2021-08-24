@@ -334,8 +334,9 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">"""Simulate the spot price and add it as a buffer named ``spot``.</span>
 
-<span class="sd">        The shape of the spot is :math:`(N, T)`, where :math:`N` is the number of</span>
-<span class="sd">        simulated paths and :math:`T` is the number of time steps.</span>
+<span class="sd">        The shape of the spot is :math:`(N, T)`, where</span>
+<span class="sd">        :math:`N` is the number of simulated paths and</span>
+<span class="sd">        :math:`T` is the number of time steps.</span>
 <span class="sd">        The number of time steps is determinded from ``dt`` and ``time_horizon``.</span>
 
 <span class="sd">        Args:</span>
@@ -352,7 +353,7 @@
         <span class="k">if</span> <span class="n">init_state</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">init_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_init_state</span>
 
-        <span class="n">spot</span><span class="p">,</span> <span class="n">variance</span> <span class="o">=</span> <span class="n">generate_heston</span><span class="p">(</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">generate_heston</span><span class="p">(</span>
             <span class="n">n_paths</span><span class="o">=</span><span class="n">n_paths</span><span class="p">,</span>
             <span class="n">n_steps</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">time_horizon</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span>
             <span class="n">init_state</span><span class="o">=</span><span class="n">init_state</span><span class="p">,</span>
@@ -365,8 +366,8 @@
             <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">register_buffer</span><span class="p">(</span><span class="s2">"spot"</span><span class="p">,</span> <span class="n">spot</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">register_buffer</span><span class="p">(</span><span class="s2">"variance"</span><span class="p">,</span> <span class="n">variance</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">register_buffer</span><span class="p">(</span><span class="s2">"spot"</span><span class="p">,</span> <span class="n">output</span><span class="o">.</span><span class="n">spot</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">register_buffer</span><span class="p">(</span><span class="s2">"variance"</span><span class="p">,</span> <span class="n">output</span><span class="o">.</span><span class="n">variance</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">extra_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">[</span>

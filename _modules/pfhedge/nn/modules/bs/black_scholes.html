@@ -243,15 +243,16 @@
 <span class="sd">    The ``forward`` method returns the Black-Scholes delta.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        derivative (:class:`pfhedge.instruments.Derivative`):</span>
-<span class="sd">            The derivative to get the Black-Scholes formula.</span>
+<span class="sd">        derivative (:class:`Derivative`): The derivative to get</span>
+<span class="sd">            the Black-Scholes formula.</span>
 
 <span class="sd">    Shape:</span>
-<span class="sd">        - Input : :math:`(N, *, H_{\\mathrm{in}})`, where :math:`*` means any number of</span>
-<span class="sd">          additional dimensions and :math:`H_{\\mathrm{in}}` is the number of input</span>
-<span class="sd">          features. See :func:`inputs` for the names of input features.</span>
-<span class="sd">        - Output : :math:`(N, *, 1)`. All but the last dimension are the same shape</span>
-<span class="sd">          as the input.</span>
+<span class="sd">        - input : :math:`(N, *, H_{\\mathrm{in}})` where</span>
+<span class="sd">          :math:`*` means any number of additional dimensions and</span>
+<span class="sd">          :math:`H_{\\mathrm{in}}` is the number of input features.</span>
+<span class="sd">          See :func:`inputs` for the names of the input features.</span>
+<span class="sd">        - output : :math:`(N, *, 1)`,</span>
+<span class="sd">          all but the last dimension are the same shape as the input.</span>
 
 <span class="sd">    Examples:</span>
 

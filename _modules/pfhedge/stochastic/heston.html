@@ -225,7 +225,8 @@
           </label>
         </div>
         <h1>Source code for pfhedge.stochastic.heston</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+<span></span><span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">cast</span>
@@ -233,9 +234,27 @@
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
 
+<span class="kn">from</span> <span class="nn">pfhedge._utils.str</span> <span class="kn">import</span> <span class="n">_addindent</span>
+
 <span class="kn">from</span> <span class="nn">.cir</span> <span class="kn">import</span> <span class="n">generate_cir</span>
 
 <span class="n">TensorOrFloat</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">Tensor</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
+
+
+<span class="k">class</span> <span class="nc">HestonTuple</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s2">"HestonTuple"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"spot"</span><span class="p">,</span> <span class="s2">"variance"</span><span class="p">])):</span>
+
+    <span class="vm">__module__</span> <span class="o">=</span> <span class="s2">"pfhedge.stochastic"</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">items_str_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">tensor</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_asdict</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">items_str_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">field</span> <span class="o">+</span> <span class="s2">"=</span><span class="se">\n</span><span class="s2">"</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">tensor</span><span class="p">))</span>
+        <span class="n">items_str</span> <span class="o">=</span> <span class="n">_addindent</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">items_str_list</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">+</span> <span class="s2">"(</span><span class="se">\n</span><span class="s2">"</span> <span class="o">+</span> <span class="n">items_str</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">)"</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">volatility</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">variance</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span><span class="o">.</span><span class="n">sqrt</span><span class="p">()</span>
 
 
 <div class="viewcode-block" id="generate_heston"><a class="viewcode-back" href="../../../stochastic.html#pfhedge.stochastic.generate_heston">[docs]</a><span class="k">def</span> <span class="nf">generate_heston</span><span class="p">(</span>
@@ -249,7 +268,7 @@
     <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">250</span><span class="p">,</span>
     <span class="n">dtype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">device</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HestonTuple</span><span class="p">:</span>
     <span class="sd">"""Returns time series following Heston model.</span>
 
 <span class="sd">    The time evolution of the process is given by:</span>
@@ -268,8 +287,7 @@
 <span class="sd">        n_steps (int): The number of time steps.</span>
 <span class="sd">        init_state (tuple[torch.Tensor | float], default=(1.0,)): The initial state of</span>
 <span class="sd">            the time series.</span>
-<span class="sd">            This is specified by ``(S0, V0)``, where ``S0`` and ``V0`` are the initial values</span>
-<span class="sd">            of :math:`S` and :math:`V`, respectively.</span>
+<span class="sd">            This is specified by a tuple :math:`(S(0), V(0))`.</span>
 <span class="sd">        kappa (float, default=1.0): The parameter :math:`\\kappa`.</span>
 <span class="sd">        theta (float, default=0.04): The parameter :math:`\\theta`.</span>
 <span class="sd">        sigma (float, default=2.0): The parameter :math:`\\sigma`.</span>
@@ -285,11 +303,13 @@
 <span class="sd">            for CUDA tensor types.</span>
 
 <span class="sd">    Shape:</span>
-<span class="sd">        - Output: :math:`(N, T)`, where :math:`N` is the number of paths and</span>
+<span class="sd">        - spot: :math:`(N, T)` where</span>
+<span class="sd">          :math:`N` is the number of paths and</span>
 <span class="sd">          :math:`T` is the number of time steps.</span>
+<span class="sd">        - variance: :math:`(N, T)`.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        (torch.Tensor, torch.Tensor): A tuple of spot and variance.</span>
+<span class="sd">        (torch.Tensor, torch.Tensor): A namedtuple ``(spot, variance)``.</span>
 
 <span class="sd">    Examples:</span>
 
@@ -349,7 +369,7 @@
             <span class="o">+</span> <span class="p">(</span><span class="n">k3</span> <span class="o">*</span> <span class="n">v0</span> <span class="o">+</span> <span class="n">k4</span> <span class="o">*</span> <span class="n">v1</span><span class="p">)</span><span class="o">.</span><span class="n">sqrt</span><span class="p">()</span> <span class="o">*</span> <span class="n">randn</span><span class="p">[:,</span> <span class="n">i_step</span><span class="p">]</span>
         <span class="p">)</span>
 
-    <span class="k">return</span> <span class="p">(</span><span class="n">log_spot</span><span class="o">.</span><span class="n">exp</span><span class="p">(),</span> <span class="n">variance</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">HestonTuple</span><span class="p">(</span><span class="n">log_spot</span><span class="o">.</span><span class="n">exp</span><span class="p">(),</span> <span class="n">variance</span><span class="p">)</span></div>
 </pre></div>
       </article>
       <footer>

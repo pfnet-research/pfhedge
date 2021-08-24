@@ -238,8 +238,9 @@ asymptotically small transaction cost, European option, and exponential utility.
 The half-width of the no-transaction band is given by</p>
 <div class="math-wrapper"><div class="math notranslate nohighlight">
 \[w = \left( \frac{3 c \Gamma^2 S}{2 a} \right)^{1 / 3} \,,\]</div></div>
-<p>where <span class="math notranslate nohighlight">\(c\)</span> is the transaction cost rate, <span class="math notranslate nohighlight">\(\Gamma\)</span> is the gamma of
-the derivative, <span class="math notranslate nohighlight">\(S\)</span> is the spot price of the underlying instrument, and
+<p>where <span class="math notranslate nohighlight">\(c\)</span> is the transaction cost rate,
+<span class="math notranslate nohighlight">\(\Gamma\)</span> is the gamma of the derivative,
+<span class="math notranslate nohighlight">\(S\)</span> is the spot price of the underlying instrument, and
 <span class="math notranslate nohighlight">\(a\)</span> is the risk-aversion coefficient of the exponential utility.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -259,11 +260,11 @@ A <code class="docutils literal notranslate"><span class="pre">dtype</span></cod
 </dl>
 <dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
-<li><p>Input: <span class="math notranslate nohighlight">\((N, *, H_{\text{in}})\)</span>.  Here, <span class="math notranslate nohighlight">\(*\)</span> means any number of
-additional dimensions and <span class="math notranslate nohighlight">\(H_{\text{in}}\)</span> is
-the number of input features.
+<li><p>Input: <span class="math notranslate nohighlight">\((N, *, H_{\text{in}})\)</span> where
+<span class="math notranslate nohighlight">\(*\)</span> means any number of additional dimensions and
+<span class="math notranslate nohighlight">\(H_{\text{in}}\)</span> is the number of input features.
 See <a class="reference internal" href="#pfhedge.nn.WhalleyWilmott.inputs" title="pfhedge.nn.WhalleyWilmott.inputs"><code class="xref py py-func docutils literal notranslate"><span class="pre">inputs()</span></code></a> for the names of input features.</p></li>
-<li><p>Output: <span class="math notranslate nohighlight">\((N, *, 1)\)</span>. The hedge ratio at the next time step.</p></li>
+<li><p>Output: <span class="math notranslate nohighlight">\((N, *, 1)\)</span>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -323,7 +324,7 @@ model for option pricing with transaction costs. Mathematical Finance,
 <dd><p>Returns the names of input features.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>list</p>
+<dd class="field-odd"><p>list[str]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -338,7 +339,10 @@ model for option pricing with transaction costs. Mathematical Finance,
 </dl>
 <dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
-<li><p>Input: <span class="math notranslate nohighlight">\((N, *, H_{\text{in}} - 1)\)</span></p></li>
+<li><p>Input: <span class="math notranslate nohighlight">\((N, *, H_{\text{in}} - 1)\)</span> where
+<span class="math notranslate nohighlight">\(*\)</span> means any number of additional dimensions and
+<span class="math notranslate nohighlight">\(H_{\text{in}}\)</span> is the number of input features.
+See <a class="reference internal" href="#pfhedge.nn.WhalleyWilmott.inputs" title="pfhedge.nn.WhalleyWilmott.inputs"><code class="xref py py-func docutils literal notranslate"><span class="pre">inputs()</span></code></a> for the names of input features.</p></li>
 <li><p>Output: <span class="math notranslate nohighlight">\((N, *, 1)\)</span></p></li>
 </ul>
 </dd>

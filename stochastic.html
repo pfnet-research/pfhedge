@@ -233,7 +233,6 @@
 <dt class="sig sig-object py" id="pfhedge.stochastic.generate_brownian">
 <span class="sig-prename descclassname"><span class="pre">pfhedge.stochastic.</span></span><span class="sig-name descname"><span class="pre">generate_brownian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_steps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0.0,)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.004</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfhedge/stochastic/brownian.html#generate_brownian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.stochastic.generate_brownian" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns time series following the Brownian motion.</p>
-<p>The drift of the time series is assumed to be vanishing.</p>
 <p>The time evolution of the process is given by:</p>
 <div class="math-wrapper"><div class="math notranslate nohighlight">
 \[dS(t) = \sigma dW(t) \,.\]</div></div>
@@ -244,11 +243,10 @@
 <li><p><strong>n_steps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The number of time steps.</p></li>
 <li><p><strong>init_state</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>]</em><em>, </em><em>default=</em><em>(</em><em>0.0</em><em>,</em><em>)</em>) – The initial state of
 the time series.
-This is specified by <code class="docutils literal notranslate"><span class="pre">(S0,)</span></code>, where <code class="docutils literal notranslate"><span class="pre">S0</span></code> is
-the initial value of <span class="math notranslate nohighlight">\(S\)</span>.
+This is specified by a tuple <span class="math notranslate nohighlight">\((S(0),)\)</span>.
 It also accepts a <a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.Tensor</span></code></a> or a <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>.</p></li>
-<li><p><strong>sigma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>default=0.2</em>) – The parameter <span class="math notranslate nohighlight">\(sigma\)</span>, which stands for
-the volatility of the time series.</p></li>
+<li><p><strong>sigma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>default=0.2</em>) – The parameter <span class="math notranslate nohighlight">\(\sigma\)</span>,
+which stands for the volatility of the time series.</p></li>
 <li><p><strong>dt</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>default=1/250</em>) – The intervals of the time steps.</p></li>
 <li><p><strong>dtype</strong> (<em>torch.dtype</em><em>, </em><em>optional</em>) – The desired data type of returned tensor.
 Default: If <code class="docutils literal notranslate"><span class="pre">None</span></code>, uses a global default
@@ -263,7 +261,8 @@ for CUDA tensor types.</p></li>
 </dl>
 <dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
-<li><p>Output: <span class="math notranslate nohighlight">\((N, T)\)</span>, where <span class="math notranslate nohighlight">\(N\)</span> is the number of paths and
+<li><p>Output: <span class="math notranslate nohighlight">\((N, T)\)</span> where
+<span class="math notranslate nohighlight">\(N\)</span> is the number of paths and
 <span class="math notranslate nohighlight">\(T\)</span> is the number of time steps.</p></li>
 </ul>
 </dd>
@@ -287,7 +286,6 @@ for CUDA tensor types.</p></li>
 <dt class="sig sig-object py" id="pfhedge.stochastic.generate_geometric_brownian">
 <span class="sig-prename descclassname"><span class="pre">pfhedge.stochastic.</span></span><span class="sig-name descname"><span class="pre">generate_geometric_brownian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_steps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1.0,)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.004</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfhedge/stochastic/brownian.html#generate_geometric_brownian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.stochastic.generate_geometric_brownian" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns time series following the geometric Brownian motion.</p>
-<p>The drift of the time series is assumed to be vanishing.</p>
 <p>The time evolution of the process is given by:</p>
 <div class="math-wrapper"><div class="math notranslate nohighlight">
 \[dS(t) = \sigma S(t) dW(t) \,.\]</div></div>
@@ -296,12 +294,12 @@ for CUDA tensor types.</p></li>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>n_paths</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The number of simulated paths.</p></li>
 <li><p><strong>n_steps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The number of time steps.</p></li>
-<li><p><strong>init_state</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>]</em><em>, </em><em>default=</em><em>(</em><em>1.0</em><em>,</em><em>)</em>) – The initial state of
+<li><p><strong>init_state</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>]</em><em>, </em><em>default=</em><em>(</em><em>0.0</em><em>,</em><em>)</em>) – The initial state of
 the time series.
-This is specified by <code class="docutils literal notranslate"><span class="pre">(S0,)</span></code>, where <code class="docutils literal notranslate"><span class="pre">S0</span></code> is the initial value of <span class="math notranslate nohighlight">\(S\)</span>.
+This is specified by a tuple <span class="math notranslate nohighlight">\((S(0),)\)</span>.
 It also accepts a <a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.Tensor</span></code></a> or a <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>.</p></li>
-<li><p><strong>sigma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>default=0.2</em>) – The parameter <span class="math notranslate nohighlight">\(sigma\)</span>, which stands for
-the volatility of the time series.</p></li>
+<li><p><strong>sigma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>default=0.2</em>) – The parameter <span class="math notranslate nohighlight">\(sigma\)</span>,
+which stands for the volatility of the time series.</p></li>
 <li><p><strong>dt</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>default=1/250</em>) – The intervals of the time steps.</p></li>
 <li><p><strong>dtype</strong> (<em>torch.dtype</em><em>, </em><em>optional</em>) – The desired data type of returned tensor.
 Default: If <code class="docutils literal notranslate"><span class="pre">None</span></code>, uses a global default
@@ -316,8 +314,9 @@ for CUDA tensor types.</p></li>
 </dl>
 <dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
-<li><p>Output: <span class="math notranslate nohighlight">\((N, T)\)</span>, where <span class="math notranslate nohighlight">\(T\)</span> is the number of time steps and
-<span class="math notranslate nohighlight">\(N\)</span> is the number of paths.</p></li>
+<li><p>Output: <span class="math notranslate nohighlight">\((N, T)\)</span> where
+<span class="math notranslate nohighlight">\(N\)</span> is the number of paths and
+<span class="math notranslate nohighlight">\(T\)</span> is the number of time steps.</p></li>
 </ul>
 </dd>
 </dl>
@@ -346,7 +345,7 @@ for CUDA tensor types.</p></li>
 <p>The time evolution of the process is given by:</p>
 <div class="math-wrapper"><div class="math notranslate nohighlight">
 \[dX(t) = \kappa (\theta - X(t)) dt + \sigma \sqrt{X(t)} dW(t) \,.\]</div></div>
-<p>Time-series is generated by Andersen’s QE-M method (See Reference for details).</p>
+<p>Time series is generated by Andersen’s QE-M method (See Reference for details).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -354,8 +353,7 @@ for CUDA tensor types.</p></li>
 <li><p><strong>n_steps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The number of time steps.</p></li>
 <li><p><strong>init_state</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>]</em><em>, </em><em>default=</em><em>(</em><em>0.04</em><em>,</em><em>)</em>) – The initial state of
 the time series.
-This is specified by <code class="docutils literal notranslate"><span class="pre">(X0,)</span></code>, where <code class="docutils literal notranslate"><span class="pre">X0</span></code> is
-the initial value of <span class="math notranslate nohighlight">\(X\)</span>.
+This is specified by a tuple <span class="math notranslate nohighlight">\((X(0),)\)</span>.
 It also accepts a <a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.Tensor</span></code></a> or a <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>.</p></li>
 <li><p><strong>kappa</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>default=1.0</em>) – The parameter <span class="math notranslate nohighlight">\(\kappa\)</span>.</p></li>
 <li><p><strong>theta</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>default=0.04</em>) – The parameter <span class="math notranslate nohighlight">\(\theta\)</span>.</p></li>
@@ -374,7 +372,8 @@ for CUDA tensor types.</p></li>
 </dl>
 <dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
-<li><p>Output: <span class="math notranslate nohighlight">\((N, T)\)</span>, where <span class="math notranslate nohighlight">\(N\)</span> is the number of paths and
+<li><p>Output: <span class="math notranslate nohighlight">\((N, T)\)</span> where
+<span class="math notranslate nohighlight">\(N\)</span> is the number of paths and
 <span class="math notranslate nohighlight">\(T\)</span> is the number of time steps.</p></li>
 </ul>
 </dd>
@@ -420,8 +419,7 @@ dV(t) = \kappa (\theta - V(t)) dt + \sigma \sqrt{V(t)} dW_2(t) \,.\end{split}\]<
 <li><p><strong>n_steps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The number of time steps.</p></li>
 <li><p><strong>init_state</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>]</em><em>, </em><em>default=</em><em>(</em><em>1.0</em><em>,</em><em>)</em>) – The initial state of
 the time series.
-This is specified by <code class="docutils literal notranslate"><span class="pre">(S0,</span> <span class="pre">V0)</span></code>, where <code class="docutils literal notranslate"><span class="pre">S0</span></code> and <code class="docutils literal notranslate"><span class="pre">V0</span></code> are the initial values
-of <span class="math notranslate nohighlight">\(S\)</span> and <span class="math notranslate nohighlight">\(V\)</span>, respectively.</p></li>
+This is specified by a tuple <span class="math notranslate nohighlight">\((S(0), V(0))\)</span>.</p></li>
 <li><p><strong>kappa</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>default=1.0</em>) – The parameter <span class="math notranslate nohighlight">\(\kappa\)</span>.</p></li>
 <li><p><strong>theta</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>default=0.04</em>) – The parameter <span class="math notranslate nohighlight">\(\theta\)</span>.</p></li>
 <li><p><strong>sigma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>default=2.0</em>) – The parameter <span class="math notranslate nohighlight">\(\sigma\)</span>.</p></li>
@@ -440,14 +438,16 @@ for CUDA tensor types.</p></li>
 </dl>
 <dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
-<li><p>Output: <span class="math notranslate nohighlight">\((N, T)\)</span>, where <span class="math notranslate nohighlight">\(N\)</span> is the number of paths and
+<li><p>spot: <span class="math notranslate nohighlight">\((N, T)\)</span> where
+<span class="math notranslate nohighlight">\(N\)</span> is the number of paths and
 <span class="math notranslate nohighlight">\(T\)</span> is the number of time steps.</p></li>
+<li><p>variance: <span class="math notranslate nohighlight">\((N, T)\)</span>.</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>A tuple of spot and variance.</p>
+<dd class="field-odd"><p>A namedtuple <code class="docutils literal notranslate"><span class="pre">(spot,</span> <span class="pre">variance)</span></code>.</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p>(<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)">torch.Tensor</a>, <a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)">torch.Tensor</a>)</p>

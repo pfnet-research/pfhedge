@@ -241,6 +241,13 @@
 <div class="viewcode-block" id="Instrument"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.Instrument.html#pfhedge.instruments.Instrument">[docs]</a><span class="k">class</span> <span class="nc">Instrument</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
     <span class="sd">"""Base class for all financial instruments."""</span>
 
+    <span class="n">cost</span><span class="p">:</span> <span class="nb">float</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">spot</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+        <span class="sd">"""Returns the spot price of self."""</span>
+
 <div class="viewcode-block" id="Instrument.simulate"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.Instrument.html#pfhedge.instruments.Instrument.simulate">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="nd">@no_type_check</span>
     <span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_paths</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">time_horizon</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
