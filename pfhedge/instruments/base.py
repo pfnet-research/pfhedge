@@ -14,6 +14,13 @@ T = TypeVar("T", bound="Instrument")
 class Instrument(ABC):
     """Base class for all financial instruments."""
 
+    cost: float
+
+    @property
+    @abstractmethod
+    def spot(self) -> Tensor:
+        """Returns the spot price of self."""
+
     @abstractmethod
     @no_type_check
     def simulate(self, n_paths: int, time_horizon: float, **kwargs) -> None:

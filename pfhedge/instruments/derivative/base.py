@@ -5,6 +5,7 @@ from typing import Optional
 from typing import Tuple
 from typing import TypeVar
 from typing import Union
+from typing import no_type_check
 
 import torch
 from torch import Tensor
@@ -47,9 +48,9 @@ class Derivative(Instrument):
     """
 
     underlier: Primary
+    cost: float
     maturity: float
     pricer: Optional[Callable[[Any], Tensor]]
-    cost: float
 
     def __init__(self):
         super().__init__()
@@ -57,11 +58,11 @@ class Derivative(Instrument):
         self.cost = 0.0
 
     @property
-    def dtype(self) -> torch.dtype:
+    def dtype(self) -> Optional[torch.dtype]:
         return self.underlier.dtype
 
     @property
-    def device(self) -> torch.device:
+    def device(self) -> Optional[torch.device]:
         return self.underlier.device
 
     def simulate(

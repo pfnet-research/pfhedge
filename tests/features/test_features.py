@@ -84,7 +84,7 @@ class TestLogMoneyness(_TestFeature):
     @pytest.mark.parametrize("strike", [1.0, 2.0])
     def test_value(self, strike):
         derivative = EuropeanOption(BrownianStock(), strike=strike)
-        derivative.underlier.spot = torch.arange(1.0, 7.0).reshape(2, 3)
+        derivative.ul().register_buffer("spot", torch.arange(1.0, 7.0).reshape(2, 3))
         # tensor([[1., 2., 3.],
         #         [4., 5., 6.]])
         f = LogMoneyness().of(derivative)
@@ -147,7 +147,7 @@ class TestTimeToMaturity(_TestFeature):
 
     def test_2(self):
         derivative = EuropeanOption(BrownianStock(dt=0.1), maturity=0.15)
-        derivative.underlier.spot = torch.empty(2, 3)
+        derivative.underlier.register_buffer("spot", torch.empty(2, 3))
         f = TimeToMaturity().of(derivative)
 
         result = f[0]
@@ -190,7 +190,7 @@ class TestVolatility(_TestFeature):
     @pytest.mark.parametrize("sigma", [0.2, 0.1])
     def test_constant_volatility(self, sigma):
         derivative = EuropeanOption(BrownianStock(sigma=sigma))
-        derivative.underlier.spot = torch.empty(2, 3)
+        derivative.underlier.register_buffer("spot", torch.empty(2, 3))
 
         f = Volatility().of(derivative)
 
@@ -344,13 +344,16 @@ class TestBarrier(_TestFeature):
         assert_close(result, expect)
 
         derivative = EuropeanOption(BrownianStock())
-        derivative.underlier.spot = torch.tensor(
-            [
-                [3.0, 2.0, 1.5, 1.0],
-                [1.0, 1.0, 1.0, 2.0],
-                [6.0, 5.0, 4.0, 3.0],
-                [1.3, 1.2, 1.1, 1.0],
-            ]
+        derivative.underlier.register_buffer(
+            "spot",
+            torch.tensor(
+                [
+                    [3.0, 2.0, 1.5, 1.0],
+                    [1.0, 1.0, 1.0, 2.0],
+                    [6.0, 5.0, 4.0, 3.0],
+                    [1.3, 1.2, 1.1, 1.0],
+                ]
+            ),
         )
         f = Barrier(2.0, up=False).of(derivative)
 
@@ -454,7 +457,7 @@ class TestEmpty(_TestFeature):
     def test(self):
         torch.manual_seed(42)
         derivative = EuropeanOption(BrownianStock())
-        derivative.underlier.spot = torch.empty(2, 3)
+        derivative.underlier.register_buffer("spot", torch.empty(2, 3))
 
         f = Empty().of(derivative)
 
