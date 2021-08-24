@@ -51,3 +51,7 @@ format-isort:
 .PHONY: doc
 doc:
 	@cd docs && make html
+
+.PHONY: publish
+publish:
+	@gh workflow run publish.yml --repo simaki/$(PROJECT_NAME)
