@@ -12,7 +12,6 @@ class TestHestonStock:
         s = HestonStock()
         s.simulate(n_paths=1000)
 
-        print(s)
         assert not s.variance.isnan().any()
 
     def test_repr(self):
