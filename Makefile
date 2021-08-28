@@ -54,4 +54,6 @@ doc:
 
 .PHONY: publish
 publish:
-	@gh workflow run publish.yml --repo simaki/$(PROJECT_NAME)
+	git checkout main
+	gh repo sync simaki/$(PROJECT_NAME)
+	gh workflow run publish.yml --repo simaki/$(PROJECT_NAME)
