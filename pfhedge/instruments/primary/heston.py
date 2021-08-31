@@ -1,3 +1,4 @@
+from math import ceil
 from typing import Optional
 from typing import Tuple
 from typing import Union
@@ -8,8 +9,8 @@ from torch import Tensor
 from pfhedge._utils.doc import set_attr_and_docstring
 from pfhedge._utils.doc import set_docstring
 from pfhedge._utils.str import _format_float
+from pfhedge.stochastic import generate_heston
 
-from ...stochastic import generate_heston
 from .base import Primary
 
 TensorOrFloat = Union[Tensor, float]
@@ -116,10 +117,11 @@ class HestonStock(Primary):
             n_paths (int, default=1): The number of paths to simulate.
             time_horizon (float, default=20/250): The period of time to simulate
                 the price.
-            init_state (tuple[torch.Tensor | float], default=(1.0,)): The initial
+            init_state (tuple[torch.Tensor | float], optional): The initial
                 state of the instrument.
-                This is specified by ``(S0, V0)``, where ``S0`` and ``V0`` are
-                the initial values of of spot and variance, respectively.
+                This is specified by a tuple :math:`(S(0), V(0))` where
+                :math:`S(0)` and :math:`V(0)` are the initial values of
+                spot and variance, respectively.
                 If ``None`` (default), it uses the default value
                 (See :func:`default_init_state`).
         """
@@ -128,7 +130,7 @@ class HestonStock(Primary):
 
         output = generate_heston(
             n_paths=n_paths,
-            n_steps=int(time_horizon / self.dt + 1),
+            n_steps=ceil(time_horizon / self.dt + 1),
             init_state=init_state,
             kappa=self.kappa,
             theta=self.theta,

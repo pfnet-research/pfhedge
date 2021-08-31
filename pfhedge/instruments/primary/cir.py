@@ -2,7 +2,6 @@ from math import ceil
 from typing import Optional
 from typing import Tuple
 from typing import Union
-from typing import cast
 
 import torch
 from torch import Tensor
@@ -10,24 +9,22 @@ from torch import Tensor
 from pfhedge._utils.doc import set_attr_and_docstring
 from pfhedge._utils.doc import set_docstring
 from pfhedge._utils.str import _format_float
-from pfhedge.stochastic import generate_geometric_brownian
+from pfhedge.stochastic import generate_cir
 
 from .base import Primary
 
 TensorOrFloat = Union[Tensor, float]
 
 
-class BrownianStock(Primary):
-    """A stock of which spot prices follow the geometric Brownian motion.
+class CIRRate(Primary):
+    """A rate which follow the CIR process.
 
-    The drift of the spot prices is assumed to be vanishing.
-
-    See :func:`pfhedge.stochastic.generate_geometric_brownian`
-    for details of the process.
+    See :func:`pfhedge.stochastic.generate_cir` for details of the process.
 
     Args:
-        sigma (float, default=0.2): The parameter :math:`\\sigma`,
-            which stands for the volatility of the spot price.
+        kappa (float, default=1.0): The parameter :math:`\\kappa`.
+        theta (float, default=0.04): The parameter :math:`\\theta`.
+        sigma (float, default=2.0): The parameter :math:`\\sigma`.
         cost (float, default=0.0): The transaction cost rate.
         dt (float, default=1/250): The intervals of the time steps.
         dtype (torch.device, optional): Desired device of returned tensor.
@@ -40,7 +37,7 @@ class BrownianStock(Primary):
             the current CUDA device for CUDA tensor types.
 
     Buffers:
-        - spot (:class:`torch.Tensor`): The spot prices of the instrument.
+        - spot (:class:`torch.Tensor`): The spot rate of the instrument.
           This attribute is set by a method :func:`simulate()`.
           The shape is :math:`(N, T)` where
           :math:`N` is the number of simulated paths and
@@ -48,24 +45,20 @@ class BrownianStock(Primary):
 
     Examples:
 
-        >>> from pfhedge.instruments import BrownianStock
+        >>> from pfhedge.instruments import HestonStock
         >>>
         >>> _ = torch.manual_seed(42)
-        >>> stock = BrownianStock()
-        >>> stock.simulate(n_paths=2, time_horizon=5 / 250)
-        >>> stock.spot
-        tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930, 0.9906],
-                [1.0000, 0.9919, 0.9976, 1.0009, 1.0076, 1.0179]])
-
-        Using custom ``dtype`` and ``device``.
-
-        >>> stock = BrownianStock()
-        >>> stock.to(dtype=torch.float64, device="cuda:0")
-        BrownianStock(..., dtype=torch.float64, device='cuda:0')
+        >>> rate = CIRRate()
+        >>> rate.simulate(n_paths=2, time_horizon=5/250)
+        >>> rate.spot
+        tensor([[0.0400, 0.0408, 0.0411, 0.0417, 0.0422, 0.0393],
+                [0.0400, 0.0457, 0.0440, 0.0451, 0.0458, 0.0472]])
     """
 
     def __init__(
         self,
+        kappa: float = 1.0,
+        theta: float = 0.04,
         sigma: float = 0.2,
         cost: float = 0.0,
         dt: float = 1 / 250,
@@ -74,6 +67,8 @@ class BrownianStock(Primary):
     ):
         super().__init__()
 
+        self.kappa = kappa
+        self.theta = theta
         self.sigma = sigma
         self.cost = cost
         self.dt = dt
@@ -82,64 +77,41 @@ class BrownianStock(Primary):
 
     @property
     def default_init_state(self) -> Tuple[float, ...]:
-        return (1.0,)
-
-    @property
-    def volatility(self) -> Tensor:
-        """Returns the volatility of self.
-
-        It is a tensor filled with ``self.sigma``.
-        """
-        return torch.full_like(self.spot, self.sigma)
-
-    @property
-    def variance(self) -> Tensor:
-        """Returns the volatility of self.
-
-        It is a tensor filled with the square of ``self.sigma``.
-        """
-        return torch.full_like(self.spot, self.sigma ** 2)
+        return (self.theta,)
 
     def simulate(
         self,
         n_paths: int = 1,
         time_horizon: float = 20 / 250,
-        init_state: Optional[Tuple[TensorOrFloat]] = None,
+        init_state: Optional[Tuple[TensorOrFloat, ...]] = None,
     ) -> None:
-        """Simulate the spot price and add it as a buffer named ``spot``.
+        """Simulate the spot rate and add it as a buffer named ``spot``.
 
-        The shape of the spot is :math:`(N, T)`, where :math:`N` is the number of
-        simulated paths and :math:`T` is the number of time steps.
+        The shape of the spot is :math:`(N, T)`, where
+        :math:`N` is the number of simulated paths and
+        :math:`T` is the number of time steps.
         The number of time steps is determinded from ``dt`` and ``time_horizon``.
 
         Args:
             n_paths (int, default=1): The number of paths to simulate.
             time_horizon (float, default=20/250): The period of time to simulate
                 the price.
-            init_state (tuple[torch.Tensor | float], optional): The initial state of
-                the instrument.
+            init_state (tuple[torch.Tensor | float], optional):
+                The initial state of the instrument.
                 This is specified by a tuple :math:`(S(0),)` where
-                :math:`spot` is the initial value of the spot price.
+                :math:`S(0)` is the initial values of of spot.
                 If ``None`` (default), it uses the default value
                 (See :func:`default_init_state`).
-                It also accepts a :class:`float` or a :class:`torch.Tensor`.
-
-        Examples:
-
-            >>> _ = torch.manual_seed(42)
-            >>> stock = BrownianStock()
-            >>> stock.simulate(n_paths=2, time_horizon=5 / 250, init_state=(2.0,))
-            >>> stock.spot
-            tensor([[2.0000, 2.0031, 2.0089, 2.0146, 1.9860, 1.9812],
-                    [2.0000, 1.9838, 1.9952, 2.0018, 2.0153, 2.0358]])
         """
         if init_state is None:
-            init_state = cast(Tuple[float], self.default_init_state)
+            init_state = self.default_init_state
 
-        spot = generate_geometric_brownian(
+        spot = generate_cir(
             n_paths=n_paths,
             n_steps=ceil(time_horizon / self.dt + 1),
             init_state=init_state,
+            kappa=self.kappa,
+            theta=self.theta,
             sigma=self.sigma,
             dt=self.dt,
             dtype=self.dtype,
@@ -149,7 +121,11 @@ class BrownianStock(Primary):
         self.register_buffer("spot", spot)
 
     def extra_repr(self) -> str:
-        params = ["sigma=" + _format_float(self.sigma)]
+        params = [
+            "kappa=" + _format_float(self.kappa),
+            "theta=" + _format_float(self.theta),
+            "sigma=" + _format_float(self.sigma),
+        ]
         if self.cost != 0.0:
             params.append("cost=" + _format_float(self.cost))
         params.append("dt=" + _format_float(self.dt))
@@ -157,5 +133,5 @@ class BrownianStock(Primary):
 
 
 # Assign docstrings so they appear in Sphinx documentation
-set_docstring(BrownianStock, "default_init_state", Primary.default_init_state)
-set_attr_and_docstring(BrownianStock, "to", Primary.to)
+set_docstring(CIRRate, "default_init_state", Primary.default_init_state)
+set_attr_and_docstring(CIRRate, "to", Primary.to)
