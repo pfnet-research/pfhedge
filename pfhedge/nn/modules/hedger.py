@@ -560,8 +560,7 @@ class Hedger(Module):
 
                 progress.desc = "Loss=" + _format_float(float(loss.item()))
 
-        if validation:
-            return history
+        return history if validation else None
 
     def price(
         self,
