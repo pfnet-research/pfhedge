@@ -185,6 +185,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.Primary.html">Primary</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.HestonStock.html">HestonStock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.CIRRate.html">CIRRate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.Derivative.html">Derivative</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
@@ -281,6 +282,7 @@
 
 <span class="sd">        .. function:: to(device=None, dtype=None)</span>
 <span class="sd">        .. function:: to(tensor)</span>
+<span class="sd">        .. function:: to(instrument)</span>
 
 <span class="sd">        Its signature is similar to :meth:`torch.nn.Module.to`.</span>
 <span class="sd">        It only accepts floating point dtypes.</span>
@@ -300,56 +302,90 @@
 <span class="sd">        Args:</span>
 <span class="sd">            dtype (torch.dtype): The desired floating point dtype of</span>
 <span class="sd">                the buffers in this instrument.</span>
-<span class="sd">            device (torch.device): The desired device of the buffers</span>
-<span class="sd">                in this instrument.</span>
-<span class="sd">            tensor (torch.Tensor): Tensor whose dtype and device are the desired</span>
-<span class="sd">                dtype and device for all buffers in this module.</span>
+<span class="sd">            device (torch.device): The desired device of</span>
+<span class="sd">                the buffers in this instrument.</span>
+<span class="sd">            tensor (torch.Tensor): Tensor whose dtype and device are</span>
+<span class="sd">                the desired dtype and device of</span>
+<span class="sd">                the buffers in this instrument.</span>
+<span class="sd">            instrument (Instrument): Instrument whose dtype and device are</span>
+<span class="sd">                the desired dtype and device of</span>
+<span class="sd">                the buffers in this instrument.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            self</span>
 <span class="sd">        """</span></div>
 
 <div class="viewcode-block" id="Instrument.cpu"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.Instrument.html#pfhedge.instruments.Instrument.cpu">[docs]</a>    <span class="k">def</span> <span class="nf">cpu</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
-        <span class="sd">"""Returns a copy of this object in CPU memory.</span>
+        <span class="sd">"""Moves all buffers of this instrument and its underlier to the CPU.</span>
 
-<span class="sd">        If this object is already in CPU memory and on the correct device,</span>
-<span class="sd">        then no copy is performed and the original object is returned.</span>
+<span class="sd">        .. note::</span>
+<span class="sd">            This method modifies the instrument in-place.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            self</span>
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">"cpu"</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="Instrument.cuda"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.Instrument.html#pfhedge.instruments.Instrument.cuda">[docs]</a>    <span class="k">def</span> <span class="nf">cuda</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
-        <span class="sd">"""Returns a copy of this object in CUDA memory.</span>
+        <span class="sd">"""Moves all buffers of this instrument and its underlier to the GPU.</span>
 
-<span class="sd">        If this object is already in CUDA memory and on the correct device,</span>
-<span class="sd">        then no copy is performed and the original object is returned.</span>
+<span class="sd">        .. note::</span>
+<span class="sd">            This method modifies the instrument in-place.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            device (torch.device): The destination GPU device.</span>
-<span class="sd">                Defaults to the current CUDA device.</span>
+<span class="sd">            device (int, optional): If specified,</span>
+<span class="sd">                all buffers will be copied to that device.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            self</span>
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="sa">f</span><span class="s2">"cuda:</span><span class="si">{</span><span class="n">device</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="n">device</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">"cuda"</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="Instrument.double"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.Instrument.html#pfhedge.instruments.Instrument.double">[docs]</a>    <span class="k">def</span> <span class="nf">double</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
-        <span class="sd">"""It is equivalent to ``self.to(torch.float64)``.</span>
-<span class="sd">        See :func:`to()`.</span>
+        <span class="sd">"""Casts all floating point parameters and buffers to</span>
+<span class="sd">        ``torch.float64`` datatype.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This method modifies the instrument in-place.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            self</span>
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Instrument.float"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.Instrument.html#pfhedge.instruments.Instrument.float">[docs]</a>    <span class="k">def</span> <span class="nf">float</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
-        <span class="sd">"""It is equivalent to ``self.to(torch.float32)``.</span>
-<span class="sd">        See :func:`to()`.</span>
+        <span class="sd">"""Casts all floating point parameters and buffers to</span>
+<span class="sd">        ``torch.float32`` datatype.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This method modifies the instrument in-place.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            self</span>
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Instrument.half"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.Instrument.html#pfhedge.instruments.Instrument.half">[docs]</a>    <span class="k">def</span> <span class="nf">half</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
-        <span class="sd">"""It is equivalent to ``self.to(torch.float16)``.</span>
-<span class="sd">        See :func:`to()`.</span>
+        <span class="sd">"""Casts all floating point parameters and buffers to</span>
+<span class="sd">        ``torch.float16`` datatype.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This method modifies the instrument in-place.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            self</span>
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">float16</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Instrument.bfloat16"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.Instrument.html#pfhedge.instruments.Instrument.bfloat16">[docs]</a>    <span class="k">def</span> <span class="nf">bfloat16</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
-        <span class="sd">"""It is equivalent to ``self.to(torch.bfloat16)``.</span>
-<span class="sd">        See :func:`to()`.</span>
+        <span class="sd">"""Casts all floating point parameters and buffers to</span>
+<span class="sd">        ``torch.bfloat16`` datatype.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This method modifies the instrument in-place.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            self</span>
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">bfloat16</span><span class="p">)</span></div>
 

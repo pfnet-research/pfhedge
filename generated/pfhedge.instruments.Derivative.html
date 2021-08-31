@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="BaseOption" href="pfhedge.instruments.BaseOption.html" /><link rel="prev" title="HestonStock" href="pfhedge.instruments.HestonStock.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="BaseOption" href="pfhedge.instruments.BaseOption.html" /><link rel="prev" title="CIRRate" href="pfhedge.instruments.CIRRate.html" />
 
     <meta name="generator" content="sphinx-4.1.2, furo 2021.08.17.beta43"/>
         <title>Derivative - PFHedge documentation</title>
@@ -186,6 +186,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.Primary.html">Primary</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.HestonStock.html">HestonStock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.CIRRate.html">CIRRate</a></li>
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Derivative</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
@@ -283,40 +284,79 @@ represented.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pfhedge.instruments.Derivative.cpu">
 <span class="sig-name descname"><span class="pre">cpu</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.Derivative.cpu" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a copy of this object in CPU memory.</p>
-<p>If this object is already in CPU memory and on the correct device,
-then no copy is performed and the original object is returned.</p>
+<dd><p>Moves all buffers of this instrument and its underlier to the CPU.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This method modifies the instrument in-place.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>self</p>
+</dd>
+</dl>
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pfhedge.instruments.Derivative.cuda">
 <span class="sig-name descname"><span class="pre">cuda</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.Derivative.cuda" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a copy of this object in CUDA memory.</p>
-<p>If this object is already in CUDA memory and on the correct device,
-then no copy is performed and the original object is returned.</p>
+<dd><p>Moves all buffers of this instrument and its underlier to the GPU.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This method modifies the instrument in-place.</p>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>device</strong> (<em>torch.device</em>) – The destination GPU device.
-Defaults to the current CUDA device.</p>
+<dd class="field-odd"><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><em>optional</em>) – If specified,
+all buffers will be copied to that device.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>self</p>
 </dd>
 </dl>
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pfhedge.instruments.Derivative.double">
 <span class="sig-name descname"><span class="pre">double</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.Derivative.double" title="Permalink to this definition">¶</a></dt>
-<dd><p>It is equivalent to <code class="docutils literal notranslate"><span class="pre">self.to(torch.float64)</span></code>.
-See <a class="reference internal" href="#id1" title="pfhedge.instruments.Derivative.to"><code class="xref py py-func docutils literal notranslate"><span class="pre">to()</span></code></a>.</p>
+<dd><p>Casts all floating point parameters and buffers to
+<code class="docutils literal notranslate"><span class="pre">torch.float64</span></code> datatype.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This method modifies the instrument in-place.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>self</p>
+</dd>
+</dl>
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pfhedge.instruments.Derivative.float">
 <span class="sig-name descname"><span class="pre">float</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.Derivative.float" title="Permalink to this definition">¶</a></dt>
-<dd><p>It is equivalent to <code class="docutils literal notranslate"><span class="pre">self.to(torch.float32)</span></code>.
-See <a class="reference internal" href="#id1" title="pfhedge.instruments.Derivative.to"><code class="xref py py-func docutils literal notranslate"><span class="pre">to()</span></code></a>.</p>
+<dd><p>Casts all floating point parameters and buffers to
+<code class="docutils literal notranslate"><span class="pre">torch.float32</span></code> datatype.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This method modifies the instrument in-place.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>self</p>
+</dd>
+</dl>
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pfhedge.instruments.Derivative.half">
 <span class="sig-name descname"><span class="pre">half</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.Derivative.half" title="Permalink to this definition">¶</a></dt>
-<dd><p>It is equivalent to <code class="docutils literal notranslate"><span class="pre">self.to(torch.float16)</span></code>.
-See <a class="reference internal" href="#id1" title="pfhedge.instruments.Derivative.to"><code class="xref py py-func docutils literal notranslate"><span class="pre">to()</span></code></a>.</p>
+<dd><p>Casts all floating point parameters and buffers to
+<code class="docutils literal notranslate"><span class="pre">torch.float16</span></code> datatype.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This method modifies the instrument in-place.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>self</p>
+</dd>
+</dl>
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pfhedge.instruments.Derivative.list">
@@ -386,6 +426,10 @@ the underlier.</p></li>
 <dt class="sig sig-object py" id="id1">
 <span class="sig-name descname"><span class="pre">to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/derivative/base.html#Derivative.to"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id1" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="id2">
+<span class="sig-name descname"><span class="pre">to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/derivative/base.html#Derivative.to"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 <p>Its signature is similar to <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module.to" title="(in PyTorch v1.9.0a0+gitd69c22d)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">torch.nn.Module.to()</span></code></a>.
 It only accepts floating point dtypes.
 See <a class="reference internal" href="../notes/instrument_attributes.html#instrument-attributes-doc"><span class="std std-ref">Instrument dtype and device</span></a> for details.</p>
@@ -409,10 +453,14 @@ See <a class="reference internal" href="../notes/instrument_attributes.html#inst
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>dtype</strong> (<em>torch.dtype</em>) – The desired floating point dtype of
 the buffers in this instrument.</p></li>
-<li><p><strong>device</strong> (<em>torch.device</em>) – The desired device of the buffers
-in this instrument.</p></li>
-<li><p><strong>tensor</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a>) – Tensor whose dtype and device are the desired
-dtype and device for all buffers in this module.</p></li>
+<li><p><strong>device</strong> (<em>torch.device</em>) – The desired device of
+the buffers in this instrument.</p></li>
+<li><p><strong>tensor</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a>) – Tensor whose dtype and device are
+the desired dtype and device of
+the buffers in this instrument.</p></li>
+<li><p><strong>instrument</strong> (<a class="reference internal" href="pfhedge.instruments.Instrument.html#pfhedge.instruments.Instrument" title="pfhedge.instruments.Instrument"><em>Instrument</em></a>) – Instrument whose dtype and device are
+the desired dtype and device of
+the buffers in this instrument.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -441,14 +489,14 @@ dtype and device for all buffers in this module.</p></li>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="pfhedge.instruments.HestonStock.html">
+          <a class="prev-page" href="pfhedge.instruments.CIRRate.html">
               <svg><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">HestonStock</div>
+                <div class="title">CIRRate</div>
                 
               </div>
             </a>

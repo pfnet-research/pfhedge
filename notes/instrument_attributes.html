@@ -186,6 +186,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.instruments.Primary.html">Primary</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.instruments.HestonStock.html">HestonStock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.instruments.CIRRate.html">CIRRate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.instruments.Derivative.html">Derivative</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
@@ -241,7 +242,23 @@
 the dtype and devices with which the buffers of the instrument are represented.
 The attributes <a class="reference internal" href="../generated/pfhedge.instruments.Derivative.html#pfhedge.instruments.Derivative.dtype" title="pfhedge.instruments.Derivative.dtype"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Derivative.dtype</span></code></a> and <a class="reference internal" href="../generated/pfhedge.instruments.Derivative.html#pfhedge.instruments.Derivative.device" title="pfhedge.instruments.Derivative.device"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Derivative.device</span></code></a>
 are aliased to the dtype/device of its underlier.</p>
-<p>The methods <a class="reference internal" href="../generated/pfhedge.instruments.Primary.html#id1" title="pfhedge.instruments.Primary.to"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Primary.to()</span></code></a> and <a class="reference internal" href="../generated/pfhedge.instruments.Derivative.html#id1" title="pfhedge.instruments.Derivative.to"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Derivative.to()</span></code></a> work as
+<p>A instrument of specific dtype/device can be constructed by
+passing a <code class="docutils literal notranslate"><span class="pre">torch.dtype</span></code> and/or a <code class="docutils literal notranslate"><span class="pre">torch.device</span></code> to a constructor.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">BrownianStock</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span> <span class="o">=</span> <span class="n">BrownianStock</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">n_paths</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">time_horizon</span><span class="o">=</span><span class="mi">2</span> <span class="o">/</span> <span class="mi">250</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span><span class="o">.</span><span class="n">spot</span>
+<span class="go">tensor([[..., ..., ...],</span>
+<span class="go">        [..., ..., ...]], dtype=torch.float64)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span> <span class="o">=</span> <span class="n">BrownianStock</span><span class="p">(</span><span class="n">device</span><span class="o">=</span><span class="s2">"cuda:0"</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">n_paths</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">time_horizon</span><span class="o">=</span><span class="mi">2</span> <span class="o">/</span> <span class="mi">250</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span><span class="o">.</span><span class="n">spot</span>
+<span class="go">tensor([[..., ..., ...],</span>
+<span class="go">        [..., ..., ...]], device='cuda:0')</span>
+</pre></div>
+</div>
+<p>The methods <a class="reference internal" href="../generated/pfhedge.instruments.Primary.html#id2" title="pfhedge.instruments.Primary.to"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Primary.to()</span></code></a> and <a class="reference internal" href="../generated/pfhedge.instruments.Derivative.html#id2" title="pfhedge.instruments.Derivative.to"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Derivative.to()</span></code></a> work as
 <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module.to" title="(in PyTorch v1.9.0a0+gitd69c22d)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">torch.nn.Module.to()</span></code></a> and cast/move the dtype and device of the instrument
 to the desired ones.</p>
 <p>In the rest of this note we will describe these attributes in detail
@@ -255,31 +272,30 @@ to get the associated buffers (e.g., <code class="docutils literal notranslate">
 <p>The simulation will be performed with a <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.dtype</span></code>
 specified by <a class="reference internal" href="../generated/pfhedge.instruments.Primary.html#pfhedge.instruments.Primary.dtype" title="pfhedge.instruments.Primary.dtype"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Primary.dtype</span></code></a>.
 The default dtype is the global default (see <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.set_default_tensor_type.html#torch.set_default_tensor_type" title="(in PyTorch v1.9.0a0+gitd69c22d)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.set_default_tensor_type()</span></code></a>).
-The <a class="reference internal" href="../generated/pfhedge.instruments.Primary.html#id1" title="pfhedge.instruments.Primary.to"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Primary.to()</span></code></a> method modifies the instument so that
+The <a class="reference internal" href="../generated/pfhedge.instruments.Primary.html#id2" title="pfhedge.instruments.Primary.to"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Primary.to()</span></code></a> method modifies the instrument so that
 subsequent simulations will be performed with the desired dtype.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">BrownianStock</span>
 <span class="go">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span> <span class="o">=</span> <span class="n">BrownianStock</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
 <span class="go">BrownianStock(..., dtype=torch.float64)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">n_paths</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">time_horizon</span><span class="o">=</span><span class="mi">2</span> <span class="o">/</span> <span class="mi">250</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span><span class="o">.</span><span class="n">spot</span>
-<span class="go">tensor([[1.0000, 1.0016, 1.0044],</span>
-<span class="go">        [1.0000, 0.9858, 0.9834]], dtype=torch.float64)</span>
+<span class="go">tensor([[..., ..., ...],</span>
+<span class="go">        [..., ..., ...]], dtype=torch.float64)</span>
 </pre></div>
 </div>
 <p>One can also call <code class="docutils literal notranslate"><span class="pre">to()</span></code> to cast all the buffers that are already simulated
 to the desired dtype.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">float16</span><span class="p">)</span><span class="o">.</span><span class="n">spot</span>
-<span class="go">tensor([[1.0000, 1.0016, 1.0044],</span>
-<span class="go">        [1.0000, 0.9858, 0.9834]], dtype=torch.float16)</span>
+<span class="go">tensor([[..., ..., ...],</span>
+<span class="go">        [..., ..., ...]], dtype=torch.float16)</span>
 </pre></div>
 </div>
 </section>
 <section id="derivative">
 <h3>Derivative<a class="headerlink" href="#derivative" title="Permalink to this headline">¶</a></h3>
-<p>If one calls <a class="reference internal" href="../generated/pfhedge.instruments.Derivative.html#id1" title="pfhedge.instruments.Derivative.to"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Derivative.to()</span></code></a>, its underlier gets the desired dtype.
+<p>If one calls <a class="reference internal" href="../generated/pfhedge.instruments.Derivative.html#id2" title="pfhedge.instruments.Derivative.to"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Derivative.to()</span></code></a>, its underlier gets the desired dtype.
 As a result, the <code class="docutils literal notranslate"><span class="pre">payoff</span></code> also has the same dtype.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">EuropeanOption</span>
 <span class="go">&gt;&gt;&gt;</span>
@@ -292,10 +308,10 @@ As a result, the <code class="docutils literal notranslate"><span class="pre">pa
 <span class="go">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">n_paths</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span><span class="o">.</span><span class="n">ul</span><span class="p">()</span><span class="o">.</span><span class="n">spot</span>
-<span class="go">tensor([[1.0000, 1.0016, 1.0044],</span>
-<span class="go">        [1.0000, 0.9858, 0.9834]], dtype=torch.float64)</span>
+<span class="go">tensor([[..., ..., ...],</span>
+<span class="go">        [..., ..., ...]], dtype=torch.float64)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span><span class="o">.</span><span class="n">payoff</span><span class="p">()</span>
-<span class="go">tensor([0.0044, 0.0000], dtype=torch.float64)</span>
+<span class="go">tensor([..., ...], dtype=torch.float64)</span>
 </pre></div>
 </div>
 </section>
@@ -308,7 +324,7 @@ As a result, the <code class="docutils literal notranslate"><span class="pre">pa
 specified by <a class="reference internal" href="../generated/pfhedge.instruments.Primary.html#pfhedge.instruments.Primary.device" title="pfhedge.instruments.Primary.device"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Primary.device</span></code></a>.
 The default device is the current device for the default tensor type
 (see <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.set_default_tensor_type.html#torch.set_default_tensor_type" title="(in PyTorch v1.9.0a0+gitd69c22d)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.set_default_tensor_type()</span></code></a>).
-The <a class="reference internal" href="../generated/pfhedge.instruments.Primary.html#id1" title="pfhedge.instruments.Primary.to"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Primary.to()</span></code></a> method modifies the instument so that
+The <a class="reference internal" href="../generated/pfhedge.instruments.Primary.html#id2" title="pfhedge.instruments.Primary.to"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Primary.to()</span></code></a> method modifies the instument so that
 subsequent simulations will be performed on the desired device.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">BrownianStock</span>
 <span class="go">&gt;&gt;&gt;</span>
@@ -318,8 +334,8 @@ subsequent simulations will be performed on the desired device.</p>
 <span class="go">BrownianStock(..., device='cuda:0')</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">n_paths</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">time_horizon</span><span class="o">=</span><span class="mi">2</span> <span class="o">/</span> <span class="mi">250</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span><span class="o">.</span><span class="n">spot</span>
-<span class="go">tensor([[1.0000, 1.0016, 1.0044],</span>
-<span class="go">        [1.0000, 0.9858, 0.9834]], device='cuda:0')</span>
+<span class="go">tensor([[..., ..., ...],</span>
+<span class="go">        [..., ..., ...]], device='cuda:0')</span>
 </pre></div>
 </div>
 <p>One can also call <code class="docutils literal notranslate"><span class="pre">to()</span></code> to move all the buffers that are already simulated
@@ -327,7 +343,7 @@ to the desired device.</p>
 </section>
 <section id="id2">
 <h3>Derivative<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
-<p>If one calls <a class="reference internal" href="../generated/pfhedge.instruments.Derivative.html#id1" title="pfhedge.instruments.Derivative.to"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Derivative.to()</span></code></a>, its underlier gets the desired device.
+<p>If one calls <a class="reference internal" href="../generated/pfhedge.instruments.Derivative.html#id2" title="pfhedge.instruments.Derivative.to"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Derivative.to()</span></code></a>, its underlier gets the desired device.
 As a result, the <code class="docutils literal notranslate"><span class="pre">payoff</span></code> is also on the same device.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">EuropeanOption</span>
 <span class="go">&gt;&gt;&gt;</span>
@@ -338,6 +354,9 @@ As a result, the <code class="docutils literal notranslate"><span class="pre">pa
 <span class="go">    ...</span>
 <span class="go">    (underlier): BrownianStock(..., device='cuda:0')</span>
 <span class="go">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">n_paths</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span><span class="o">.</span><span class="n">payoff</span><span class="p">()</span>
+<span class="go">tensor([..., ...], device='cuda:0')</span>
 </pre></div>
 </div>
 <p>Now a <a class="reference internal" href="../generated/pfhedge.nn.Hedger.html#pfhedge.nn.Hedger" title="pfhedge.nn.Hedger"><code class="xref py py-class docutils literal notranslate"><span class="pre">pfhedge.nn.Hedger</span></code></a> module on a GPU can hedge the derivative

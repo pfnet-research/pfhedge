@@ -186,6 +186,7 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.Primary.html">Primary</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.HestonStock.html">HestonStock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.CIRRate.html">CIRRate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.Derivative.html">Derivative</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
@@ -244,6 +245,16 @@
 <dd><p>Computes and returns delta of a derivative using automatic differentiation.</p>
 <p>Delta is a differentiation of a derivative price with respect to
 a price of underlying instrument.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The keyword argument <code class="docutils literal notranslate"><span class="pre">**params</span></code> should contain at least one of
+the following combinations:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">spot</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">moneyness</span></code> and <code class="docutils literal notranslate"><span class="pre">strike</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">log_moneyness</span></code> and <code class="docutils literal notranslate"><span class="pre">strike</span></code></p></li>
+</ul>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -310,6 +321,16 @@ products.</p></li>
 <dd><p>Computes and returns gamma of a derivative.</p>
 <p>Delta is a second-order differentiation of a derivative price with respect to
 a price of underlying instrument.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The keyword argument <code class="docutils literal notranslate"><span class="pre">**params</span></code> should contain at least one of
+the following combinations:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">spot</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">moneyness</span></code> and <code class="docutils literal notranslate"><span class="pre">strike</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">log_moneyness</span></code> and <code class="docutils literal notranslate"><span class="pre">strike</span></code></p></li>
+</ul>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">

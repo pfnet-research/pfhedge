@@ -185,6 +185,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.Primary.html">Primary</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.HestonStock.html">HestonStock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.CIRRate.html">CIRRate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.Derivative.html">Derivative</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
@@ -397,7 +398,11 @@
         <span class="k">return</span> <span class="n">output</span></div>
 
 <div class="viewcode-block" id="BaseOption.log_moneyness"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.BaseOption.html#pfhedge.instruments.BaseOption.log_moneyness">[docs]</a>    <span class="k">def</span> <span class="nf">log_moneyness</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_step</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">"""Returns ``self.moneyness(time_step).log()``."""</span>
+        <span class="sd">"""Returns ``self.moneyness(time_step).log()``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            torch.Tensor</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">moneyness</span><span class="p">(</span><span class="n">time_step</span><span class="o">=</span><span class="n">time_step</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="BaseOption.time_to_maturity"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.BaseOption.html#pfhedge.instruments.BaseOption.time_to_maturity">[docs]</a>    <span class="k">def</span> <span class="nf">time_to_maturity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_step</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
@@ -453,7 +458,11 @@
             <span class="k">return</span> <span class="n">moneyness</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span> <span class="n">time_step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">values</span></div>
 
 <div class="viewcode-block" id="BaseOption.max_log_moneyness"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.BaseOption.html#pfhedge.instruments.BaseOption.max_log_moneyness">[docs]</a>    <span class="k">def</span> <span class="nf">max_log_moneyness</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_step</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">"""Returns ``self.max_moneyness(time_step).log()``."""</span>
+        <span class="sd">"""Returns ``self.max_moneyness(time_step).log()``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            torch.Tensor</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_moneyness</span><span class="p">(</span><span class="n">time_step</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div></div>
 
 

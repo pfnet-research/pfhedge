@@ -185,6 +185,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.Primary.html">Primary</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.HestonStock.html">HestonStock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.CIRRate.html">CIRRate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.Derivative.html">Derivative</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
@@ -569,12 +570,27 @@
 
 <span class="sd">        \\text{PL}(Z, \\delta, S) =</span>
 <span class="sd">        - Z</span>
-<span class="sd">        + \\sum_{i = 1}^{T - 1} \\delta_{i} (S_{i + 1} - S_i)</span>
-<span class="sd">        - c \\sum_{i = 1}^{T - 1} |\\delta_{i + 1} - \\delta_{i}| S_{i + 1}</span>
+<span class="sd">        + \\sum_{i = 0}^{T - 2} \\delta_{i - 1} (S_{i} - S_{i - 1})</span>
+<span class="sd">        - c \\sum_{i = 0}^{T - 1} |\\delta_{i} - \\delta_{i - 1}| S_{i}</span>
 
 <span class="sd">    where :math:`Z` is the payoff of the derivative, :math:`T` is the number of</span>
 <span class="sd">    time steps, :math:`S` is the spot price, :math:`\\delta` is the signed number</span>
 <span class="sd">    of shares held at each time step.</span>
+<span class="sd">    We define :math:`\delta_0 = 0` for notational convenience.</span>
+
+<span class="sd">    A hedger sells the derivative to its customer and</span>
+<span class="sd">    obliges to settle the payoff at maturity.</span>
+<span class="sd">    The dealer hedges the risk of this liability</span>
+<span class="sd">    by trading the underlying instrument of the derivative.</span>
+<span class="sd">    The resulting profit and loss is obtained by adding up the payoff to the</span>
+<span class="sd">    customer, capital gains from the underlying asset, and the transaction cost.</span>
+
+<span class="sd">    .. admonition:: References</span>
+<span class="sd">        :class: seealso</span>
+
+<span class="sd">        - Buehler, H., Gonon, L., Teichmann, J. and Wood, B., 2019.</span>
+<span class="sd">          Deep hedging. Quantitative Finance, 19(8), pp.1271-1291.</span>
+<span class="sd">          [arXiv:`1802.03042 &lt;https://arxiv.org/abs/1802.03042&gt;`_ [q-fin]]</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        spot (torch.Tensor): The spot price of the underlying asset :math:`S`.</span>
@@ -584,17 +600,17 @@
 <span class="sd">            the underlying asset :math:`c`.</span>
 <span class="sd">        payoff (torch.Tensor, optional): The payoff of the derivative :math:`Z`.</span>
 <span class="sd">        deduct_first_cost (bool, default=True): Whether to deduct the transaction</span>
-<span class="sd">            cost of transacting stocks at the first time step.</span>
-<span class="sd">            If ``True``, :math:`c |\delta_1| S_1` will be deducted from the above</span>
+<span class="sd">            cost of the stock at the first time step.</span>
+<span class="sd">            If ``False``, :math:`- c |\delta_0| S_1` is omitted the above</span>
 <span class="sd">            equation of the terminal value.</span>
 
 <span class="sd">    Shape:</span>
-<span class="sd">        - spot: :math:`(*, T)` where</span>
+<span class="sd">        - spot: :math:`(N, *, T)` where</span>
 <span class="sd">          :math:`T` is the number of time steps and</span>
 <span class="sd">          :math:`*` means any number of additional dimensions.</span>
-<span class="sd">        - unit: :math:`(*, T)`</span>
-<span class="sd">        - payoff: :math:`(*)`</span>
-<span class="sd">        - output: :math:`(*)`.</span>
+<span class="sd">        - unit: :math:`(N, *, T)`</span>
+<span class="sd">        - payoff: :math:`(N, *)`</span>
+<span class="sd">        - output: :math:`(N, *)`.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        torch.Tensor</span>

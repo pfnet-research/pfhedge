@@ -185,6 +185,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.Primary.html">Primary</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.HestonStock.html">HestonStock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.CIRRate.html">CIRRate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.Derivative.html">Derivative</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
@@ -273,6 +274,16 @@
 <span class="sd">        of which gradient diverges for :math:`\\Gamma \\to 0`.</span>
 <span class="sd">        A ``dtype`` with higher precision may alleviate this problem.</span>
 
+<span class="sd">    .. admonition:: References</span>
+<span class="sd">        :class: seealso</span>
+
+<span class="sd">        - Davis, M.H., Panas, V.G. and Zariphopoulou, T., 1993.</span>
+<span class="sd">          European option pricing with transaction costs.</span>
+<span class="sd">          SIAM Journal on Control and Optimization, 31(2), pp.470-493.</span>
+<span class="sd">        - Whalley, A.E. and Wilmott, P., An asymptotic analysis of an optimal hedging</span>
+<span class="sd">          model for option pricing with transaction costs. Mathematical Finance,</span>
+<span class="sd">          1997, 7, 307–324.</span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        derivative (:class:`pfhedge.instruments.Derivative`): Derivative to hedge.</span>
 <span class="sd">        a (float, default=1.0): Risk aversion parameter in exponential utility.</span>
@@ -328,11 +339,6 @@
 <span class="sd">                [0.5126],</span>
 <span class="sd">                [0.5752],</span>
 <span class="sd">                [0.7945]])</span>
-
-<span class="sd">    References:</span>
-<span class="sd">        - Whalley, A.E. and Wilmott, P., An asymptotic analysis of an optimal hedging</span>
-<span class="sd">          model for option pricing with transaction costs. Mathematical Finance,</span>
-<span class="sd">          1997, 7, 307–324.</span>
 <span class="sd">    """</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">derivative</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>

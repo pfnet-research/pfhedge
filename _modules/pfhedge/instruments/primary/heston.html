@@ -185,6 +185,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.Primary.html">Primary</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.HestonStock.html">HestonStock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.CIRRate.html">CIRRate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.Derivative.html">Derivative</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
@@ -235,7 +236,8 @@
           </label>
         </div>
         <h1>Source code for pfhedge.instruments.primary.heston</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+<span></span><span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">ceil</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
 
@@ -245,8 +247,8 @@
 <span class="kn">from</span> <span class="nn">pfhedge._utils.doc</span> <span class="kn">import</span> <span class="n">set_attr_and_docstring</span>
 <span class="kn">from</span> <span class="nn">pfhedge._utils.doc</span> <span class="kn">import</span> <span class="n">set_docstring</span>
 <span class="kn">from</span> <span class="nn">pfhedge._utils.str</span> <span class="kn">import</span> <span class="n">_format_float</span>
+<span class="kn">from</span> <span class="nn">pfhedge.stochastic</span> <span class="kn">import</span> <span class="n">generate_heston</span>
 
-<span class="kn">from</span> <span class="nn">...stochastic</span> <span class="kn">import</span> <span class="n">generate_heston</span>
 <span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">Primary</span>
 
 <span class="n">TensorOrFloat</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">Tensor</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
@@ -353,10 +355,11 @@
 <span class="sd">            n_paths (int, default=1): The number of paths to simulate.</span>
 <span class="sd">            time_horizon (float, default=20/250): The period of time to simulate</span>
 <span class="sd">                the price.</span>
-<span class="sd">            init_state (tuple[torch.Tensor | float], default=(1.0,)): The initial</span>
+<span class="sd">            init_state (tuple[torch.Tensor | float], optional): The initial</span>
 <span class="sd">                state of the instrument.</span>
-<span class="sd">                This is specified by ``(S0, V0)``, where ``S0`` and ``V0`` are</span>
-<span class="sd">                the initial values of of spot and variance, respectively.</span>
+<span class="sd">                This is specified by a tuple :math:`(S(0), V(0))` where</span>
+<span class="sd">                :math:`S(0)` and :math:`V(0)` are the initial values of</span>
+<span class="sd">                spot and variance, respectively.</span>
 <span class="sd">                If ``None`` (default), it uses the default value</span>
 <span class="sd">                (See :func:`default_init_state`).</span>
 <span class="sd">        """</span>
@@ -365,7 +368,7 @@
 
         <span class="n">output</span> <span class="o">=</span> <span class="n">generate_heston</span><span class="p">(</span>
             <span class="n">n_paths</span><span class="o">=</span><span class="n">n_paths</span><span class="p">,</span>
-            <span class="n">n_steps</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">time_horizon</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="n">n_steps</span><span class="o">=</span><span class="n">ceil</span><span class="p">(</span><span class="n">time_horizon</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span>
             <span class="n">init_state</span><span class="o">=</span><span class="n">init_state</span><span class="p">,</span>
             <span class="n">kappa</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kappa</span><span class="p">,</span>
             <span class="n">theta</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">,</span>

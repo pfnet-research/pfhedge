@@ -185,6 +185,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.Primary.html">Primary</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.HestonStock.html">HestonStock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.CIRRate.html">CIRRate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.Derivative.html">Derivative</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
@@ -268,6 +269,11 @@
 <span class="sd">        - :class:`pfhedge.nn.BlackScholes`:</span>
 <span class="sd">          Initialize Black-Scholes formula module from a derivative.</span>
 
+<span class="sd">    .. admonition:: References</span>
+<span class="sd">        :class: seealso</span>
+
+<span class="sd">        - John C. Hull, 2003. Options futures and other derivatives. Pearson.</span>
+
 <span class="sd">    Examples:</span>
 
 <span class="sd">        The ``forward`` method returns delta of the derivative.</span>
@@ -285,9 +291,6 @@
 <span class="sd">        tensor([[6.2576],</span>
 <span class="sd">                [6.3047],</span>
 <span class="sd">                [6.1953]])</span>
-
-<span class="sd">    References:</span>
-<span class="sd">        John C. Hull, 2003. Options futures and other derivatives. Pearson.</span>
 <span class="sd">    """</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">call</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">strike</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">):</span>

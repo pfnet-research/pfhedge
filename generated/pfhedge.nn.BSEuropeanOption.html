@@ -186,6 +186,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.Primary.html">Primary</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.HestonStock.html">HestonStock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.CIRRate.html">CIRRate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.Derivative.html">Derivative</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
@@ -266,6 +267,12 @@ All but the last dimension are the same shape as the input.</p></li>
 Initialize Black-Scholes formula module from a derivative.</p></li>
 </ul>
 </div>
+<div class="seealso admonition">
+<p class="admonition-title">References</p>
+<ul class="simple">
+<li><p>John C. Hull, 2003. Options futures and other derivatives. Pearson.</p></li>
+</ul>
+</div>
 <p class="rubric">Examples</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">forward</span></code> method returns delta of the derivative.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">BSEuropeanOption</span>
@@ -283,10 +290,6 @@ Initialize Black-Scholes formula module from a derivative.</p></li>
 <span class="go">        [0.5752]])</span>
 </pre></div>
 </div>
-<p class="rubric">References</p>
-<ul class="simple">
-<li><p>John C. Hull, 2003. Options futures and other derivatives. Pearson.</p></li>
-</ul>
 <dl class="py method">
 <dt class="sig sig-object py" id="pfhedge.nn.BSEuropeanOption.delta">
 <span class="sig-name descname"><span class="pre">delta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_moneyness</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_to_maturity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volatility</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/bs/european.html#BSEuropeanOption.delta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.BSEuropeanOption.delta" title="Permalink to this definition">¶</a></dt>

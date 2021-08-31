@@ -186,6 +186,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.instruments.Primary.html">Primary</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.instruments.HestonStock.html">HestonStock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.instruments.CIRRate.html">CIRRate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.instruments.Derivative.html">Derivative</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
@@ -239,10 +240,13 @@
 <h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
 <a class="reference external image-reference" href="https://colab.research.google.com/github/pfnet-research/pfhedge/blob/main/examples/example_readme.ipynb"><img alt="https://colab.research.google.com/assets/colab-badge.svg" src="https://colab.research.google.com/assets/colab-badge.svg"/></a>
 <p>Here is a minimal example to try out Deep Hedging.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">BrownianStock</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">BrownianStock</span>
 <span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">EuropeanOption</span>
 <span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">Hedger</span>
 <span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">MultiLayerPerceptron</span>
+
+<span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
 
 <span class="c1"># Prepare a derivative to hedge</span>
 <span class="n">deriv</span> <span class="o">=</span> <span class="n">EuropeanOption</span><span class="p">(</span><span class="n">BrownianStock</span><span class="p">(</span><span class="n">cost</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">))</span>
@@ -250,12 +254,14 @@
 <span class="c1"># Create your hedger</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">MultiLayerPerceptron</span><span class="p">()</span>
 <span class="n">hedger</span> <span class="o">=</span> <span class="n">Hedger</span><span class="p">(</span>
-    <span class="n">model</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="p">[</span><span class="s2">"log_moneyness"</span><span class="p">,</span> <span class="s2">"expiry_time"</span><span class="p">,</span> <span class="s2">"volatility"</span><span class="p">,</span> <span class="s2">"prev_hedge"</span><span class="p">]</span>
+    <span class="n">model</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="p">[</span><span class="s2">"log_moneyness"</span><span class="p">,</span> <span class="s2">"time_to_maturity"</span><span class="p">,</span> <span class="s2">"volatility"</span><span class="p">,</span> <span class="s2">"prev_hedge"</span><span class="p">]</span>
 <span class="p">)</span>
 
 <span class="c1"># Fit and price</span>
 <span class="n">hedger</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">deriv</span><span class="p">)</span>
 <span class="n">price</span> <span class="o">=</span> <span class="n">hedger</span><span class="o">.</span><span class="n">price</span><span class="p">(</span><span class="n">deriv</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Price:"</span><span class="p">,</span> <span class="n">price</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
 </pre></div>
 </div>
 </section>

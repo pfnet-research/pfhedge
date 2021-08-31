@@ -186,6 +186,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.Primary.html">Primary</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.HestonStock.html">HestonStock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.CIRRate.html">CIRRate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.Derivative.html">Derivative</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
@@ -244,46 +245,94 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="pfhedge.instruments.Instrument.bfloat16">
 <span class="sig-name descname"><span class="pre">bfloat16</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/base.html#Instrument.bfloat16"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Instrument.bfloat16" title="Permalink to this definition">¶</a></dt>
-<dd><p>It is equivalent to <code class="docutils literal notranslate"><span class="pre">self.to(torch.bfloat16)</span></code>.
-See <a class="reference internal" href="#id1" title="pfhedge.instruments.Instrument.to"><code class="xref py py-func docutils literal notranslate"><span class="pre">to()</span></code></a>.</p>
+<dd><p>Casts all floating point parameters and buffers to
+<code class="docutils literal notranslate"><span class="pre">torch.bfloat16</span></code> datatype.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This method modifies the instrument in-place.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>self</p>
+</dd>
+</dl>
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pfhedge.instruments.Instrument.cpu">
 <span class="sig-name descname"><span class="pre">cpu</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/base.html#Instrument.cpu"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Instrument.cpu" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a copy of this object in CPU memory.</p>
-<p>If this object is already in CPU memory and on the correct device,
-then no copy is performed and the original object is returned.</p>
+<dd><p>Moves all buffers of this instrument and its underlier to the CPU.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This method modifies the instrument in-place.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>self</p>
+</dd>
+</dl>
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pfhedge.instruments.Instrument.cuda">
 <span class="sig-name descname"><span class="pre">cuda</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/base.html#Instrument.cuda"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Instrument.cuda" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a copy of this object in CUDA memory.</p>
-<p>If this object is already in CUDA memory and on the correct device,
-then no copy is performed and the original object is returned.</p>
+<dd><p>Moves all buffers of this instrument and its underlier to the GPU.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This method modifies the instrument in-place.</p>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>device</strong> (<em>torch.device</em>) – The destination GPU device.
-Defaults to the current CUDA device.</p>
+<dd class="field-odd"><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><em>optional</em>) – If specified,
+all buffers will be copied to that device.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>self</p>
 </dd>
 </dl>
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pfhedge.instruments.Instrument.double">
 <span class="sig-name descname"><span class="pre">double</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/base.html#Instrument.double"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Instrument.double" title="Permalink to this definition">¶</a></dt>
-<dd><p>It is equivalent to <code class="docutils literal notranslate"><span class="pre">self.to(torch.float64)</span></code>.
-See <a class="reference internal" href="#id1" title="pfhedge.instruments.Instrument.to"><code class="xref py py-func docutils literal notranslate"><span class="pre">to()</span></code></a>.</p>
+<dd><p>Casts all floating point parameters and buffers to
+<code class="docutils literal notranslate"><span class="pre">torch.float64</span></code> datatype.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This method modifies the instrument in-place.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>self</p>
+</dd>
+</dl>
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pfhedge.instruments.Instrument.float">
 <span class="sig-name descname"><span class="pre">float</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/base.html#Instrument.float"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Instrument.float" title="Permalink to this definition">¶</a></dt>
-<dd><p>It is equivalent to <code class="docutils literal notranslate"><span class="pre">self.to(torch.float32)</span></code>.
-See <a class="reference internal" href="#id1" title="pfhedge.instruments.Instrument.to"><code class="xref py py-func docutils literal notranslate"><span class="pre">to()</span></code></a>.</p>
+<dd><p>Casts all floating point parameters and buffers to
+<code class="docutils literal notranslate"><span class="pre">torch.float32</span></code> datatype.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This method modifies the instrument in-place.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>self</p>
+</dd>
+</dl>
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pfhedge.instruments.Instrument.half">
 <span class="sig-name descname"><span class="pre">half</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/base.html#Instrument.half"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Instrument.half" title="Permalink to this definition">¶</a></dt>
-<dd><p>It is equivalent to <code class="docutils literal notranslate"><span class="pre">self.to(torch.float16)</span></code>.
-See <a class="reference internal" href="#id1" title="pfhedge.instruments.Instrument.to"><code class="xref py py-func docutils literal notranslate"><span class="pre">to()</span></code></a>.</p>
+<dd><p>Casts all floating point parameters and buffers to
+<code class="docutils literal notranslate"><span class="pre">torch.float16</span></code> datatype.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This method modifies the instrument in-place.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>self</p>
+</dd>
+</dl>
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pfhedge.instruments.Instrument.simulate">
@@ -321,6 +370,10 @@ and add them as buffers.</p>
 <dt class="sig sig-object py" id="id1">
 <span class="sig-name descname"><span class="pre">to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/base.html#Instrument.to"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id1" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="id2">
+<span class="sig-name descname"><span class="pre">to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/base.html#Instrument.to"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 <p>Its signature is similar to <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module.to" title="(in PyTorch v1.9.0a0+gitd69c22d)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">torch.nn.Module.to()</span></code></a>.
 It only accepts floating point dtypes.
 See <a class="reference internal" href="../notes/instrument_attributes.html#instrument-attributes-doc"><span class="std std-ref">Instrument dtype and device</span></a> for details.</p>
@@ -344,10 +397,14 @@ See <a class="reference internal" href="../notes/instrument_attributes.html#inst
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>dtype</strong> (<em>torch.dtype</em>) – The desired floating point dtype of
 the buffers in this instrument.</p></li>
-<li><p><strong>device</strong> (<em>torch.device</em>) – The desired device of the buffers
-in this instrument.</p></li>
-<li><p><strong>tensor</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a>) – Tensor whose dtype and device are the desired
-dtype and device for all buffers in this module.</p></li>
+<li><p><strong>device</strong> (<em>torch.device</em>) – The desired device of
+the buffers in this instrument.</p></li>
+<li><p><strong>tensor</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a>) – Tensor whose dtype and device are
+the desired dtype and device of
+the buffers in this instrument.</p></li>
+<li><p><strong>instrument</strong> (<a class="reference internal" href="#pfhedge.instruments.Instrument" title="pfhedge.instruments.Instrument"><em>Instrument</em></a>) – Instrument whose dtype and device are
+the desired dtype and device of
+the buffers in this instrument.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>

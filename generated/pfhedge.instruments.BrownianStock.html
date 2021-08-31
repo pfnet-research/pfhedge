@@ -186,6 +186,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.Primary.html">Primary</a></li>
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.HestonStock.html">HestonStock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.CIRRate.html">CIRRate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.Derivative.html">Derivative</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
@@ -309,8 +310,8 @@ The number of time steps is determinded from <code class="docutils literal notra
 the price.</p></li>
 <li><p><strong>init_state</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>]</em><em>, </em><em>optional</em>) – The initial state of
 the instrument.
-This is specified by <code class="docutils literal notranslate"><span class="pre">(spot,)</span></code>, where <code class="docutils literal notranslate"><span class="pre">spot</span></code> is the initial value
-of the stock price.
+This is specified by a tuple <span class="math notranslate nohighlight">\((S(0),)\)</span> where
+<span class="math notranslate nohighlight">\(spot\)</span> is the initial value of the spot price.
 If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), it uses the default value
 (See <a class="reference internal" href="#pfhedge.instruments.BrownianStock.default_init_state" title="pfhedge.instruments.BrownianStock.default_init_state"><code class="xref py py-func docutils literal notranslate"><span class="pre">default_init_state()</span></code></a>).
 It also accepts a <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> or a <a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.Tensor</span></code></a>.</p></li>
@@ -340,6 +341,10 @@ It also accepts a <a class="reference external" href="https://docs.python.org/3/
 <dt class="sig sig-object py" id="id1">
 <span class="sig-name descname"><span class="pre">to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id1" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="id2">
+<span class="sig-name descname"><span class="pre">to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 <p>Its signature is similar to <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module.to" title="(in PyTorch v1.9.0a0+gitd69c22d)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">torch.nn.Module.to()</span></code></a>.
 It only accepts floating point dtypes.
 See <a class="reference internal" href="../notes/instrument_attributes.html#instrument-attributes-doc"><span class="std std-ref">Instrument dtype and device</span></a> for details.</p>
@@ -363,10 +368,14 @@ See <a class="reference internal" href="../notes/instrument_attributes.html#inst
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>dtype</strong> (<em>torch.dtype</em>) – The desired floating point dtype of
 the buffers in this instrument.</p></li>
-<li><p><strong>device</strong> (<em>torch.device</em>) – The desired device of the buffers
-in this instrument.</p></li>
-<li><p><strong>tensor</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a>) – Tensor whose dtype and device are the desired
-dtype and device for all buffers in this module.</p></li>
+<li><p><strong>device</strong> (<em>torch.device</em>) – The desired device of
+the buffers in this instrument.</p></li>
+<li><p><strong>tensor</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a>) – Tensor whose dtype and device are
+the desired dtype and device of
+the buffers in this instrument.</p></li>
+<li><p><strong>instrument</strong> (<a class="reference internal" href="pfhedge.instruments.Instrument.html#pfhedge.instruments.Instrument" title="pfhedge.instruments.Instrument"><em>Instrument</em></a>) – Instrument whose dtype and device are
+the desired dtype and device of
+the buffers in this instrument.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>

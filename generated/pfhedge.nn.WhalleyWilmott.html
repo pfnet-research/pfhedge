@@ -186,6 +186,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.Primary.html">Primary</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.HestonStock.html">HestonStock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.CIRRate.html">CIRRate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.Derivative.html">Derivative</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
@@ -260,6 +261,17 @@ This is because the output is proportional to <span class="math notranslate nohi
 of which gradient diverges for <span class="math notranslate nohighlight">\(\Gamma \to 0\)</span>.
 A <code class="docutils literal notranslate"><span class="pre">dtype</span></code> with higher precision may alleviate this problem.</p>
 </div>
+<div class="seealso admonition">
+<p class="admonition-title">References</p>
+<ul class="simple">
+<li><p>Davis, M.H., Panas, V.G. and Zariphopoulou, T., 1993.
+European option pricing with transaction costs.
+SIAM Journal on Control and Optimization, 31(2), pp.470-493.</p></li>
+<li><p>Whalley, A.E. and Wilmott, P., An asymptotic analysis of an optimal hedging
+model for option pricing with transaction costs. Mathematical Finance,
+1997, 7, 307–324.</p></li>
+</ul>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -322,12 +334,6 @@ See <a class="reference internal" href="#pfhedge.nn.WhalleyWilmott.inputs" title
 <span class="go">        [0.7945]])</span>
 </pre></div>
 </div>
-<p class="rubric">References</p>
-<ul class="simple">
-<li><p>Whalley, A.E. and Wilmott, P., An asymptotic analysis of an optimal hedging
-model for option pricing with transaction costs. Mathematical Finance,
-1997, 7, 307–324.</p></li>
-</ul>
 <dl class="py method">
 <dt class="sig sig-object py" id="pfhedge.nn.WhalleyWilmott.inputs">
 <span class="sig-name descname"><span class="pre">inputs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/ww.html#WhalleyWilmott.inputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.WhalleyWilmott.inputs" title="Permalink to this definition">¶</a></dt>

@@ -185,6 +185,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.Primary.html">Primary</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.HestonStock.html">HestonStock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.CIRRate.html">CIRRate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.Derivative.html">Derivative</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
@@ -270,13 +271,20 @@
 <div class="viewcode-block" id="Hedger"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.Hedger.html#pfhedge.nn.Hedger">[docs]</a><span class="k">class</span> <span class="nc">Hedger</span><span class="p">(</span><span class="n">Module</span><span class="p">):</span>
     <span class="sd">"""Module to hedge and price derivatives.</span>
 
+<span class="sd">    .. admonition:: References</span>
+<span class="sd">        :class: seealso</span>
+
+<span class="sd">        - Buehler, H., Gonon, L., Teichmann, J. and Wood, B., 2019.</span>
+<span class="sd">          Deep hedging. Quantitative Finance, 19(8), pp.1271-1291.</span>
+<span class="sd">          [arXiv:`1802.03042 &lt;https://arxiv.org/abs/1802.03042&gt;`_ [q-fin]]</span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        model (torch.nn.Module): Hedging model to compute the hedge ratio at the</span>
 <span class="sd">            next time step from the input features at the current time step.</span>
-<span class="sd">            The input and output shapes should be :math:`(N, H_\\text{in})` and</span>
+<span class="sd">            The input and output shapes should be :math:`(N, F)` and</span>
 <span class="sd">            :math:`(N, H)` respectively, where</span>
 <span class="sd">            :math:`N` stands for the number simulated paths of the asset prices and</span>
-<span class="sd">            :math:`H_\\text{in}` is the number of input features (``len(inputs)``), and</span>
+<span class="sd">            :math:`F` is the number of input features (``len(inputs)``), and</span>
 <span class="sd">            :math:`H` is the number of hedging instruments.</span>
 <span class="sd">        inputs (list[str|Feature]): List of the names of the input features that</span>
 <span class="sd">            will be fed to the model.</span>
@@ -286,9 +294,9 @@
 <span class="sd">            Default: :class:`pfhedge.nn.EntropicRiskMeasure()` .</span>
 
 <span class="sd">    Shape:</span>
-<span class="sd">        - input: :math:`(N, H_{\\text{in}})` where</span>
+<span class="sd">        - input: :math:`(N, F)` where</span>
 <span class="sd">          :math:`N` is the number of simulated paths and</span>
-<span class="sd">          :math:`H_{\\text{in}}` is the number of input features.</span>
+<span class="sd">          :math:`F` is the number of input features.</span>
 <span class="sd">        - output: :math:`(N, H)` where</span>
 <span class="sd">          :math:`H` is the number of hedging instruments.</span>
 
@@ -554,18 +562,17 @@
         <span class="n">n_paths</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
         <span class="n">init_state</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">TensorOrFloat</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">"""Returns the profit and loss distribution after hedging.</span>
+        <span class="sd">"""Returns the terminal portfolio value after hedging a given derivative.</span>
 
-<span class="sd">        A hedger sells the derivative to its customer and obliges to settle the payoff</span>
-<span class="sd">        at maturity. The dealer hedges the risk of this liability by trading</span>
-<span class="sd">        the underlying instrument of the derivative based on ``self.model``.</span>
-<span class="sd">        The resulting profit and loss is obtained by adding up the payoff to the</span>
-<span class="sd">        customer, capital gains from the underlying asset, and the transaction cost.</span>
+<span class="sd">        This method simulates the derivative, computes the hedge ratio, and</span>
+<span class="sd">        computes the terminal portfolio value.</span>
+<span class="sd">        See :func:`pfhedge.nn.functional.terminal_value` for the expression of the</span>
+<span class="sd">        terminal portyol value after hedging a derivative.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            derivative (Derivative): The derivative to hedge.</span>
-<span class="sd">            hedge (Instrument, optional): The hedging instrument.</span>
-<span class="sd">                If ``None`` (default), use ``derivative.underlier``.</span>
+<span class="sd">            hedge (list[Instrument], optional): The hedging instruments.</span>
+<span class="sd">                If ``None`` (default), use ``[derivative.underlier]``.</span>
 <span class="sd">            n_paths (int, default=1000): The number of simulated price paths of the</span>
 <span class="sd">                underlying instrument.</span>
 <span class="sd">            init_state (tuple[torch.Tensor | float], optional): The initial state of</span>
@@ -612,10 +619,16 @@
         <span class="n">init_state</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">TensorOrFloat</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">enable_grad</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">"""Returns the loss of the profit and loss distribution after hedging.</span>
+        <span class="sd">"""Returns the value of the criterion for the terminal portfolio value</span>
+<span class="sd">        after hedging a given derivative.</span>
+
+<span class="sd">        This method basically computes ``self.criterion(pnl)``</span>
+<span class="sd">        where ``pnl`` is given by :meth:`compute_pnl`.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            derivative (Derivative): The derivative to hedge.</span>
+<span class="sd">            hedge (list[Instrument], optional): The hedging instruments.</span>
+<span class="sd">                If ``None`` (default), use ``[derivative.underlier]``.</span>
 <span class="sd">            n_paths (int, default=1000): The number of simulated price paths of the</span>
 <span class="sd">                underlying instrument.</span>
 <span class="sd">            n_times (int, default=1): If ``n_times &gt; 1``, returns the ensemble mean</span>
@@ -682,13 +695,20 @@
         <span class="n">optimizer</span><span class="o">=</span><span class="n">Adam</span><span class="p">,</span>
         <span class="n">init_state</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">TensorOrFloat</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
-        <span class="sd">"""Train the hedging model to hedge the given derivative.</span>
+        <span class="n">validation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+        <span class="sd">"""Fit the hedging model to hedge a given derivative.</span>
 
-<span class="sd">        It returns the trade history, that is, validation loss after each simulation.</span>
+<span class="sd">        The training is performed so that the hedger minimizes ``criterion(pnl)``</span>
+<span class="sd">        where ``pnl`` is given by :meth:`compute_pnl`.</span>
+
+<span class="sd">        It returns the training history, that is,</span>
+<span class="sd">        validation loss after each simulation.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            derivative (Derivative): The derivative to hedge.</span>
+<span class="sd">            hedge (list[Instrument], optional): The hedging instruments.</span>
+<span class="sd">                If ``None`` (default), use ``[derivative.underlier]``.</span>
 <span class="sd">            n_epochs (int, default=100): Number of Monte-Carlo simulations.</span>
 <span class="sd">            n_paths (int, default=1000): The number of simulated price paths of the</span>
 <span class="sd">                underlying instrument.</span>
@@ -702,6 +722,8 @@
 <span class="sd">                If ``None`` (default), sensible default value is used.</span>
 <span class="sd">            verbose (bool, default=True): If ``True``, print progress of the training to</span>
 <span class="sd">                standard output.</span>
+<span class="sd">            validation (bool, default=True): If ``False``, skip the computation of the</span>
+<span class="sd">                validation loss and returns ``None``.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            list[float]</span>
@@ -769,13 +791,14 @@
             <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
 
             <span class="c1"># Compute validation loss</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
-            <span class="n">loss</span> <span class="o">=</span> <span class="n">compute_loss</span><span class="p">(</span><span class="n">n_times</span><span class="o">=</span><span class="n">n_times</span><span class="p">,</span> <span class="n">enable_grad</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-            <span class="n">history</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">validation</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+                <span class="n">loss</span> <span class="o">=</span> <span class="n">compute_loss</span><span class="p">(</span><span class="n">n_times</span><span class="o">=</span><span class="n">n_times</span><span class="p">,</span> <span class="n">enable_grad</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">history</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
 
-            <span class="n">progress</span><span class="o">.</span><span class="n">desc</span> <span class="o">=</span> <span class="s2">"Loss="</span> <span class="o">+</span> <span class="n">_format_float</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">()))</span>
+                <span class="n">progress</span><span class="o">.</span><span class="n">desc</span> <span class="o">=</span> <span class="s2">"Loss="</span> <span class="o">+</span> <span class="n">_format_float</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">()))</span>
 
-        <span class="k">return</span> <span class="n">history</span></div>
+        <span class="k">return</span> <span class="n">history</span> <span class="k">if</span> <span class="n">validation</span> <span class="k">else</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="Hedger.price"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.Hedger.html#pfhedge.nn.Hedger.price">[docs]</a>    <span class="k">def</span> <span class="nf">price</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -790,6 +813,8 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            derivative (Derivative): The derivative to price.</span>
+<span class="sd">            hedge (list[Instrument], optional): The hedging instruments.</span>
+<span class="sd">                If ``None`` (default), use ``[derivative.underlier]``.</span>
 <span class="sd">            n_paths (int, default=1000): The number of simulated price paths of the</span>
 <span class="sd">                underlying instrument.</span>
 <span class="sd">            n_times (int, default=1): If ``n_times &gt; 1``, returns the ensemble mean of</span>
