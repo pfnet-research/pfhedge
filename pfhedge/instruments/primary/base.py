@@ -81,7 +81,8 @@ class Primary(Instrument):
         """
 
     def register_buffer(self, name: str, tensor: Optional[Tensor]) -> None:
-        """Adds a buffer to the module.
+        """Adds a buffer to the instrument.
+        The dtype and device of the buffer are the instrument's dtype and device.
 
         Buffers can be accessed as attributes using given names.
 
@@ -110,6 +111,8 @@ class Primary(Instrument):
                 "(torch Tensor or None required)".format(torch.typename(tensor), name)
             )
         else:
+            if isinstance(tensor, Tensor):
+                tensor = tensor.to(self.device, self.dtype)
             self._buffers[name] = tensor
 
     def named_buffers(self) -> Iterator[Tuple[str, Tensor]]:
