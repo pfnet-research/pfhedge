@@ -160,7 +160,11 @@ class BaseOption(Derivative):
         return output
 
     def log_moneyness(self, time_step: Optional[int] = None) -> Tensor:
-        """Returns ``self.moneyness(time_step).log()``."""
+        """Returns ``self.moneyness(time_step).log()``.
+
+        Returns:
+            torch.Tensor
+        """
         return self.moneyness(time_step=time_step, log=True)
 
     def time_to_maturity(self, time_step: Optional[int] = None) -> Tensor:
@@ -216,7 +220,11 @@ class BaseOption(Derivative):
             return moneyness[..., : time_step + 1].max(dim=-1, keepdim=True).values
 
     def max_log_moneyness(self, time_step: Optional[int] = None) -> Tensor:
-        """Returns ``self.max_moneyness(time_step).log()``."""
+        """Returns ``self.max_moneyness(time_step).log()``.
+
+        Returns:
+            torch.Tensor
+        """
         return self.max_moneyness(time_step, log=True)
 
 

@@ -27,6 +27,11 @@ class BSEuropeanOption(BSModuleMixin):
         - :class:`pfhedge.nn.BlackScholes`:
           Initialize Black-Scholes formula module from a derivative.
 
+    .. admonition:: References
+        :class: seealso
+
+        - John C. Hull, 2003. Options futures and other derivatives. Pearson.
+
     Examples:
 
         The ``forward`` method returns delta of the derivative.
@@ -44,9 +49,6 @@ class BSEuropeanOption(BSModuleMixin):
         tensor([[0.4497],
                 [0.5126],
                 [0.5752]])
-
-    References:
-        - John C. Hull, 2003. Options futures and other derivatives. Pearson.
     """
 
     def __init__(self, call: bool = True, strike: float = 1.0):
