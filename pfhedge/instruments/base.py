@@ -78,46 +78,76 @@ class Instrument(ABC):
         """
 
     def cpu(self: T) -> T:
-        """Returns a copy of this object in CPU memory.
+        """Moves all buffers of this instrument and its underlier to the CPU.
 
-        If this object is already in CPU memory and on the correct device,
-        then no copy is performed and the original object is returned.
+        .. note::
+            This method modifies the instrument in-place.
+
+        Returns:
+            self
         """
         return self.to(torch.device("cpu"))
 
     def cuda(self: T, device: Optional[int] = None) -> T:
-        """Returns a copy of this object in CUDA memory.
+        """Moves all buffers of this instrument and its underlier to the GPU.
 
-        If this object is already in CUDA memory and on the correct device,
-        then no copy is performed and the original object is returned.
+        .. note::
+            This method modifies the instrument in-place.
 
         Args:
-            device (torch.device): The destination GPU device.
-                Defaults to the current CUDA device.
+            device (int, optional): If specified,
+                all buffers will be copied to that device.
+
+        Returns:
+            self
         """
         return self.to(torch.device(f"cuda:{device}" if device is not None else "cuda"))
 
     def double(self: T) -> T:
-        """It is equivalent to ``self.to(torch.float64)``.
-        See :func:`to()`.
+        """Casts all floating point parameters and buffers to
+        ``torch.float64`` datatype.
+
+        .. note::
+            This method modifies the instrument in-place.
+
+        Returns:
+            self
         """
         return self.to(torch.float64)
 
     def float(self: T) -> T:
-        """It is equivalent to ``self.to(torch.float32)``.
-        See :func:`to()`.
+        """Casts all floating point parameters and buffers to
+        ``torch.float32`` datatype.
+
+        .. note::
+            This method modifies the instrument in-place.
+
+        Returns:
+            self
         """
         return self.to(torch.float32)
 
     def half(self: T) -> T:
-        """It is equivalent to ``self.to(torch.float16)``.
-        See :func:`to()`.
+        """Casts all floating point parameters and buffers to
+        ``torch.float16`` datatype.
+
+        .. note::
+            This method modifies the instrument in-place.
+
+        Returns:
+            self
         """
         return self.to(torch.float16)
 
     def bfloat16(self: T) -> T:
-        """It is equivalent to ``self.to(torch.bfloat16)``.
-        See :func:`to()`.
+        """Casts all floating point parameters and buffers to
+        ``torch.bfloat16`` datatype.
+
+        .. note::
+            This method modifies the instrument in-place.
+
+        Returns:
+            self
         """
         return self.to(torch.bfloat16)
 
