@@ -36,6 +36,16 @@ class WhalleyWilmott(Module):
         of which gradient diverges for :math:`\\Gamma \\to 0`.
         A ``dtype`` with higher precision may alleviate this problem.
 
+    .. admonition:: References
+        :class: seealso
+
+        - Davis, M.H., Panas, V.G. and Zariphopoulou, T., 1993.
+          European option pricing with transaction costs.
+          SIAM Journal on Control and Optimization, 31(2), pp.470-493.
+        - Whalley, A.E. and Wilmott, P., An asymptotic analysis of an optimal hedging
+          model for option pricing with transaction costs. Mathematical Finance,
+          1997, 7, 307–324.
+
     Args:
         derivative (:class:`pfhedge.instruments.Derivative`): Derivative to hedge.
         a (float, default=1.0): Risk aversion parameter in exponential utility.
@@ -91,11 +101,6 @@ class WhalleyWilmott(Module):
                 [0.5126],
                 [0.5752],
                 [0.7945]])
-
-    References:
-        - Whalley, A.E. and Wilmott, P., An asymptotic analysis of an optimal hedging
-          model for option pricing with transaction costs. Mathematical Finance,
-          1997, 7, 307–324.
     """
 
     def __init__(self, derivative, a: float = 1.0) -> None:

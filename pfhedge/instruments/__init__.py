@@ -8,4 +8,5 @@ from .derivative.lookback import LookbackOption
 from .derivative.variance_swap import VarianceSwap
 from .primary.base import Primary
 from .primary.brownian import BrownianStock
+from .primary.cir import CIRRate
 from .primary.heston import HestonStock

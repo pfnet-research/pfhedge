@@ -29,6 +29,12 @@ class BSAmericanBinaryOption(BSModuleMixin):
         - :class:`pfhedge.nn.BlackScholes`:
           Initialize Black-Scholes formula module from a derivative.
 
+    .. admonition:: References
+        :class: seealso
+
+        - Dai, M., 2000. A closed-form solution for perpetual American floating strike
+          lookback options. Journal of Computational Finance, 4(2), pp.63-68.
+
     Examples:
 
         The ``forward`` method returns delta of the derivative.
@@ -46,10 +52,6 @@ class BSAmericanBinaryOption(BSModuleMixin):
         tensor([[1.1285],
                 [0.0000],
                 [0.0000]])
-
-    References:
-        - Dai, M., 2000. A closed-form solution for perpetual American floating strike
-          lookback options. Journal of Computational Finance, 4(2), pp.63-68.
     """
 
     def __init__(self, call: bool = True, strike: float = 1.0):

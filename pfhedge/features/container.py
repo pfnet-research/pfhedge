@@ -63,10 +63,10 @@ class ModuleOutput(Feature, Module):
     Args:
         module (torch.nn.Module): Module to compute the value of the feature.
             The input and output shapes should be
-            :math:`(N, *, H_in) -> (N, *, 1)` where
+            :math:`(N, *, H_{\\math{in}}) -> (N, *, H_{\\math{out}})` where
             :math:`N` is the number of simulated paths of the underlying instrument,
-            :math:`H_{\\math{in}}` is the number of input features
-            (namely, ``len(inputs)``), and
+            :math:`H_{\\math{in}}` is the number of input features,
+            :math:`H_{\\math{out}}` is the number of output features, and
             :math:`*` means any number of additional dimensions.
         inputs (list[Feature]): The input features to the module.
 

@@ -81,7 +81,8 @@ class Primary(Instrument):
         """
 
     def register_buffer(self, name: str, tensor: Optional[Tensor]) -> None:
-        """Adds a buffer to the module.
+        """Adds a buffer to the instrument.
+        The dtype and device of the buffer are the instrument's dtype and device.
 
         Buffers can be accessed as attributes using given names.
 
@@ -110,6 +111,8 @@ class Primary(Instrument):
                 "(torch Tensor or None required)".format(torch.typename(tensor), name)
             )
         else:
+            if isinstance(tensor, Tensor):
+                tensor = tensor.to(self.device, self.dtype)
             self._buffers[name] = tensor
 
     def named_buffers(self) -> Iterator[Tuple[str, Tensor]]:
@@ -154,7 +157,7 @@ class Primary(Instrument):
         )
 
     def to(self: T, *args, **kwargs) -> T:
-        device, dtype, *_ = torch._C._nn._parse_to(*args, **kwargs)
+        device, dtype, *_ = self._parse_to(*args, **kwargs)
 
         if dtype is not None and not dtype.is_floating_point:
             raise TypeError(
@@ -168,9 +171,25 @@ class Primary(Instrument):
             self.device = device
 
         for name, buffer in self.named_buffers():
-            self.register_buffer(name, buffer.to(*args, **kwargs))
+            self.register_buffer(name, buffer.to(device, dtype))
 
         return self
+
+    @staticmethod
+    def _parse_to(*args, **kwargs):
+        # Can be called as:
+        #   to(device=None, dtype=None)
+        #   to(tensor)
+        #   to(instrument)
+        # and return a tuple (device, dtype, ...)
+        if len(args) > 0 and isinstance(args[0], Instrument):
+            instrument = args[0]
+            return (getattr(instrument, "device"), getattr(instrument, "dtype"))
+        elif "instrument" in kwargs:
+            instrument = kwargs["instrument"]
+            return (getattr(instrument, "device"), getattr(instrument, "dtype"))
+        else:
+            return torch._C._nn._parse_to(*args, **kwargs)
 
     def __repr__(self) -> str:
         extra_repr = self.extra_repr()

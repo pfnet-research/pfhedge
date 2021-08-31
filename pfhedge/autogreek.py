@@ -15,6 +15,15 @@ def delta(
     Delta is a differentiation of a derivative price with respect to
     a price of underlying instrument.
 
+    .. note::
+
+        The keyword argument ``**params`` should contain at least one of
+        the following combinations:
+
+        - ``spot``
+        - ``moneyness`` and ``strike``
+        - ``log_moneyness`` and ``strike``
+
     Args:
         pricer (callable): Pricing formula of a derivative.
         create_graph (bool, default=False): If ``True``, graph of the derivative
@@ -105,6 +114,15 @@ def gamma(
 
     Delta is a second-order differentiation of a derivative price with respect to
     a price of underlying instrument.
+
+    .. note::
+
+        The keyword argument ``**params`` should contain at least one of
+        the following combinations:
+
+        - ``spot``
+        - ``moneyness`` and ``strike``
+        - ``log_moneyness`` and ``strike``
 
     Args:
         pricer (callable): Pricing formula of a derivative.
