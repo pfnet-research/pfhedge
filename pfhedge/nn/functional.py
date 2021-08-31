@@ -332,12 +332,27 @@ def terminal_value(
 
         \\text{PL}(Z, \\delta, S) =
         - Z
-        + \\sum_{i = 1}^{T - 1} \\delta_{i} (S_{i + 1} - S_i)
-        - c \\sum_{i = 1}^{T - 1} |\\delta_{i + 1} - \\delta_{i}| S_{i + 1}
+        + \\sum_{i = 0}^{T - 2} \\delta_{i - 1} (S_{i} - S_{i - 1})
+        - c \\sum_{i = 0}^{T - 1} |\\delta_{i} - \\delta_{i - 1}| S_{i}
 
     where :math:`Z` is the payoff of the derivative, :math:`T` is the number of
     time steps, :math:`S` is the spot price, :math:`\\delta` is the signed number
     of shares held at each time step.
+    We define :math:`\delta_0 = 0` for notational convenience.
+
+    A hedger sells the derivative to its customer and
+    obliges to settle the payoff at maturity.
+    The dealer hedges the risk of this liability
+    by trading the underlying instrument of the derivative.
+    The resulting profit and loss is obtained by adding up the payoff to the
+    customer, capital gains from the underlying asset, and the transaction cost.
+
+    .. admonition:: References
+        :class: seealso
+
+        - Buehler, H., Gonon, L., Teichmann, J. and Wood, B., 2019.
+          Deep hedging. Quantitative Finance, 19(8), pp.1271-1291.
+          [arXiv:`1802.03042 <https://arxiv.org/abs/1802.03042>`_ [q-fin]]
 
     Args:
         spot (torch.Tensor): The spot price of the underlying asset :math:`S`.
@@ -347,17 +362,17 @@ def terminal_value(
             the underlying asset :math:`c`.
         payoff (torch.Tensor, optional): The payoff of the derivative :math:`Z`.
         deduct_first_cost (bool, default=True): Whether to deduct the transaction
-            cost of transacting stocks at the first time step.
-            If ``True``, :math:`c |\delta_1| S_1` will be deducted from the above
+            cost of the stock at the first time step.
+            If ``False``, :math:`- c |\delta_0| S_1` is omitted the above
             equation of the terminal value.
 
     Shape:
-        - spot: :math:`(*, T)` where
+        - spot: :math:`(N, *, T)` where
           :math:`T` is the number of time steps and
           :math:`*` means any number of additional dimensions.
-        - unit: :math:`(*, T)`
-        - payoff: :math:`(*)`
-        - output: :math:`(*)`.
+        - unit: :math:`(N, *, T)`
+        - payoff: :math:`(N, *)`
+        - output: :math:`(N, *)`.
 
     Returns:
         torch.Tensor

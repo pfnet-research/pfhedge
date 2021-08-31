@@ -190,3 +190,16 @@ def test_terminal_value_unmatched_shape():
         _ = terminal_value(spot, unit[:, :-1])
     with pytest.raises(RuntimeError):
         _ = terminal_value(spot, unit, payoff=payoff[:-1])
+
+
+def test_terminal_value_additional_dim():
+    N, M, T = 10, 30, 20
+
+    # pnl = -payoff if unit = 0
+    torch.manual_seed(42)
+    spot = torch.randn((N, M, T)).exp()
+    unit = torch.zeros((N, M, T))
+    payoff = torch.randn(N, M)
+    result = terminal_value(spot, unit, payoff=payoff)
+    expect = -payoff
+    assert_close(result, expect)
