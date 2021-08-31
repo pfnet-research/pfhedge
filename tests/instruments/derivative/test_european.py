@@ -114,21 +114,52 @@ class TestEuropeanOption:
         assert_close(result, expect, check_stride=False)
 
     @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
-    def test_dtype(self, dtype):
+    def test_init_dtype(self, dtype):
         derivative = EuropeanOption(BrownianStock(dtype=dtype))
         assert derivative.dtype == dtype
 
         derivative.simulate()
         assert derivative.payoff().dtype == dtype
 
-        derivative = EuropeanOption(BrownianStock()).to(dtype=dtype)
+    @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
+    def test_to_dtype(self, dtype):
+        # to(dtype)
+        derivative = EuropeanOption(BrownianStock()).to(dtype)
+        derivative.simulate()
+        assert derivative.payoff().dtype == dtype
+
+        # to(instrument)
+        instrument = BrownianStock(dtype=dtype)
+        derivative = EuropeanOption(BrownianStock()).to(instrument)
+        derivative.simulate()
+        assert derivative.payoff().dtype == dtype
+
+        instrument = EuropeanOption(BrownianStock(dtype=dtype))
+        instrument = BrownianStock(dtype=dtype)
+        derivative = EuropeanOption(BrownianStock()).to(instrument)
         derivative.simulate()
         assert derivative.payoff().dtype == dtype
 
     @pytest.mark.parametrize("device", ["cpu", "cuda:0", "cuda:1"])
-    def test_device(self, device):
+    def test_init_device(self, device):
+        # init
         derivative = EuropeanOption(BrownianStock(device=device))
         assert derivative.device == torch.device(device)
+
+    @pytest.mark.parametrize("device", ["cpu", "cuda:0", "cuda:1"])
+    def test_to_device(self, device):
+        # to(device)
+        s = EuropeanOption(BrownianStock()).to(device)
+        assert s.device == torch.device(device)
+
+        # to(instrument)
+        instrument = BrownianStock(device=device)
+        s = EuropeanOption(BrownianStock()).to(instrument)
+        assert s.device == torch.device(device)
+
+        instrument = EuropeanOption(BrownianStock(device=device))
+        s = EuropeanOption(BrownianStock()).to(instrument)
+        assert s.device == torch.device(device)
 
     def test_repr(self):
         derivative = EuropeanOption(BrownianStock(), maturity=1.0)
