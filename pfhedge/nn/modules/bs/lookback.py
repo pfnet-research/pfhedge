@@ -32,6 +32,12 @@ class BSLookbackOption(BSModuleMixin):
         - :class:`pfhedge.nn.BlackScholes`:
           Initialize Black-Scholes formula module from a derivative.
 
+    .. admonition:: References
+        :class: seealso
+
+        - Conze, A., 1991. Path dependent options: The case of lookback options.
+          The Journal of Finance, 46(5), pp.1893-1907.
+
     Examples:
 
         The ``forward`` method returns delta of the derivative.
@@ -49,10 +55,6 @@ class BSLookbackOption(BSModuleMixin):
         tensor([[0.9208],
                 [1.0515],
                 [1.0515]])
-
-    References:
-        - Conze, A., 1991. Path dependent options: The case of lookback options.
-          The Journal of Finance, 46(5), pp.1893-1907.
     """
 
     def __init__(self, call: bool = True, strike: float = 1.0):
