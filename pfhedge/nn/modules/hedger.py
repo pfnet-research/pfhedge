@@ -33,6 +33,13 @@ TensorOrFloat = Union[Tensor, float]
 class Hedger(Module):
     """Module to hedge and price derivatives.
 
+    .. admonition:: References
+        :class: seealso
+
+        - Buehler, H., Gonon, L., Teichmann, J. and Wood, B., 2019.
+          Deep hedging. Quantitative Finance, 19(8), pp.1271-1291.
+          [arXiv:`1802.03042 <https://arxiv.org/abs/1802.03042>`_ [q-fin]]
+
     Args:
         model (torch.nn.Module): Hedging model to compute the hedge ratio at the
             next time step from the input features at the current time step.
@@ -317,18 +324,17 @@ class Hedger(Module):
         n_paths: int = 1000,
         init_state: Optional[Tuple[TensorOrFloat, ...]] = None,
     ) -> Tensor:
-        """Returns the profit and loss distribution after hedging.
+        """Returns the terminal portfolio value after hedging a given derivative.
 
-        A hedger sells the derivative to its customer and obliges to settle the payoff
-        at maturity. The dealer hedges the risk of this liability by trading
-        the underlying instrument of the derivative based on ``self.model``.
-        The resulting profit and loss is obtained by adding up the payoff to the
-        customer, capital gains from the underlying asset, and the transaction cost.
+        This method simulates the derivative, computes the hedge ratio, and
+        computes the terminal portfolio value.
+        See :func:`pfhedge.nn.functional.terminal_value` for the expression of the
+        terminal portyol value after hedging a derivative.
 
         Args:
             derivative (Derivative): The derivative to hedge.
-            hedge (Instrument, optional): The hedging instrument.
-                If ``None`` (default), use ``derivative.underlier``.
+            hedge (list[Instrument], optional): The hedging instruments.
+                If ``None`` (default), use ``[derivative.underlier]``.
             n_paths (int, default=1000): The number of simulated price paths of the
                 underlying instrument.
             init_state (tuple[torch.Tensor | float], optional): The initial state of
@@ -375,10 +381,16 @@ class Hedger(Module):
         init_state: Optional[Tuple[TensorOrFloat, ...]] = None,
         enable_grad: bool = True,
     ) -> Tensor:
-        """Returns the loss of the profit and loss distribution after hedging.
+        """Returns the value of the criterion for the terminal portfolio value
+        after hedging a given derivative.
+
+        This method basically computes ``self.criterion(pnl)``
+        where ``pnl`` is given by :meth:`compute_pnl`.
 
         Args:
             derivative (Derivative): The derivative to hedge.
+            hedge (list[Instrument], optional): The hedging instruments.
+                If ``None`` (default), use ``[derivative.underlier]``.
             n_paths (int, default=1000): The number of simulated price paths of the
                 underlying instrument.
             n_times (int, default=1): If ``n_times > 1``, returns the ensemble mean
@@ -445,13 +457,20 @@ class Hedger(Module):
         optimizer=Adam,
         init_state: Optional[Tuple[TensorOrFloat, ...]] = None,
         verbose: bool = True,
-    ) -> List[float]:
-        """Train the hedging model to hedge the given derivative.
+        validation: bool = True,
+    ) -> Optional[List[float]]:
+        """Fit the hedging model to hedge a given derivative.
 
-        It returns the trade history, that is, validation loss after each simulation.
+        The training is performed so that the hedger minimizes ``criterion(pnl)``
+        where ``pnl`` is given by :meth:`compute_pnl`.
+
+        It returns the training history, that is,
+        validation loss after each simulation.
 
         Args:
             derivative (Derivative): The derivative to hedge.
+            hedge (list[Instrument], optional): The hedging instruments.
+                If ``None`` (default), use ``[derivative.underlier]``.
             n_epochs (int, default=100): Number of Monte-Carlo simulations.
             n_paths (int, default=1000): The number of simulated price paths of the
                 underlying instrument.
@@ -465,6 +484,8 @@ class Hedger(Module):
                 If ``None`` (default), sensible default value is used.
             verbose (bool, default=True): If ``True``, print progress of the training to
                 standard output.
+            validation (bool, default=True): If ``False``, skip the computation of the
+                validation loss and returns ``None``.
 
         Returns:
             list[float]
@@ -532,13 +553,15 @@ class Hedger(Module):
             optimizer.step()
 
             # Compute validation loss
-            self.eval()
-            loss = compute_loss(n_times=n_times, enable_grad=False)
-            history.append(loss.item())
+            if validation:
+                self.eval()
+                loss = compute_loss(n_times=n_times, enable_grad=False)
+                history.append(loss.item())
 
-            progress.desc = "Loss=" + _format_float(float(loss.item()))
+                progress.desc = "Loss=" + _format_float(float(loss.item()))
 
-        return history
+        if validation:
+            return history
 
     def price(
         self,
@@ -553,6 +576,8 @@ class Hedger(Module):
 
         Args:
             derivative (Derivative): The derivative to price.
+            hedge (list[Instrument], optional): The hedging instruments.
+                If ``None`` (default), use ``[derivative.underlier]``.
             n_paths (int, default=1000): The number of simulated price paths of the
                 underlying instrument.
             n_times (int, default=1): If ``n_times > 1``, returns the ensemble mean of
