@@ -44,6 +44,7 @@ class Instrument(ABC):
 
         .. function:: to(device=None, dtype=None)
         .. function:: to(tensor)
+        .. function:: to(instrument)
 
         Its signature is similar to :meth:`torch.nn.Module.to`.
         It only accepts floating point dtypes.
@@ -63,10 +64,14 @@ class Instrument(ABC):
         Args:
             dtype (torch.dtype): The desired floating point dtype of
                 the buffers in this instrument.
-            device (torch.device): The desired device of the buffers
-                in this instrument.
-            tensor (torch.Tensor): Tensor whose dtype and device are the desired
-                dtype and device for all buffers in this module.
+            device (torch.device): The desired device of
+                the buffers in this instrument.
+            tensor (torch.Tensor): Tensor whose dtype and device are
+                the desired dtype and device of
+                the buffers in this instrument.
+            instrument (Instrument): Instrument whose dtype and device are
+                the desired dtype and device of
+                the buffers in this instrument.
 
         Returns:
             self
