@@ -36,10 +36,10 @@ class Hedger(Module):
     Args:
         model (torch.nn.Module): Hedging model to compute the hedge ratio at the
             next time step from the input features at the current time step.
-            The input and output shapes should be :math:`(N, H_\\text{in})` and
+            The input and output shapes should be :math:`(N, F)` and
             :math:`(N, H)` respectively, where
             :math:`N` stands for the number simulated paths of the asset prices and
-            :math:`H_\\text{in}` is the number of input features (``len(inputs)``), and
+            :math:`F` is the number of input features (``len(inputs)``), and
             :math:`H` is the number of hedging instruments.
         inputs (list[str|Feature]): List of the names of the input features that
             will be fed to the model.
@@ -49,9 +49,9 @@ class Hedger(Module):
             Default: :class:`pfhedge.nn.EntropicRiskMeasure()` .
 
     Shape:
-        - input: :math:`(N, H_{\\text{in}})` where
+        - input: :math:`(N, F)` where
           :math:`N` is the number of simulated paths and
-          :math:`H_{\\text{in}}` is the number of input features.
+          :math:`F` is the number of input features.
         - output: :math:`(N, H)` where
           :math:`H` is the number of hedging instruments.
 

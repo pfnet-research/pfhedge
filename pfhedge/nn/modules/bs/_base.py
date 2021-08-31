@@ -14,6 +14,7 @@ class BSModuleMixin(Module):
 
     Shape:
         - Input: :math:`(N, *, H_\\text{in})` where
+          :math:`H_\\text{in}` is the number of input features and
           :math:`*` means any number of additional dimensions.
           See :func:`inputs` for the names of input features.
         - Output: :math:`(N, *, 1)`.
