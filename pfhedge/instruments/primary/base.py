@@ -77,7 +77,7 @@ class Primary(Instrument):
             init_state (tuple[torch.Tensor | float], optional): The initial state of
                 the instrument.
                 If ``None`` (default), it uses the default value
-                (See :func:`default_init_state`).
+                (See :attr:`default_init_state`).
         """
 
     def register_buffer(self, name: str, tensor: Optional[Tensor]) -> None:

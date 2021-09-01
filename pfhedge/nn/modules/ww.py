@@ -54,7 +54,7 @@ class WhalleyWilmott(Module):
         - Input: :math:`(N, *, H_{\\text{in}})` where
           :math:`*` means any number of additional dimensions and
           :math:`H_{\\text{in}}` is the number of input features.
-          See :func:`inputs()` for the names of input features.
+          See :meth:`inputs()` for the names of input features.
         - Output: :math:`(N, *, 1)`.
 
     Examples:
@@ -142,7 +142,7 @@ class WhalleyWilmott(Module):
             - Input: :math:`(N, *, H_{\\text{in}} - 1)` where
               :math:`*` means any number of additional dimensions and
               :math:`H_{\\text{in}}` is the number of input features.
-              See :func:`inputs()` for the names of input features.
+              See :meth:`inputs()` for the names of input features.
             - Output: :math:`(N, *, 1)`
 
         Returns:

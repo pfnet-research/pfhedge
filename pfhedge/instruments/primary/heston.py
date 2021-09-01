@@ -39,13 +39,13 @@ class HestonStock(Primary):
 
     Buffers:
         - spot (:class:`torch.Tensor`): The spot price of the instrument.
-          This attribute is set by a method :func:`simulate()`.
+          This attribute is set by a method :meth:`simulate()`.
           The shape is :math:`(N, T)` where
           :math:`N` is the number of simulated paths and
           :math:`T` is the number of time steps.
         - variance (:class:`torch.Tensor`): The variance of the instrument.
           Note that this is different from the realized variance of the spot price.
-          This attribute is set by a method :func:`simulate()`.
+          This attribute is set by a method :meth:`simulate()`.
           The shape is :math:`(N, T)`.
 
     Examples:
@@ -123,7 +123,7 @@ class HestonStock(Primary):
                 :math:`S(0)` and :math:`V(0)` are the initial values of
                 spot and variance, respectively.
                 If ``None`` (default), it uses the default value
-                (See :func:`default_init_state`).
+                (See :attr:`default_init_state`).
         """
         if init_state is None:
             init_state = self.default_init_state

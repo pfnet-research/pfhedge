@@ -114,7 +114,7 @@ class Derivative(Instrument):
     def spot(self) -> Tensor:
         """Returns ``self.pricer(self)`` if self is listed.
 
-        See :func:`list()` for details.
+        See :meth:`list()` for details.
         """
         if self.pricer is None:
             raise ValueError("self is not listed.")

@@ -41,7 +41,7 @@ class BrownianStock(Primary):
 
     Buffers:
         - spot (:class:`torch.Tensor`): The spot prices of the instrument.
-          This attribute is set by a method :func:`simulate()`.
+          This attribute is set by a method :meth:`simulate()`.
           The shape is :math:`(N, T)` where
           :math:`N` is the number of simulated paths and
           :math:`T` is the number of time steps.
@@ -121,7 +121,7 @@ class BrownianStock(Primary):
                 This is specified by a tuple :math:`(S(0),)` where
                 :math:`spot` is the initial value of the spot price.
                 If ``None`` (default), it uses the default value
-                (See :func:`default_init_state`).
+                (See :attr:`default_init_state`).
                 It also accepts a :class:`float` or a :class:`torch.Tensor`.
 
         Examples:
