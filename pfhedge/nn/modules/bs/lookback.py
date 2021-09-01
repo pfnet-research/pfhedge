@@ -6,8 +6,8 @@ from torch import Tensor
 
 import pfhedge.autogreek as autogreek
 from pfhedge._utils.bisect import bisect
-from pfhedge._utils.doc import set_attr_and_docstring
-from pfhedge._utils.doc import set_docstring
+from pfhedge._utils.doc import _set_attr_and_docstring
+from pfhedge._utils.doc import _set_docstring
 from pfhedge._utils.str import _format_float
 
 from ._base import BSModuleMixin
@@ -264,5 +264,5 @@ class BSLookbackOption(BSModuleMixin):
 
 
 # Assign docstrings so they appear in Sphinx documentation
-set_docstring(BSLookbackOption, "inputs", BSModuleMixin.inputs)
-set_attr_and_docstring(BSLookbackOption, "forward", BSModuleMixin.forward)
+_set_docstring(BSLookbackOption, "inputs", BSModuleMixin.inputs)
+_set_attr_and_docstring(BSLookbackOption, "forward", BSModuleMixin.forward)

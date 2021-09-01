@@ -3,7 +3,7 @@ from torch import Tensor
 
 import pfhedge.autogreek as autogreek
 from pfhedge._utils.bisect import bisect
-from pfhedge._utils.doc import set_attr_and_docstring
+from pfhedge._utils.doc import _set_attr_and_docstring
 from pfhedge._utils.str import _format_float
 
 from ._base import BSModuleMixin
@@ -246,5 +246,5 @@ class BSAmericanBinaryOption(BSModuleMixin):
 
 
 # Assign docstrings so they appear in Sphinx documentation
-set_attr_and_docstring(BSAmericanBinaryOption, "inputs", BSModuleMixin.inputs)
-set_attr_and_docstring(BSAmericanBinaryOption, "forward", BSModuleMixin.forward)
+_set_attr_and_docstring(BSAmericanBinaryOption, "inputs", BSModuleMixin.inputs)
+_set_attr_and_docstring(BSAmericanBinaryOption, "forward", BSModuleMixin.forward)

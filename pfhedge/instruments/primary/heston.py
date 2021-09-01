@@ -6,8 +6,8 @@ from typing import Union
 import torch
 from torch import Tensor
 
-from pfhedge._utils.doc import set_attr_and_docstring
-from pfhedge._utils.doc import set_docstring
+from pfhedge._utils.doc import _set_attr_and_docstring
+from pfhedge._utils.doc import _set_docstring
 from pfhedge._utils.str import _format_float
 from pfhedge.stochastic import generate_heston
 
@@ -158,5 +158,5 @@ class HestonStock(Primary):
 
 
 # Assign docstrings so they appear in Sphinx documentation
-set_docstring(HestonStock, "default_init_state", Primary.default_init_state)
-set_attr_and_docstring(HestonStock, "to", Primary.to)
+_set_docstring(HestonStock, "default_init_state", Primary.default_init_state)
+_set_attr_and_docstring(HestonStock, "to", Primary.to)
