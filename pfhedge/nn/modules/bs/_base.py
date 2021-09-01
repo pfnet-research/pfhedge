@@ -16,7 +16,7 @@ class BSModuleMixin(Module):
         - Input: :math:`(N, *, H_\\text{in})` where
           :math:`H_\\text{in}` is the number of input features and
           :math:`*` means any number of additional dimensions.
-          See :func:`inputs` for the names of input features.
+          See :meth:`inputs` for the names of input features.
         - Output: :math:`(N, *, 1)`.
           All but the last dimension are the same shape as the input.
     """
@@ -27,7 +27,7 @@ class BSModuleMixin(Module):
         Args:
             input (torch.Tensor): The input tensor. Features are concatenated along
                 the last dimension.
-                See :func:`inputs()` for the names of the input features.
+                See :meth:`inputs()` for the names of the input features.
 
         Returns:
             torch.Tensor

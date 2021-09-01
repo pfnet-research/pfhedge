@@ -2,7 +2,7 @@ import torch
 from torch import Tensor
 
 from pfhedge._utils.bisect import find_implied_volatility
-from pfhedge._utils.doc import set_attr_and_docstring
+from pfhedge._utils.doc import _set_attr_and_docstring
 from pfhedge._utils.str import _format_float
 
 from ._base import BSModuleMixin
@@ -18,7 +18,7 @@ class BSEuropeanOption(BSModuleMixin):
     Shape:
         - Input: :math:`(N, *, 3)` where
           :math:`*` means any number of additional dimensions.
-          See ``inputs`` for the names of input features.
+          See :meth:`inputs` for the names of input features.
         - Output: :math:`(N, *, 1)`.
           All but the last dimension are the same shape as the input.
 
@@ -33,8 +33,6 @@ class BSEuropeanOption(BSModuleMixin):
         - John C. Hull, 2003. Options futures and other derivatives. Pearson.
 
     Examples:
-
-        The ``forward`` method returns delta of the derivative.
 
         >>> from pfhedge.nn import BSEuropeanOption
         >>>
@@ -104,7 +102,7 @@ class BSEuropeanOption(BSModuleMixin):
             - output: :math:`(N, *)`
 
         Returns:
-            Tensor
+            torch.Tensor
         """
         s, t, v = map(torch.as_tensor, (log_moneyness, time_to_maturity, volatility))
 
@@ -131,7 +129,7 @@ class BSEuropeanOption(BSModuleMixin):
             - output: :math:`(N, *)`
 
         Returns:
-            Tensor
+            torch.Tensor
         """
         if not self.call:
             raise ValueError(
@@ -162,7 +160,7 @@ class BSEuropeanOption(BSModuleMixin):
             - output: :math:`(N, *)`
 
         Returns:
-            Tensor
+            torch.Tensor
         """
         s, t, v = map(torch.as_tensor, (log_moneyness, time_to_maturity, volatility))
 
@@ -200,7 +198,7 @@ class BSEuropeanOption(BSModuleMixin):
             - output: :math:`(N, *)`
 
         Returns
-            Tensor
+            torch.Tensor
         """
         return find_implied_volatility(
             self.price,
@@ -212,5 +210,5 @@ class BSEuropeanOption(BSModuleMixin):
 
 
 # Assign docstrings so they appear in Sphinx documentation
-set_attr_and_docstring(BSEuropeanOption, "inputs", BSModuleMixin.inputs)
-set_attr_and_docstring(BSEuropeanOption, "forward", BSModuleMixin.forward)
+_set_attr_and_docstring(BSEuropeanOption, "inputs", BSModuleMixin.inputs)
+_set_attr_and_docstring(BSEuropeanOption, "forward", BSModuleMixin.forward)
