@@ -2,7 +2,7 @@ import torch
 from torch import Tensor
 
 from pfhedge._utils.bisect import bisect
-from pfhedge._utils.doc import set_attr_and_docstring
+from pfhedge._utils.doc import _set_attr_and_docstring
 from pfhedge._utils.str import _format_float
 
 from ._base import BSModuleMixin
@@ -206,5 +206,5 @@ class BSEuropeanOption(BSModuleMixin):
 
 
 # Assign docstrings so they appear in Sphinx documentation
-set_attr_and_docstring(BSEuropeanOption, "inputs", BSModuleMixin.inputs)
-set_attr_and_docstring(BSEuropeanOption, "forward", BSModuleMixin.forward)
+_set_attr_and_docstring(BSEuropeanOption, "inputs", BSModuleMixin.inputs)
+_set_attr_and_docstring(BSEuropeanOption, "forward", BSModuleMixin.forward)
