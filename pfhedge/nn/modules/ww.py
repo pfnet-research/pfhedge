@@ -19,7 +19,7 @@ class WhalleyWilmott(Module):
     asymptotically small transaction cost, European option, and exponential utility.
     The half-width of the no-transaction band is given by
 
-    .. math ::
+    .. math::
 
         w = \\left( \\frac{3 c \\Gamma^2 S}{2 a} \\right)^{1 / 3} \,,
 
@@ -28,17 +28,14 @@ class WhalleyWilmott(Module):
     :math:`S` is the spot price of the underlying instrument, and
     :math:`a` is the risk-aversion coefficient of the exponential utility.
 
-    .. note ::
-
+    Note:
         A backward computation for this module generates ``nan``
         if the :math:`\\Gamma` of the derivative is too small.
         This is because the output is proportional to :math:`\\Gamma^{2 / 3}`
         of which gradient diverges for :math:`\\Gamma \\to 0`.
         A ``dtype`` with higher precision may alleviate this problem.
 
-    .. admonition:: References
-        :class: seealso
-
+    References:
         - Davis, M.H., Panas, V.G. and Zariphopoulou, T., 1993.
           European option pricing with transaction costs.
           SIAM Journal on Control and Optimization, 31(2), pp.470-493.

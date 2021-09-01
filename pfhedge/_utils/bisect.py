@@ -17,7 +17,7 @@ def bisect(
 
     The output tensor approximately satisfies the following relation:
 
-    .. code-block ::
+    .. code-block::
 
         function(output) = target
 

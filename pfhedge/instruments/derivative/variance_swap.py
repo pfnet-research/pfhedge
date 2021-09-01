@@ -20,7 +20,7 @@ class VarianceSwap(Derivative):
 
     The payoff of a variance swap is given by
 
-    .. math ::
+    .. math::
 
         \\mathrm{payoff} = \\sigma^2 - K
 

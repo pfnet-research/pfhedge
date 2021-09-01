@@ -33,9 +33,7 @@ TensorOrFloat = Union[Tensor, float]
 class Hedger(Module):
     """Module to hedge and price derivatives.
 
-    .. admonition:: References
-        :class: seealso
-
+    References:
         - Buehler, H., Gonon, L., Teichmann, J. and Wood, B., 2019.
           Deep hedging. Quantitative Finance, 19(8), pp.1271-1291.
           [arXiv:`1802.03042 <https://arxiv.org/abs/1802.03042>`_ [q-fin]]

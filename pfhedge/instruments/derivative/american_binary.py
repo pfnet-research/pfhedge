@@ -26,7 +26,7 @@ class AmericanBinaryOption(BaseOption):
 
     The payoff of an American binary call option is given by:
 
-    .. math ::
+    .. math::
 
         \\mathrm{payoff} =
         \\begin{cases}
@@ -39,7 +39,7 @@ class AmericanBinaryOption(BaseOption):
 
     The payoff of an American binary put option is given by:
 
-    .. math ::
+    .. math::
 
         \\mathrm{payoff} =
         \\begin{cases}
