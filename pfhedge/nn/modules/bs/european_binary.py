@@ -4,7 +4,7 @@ import torch
 from torch import Tensor
 
 import pfhedge.autogreek as autogreek
-from pfhedge._utils.bisect import bisect
+from pfhedge._utils.bisect import find_implied_volatility
 from pfhedge._utils.doc import _set_attr_and_docstring
 from pfhedge._utils.doc import _set_docstring
 from pfhedge._utils.str import _format_float
@@ -188,15 +188,18 @@ class BSEuropeanBinaryOption(BSModuleMixin):
         Shape:
             - log_moneyness: :math:`(N, *)`
             - time_to_maturity: :math:`(N, *)`
-            - volatility: :math:`(N, *)`
             - output: :math:`(N, *)`
 
         Returns:
             torch.Tensor
         """
-        s, t, p = map(torch.as_tensor, (log_moneyness, time_to_maturity, price))
-        pricer = lambda v: self.price(s, t, v)
-        return bisect(pricer, p, lower=0.001, upper=1.000, precision=precision)
+        return find_implied_volatility(
+            self.price,
+            price=price,
+            log_moneyness=log_moneyness,
+            time_to_maturity=time_to_maturity,
+            precision=precision,
+        )
 
 
 # Assign docstrings so they appear in Sphinx documentation

@@ -6,7 +6,7 @@ from torch import Tensor
 
 
 def bisect(
-    function: Callable[[Tensor], Tensor],
+    fn: Callable[[Tensor], Tensor],
     target: Tensor,
     lower: Union[float, Tensor],
     upper: Union[float, Tensor],
@@ -19,11 +19,10 @@ def bisect(
 
     .. code-block::
 
-        function(output) = target
+        fn(output) = target
 
     Args:
-        function (callable[[Tensor], Tensor]): Monotone increasing or decreasing
-            function.
+        fn (callable[[Tensor], Tensor]): A monotone function.
         target (Tensor): Target of function values.
         lower (Tensor or float): Lower bound of binary search.
         upper (Tensor or float): Upper bound of binary search.
@@ -40,20 +39,20 @@ def bisect(
     Examples:
 
         >>> target = torch.tensor([-1.0, 0.0, 1.0])
-        >>> function = torch.log
-        >>> output = bisect(function, target, 0.01, 10.0)
+        >>> fn = torch.log
+        >>> output = bisect(fn, target, 0.01, 10.0)
         >>> output
         tensor([0.3679, 1.0000, 2.7183])
-        >>> torch.allclose(function(output), target, atol=1e-6)
+        >>> torch.allclose(fn(output), target, atol=1e-6)
         True
 
         Monotone decreasing function:
 
-        >>> function = lambda input: -torch.log(input)
-        >>> output = bisect(function, target, 0.01, 10.0)
+        >>> fn = lambda input: -torch.log(input)
+        >>> output = bisect(fn, target, 0.01, 10.0)
         >>> output
         tensor([2.7183, 1.0000, 0.3679])
-        >>> torch.allclose(function(output), target, atol=1e-6)
+        >>> torch.allclose(fn(output), target, atol=1e-6)
         True
     """
     lower, upper = map(torch.as_tensor, (lower, upper))
@@ -61,9 +60,9 @@ def bisect(
     if not (lower < upper).all():
         raise ValueError("condition lower < upper should be satisfied.")
 
-    if (function(lower) > function(upper)).all():
-        # If function is a decreasing function
-        mf = lambda input: -function(input)
+    if (fn(lower) > fn(upper)).all():
+        # If fn is a decreasing function
+        mf = lambda input: -fn(input)
         return bisect(mf, -target, lower, upper, precision=precision, max_iter=max_iter)
 
     n_iter = 0
@@ -73,8 +72,36 @@ def bisect(
             raise RuntimeError(f"Aborting since iteration exceeds max_iter={max_iter}.")
 
         m = (lower + upper) / 2
-        output = function(m)
+        output = fn(m)
         lower = lower.where(output >= target, m)
         upper = upper.where(output < target, m)
 
     return upper
+
+
+def find_implied_volatility(
+    pricer: Callable,
+    price: Tensor,
+    lower: float = 0.001,
+    upper: float = 1.000,
+    precision: float = 1e-6,
+    max_iter: int = 100,
+    **params,
+) -> Tensor:
+    """Find implied volatility by binary search.
+
+    Args:
+        pricer (callable): Pricing formula of a derivative.
+        price (Tensor): The price of the derivative.
+        lower (float, default=0.001): Lower bound of binary search.
+        upper (float, default=1.000): Upper bound of binary search.
+        precision (float, default=1e-6): Computational precision of the implied
+            volatility.
+        max_iter (int, default 100): If the number of iterations exceeds this
+            value, abort computation and raise RuntimeError.
+
+    Returns:
+        torch.Tensor
+    """
+    fn = lambda volatility: pricer(volatility=volatility, **params)
+    return bisect(fn, price, lower, upper, precision=precision, max_iter=max_iter)
