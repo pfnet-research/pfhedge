@@ -13,31 +13,26 @@ class BSAmericanBinaryOption(BSModuleMixin):
     """Black-Scholes formula for an American Binary Option.
 
     Args:
-        call (bool, default=True): Specifies whether the option is call
-            or put.
+        call (bool, default=True): Specifies whether the option is call or put.
         strike (float, default=1.0): The strike price of the option.
 
     Shape:
         - Input: :math:`(N, *, 4)` where
           :math:`*` means any number of additional dimensions.
-          See :func:`inputs` for the names of input features.
-        - Output: :math:`(N, *, 1)`,
-          all but the last dimension are the same shape as the input.
+          See :meth:`inputs` for the names of input features.
+        - Output: :math:`(N, *, 1)`.
+          All but the last dimension are the same shape as the input.
 
     .. seealso ::
-
         - :class:`pfhedge.nn.BlackScholes`:
           Initialize Black-Scholes formula module from a derivative.
 
     .. admonition:: References
         :class: seealso
-
         - Dai, M., 2000. A closed-form solution for perpetual American floating strike
           lookback options. Journal of Computational Finance, 4(2), pp.63-68.
 
     Examples:
-
-        The ``forward`` method returns delta of the derivative.
 
         >>> from pfhedge.nn import BSAmericanBinaryOption
         >>>
@@ -116,7 +111,7 @@ class BSAmericanBinaryOption(BSModuleMixin):
             - output: :math:`(N, *)`
 
         Returns:
-            Tensor
+            torch.Tensor
         """
         s, m, t, v = map(
             torch.as_tensor,

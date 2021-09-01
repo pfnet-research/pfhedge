@@ -23,7 +23,7 @@ class BSLookbackOption(BSModuleMixin):
     Shape:
         - Input: :math:`(N, *, 4)` where
           :math:`*` means any number of additional dimensions.
-          See :func:`inputs` for the names of input features.
+          See :meth:`inputs` for the names of input features.
         - Output: :math:`(N, *, 1)`.
           All but the last dimension are the same shape as the input.
 
@@ -39,8 +39,6 @@ class BSLookbackOption(BSModuleMixin):
           The Journal of Finance, 46(5), pp.1893-1907.
 
     Examples:
-
-        The ``forward`` method returns delta of the derivative.
 
         >>> from pfhedge.nn import BSLookbackOption
         >>>
@@ -122,7 +120,7 @@ class BSLookbackOption(BSModuleMixin):
             - output: :math:`(N, *)`
 
         Returns:
-            Tensor
+            torch.Tensor
         """
         s, m, t, v = map(
             torch.as_tensor,
@@ -180,7 +178,7 @@ class BSLookbackOption(BSModuleMixin):
             - output: :math:`(N, *)`
 
         Returns:
-            Tensor
+            torch.Tensor
         """
         return autogreek.delta(
             self.price,
@@ -217,7 +215,7 @@ class BSLookbackOption(BSModuleMixin):
             - output: :math:`(N, *)`
 
         Returns:
-            Tensor
+            torch.Tensor
         """
         return autogreek.gamma(
             self.price,
@@ -254,7 +252,7 @@ class BSLookbackOption(BSModuleMixin):
             - output: :math:`(N, *)`
 
         Returns:
-            Tensor
+            torch.Tensor
         """
         s, m, t, p = map(
             torch.as_tensor, (log_moneyness, max_log_moneyness, time_to_maturity, price)

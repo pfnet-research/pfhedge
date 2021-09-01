@@ -23,7 +23,7 @@ class BlackScholes(Module):
         - input : :math:`(N, *, H_{\\mathrm{in}})` where
           :math:`*` means any number of additional dimensions and
           :math:`H_{\\mathrm{in}}` is the number of input features.
-          See :func:`inputs` for the names of the input features.
+          See :meth:`inputs` for the names of the input features.
         - output : :math:`(N, *, 1)`,
           all but the last dimension are the same shape as the input.
 
