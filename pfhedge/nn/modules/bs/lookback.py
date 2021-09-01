@@ -27,14 +27,12 @@ class BSLookbackOption(BSModuleMixin):
         - Output: :math:`(N, *, 1)`.
           All but the last dimension are the same shape as the input.
 
-    .. seealso ::
+    .. seealso::
 
         - :class:`pfhedge.nn.BlackScholes`:
           Initialize Black-Scholes formula module from a derivative.
 
-    .. admonition:: References
-        :class: seealso
-
+    References:
         - Conze, A., 1991. Path dependent options: The case of lookback options.
           The Journal of Finance, 46(5), pp.1893-1907.
 

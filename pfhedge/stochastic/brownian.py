@@ -22,7 +22,7 @@ def generate_brownian(
 
     The time evolution of the process is given by:
 
-    .. math ::
+    .. math::
 
         dS(t) = \\sigma dW(t) \\,.
 
@@ -90,7 +90,7 @@ def generate_geometric_brownian(
 
     The time evolution of the process is given by:
 
-    .. math ::
+    .. math::
 
         dS(t) = \\sigma S(t) dW(t) \\,.
 

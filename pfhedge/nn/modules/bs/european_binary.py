@@ -30,8 +30,7 @@ class BSEuropeanBinaryOption(BSModuleMixin):
         - :class:`pfhedge.nn.BlackScholes`:
           Initialize Black-Scholes formula module from a derivative.
 
-    .. admonition:: References
-        :class: seealso
+    References:
         - John C. Hull, 2003. Options futures and other derivatives. Pearson.
 
     Examples:

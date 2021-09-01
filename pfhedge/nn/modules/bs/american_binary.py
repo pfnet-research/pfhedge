@@ -29,8 +29,7 @@ class BSAmericanBinaryOption(BSModuleMixin):
         - :class:`pfhedge.nn.BlackScholes`:
           Initialize Black-Scholes formula module from a derivative.
 
-    .. admonition:: References
-        :class: seealso
+    References:
         - Dai, M., 2000. A closed-form solution for perpetual American floating strike
           lookback options. Journal of Computational Finance, 4(2), pp.63-68.
 
