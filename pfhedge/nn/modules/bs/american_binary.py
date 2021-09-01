@@ -1,3 +1,5 @@
+from math import sqrt
+
 import torch
 from torch import Tensor
 
@@ -118,9 +120,8 @@ class BSAmericanBinaryOption(BSModuleMixin):
             (log_moneyness, max_log_moneyness, time_to_maturity, volatility),
         )
 
-        sqrt2 = torch.tensor(2.0).sqrt().item()
-        n1 = self.N.cdf(self.d1(s, t, v) / sqrt2)
-        n2 = self.N.cdf(self.d2(s, t, v) / sqrt2)
+        n1 = self.N.cdf(self.d1(s, t, v) / sqrt(2.0))
+        n2 = self.N.cdf(self.d2(s, t, v) / sqrt(2.0))
 
         p = (1 / 2) * (s.exp() * (1 + n1) + n2)
 
@@ -157,12 +158,11 @@ class BSAmericanBinaryOption(BSModuleMixin):
             (log_moneyness, max_log_moneyness, time_to_maturity, volatility),
         )
 
-        sqrt2 = torch.tensor(2.0).sqrt().item()
         d1 = self.d1(s, t, v)
         d2 = self.d2(s, t, v)
-        c1 = self.N.cdf(d1 / sqrt2)
-        p1 = self.N.log_prob(d1 / sqrt2).exp()
-        p2 = self.N.log_prob(d2 / sqrt2).exp()
+        c1 = self.N.cdf(d1 / sqrt(2.0))
+        p1 = self.N.log_prob(d1 / sqrt(2.0)).exp()
+        p2 = self.N.log_prob(d2 / sqrt(2.0)).exp()
 
         d = (1 + c1 + (p1 + p2)) / (2 * self.strike)
 
