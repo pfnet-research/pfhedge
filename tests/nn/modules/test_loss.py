@@ -13,33 +13,33 @@ from pfhedge.nn import IsoelasticLoss
 from pfhedge.nn.modules.loss import OCE
 
 
-class _TestHedgeLoss:
-    def assert_shape(self, loss):
-        torch.manual_seed(42)
+def assert_loss_shape(loss):
+    torch.manual_seed(42)
 
-        N = 20
-        M_1 = 10
-        M_2 = 11
+    N = 20
+    M_1 = 10
+    M_2 = 11
 
-        input = torch.randn((N,)).exp()  # impose > 0
-        out = loss(input)
-        assert out.size() == torch.Size([])
-        out = loss.cash(input)
-        assert out.size() == torch.Size([])
+    input = torch.randn((N,)).exp()  # impose > 0
+    output = loss(input)
+    assert output.size() == torch.Size([])
+    output = loss.cash(input)
+    assert output.size() == torch.Size([])
 
-        input = torch.randn((N, M_1)).exp()
-        out = loss(input)
-        assert out.size() == torch.Size((M_1,))
-        out = loss.cash(input)
+    input = torch.randn((N, M_1)).exp()
+    output = loss(input)
+    assert output.size() == torch.Size((M_1,))
+    output = loss.cash(input)
+    assert output.size() == torch.Size((M_1,))
 
-        input = torch.randn((N, M_1, M_2)).exp()
-        out = loss(input)
-        assert out.size() == torch.Size((M_1, M_2))
-        out = loss.cash(input)
-        assert out.size() == torch.Size((M_1, M_2))
+    input = torch.randn((N, M_1, M_2)).exp()
+    output = loss(input)
+    assert output.size() == torch.Size((M_1, M_2))
+    output = loss.cash(input)
+    assert output.size() == torch.Size((M_1, M_2))
 
 
-class TestEntropicRiskMeasure(_TestHedgeLoss):
+class TestEntropicRiskMeasure:
     @classmethod
     def setup_class(cls):
         torch.manual_seed(42)
@@ -102,10 +102,10 @@ class TestEntropicRiskMeasure(_TestHedgeLoss):
 
     def test_shape(self):
         loss = EntropicRiskMeasure()
-        self.assert_shape(loss)
+        assert_loss_shape(loss)
 
 
-class TestEntropicLoss(_TestHedgeLoss):
+class TestEntropicLoss:
     @classmethod
     def setup_class(cls):
         torch.manual_seed(42)
@@ -158,10 +158,10 @@ class TestEntropicLoss(_TestHedgeLoss):
 
     def test_shape(self):
         loss = EntropicLoss()
-        self.assert_shape(loss)
+        assert_loss_shape(loss)
 
 
-class TestIsoelasticLoss(_TestHedgeLoss):
+class TestIsoelasticLoss:
     """
     pfhedge.nn.IsoelasticLoss
     """
@@ -210,12 +210,12 @@ class TestIsoelasticLoss(_TestHedgeLoss):
 
     def test_shape(self):
         loss = IsoelasticLoss(0.5)
-        self.assert_shape(loss)
+        assert_loss_shape(loss)
         loss = IsoelasticLoss(1.0)
-        self.assert_shape(loss)
+        assert_loss_shape(loss)
 
 
-class TestExpectedShortFall(_TestHedgeLoss):
+class TestExpectedShortFall:
     @classmethod
     def setup_class(cls):
         torch.manual_seed(42)
@@ -283,10 +283,10 @@ class TestExpectedShortFall(_TestHedgeLoss):
 
     def test_shape(self):
         loss = ExpectedShortfall()
-        self.assert_shape(loss)
+        assert_loss_shape(loss)
 
 
-class TestOCE(_TestHedgeLoss):
+class TestOCE:
     def train_oce(self, m):
         torch.manual_seed(42)
         optim = torch.optim.Adam(m.parameters())
@@ -318,4 +318,4 @@ class TestOCE(_TestHedgeLoss):
 
     def test_shape(self):
         loss = OCE(lambda input: 1 - torch.exp(-input))
-        self.assert_shape(loss)
+        assert_loss_shape(loss)
