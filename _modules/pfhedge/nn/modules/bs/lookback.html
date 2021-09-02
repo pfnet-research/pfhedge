@@ -4,10 +4,10 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../../genindex.html" /><link rel="search" title="Search" href="../../../../../search.html" />
 
-    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.17.beta43"/>
+    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.31"/>
         <title>pfhedge.nn.modules.bs.lookback - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../../../_static/styles/furo.css?digest=910ac4ccc9d7c023151c34010d7b500fb9777a51" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/styles/furo.css?digest=c7c65a82b42f6b978e58466c1e9ef2509836d916" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
     
@@ -38,9 +38,11 @@
   
     }
   }
-</style>
-    <link media="(prefers-color-scheme: dark)" rel="stylesheet" href="../../../../../_static/pygments_dark.css"></head>
+</style></head>
   <body>
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
     
 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
   <symbol id="svg-toc" viewBox="0 0 24 24">
@@ -243,9 +245,9 @@
 <span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
 
 <span class="kn">import</span> <span class="nn">pfhedge.autogreek</span> <span class="k">as</span> <span class="nn">autogreek</span>
-<span class="kn">from</span> <span class="nn">pfhedge._utils.bisect</span> <span class="kn">import</span> <span class="n">bisect</span>
-<span class="kn">from</span> <span class="nn">pfhedge._utils.doc</span> <span class="kn">import</span> <span class="n">set_attr_and_docstring</span>
-<span class="kn">from</span> <span class="nn">pfhedge._utils.doc</span> <span class="kn">import</span> <span class="n">set_docstring</span>
+<span class="kn">from</span> <span class="nn">pfhedge._utils.bisect</span> <span class="kn">import</span> <span class="n">find_implied_volatility</span>
+<span class="kn">from</span> <span class="nn">pfhedge._utils.doc</span> <span class="kn">import</span> <span class="n">_set_attr_and_docstring</span>
+<span class="kn">from</span> <span class="nn">pfhedge._utils.doc</span> <span class="kn">import</span> <span class="n">_set_docstring</span>
 <span class="kn">from</span> <span class="nn">pfhedge._utils.str</span> <span class="kn">import</span> <span class="n">_format_float</span>
 
 <span class="kn">from</span> <span class="nn">._base</span> <span class="kn">import</span> <span class="n">BSModuleMixin</span>
@@ -261,24 +263,20 @@
 <span class="sd">    Shape:</span>
 <span class="sd">        - Input: :math:`(N, *, 4)` where</span>
 <span class="sd">          :math:`*` means any number of additional dimensions.</span>
-<span class="sd">          See :func:`inputs` for the names of input features.</span>
+<span class="sd">          See :meth:`inputs` for the names of input features.</span>
 <span class="sd">        - Output: :math:`(N, *, 1)`.</span>
 <span class="sd">          All but the last dimension are the same shape as the input.</span>
 
-<span class="sd">    .. seealso ::</span>
+<span class="sd">    .. seealso::</span>
 
 <span class="sd">        - :class:`pfhedge.nn.BlackScholes`:</span>
 <span class="sd">          Initialize Black-Scholes formula module from a derivative.</span>
 
-<span class="sd">    .. admonition:: References</span>
-<span class="sd">        :class: seealso</span>
-
+<span class="sd">    References:</span>
 <span class="sd">        - Conze, A., 1991. Path dependent options: The case of lookback options.</span>
 <span class="sd">          The Journal of Finance, 46(5), pp.1893-1907.</span>
 
 <span class="sd">    Examples:</span>
-
-<span class="sd">        The ``forward`` method returns delta of the derivative.</span>
 
 <span class="sd">        &gt;&gt;&gt; from pfhedge.nn import BSLookbackOption</span>
 <span class="sd">        &gt;&gt;&gt;</span>
@@ -360,7 +358,7 @@
 <span class="sd">            - output: :math:`(N, *)`</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            Tensor</span>
+<span class="sd">            torch.Tensor</span>
 <span class="sd">        """</span>
         <span class="n">s</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span>
             <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">,</span>
@@ -418,7 +416,7 @@
 <span class="sd">            - output: :math:`(N, *)`</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            Tensor</span>
+<span class="sd">            torch.Tensor</span>
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="n">autogreek</span><span class="o">.</span><span class="n">delta</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">price</span><span class="p">,</span>
@@ -455,7 +453,7 @@
 <span class="sd">            - output: :math:`(N, *)`</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            Tensor</span>
+<span class="sd">            torch.Tensor</span>
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="n">autogreek</span><span class="o">.</span><span class="n">gamma</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">price</span><span class="p">,</span>
@@ -492,18 +490,21 @@
 <span class="sd">            - output: :math:`(N, *)`</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            Tensor</span>
+<span class="sd">            torch.Tensor</span>
 <span class="sd">        """</span>
-        <span class="n">s</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">p</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span>
-            <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">,</span> <span class="p">(</span><span class="n">log_moneyness</span><span class="p">,</span> <span class="n">max_log_moneyness</span><span class="p">,</span> <span class="n">time_to_maturity</span><span class="p">,</span> <span class="n">price</span><span class="p">)</span>
-        <span class="p">)</span>
-        <span class="n">pricer</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">volatility</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">price</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">volatility</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">bisect</span><span class="p">(</span><span class="n">pricer</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="mf">1.000</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="n">precision</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">find_implied_volatility</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">price</span><span class="p">,</span>
+            <span class="n">price</span><span class="o">=</span><span class="n">price</span><span class="p">,</span>
+            <span class="n">log_moneyness</span><span class="o">=</span><span class="n">log_moneyness</span><span class="p">,</span>
+            <span class="n">max_log_moneyness</span><span class="o">=</span><span class="n">max_log_moneyness</span><span class="p">,</span>
+            <span class="n">time_to_maturity</span><span class="o">=</span><span class="n">time_to_maturity</span><span class="p">,</span>
+            <span class="n">precision</span><span class="o">=</span><span class="n">precision</span><span class="p">,</span>
+        <span class="p">)</span></div></div>
 
 
 <span class="c1"># Assign docstrings so they appear in Sphinx documentation</span>
-<span class="n">set_docstring</span><span class="p">(</span><span class="n">BSLookbackOption</span><span class="p">,</span> <span class="s2">"inputs"</span><span class="p">,</span> <span class="n">BSModuleMixin</span><span class="o">.</span><span class="n">inputs</span><span class="p">)</span>
-<span class="n">set_attr_and_docstring</span><span class="p">(</span><span class="n">BSLookbackOption</span><span class="p">,</span> <span class="s2">"forward"</span><span class="p">,</span> <span class="n">BSModuleMixin</span><span class="o">.</span><span class="n">forward</span><span class="p">)</span>
+<span class="n">_set_docstring</span><span class="p">(</span><span class="n">BSLookbackOption</span><span class="p">,</span> <span class="s2">"inputs"</span><span class="p">,</span> <span class="n">BSModuleMixin</span><span class="o">.</span><span class="n">inputs</span><span class="p">)</span>
+<span class="n">_set_attr_and_docstring</span><span class="p">(</span><span class="n">BSLookbackOption</span><span class="p">,</span> <span class="s2">"forward"</span><span class="p">,</span> <span class="n">BSModuleMixin</span><span class="o">.</span><span class="n">forward</span><span class="p">)</span>
 </pre></div>
       </article>
       <footer>

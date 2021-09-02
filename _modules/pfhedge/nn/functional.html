@@ -4,10 +4,10 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
-    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.17.beta43"/>
+    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.31"/>
         <title>pfhedge.nn.functional - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=910ac4ccc9d7c023151c34010d7b500fb9777a51" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=c7c65a82b42f6b978e58466c1e9ef2509836d916" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
     
@@ -38,9 +38,11 @@
   
     }
   }
-</style>
-    <link media="(prefers-color-scheme: dark)" rel="stylesheet" href="../../../_static/pygments_dark.css"></head>
+</style></head>
   <body>
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
     
 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
   <symbol id="svg-toc" viewBox="0 0 24 24">
@@ -346,7 +348,7 @@
 
 <span class="sd">    An exponential utility function is defined as:</span>
 
-<span class="sd">    .. math ::</span>
+<span class="sd">    .. math::</span>
 
 <span class="sd">        u(x) = -\\exp(-a x) \\,.</span>
 
@@ -366,7 +368,7 @@
 
 <span class="sd">    An isoelastic utility function is defined as:</span>
 
-<span class="sd">    .. math ::</span>
+<span class="sd">    .. math::</span>
 
 <span class="sd">        u(x) = \\begin{cases}</span>
 <span class="sd">        x^{1 - a} &amp; a \\neq 1 \\\\</span>
@@ -508,15 +510,14 @@
 
 <span class="sd">    Realized variance :math:`\\sigma^2` of the stock price :math:`S` is defined as:</span>
 
-<span class="sd">    .. math ::</span>
+<span class="sd">    .. math::</span>
 
 <span class="sd">        \\sigma^2 = \\frac{1}{T - 1} \\sum_{i = 1}^{T - 1}</span>
 <span class="sd">        \\frac{1}{dt} \\log(S_{i + 1} / S_i)^2</span>
 
 <span class="sd">    where :math:`T` is the number of time steps.</span>
 
-<span class="sd">    .. note ::</span>
-
+<span class="sd">    Note:</span>
 <span class="sd">        The mean of log return is assumed to be zero.</span>
 
 <span class="sd">    Args:</span>
@@ -585,9 +586,7 @@
 <span class="sd">    The resulting profit and loss is obtained by adding up the payoff to the</span>
 <span class="sd">    customer, capital gains from the underlying asset, and the transaction cost.</span>
 
-<span class="sd">    .. admonition:: References</span>
-<span class="sd">        :class: seealso</span>
-
+<span class="sd">    References:</span>
 <span class="sd">        - Buehler, H., Gonon, L., Teichmann, J. and Wood, B., 2019.</span>
 <span class="sd">          Deep hedging. Quantitative Finance, 19(8), pp.1271-1291.</span>
 <span class="sd">          [arXiv:`1802.03042 &lt;https://arxiv.org/abs/1802.03042&gt;`_ [q-fin]]</span>

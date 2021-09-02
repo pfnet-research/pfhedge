@@ -4,10 +4,10 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
-    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.17.beta43"/>
+    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.31"/>
         <title>pfhedge.instruments.derivative.american_binary - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?digest=910ac4ccc9d7c023151c34010d7b500fb9777a51" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?digest=c7c65a82b42f6b978e58466c1e9ef2509836d916" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
     
@@ -38,9 +38,11 @@
   
     }
   }
-</style>
-    <link media="(prefers-color-scheme: dark)" rel="stylesheet" href="../../../../_static/pygments_dark.css"></head>
+</style></head>
   <body>
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
     
 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
   <symbol id="svg-toc" viewBox="0 0 24 24">
@@ -241,8 +243,8 @@
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
 
-<span class="kn">from</span> <span class="nn">pfhedge._utils.doc</span> <span class="kn">import</span> <span class="n">set_attr_and_docstring</span>
-<span class="kn">from</span> <span class="nn">pfhedge._utils.doc</span> <span class="kn">import</span> <span class="n">set_docstring</span>
+<span class="kn">from</span> <span class="nn">pfhedge._utils.doc</span> <span class="kn">import</span> <span class="n">_set_attr_and_docstring</span>
+<span class="kn">from</span> <span class="nn">pfhedge._utils.doc</span> <span class="kn">import</span> <span class="n">_set_docstring</span>
 <span class="kn">from</span> <span class="nn">pfhedge._utils.str</span> <span class="kn">import</span> <span class="n">_format_float</span>
 <span class="kn">from</span> <span class="nn">pfhedge.nn.functional</span> <span class="kn">import</span> <span class="n">american_binary_payoff</span>
 
@@ -264,7 +266,7 @@
 
 <span class="sd">    The payoff of an American binary call option is given by:</span>
 
-<span class="sd">    .. math ::</span>
+<span class="sd">    .. math::</span>
 
 <span class="sd">        \\mathrm{payoff} =</span>
 <span class="sd">        \\begin{cases}</span>
@@ -277,7 +279,7 @@
 
 <span class="sd">    The payoff of an American binary put option is given by:</span>
 
-<span class="sd">    .. math ::</span>
+<span class="sd">    .. math::</span>
 
 <span class="sd">        \\mathrm{payoff} =</span>
 <span class="sd">        \\begin{cases}</span>
@@ -354,14 +356,14 @@
 
 
 <span class="c1"># Assign docstrings so they appear in Sphinx documentation</span>
-<span class="n">set_attr_and_docstring</span><span class="p">(</span><span class="n">AmericanBinaryOption</span><span class="p">,</span> <span class="s2">"simulate"</span><span class="p">,</span> <span class="n">Derivative</span><span class="o">.</span><span class="n">simulate</span><span class="p">)</span>
-<span class="n">set_attr_and_docstring</span><span class="p">(</span><span class="n">AmericanBinaryOption</span><span class="p">,</span> <span class="s2">"to"</span><span class="p">,</span> <span class="n">Derivative</span><span class="o">.</span><span class="n">to</span><span class="p">)</span>
-<span class="n">set_attr_and_docstring</span><span class="p">(</span><span class="n">AmericanBinaryOption</span><span class="p">,</span> <span class="s2">"ul"</span><span class="p">,</span> <span class="n">Derivative</span><span class="o">.</span><span class="n">ul</span><span class="p">)</span>
-<span class="n">set_attr_and_docstring</span><span class="p">(</span><span class="n">AmericanBinaryOption</span><span class="p">,</span> <span class="s2">"list"</span><span class="p">,</span> <span class="n">Derivative</span><span class="o">.</span><span class="n">list</span><span class="p">)</span>
-<span class="n">set_docstring</span><span class="p">(</span><span class="n">AmericanBinaryOption</span><span class="p">,</span> <span class="s2">"payoff"</span><span class="p">,</span> <span class="n">Derivative</span><span class="o">.</span><span class="n">payoff</span><span class="p">)</span>
-<span class="n">set_attr_and_docstring</span><span class="p">(</span><span class="n">AmericanBinaryOption</span><span class="p">,</span> <span class="s2">"moneyness"</span><span class="p">,</span> <span class="n">BaseOption</span><span class="o">.</span><span class="n">moneyness</span><span class="p">)</span>
-<span class="n">set_attr_and_docstring</span><span class="p">(</span><span class="n">AmericanBinaryOption</span><span class="p">,</span> <span class="s2">"log_moneyness"</span><span class="p">,</span> <span class="n">BaseOption</span><span class="o">.</span><span class="n">log_moneyness</span><span class="p">)</span>
-<span class="n">set_attr_and_docstring</span><span class="p">(</span>
+<span class="n">_set_attr_and_docstring</span><span class="p">(</span><span class="n">AmericanBinaryOption</span><span class="p">,</span> <span class="s2">"simulate"</span><span class="p">,</span> <span class="n">Derivative</span><span class="o">.</span><span class="n">simulate</span><span class="p">)</span>
+<span class="n">_set_attr_and_docstring</span><span class="p">(</span><span class="n">AmericanBinaryOption</span><span class="p">,</span> <span class="s2">"to"</span><span class="p">,</span> <span class="n">Derivative</span><span class="o">.</span><span class="n">to</span><span class="p">)</span>
+<span class="n">_set_attr_and_docstring</span><span class="p">(</span><span class="n">AmericanBinaryOption</span><span class="p">,</span> <span class="s2">"ul"</span><span class="p">,</span> <span class="n">Derivative</span><span class="o">.</span><span class="n">ul</span><span class="p">)</span>
+<span class="n">_set_attr_and_docstring</span><span class="p">(</span><span class="n">AmericanBinaryOption</span><span class="p">,</span> <span class="s2">"list"</span><span class="p">,</span> <span class="n">Derivative</span><span class="o">.</span><span class="n">list</span><span class="p">)</span>
+<span class="n">_set_docstring</span><span class="p">(</span><span class="n">AmericanBinaryOption</span><span class="p">,</span> <span class="s2">"payoff"</span><span class="p">,</span> <span class="n">Derivative</span><span class="o">.</span><span class="n">payoff</span><span class="p">)</span>
+<span class="n">_set_attr_and_docstring</span><span class="p">(</span><span class="n">AmericanBinaryOption</span><span class="p">,</span> <span class="s2">"moneyness"</span><span class="p">,</span> <span class="n">BaseOption</span><span class="o">.</span><span class="n">moneyness</span><span class="p">)</span>
+<span class="n">_set_attr_and_docstring</span><span class="p">(</span><span class="n">AmericanBinaryOption</span><span class="p">,</span> <span class="s2">"log_moneyness"</span><span class="p">,</span> <span class="n">BaseOption</span><span class="o">.</span><span class="n">log_moneyness</span><span class="p">)</span>
+<span class="n">_set_attr_and_docstring</span><span class="p">(</span>
     <span class="n">AmericanBinaryOption</span><span class="p">,</span> <span class="s2">"time_to_maturity"</span><span class="p">,</span> <span class="n">BaseOption</span><span class="o">.</span><span class="n">time_to_maturity</span>
 <span class="p">)</span>
 </pre></div>

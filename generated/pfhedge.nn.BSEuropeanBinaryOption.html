@@ -5,10 +5,10 @@
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="BSLookbackOption" href="pfhedge.nn.BSLookbackOption.html" /><link rel="prev" title="BSEuropeanOption" href="pfhedge.nn.BSEuropeanOption.html" />
 
-    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.17.beta43"/>
+    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.31"/>
         <title>BSEuropeanBinaryOption - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=910ac4ccc9d7c023151c34010d7b500fb9777a51" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=c7c65a82b42f6b978e58466c1e9ef2509836d916" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
     
@@ -39,9 +39,11 @@
   
     }
   }
-</style>
-    <link media="(prefers-color-scheme: dark)" rel="stylesheet" href="../_static/pygments_dark.css"></head>
+</style></head>
   <body>
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
     
 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
   <symbol id="svg-toc" viewBox="0 0 24 24">
@@ -254,8 +256,8 @@
 <dt>Shape:</dt><dd><ul class="simple">
 <li><p>Input: <span class="math notranslate nohighlight">\((N, *, 3)\)</span>, where
 <span class="math notranslate nohighlight">\(*\)</span> means any number of additional dimensions.
-See <a class="reference internal" href="#pfhedge.nn.BSEuropeanBinaryOption.inputs" title="pfhedge.nn.BSEuropeanBinaryOption.inputs"><code class="xref py py-func docutils literal notranslate"><span class="pre">inputs()</span></code></a> for the names of input features.</p></li>
-<li><p>Output: <span class="math notranslate nohighlight">\((N, *, 1)\)</span> Delta of the derivative.
+See <a class="reference internal" href="#pfhedge.nn.BSEuropeanBinaryOption.inputs" title="pfhedge.nn.BSEuropeanBinaryOption.inputs"><code class="xref py py-meth docutils literal notranslate"><span class="pre">inputs()</span></code></a> for the names of input features.</p></li>
+<li><p>Output: <span class="math notranslate nohighlight">\((N, *, 1)\)</span>.
 All but the last dimension are the same shape as the input.</p></li>
 </ul>
 </dd>
@@ -267,14 +269,13 @@ All but the last dimension are the same shape as the input.</p></li>
 Initialize Black-Scholes formula module from a derivative.</p></li>
 </ul>
 </div>
-<div class="seealso admonition">
+<div class="admonition-references admonition">
 <p class="admonition-title">References</p>
 <ul class="simple">
 <li><p>John C. Hull, 2003. Options futures and other derivatives. Pearson.</p></li>
 </ul>
 </div>
 <p class="rubric">Examples</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">forward</span></code> method returns delta of the derivative.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">BSEuropeanBinaryOption</span>
 <span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">BSEuropeanBinaryOption</span><span class="p">(</span><span class="n">strike</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
@@ -326,7 +327,7 @@ Initialize Black-Scholes formula module from a derivative.</p></li>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>input</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a>) – The input tensor. Features are concatenated along
 the last dimension.
-See <a class="reference internal" href="#pfhedge.nn.BSEuropeanBinaryOption.inputs" title="pfhedge.nn.BSEuropeanBinaryOption.inputs"><code class="xref py py-func docutils literal notranslate"><span class="pre">inputs()</span></code></a> for the names of the input features.</p>
+See <a class="reference internal" href="#pfhedge.nn.BSEuropeanBinaryOption.inputs" title="pfhedge.nn.BSEuropeanBinaryOption.inputs"><code class="xref py py-meth docutils literal notranslate"><span class="pre">inputs()</span></code></a> for the names of the input features.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>torch.Tensor</p>
@@ -401,7 +402,6 @@ See <a class="reference internal" href="#pfhedge.nn.BSEuropeanBinaryOption.input
 <dt>Shape:</dt><dd><ul class="simple">
 <li><p>log_moneyness: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
 <li><p>time_to_maturity: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
-<li><p>volatility: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
 <li><p>output: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
 </ul>
 </dd>

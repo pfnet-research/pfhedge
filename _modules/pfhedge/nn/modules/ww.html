@@ -4,10 +4,10 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
-    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.17.beta43"/>
+    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.31"/>
         <title>pfhedge.nn.modules.ww - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?digest=910ac4ccc9d7c023151c34010d7b500fb9777a51" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?digest=c7c65a82b42f6b978e58466c1e9ef2509836d916" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
     
@@ -38,9 +38,11 @@
   
     }
   }
-</style>
-    <link media="(prefers-color-scheme: dark)" rel="stylesheet" href="../../../../_static/pygments_dark.css"></head>
+</style></head>
   <body>
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
     
 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
   <symbol id="svg-toc" viewBox="0 0 24 24">
@@ -257,7 +259,7 @@
 <span class="sd">    asymptotically small transaction cost, European option, and exponential utility.</span>
 <span class="sd">    The half-width of the no-transaction band is given by</span>
 
-<span class="sd">    .. math ::</span>
+<span class="sd">    .. math::</span>
 
 <span class="sd">        w = \\left( \\frac{3 c \\Gamma^2 S}{2 a} \\right)^{1 / 3} \,,</span>
 
@@ -266,17 +268,14 @@
 <span class="sd">    :math:`S` is the spot price of the underlying instrument, and</span>
 <span class="sd">    :math:`a` is the risk-aversion coefficient of the exponential utility.</span>
 
-<span class="sd">    .. note ::</span>
-
+<span class="sd">    Note:</span>
 <span class="sd">        A backward computation for this module generates ``nan``</span>
 <span class="sd">        if the :math:`\\Gamma` of the derivative is too small.</span>
 <span class="sd">        This is because the output is proportional to :math:`\\Gamma^{2 / 3}`</span>
 <span class="sd">        of which gradient diverges for :math:`\\Gamma \\to 0`.</span>
 <span class="sd">        A ``dtype`` with higher precision may alleviate this problem.</span>
 
-<span class="sd">    .. admonition:: References</span>
-<span class="sd">        :class: seealso</span>
-
+<span class="sd">    References:</span>
 <span class="sd">        - Davis, M.H., Panas, V.G. and Zariphopoulou, T., 1993.</span>
 <span class="sd">          European option pricing with transaction costs.</span>
 <span class="sd">          SIAM Journal on Control and Optimization, 31(2), pp.470-493.</span>
@@ -292,7 +291,7 @@
 <span class="sd">        - Input: :math:`(N, *, H_{\\text{in}})` where</span>
 <span class="sd">          :math:`*` means any number of additional dimensions and</span>
 <span class="sd">          :math:`H_{\\text{in}}` is the number of input features.</span>
-<span class="sd">          See :func:`inputs()` for the names of input features.</span>
+<span class="sd">          See :meth:`inputs()` for the names of input features.</span>
 <span class="sd">        - Output: :math:`(N, *, 1)`.</span>
 
 <span class="sd">    Examples:</span>
@@ -380,7 +379,7 @@
 <span class="sd">            - Input: :math:`(N, *, H_{\\text{in}} - 1)` where</span>
 <span class="sd">              :math:`*` means any number of additional dimensions and</span>
 <span class="sd">              :math:`H_{\\text{in}}` is the number of input features.</span>
-<span class="sd">              See :func:`inputs()` for the names of input features.</span>
+<span class="sd">              See :meth:`inputs()` for the names of input features.</span>
 <span class="sd">            - Output: :math:`(N, *, 1)`</span>
 
 <span class="sd">        Returns:</span>
