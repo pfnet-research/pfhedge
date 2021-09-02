@@ -50,7 +50,7 @@ class Instrument(ABC):
         It only accepts floating point dtypes.
         See :ref:`instrument-attributes-doc` for details.
 
-        .. note::
+        Note:
             This method modifies the instrument in-place.
 
         .. seealso::
@@ -80,7 +80,7 @@ class Instrument(ABC):
     def cpu(self: T) -> T:
         """Moves all buffers of this instrument and its underlier to the CPU.
 
-        .. note::
+        Note:
             This method modifies the instrument in-place.
 
         Returns:
@@ -91,7 +91,7 @@ class Instrument(ABC):
     def cuda(self: T, device: Optional[int] = None) -> T:
         """Moves all buffers of this instrument and its underlier to the GPU.
 
-        .. note::
+        Note:
             This method modifies the instrument in-place.
 
         Args:
@@ -107,7 +107,7 @@ class Instrument(ABC):
         """Casts all floating point parameters and buffers to
         ``torch.float64`` datatype.
 
-        .. note::
+        Note:
             This method modifies the instrument in-place.
 
         Returns:
@@ -119,7 +119,7 @@ class Instrument(ABC):
         """Casts all floating point parameters and buffers to
         ``torch.float32`` datatype.
 
-        .. note::
+        Note:
             This method modifies the instrument in-place.
 
         Returns:
@@ -131,7 +131,7 @@ class Instrument(ABC):
         """Casts all floating point parameters and buffers to
         ``torch.float16`` datatype.
 
-        .. note::
+        Note:
             This method modifies the instrument in-place.
 
         Returns:
@@ -143,7 +143,7 @@ class Instrument(ABC):
         """Casts all floating point parameters and buffers to
         ``torch.bfloat16`` datatype.
 
-        .. note::
+        Note:
             This method modifies the instrument in-place.
 
         Returns:
