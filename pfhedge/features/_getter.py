@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, Mapping
 from typing import Dict
 from typing import Union
 
@@ -39,7 +39,7 @@ def get_feature(feature: Union[str, Feature]) -> Feature:
     Returns:
         Feature
     """
-    dict_features: Dict[str, Callable[..., Feature]] = DICT_FEATURES
+    dict_features: Mapping[str, Callable[[], Feature]] = DICT_FEATURES
 
     if isinstance(feature, str):
         if feature not in dict_features:
