@@ -6,13 +6,13 @@ from typing import cast
 import torch
 from torch import Tensor
 
-TensorOrFloat = Union[Tensor, float]
+from pfhedge._utils.typing import TensorOrScalar
 
 
 def generate_brownian(
     n_paths: int,
     n_steps: int,
-    init_state: Union[Tuple[TensorOrFloat, ...], TensorOrFloat] = (0.0,),
+    init_state: Union[Tuple[TensorOrScalar, ...], TensorOrScalar] = (0.0,),
     sigma: float = 0.2,
     dt: float = 1 / 250,
     dtype: Optional[torch.dtype] = None,
@@ -80,7 +80,7 @@ def generate_brownian(
 def generate_geometric_brownian(
     n_paths: int,
     n_steps: int,
-    init_state: Union[Tuple[TensorOrFloat, ...], TensorOrFloat] = (1.0,),
+    init_state: Union[Tuple[TensorOrScalar, ...], TensorOrScalar] = (1.0,),
     sigma: float = 0.2,
     dt: float = 1 / 250,
     dtype: Optional[torch.dtype] = None,
