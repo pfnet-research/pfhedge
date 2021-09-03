@@ -5,6 +5,9 @@ from typing import Union
 import torch
 import torch.nn.functional as fn
 from torch import Tensor
+from torch.distributions.normal import Normal
+
+from pfhedge._utils.parse import parse_moneyness
 
 
 def european_payoff(input: Tensor, call: bool = True, strike: float = 1.0) -> Tensor:
@@ -392,3 +395,81 @@ def terminal_value(
         value -= cost * unit[..., 0].abs() * spot[..., 0]
 
     return value
+
+
+def ncdf(input: Tensor) -> Tensor:
+    """Returns a new tensor with the normal cumulative distribution function.
+
+    Args:
+        input (torch.Tensor): The input tensor.
+
+    Returns:
+        torch.Tensor
+    """
+    return Normal(torch.zeros(1), torch.ones(1)).cdf(input)
+
+
+def npdf(input: Tensor) -> Tensor:
+    """Returns a new tensor with the normal distribution function.
+
+    Args:
+        input (torch.Tensor): The input tensor.
+
+    Returns:
+        torch.Tensor
+    """
+    return Normal(torch.zeros(1), torch.ones(1)).log_prob(input).exp()
+
+
+def d1(
+    *,
+    time_to_maturity: Tensor,
+    volatility: Tensor,
+    spot: Optional[Tensor] = None,
+    strike: Optional[Tensor] = None,
+    moneyness: Optional[Tensor] = None,
+    log_moneyness: Optional[Tensor] = None,
+) -> Tensor:
+    """Returns :math:`d_1` in the Black-Scholes formula.
+
+    Note:
+
+    Returns:
+        torch.Tensor
+    """
+    # s: log moneyness
+    # t: time to maturity
+    # v: volatility
+    s = parse_moneyness(
+        spot=spot, strike=strike, moneyness=moneyness, log_moneyness=log_moneyness
+    ).log()
+    t = torch.as_tensor(time_to_maturity)
+    v = torch.as_tensor(volatility)
+    return (s + (v ** 2 / 2) * t) / (v * t.sqrt())
+
+
+def d2(
+    *,
+    time_to_maturity: Tensor,
+    volatility: Tensor,
+    spot: Optional[Tensor] = None,
+    strike: Optional[Tensor] = None,
+    moneyness: Optional[Tensor] = None,
+    log_moneyness: Optional[Tensor] = None,
+) -> Tensor:
+    """Returns :math:`d_2` in the Black-Scholes formula.
+
+    Note:
+
+    Returns:
+        torch.Tensor
+    """
+    # s: log moneyness
+    # t: time to maturity
+    # v: volatility
+    s = parse_moneyness(
+        spot=spot, strike=strike, moneyness=moneyness, log_moneyness=log_moneyness
+    ).log()
+    t = torch.as_tensor(time_to_maturity)
+    v = torch.as_tensor(volatility)
+    return (s - (v ** 2 / 2) * t) / (v * t.sqrt())
