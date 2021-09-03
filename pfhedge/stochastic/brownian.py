@@ -12,19 +12,17 @@ TensorOrFloat = Union[Tensor, float]
 def generate_brownian(
     n_paths: int,
     n_steps: int,
-    init_state: Tuple[TensorOrFloat, ...] = (0.0,),
-    volatility: float = 0.2,
+    init_state: Union[Tuple[TensorOrFloat, ...], TensorOrFloat] = (0.0,),
+    sigma: float = 0.2,
     dt: float = 1 / 250,
     dtype: Optional[torch.dtype] = None,
     device: Optional[torch.device] = None,
 ) -> Tensor:
     """Returns time series following the Brownian motion.
 
-    The drift of the time series is assumed to be vanishing.
-
     The time evolution of the process is given by:
 
-    .. math ::
+    .. math::
 
         dS(t) = \\sigma dW(t) \\,.
 
@@ -33,22 +31,23 @@ def generate_brownian(
         n_steps (int): The number of time steps.
         init_state (tuple[torch.Tensor | float], default=(0.0,)): The initial state of
             the time series.
-            This is specified by ``(S0,)``, where ``S0`` is
-            the initial value of :math:`S`.
-            It also accepts a ``torch.Tensor` or a ``float``.
-        volatility (float, default=0.2): The volatility of the Brownian motion.
+            This is specified by a tuple :math:`(S(0),)`.
+            It also accepts a :class:`torch.Tensor` or a :class:`float`.
+        sigma (float, default=0.2): The parameter :math:`\\sigma`,
+            which stands for the volatility of the time series.
         dt (float, default=1/250): The intervals of the time steps.
         dtype (torch.dtype, optional): The desired data type of returned tensor.
             Default: If ``None``, uses a global default
-            (see ``torch.set_default_tensor_type()``).
+            (see :func:`torch.set_default_tensor_type()`).
         device (torch.device, optional): The desired device of returned tensor.
             Default: If ``None``, uses the current device for the default tensor type
-            (see ``torch.set_default_tensor_type()``).
+            (see :func:`torch.set_default_tensor_type()`).
             ``device`` will be the CPU for CPU tensor types and the current CUDA device
             for CUDA tensor types.
 
     Shape:
-        - Output: :math:`(N, T)`, where :math:`N` is the number of paths and
+        - Output: :math:`(N, T)` where
+          :math:`N` is the number of paths and
           :math:`T` is the number of time steps.
 
     Returns:
@@ -75,49 +74,49 @@ def generate_brownian(
     init_value = init_state[0]
     randn = torch.randn((n_paths, n_steps), dtype=dtype, device=device)
     randn[:, 0] = 0.0
-    return init_value + volatility * torch.tensor(dt).to(randn).sqrt() * randn.cumsum(1)
+    return sigma * torch.tensor(dt).to(randn).sqrt() * randn.cumsum(1) + init_value
 
 
 def generate_geometric_brownian(
     n_paths: int,
     n_steps: int,
-    init_state: Tuple[TensorOrFloat, ...] = (1.0,),
-    volatility: float = 0.2,
+    init_state: Union[Tuple[TensorOrFloat, ...], TensorOrFloat] = (1.0,),
+    sigma: float = 0.2,
     dt: float = 1 / 250,
     dtype: Optional[torch.dtype] = None,
     device: Optional[torch.device] = None,
 ) -> Tensor:
     """Returns time series following the geometric Brownian motion.
 
-    The drift of the time series is assumed to be vanishing.
-
     The time evolution of the process is given by:
 
-    .. math ::
+    .. math::
 
         dS(t) = \\sigma S(t) dW(t) \\,.
 
     Args:
         n_paths (int): The number of simulated paths.
         n_steps (int): The number of time steps.
-        init_state (tuple[torch.Tensor | float], default=(1.0,)): The initial state of
+        init_state (tuple[torch.Tensor | float], default=(0.0,)): The initial state of
             the time series.
-            This is specified by ``(S0,)``, where ``S0`` is the initial value of :math:`S`.
-            It also accepts a ``torch.Tensor`` or a ``float``.
-        volatility (float, default=0.2): The volatility of the Brownian motion.
+            This is specified by a tuple :math:`(S(0),)`.
+            It also accepts a :class:`torch.Tensor` or a :class:`float`.
+        sigma (float, default=0.2): The parameter :math:`sigma`,
+            which stands for the volatility of the time series.
         dt (float, default=1/250): The intervals of the time steps.
         dtype (torch.dtype, optional): The desired data type of returned tensor.
             Default: If ``None``, uses a global default
-            (see ``torch.set_default_tensor_type()``).
+            (see :func:`torch.set_default_tensor_type()`).
         device (torch.device, optional): The desired device of returned tensor.
             Default: If ``None``, uses the current device for the default tensor type
-            (see ``torch.set_default_tensor_type()``).
+            (see :func:`torch.set_default_tensor_type()`).
             ``device`` will be the CPU for CPU tensor types and the current CUDA device
             for CUDA tensor types.
 
     Shape:
-        - Output: :math:`(N, T)`, where :math:`T` is the number of time steps and
-          :math:`N` is the number of paths.
+        - Output: :math:`(N, T)` where
+          :math:`N` is the number of paths and
+          :math:`T` is the number of time steps.
 
     Returns:
         torch.Tensor
@@ -144,10 +143,10 @@ def generate_geometric_brownian(
         n_paths=n_paths,
         n_steps=n_steps,
         init_state=(0.0,),
-        volatility=volatility,
+        sigma=sigma,
         dt=dt,
         dtype=dtype,
         device=device,
     )
     t = dt * torch.arange(n_steps).to(brownian).reshape(1, -1)
-    return init_state[0] * (brownian - (volatility ** 2) * t / 2).exp()
+    return init_state[0] * (brownian - (sigma ** 2) * t / 2).exp()

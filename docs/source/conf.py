@@ -32,14 +32,15 @@ author = "Shota Imaki"
 # ones.
 extensions = [
     "sphinx.ext.autodoc",
+    "sphinx.ext.autosectionlabel",
     "sphinx.ext.autosummary",
+    "sphinx.ext.coverage",
     "sphinx.ext.doctest",
     "sphinx.ext.intersphinx",
-    "sphinx.ext.todo",
-    "sphinx.ext.coverage",
     "sphinx.ext.napoleon",
+    "sphinx.ext.todo",
     "sphinx.ext.viewcode",
-    "sphinx.ext.autosectionlabel",
+    "sphinx_copybutton",
 ]
 
 # build the templated autosummary files
@@ -67,6 +68,14 @@ autodoc_inherit_docstrings = False
 
 # Disable displaying type annotations, these can be very verbose
 autodoc_typehints = "none"
+
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
+    "torch": ("https://pytorch.org/docs/stable/", None),
+}
+
+napoleon_use_admonition_for_notes = True
+napoleon_use_admonition_for_references = True
 
 # -- Options for HTML output -------------------------------------------------
 

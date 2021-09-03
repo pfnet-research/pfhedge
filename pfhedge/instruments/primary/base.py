@@ -12,8 +12,8 @@ import torch
 from torch import Tensor
 from torch.nn import Module
 
-from pfhedge._utils.doc import set_attr_and_docstring
-from pfhedge._utils.doc import set_docstring
+from pfhedge._utils.doc import _set_attr_and_docstring
+from pfhedge._utils.doc import _set_docstring
 
 from ..base import Instrument
 
@@ -32,7 +32,7 @@ class Primary(Instrument):
     (See :class:`Derivative` for details).
 
     Buffers:
-        - ``spot`` (``torch.Tensor``): The spot price of the instrument.
+        - spot (:class:`torch.Tensor`): The spot price of the instrument.
 
     Attributes:
         dtype (torch.dtype): The dtype with which the simulated time-series are
@@ -40,11 +40,11 @@ class Primary(Instrument):
         device (torch.device): The device where the simulated time-series are.
     """
 
-    dtype: torch.dtype
-    device: torch.device
     dt: float
+    cost: float
     _buffers: Dict[str, Optional[Tensor]]
-    spot: Tensor
+    dtype: Optional[torch.dtype]
+    device: Optional[torch.device]
 
     def __init__(self) -> None:
         super().__init__()
@@ -77,11 +77,12 @@ class Primary(Instrument):
             init_state (tuple[torch.Tensor | float], optional): The initial state of
                 the instrument.
                 If ``None`` (default), it uses the default value
-                (See :func:`default_init_state`).
+                (See :attr:`default_init_state`).
         """
 
     def register_buffer(self, name: str, tensor: Optional[Tensor]) -> None:
-        """Adds a buffer to the module.
+        """Adds a buffer to the instrument.
+        The dtype and device of the buffer are the instrument's dtype and device.
 
         Buffers can be accessed as attributes using given names.
 
@@ -90,8 +91,6 @@ class Primary(Instrument):
                 from this module using the given name
             tensor (Tensor or None): buffer to be registered. If ``None``, then
                 operations that run on buffers, such as :attr:`cuda`, are ignored.
-                If ``None``, the buffer is **not** included in the module's
-                :attr:`state_dict`.
         """
         # Implementation here refers to torch.nn.Module.register_buffer.
         if "_buffers" not in self.__dict__:
@@ -112,6 +111,8 @@ class Primary(Instrument):
                 "(torch Tensor or None required)".format(torch.typename(tensor), name)
             )
         else:
+            if isinstance(tensor, Tensor):
+                tensor = tensor.to(self.device, self.dtype)
             self._buffers[name] = tensor
 
     def named_buffers(self) -> Iterator[Tuple[str, Tensor]]:
@@ -134,7 +135,7 @@ class Primary(Instrument):
         for _, buffer in self.named_buffers():
             yield buffer
 
-    def __getattr__(self, name: str) -> Union[Tensor, Module]:
+    def __getattr__(self, name: str) -> Tensor:
         if "_buffers" in self.__dict__:
             _buffers = self.__dict__["_buffers"]
             if name in _buffers:
@@ -143,13 +144,25 @@ class Primary(Instrument):
             "'{}' object has no attribute '{}'".format(type(self).__name__, name)
         )
 
+    @property
+    def spot(self) -> Tensor:
+        name = "spot"
+        if "_buffers" in self.__dict__:
+            _buffers = self.__dict__["_buffers"]
+            if name in _buffers:
+                return _buffers["spot"]
+        raise AttributeError(
+            f"'{self._get_name()}' object has no attribute '{name}'. "
+            "Asset may not be simulated."
+        )
+
     def to(self: T, *args, **kwargs) -> T:
-        device, dtype, *_ = torch._C._nn._parse_to(*args, **kwargs)
+        device, dtype, *_ = self._parse_to(*args, **kwargs)
 
         if dtype is not None and not dtype.is_floating_point:
             raise TypeError(
-                f"Instrument.to only accepts floating point "
-                f"dtypes, but got desired dtype={dtype}"
+                "Instrument.to only accepts floating point "
+                "dtypes, but got desired dtype=" + str(dtype)
             )
 
         if not hasattr(self, "dtype") or dtype is not None:
@@ -158,15 +171,40 @@ class Primary(Instrument):
             self.device = device
 
         for name, buffer in self.named_buffers():
-            self.register_buffer(name, buffer.to(*args, **kwargs))
+            self.register_buffer(name, buffer.to(device, dtype))
 
         return self
 
+    @staticmethod
+    def _parse_to(*args, **kwargs):
+        # Can be called as:
+        #   to(device=None, dtype=None)
+        #   to(tensor)
+        #   to(instrument)
+        # and return a tuple (device, dtype, ...)
+        if len(args) > 0 and isinstance(args[0], Instrument):
+            instrument = args[0]
+            return (getattr(instrument, "device"), getattr(instrument, "dtype"))
+        elif "instrument" in kwargs:
+            instrument = kwargs["instrument"]
+            return (getattr(instrument, "device"), getattr(instrument, "dtype"))
+        else:
+            return torch._C._nn._parse_to(*args, **kwargs)
+
+    def __repr__(self) -> str:
+        extra_repr = self.extra_repr()
+        dinfo = ", ".join(self._dinfo())
+        main_str = self._get_name() + "("
+        if extra_repr and dinfo:
+            extra_repr += ", "
+        main_str += extra_repr + dinfo + ")"
+        return main_str
+
 
 # Assign docstrings so they appear in Sphinx documentation
-set_docstring(Primary, "to", Instrument.to)
-set_attr_and_docstring(Primary, "cpu", Instrument.cpu)
-set_attr_and_docstring(Primary, "cuda", Instrument.cuda)
-set_attr_and_docstring(Primary, "double", Instrument.double)
-set_attr_and_docstring(Primary, "float", Instrument.float)
-set_attr_and_docstring(Primary, "half", Instrument.half)
+_set_docstring(Primary, "to", Instrument.to)
+_set_attr_and_docstring(Primary, "cpu", Instrument.cpu)
+_set_attr_and_docstring(Primary, "cuda", Instrument.cuda)
+_set_attr_and_docstring(Primary, "double", Instrument.double)
+_set_attr_and_docstring(Primary, "float", Instrument.float)
+_set_attr_and_docstring(Primary, "half", Instrument.half)

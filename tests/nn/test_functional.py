@@ -8,6 +8,7 @@ from pfhedge.nn.functional import expected_shortfall
 from pfhedge.nn.functional import leaky_clamp
 from pfhedge.nn.functional import realized_variance
 from pfhedge.nn.functional import realized_volatility
+from pfhedge.nn.functional import terminal_value
 from pfhedge.nn.functional import topp
 
 
@@ -78,9 +79,31 @@ def test_leaky_clamp():
     expect = torch.full_like(result, 0.5)
     assert_close(result, expect)
 
+    result = leaky_clamp(input, 1, 0, clamped_slope=0.01, inverted_output="max")
+    expect = torch.full_like(result, 0.0)
+    assert_close(result, expect)
+
+    result = clamp(input, 1, 0, inverted_output="max")
+    expect = torch.full_like(result, 0.0)
+    assert_close(result, expect)
+
     result = leaky_clamp(input, 0, 1, clamped_slope=0.0)
     expect = clamp(input, 0, 1)
     assert_close(result, expect)
+
+
+def test_clamp_error_invalid_inverted_output():
+    input = torch.empty(10)
+    min = torch.empty(10)
+    max = torch.empty(10)
+    with pytest.raises(ValueError):
+        _ = leaky_clamp(input, min, max, inverted_output="min")
+    with pytest.raises(ValueError):
+        _ = leaky_clamp(input, min, max, inverted_output="foo")
+    with pytest.raises(ValueError):
+        _ = clamp(input, min, max, inverted_output="min")
+    with pytest.raises(ValueError):
+        _ = clamp(input, min, max, inverted_output="foo")
 
 
 def test_realized_variance():
@@ -108,4 +131,75 @@ def test_realized_volatility():
     result = realized_volatility(input, dt=1.0)
     expect = log_return[:, 1:].std(-1, unbiased=False)
 
+    assert_close(result, expect)
+
+
+def test_terminal_value():
+    N, T = 10, 20
+
+    # pnl = -payoff if unit = 0
+    torch.manual_seed(42)
+    spot = torch.randn((N, T)).exp()
+    unit = torch.zeros((N, T))
+    payoff = torch.randn(N)
+    result = terminal_value(spot, unit, payoff=payoff)
+    expect = -payoff
+    assert_close(result, expect)
+
+    # cost = 0
+    torch.manual_seed(42)
+    spot = torch.randn((N, T)).exp()
+    unit = torch.randn((N, T))
+    result = terminal_value(spot, unit)
+    expect = ((spot[..., 1:] - spot[..., :-1]) * unit[..., :-1]).sum(-1)
+    assert_close(result, expect)
+
+    # diff spot = 0, cost=0 -> value = 0
+    torch.manual_seed(42)
+    spot = torch.ones((N, T))
+    unit = torch.randn((N, T))
+    result = terminal_value(spot, unit)
+    expect = torch.zeros(N)
+    assert_close(result, expect)
+
+    # diff spot = 0, cost > 0 -> value = -cost
+    torch.manual_seed(42)
+    spot = torch.ones((N, T))
+    unit = torch.randn((N, T))
+    result = terminal_value(spot, unit, cost=1e-3, deduct_first_cost=False)
+    expect = -1e-3 * ((unit[..., 1:] - unit[..., :-1]).abs() * spot[..., :-1]).sum(-1)
+    assert_close(result, expect)
+
+    torch.manual_seed(42)
+    spot = torch.ones((N, T))
+    unit = torch.randn((N, T))
+    value0 = terminal_value(spot, unit, cost=1e-3, deduct_first_cost=False)
+    value1 = terminal_value(spot, unit, cost=1e-3, deduct_first_cost=True)
+    result = value1 - value0
+    expect = -1e-3 * unit[..., 0].abs() * spot[..., 1]
+    assert_close(result, expect)
+
+
+def test_terminal_value_unmatched_shape():
+    spot = torch.empty((10, 20))
+    unit = torch.empty((10, 20))
+    payoff = torch.empty(10)
+    with pytest.raises(RuntimeError):
+        _ = terminal_value(spot, unit[:-1])
+    with pytest.raises(RuntimeError):
+        _ = terminal_value(spot, unit[:, :-1])
+    with pytest.raises(RuntimeError):
+        _ = terminal_value(spot, unit, payoff=payoff[:-1])
+
+
+def test_terminal_value_additional_dim():
+    N, M, T = 10, 30, 20
+
+    # pnl = -payoff if unit = 0
+    torch.manual_seed(42)
+    spot = torch.randn((N, M, T)).exp()
+    unit = torch.zeros((N, M, T))
+    payoff = torch.randn(N, M)
+    result = terminal_value(spot, unit, payoff=payoff)
+    expect = -payoff
     assert_close(result, expect)

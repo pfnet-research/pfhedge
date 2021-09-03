@@ -6,6 +6,16 @@ pfhedge.instruments
 
 .. currentmodule:: pfhedge
 
+Base Class
+----------
+
+.. autosummary::
+    :toctree: generated
+    :nosignatures:
+    :template: classtemplate.rst
+
+    instruments.Instrument
+
 Primary Instruments
 -------------------
 
@@ -17,6 +27,7 @@ Primary Instruments
     instruments.Primary
     instruments.BrownianStock
     instruments.HestonStock
+    instruments.CIRRate
 
 Derivative Instruments
 ----------------------
@@ -27,6 +38,7 @@ Derivative Instruments
     :template: classtemplate.rst
 
     instruments.Derivative
+    instruments.BaseOption
     instruments.EuropeanOption
     instruments.LookbackOption
     instruments.EuropeanBinaryOption

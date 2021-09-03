@@ -17,9 +17,9 @@ class TestLookbackOption:
 
     def test_payoff(self):
         derivative = LookbackOption(BrownianStock(), strike=3.0)
-        derivative.underlier.spot = torch.tensor(
-            [[1.0, 2.0, 3.0], [2.0, 3.0, 2.0], [1.5, 4.0, 1.0]]
-        ).T
+        derivative.ul().register_buffer(
+            "spot", torch.tensor([[1.0, 2.0, 1.5], [2.0, 3.0, 4.0], [3.0, 2.0, 1.0]])
+        )
         # max [2.0, 4.0, 3.0]
         result = derivative.payoff()
         expect = torch.tensor([0.0, 1.0, 0.0])
@@ -27,9 +27,9 @@ class TestLookbackOption:
 
     def test_payoff_put(self):
         derivative = LookbackOption(BrownianStock(), strike=3.0, call=False)
-        derivative.underlier.spot = torch.tensor(
-            [[3.0, 6.0, 3.0], [2.0, 5.0, 4.0], [2.5, 4.0, 5.0]]
-        ).T
+        derivative.ul().register_buffer(
+            "spot", torch.tensor([[3.0, 2.0, 2.5], [6.0, 5.0, 4.0], [3.0, 4.0, 5.0]])
+        )
         # min [2.0, 4.0, 3.0]
         result = derivative.payoff()
         expect = torch.tensor([1.0, 0.0, 0.0])
@@ -47,11 +47,17 @@ class TestLookbackOption:
 
     def test_repr(self):
         derivative = LookbackOption(BrownianStock(), maturity=1.0)
-        expect = "LookbackOption(BrownianStock(...), strike=1.0, maturity=1.00e+00)"
+        expect = """\
+LookbackOption(
+  strike=1., maturity=1.
+  (underlier): BrownianStock(sigma=0.2000, dt=0.0040)
+)"""
         assert repr(derivative) == expect
-        derivative = LookbackOption(BrownianStock(), maturity=1.0, call=False)
-        expect = "LookbackOption(BrownianStock(...), call=False, strike=1.0, maturity=1.00e+00)"
-        assert repr(derivative) == expect
-        derivative = LookbackOption(BrownianStock(), maturity=1.0, strike=2.0)
-        expect = "LookbackOption(BrownianStock(...), strike=2.0, maturity=1.00e+00)"
+
+        derivative = LookbackOption(BrownianStock(), call=False, maturity=1.0)
+        expect = """\
+LookbackOption(
+  call=False, strike=1., maturity=1.
+  (underlier): BrownianStock(sigma=0.2000, dt=0.0040)
+)"""
         assert repr(derivative) == expect

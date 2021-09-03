@@ -9,7 +9,9 @@ from pfhedge.nn import WhalleyWilmott
 def test_net():
     derivative = EuropeanOption(BrownianStock(cost=1e-4))
     model = MultiLayerPerceptron()
-    hedger = Hedger(model, ["log_moneyness", "expiry_time", "volatility", "prev_hedge"])
+    hedger = Hedger(
+        model, ["log_moneyness", "time_to_maturity", "volatility", "prev_hedge"]
+    )
     _ = hedger.fit(derivative, n_paths=100, n_epochs=10)
     _ = hedger.price(derivative)
 

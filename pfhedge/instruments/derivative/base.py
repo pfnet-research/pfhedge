@@ -5,12 +5,14 @@ from typing import Optional
 from typing import Tuple
 from typing import TypeVar
 from typing import Union
+from typing import no_type_check
 
 import torch
 from torch import Tensor
 
-from pfhedge._utils.doc import set_attr_and_docstring
-from pfhedge._utils.doc import set_docstring
+from pfhedge._utils.doc import _set_attr_and_docstring
+from pfhedge._utils.doc import _set_docstring
+from pfhedge._utils.str import _addindent
 
 from ..base import Instrument
 from ..primary.base import Primary
@@ -40,21 +42,21 @@ class Derivative(Instrument):
     """
 
     underlier: Primary
+    cost: float
     maturity: float
     pricer: Optional[Callable[[Any], Tensor]]
-    cost: Optional[float]
 
     def __init__(self):
         super().__init__()
         self.pricer = None
-        self.cost = None
+        self.cost = 0.0
 
     @property
-    def dtype(self) -> torch.dtype:
+    def dtype(self) -> Optional[torch.dtype]:
         return self.underlier.dtype
 
     @property
-    def device(self) -> torch.device:
+    def device(self) -> Optional[torch.device]:
         return self.underlier.device
 
     def simulate(
@@ -85,8 +87,8 @@ class Derivative(Instrument):
         """Returns the payoffs of the derivative.
 
         Shape:
-            - Output: :math:`(N)` where :math:`N` stands for the number of simulated
-              paths.
+            - Output: :math:`(N)` where
+              :math:`N` stands for the number of simulated paths.
 
         Returns:
             torch.Tensor
@@ -112,30 +114,39 @@ class Derivative(Instrument):
     def spot(self) -> Tensor:
         """Returns ``self.pricer(self)`` if self is listed.
 
-        See :func:`list()` for details.
+        See :meth:`list()` for details.
         """
         if self.pricer is None:
             raise ValueError("self is not listed.")
         return self.pricer(self)
 
+    def __repr__(self) -> str:
+        main_str = self._get_name() + "(\n  "
+        main_str += self.extra_repr() + "\n"
+        main_str += _addindent("(underlier): " + repr(self.ul()))
+        main_str += "\n)"
+        return main_str
 
-class OptionMixin:
-    """Mixin class of options."""
+
+class BaseOption(Derivative):
+    """Base class of options."""
 
     underlier: Primary
     strike: float
     maturity: float
 
-    def moneyness(self, time_step: Optional[int] = None) -> Tensor:
+    def moneyness(self, time_step: Optional[int] = None, log: bool = False) -> Tensor:
         """Returns the moneyness of self.
 
         Args:
             time_step (int, optional): The time step to calculate
                 the moneyness. If ``None`` (default), the moneyness is calculated
                 at all time steps.
+            log (bool, default=False): If ``True``, returns log moneyness.
 
         Shape:
-            - Output: :math:`(N, T)` where :math:`N` is the number of paths and
+            - Output: :math:`(N, T)` where
+              :math:`N` is the number of paths and
               :math:`T` is the number of time steps.
               If ``time_step`` is given, the shape is :math:`(N, 1)`.
 
@@ -143,25 +154,18 @@ class OptionMixin:
             torch.Tensor
         """
         index = ... if time_step is None else [time_step]
-        return self.underlier.spot[..., index] / self.strike
+        output = self.underlier.spot[..., index] / self.strike
+        if log:
+            output = output.log()
+        return output
 
     def log_moneyness(self, time_step: Optional[int] = None) -> Tensor:
-        """Returns the log moneyness of self.
-
-        Args:
-            time_step (int, optional): The time step to calculate the log
-                moneyness. If ``None`` (default), the moneyness is calculated
-                at all time steps.
-
-        Shape:
-            - Output: :math:`(N, T)` where :math:`N` is the number of paths and
-              :math:`T` is the number of time steps.
-              If ``time_step`` is given, the shape is :math:`(N, 1)`.
+        """Returns ``self.moneyness(time_step).log()``.
 
         Returns:
             torch.Tensor
         """
-        return self.moneyness(time_step=time_step).log()
+        return self.moneyness(time_step=time_step, log=True)
 
     def time_to_maturity(self, time_step: Optional[int] = None) -> Tensor:
         """Returns the time to maturity of self.
@@ -172,7 +176,8 @@ class OptionMixin:
                 maturity is calculated at all time steps.
 
         Shape:
-            - Output: :math:`(N, T)` where :math:`N` is the number of paths and
+            - Output: :math:`(N, T)` where
+              :math:`N` is the number of paths and
               :math:`T` is the number of time steps.
               If ``time_step`` is given, the shape is :math:`(N, 1)`.
 
@@ -189,11 +194,44 @@ class OptionMixin:
             t = torch.tensor([[time]]).to(self.underlier.spot) * self.underlier.dt
             return t.expand(n_paths, -1)
 
+    def max_moneyness(self, time_step: Optional[int] = None, log=False) -> Tensor:
+        """Returns the cumulative maximum of the moneyness.
+
+        Args:
+            time_step (int, optional): The time step to calculate
+                the time to maturity. If ``None`` (default), the time to
+                maturity is calculated at all time steps.
+            log (bool, default=False): If ``True``, returns the cumulative
+                maximum of the log moneyness.
+
+        Shape:
+            - Output: :math:`(N, T)` where
+              :math:`N` is the number of paths and
+              :math:`T` is the number of time steps.
+              If ``time_step`` is given, the shape is :math:`(N, 1)`.
+
+        Returns:
+            torch.Tensor
+        """
+        moneyness = self.moneyness(None, log=log)
+        if time_step is None:
+            return moneyness.cummax(dim=-1).values
+        else:
+            return moneyness[..., : time_step + 1].max(dim=-1, keepdim=True).values
+
+    def max_log_moneyness(self, time_step: Optional[int] = None) -> Tensor:
+        """Returns ``self.max_moneyness(time_step).log()``.
+
+        Returns:
+            torch.Tensor
+        """
+        return self.max_moneyness(time_step, log=True)
+
 
 # Assign docstrings so they appear in Sphinx documentation
-set_docstring(Derivative, "to", Instrument.to)
-set_attr_and_docstring(Derivative, "cpu", Instrument.cpu)
-set_attr_and_docstring(Derivative, "cuda", Instrument.cuda)
-set_attr_and_docstring(Derivative, "double", Instrument.double)
-set_attr_and_docstring(Derivative, "float", Instrument.float)
-set_attr_and_docstring(Derivative, "half", Instrument.half)
+_set_docstring(Derivative, "to", Instrument.to)
+_set_attr_and_docstring(Derivative, "cpu", Instrument.cpu)
+_set_attr_and_docstring(Derivative, "cuda", Instrument.cuda)
+_set_attr_and_docstring(Derivative, "double", Instrument.double)
+_set_attr_and_docstring(Derivative, "float", Instrument.float)
+_set_attr_and_docstring(Derivative, "half", Instrument.half)

@@ -5,9 +5,10 @@ import torch
 from torch import Tensor
 
 import pfhedge.autogreek as autogreek
-from pfhedge._utils.bisect import bisect
-from pfhedge._utils.doc import set_attr_and_docstring
-from pfhedge._utils.doc import set_docstring
+from pfhedge._utils.bisect import find_implied_volatility
+from pfhedge._utils.doc import _set_attr_and_docstring
+from pfhedge._utils.doc import _set_docstring
+from pfhedge._utils.str import _format_float
 
 from ._base import BSModuleMixin
 
@@ -20,25 +21,28 @@ class BSLookbackOption(BSModuleMixin):
         strike (float, default=1.0): The strike price of the option.
 
     Shape:
-        - Input: :math:`(N, *, 4)`, where :math:`*` means any number of additional
-          dimensions.  See :func:`inputs` for the names of input features.
-        - Output: :math:`(N, *, 1)`. Delta of the derivative.
+        - Input: :math:`(N, *, 4)` where
+          :math:`*` means any number of additional dimensions.
+          See :meth:`inputs` for the names of input features.
+        - Output: :math:`(N, *, 1)`.
           All but the last dimension are the same shape as the input.
 
-    .. seealso ::
+    .. seealso::
 
         - :class:`pfhedge.nn.BlackScholes`:
           Initialize Black-Scholes formula module from a derivative.
 
-    Examples:
+    References:
+        - Conze, A., 1991. Path dependent options: The case of lookback options.
+          The Journal of Finance, 46(5), pp.1893-1907.
 
-        The ``forward`` method returns delta of the derivative.
+    Examples:
 
         >>> from pfhedge.nn import BSLookbackOption
         >>>
         >>> m = BSLookbackOption()
         >>> m.inputs()
-        ['log_moneyness', 'max_log_moneyness', 'expiry_time', 'volatility']
+        ['log_moneyness', 'max_log_moneyness', 'time_to_maturity', 'volatility']
         >>> input = torch.tensor([
         ...     [-0.01, -0.01, 0.1, 0.2],
         ...     [ 0.00,  0.00, 0.1, 0.2],
@@ -47,10 +51,6 @@ class BSLookbackOption(BSModuleMixin):
         tensor([[0.9208],
                 [1.0515],
                 [1.0515]])
-
-    References:
-        Conze, A., 1991. Path dependent options: The case of lookback options.
-        The Journal of Finance, 46(5), pp.1893-1907.
     """
 
     def __init__(self, call: bool = True, strike: float = 1.0):
@@ -82,24 +82,23 @@ class BSLookbackOption(BSModuleMixin):
             >>> derivative = LookbackOption(BrownianStock(), strike=1.1)
             >>> m = BSLookbackOption.from_derivative(derivative)
             >>> m
-            BSLookbackOption(strike=1.1)
+            BSLookbackOption(strike=1.1000)
         """
         return cls(call=derivative.call, strike=derivative.strike)
 
     def extra_repr(self) -> str:
         params = []
-        if self.strike != 1.0:
-            params.append(f"strike={self.strike}")
+        params.append("strike=" + _format_float(self.strike))
         return ", ".join(params)
 
     def inputs(self) -> List[str]:
-        return ["log_moneyness", "max_log_moneyness", "expiry_time", "volatility"]
+        return ["log_moneyness", "max_log_moneyness", "time_to_maturity", "volatility"]
 
     def price(
         self,
         log_moneyness: Tensor,
         max_log_moneyness: Tensor,
-        expiry_time: Tensor,
+        time_to_maturity: Tensor,
         volatility: Tensor,
     ) -> Tensor:
         """Returns price of the derivative.
@@ -107,21 +106,23 @@ class BSLookbackOption(BSModuleMixin):
         Args:
             log_moneyness (torch.Tensor): Log moneyness of the underlying asset.
             max_log_moneyness (torch.Tensor): Cumulative maximum of the log moneyness.
-            expiry_time (torch.Tensor): Time to expiry of the option.
+            time_to_maturity (torch.Tensor): Time to expiry of the option.
             volatility (torch.Tensor): Volatility of the underlying asset.
 
         Shape:
-            - log_moneyness: :math:`(N, *)`
+            - log_moneyness: :math:`(N, *)` where
+              :math:`*` means any number of additional dimensions.
             - max_log_moneyness: :math:`(N, *)`
-            - expiry_time: :math:`(N, *)`
+            - time_to_maturity: :math:`(N, *)`
             - volatility: :math:`(N, *)`
             - output: :math:`(N, *)`
 
         Returns:
-            Tensor
+            torch.Tensor
         """
         s, m, t, v = map(
-            torch.as_tensor, (log_moneyness, max_log_moneyness, expiry_time, volatility)
+            torch.as_tensor,
+            (log_moneyness, max_log_moneyness, time_to_maturity, volatility),
         )
 
         d1 = self.d1(s, t, v)
@@ -151,7 +152,7 @@ class BSLookbackOption(BSModuleMixin):
         self,
         log_moneyness: Tensor,
         max_log_moneyness: Tensor,
-        expiry_time: Tensor,
+        time_to_maturity: Tensor,
         volatility: Tensor,
         create_graph: bool = False,
         strike: Optional[Tensor] = None,
@@ -161,26 +162,27 @@ class BSLookbackOption(BSModuleMixin):
         Args:
             log_moneyness (torch.Tensor): Log moneyness of the underlying asset.
             max_log_moneyness (torch.Tensor): Cumulative maximum of the log moneyness.
-            expiry_time (torch.Tensor): Time to expiry of the option.
+            time_to_maturity (torch.Tensor): Time to expiry of the option.
             volatility (torch.Tensor): Volatility of the underlying asset.
             create_graph (bool, default=False): If True, graph of the derivative
                 will be constructed. This option is used to compute gamma.
 
         Shape:
-            - log_moneyness: :math:`(N, *)`
+            - log_moneyness: :math:`(N, *)` where
+              :math:`*` means any number of additional dimensions.
             - max_log_moneyness: :math:`(N, *)`
-            - expiry_time: :math:`(N, *)`
+            - time_to_maturity: :math:`(N, *)`
             - volatility: :math:`(N, *)`
             - output: :math:`(N, *)`
 
         Returns:
-            Tensor
+            torch.Tensor
         """
         return autogreek.delta(
             self.price,
             log_moneyness=log_moneyness,
             max_log_moneyness=max_log_moneyness,
-            expiry_time=expiry_time,
+            time_to_maturity=time_to_maturity,
             volatility=volatility,
             create_graph=create_graph,
         )
@@ -190,7 +192,7 @@ class BSLookbackOption(BSModuleMixin):
         self,
         log_moneyness: Tensor,
         max_log_moneyness: Tensor,
-        expiry_time: Tensor,
+        time_to_maturity: Tensor,
         volatility: Tensor,
     ) -> Tensor:
         """Returns gamma of the derivative.
@@ -198,26 +200,27 @@ class BSLookbackOption(BSModuleMixin):
         Args:
             log_moneyness (torch.Tensor): Log moneyness of the underlying asset.
             max_log_moneyness (torch.Tensor): Cumulative maximum of the log moneyness.
-            expiry_time (torch.Tensor): Time to expiry of the option.
+            time_to_maturity (torch.Tensor): Time to expiry of the option.
             volatility (torch.Tensor):
                 Volatility of the underlying asset.
 
         Shape:
-            - log_moneyness: :math:`(N, *)`
+            - log_moneyness: :math:`(N, *)` where
+              :math:`*` means any number of additional dimensions.
             - max_log_moneyness: :math:`(N, *)`
-            - expiry_time: :math:`(N, *)`
+            - time_to_maturity: :math:`(N, *)`
             - volatility: :math:`(N, *)`
             - output: :math:`(N, *)`
 
         Returns:
-            Tensor
+            torch.Tensor
         """
         return autogreek.gamma(
             self.price,
             strike=self.strike,
             log_moneyness=log_moneyness,
             max_log_moneyness=max_log_moneyness,
-            expiry_time=expiry_time,
+            time_to_maturity=time_to_maturity,
             volatility=volatility,
         )
 
@@ -225,7 +228,7 @@ class BSLookbackOption(BSModuleMixin):
         self,
         log_moneyness: Tensor,
         max_log_moneyness: Tensor,
-        expiry_time: Tensor,
+        time_to_maturity: Tensor,
         price: Tensor,
         precision: float = 1e-6,
     ) -> Tensor:
@@ -234,27 +237,31 @@ class BSLookbackOption(BSModuleMixin):
         Args:
             log_moneyness (torch.Tensor): Log moneyness of the underlying asset.
             max_log_moneyness (torch.Tensor): Cumulative maximum of the log moneyness.
-            expiry_time (torch.Tensor): Time to expiry of the option.
+            time_to_maturity (torch.Tensor): Time to expiry of the option.
             price (torch.Tensor): Price of the derivative.
             precision (float, default=1e-6): Precision of the implied volatility.
 
         Shape:
-            - log_moneyness: :math:`(N, *)`
+            - log_moneyness: :math:`(N, *)` where
+              :math:`*` means any number of additional dimensions.
             - max_log_moneyness: :math:`(N, *)`
-            - expiry_time: :math:`(N, *)`
+            - time_to_maturity: :math:`(N, *)`
             - price: :math:`(N, *)`
             - output: :math:`(N, *)`
 
         Returns:
-            Tensor
+            torch.Tensor
         """
-        s, m, t, p = map(
-            torch.as_tensor, (log_moneyness, max_log_moneyness, expiry_time, price)
+        return find_implied_volatility(
+            self.price,
+            price=price,
+            log_moneyness=log_moneyness,
+            max_log_moneyness=max_log_moneyness,
+            time_to_maturity=time_to_maturity,
+            precision=precision,
         )
-        pricer = lambda volatility: self.price(s, m, t, volatility)
-        return bisect(pricer, p, lower=0.001, upper=1.000, precision=precision)
 
 
 # Assign docstrings so they appear in Sphinx documentation
-set_docstring(BSLookbackOption, "inputs", BSModuleMixin.inputs)
-set_attr_and_docstring(BSLookbackOption, "forward", BSModuleMixin.forward)
+_set_docstring(BSLookbackOption, "inputs", BSModuleMixin.inputs)
+_set_attr_and_docstring(BSLookbackOption, "forward", BSModuleMixin.forward)

@@ -1,9 +1,12 @@
+from math import sqrt
+
 import torch
 from torch import Tensor
 
 import pfhedge.autogreek as autogreek
-from pfhedge._utils.bisect import bisect
-from pfhedge._utils.doc import set_attr_and_docstring
+from pfhedge._utils.bisect import find_implied_volatility
+from pfhedge._utils.doc import _set_attr_and_docstring
+from pfhedge._utils.str import _format_float
 
 from ._base import BSModuleMixin
 
@@ -12,30 +15,31 @@ class BSAmericanBinaryOption(BSModuleMixin):
     """Black-Scholes formula for an American Binary Option.
 
     Args:
-        call (bool, default=True): Specifies whether the option is call
-            or put.
+        call (bool, default=True): Specifies whether the option is call or put.
         strike (float, default=1.0): The strike price of the option.
 
     Shape:
-        - Input: :math:`(N, *, 4)`, where :math:`*` means any number of additional
-          dimensions. See :func:`inputs` for the names of input features.
-        - Output: :math:`(N, *, 1)`. Delta of the derivative.
+        - Input: :math:`(N, *, 4)` where
+          :math:`*` means any number of additional dimensions.
+          See :meth:`inputs` for the names of input features.
+        - Output: :math:`(N, *, 1)`.
           All but the last dimension are the same shape as the input.
 
     .. seealso ::
-
         - :class:`pfhedge.nn.BlackScholes`:
           Initialize Black-Scholes formula module from a derivative.
 
-    Examples:
+    References:
+        - Dai, M., 2000. A closed-form solution for perpetual American floating strike
+          lookback options. Journal of Computational Finance, 4(2), pp.63-68.
 
-        The ``forward`` method returns delta of the derivative.
+    Examples:
 
         >>> from pfhedge.nn import BSAmericanBinaryOption
         >>>
         >>> m = BSAmericanBinaryOption(strike=1.0)
         >>> m.inputs()
-        ['log_moneyness', 'max_log_moneyness', 'expiry_time', 'volatility']
+        ['log_moneyness', 'max_log_moneyness', 'time_to_maturity', 'volatility']
         >>> input = torch.tensor([
         ...     [-0.01, -0.01, 0.1, 0.2],
         ...     [ 0.00,  0.00, 0.1, 0.2],
@@ -44,10 +48,6 @@ class BSAmericanBinaryOption(BSModuleMixin):
         tensor([[1.1285],
                 [0.0000],
                 [0.0000]])
-
-    References:
-        Dai, M., 2000. A closed-form solution for perpetual American floating strike
-        lookback options. Journal of Computational Finance, 4(2), pp.63-68.
     """
 
     def __init__(self, call: bool = True, strike: float = 1.0):
@@ -79,21 +79,20 @@ class BSAmericanBinaryOption(BSModuleMixin):
             >>> derivative = AmericanBinaryOption(BrownianStock(), strike=1.1)
             >>> m = BSAmericanBinaryOption.from_derivative(derivative)
             >>> m
-            BSAmericanBinaryOption(strike=1.1)
+            BSAmericanBinaryOption(strike=1.1000)
         """
         return cls(call=derivative.call, strike=derivative.strike)
 
     def extra_repr(self) -> str:
         params = []
-        if self.strike != 1.0:
-            params.append(f"strike={self.strike}")
+        params.append("strike=" + _format_float(self.strike))
         return ", ".join(params)
 
     def price(
         self,
         log_moneyness: Tensor,
         max_log_moneyness: Tensor,
-        expiry_time: Tensor,
+        time_to_maturity: Tensor,
         volatility: Tensor,
     ) -> Tensor:
         """Returns price of the derivative.
@@ -101,26 +100,27 @@ class BSAmericanBinaryOption(BSModuleMixin):
         Args:
             log_moneyness (torch.Tensor): Log moneyness of the underlying asset.
             max_log_moneyness (torch.Tensor): Cumulative maximum of the log moneyness.
-            expiry_time (torch.Tensor): Time to expiry of the option.
+            time_to_maturity (torch.Tensor): Time to expiry of the option.
             volatility (torch.Tensor): Volatility of the underlying asset.
 
         Shape:
-            - log_moneyness: :math:`(N, *)`
+            - log_moneyness: :math:`(N, *)` where
+              :math:`*` means any number of additional dimensions.
             - max_log_moneyness: :math:`(N, *)`
-            - expiry_time: :math:`(N, *)`
+            - time_to_maturity: :math:`(N, *)`
             - volatility: :math:`(N, *)`
             - output: :math:`(N, *)`
 
         Returns:
-            Tensor
+            torch.Tensor
         """
         s, m, t, v = map(
-            torch.as_tensor, (log_moneyness, max_log_moneyness, expiry_time, volatility)
+            torch.as_tensor,
+            (log_moneyness, max_log_moneyness, time_to_maturity, volatility),
         )
 
-        sqrt2 = torch.tensor(2.0).sqrt().item()
-        n1 = self.N.cdf(self.d1(s, t, v) / sqrt2)
-        n2 = self.N.cdf(self.d2(s, t, v) / sqrt2)
+        n1 = self.N.cdf(self.d1(s, t, v) / sqrt(2.0))
+        n2 = self.N.cdf(self.d2(s, t, v) / sqrt(2.0))
 
         p = (1 / 2) * (s.exp() * (1 + n1) + n2)
 
@@ -130,7 +130,7 @@ class BSAmericanBinaryOption(BSModuleMixin):
         self,
         log_moneyness: Tensor,
         max_log_moneyness: Tensor,
-        expiry_time: Tensor,
+        time_to_maturity: Tensor,
         volatility: Tensor,
     ) -> Tensor:
         """Returns delta of the derivative.
@@ -138,13 +138,14 @@ class BSAmericanBinaryOption(BSModuleMixin):
         Args:
             log_moneyness (torch.Tensor): Log moneyness of the underlying asset.
             max_log_moneyness (torch.Tensor): Cumulative maximum of the log moneyness.
-            expiry_time (torch.Tensor): Time to expiry of the option.
+            time_to_maturity (torch.Tensor): Time to expiry of the option.
             volatility (torch.Tensor): Volatility of the underlying asset.
 
         Shape:
-            - log_moneyness: :math:`(N, *)`
+            - log_moneyness: :math:`(N, *)` where
+              :math:`*` means any number of additional dimensions.
             - max_log_moneyness: :math:`(N, *)`
-            - expiry_time: :math:`(N, *)`
+            - time_to_maturity: :math:`(N, *)`
             - volatility: :math:`(N, *)`
             - output: :math:`(N, *)`
 
@@ -152,15 +153,15 @@ class BSAmericanBinaryOption(BSModuleMixin):
             torch.Tensor
         """
         s, m, t, v = map(
-            torch.as_tensor, (log_moneyness, max_log_moneyness, expiry_time, volatility)
+            torch.as_tensor,
+            (log_moneyness, max_log_moneyness, time_to_maturity, volatility),
         )
 
-        sqrt2 = torch.tensor(2.0).sqrt().item()
         d1 = self.d1(s, t, v)
         d2 = self.d2(s, t, v)
-        c1 = self.N.cdf(d1 / sqrt2)
-        p1 = self.N.log_prob(d1 / sqrt2).exp()
-        p2 = self.N.log_prob(d2 / sqrt2).exp()
+        c1 = self.N.cdf(d1 / sqrt(2.0))
+        p1 = self.N.log_prob(d1 / sqrt(2.0)).exp()
+        p2 = self.N.log_prob(d2 / sqrt(2.0)).exp()
 
         d = (1 + c1 + (p1 + p2)) / (2 * self.strike)
 
@@ -171,7 +172,7 @@ class BSAmericanBinaryOption(BSModuleMixin):
         self,
         log_moneyness: Tensor,
         max_log_moneyness: Tensor,
-        expiry_time: Tensor,
+        time_to_maturity: Tensor,
         volatility: Tensor,
     ) -> Tensor:
         """Returns gamma of the derivative.
@@ -179,13 +180,14 @@ class BSAmericanBinaryOption(BSModuleMixin):
         Args:
             log_moneyness (torch.Tensor): Log moneyness of the underlying asset.
             max_log_moneyness (torch.Tensor): Cumulative maximum of the log moneyness.
-            expiry_time (torch.Tensor): Time to expiry of the option.
+            time_to_maturity (torch.Tensor): Time to expiry of the option.
             volatility (torch.Tensor): Volatility of the underlying asset.
 
         Shape:
-            - log_moneyness: :math:`(N, *)`
+            - log_moneyness: :math:`(N, *)` where
+              :math:`*` means any number of additional dimensions.
             - max_log_moneyness: :math:`(N, *)`
-            - expiry_time: :math:`(N, *)`
+            - time_to_maturity: :math:`(N, *)`
             - volatility: :math:`(N, *)`
             - output: :math:`(N, *)`
 
@@ -197,7 +199,7 @@ class BSAmericanBinaryOption(BSModuleMixin):
             strike=self.strike,
             log_moneyness=log_moneyness,
             max_log_moneyness=max_log_moneyness,
-            expiry_time=expiry_time,
+            time_to_maturity=time_to_maturity,
             volatility=volatility,
         )
 
@@ -205,7 +207,7 @@ class BSAmericanBinaryOption(BSModuleMixin):
         self,
         log_moneyness: Tensor,
         max_log_moneyness: Tensor,
-        expiry_time: Tensor,
+        time_to_maturity: Tensor,
         price: Tensor,
         precision: float = 1e-6,
     ) -> Tensor:
@@ -214,28 +216,31 @@ class BSAmericanBinaryOption(BSModuleMixin):
         Args:
             log_moneyness (torch.Tensor): Log moneyness of the underlying asset.
             max_log_moneyness (torch.Tensor): Cumulative maximum of the log moneyness.
-            expiry_time (torch.Tensor): Time to expiry of the option.
+            time_to_maturity (torch.Tensor): Time to expiry of the option.
             volatility (torch.Tensor): Volatility of the underlying asset.
             precision (float, default=1e-6): Computational precision of the implied
                 volatility.
 
         Shape:
-            - log_moneyness: :math:`(N, *)`
+            - log_moneyness: :math:`(N, *)` where
+              :math:`*` means any number of additional dimensions.
             - max_log_moneyness: :math:`(N, *)`
-            - expiry_time: :math:`(N, *)`
-            - volatility: :math:`(N, *)`
+            - time_to_maturity: :math:`(N, *)`
             - output: :math:`(N, *)`
 
         Returns:
             torch.Tensor
         """
-        s, m, t, p = map(
-            torch.as_tensor, (log_moneyness, max_log_moneyness, expiry_time, price)
+        return find_implied_volatility(
+            self.price,
+            price=price,
+            log_moneyness=log_moneyness,
+            max_log_moneyness=max_log_moneyness,
+            time_to_maturity=time_to_maturity,
+            precision=precision,
         )
-        pricer = lambda volatility: self.price(s, m, t, volatility)
-        return bisect(pricer, p, lower=0.001, upper=1.000, precision=precision)
 
 
 # Assign docstrings so they appear in Sphinx documentation
-set_attr_and_docstring(BSAmericanBinaryOption, "inputs", BSModuleMixin.inputs)
-set_attr_and_docstring(BSAmericanBinaryOption, "forward", BSModuleMixin.forward)
+_set_attr_and_docstring(BSAmericanBinaryOption, "inputs", BSModuleMixin.inputs)
+_set_attr_and_docstring(BSAmericanBinaryOption, "forward", BSModuleMixin.forward)

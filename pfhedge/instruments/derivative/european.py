@@ -3,16 +3,17 @@ from typing import Optional
 import torch
 from torch import Tensor
 
-from pfhedge._utils.doc import set_attr_and_docstring
-from pfhedge._utils.doc import set_docstring
+from pfhedge._utils.doc import _set_attr_and_docstring
+from pfhedge._utils.doc import _set_docstring
+from pfhedge._utils.str import _format_float
+from pfhedge.nn.functional import european_payoff
 
-from ...nn.functional import european_payoff
 from ..primary.base import Primary
+from .base import BaseOption
 from .base import Derivative
-from .base import OptionMixin
 
 
-class EuropeanOption(Derivative, OptionMixin):
+class EuropeanOption(BaseOption):
     """A European option.
 
     A European option provides its holder the right to buy (for call option)
@@ -41,10 +42,10 @@ class EuropeanOption(Derivative, OptionMixin):
         maturity (float, default=20/250): The maturity of the option.
         dtype (torch.dtype, optional): Desired device of returned tensor.
             Default: If None, uses a global default
-            (see ``torch.set_default_tensor_type()``).
+            (see :func:`torch.set_default_tensor_type()`).
         device (torch.device, optional): Desired device of returned tensor.
             Default: if None, uses the current device for the default tensor type
-            (see ``torch.set_default_tensor_type()``).
+            (see :func:`torch.set_default_tensor_type()`).
             ``device`` will be the CPU for CPU tensor types and
             the current CUDA device for CUDA tensor types.
 
@@ -72,7 +73,10 @@ class EuropeanOption(Derivative, OptionMixin):
 
         >>> derivative = EuropeanOption(BrownianStock())
         >>> derivative.to(dtype=torch.float64, device="cuda:0")
-        EuropeanOption(..., dtype=torch.float64, device='cuda:0')
+        EuropeanOption(
+          ...
+          (underlier): BrownianStock(..., dtype=torch.float64, device='cuda:0')
+        )
 
         Make ``self`` a listed derivative.
 
@@ -80,7 +84,7 @@ class EuropeanOption(Derivative, OptionMixin):
         >>>
         >>> pricer = lambda derivative: BlackScholes(derivative).price(
         ...     log_moneyness=derivative.log_moneyness(),
-        ...     expiry_time=derivative.time_to_maturity(),
+        ...     time_to_maturity=derivative.time_to_maturity(),
         ...     volatility=derivative.ul().volatility)
         >>> derivative = EuropeanOption(BrownianStock(), maturity=5/250)
         >>> derivative.list(pricer, cost=1e-4)
@@ -110,25 +114,24 @@ class EuropeanOption(Derivative, OptionMixin):
 
         self.to(dtype=dtype, device=device)
 
-    def __repr__(self):
-        params = [f"{self.ul().__class__.__name__}(...)"]
+    def extra_repr(self):
+        params = []
         if not self.call:
-            params.append(f"call={self.call}")
-        params.append(f"strike={self.strike}")
-        params.append(f"maturity={self.maturity:.2e}")
-        params += self.dinfo
-        return self.__class__.__name__ + "(" + ", ".join(params) + ")"
+            params.append("call=" + str(self.call))
+        params.append("strike=" + _format_float(self.strike))
+        params.append("maturity=" + _format_float(self.maturity))
+        return ", ".join(params)
 
     def payoff(self) -> Tensor:
-        return european_payoff(self.underlier.spot, call=self.call, strike=self.strike)
+        return european_payoff(self.ul().spot, call=self.call, strike=self.strike)
 
 
 # Assign docstrings so they appear in Sphinx documentation
-set_attr_and_docstring(EuropeanOption, "simulate", Derivative.simulate)
-set_attr_and_docstring(EuropeanOption, "to", Derivative.to)
-set_attr_and_docstring(EuropeanOption, "ul", Derivative.ul)
-set_attr_and_docstring(EuropeanOption, "list", Derivative.list)
-set_docstring(EuropeanOption, "payoff", Derivative.payoff)
-set_attr_and_docstring(EuropeanOption, "moneyness", OptionMixin.moneyness)
-set_attr_and_docstring(EuropeanOption, "log_moneyness", OptionMixin.log_moneyness)
-set_attr_and_docstring(EuropeanOption, "time_to_maturity", OptionMixin.time_to_maturity)
+_set_attr_and_docstring(EuropeanOption, "simulate", Derivative.simulate)
+_set_attr_and_docstring(EuropeanOption, "to", Derivative.to)
+_set_attr_and_docstring(EuropeanOption, "ul", Derivative.ul)
+_set_attr_and_docstring(EuropeanOption, "list", Derivative.list)
+_set_docstring(EuropeanOption, "payoff", Derivative.payoff)
+_set_attr_and_docstring(EuropeanOption, "moneyness", BaseOption.moneyness)
+_set_attr_and_docstring(EuropeanOption, "log_moneyness", BaseOption.log_moneyness)
+_set_attr_and_docstring(EuropeanOption, "time_to_maturity", BaseOption.time_to_maturity)

@@ -17,9 +17,12 @@ class TestEuropeanBinaryOption:
 
     def test_payoff(self):
         derivative = EuropeanBinaryOption(BrownianStock(), strike=2.0)
-        derivative.underlier.spot = torch.tensor(
-            [[1.0, 1.0, 1.0, 1.0], [3.0, 1.0, 1.0, 1.0], [1.9, 2.0, 2.1, 3.0]]
-        ).T
+        derivative.underlier.register_buffer(
+            "spot",
+            torch.tensor(
+                [[1.0, 1.0, 1.0, 1.0], [3.0, 1.0, 1.0, 1.0], [1.9, 2.0, 2.1, 3.0]]
+            ).T,
+        )
         result = derivative.payoff()
         expect = torch.tensor([0.0, 1.0, 1.0, 1.0])
         assert_close(result, expect)
@@ -62,15 +65,17 @@ class TestEuropeanBinaryOption:
 
     def test_repr(self):
         derivative = EuropeanBinaryOption(BrownianStock(), maturity=1.0)
-        expect = (
-            "EuropeanBinaryOption(BrownianStock(...), strike=1.0, maturity=1.00e+00)"
-        )
+        expect = """\
+EuropeanBinaryOption(
+  strike=1., maturity=1.
+  (underlier): BrownianStock(sigma=0.2000, dt=0.0040)
+)"""
         assert repr(derivative) == expect
-        derivative = EuropeanBinaryOption(BrownianStock(), maturity=1.0, call=False)
-        expect = "EuropeanBinaryOption(BrownianStock(...), call=False, strike=1.0, maturity=1.00e+00)"
-        assert repr(derivative) == expect
-        derivative = EuropeanBinaryOption(BrownianStock(), maturity=1.0, strike=2.0)
-        expect = (
-            "EuropeanBinaryOption(BrownianStock(...), strike=2.0, maturity=1.00e+00)"
-        )
+
+        derivative = EuropeanBinaryOption(BrownianStock(), call=False, maturity=1.0)
+        expect = """\
+EuropeanBinaryOption(
+  call=False, strike=1., maturity=1.
+  (underlier): BrownianStock(sigma=0.2000, dt=0.0040)
+)"""
         assert repr(derivative) == expect

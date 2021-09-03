@@ -16,8 +16,9 @@ def european_payoff(input: Tensor, call: bool = True, strike: float = 1.0) -> Te
         strike (float, default=1.0): The strike price of the option.
 
     Shape:
-        - input: :math:`(*, T)` where :math:`T` stands for the number of time steps
-          and :math:`*` means any number of additional dimensions.
+        - input: :math:`(*, T)` where
+          :math:`T` is the number of time steps and
+          :math:`*` means any number of additional dimensions.
         - output: :math:`(*)`
 
     Returns:
@@ -38,8 +39,9 @@ def lookback_payoff(input: Tensor, call: bool = True, strike: float = 1.0) -> Te
         strike (float, default=1.0): The strike price of the option.
 
     Shape:
-        - input: :math:`(*, T)` where :math:`T` stands for the number of time steps
-          and :math:`*` means any number of additional dimensions.
+        - input: :math:`(*, T)` where
+          :math:`T` is the number of time steps and
+          :math:`*` means any number of additional dimensions.
         - output: :math:`(*)`
 
     Returns:
@@ -62,8 +64,9 @@ def american_binary_payoff(
         strike (float, default=1.0): The strike price of the option.
 
     Shape:
-        - input: :math:`(*, T)` where :math:`T` stands for the number of time steps
-          and :math:`*` means any number of additional dimensions.
+        - input: :math:`(*, T)` where
+          :math:`T` is the number of time steps and
+          :math:`*` means any number of additional dimensions.
         - output: :math:`(*)`
 
     Returns:
@@ -86,8 +89,9 @@ def european_binary_payoff(
         strike (float, default=1.0): The strike price of the option.
 
     Shape:
-        - input: :math:`(*, T)` where :math:`T` stands for the number of time steps
-          and :math:`*` means any number of additional dimensions.
+        - input: :math:`(*, T)` where
+          :math:`T` is the number of time steps and
+          :math:`*` means any number of additional dimensions.
         - output: :math:`(*)`
 
     Returns:
@@ -104,7 +108,7 @@ def exp_utility(input: Tensor, a: float = 1.0) -> Tensor:
 
     An exponential utility function is defined as:
 
-    .. math ::
+    .. math::
 
         u(x) = -\\exp(-a x) \\,.
 
@@ -124,7 +128,7 @@ def isoelastic_utility(input: Tensor, a: float) -> Tensor:
 
     An isoelastic utility function is defined as:
 
-    .. math ::
+    .. math::
 
         u(x) = \\begin{cases}
         x^{1 - a} & a \\neq 1 \\\\
@@ -214,39 +218,51 @@ def leaky_clamp(
     min: Optional[Tensor] = None,
     max: Optional[Tensor] = None,
     clamped_slope: float = 0.01,
+    inverted_output: str = "mean",
 ) -> Tensor:
     """Leakily clamp all elements in ``input`` into the range :math:`[\\min, \\max]`.
-
-    The bounds :math:`\\min` and :math:`\\max` can be tensors.
 
     See :class:`pfhedge.nn.LeakyClamp` for details.
     """
     x = input
 
     if min is not None:
-        min = torch.as_tensor(min)
+        min = torch.as_tensor(min).to(x)
         x = x.maximum(min + clamped_slope * (x - min))
 
     if max is not None:
-        max = torch.as_tensor(max)
+        max = torch.as_tensor(max).to(x)
         x = x.minimum(max + clamped_slope * (x - max))
 
     if min is not None and max is not None:
-        x = x.where(min <= max, (min + max) / 2)
+        if inverted_output == "mean":
+            y = (min + max) / 2
+        elif inverted_output == "max":
+            y = max
+        else:
+            raise ValueError("inverted_output must be 'mean' or 'max'.")
+        x = x.where(min <= max, y)
 
     return x
 
 
 def clamp(
-    input: Tensor, min: Optional[Tensor] = None, max: Optional[Tensor] = None
+    input: Tensor,
+    min: Optional[Tensor] = None,
+    max: Optional[Tensor] = None,
+    inverted_output: str = "mean",
 ) -> Tensor:
     """Clamp all elements in ``input`` into the range :math:`[\\min, \\max]`.
 
-    The bounds :math:`\\min` and :math:`\\max` can be tensors.
-
     See :class:`pfhedge.nn.Clamp` for details.
     """
-    return leaky_clamp(input, min=min, max=max, clamped_slope=0.0)
+    if inverted_output == "mean":
+        output = leaky_clamp(input, min, max, clamped_slope=0.0, inverted_output="mean")
+    elif inverted_output == "max":
+        output = torch.clamp(input, min, max)
+    else:
+        raise ValueError("inverted_output must be 'mean' or 'max'.")
+    return output
 
 
 def realized_variance(input: Tensor, dt: Union[Tensor, float]) -> Tensor:
@@ -254,15 +270,14 @@ def realized_variance(input: Tensor, dt: Union[Tensor, float]) -> Tensor:
 
     Realized variance :math:`\\sigma^2` of the stock price :math:`S` is defined as:
 
-    .. math ::
+    .. math::
 
         \\sigma^2 = \\frac{1}{T - 1} \\sum_{i = 1}^{T - 1}
         \\frac{1}{dt} \\log(S_{i + 1} / S_i)^2
 
     where :math:`T` is the number of time steps.
 
-    .. note ::
-
+    Note:
         The mean of log return is assumed to be zero.
 
     Args:
@@ -270,8 +285,9 @@ def realized_variance(input: Tensor, dt: Union[Tensor, float]) -> Tensor:
         dt (torch.Tensor or float): The intervals of the time steps.
 
     Shape:
-        - input: :math:`(*, T)` where :math:`T` stands for the number of time steps
-          and :math:`*` means any number of additional dimensions.
+        - input: :math:`(*, T)` where
+          :math:`T` stands for the number of time steps and
+          :math:`*` means any number of additional dimensions.
         - output: :math:`(*)`
 
     Returns:
@@ -289,11 +305,87 @@ def realized_volatility(input: Tensor, dt: Union[Tensor, float]) -> Tensor:
         dt (torch.Tensor or float): The intervals of the time steps.
 
     Shape:
-        - input: :math:`(*, T)` where :math:`T` stands for the number of time steps
-          and :math:`*` means any number of additional dimensions.
+        - input: :math:`(*, T)` where
+          :math:`T` stands for the number of time steps and
+          :math:`*` means any number of additional dimensions.
         - output: :math:`(*)`
 
     Returns:
         torch.Tensor
     """
     return realized_variance(input, dt=dt).sqrt()
+
+
+def terminal_value(
+    spot: Tensor,
+    unit: Tensor,
+    cost: float = 0.0,
+    payoff: Optional[Tensor] = None,
+    deduct_first_cost: bool = True,
+):
+    """Returns the terminal portfolio value.
+
+    The terminal value of a hedger's portfolio is given by
+
+    .. math::
+
+        \\text{PL}(Z, \\delta, S) =
+        - Z
+        + \\sum_{i = 0}^{T - 2} \\delta_{i - 1} (S_{i} - S_{i - 1})
+        - c \\sum_{i = 0}^{T - 1} |\\delta_{i} - \\delta_{i - 1}| S_{i}
+
+    where :math:`Z` is the payoff of the derivative, :math:`T` is the number of
+    time steps, :math:`S` is the spot price, :math:`\\delta` is the signed number
+    of shares held at each time step.
+    We define :math:`\delta_0 = 0` for notational convenience.
+
+    A hedger sells the derivative to its customer and
+    obliges to settle the payoff at maturity.
+    The dealer hedges the risk of this liability
+    by trading the underlying instrument of the derivative.
+    The resulting profit and loss is obtained by adding up the payoff to the
+    customer, capital gains from the underlying asset, and the transaction cost.
+
+    References:
+        - Buehler, H., Gonon, L., Teichmann, J. and Wood, B., 2019.
+          Deep hedging. Quantitative Finance, 19(8), pp.1271-1291.
+          [arXiv:`1802.03042 <https://arxiv.org/abs/1802.03042>`_ [q-fin]]
+
+    Args:
+        spot (torch.Tensor): The spot price of the underlying asset :math:`S`.
+        unit (torch.Tensor): The signed number of shares of the underlying asset
+            :math:`\\delta`.
+        cost (float, default=0.0): The proportional transaction cost rate of
+            the underlying asset :math:`c`.
+        payoff (torch.Tensor, optional): The payoff of the derivative :math:`Z`.
+        deduct_first_cost (bool, default=True): Whether to deduct the transaction
+            cost of the stock at the first time step.
+            If ``False``, :math:`- c |\delta_0| S_1` is omitted the above
+            equation of the terminal value.
+
+    Shape:
+        - spot: :math:`(N, *, T)` where
+          :math:`T` is the number of time steps and
+          :math:`*` means any number of additional dimensions.
+        - unit: :math:`(N, *, T)`
+        - payoff: :math:`(N, *)`
+        - output: :math:`(N, *)`.
+
+    Returns:
+        torch.Tensor
+    """
+    if spot.size() != unit.size():
+        raise RuntimeError(f"unmatched sizes: spot {spot.size()}, unit {unit.size()}")
+    if payoff is not None and spot.size()[:-1] != payoff.size():
+        raise RuntimeError(
+            f"unmatched sizes: spot {spot.size()}, payoff {payoff.size()}"
+        )
+
+    value = unit[..., :-1].mul(spot.diff(dim=-1)).sum(-1)
+    value += -cost * unit.diff(dim=-1).abs().mul(spot[..., 1:]).sum(-1)
+    if payoff is not None:
+        value -= payoff
+    if deduct_first_cost:
+        value -= cost * unit[..., 0].abs() * spot[..., 0]
+
+    return value

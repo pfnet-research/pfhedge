@@ -6,11 +6,7 @@ from pfhedge.nn import LeakyClamp
 
 
 class TestLeakyClamp:
-    """
-    pfhedge.nn.LeakyClamp
-    """
-
-    def test_out(self):
+    def test_output(self):
         input = torch.tensor([-1.0, 0.0, 0.5, 1.0, 2.0])
 
         result = LeakyClamp(0.1)(input, 0, 1)
@@ -34,4 +30,5 @@ class TestLeakyClamp:
         assert_close(result, expect)
 
     def test_repr(self):
-        assert repr(LeakyClamp(0.1)) == "LeakyClamp(clamped_slope=0.1)"
+        expect = "LeakyClamp(clamped_slope=0.1000)"
+        assert repr(LeakyClamp(0.1)) == expect

@@ -7,6 +7,7 @@ from torch.nn import Module
 from torch.nn import Parameter
 
 from pfhedge._utils.bisect import bisect
+from pfhedge._utils.str import _format_float
 
 from ..functional import exp_utility
 from ..functional import expected_shortfall
@@ -25,8 +26,8 @@ class HedgeLoss(Module, ABC):
             input (torch.Tensor): The distribution of the profit and loss.
 
         Shape:
-            - Input: :math:`(N, *)` where, :math:`*` means any number of additional
-              dimensions.
+            - Input: :math:`(N, *)` where
+              :math:`*` means any number of additional dimensions.
             - Output: :math:`(*)`
 
         Returns:
@@ -51,8 +52,8 @@ class HedgeLoss(Module, ABC):
             input (torch.Tensor): The distribution of the profit and loss.
 
         Shape:
-            - Input: :math:`(N, *)` where, :math:`*` means any number of additional
-              dimensions.
+            - Input: :math:`(N, *)` where
+              :math:`*` means any number of additional dimensions.
             - Output: :math:`(*)`
 
         Returns:
@@ -67,7 +68,7 @@ class EntropicRiskMeasure(HedgeLoss):
     The entropic risk measure of the profit-loss distribution
     :math:`\\text{pnl}` is given by:
 
-    .. math ::
+    .. math::
 
         \\text{loss}(\\text{pnl}) = \\frac{1}{a}
         \\log(- \\mathbf{E}[u(\\text{pnl})]) \\,,
@@ -75,12 +76,13 @@ class EntropicRiskMeasure(HedgeLoss):
         u(x) = -\\exp(-a x) \\,.
 
     Args:
-        a (float > 0, default=1.0): Risk aversion coefficient of the exponential
-            utility.
+        a (float, default=1.0): Risk aversion coefficient of
+            the exponential utility.
+            This parameter should be positive.
 
     Shape:
-        - Input: :math:`(N, *)`, where :math:`*` means any number of additional
-          dimensions.
+        - Input: :math:`(N, *)` where
+          :math:`*` means any number of additional dimensions.
         - Output: :math:`(*)`
 
     Examples:
@@ -103,25 +105,12 @@ class EntropicRiskMeasure(HedgeLoss):
         self.a = a
 
     def extra_repr(self) -> str:
-        return f"a={self.a}" if self.a != 1 else ""
+        return "a=" + _format_float(self.a) if self.a != 1 else ""
 
     def forward(self, input: Tensor) -> Tensor:
         return (-exp_utility(input, a=self.a).mean(0)).log() / self.a
 
     def cash(self, input: Tensor) -> Tensor:
-        """
-
-        Args:
-            input (torch.Tensor): The distribution of the profit and loss.
-
-        Shape:
-            - Input: :math:`(N, *)`, where :math:`*` means any number of additional
-              dimensions.
-            - Output: :math:`(*)`
-
-        Returns:
-            torch.Tensor
-        """
         return -self(input)
 
 
@@ -130,19 +119,19 @@ class EntropicLoss(HedgeLoss):
 
     The loss of the profit-loss :math:`\\text{pnl}` is given by:
 
-    .. math ::
+    .. math::
 
         \\text{loss}(\\text{pnl}) = -\\mathbf{E}[u(\\text{pnl})] \\,,
         \\quad
         u(x) = -\\exp(-a x) \\,.
 
     Args:
-        a (float > 0, default=1.0): Risk aversion coefficient of the exponential
-            utility.
+        a (float > 0, default=1.0): Risk aversion coefficient of
+            the exponential utility.
 
     Shape:
-        - Input: :math:`(N, *)`, where :math:`*` means any number of additional
-          dimensions.
+        - Input: :math:`(N, *)` where
+          :math:`*` means any number of additional dimensions.
         - Output: :math:`(*)`
 
     Examples:
@@ -165,26 +154,12 @@ class EntropicLoss(HedgeLoss):
         self.a = a
 
     def extra_repr(self) -> str:
-        return f"a={self.a}" if self.a != 1 else ""
+        return "a=" + _format_float(self.a) if self.a != 1 else ""
 
     def forward(self, input: Tensor) -> Tensor:
         return -exp_utility(input, a=self.a).mean(0)
 
     def cash(self, input: Tensor) -> Tensor:
-        """Returns the cash amount which is as preferable as
-        the given profit-loss distribution in terms of the loss.
-
-        Args:
-            input (torch.Tensor): The distribution of the profit and loss.
-
-        Shape:
-            - Input: :math:`(N, *)`, where :math:`*` means any number of additional
-              dimensions.
-            - Output: :math:`(*)`
-
-        Returns:
-            torch.Tensor
-        """
         return -(-exp_utility(input, a=self.a).mean(0)).log() / self.a
 
 
@@ -193,7 +168,7 @@ class IsoelasticLoss(HedgeLoss):
 
     The loss of the profit-loss :math:`\\text{pnl}` is given by:
 
-    .. math ::
+    .. math::
 
         \\text{loss}(\\text{pnl}) = -\\mathbf{E}[u(\\text{pnl})] \\,,
         \\quad
@@ -207,8 +182,8 @@ class IsoelasticLoss(HedgeLoss):
             This parameter should satisfy :math:`0 < a \\leq 1`.
 
     Shape:
-        - Input: :math:`(N, *)`, where :math:`*` means any number of additional
-          dimensions.
+        - Input: :math:`(N, *)` where
+          :math:`*` means any number of additional dimensions.
         - Output: :math:`(*)`
 
     Examples:
@@ -240,7 +215,7 @@ class IsoelasticLoss(HedgeLoss):
         self.a = a
 
     def extra_repr(self) -> str:
-        return f"a={self.a}"
+        return "a=" + _format_float(self.a) if self.a != 1 else ""
 
     def forward(self, input: Tensor) -> Tensor:
         return -isoelastic_utility(input, a=self.a).mean(0)
@@ -254,8 +229,8 @@ class ExpectedShortfall(HedgeLoss):
             This parameter should satisfy :math:`0 < p \\leq 1`.
 
     Shape:
-        - Input: :math:`(N, *)`, where :math:`*` means any number of additional
-          dimensions.
+        - Input: :math:`(N, *)` where
+          :math:`*` means any number of additional dimensions.
         - Output: :math:`(*)`
 
     Examples:
@@ -292,13 +267,13 @@ class OCE(HedgeLoss):
 
     The certainty equivalent is given by:
 
-    .. math ::
+    .. math::
 
         \\text{loss}(X, w) = w - \\mathrm{E}[u(X + w)]
 
     Minimization of loss gives the optimized certainty equivalent.
 
-    .. math ::
+    .. math::
 
         \\rho_u(X) = \\inf_w \\text{loss}(X, w)
 
@@ -328,7 +303,8 @@ class OCE(HedgeLoss):
         self.w = Parameter(torch.tensor(0.0))
 
     def extra_repr(self) -> str:
-        return self.utility.__name__ + f", w={self.w}"
+        w = float(self.w.item())
+        return self.utility.__name__ + ", w=" + _format_float(w)
 
     def forward(self, input: Tensor) -> Tensor:
         return self.w - self.utility(input + self.w).mean(0)

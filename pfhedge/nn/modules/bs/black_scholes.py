@@ -16,15 +16,16 @@ class BlackScholes(Module):
     The ``forward`` method returns the Black-Scholes delta.
 
     Args:
-        derivative (:class:`pfhedge.instruments.Derivative`):
-            The derivative to get the Black-Scholes formula.
+        derivative (:class:`Derivative`): The derivative to get
+            the Black-Scholes formula.
 
     Shape:
-        - Input : :math:`(N, *, H_{\\mathrm{in}})`, where :math:`*` means any number of
-          additional dimensions and :math:`H_{\\mathrm{in}}` is the number of input
-          features. See :func:`inputs` for the names of input features.
-        - Output : :math:`(N, *, 1)`. All but the last dimension are the same shape
-          as the input.
+        - input : :math:`(N, *, H_{\\mathrm{in}})` where
+          :math:`*` means any number of additional dimensions and
+          :math:`H_{\\mathrm{in}}` is the number of input features.
+          See :meth:`inputs` for the names of the input features.
+        - output : :math:`(N, *, 1)`,
+          all but the last dimension are the same shape as the input.
 
     Examples:
 
@@ -41,9 +42,9 @@ class BlackScholes(Module):
         >>> derivative = EuropeanOption(BrownianStock(), strike=1.1)
         >>> m = BlackScholes(derivative)
         >>> m
-        BSEuropeanOption(strike=1.1)
+        BSEuropeanOption(strike=1.1000)
         >>> m.inputs()
-        ['log_moneyness', 'expiry_time', 'volatility']
+        ['log_moneyness', 'time_to_maturity', 'volatility']
         >>> input = torch.tensor([
         ...     [-0.01, 0.1, 0.2],
         ...     [ 0.00, 0.1, 0.2],
@@ -61,9 +62,9 @@ class BlackScholes(Module):
         >>> derivative = LookbackOption(BrownianStock(), strike=1.03)
         >>> m = BlackScholes(derivative)
         >>> m
-        BSLookbackOption(strike=1.03)
+        BSLookbackOption(strike=1.0300)
         >>> m.inputs()
-        ['log_moneyness', 'max_log_moneyness', 'expiry_time', 'volatility']
+        ['log_moneyness', 'max_log_moneyness', 'time_to_maturity', 'volatility']
         >>> input = torch.tensor([
         ...     [-0.01, -0.01, 0.1, 0.2],
         ...     [ 0.00,  0.00, 0.1, 0.2],
