@@ -7,15 +7,21 @@ Any contributions are more than welcome.
 
 ## Development
 
-The `make install` command reads the pyproject.toml file from the current project, resolves the dependencies, and installs them.
+Development requires [Poetry](https://python-poetry.org/) as a dependency management system.
+
+```
+pip install poetry
+```
+
+The `make install` command resolves and installs the dependencies.
 
 ```
 make install
 ```
 
-Before making a pull request, make sure `make test` succeeds and run `make format`.
+Before making a pull request, run `make format` and make sure `make check` succeeds.
 
 ```
-make test
 make format
+make check
 ```
