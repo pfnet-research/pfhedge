@@ -1,5 +1,5 @@
-from typing import Callable, Mapping
-from typing import Dict
+from typing import Callable
+from typing import Mapping
 from typing import Union
 
 from ._base import Feature
