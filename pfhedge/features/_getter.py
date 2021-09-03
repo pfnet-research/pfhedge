@@ -1,3 +1,4 @@
+from typing import Callable
 from typing import Dict
 from typing import Union
 
@@ -14,17 +15,19 @@ from .features import Volatility
 from .features import Zeros
 
 FEATURES = [
-    Empty(),
-    ExpiryTime(),
-    TimeToMaturity(),
-    LogMoneyness(),
-    MaxLogMoneyness(),
-    MaxMoneyness(),
-    Moneyness(),
-    PrevHedge(),
-    Volatility(),
-    Zeros(),
+    Empty,
+    ExpiryTime,
+    TimeToMaturity,
+    LogMoneyness,
+    MaxLogMoneyness,
+    MaxMoneyness,
+    Moneyness,
+    PrevHedge,
+    Volatility,
+    Zeros,
 ]
+
+DICT_FEATURES = {str(f()): f for f in FEATURES}
 
 
 def get_feature(feature: Union[str, Feature]) -> Feature:
@@ -36,7 +39,7 @@ def get_feature(feature: Union[str, Feature]) -> Feature:
     Returns:
         Feature
     """
-    dict_features: Dict[str, Feature] = {str(f): f for f in FEATURES}
+    dict_features: Dict[str, Callable[..., Feature]] = DICT_FEATURES
 
     if isinstance(feature, str):
         if feature not in dict_features:
@@ -44,7 +47,7 @@ def get_feature(feature: Union[str, Feature]) -> Feature:
                 f"{feature} is not a valid value. "
                 "Use sorted(pfhedge.features.FEATURES) to get valid options."
             )
-        feature = dict_features[feature]
+        feature = dict_features[feature]()
     elif not isinstance(feature, Feature):
         raise TypeError(f"{feature} is not an instance of Feature.")
     return feature
