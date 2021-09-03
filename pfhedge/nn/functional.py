@@ -405,8 +405,15 @@ def ncdf(input: Tensor) -> Tensor:
 
     Returns:
         torch.Tensor
+
+    Examples:
+        >>> from pfhedge.nn.functional import ncdf
+        >>>
+        >>> input = torch.tensor([-1.0, 0.0, 10])
+        >>> ncdf(input)
+        tensor([0.1587, 0.5000, 1.0000])
     """
-    return Normal(torch.zeros(1), torch.ones(1)).cdf(input)
+    return Normal(0.0, 1.0).cdf(input)
 
 
 def npdf(input: Tensor) -> Tensor:
@@ -417,8 +424,15 @@ def npdf(input: Tensor) -> Tensor:
 
     Returns:
         torch.Tensor
+
+    Examples:
+        >>> from pfhedge.nn.functional import npdf
+        >>>
+        >>> input = torch.tensor([-1.0, 0.0, 10])
+        >>> npdf(input)
+        tensor([2.4197e-01, 3.9894e-01, 7.6946e-23])
     """
-    return Normal(torch.zeros(1), torch.ones(1)).log_prob(input).exp()
+    return Normal(0.0, 1.0).log_prob(input).exp()
 
 
 def d1(
@@ -433,6 +447,18 @@ def d1(
     """Returns :math:`d_1` in the Black-Scholes formula.
 
     Note:
+        Keyword argument must contain at least one of the following combinations:
+
+        - ``spot`` and ``strike``
+        - ``moneyness``
+        - ``log_moneyness``
+
+    Args:
+        time_to_maturity (torch.Tensor): Time to maturity of the derivative.
+        volatility (torch.Tensor): Volatility of the underlying asset.
+        spot (torch.Tensor, optional): Spot price of the underlying asset.
+        moneyness (torch.Tensor, optional): Moneyness of the underlying asset.
+        log_moneyness (torch.Tensor, optional): Log moneyness of the underlying asset.
 
     Returns:
         torch.Tensor
@@ -460,6 +486,18 @@ def d2(
     """Returns :math:`d_2` in the Black-Scholes formula.
 
     Note:
+        Keyword argument must contain at least one of the following combinations:
+
+        - ``spot`` and ``strike``
+        - ``moneyness``
+        - ``log_moneyness``
+
+    Args:
+        time_to_maturity (torch.Tensor): Time to maturity of the derivative.
+        volatility (torch.Tensor): Volatility of the underlying asset.
+        spot (torch.Tensor, optional): Spot price of the underlying asset.
+        moneyness (torch.Tensor, optional): Moneyness of the underlying asset.
+        log_moneyness (torch.Tensor, optional): Log moneyness of the underlying asset.
 
     Returns:
         torch.Tensor
