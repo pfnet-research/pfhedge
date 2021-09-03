@@ -74,6 +74,9 @@ intersphinx_mapping = {
     "torch": ("https://pytorch.org/docs/stable/", None),
 }
 
+napoleon_use_admonition_for_notes = True
+napoleon_use_admonition_for_references = True
+
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
