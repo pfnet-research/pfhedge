@@ -245,6 +245,7 @@
 <span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
 
 <span class="kn">from</span> <span class="nn">._utils.parse</span> <span class="kn">import</span> <span class="n">parse_spot</span>
+<span class="kn">from</span> <span class="nn">._utils.parse</span> <span class="kn">import</span> <span class="n">parse_volatility</span>
 
 
 <div class="viewcode-block" id="delta"><a class="viewcode-back" href="../../autogreek.html#pfhedge.autogreek.delta">[docs]</a><span class="k">def</span> <span class="nf">delta</span><span class="p">(</span>
@@ -265,9 +266,9 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        pricer (callable): Pricing formula of a derivative.</span>
-<span class="sd">        create_graph (bool, default=False): If ``True``, graph of the derivative</span>
-<span class="sd">            will be constructed, allowing to compute higher order derivative</span>
-<span class="sd">            products.</span>
+<span class="sd">        create_graph (bool, default=False): If ``True``,</span>
+<span class="sd">            graph of the derivative will be constructed,</span>
+<span class="sd">            allowing to compute higher order derivative products.</span>
 <span class="sd">        **params: Parameters passed to ``pricer``.</span>
 
 <span class="sd">    Returns:</span>
@@ -336,7 +337,6 @@
         <span class="k">if</span> <span class="n">parameter</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">signature</span><span class="p">(</span><span class="n">pricer</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="k">del</span> <span class="n">params</span><span class="p">[</span><span class="n">parameter</span><span class="p">]</span>
 
-    <span class="k">assert</span> <span class="n">spot</span><span class="o">.</span><span class="n">requires_grad</span>
     <span class="n">price</span> <span class="o">=</span> <span class="n">pricer</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">autograd</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span>
         <span class="n">price</span><span class="p">,</span>
@@ -364,8 +364,9 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        pricer (callable): Pricing formula of a derivative.</span>
-<span class="sd">        create_graph (bool, default=False): If ``True``, graph of the derivative will be</span>
-<span class="sd">            constructed, allowing to compute higher order derivative products.</span>
+<span class="sd">        create_graph (bool, default=False): If ``True``,</span>
+<span class="sd">            graph of the derivative will be constructed,</span>
+<span class="sd">            allowing to compute higher order derivative products.</span>
 <span class="sd">        **params: Parameters passed to ``pricer``.</span>
 
 <span class="sd">    Returns:</span>
@@ -408,6 +409,66 @@
         <span class="n">tensor_delta</span><span class="p">,</span>
         <span class="n">inputs</span><span class="o">=</span><span class="n">spot</span><span class="p">,</span>
         <span class="n">grad_outputs</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">tensor_delta</span><span class="p">),</span>
+        <span class="n">create_graph</span><span class="o">=</span><span class="n">create_graph</span><span class="p">,</span>
+    <span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="vega"><a class="viewcode-back" href="../../autogreek.html#pfhedge.autogreek.vega">[docs]</a><span class="k">def</span> <span class="nf">vega</span><span class="p">(</span>
+    <span class="n">pricer</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">create_graph</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+    <span class="sd">"""Computes and returns vega of a derivative using automatic differentiation.</span>
+
+<span class="sd">    Vega is a differentiation of a derivative price with respect to</span>
+<span class="sd">    a variance of underlying instrument.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        The keyword argument ``**params`` should contain at least one of the</span>
+<span class="sd">        following parameters:</span>
+
+<span class="sd">        - ``volatility``</span>
+<span class="sd">        - ``variance``</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        pricer (callable): Pricing formula of a derivative.</span>
+<span class="sd">        create_graph (bool, default=False): If ``True``,</span>
+<span class="sd">            graph of the derivative will be constructed,</span>
+<span class="sd">            allowing to compute higher order derivative products.</span>
+<span class="sd">        **params: Parameters passed to ``pricer``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        torch.Tensor</span>
+
+<span class="sd">    Examples:</span>
+
+<span class="sd">        Vega of a European option can be evaluated as follows.</span>
+
+<span class="sd">        &gt;&gt;&gt; import pfhedge.autogreek as autogreek</span>
+<span class="sd">        &gt;&gt;&gt; from pfhedge.nn import BSEuropeanOption</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; pricer = BSEuropeanOption().price</span>
+<span class="sd">        &gt;&gt;&gt; autogreek.vega(</span>
+<span class="sd">        ...     pricer,</span>
+<span class="sd">        ...     log_moneyness=torch.zeros(3),</span>
+<span class="sd">        ...     time_to_maturity=torch.ones(3),</span>
+<span class="sd">        ...     volatility=torch.tensor([0.18, 0.20, 0.22]),</span>
+<span class="sd">        ... )</span>
+<span class="sd">        tensor([0.3973, 0.3970, 0.3965])</span>
+<span class="sd">    """</span>
+    <span class="n">volatility</span> <span class="o">=</span> <span class="n">parse_volatility</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">requires_grad_</span><span class="p">()</span>
+    <span class="n">params</span><span class="p">[</span><span class="s2">"volatility"</span><span class="p">]</span> <span class="o">=</span> <span class="n">volatility</span>
+    <span class="n">params</span><span class="p">[</span><span class="s2">"variance"</span><span class="p">]</span> <span class="o">=</span> <span class="n">volatility</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="c1"># Delete parameters that are not in the signature of pricer to avoid</span>
+    <span class="c1"># TypeError: &lt;pricer&gt; got an unexpected keyword argument '&lt;parameter&gt;'</span>
+    <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+        <span class="k">if</span> <span class="n">parameter</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">signature</span><span class="p">(</span><span class="n">pricer</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">del</span> <span class="n">params</span><span class="p">[</span><span class="n">parameter</span><span class="p">]</span>
+
+    <span class="n">price</span> <span class="o">=</span> <span class="n">pricer</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">autograd</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span>
+        <span class="n">price</span><span class="p">,</span>
+        <span class="n">inputs</span><span class="o">=</span><span class="n">volatility</span><span class="p">,</span>
+        <span class="n">grad_outputs</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">price</span><span class="p">),</span>
         <span class="n">create_graph</span><span class="o">=</span><span class="n">create_graph</span><span class="p">,</span>
     <span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
 </pre></div>

@@ -141,7 +141,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -233,7 +233,7 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
@@ -241,6 +241,8 @@
         <section id="pfhedge-autogreek">
 <h1>pfhedge.autogreek<a class="headerlink" href="#pfhedge-autogreek" title="Permalink to this headline">¶</a></h1>
 <p><cite>pfhedge.autogreek</cite> provides functions implementing automatic evaluation of greeks (susceptibility of derivative price to its input parameters) using automatic differentiation.</p>
+<section id="delta">
+<h2>Delta<a class="headerlink" href="#delta" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="pfhedge.autogreek.delta">
 <span class="sig-prename descclassname"><span class="pre">pfhedge.autogreek.</span></span><span class="sig-name descname"><span class="pre">delta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pricer</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">create_graph</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfhedge/autogreek.html#delta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.autogreek.delta" title="Permalink to this definition">¶</a></dt>
@@ -261,9 +263,9 @@ the following combinations:</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pricer</strong> (<em>callable</em>) – Pricing formula of a derivative.</p></li>
-<li><p><strong>create_graph</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>default=False</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, graph of the derivative
-will be constructed, allowing to compute higher order derivative
-products.</p></li>
+<li><p><strong>create_graph</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>default=False</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>,
+graph of the derivative will be constructed,
+allowing to compute higher order derivative products.</p></li>
 <li><p><strong>**params</strong> – Parameters passed to <code class="docutils literal notranslate"><span class="pre">pricer</span></code>.</p></li>
 </ul>
 </dd>
@@ -317,6 +319,9 @@ products.</p></li>
 </pre></div>
 </div>
 </dd></dl>
+</section>
+<section id="gamma">
+<h2>Gamma<a class="headerlink" href="#gamma" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="pfhedge.autogreek.gamma">
 <span class="sig-prename descclassname"><span class="pre">pfhedge.autogreek.</span></span><span class="sig-name descname"><span class="pre">gamma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pricer</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">create_graph</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfhedge/autogreek.html#gamma"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.autogreek.gamma" title="Permalink to this definition">¶</a></dt>
@@ -337,8 +342,9 @@ the following combinations:</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pricer</strong> (<em>callable</em>) – Pricing formula of a derivative.</p></li>
-<li><p><strong>create_graph</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>default=False</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, graph of the derivative will be
-constructed, allowing to compute higher order derivative products.</p></li>
+<li><p><strong>create_graph</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>default=False</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>,
+graph of the derivative will be constructed,
+allowing to compute higher order derivative products.</p></li>
 <li><p><strong>**params</strong> – Parameters passed to <code class="docutils literal notranslate"><span class="pre">pricer</span></code>.</p></li>
 </ul>
 </dd>
@@ -372,6 +378,55 @@ constructed, allowing to compute higher order derivative products.</p></li>
 </pre></div>
 </div>
 </dd></dl>
+</section>
+<section id="vega">
+<h2>Vega<a class="headerlink" href="#vega" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pfhedge.autogreek.vega">
+<span class="sig-prename descclassname"><span class="pre">pfhedge.autogreek.</span></span><span class="sig-name descname"><span class="pre">vega</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pricer</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">create_graph</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfhedge/autogreek.html#vega"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.autogreek.vega" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes and returns vega of a derivative using automatic differentiation.</p>
+<p>Vega is a differentiation of a derivative price with respect to
+a variance of underlying instrument.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The keyword argument <code class="docutils literal notranslate"><span class="pre">**params</span></code> should contain at least one of the
+following parameters:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">volatility</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">variance</span></code></p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pricer</strong> (<em>callable</em>) – Pricing formula of a derivative.</p></li>
+<li><p><strong>create_graph</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>default=False</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>,
+graph of the derivative will be constructed,
+allowing to compute higher order derivative products.</p></li>
+<li><p><strong>**params</strong> – Parameters passed to <code class="docutils literal notranslate"><span class="pre">pricer</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>torch.Tensor</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Vega of a European option can be evaluated as follows.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pfhedge.autogreek</span> <span class="k">as</span> <span class="nn">autogreek</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">BSEuropeanOption</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pricer</span> <span class="o">=</span> <span class="n">BSEuropeanOption</span><span class="p">()</span><span class="o">.</span><span class="n">price</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">autogreek</span><span class="o">.</span><span class="n">vega</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">pricer</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">log_moneyness</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="n">time_to_maturity</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="n">volatility</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.20</span><span class="p">,</span> <span class="mf">0.22</span><span class="p">]),</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="go">tensor([0.3973, 0.3970, 0.3965])</span>
+</pre></div>
+</div>
+</dd></dl>
+</section>
 </section>
 
       </article>
@@ -416,8 +471,29 @@ constructed, allowing to compute higher order derivative products.</p></li>
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            Contents
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">pfhedge.autogreek</a><ul>
+<li><a class="reference internal" href="#delta">Delta</a></li>
+<li><a class="reference internal" href="#gamma">Gamma</a></li>
+<li><a class="reference internal" href="#vega">Vega</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>

@@ -245,6 +245,10 @@
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">fn</span>
 <span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
+<span class="kn">from</span> <span class="nn">torch.distributions.normal</span> <span class="kn">import</span> <span class="n">Normal</span>
+<span class="kn">from</span> <span class="nn">torch.distributions.utils</span> <span class="kn">import</span> <span class="n">broadcast_all</span>
+
+<span class="kn">from</span> <span class="nn">pfhedge._utils.typing</span> <span class="kn">import</span> <span class="n">TensorOrScalar</span>
 
 
 <div class="viewcode-block" id="european_payoff"><a class="viewcode-back" href="../../../nn.functional.html#pfhedge.nn.functional.european_payoff">[docs]</a><span class="k">def</span> <span class="nf">european_payoff</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">call</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">strike</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
@@ -386,7 +390,7 @@
     <span class="k">if</span> <span class="n">a</span> <span class="o">==</span> <span class="mf">1.0</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">input</span><span class="o">.</span><span class="n">log</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">input</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">a</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="nb">input</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">a</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="topp"><a class="viewcode-back" href="../../../nn.functional.html#pfhedge.nn.functional.topp">[docs]</a><span class="k">def</span> <span class="nf">topp</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">p</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">dim</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">largest</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
@@ -425,7 +429,7 @@
     <span class="k">if</span> <span class="n">dim</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">input</span><span class="o">.</span><span class="n">topk</span><span class="p">(</span><span class="n">ceil</span><span class="p">(</span><span class="n">p</span> <span class="o">*</span> <span class="nb">input</span><span class="o">.</span><span class="n">numel</span><span class="p">()),</span> <span class="n">largest</span><span class="o">=</span><span class="n">largest</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">input</span><span class="o">.</span><span class="n">topk</span><span class="p">(</span><span class="n">ceil</span><span class="p">(</span><span class="n">p</span> <span class="o">*</span> <span class="nb">input</span><span class="o">.</span><span class="n">size</span><span class="p">()[</span><span class="n">dim</span><span class="p">]),</span> <span class="n">dim</span><span class="o">=</span><span class="n">dim</span><span class="p">,</span> <span class="n">largest</span><span class="o">=</span><span class="n">largest</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="nb">input</span><span class="o">.</span><span class="n">topk</span><span class="p">(</span><span class="n">ceil</span><span class="p">(</span><span class="n">p</span> <span class="o">*</span> <span class="nb">input</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">dim</span><span class="p">)),</span> <span class="n">dim</span><span class="o">=</span><span class="n">dim</span><span class="p">,</span> <span class="n">largest</span><span class="o">=</span><span class="n">largest</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="expected_shortfall"><a class="viewcode-back" href="../../../nn.functional.html#pfhedge.nn.functional.expected_shortfall">[docs]</a><span class="k">def</span> <span class="nf">expected_shortfall</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">p</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">dim</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
@@ -505,7 +509,7 @@
     <span class="k">return</span> <span class="n">output</span></div>
 
 
-<div class="viewcode-block" id="realized_variance"><a class="viewcode-back" href="../../../nn.functional.html#pfhedge.nn.functional.realized_variance">[docs]</a><span class="k">def</span> <span class="nf">realized_variance</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">dt</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Tensor</span><span class="p">,</span> <span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+<div class="viewcode-block" id="realized_variance"><a class="viewcode-back" href="../../../nn.functional.html#pfhedge.nn.functional.realized_variance">[docs]</a><span class="k">def</span> <span class="nf">realized_variance</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">dt</span><span class="p">:</span> <span class="n">TensorOrScalar</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
     <span class="sd">"""Returns the realized variance of the price.</span>
 
 <span class="sd">    Realized variance :math:`\\sigma^2` of the stock price :math:`S` is defined as:</span>
@@ -629,6 +633,74 @@
         <span class="n">value</span> <span class="o">-=</span> <span class="n">cost</span> <span class="o">*</span> <span class="n">unit</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span> <span class="o">*</span> <span class="n">spot</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
 
     <span class="k">return</span> <span class="n">value</span></div>
+
+
+<div class="viewcode-block" id="ncdf"><a class="viewcode-back" href="../../../nn.functional.html#pfhedge.nn.functional.ncdf">[docs]</a><span class="k">def</span> <span class="nf">ncdf</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+    <span class="sd">"""Returns a new tensor with the normal cumulative distribution function.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        input (torch.Tensor): The input tensor.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        torch.Tensor</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; from pfhedge.nn.functional import ncdf</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; input = torch.tensor([-1.0, 0.0, 10.0])</span>
+<span class="sd">        &gt;&gt;&gt; ncdf(input)</span>
+<span class="sd">        tensor([0.1587, 0.5000, 1.0000])</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">Normal</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="npdf"><a class="viewcode-back" href="../../../nn.functional.html#pfhedge.nn.functional.npdf">[docs]</a><span class="k">def</span> <span class="nf">npdf</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+    <span class="sd">"""Returns a new tensor with the normal distribution function.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        input (torch.Tensor): The input tensor.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        torch.Tensor</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; from pfhedge.nn.functional import npdf</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; input = torch.tensor([-1.0, 0.0, 10.0])</span>
+<span class="sd">        &gt;&gt;&gt; npdf(input)</span>
+<span class="sd">        tensor([2.4197e-01, 3.9894e-01, 7.6946e-23])</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">Normal</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span><span class="o">.</span><span class="n">log_prob</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span><span class="o">.</span><span class="n">exp</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="d1"><a class="viewcode-back" href="../../../nn.functional.html#pfhedge.nn.functional.d1">[docs]</a><span class="k">def</span> <span class="nf">d1</span><span class="p">(</span><span class="n">log_moneyness</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">time_to_maturity</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">volatility</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+    <span class="sd">"""Returns :math:`d_1` in the Black-Scholes formula.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        log_moneyness (torch.Tensor or float): Log moneyness of the underlying asset.</span>
+<span class="sd">        time_to_maturity (torch.Tensor or float): Time to maturity of the derivative.</span>
+<span class="sd">        volatility (torch.Tensor or float): Volatility of the underlying asset.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        torch.Tensor</span>
+<span class="sd">    """</span>
+    <span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">broadcast_all</span><span class="p">(</span><span class="n">log_moneyness</span><span class="p">,</span> <span class="n">time_to_maturity</span><span class="p">,</span> <span class="n">volatility</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">s</span> <span class="o">+</span> <span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">t</span><span class="p">)</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">v</span> <span class="o">*</span> <span class="n">t</span><span class="o">.</span><span class="n">sqrt</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="d2"><a class="viewcode-back" href="../../../nn.functional.html#pfhedge.nn.functional.d2">[docs]</a><span class="k">def</span> <span class="nf">d2</span><span class="p">(</span><span class="n">log_moneyness</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">time_to_maturity</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">volatility</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+    <span class="sd">"""Returns :math:`d_2` in the Black-Scholes formula.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        log_moneyness (torch.Tensor or float): Log moneyness of the underlying asset.</span>
+<span class="sd">        time_to_maturity (torch.Tensor or float): Time to maturity of the derivative.</span>
+<span class="sd">        volatility (torch.Tensor or float): Volatility of the underlying asset.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        torch.Tensor</span>
+<span class="sd">    """</span>
+    <span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">broadcast_all</span><span class="p">(</span><span class="n">log_moneyness</span><span class="p">,</span> <span class="n">time_to_maturity</span><span class="p">,</span> <span class="n">volatility</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">s</span> <span class="o">-</span> <span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">t</span><span class="p">)</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">v</span> <span class="o">*</span> <span class="n">t</span><span class="o">.</span><span class="n">sqrt</span><span class="p">())</span></div>
 </pre></div>
       </article>
       <footer>
