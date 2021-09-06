@@ -199,3 +199,7 @@ EuropeanOption(
         derivative = EuropeanOption(BrownianStock())
         with pytest.raises(ValueError):
             _ = derivative.spot
+
+    def test_init_dtype_deprecated(self):
+        with pytest.raises(DeprecationWarning):
+            _ = EuropeanOption(BrownianStock(), dtype=torch.float64)

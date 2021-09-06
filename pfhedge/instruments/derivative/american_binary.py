@@ -92,12 +92,13 @@ maturity=5/250, strike=1.01)
         self.strike = strike
         self.maturity = maturity
 
-        if dtype is not None and device is not None:
+        # TODO(simaki): Remove later. Deprecated for > v0.12.3
+        if dtype is not None or device is not None:
+            self.to(dtype=dtype, device=device)
             raise DeprecationWarning(
                 "Specifying device and dtype when constructing a Derivative is deprecated."
                 "Specify them in the constructor of the underlier instead."
             )
-            self.to(dtype=dtype, device=device)
 
     def extra_repr(self):
         params = []
