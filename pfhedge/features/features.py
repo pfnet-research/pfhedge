@@ -71,17 +71,6 @@ class Volatility(StateIndependentFeature):
         return self.derivative.ul().volatility[:, index].unsqueeze(-1)
 
 
-class Variance(StateIndependentFeature):
-    """Variance of the underlier of the derivative."""
-
-    def __str__(self) -> str:
-        return "variance"
-
-    def __getitem__(self, time_step: Optional[int]) -> Tensor:
-        index = [time_step] if isinstance(time_step, int) else ...
-        return self.derivative.ul().variance[:, index].unsqueeze(-1)
-
-
 class PrevHedge(Feature):
     """Previous holding of underlier."""
 

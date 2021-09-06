@@ -14,7 +14,6 @@ from pfhedge.features import ModuleOutput
 from pfhedge.features import Moneyness
 from pfhedge.features import PrevHedge
 from pfhedge.features import TimeToMaturity
-from pfhedge.features import Variance
 from pfhedge.features import Volatility
 from pfhedge.features import Zeros
 from pfhedge.instruments import BrownianStock
@@ -249,71 +248,6 @@ class TestVolatility(_TestFeature):
         derivative = EuropeanOption(BrownianStock())
         hedger = Hedger(Naked(), inputs=["empty"])
         f = Volatility().of(derivative, hedger)
-        assert not f.is_state_dependent()
-
-
-class TestVariance(_TestFeature):
-    @pytest.mark.parametrize("sigma", [0.2, 0.1])
-    def test_constant_volatility(self, sigma):
-        derivative = EuropeanOption(BrownianStock(sigma=sigma))
-        derivative.underlier.register_buffer("spot", torch.empty(2, 3))
-
-        f = Variance().of(derivative)
-
-        result = f[0]
-        expect = torch.full((2, 1), sigma ** 2)
-        expect = expect.unsqueeze(-1)
-        assert_close(result, expect, check_stride=False)
-
-        result = f[1]
-        expect = torch.full((2, 1), sigma ** 2)
-        expect = expect.unsqueeze(-1)
-        assert_close(result, expect, check_stride=False)
-
-        result = f[2]
-        expect = torch.full((2, 1), sigma ** 2)
-        expect = expect.unsqueeze(-1)
-        assert_close(result, expect, check_stride=False)
-
-        result = f[None]
-        expect = torch.full((2, 3), sigma ** 2)
-        expect = expect.unsqueeze(-1)
-        assert_close(result, expect, check_stride=False)
-
-    def test_stochastic_volatility(self):
-        derivative = EuropeanOption(HestonStock(dt=0.1), maturity=0.2)
-        derivative.simulate(n_paths=2)
-        variance = derivative.ul().variance
-
-        f = Variance().of(derivative)
-
-        result = f[0]
-        expect = variance[:, [0]]
-        expect = expect.unsqueeze(-1)
-        assert_close(result, expect, check_stride=False)
-
-        result = f[1]
-        expect = variance[:, [1]]
-        expect = expect.unsqueeze(-1)
-        assert_close(result, expect, check_stride=False)
-
-        result = f[None]
-        expect = variance
-        expect = expect.unsqueeze(-1)
-        assert_close(result, expect, check_stride=False)
-
-    def test_str(self):
-        assert str(Variance()) == "variance"
-
-    @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
-    def test_dtype(self, dtype):
-        derivative = EuropeanOption(BrownianStock())
-        self.assert_same_dtype(Variance(), derivative, dtype)
-
-    def test_is_state_dependent(self):
-        derivative = EuropeanOption(BrownianStock())
-        hedger = Hedger(Naked(), inputs=["empty"])
-        f = Variance().of(derivative, hedger)
         assert not f.is_state_dependent()
 
 
