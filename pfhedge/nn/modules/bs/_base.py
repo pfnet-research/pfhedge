@@ -5,7 +5,6 @@ from typing import no_type_check
 
 import torch
 from torch import Tensor
-from torch.distributions.normal import Normal
 from torch.nn import Module
 
 import pfhedge.autogreek as autogreek
@@ -78,42 +77,3 @@ class BSModuleMixin(Module):
             list
         """
         return list(signature(self.delta).parameters.keys())
-
-    @property
-    def N(self) -> Normal:
-        """Returns normal distribution with zero mean and unit standard deviation."""
-        return Normal(torch.tensor(0.0), torch.tensor(1.0))
-
-    @staticmethod
-    def d1(
-        log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor
-    ) -> Tensor:
-        """Returns :math:`d_1` in the Black-Scholes formula.
-
-        Args:
-            log_moneyness (torch.Tensor): Log moneyness of the underlying asset.
-            time_to_maturity (torch.Tensor): Time to expiry of the option.
-            volatility (torch.Tensor): Volatility of the underlying asset.
-
-        Returns:
-            torch.Tensor
-        """
-        s, t, v = map(torch.as_tensor, (log_moneyness, time_to_maturity, volatility))
-        return (s + (v.pow(2) / 2) * t) / (v * t.sqrt())
-
-    @staticmethod
-    def d2(
-        log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor
-    ) -> Tensor:
-        """Returns :math:`d_2` in the Black-Scholes formula.
-
-        Args:
-            log_moneyness (torch.Tensor): Log moneyness of the underlying asset.
-            time_to_maturity (torch.Tensor): Time to expiry of the option.
-            volatility (torch.Tensor): Volatility of the underlying asset.
-
-        Returns:
-            torch.Tensor
-        """
-        s, t, v = map(torch.as_tensor, (log_moneyness, time_to_maturity, volatility))
-        return (s - (v.pow(2) / 2) * t) / (v * t.sqrt())
