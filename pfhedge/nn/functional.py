@@ -108,7 +108,7 @@ def exp_utility(input: Tensor, a: float = 1.0) -> Tensor:
 
     An exponential utility function is defined as:
 
-    .. math ::
+    .. math::
 
         u(x) = -\\exp(-a x) \\,.
 
@@ -128,7 +128,7 @@ def isoelastic_utility(input: Tensor, a: float) -> Tensor:
 
     An isoelastic utility function is defined as:
 
-    .. math ::
+    .. math::
 
         u(x) = \\begin{cases}
         x^{1 - a} & a \\neq 1 \\\\
@@ -270,15 +270,14 @@ def realized_variance(input: Tensor, dt: Union[Tensor, float]) -> Tensor:
 
     Realized variance :math:`\\sigma^2` of the stock price :math:`S` is defined as:
 
-    .. math ::
+    .. math::
 
         \\sigma^2 = \\frac{1}{T - 1} \\sum_{i = 1}^{T - 1}
         \\frac{1}{dt} \\log(S_{i + 1} / S_i)^2
 
     where :math:`T` is the number of time steps.
 
-    .. note ::
-
+    Note:
         The mean of log return is assumed to be zero.
 
     Args:
@@ -347,9 +346,7 @@ def terminal_value(
     The resulting profit and loss is obtained by adding up the payoff to the
     customer, capital gains from the underlying asset, and the transaction cost.
 
-    .. admonition:: References
-        :class: seealso
-
+    References:
         - Buehler, H., Gonon, L., Teichmann, J. and Wood, B., 2019.
           Deep hedging. Quantitative Finance, 19(8), pp.1271-1291.
           [arXiv:`1802.03042 <https://arxiv.org/abs/1802.03042>`_ [q-fin]]

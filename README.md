@@ -7,9 +7,10 @@
 [![downloads](https://img.shields.io/pypi/dm/pfhedge)](https://pypi.org/project/pfhedge)
 [![code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-[Documentation](https://pfnet-research.github.io/pfhedge/)
-
 **PFHedge** is a [PyTorch](https://pytorch.org/)-based framework for [Deep Hedging][deep-hedging-arxiv].
+
+* [PFHedge Documentation](https://pfnet-research.github.io/pfhedge/)
+* [Neural Network Architecture for Efficient Deep Hedging](https://tech.preferred.jp/en/blog/neural-network-architecture-for-efficient-deep-hedging/) ([Japanese version](https://tech.preferred.jp/ja/blog/deep-hedging/))
 
 ## What is Deep Hedging?
 
