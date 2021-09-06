@@ -6,8 +6,8 @@ from typing import Union
 import torch
 from torch import Tensor
 
-from pfhedge._utils.doc import set_attr_and_docstring
-from pfhedge._utils.doc import set_docstring
+from pfhedge._utils.doc import _set_attr_and_docstring
+from pfhedge._utils.doc import _set_docstring
 from pfhedge._utils.str import _format_float
 from pfhedge._utils.typing import TensorOrScalar
 from pfhedge.stochastic import generate_cir
@@ -37,7 +37,7 @@ class CIRRate(Primary):
 
     Buffers:
         - spot (:class:`torch.Tensor`): The spot rate of the instrument.
-          This attribute is set by a method :func:`simulate()`.
+          This attribute is set by a method :meth:`simulate()`.
           The shape is :math:`(N, T)` where
           :math:`N` is the number of simulated paths and
           :math:`T` is the number of time steps.
@@ -100,7 +100,7 @@ class CIRRate(Primary):
                 This is specified by a tuple :math:`(S(0),)` where
                 :math:`S(0)` is the initial values of of spot.
                 If ``None`` (default), it uses the default value
-                (See :func:`default_init_state`).
+                (See :attr:`default_init_state`).
         """
         if init_state is None:
             init_state = self.default_init_state
@@ -132,5 +132,5 @@ class CIRRate(Primary):
 
 
 # Assign docstrings so they appear in Sphinx documentation
-set_docstring(CIRRate, "default_init_state", Primary.default_init_state)
-set_attr_and_docstring(CIRRate, "to", Primary.to)
+_set_docstring(CIRRate, "default_init_state", Primary.default_init_state)
+_set_attr_and_docstring(CIRRate, "to", Primary.to)

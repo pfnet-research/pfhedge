@@ -12,8 +12,8 @@ import torch
 from torch import Tensor
 from torch.nn import Module
 
-from pfhedge._utils.doc import set_attr_and_docstring
-from pfhedge._utils.doc import set_docstring
+from pfhedge._utils.doc import _set_attr_and_docstring
+from pfhedge._utils.doc import _set_docstring
 from pfhedge._utils.typing import TensorOrScalar
 
 from ..base import Instrument
@@ -77,7 +77,7 @@ class Primary(Instrument):
             init_state (tuple[torch.Tensor | float], optional): The initial state of
                 the instrument.
                 If ``None`` (default), it uses the default value
-                (See :func:`default_init_state`).
+                (See :attr:`default_init_state`).
         """
 
     def register_buffer(self, name: str, tensor: Optional[Tensor]) -> None:
@@ -202,9 +202,9 @@ class Primary(Instrument):
 
 
 # Assign docstrings so they appear in Sphinx documentation
-set_docstring(Primary, "to", Instrument.to)
-set_attr_and_docstring(Primary, "cpu", Instrument.cpu)
-set_attr_and_docstring(Primary, "cuda", Instrument.cuda)
-set_attr_and_docstring(Primary, "double", Instrument.double)
-set_attr_and_docstring(Primary, "float", Instrument.float)
-set_attr_and_docstring(Primary, "half", Instrument.half)
+_set_docstring(Primary, "to", Instrument.to)
+_set_attr_and_docstring(Primary, "cpu", Instrument.cpu)
+_set_attr_and_docstring(Primary, "cuda", Instrument.cuda)
+_set_attr_and_docstring(Primary, "double", Instrument.double)
+_set_attr_and_docstring(Primary, "float", Instrument.float)
+_set_attr_and_docstring(Primary, "half", Instrument.half)
