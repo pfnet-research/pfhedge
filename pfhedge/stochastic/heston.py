@@ -8,10 +8,9 @@ import torch
 from torch import Tensor
 
 from pfhedge._utils.str import _addindent
+from pfhedge._utils.typing import TensorOrScalar
 
 from .cir import generate_cir
-
-TensorOrFloat = Union[Tensor, float]
 
 
 class HestonTuple(namedtuple("HestonTuple", ["spot", "variance"])):
@@ -33,7 +32,7 @@ class HestonTuple(namedtuple("HestonTuple", ["spot", "variance"])):
 def generate_heston(
     n_paths: int,
     n_steps: int,
-    init_state: Tuple[TensorOrFloat, ...] = (1.0, 0.04),
+    init_state: Tuple[TensorOrScalar, ...] = (1.0, 0.04),
     kappa: float = 1.0,
     theta: float = 0.04,
     sigma: float = 0.2,

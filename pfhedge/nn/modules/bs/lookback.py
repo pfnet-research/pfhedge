@@ -1,14 +1,17 @@
 from typing import List
-from typing import Optional
 
 import torch
 from torch import Tensor
+from torch.distributions.utils import broadcast_all
 
-import pfhedge.autogreek as autogreek
 from pfhedge._utils.bisect import find_implied_volatility
 from pfhedge._utils.doc import _set_attr_and_docstring
 from pfhedge._utils.doc import _set_docstring
 from pfhedge._utils.str import _format_float
+from pfhedge.nn.functional import d1
+from pfhedge.nn.functional import d2
+from pfhedge.nn.functional import ncdf
+from pfhedge.nn.functional import npdf
 
 from ._base import BSModuleMixin
 
@@ -125,24 +128,24 @@ class BSLookbackOption(BSModuleMixin):
             (log_moneyness, max_log_moneyness, time_to_maturity, volatility),
         )
 
-        d1 = self.d1(s, t, v)
-        d2 = self.d2(s, t, v)
-        e1 = (s - m + (v ** 2 / 2) * t) / (v * t.sqrt())  # d' in paper
-        e2 = (s - m - (v ** 2 / 2) * t) / (v * t.sqrt())
+        d1_ = d1(s, t, v)
+        d2_ = d2(s, t, v)
+        e1 = (s - m + (v.pow(2) / 2) * t) / (v * t.sqrt())  # d' in paper
+        e2 = (s - m - (v.pow(2) / 2) * t) / (v * t.sqrt())
 
         # when max moneyness < strike
         price_0 = self.strike * (
-            s.exp() * self.N.cdf(d1)
-            - self.N.cdf(d2)
-            + s.exp() * v * t.sqrt() * (d1 * self.N.cdf(d1) + self.N.log_prob(d1).exp())
+            s.exp() * ncdf(d1_)
+            - ncdf(d2_)
+            + s.exp() * v * t.sqrt() * (d1_ * ncdf(d1_) + npdf(d1_))
         )
         # when max moneyness >= strike
         price_1 = self.strike * (
-            s.exp() * self.N.cdf(e1)
-            - m.exp() * self.N.cdf(e2)
+            s.exp() * ncdf(e1)
+            - m.exp() * ncdf(e2)
             + m.exp()
             - 1
-            + s.exp() * v * t.sqrt() * (e1 * self.N.cdf(e1) + self.N.log_prob(e1).exp())
+            + s.exp() * v * t.sqrt() * (e1 * ncdf(e1) + npdf(e1))
         )
 
         return torch.where(m < 0, price_0, price_1)
@@ -155,7 +158,6 @@ class BSLookbackOption(BSModuleMixin):
         time_to_maturity: Tensor,
         volatility: Tensor,
         create_graph: bool = False,
-        strike: Optional[Tensor] = None,
     ) -> Tensor:
         """Returns delta of the derivative.
 
@@ -178,8 +180,7 @@ class BSLookbackOption(BSModuleMixin):
         Returns:
             torch.Tensor
         """
-        return autogreek.delta(
-            self.price,
+        return super().delta(
             log_moneyness=log_moneyness,
             max_log_moneyness=max_log_moneyness,
             time_to_maturity=time_to_maturity,
@@ -215,8 +216,7 @@ class BSLookbackOption(BSModuleMixin):
         Returns:
             torch.Tensor
         """
-        return autogreek.gamma(
-            self.price,
+        return super().gamma(
             strike=self.strike,
             log_moneyness=log_moneyness,
             max_log_moneyness=max_log_moneyness,

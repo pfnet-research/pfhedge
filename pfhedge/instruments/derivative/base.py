@@ -13,12 +13,12 @@ from torch import Tensor
 from pfhedge._utils.doc import _set_attr_and_docstring
 from pfhedge._utils.doc import _set_docstring
 from pfhedge._utils.str import _addindent
+from pfhedge._utils.typing import TensorOrScalar
 
 from ..base import Instrument
 from ..primary.base import Primary
 
 T = TypeVar("T", bound="Derivative")
-TensorOrFloat = Union[Tensor, float]
 
 
 class Derivative(Instrument):
@@ -60,7 +60,7 @@ class Derivative(Instrument):
         return self.underlier.device
 
     def simulate(
-        self, n_paths: int = 1, init_state: Optional[Tuple[TensorOrFloat, ...]] = None
+        self, n_paths: int = 1, init_state: Optional[Tuple[TensorOrScalar, ...]] = None
     ) -> None:
         """Simulate time series associated with the underlier.
 

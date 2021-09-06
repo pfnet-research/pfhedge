@@ -10,11 +10,10 @@ from torch import Tensor
 from pfhedge._utils.doc import _set_attr_and_docstring
 from pfhedge._utils.doc import _set_docstring
 from pfhedge._utils.str import _format_float
+from pfhedge._utils.typing import TensorOrScalar
 from pfhedge.stochastic import generate_geometric_brownian
 
 from .base import Primary
-
-TensorOrFloat = Union[Tensor, float]
 
 
 class BrownianStock(Primary):
@@ -104,7 +103,7 @@ class BrownianStock(Primary):
         self,
         n_paths: int = 1,
         time_horizon: float = 20 / 250,
-        init_state: Optional[Tuple[TensorOrFloat]] = None,
+        init_state: Optional[Tuple[TensorOrScalar]] = None,
     ) -> None:
         """Simulate the spot price and add it as a buffer named ``spot``.
 

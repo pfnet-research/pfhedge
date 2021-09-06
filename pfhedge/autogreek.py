@@ -5,6 +5,7 @@ import torch
 from torch import Tensor
 
 from ._utils.parse import parse_spot
+from ._utils.parse import parse_volatility
 
 
 def delta(
@@ -25,9 +26,9 @@ def delta(
 
     Args:
         pricer (callable): Pricing formula of a derivative.
-        create_graph (bool, default=False): If ``True``, graph of the derivative
-            will be constructed, allowing to compute higher order derivative
-            products.
+        create_graph (bool, default=False): If ``True``,
+            graph of the derivative will be constructed,
+            allowing to compute higher order derivative products.
         **params: Parameters passed to ``pricer``.
 
     Returns:
@@ -96,7 +97,6 @@ def delta(
         if parameter not in signature(pricer).parameters.keys():
             del params[parameter]
 
-    assert spot.requires_grad
     price = pricer(**params)
     return torch.autograd.grad(
         price,
@@ -124,8 +124,9 @@ def gamma(
 
     Args:
         pricer (callable): Pricing formula of a derivative.
-        create_graph (bool, default=False): If ``True``, graph of the derivative will be
-            constructed, allowing to compute higher order derivative products.
+        create_graph (bool, default=False): If ``True``,
+            graph of the derivative will be constructed,
+            allowing to compute higher order derivative products.
         **params: Parameters passed to ``pricer``.
 
     Returns:
@@ -168,5 +169,65 @@ def gamma(
         tensor_delta,
         inputs=spot,
         grad_outputs=torch.ones_like(tensor_delta),
+        create_graph=create_graph,
+    )[0]
+
+
+def vega(
+    pricer: Callable[..., Tensor], *, create_graph: bool = False, **params
+) -> Tensor:
+    """Computes and returns vega of a derivative using automatic differentiation.
+
+    Vega is a differentiation of a derivative price with respect to
+    a variance of underlying instrument.
+
+    Note:
+        The keyword argument ``**params`` should contain at least one of the
+        following parameters:
+
+        - ``volatility``
+        - ``variance``
+
+    Args:
+        pricer (callable): Pricing formula of a derivative.
+        create_graph (bool, default=False): If ``True``,
+            graph of the derivative will be constructed,
+            allowing to compute higher order derivative products.
+        **params: Parameters passed to ``pricer``.
+
+    Returns:
+        torch.Tensor
+
+    Examples:
+
+        Vega of a European option can be evaluated as follows.
+
+        >>> import pfhedge.autogreek as autogreek
+        >>> from pfhedge.nn import BSEuropeanOption
+        >>>
+        >>> pricer = BSEuropeanOption().price
+        >>> autogreek.vega(
+        ...     pricer,
+        ...     log_moneyness=torch.zeros(3),
+        ...     time_to_maturity=torch.ones(3),
+        ...     volatility=torch.tensor([0.18, 0.20, 0.22]),
+        ... )
+        tensor([0.3973, 0.3970, 0.3965])
+    """
+    volatility = parse_volatility(**params).requires_grad_()
+    params["volatility"] = volatility
+    params["variance"] = volatility.pow(2)
+
+    # Delete parameters that are not in the signature of pricer to avoid
+    # TypeError: <pricer> got an unexpected keyword argument '<parameter>'
+    for parameter in list(params.keys()):
+        if parameter not in signature(pricer).parameters.keys():
+            del params[parameter]
+
+    price = pricer(**params)
+    return torch.autograd.grad(
+        price,
+        inputs=volatility,
+        grad_outputs=torch.ones_like(price),
         create_graph=create_graph,
     )[0]

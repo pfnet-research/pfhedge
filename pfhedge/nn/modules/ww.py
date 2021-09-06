@@ -149,6 +149,6 @@ class WhalleyWilmott(Module):
 
         spot = self.derivative.strike * input[..., [0]].exp()
         gamma = self.bs.gamma(*(input[..., [i]] for i in range(input.size(-1))))
-        width = (cost * (3 / 2) * (gamma ** 2) * spot / self.a) ** (1 / 3)
+        width = (cost * (3 / 2) * gamma.pow(2) * spot / self.a).pow(1 / 3)
 
         return width
