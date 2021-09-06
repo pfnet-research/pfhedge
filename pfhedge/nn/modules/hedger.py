@@ -1,3 +1,4 @@
+from typing import Callable
 from typing import List
 from typing import Optional
 from typing import Tuple
@@ -430,16 +431,18 @@ class Hedger(Module):
         return mean_loss
 
     def _configure_optimizer(
-        self, derivative: Derivative, optimizer: Union[Optimizer, type]
+        self,
+        derivative: Derivative,
+        optimizer: Union[Optimizer, Callable[..., Optimizer]],
     ) -> Optimizer:
-        if isinstance(optimizer, type):
+        if not isinstance(optimizer, Optimizer):
             if has_lazy(self):
                 # Run a placeholder forward to initialize lazy parameters
                 _ = self.compute_pnl(derivative, n_paths=1)
             # If we use `if issubclass(optimizer, Optimizer)` here, mypy thinks that
             # optimizer is Optimizer rather than its subclass (e.g. Adam)
             # and complains that the required parameter default is missing.
-            if Optimizer in optimizer.__mro__:
+            if Optimizer in getattr(optimizer, "__mro__", []):
                 optimizer = cast(Optimizer, optimizer(self.model.parameters()))
             else:
                 raise TypeError("optimizer is not an Optimizer type")
@@ -452,7 +455,7 @@ class Hedger(Module):
         n_epochs: int = 100,
         n_paths: int = 1000,
         n_times: int = 1,
-        optimizer=Adam,
+        optimizer: Union[Optimizer, Callable[..., Optimizer]] = Adam,
         init_state: Optional[Tuple[TensorOrFloat, ...]] = None,
         verbose: bool = True,
         validation: bool = True,
