@@ -50,14 +50,6 @@ class EuropeanBinaryOption(BaseOption):
         call (bool, default=True): Specifies whether the option is call or put.
         strike (float, default=1): The strike price of the option.
         maturity (float, default=20/250) The maturity of the option.
-        dtype (torch.dtype, optional): Desired device of returned tensor.
-            Default: If None, uses a global default
-            (see :func:`torch.set_default_tensor_type()`).
-        device (torch.device, optional): Desired device of returned tensor.
-            Default: if None, uses the current device for the default tensor type
-            (see :func:`torch.set_default_tensor_type()`).
-            ``device`` will be the CPU for CPU tensor types and
-            the current CUDA device for CUDA tensor types.
 
     Attributes:
         dtype (torch.dtype): The dtype with which the simulated time-series are
@@ -95,7 +87,12 @@ class EuropeanBinaryOption(BaseOption):
         self.strike = strike
         self.maturity = maturity
 
-        self.to(dtype=dtype, device=device)
+        if dtype is not None and device is not None:
+            raise DeprecationWarning(
+                "Specifying device and dtype when constructing a Derivative is deprecated."
+                "Specify them in the constructor of the underlier instead."
+            )
+            self.to(dtype=dtype, device=device)
 
     def extra_repr(self) -> str:
         params = []
