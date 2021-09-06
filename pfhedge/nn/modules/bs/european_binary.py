@@ -3,7 +3,6 @@ from typing import List
 import torch
 from torch import Tensor
 
-import pfhedge.autogreek as autogreek
 from pfhedge._utils.bisect import find_implied_volatility
 from pfhedge._utils.doc import _set_attr_and_docstring
 from pfhedge._utils.doc import _set_docstring
@@ -163,8 +162,7 @@ class BSEuropeanBinaryOption(BSModuleMixin):
         Returns:
             torch.Tensor
         """
-        return autogreek.gamma(
-            self.price,
+        return super().gamma(
             strike=self.strike,
             log_moneyness=log_moneyness,
             time_to_maturity=time_to_maturity,
