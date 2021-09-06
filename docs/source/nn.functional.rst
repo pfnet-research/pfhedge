@@ -30,3 +30,7 @@ Other Functions
 .. autofunction:: realized_variance
 .. autofunction:: realized_volatility
 .. autofunction:: terminal_value
+.. autofunction:: ncdf
+.. autofunction:: npdf
+.. autofunction:: d1
+.. autofunction:: d2

@@ -407,7 +407,7 @@ def ncdf(input: Tensor) -> Tensor:
     Examples:
         >>> from pfhedge.nn.functional import ncdf
         >>>
-        >>> input = torch.tensor([-1.0, 0.0, 10])
+        >>> input = torch.tensor([-1.0, 0.0, 10.0])
         >>> ncdf(input)
         tensor([0.1587, 0.5000, 1.0000])
     """
@@ -426,7 +426,7 @@ def npdf(input: Tensor) -> Tensor:
     Examples:
         >>> from pfhedge.nn.functional import npdf
         >>>
-        >>> input = torch.tensor([-1.0, 0.0, 10])
+        >>> input = torch.tensor([-1.0, 0.0, 10.0])
         >>> npdf(input)
         tensor([2.4197e-01, 3.9894e-01, 7.6946e-23])
     """
@@ -445,7 +445,7 @@ def d1(log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor) -> T
         torch.Tensor
     """
     s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
-    return (s + (v ** 2 / 2) * t) / (v * t.sqrt())
+    return (s + (v.pow(2) / 2) * t).div(v * t.sqrt())
 
 
 def d2(log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor) -> Tensor:
@@ -460,4 +460,4 @@ def d2(log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor) -> T
         torch.Tensor
     """
     s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
-    return (s - (v ** 2 / 2) * t) / (v * t.sqrt())
+    return (s - (v.pow(2) / 2) * t).div(v * t.sqrt())
