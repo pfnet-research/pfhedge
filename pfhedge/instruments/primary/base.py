@@ -14,11 +14,11 @@ from torch.nn import Module
 
 from pfhedge._utils.doc import set_attr_and_docstring
 from pfhedge._utils.doc import set_docstring
+from pfhedge._utils.typing import TensorOrScalar
 
 from ..base import Instrument
 
 T = TypeVar("T", bound="Primary")
-TensorOrFloat = Union[float, Tensor]
 
 
 class Primary(Instrument):
@@ -52,7 +52,7 @@ class Primary(Instrument):
         self.register_buffer("spot", None)
 
     @property
-    def default_init_state(self) -> Tuple[TensorOrFloat, ...]:
+    def default_init_state(self) -> Tuple[TensorOrScalar, ...]:
         """Returns the default initial state of simulation."""
 
     # TODO(simaki): Remove @no_type_check once BrownianStock and HestonStock get
@@ -63,7 +63,7 @@ class Primary(Instrument):
         self,
         n_paths: int,
         time_horizon: float,
-        init_state: Optional[Tuple[TensorOrFloat, ...]] = None,
+        init_state: Optional[Tuple[TensorOrScalar, ...]] = None,
     ) -> None:
         """Simulate time series associated with the instrument and add them as buffers.
 

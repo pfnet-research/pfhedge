@@ -17,6 +17,7 @@ from pfhedge._utils.hook import save_prev_output
 from pfhedge._utils.lazy import has_lazy
 from pfhedge._utils.operations import ensemble_mean
 from pfhedge._utils.str import _format_float
+from pfhedge._utils.typing import TensorOrScalar
 from pfhedge.features import FeatureList
 from pfhedge.features._base import Feature
 from pfhedge.instruments.base import Instrument
@@ -26,8 +27,6 @@ from pfhedge.nn.functional import terminal_value
 
 from .loss import EntropicRiskMeasure
 from .loss import HedgeLoss
-
-TensorOrFloat = Union[Tensor, float]
 
 
 class Hedger(Module):
@@ -322,7 +321,7 @@ class Hedger(Module):
         derivative: Derivative,
         hedge: Optional[List[Instrument]] = None,
         n_paths: int = 1000,
-        init_state: Optional[Tuple[TensorOrFloat, ...]] = None,
+        init_state: Optional[Tuple[TensorOrScalar, ...]] = None,
     ) -> Tensor:
         """Returns the terminal portfolio value after hedging a given derivative.
 
@@ -378,7 +377,7 @@ class Hedger(Module):
         hedge: Optional[List[Instrument]] = None,
         n_paths: int = 1000,
         n_times: int = 1,
-        init_state: Optional[Tuple[TensorOrFloat, ...]] = None,
+        init_state: Optional[Tuple[TensorOrScalar, ...]] = None,
         enable_grad: bool = True,
     ) -> Tensor:
         """Returns the value of the criterion for the terminal portfolio value
@@ -455,7 +454,7 @@ class Hedger(Module):
         n_paths: int = 1000,
         n_times: int = 1,
         optimizer=Adam,
-        init_state: Optional[Tuple[TensorOrFloat, ...]] = None,
+        init_state: Optional[Tuple[TensorOrScalar, ...]] = None,
         verbose: bool = True,
         validation: bool = True,
     ) -> Optional[List[float]]:
@@ -568,7 +567,7 @@ class Hedger(Module):
         hedge: Optional[List[Instrument]] = None,
         n_paths: int = 1000,
         n_times: int = 1,
-        init_state: Optional[Tuple[TensorOrFloat, ...]] = None,
+        init_state: Optional[Tuple[TensorOrScalar, ...]] = None,
         enable_grad: bool = False,
     ) -> Tensor:
         """Evaluate the premium of the given derivative.
