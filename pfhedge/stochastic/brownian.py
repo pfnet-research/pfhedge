@@ -148,5 +148,5 @@ def generate_geometric_brownian(
         dtype=dtype,
         device=device,
     )
-    t = dt * torch.arange(n_steps).to(brownian).reshape(1, -1)
+    t = dt * torch.arange(n_steps).to(brownian).unsqueeze(0)
     return init_state[0] * (brownian - (sigma ** 2) * t / 2).exp()
