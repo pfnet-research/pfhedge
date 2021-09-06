@@ -1,6 +1,5 @@
 from typing import Optional
 
-import torch
 from torch import Tensor
 
 
@@ -19,4 +18,15 @@ def parse_spot(
     elif log_moneyness is not None and strike is not None:
         return log_moneyness.exp() * strike
     else:
-        raise ValueError("Insufficient parameters to parse `spot`")
+        raise ValueError("Insufficient parameters to parse spot")
+
+
+def parse_volatility(
+    *, volatility: Optional[Tensor] = None, variance: Optional[Tensor] = None, **kwargs
+) -> Tensor:
+    if volatility is not None:
+        return volatility
+    elif variance is not None:
+        return variance.clamp(min=0.0).sqrt()
+    else:
+        raise ValueError("Insufficient parameters to parse volatility")

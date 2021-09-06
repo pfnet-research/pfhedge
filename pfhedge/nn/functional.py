@@ -146,7 +146,7 @@ def isoelastic_utility(input: Tensor, a: float) -> Tensor:
     if a == 1.0:
         return input.log()
     else:
-        return input ** (1.0 - a)
+        return input.pow(1.0 - a)
 
 
 def topp(input: Tensor, p: float, dim: Optional[int] = None, largest: bool = True):
