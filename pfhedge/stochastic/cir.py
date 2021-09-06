@@ -6,17 +6,17 @@ from typing import cast
 import torch
 from torch import Tensor
 
-TensorOrFloat = Union[Tensor, float]
+from pfhedge._utils.typing import TensorOrScalar
 
 
 def generate_cir(
     n_paths: int,
     n_steps: int,
-    init_state: Tuple[TensorOrFloat, ...] = (0.04,),
-    kappa: TensorOrFloat = 1.0,
-    theta: TensorOrFloat = 0.04,
-    sigma: TensorOrFloat = 0.2,
-    dt: TensorOrFloat = 1 / 250,
+    init_state: Tuple[TensorOrScalar, ...] = (0.04,),
+    kappa: TensorOrScalar = 1.0,
+    theta: TensorOrScalar = 0.04,
+    sigma: TensorOrScalar = 0.2,
+    dt: TensorOrScalar = 1 / 250,
     dtype: Optional[torch.dtype] = None,
     device: Optional[torch.device] = None,
 ) -> Tensor:

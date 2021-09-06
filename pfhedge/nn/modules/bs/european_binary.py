@@ -2,11 +2,16 @@ from typing import List
 
 import torch
 from torch import Tensor
+from torch.distributions.utils import broadcast_all
 
 from pfhedge._utils.bisect import find_implied_volatility
 from pfhedge._utils.doc import _set_attr_and_docstring
 from pfhedge._utils.doc import _set_docstring
 from pfhedge._utils.str import _format_float
+from pfhedge.nn.functional import d1
+from pfhedge.nn.functional import d2
+from pfhedge.nn.functional import ncdf
+from pfhedge.nn.functional import npdf
 
 from ._base import BSModuleMixin
 
@@ -109,9 +114,9 @@ class BSEuropeanBinaryOption(BSModuleMixin):
         Returns:
             torch.Tensor
         """
-        s, t, v = map(torch.as_tensor, (log_moneyness, time_to_maturity, volatility))
+        s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
 
-        price = self.N.cdf(self.d2(s, t, v))
+        price = ncdf(d2(s, t, v))
         price = 1.0 - price if not self.call else price  # put-call parity
 
         return price
@@ -136,11 +141,9 @@ class BSEuropeanBinaryOption(BSModuleMixin):
         Returns:
             torch.Tensor
         """
-        s, t, v = map(torch.as_tensor, (log_moneyness, time_to_maturity, volatility))
+        s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
 
-        delta = self.N.log_prob(self.d2(s, t, v)).exp() / (
-            self.strike * s.exp() * v * t.sqrt()
-        )
+        delta = npdf(d2(s, t, v)) / (self.strike * s.exp() * v * t.sqrt())
         return delta
 
     def gamma(
