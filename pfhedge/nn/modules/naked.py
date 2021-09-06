@@ -33,5 +33,4 @@ class Naked(Module):
         self.out_features = out_features
 
     def forward(self, input: Tensor) -> Tensor:
-        size = input.size()[:-1] + (self.out_features,)
-        return torch.zeros(size, dtype=input.dtype, device=input.device)
+        return input.new_zeros(input.size()[:-1] + (self.out_features,))
