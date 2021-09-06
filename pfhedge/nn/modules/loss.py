@@ -68,7 +68,7 @@ class EntropicRiskMeasure(HedgeLoss):
     The entropic risk measure of the profit-loss distribution
     :math:`\\text{pnl}` is given by:
 
-    .. math ::
+    .. math::
 
         \\text{loss}(\\text{pnl}) = \\frac{1}{a}
         \\log(- \\mathbf{E}[u(\\text{pnl})]) \\,,
@@ -119,7 +119,7 @@ class EntropicLoss(HedgeLoss):
 
     The loss of the profit-loss :math:`\\text{pnl}` is given by:
 
-    .. math ::
+    .. math::
 
         \\text{loss}(\\text{pnl}) = -\\mathbf{E}[u(\\text{pnl})] \\,,
         \\quad
@@ -168,7 +168,7 @@ class IsoelasticLoss(HedgeLoss):
 
     The loss of the profit-loss :math:`\\text{pnl}` is given by:
 
-    .. math ::
+    .. math::
 
         \\text{loss}(\\text{pnl}) = -\\mathbf{E}[u(\\text{pnl})] \\,,
         \\quad
@@ -267,13 +267,13 @@ class OCE(HedgeLoss):
 
     The certainty equivalent is given by:
 
-    .. math ::
+    .. math::
 
         \\text{loss}(X, w) = w - \\mathrm{E}[u(X + w)]
 
     Minimization of loss gives the optimized certainty equivalent.
 
-    .. math ::
+    .. math::
 
         \\rho_u(X) = \\inf_w \\text{loss}(X, w)
 
