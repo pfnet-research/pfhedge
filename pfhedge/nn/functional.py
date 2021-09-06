@@ -5,6 +5,10 @@ from typing import Union
 import torch
 import torch.nn.functional as fn
 from torch import Tensor
+from torch.distributions.normal import Normal
+from torch.distributions.utils import broadcast_all
+
+from pfhedge._utils.typing import TensorOrScalar
 
 
 def european_payoff(input: Tensor, call: bool = True, strike: float = 1.0) -> Tensor:
@@ -185,7 +189,7 @@ def topp(input: Tensor, p: float, dim: Optional[int] = None, largest: bool = Tru
     if dim is None:
         return input.topk(ceil(p * input.numel()), largest=largest)
     else:
-        return input.topk(ceil(p * input.size()[dim]), dim=dim, largest=largest)
+        return input.topk(ceil(p * input.size(dim)), dim=dim, largest=largest)
 
 
 def expected_shortfall(input: Tensor, p: float, dim: Optional[int] = None) -> Tensor:
@@ -265,7 +269,7 @@ def clamp(
     return output
 
 
-def realized_variance(input: Tensor, dt: Union[Tensor, float]) -> Tensor:
+def realized_variance(input: Tensor, dt: TensorOrScalar) -> Tensor:
     """Returns the realized variance of the price.
 
     Realized variance :math:`\\sigma^2` of the stock price :math:`S` is defined as:
@@ -389,3 +393,71 @@ def terminal_value(
         value -= cost * unit[..., 0].abs() * spot[..., 0]
 
     return value
+
+
+def ncdf(input: Tensor) -> Tensor:
+    """Returns a new tensor with the normal cumulative distribution function.
+
+    Args:
+        input (torch.Tensor): The input tensor.
+
+    Returns:
+        torch.Tensor
+
+    Examples:
+        >>> from pfhedge.nn.functional import ncdf
+        >>>
+        >>> input = torch.tensor([-1.0, 0.0, 10])
+        >>> ncdf(input)
+        tensor([0.1587, 0.5000, 1.0000])
+    """
+    return Normal(0.0, 1.0).cdf(input)
+
+
+def npdf(input: Tensor) -> Tensor:
+    """Returns a new tensor with the normal distribution function.
+
+    Args:
+        input (torch.Tensor): The input tensor.
+
+    Returns:
+        torch.Tensor
+
+    Examples:
+        >>> from pfhedge.nn.functional import npdf
+        >>>
+        >>> input = torch.tensor([-1.0, 0.0, 10])
+        >>> npdf(input)
+        tensor([2.4197e-01, 3.9894e-01, 7.6946e-23])
+    """
+    return Normal(0.0, 1.0).log_prob(input).exp()
+
+
+def d1(log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor) -> Tensor:
+    """Returns :math:`d_1` in the Black-Scholes formula.
+
+    Args:
+        log_moneyness (torch.Tensor or float): Log moneyness of the underlying asset.
+        time_to_maturity (torch.Tensor or float): Time to maturity of the derivative.
+        volatility (torch.Tensor or float): Volatility of the underlying asset.
+
+    Returns:
+        torch.Tensor
+    """
+    s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
+    return (s + (v ** 2 / 2) * t) / (v * t.sqrt())
+
+
+def d2(log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor) -> Tensor:
+    """Returns :math:`d_2` in the Black-Scholes formula.
+
+    Args:
+        log_moneyness (torch.Tensor or float): Log moneyness of the underlying asset.
+        time_to_maturity (torch.Tensor or float): Time to maturity of the derivative.
+        volatility (torch.Tensor or float): Volatility of the underlying asset.
+
+    Returns:
+        torch.Tensor
+    """
+    s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
+    return (s - (v ** 2 / 2) * t) / (v * t.sqrt())

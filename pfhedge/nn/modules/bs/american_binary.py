@@ -2,11 +2,16 @@ from math import sqrt
 
 import torch
 from torch import Tensor
+from torch.distributions.utils import broadcast_all
 
 import pfhedge.autogreek as autogreek
 from pfhedge._utils.bisect import find_implied_volatility
 from pfhedge._utils.doc import _set_attr_and_docstring
 from pfhedge._utils.str import _format_float
+from pfhedge.nn.functional import d1
+from pfhedge.nn.functional import d2
+from pfhedge.nn.functional import ncdf
+from pfhedge.nn.functional import npdf
 
 from ._base import BSModuleMixin
 
@@ -114,14 +119,12 @@ class BSAmericanBinaryOption(BSModuleMixin):
         Returns:
             torch.Tensor
         """
-        s, m, t, v = map(
-            torch.as_tensor,
-            (log_moneyness, max_log_moneyness, time_to_maturity, volatility),
+        s, m, t, v = broadcast_all(
+            log_moneyness, max_log_moneyness, time_to_maturity, volatility
         )
 
-        n1 = self.N.cdf(self.d1(s, t, v) / sqrt(2.0))
-        n2 = self.N.cdf(self.d2(s, t, v) / sqrt(2.0))
-
+        n1 = ncdf(d1(s, t, v) / sqrt(2))
+        n2 = ncdf(d2(s, t, v) / sqrt(2))
         p = (1 / 2) * (s.exp() * (1 + n1) + n2)
 
         return p.where(m < 0, torch.ones_like(p))
@@ -152,17 +155,13 @@ class BSAmericanBinaryOption(BSModuleMixin):
         Returns:
             torch.Tensor
         """
-        s, m, t, v = map(
-            torch.as_tensor,
-            (log_moneyness, max_log_moneyness, time_to_maturity, volatility),
+        s, m, t, v = broadcast_all(
+            log_moneyness, max_log_moneyness, time_to_maturity, volatility
         )
 
-        d1 = self.d1(s, t, v)
-        d2 = self.d2(s, t, v)
-        c1 = self.N.cdf(d1 / sqrt(2.0))
-        p1 = self.N.log_prob(d1 / sqrt(2.0)).exp()
-        p2 = self.N.log_prob(d2 / sqrt(2.0)).exp()
-
+        c1 = ncdf(d1(s, t, v) / sqrt(2))
+        p1 = npdf(d1(s, t, v) / sqrt(2))
+        p2 = npdf(d2(s, t, v) / sqrt(2))
         d = (1 + c1 + (p1 + p2)) / (2 * self.strike)
 
         return d.where(m < 0, torch.zeros_like(d))

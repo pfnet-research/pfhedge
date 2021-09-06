@@ -1,9 +1,14 @@
 import torch
 from torch import Tensor
+from torch.distributions.utils import broadcast_all
 
 from pfhedge._utils.bisect import find_implied_volatility
 from pfhedge._utils.doc import _set_attr_and_docstring
 from pfhedge._utils.str import _format_float
+from pfhedge.nn.functional import d1
+from pfhedge.nn.functional import d2
+from pfhedge.nn.functional import ncdf
+from pfhedge.nn.functional import npdf
 
 from ._base import BSModuleMixin
 
@@ -102,9 +107,9 @@ class BSEuropeanOption(BSModuleMixin):
         Returns:
             torch.Tensor
         """
-        s, t, v = map(torch.as_tensor, (log_moneyness, time_to_maturity, volatility))
+        s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
 
-        delta = self.N.cdf(self.d1(s, t, v))
+        delta = ncdf(d1(s, t, v))
         delta = delta - 1 if not self.call else delta  # put-call parity
 
         return delta
@@ -134,9 +139,9 @@ class BSEuropeanOption(BSModuleMixin):
                 f"{self.__class__.__name__} for a put option is not yet supported."
             )
 
-        s, t, v = map(torch.as_tensor, (log_moneyness, time_to_maturity, volatility))
+        s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
         price = self.strike * s.exp()
-        gamma = self.N.log_prob(self.d1(s, t, v)).exp() / (price * v * t.sqrt())
+        gamma = npdf(d1(s, t, v)) / (price * v * t.sqrt())
 
         return gamma
 
@@ -160,10 +165,10 @@ class BSEuropeanOption(BSModuleMixin):
         Returns:
             torch.Tensor
         """
-        s, t, v = map(torch.as_tensor, (log_moneyness, time_to_maturity, volatility))
+        s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
 
-        n1 = self.N.cdf(self.d1(s, t, v))
-        n2 = self.N.cdf(self.d2(s, t, v))
+        n1 = ncdf(d1(s, t, v))
+        n2 = ncdf(d2(s, t, v))
 
         price = self.strike * (s.exp() * n1 - n2)
 
