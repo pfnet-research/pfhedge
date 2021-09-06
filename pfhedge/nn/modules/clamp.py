@@ -16,7 +16,7 @@ class LeakyClamp(Module):
 
     If :math:`\\min \\leq \\max`:
 
-    .. math ::
+    .. math::
 
         \\text{output} = \\begin{cases}
             \\min + \\text{clampled_slope} * (\\text{input} - \\min) &
@@ -28,7 +28,7 @@ class LeakyClamp(Module):
 
     If :math:`\\min > \\max`:
 
-    .. math ::
+    .. math::
 
         \\text{output} = \\begin{cases}
             \\frac12 (\\min + \\max)
@@ -101,7 +101,7 @@ class Clamp(Module):
 
     If :math:`\\min \\leq \\max`:
 
-    .. math ::
+    .. math::
 
         \\text{output} = \\begin{cases}
         \\min & \\text{input} < \\min \\\\
@@ -111,7 +111,7 @@ class Clamp(Module):
 
     If :math:`\\min > \\max`:
 
-    .. math ::
+    .. math::
 
         \\text{output} = \\begin{cases}
             \\frac12 (\\min + \\max)

@@ -15,8 +15,7 @@ def delta(
     Delta is a differentiation of a derivative price with respect to
     a price of underlying instrument.
 
-    .. note::
-
+    Note:
         The keyword argument ``**params`` should contain at least one of
         the following combinations:
 
@@ -115,8 +114,7 @@ def gamma(
     Delta is a second-order differentiation of a derivative price with respect to
     a price of underlying instrument.
 
-    .. note::
-
+    Note:
         The keyword argument ``**params`` should contain at least one of
         the following combinations:
 

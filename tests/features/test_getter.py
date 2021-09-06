@@ -6,6 +6,7 @@ from pfhedge.features._getter import get_feature
 
 @pytest.mark.parametrize("feature", FEATURES)
 def test_get_feature(feature):
+    feature = feature()
     assert get_feature(str(feature)).__class__ == feature.__class__
     assert get_feature(feature).__class__ == feature.__class__
 

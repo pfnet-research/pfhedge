@@ -10,8 +10,8 @@ from typing import no_type_check
 import torch
 from torch import Tensor
 
-from pfhedge._utils.doc import set_attr_and_docstring
-from pfhedge._utils.doc import set_docstring
+from pfhedge._utils.doc import _set_attr_and_docstring
+from pfhedge._utils.doc import _set_docstring
 from pfhedge._utils.str import _addindent
 from pfhedge._utils.typing import TensorOrScalar
 
@@ -114,7 +114,7 @@ class Derivative(Instrument):
     def spot(self) -> Tensor:
         """Returns ``self.pricer(self)`` if self is listed.
 
-        See :func:`list()` for details.
+        See :meth:`list()` for details.
         """
         if self.pricer is None:
             raise ValueError("self is not listed.")
@@ -229,9 +229,9 @@ class BaseOption(Derivative):
 
 
 # Assign docstrings so they appear in Sphinx documentation
-set_docstring(Derivative, "to", Instrument.to)
-set_attr_and_docstring(Derivative, "cpu", Instrument.cpu)
-set_attr_and_docstring(Derivative, "cuda", Instrument.cuda)
-set_attr_and_docstring(Derivative, "double", Instrument.double)
-set_attr_and_docstring(Derivative, "float", Instrument.float)
-set_attr_and_docstring(Derivative, "half", Instrument.half)
+_set_docstring(Derivative, "to", Instrument.to)
+_set_attr_and_docstring(Derivative, "cpu", Instrument.cpu)
+_set_attr_and_docstring(Derivative, "cuda", Instrument.cuda)
+_set_attr_and_docstring(Derivative, "double", Instrument.double)
+_set_attr_and_docstring(Derivative, "float", Instrument.float)
+_set_attr_and_docstring(Derivative, "half", Instrument.half)
