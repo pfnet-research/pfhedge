@@ -8,5 +8,17 @@ pfhedge.autogreek
 
 .. currentmodule:: pfhedge.autogreek
 
+Delta
+-----
+
 .. autofunction:: delta
+
+Gamma
+-----
+
 .. autofunction:: gamma
+
+Vega
+----
+
+.. autofunction:: vega

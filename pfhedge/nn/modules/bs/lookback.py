@@ -1,11 +1,9 @@
 from typing import List
-from typing import Optional
 
 import torch
 from torch import Tensor
 from torch.distributions.utils import broadcast_all
 
-import pfhedge.autogreek as autogreek
 from pfhedge._utils.bisect import find_implied_volatility
 from pfhedge._utils.doc import _set_attr_and_docstring
 from pfhedge._utils.doc import _set_docstring
@@ -132,8 +130,8 @@ class BSLookbackOption(BSModuleMixin):
 
         d1_ = d1(s, t, v)
         d2_ = d2(s, t, v)
-        e1 = (s - m + (v ** 2 / 2) * t) / (v * t.sqrt())  # d' in paper
-        e2 = (s - m - (v ** 2 / 2) * t) / (v * t.sqrt())
+        e1 = (s - m + (v.pow(2) / 2) * t) / (v * t.sqrt())  # d' in paper
+        e2 = (s - m - (v.pow(2) / 2) * t) / (v * t.sqrt())
 
         # when max moneyness < strike
         price_0 = self.strike * (
@@ -160,7 +158,6 @@ class BSLookbackOption(BSModuleMixin):
         time_to_maturity: Tensor,
         volatility: Tensor,
         create_graph: bool = False,
-        strike: Optional[Tensor] = None,
     ) -> Tensor:
         """Returns delta of the derivative.
 
@@ -183,8 +180,7 @@ class BSLookbackOption(BSModuleMixin):
         Returns:
             torch.Tensor
         """
-        return autogreek.delta(
-            self.price,
+        return super().delta(
             log_moneyness=log_moneyness,
             max_log_moneyness=max_log_moneyness,
             time_to_maturity=time_to_maturity,
@@ -220,8 +216,7 @@ class BSLookbackOption(BSModuleMixin):
         Returns:
             torch.Tensor
         """
-        return autogreek.gamma(
-            self.price,
+        return super().gamma(
             strike=self.strike,
             log_moneyness=log_moneyness,
             max_log_moneyness=max_log_moneyness,
