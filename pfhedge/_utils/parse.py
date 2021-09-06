@@ -2,6 +2,7 @@ from numbers import Real
 from typing import Optional
 from typing import Union
 
+import torch
 from torch import Tensor
 
 
