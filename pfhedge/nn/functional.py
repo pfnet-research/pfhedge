@@ -6,8 +6,9 @@ import torch
 import torch.nn.functional as fn
 from torch import Tensor
 from torch.distributions.normal import Normal
+from torch.distributions.utils import broadcast_all
 
-from pfhedge._utils.parse import parse_moneyness
+from pfhedge._utils.typing import TensorOrScalar
 
 
 def european_payoff(input: Tensor, call: bool = True, strike: float = 1.0) -> Tensor:
@@ -188,7 +189,7 @@ def topp(input: Tensor, p: float, dim: Optional[int] = None, largest: bool = Tru
     if dim is None:
         return input.topk(ceil(p * input.numel()), largest=largest)
     else:
-        return input.topk(ceil(p * input.size()[dim]), dim=dim, largest=largest)
+        return input.topk(ceil(p * input.size(dim)), dim=dim, largest=largest)
 
 
 def expected_shortfall(input: Tensor, p: float, dim: Optional[int] = None) -> Tensor:
@@ -268,7 +269,7 @@ def clamp(
     return output
 
 
-def realized_variance(input: Tensor, dt: Union[Tensor, float]) -> Tensor:
+def realized_variance(input: Tensor, dt: TensorOrScalar) -> Tensor:
     """Returns the realized variance of the price.
 
     Realized variance :math:`\\sigma^2` of the stock price :math:`S` is defined as:
@@ -435,79 +436,31 @@ def npdf(input: Tensor) -> Tensor:
     return Normal(0.0, 1.0).log_prob(input).exp()
 
 
-def d1(
-    *,
-    time_to_maturity: Tensor,
-    volatility: Tensor,
-    spot: Optional[Tensor] = None,
-    strike: Optional[Tensor] = None,
-    moneyness: Optional[Tensor] = None,
-    log_moneyness: Optional[Tensor] = None,
-) -> Tensor:
+def d1(log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor) -> Tensor:
     """Returns :math:`d_1` in the Black-Scholes formula.
 
-    Note:
-        Keyword argument must contain at least one of the following combinations:
-
-        - ``spot`` and ``strike``
-        - ``moneyness``
-        - ``log_moneyness``
-
     Args:
-        time_to_maturity (torch.Tensor): Time to maturity of the derivative.
-        volatility (torch.Tensor): Volatility of the underlying asset.
-        spot (torch.Tensor, optional): Spot price of the underlying asset.
-        moneyness (torch.Tensor, optional): Moneyness of the underlying asset.
-        log_moneyness (torch.Tensor, optional): Log moneyness of the underlying asset.
+        log_moneyness (torch.Tensor or float): Log moneyness of the underlying asset.
+        time_to_maturity (torch.Tensor or float): Time to maturity of the derivative.
+        volatility (torch.Tensor or float): Volatility of the underlying asset.
 
     Returns:
         torch.Tensor
     """
-    # s: log moneyness
-    # t: time to maturity
-    # v: volatility
-    s = parse_moneyness(
-        spot=spot, strike=strike, moneyness=moneyness, log_moneyness=log_moneyness
-    ).log()
-    t = torch.as_tensor(time_to_maturity)
-    v = torch.as_tensor(volatility)
+    s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
     return (s + (v ** 2 / 2) * t) / (v * t.sqrt())
 
 
-def d2(
-    *,
-    time_to_maturity: Tensor,
-    volatility: Tensor,
-    spot: Optional[Tensor] = None,
-    strike: Optional[Tensor] = None,
-    moneyness: Optional[Tensor] = None,
-    log_moneyness: Optional[Tensor] = None,
-) -> Tensor:
+def d2(log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor) -> Tensor:
     """Returns :math:`d_2` in the Black-Scholes formula.
 
-    Note:
-        Keyword argument must contain at least one of the following combinations:
-
-        - ``spot`` and ``strike``
-        - ``moneyness``
-        - ``log_moneyness``
-
     Args:
-        time_to_maturity (torch.Tensor): Time to maturity of the derivative.
-        volatility (torch.Tensor): Volatility of the underlying asset.
-        spot (torch.Tensor, optional): Spot price of the underlying asset.
-        moneyness (torch.Tensor, optional): Moneyness of the underlying asset.
-        log_moneyness (torch.Tensor, optional): Log moneyness of the underlying asset.
+        log_moneyness (torch.Tensor or float): Log moneyness of the underlying asset.
+        time_to_maturity (torch.Tensor or float): Time to maturity of the derivative.
+        volatility (torch.Tensor or float): Volatility of the underlying asset.
 
     Returns:
         torch.Tensor
     """
-    # s: log moneyness
-    # t: time to maturity
-    # v: volatility
-    s = parse_moneyness(
-        spot=spot, strike=strike, moneyness=moneyness, log_moneyness=log_moneyness
-    ).log()
-    t = torch.as_tensor(time_to_maturity)
-    v = torch.as_tensor(volatility)
+    s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
     return (s - (v ** 2 / 2) * t) / (v * t.sqrt())
