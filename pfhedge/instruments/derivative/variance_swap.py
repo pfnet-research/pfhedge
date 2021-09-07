@@ -88,7 +88,7 @@ class VarianceSwap(Derivative):
             )
         )
 
-    def payoff(self) -> Tensor:
+    def payoff_fn(self) -> Tensor:
         return realized_variance(self.ul().spot, dt=self.ul().dt) - self.strike
 
 

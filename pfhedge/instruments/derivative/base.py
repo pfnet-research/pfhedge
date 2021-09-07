@@ -1,11 +1,11 @@
 from abc import abstractmethod
+from collections import OrderedDict
 from typing import Any
 from typing import Callable
+from typing import Dict
 from typing import Optional
 from typing import Tuple
 from typing import TypeVar
-from typing import Union
-from typing import no_type_check
 
 import torch
 from torch import Tensor
@@ -45,11 +45,13 @@ class Derivative(Instrument):
     cost: float
     maturity: float
     pricer: Optional[Callable[[Any], Tensor]]
+    _clauses: Dict[str, Callable[["Derivative", Tensor], Tensor]]
 
     def __init__(self):
         super().__init__()
         self.pricer = None
         self.cost = 0.0
+        self._clauses = OrderedDict()
 
     @property
     def dtype(self) -> Optional[torch.dtype]:
@@ -83,8 +85,17 @@ class Derivative(Instrument):
         return self
 
     @abstractmethod
-    def payoff(self) -> Tensor:
-        """Returns the payoffs of the derivative.
+    def payoff_fn(self) -> Tensor:
+        """Defines the payoff function of the derivative.
+
+        This should be overridden by all subclasses.
+
+        Note:
+            Although the payoff function needs to be defined within this function,
+            one should use the :meth:`payoff` method afterwards instead of this
+            since the former takes care of applying the registered clauses
+            (See :meth:`add_clause`)
+            while the latter silently ignores them.
 
         Shape:
             - Output: :math:`(N)` where
@@ -93,6 +104,21 @@ class Derivative(Instrument):
         Returns:
             torch.Tensor
         """
+
+    def payoff(self) -> Tensor:
+        """Returns the payoff of the derivative.
+
+        Shape:
+            - Output: :math:`(N)` where
+              :math:`N` stands for the number of simulated paths.
+
+        Returns:
+            torch.Tensor
+        """
+        payoff = self.payoff_fn()
+        for clause in self._clauses.values():
+            payoff = clause(self, payoff)
+        return payoff
 
     def list(self: T, pricer: Callable[[T], Tensor], cost: float = 0.0) -> None:
         """Make self a listed derivative.
@@ -109,6 +135,34 @@ class Derivative(Instrument):
         """
         self.pricer = pricer
         self.cost = cost
+
+    def add_clause(
+        self: "Derivative", name: str, clause: Callable[["Derivative", Tensor], Tensor]
+    ) -> None:
+        """Adds a clause to the derivative.
+
+        The clause will be called after :meth:`payoff_fn` method
+        has computed the payoff and modifies the payoff tensor.
+        It should have the following signature::
+
+            clause(derivative, payoff) -> modified payoff
+
+        Args:
+            name (str): The name of the clause.
+            clause (callable[[Derivative, torch.Tensor], torch.Tensor]):
+                The clause to add.
+        """
+        if not isinstance(name, torch._six.string_classes):
+            raise TypeError(
+                "clause name should be a string. Got {}".format(torch.typename(name))
+            )
+        elif hasattr(self, name) and name not in self._clauses:
+            raise KeyError("attribute '{}' already exists".format(name))
+        elif "." in name:
+            raise KeyError('clause name can\'t contain ".", got: {}'.format(name))
+        elif name == "":
+            raise KeyError('clause name can\'t be empty string ""')
+        self._clauses[name] = clause
 
     @property
     def spot(self) -> Tensor:
