@@ -1,6 +1,7 @@
 import pytest
 import torch
 from torch.testing import assert_close
+
 from pfhedge._utils.parse import parse_spot
 from pfhedge._utils.parse import parse_volatility
 
@@ -28,6 +29,7 @@ def test_parse_spot():
         _ = parse_spot(log_moneyness=moneyness)
     with pytest.raises(ValueError):
         _ = parse_spot(log_moneyness=log_moneyness)
+
 
 def test_parse_volatility():
     torch.manual_seed(42)

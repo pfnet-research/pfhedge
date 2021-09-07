@@ -95,6 +95,17 @@ class TestBSEuropeanOption(_TestBSModule):
         expect = input[:, 2]
         assert_close(result, expect, check_stride=False)
 
+    def test_vega(self):
+        input = torch.tensor([[0.0, 0.1, 0.2], [0.0, 0.2, 0.2], [0.0, 0.3, 0.2]])
+        m = BSEuropeanOption()
+        result = m.vega(
+            log_moneyness=input[..., 0],
+            time_to_maturity=input[..., 1],
+            volatility=input[..., 2],
+        )
+        expect = torch.tensor([0.1261, 0.1782, 0.2182])
+        assert_close(result, expect, atol=1e-3, rtol=0)
+
     def test_example(self):
         from pfhedge.instruments import BrownianStock
         from pfhedge.instruments import EuropeanOption
