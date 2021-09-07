@@ -284,14 +284,6 @@
 <span class="sd">        call (bool, default=True): Specifies whether the option is call or put.</span>
 <span class="sd">        strike (float, default=1.0): The strike price of the option.</span>
 <span class="sd">        maturity (float, default=20/250): The maturity of the option.</span>
-<span class="sd">        dtype (torch.dtype, optional): Desired device of returned tensor.</span>
-<span class="sd">            Default: If None, uses a global default</span>
-<span class="sd">            (see :func:`torch.set_default_tensor_type()`).</span>
-<span class="sd">        device (torch.device, optional): Desired device of returned tensor.</span>
-<span class="sd">            Default: if None, uses the current device for the default tensor type</span>
-<span class="sd">            (see :func:`torch.set_default_tensor_type()`).</span>
-<span class="sd">            ``device`` will be the CPU for CPU tensor types and</span>
-<span class="sd">            the current CUDA device for CUDA tensor types.</span>
 
 <span class="sd">    Attributes:</span>
 <span class="sd">        dtype (torch.dtype): The dtype with which the simulated time-series are</span>
@@ -329,7 +321,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">strike</span> <span class="o">=</span> <span class="n">strike</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">maturity</span> <span class="o">=</span> <span class="n">maturity</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+        <span class="c1"># TODO(simaki): Remove later. Deprecated for &gt; v0.12.3</span>
+        <span class="k">if</span> <span class="n">dtype</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">device</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">DeprecationWarning</span><span class="p">(</span>
+                <span class="s2">"Specifying device and dtype when constructing a Derivative is deprecated."</span>
+                <span class="s2">"Specify them in the constructor of the underlier instead."</span>
+            <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">extra_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">[]</span>
