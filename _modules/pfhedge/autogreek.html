@@ -456,7 +456,7 @@
 <span class="sd">    """</span>
     <span class="n">volatility</span> <span class="o">=</span> <span class="n">parse_volatility</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">requires_grad_</span><span class="p">()</span>
     <span class="n">params</span><span class="p">[</span><span class="s2">"volatility"</span><span class="p">]</span> <span class="o">=</span> <span class="n">volatility</span>
-    <span class="n">params</span><span class="p">[</span><span class="s2">"variance"</span><span class="p">]</span> <span class="o">=</span> <span class="n">volatility</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">params</span><span class="p">[</span><span class="s2">"variance"</span><span class="p">]</span> <span class="o">=</span> <span class="n">volatility</span><span class="o">.</span><span class="n">square</span><span class="p">()</span>
 
     <span class="c1"># Delete parameters that are not in the signature of pricer to avoid</span>
     <span class="c1"># TypeError: &lt;pricer&gt; got an unexpected keyword argument '&lt;parameter&gt;'</span>

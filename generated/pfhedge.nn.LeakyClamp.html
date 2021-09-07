@@ -243,7 +243,8 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="pfhedge.nn.LeakyClamp">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pfhedge.nn.</span></span><span class="sig-name descname"><span class="pre">LeakyClamp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clamped_slope</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inverted_output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/clamp.html#LeakyClamp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.LeakyClamp" title="Permalink to this definition">¶</a></dt>
-<dd><p>Leakily Clamp all elements in <code class="docutils literal notranslate"><span class="pre">input</span></code> into the range <span class="math notranslate nohighlight">\([\min, \max]\)</span>.</p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Leakily Clamp all elements in <code class="docutils literal notranslate"><span class="pre">input</span></code> into the range <span class="math notranslate nohighlight">\([\min, \max]\)</span>.</p>
 <p>The bounds <span class="math notranslate nohighlight">\(\min\)</span> and <span class="math notranslate nohighlight">\(\max\)</span> can be tensors.</p>
 <p>If <span class="math notranslate nohighlight">\(\min \leq \max\)</span>:</p>
 <div class="math-wrapper"><div class="math notranslate nohighlight">

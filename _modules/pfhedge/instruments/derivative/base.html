@@ -239,13 +239,13 @@
         </div>
         <h1>Source code for pfhedge.instruments.derivative.base</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TypeVar</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">no_type_check</span>
 
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
@@ -285,11 +285,13 @@
     <span class="n">cost</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">maturity</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">pricer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Tensor</span><span class="p">]]</span>
+    <span class="n">_clauses</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[[</span><span class="s2">"Derivative"</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">],</span> <span class="n">Tensor</span><span class="p">]]</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pricer</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cost</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_clauses</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">dtype</span><span class="p">]:</span>
@@ -322,9 +324,18 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">underlier</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span></div>
 
-<div class="viewcode-block" id="Derivative.payoff"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.Derivative.html#pfhedge.instruments.Derivative.payoff">[docs]</a>    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">payoff</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">"""Returns the payoffs of the derivative.</span>
+<div class="viewcode-block" id="Derivative.payoff_fn"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.Derivative.html#pfhedge.instruments.Derivative.payoff_fn">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">payoff_fn</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+        <span class="sd">"""Defines the payoff function of the derivative.</span>
+
+<span class="sd">        This should be overridden by all subclasses.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Although the payoff function needs to be defined within this function,</span>
+<span class="sd">            one should use the :meth:`payoff` method afterwards instead of this</span>
+<span class="sd">            since the former takes care of applying the registered clauses</span>
+<span class="sd">            (See :meth:`add_clause`)</span>
+<span class="sd">            while the latter silently ignores them.</span>
 
 <span class="sd">        Shape:</span>
 <span class="sd">            - Output: :math:`(N)` where</span>
@@ -333,6 +344,21 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            torch.Tensor</span>
 <span class="sd">        """</span></div>
+
+<div class="viewcode-block" id="Derivative.payoff"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.Derivative.html#pfhedge.instruments.Derivative.payoff">[docs]</a>    <span class="k">def</span> <span class="nf">payoff</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+        <span class="sd">"""Returns the payoff of the derivative.</span>
+
+<span class="sd">        Shape:</span>
+<span class="sd">            - Output: :math:`(N)` where</span>
+<span class="sd">              :math:`N` stands for the number of simulated paths.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            torch.Tensor</span>
+<span class="sd">        """</span>
+        <span class="n">payoff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">payoff_fn</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">clause</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clauses</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">payoff</span> <span class="o">=</span> <span class="n">clause</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">payoff</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">payoff</span></div>
 
 <div class="viewcode-block" id="Derivative.list"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.Derivative.html#pfhedge.instruments.Derivative.list">[docs]</a>    <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span> <span class="n">pricer</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">T</span><span class="p">],</span> <span class="n">Tensor</span><span class="p">],</span> <span class="n">cost</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">"""Make self a listed derivative.</span>
@@ -349,6 +375,34 @@
 <span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pricer</span> <span class="o">=</span> <span class="n">pricer</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cost</span> <span class="o">=</span> <span class="n">cost</span></div>
+
+<div class="viewcode-block" id="Derivative.add_clause"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.Derivative.html#pfhedge.instruments.Derivative.add_clause">[docs]</a>    <span class="k">def</span> <span class="nf">add_clause</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="s2">"Derivative"</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">clause</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="s2">"Derivative"</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">],</span> <span class="n">Tensor</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">"""Adds a clause to the derivative.</span>
+
+<span class="sd">        The clause will be called after :meth:`payoff_fn` method</span>
+<span class="sd">        has computed the payoff and modifies the payoff tensor.</span>
+<span class="sd">        It should have the following signature::</span>
+
+<span class="sd">            clause(derivative, payoff) -&gt; modified payoff</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            name (str): The name of the clause.</span>
+<span class="sd">            clause (callable[[Derivative, torch.Tensor], torch.Tensor]):</span>
+<span class="sd">                The clause to add.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">_six</span><span class="o">.</span><span class="n">string_classes</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s2">"clause name should be a string. Got </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">typename</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span> <span class="ow">and</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clauses</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">"attribute '</span><span class="si">{}</span><span class="s2">' already exists"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="s2">"."</span> <span class="ow">in</span> <span class="n">name</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s1">'clause name can</span><span class="se">\'</span><span class="s1">t contain ".", got: </span><span class="si">{}</span><span class="s1">'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">""</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s1">'clause name can</span><span class="se">\'</span><span class="s1">t be empty string ""'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_clauses</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">clause</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">spot</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>

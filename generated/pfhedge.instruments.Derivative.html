@@ -243,7 +243,8 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="pfhedge.instruments.Derivative">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pfhedge.instruments.</span></span><span class="sig-name descname"><span class="pre">Derivative</span></span><a class="reference internal" href="../_modules/pfhedge/instruments/derivative/base.html#Derivative"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Derivative" title="Permalink to this definition">¶</a></dt>
-<dd><p>Base class for all derivatives.</p>
+<dd><p>Bases: <a class="reference internal" href="pfhedge.instruments.Instrument.html#pfhedge.instruments.Instrument" title="pfhedge.instruments.base.Instrument"><code class="xref py py-class docutils literal notranslate"><span class="pre">pfhedge.instruments.base.Instrument</span></code></a></p>
+<p>Base class for all derivatives.</p>
 <p>A derivative is a financial instrument whose payoff is contingent on
 a primary instrument (or a set of primary instruments).
 A (over-the-counter) derivative is not traded on the market and therefore the price
@@ -280,6 +281,25 @@ represented.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>torch.device</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pfhedge.instruments.Derivative.add_clause">
+<span class="sig-name descname"><span class="pre">add_clause</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clause</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/derivative/base.html#Derivative.add_clause"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Derivative.add_clause" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a clause to the derivative.</p>
+<p>The clause will be called after <a class="reference internal" href="#pfhedge.instruments.Derivative.payoff_fn" title="pfhedge.instruments.Derivative.payoff_fn"><code class="xref py py-meth docutils literal notranslate"><span class="pre">payoff_fn()</span></code></a> method
+has computed the payoff and modifies the payoff tensor.
+It should have the following signature:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">clause</span><span class="p">(</span><span class="n">derivative</span><span class="p">,</span> <span class="n">payoff</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">modified</span> <span class="n">payoff</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The name of the clause.</p></li>
+<li><p><strong>clause</strong> (<em>callable</em><em>[</em><em>[</em><a class="reference internal" href="#pfhedge.instruments.Derivative" title="pfhedge.instruments.Derivative"><em>Derivative</em></a><em>, </em><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a><em>]</em><em>, </em><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a><em>]</em>) – The clause to add.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -379,8 +399,34 @@ and returns the spot price tensor of self.</p></li>
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pfhedge.instruments.Derivative.payoff">
-<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">payoff</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/derivative/base.html#Derivative.payoff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Derivative.payoff" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the payoffs of the derivative.</p>
+<span class="sig-name descname"><span class="pre">payoff</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/derivative/base.html#Derivative.payoff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Derivative.payoff" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the payoff of the derivative.</p>
+<dl class="simple">
+<dt>Shape:</dt><dd><ul class="simple">
+<li><p>Output: <span class="math notranslate nohighlight">\((N)\)</span> where
+<span class="math notranslate nohighlight">\(N\)</span> stands for the number of simulated paths.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pfhedge.instruments.Derivative.payoff_fn">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">payoff_fn</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/derivative/base.html#Derivative.payoff_fn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Derivative.payoff_fn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the payoff function of the derivative.</p>
+<p>This should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the payoff function needs to be defined within this function,
+one should use the <a class="reference internal" href="#pfhedge.instruments.Derivative.payoff" title="pfhedge.instruments.Derivative.payoff"><code class="xref py py-meth docutils literal notranslate"><span class="pre">payoff()</span></code></a> method afterwards instead of this
+since the former takes care of applying the registered clauses
+(See <a class="reference internal" href="#pfhedge.instruments.Derivative.add_clause" title="pfhedge.instruments.Derivative.add_clause"><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_clause()</span></code></a>)
+while the latter silently ignores them.</p>
+</div>
 <dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
 <li><p>Output: <span class="math notranslate nohighlight">\((N)\)</span> where
