@@ -152,6 +152,12 @@ class Instrument(ABC):
         return self.to(torch.bfloat16)
 
     def extra_repr(self) -> str:
+        """Set the extra representation of the instrument.
+
+        To print customized extra information,
+        you should re-implement this method in your own instruments.
+        Both single-line and multi-line strings are acceptable.
+        """
         return ""
 
     def _get_name(self) -> str:
