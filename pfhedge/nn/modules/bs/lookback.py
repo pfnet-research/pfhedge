@@ -130,8 +130,8 @@ class BSLookbackOption(BSModuleMixin):
 
         d1_ = d1(s, t, v)
         d2_ = d2(s, t, v)
-        e1 = (s - m + (v.pow(2) / 2) * t) / (v * t.sqrt())  # d' in paper
-        e2 = (s - m - (v.pow(2) / 2) * t) / (v * t.sqrt())
+        e1 = (s - m + (v.square() / 2) * t) / (v * t.sqrt())  # d' in paper
+        e2 = (s - m - (v.square() / 2) * t) / (v * t.sqrt())
 
         # when max moneyness < strike
         price_0 = self.strike * (

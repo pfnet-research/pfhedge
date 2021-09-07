@@ -1,9 +1,13 @@
 import pytest
 import torch
+from torch import Tensor
 from torch.testing import assert_close
 
 from pfhedge.instruments import BrownianStock
+from pfhedge.instruments import Derivative
 from pfhedge.instruments import EuropeanOption
+
+cls = EuropeanOption
 
 
 class TestEuropeanOption:
@@ -199,3 +203,41 @@ EuropeanOption(
         derivative = EuropeanOption(BrownianStock())
         with pytest.raises(ValueError):
             _ = derivative.spot
+
+    def test_init_dtype_deprecated(self):
+        with pytest.raises(DeprecationWarning):
+            _ = EuropeanOption(BrownianStock(), dtype=torch.float64)
+
+    def test_clause(self):
+        torch.manual_seed(42)
+
+        derivative = cls(BrownianStock())
+        derivative.simulate()
+        strike = derivative.ul().spot.max(-1).values.mean()
+
+        def knockout(derivative: Derivative, payoff: Tensor) -> Tensor:
+            max = derivative.ul().spot.max(-1).values
+            return payoff.where(max >= strike, torch.zeros_like(max))
+
+        derivative.add_clause("knockout", knockout)
+
+        max = derivative.ul().spot.max(-1).values
+        result = derivative.payoff()
+        expect = derivative.payoff_fn().where(max >= strike, torch.zeros_like(max))
+        assert_close(result, expect)
+
+    def test_add_clause_error(self):
+        derivative = cls(BrownianStock())
+
+        def knockout(derivative: Derivative, payoff: Tensor) -> Tensor:
+            max = derivative.ul().spot.max(-1).values
+            return payoff.where(max >= 1.1, torch.zeros_like(max))
+
+        with pytest.raises(TypeError):
+            derivative.add_clause(0, knockout)
+        with pytest.raises(KeyError):
+            derivative.add_clause("payoff", knockout)
+        with pytest.raises(KeyError):
+            derivative.add_clause("a.b", knockout)
+        with pytest.raises(KeyError):
+            derivative.add_clause("", knockout)

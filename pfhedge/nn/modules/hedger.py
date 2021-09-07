@@ -244,7 +244,7 @@ class Hedger(Module):
             >>> hedger.get_input(0)
             tensor([[[0.0800, 0.2000]]])
         """
-        return self.inputs[time_step]
+        return self.inputs.get(time_step)
 
     def compute_hedge(
         self, derivative: Derivative, hedge: Optional[List[Instrument]] = None
@@ -293,7 +293,7 @@ class Hedger(Module):
 
         (n_paths, n_steps), n_hedges = hedge[0].spot.size(), len(hedge)
         if self.inputs.is_state_dependent():
-            zeros = torch.zeros((n_paths, 1, n_hedges)).to(hedge[0].spot)
+            zeros = hedge[0].spot.new_zeros((n_paths, 1, n_hedges))
             save_prev_output(self, input=None, output=zeros)
             outputs = []
             for time_step in range(n_steps - 1):

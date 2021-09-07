@@ -54,14 +54,6 @@ class AmericanBinaryOption(BaseOption):
         call (bool, default=True): Specifies whether the option is call or put.
         strike (float, default=1.0): The strike price of the option.
         maturity (float, default=20/250): The maturity of the option.
-        dtype (torch.device, optional): Desired device of returned tensor.
-            Default: If None, uses a global default
-            (see :func:`torch.set_default_tensor_type()`).
-        device (torch.device, optional): Desired device of returned tensor.
-            Default: if None, uses the current device for the default tensor type
-            (see :func:`torch.set_default_tensor_type()`).
-            ``device`` will be the CPU for CPU tensor types and
-            the current CUDA device for CUDA tensor types.
 
     Attributes:
         dtype (torch.dtype): The dtype with which the simulated time-series are
@@ -99,7 +91,14 @@ maturity=5/250, strike=1.01)
         self.call = call
         self.strike = strike
         self.maturity = maturity
-        self.to(dtype=dtype, device=device)
+
+        # TODO(simaki): Remove later. Deprecated for > v0.12.3
+        if dtype is not None or device is not None:
+            self.to(dtype=dtype, device=device)
+            raise DeprecationWarning(
+                "Specifying device and dtype when constructing a Derivative is deprecated."
+                "Specify them in the constructor of the underlier instead."
+            )
 
     def extra_repr(self):
         params = []
@@ -109,7 +108,7 @@ maturity=5/250, strike=1.01)
         params.append("maturity=" + _format_float(self.maturity))
         return ", ".join(params)
 
-    def payoff(self) -> Tensor:
+    def payoff_fn(self) -> Tensor:
         return american_binary_payoff(
             self.ul().spot, call=self.call, strike=self.strike
         )
