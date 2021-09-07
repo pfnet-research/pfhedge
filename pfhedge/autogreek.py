@@ -216,7 +216,7 @@ def vega(
     """
     volatility = parse_volatility(**params).requires_grad_()
     params["volatility"] = volatility
-    params["variance"] = volatility.pow(2)
+    params["variance"] = volatility.square()
 
     # Delete parameters that are not in the signature of pricer to avoid
     # TypeError: <pricer> got an unexpected keyword argument '<parameter>'

@@ -103,14 +103,14 @@ def generate_cir(
         exp = (-kappa * dt).exp()
         m = theta + (v - theta) * exp
         s2 = v * (sigma ** 2) * exp * (1 - exp) / kappa + theta * (sigma ** 2) * (
-            (1 - exp).pow(2)
+            (1 - exp).square()
         ) / (2 * kappa)
-        psi = s2 / (m.pow(2) + EPSILON)
+        psi = s2 / (m.square() + EPSILON)
 
         # Compute V(t + dt) where psi <= PSI_CRIT: Eq(23, 27, 28)
         b = ((2 / psi) - 1 + (2 / psi).sqrt() * (2 / psi - 1).sqrt()).sqrt()
-        a = m / (1 + b.pow(2))
-        next_0 = a * (b + randn[:, i_step]).pow(2)
+        a = m / (1 + b.square())
+        next_0 = a * (b + randn[:, i_step]).square()
 
         # Compute V(t + dt) where psi > PSI_CRIT: Eq(25)
         u = rand[:, i_step]

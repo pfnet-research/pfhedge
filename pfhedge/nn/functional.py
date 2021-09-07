@@ -445,7 +445,7 @@ def d1(log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor) -> T
         torch.Tensor
     """
     s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
-    return (s + (v.pow(2) / 2) * t).div(v * t.sqrt())
+    return (s + (v.square() / 2) * t).div(v * t.sqrt())
 
 
 def d2(log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor) -> Tensor:
@@ -460,4 +460,4 @@ def d2(log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor) -> T
         torch.Tensor
     """
     s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
-    return (s - (v.pow(2) / 2) * t).div(v * t.sqrt())
+    return (s - (v.square() / 2) * t).div(v * t.sqrt())
