@@ -74,7 +74,7 @@ def generate_brownian(
     init_value = init_state[0]
     randn = torch.randn((n_paths, n_steps), dtype=dtype, device=device)
     randn[:, 0] = 0.0
-    return sigma * torch.tensor(dt).to(randn).sqrt() * randn.cumsum(1) + init_value
+    return sigma * randn.new_tensor(dt).sqrt() * randn.cumsum(1) + init_value
 
 
 def generate_geometric_brownian(
@@ -148,5 +148,5 @@ def generate_geometric_brownian(
         dtype=dtype,
         device=device,
     )
-    t = dt * torch.arange(n_steps).to(brownian).reshape(1, -1)
+    t = dt * torch.arange(n_steps).to(brownian).unsqueeze(0)
     return init_state[0] * (brownian - (sigma ** 2) * t / 2).exp()
