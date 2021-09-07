@@ -11,10 +11,6 @@ from ._base import _TestBSModule
 
 
 class TestBSEuropeanOption(_TestBSModule):
-    """
-    pfhedge.nn.bs.BSEuropeanOption
-    """
-
     def setup_class(self):
         torch.manual_seed(42)
 

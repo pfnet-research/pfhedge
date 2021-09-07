@@ -1,3 +1,4 @@
+import warnings
 from abc import ABC
 from abc import abstractmethod
 from typing import Optional
@@ -24,7 +25,7 @@ class Feature(ABC):
         self.register_hedger(None)
 
     @abstractmethod
-    def __getitem__(self, time_step: Optional[int]) -> Tensor:
+    def get(self, time_step: Optional[int]) -> Tensor:
         """Return feature tensor.
 
         Returned tensor should have a shape :math:`(N, 1)` where
@@ -70,6 +71,11 @@ class Feature(ABC):
     def is_state_dependent(self) -> bool:
         # If a feature uses the state of a hedger, it is state dependent.
         return getattr(self, "hedger") is not None
+
+    # TODO(simaki) Remove later
+    def __getitem__(self, time_step: Optional[int]) -> Tensor:
+        # raise DeprecationWarning("Use `<feature>.get(time_step)` instead")
+        return self.get(time_step)
 
 
 class StateIndependentFeature(Feature):

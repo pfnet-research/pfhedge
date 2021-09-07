@@ -1,4 +1,3 @@
-from typing import List
 from typing import Optional
 
 import torch
@@ -28,7 +27,7 @@ class Moneyness(StateIndependentFeature):
     def __str__(self) -> str:
         return "log_moneyness" if self.log else "moneyness"
 
-    def __getitem__(self, time_step: Optional[int]) -> Tensor:
+    def get(self, time_step: Optional[int] = None) -> Tensor:
         return self.derivative.moneyness(time_step, log=self.log).unsqueeze(-1)
 
 
@@ -49,7 +48,7 @@ class TimeToMaturity(StateIndependentFeature):
     def __str__(self) -> str:
         return "time_to_maturity"
 
-    def __getitem__(self, time_step: Optional[int]) -> Tensor:
+    def get(self, time_step: Optional[int] = None) -> Tensor:
         return self.derivative.time_to_maturity(time_step).unsqueeze(-1)
 
 
@@ -66,7 +65,7 @@ class Volatility(StateIndependentFeature):
     def __str__(self) -> str:
         return "volatility"
 
-    def __getitem__(self, time_step: Optional[int]) -> Tensor:
+    def get(self, time_step: Optional[int] = None) -> Tensor:
         index = [time_step] if isinstance(time_step, int) else ...
         return self.derivative.ul().volatility[:, index].unsqueeze(-1)
 
@@ -77,7 +76,7 @@ class Variance(StateIndependentFeature):
     def __str__(self) -> str:
         return "variance"
 
-    def __getitem__(self, time_step: Optional[int]) -> Tensor:
+    def get(self, time_step: Optional[int]) -> Tensor:
         index = [time_step] if isinstance(time_step, int) else ...
         return self.derivative.ul().variance[:, index].unsqueeze(-1)
 
@@ -90,7 +89,7 @@ class PrevHedge(Feature):
     def __str__(self) -> str:
         return "prev_hedge"
 
-    def __getitem__(self, time_step: Optional[int]) -> Tensor:
+    def get(self, time_step: Optional[int] = None) -> Tensor:
         if time_step is None:
             raise ValueError("time_step for prev_output should be specified")
         return self.hedger.get_buffer("prev_output")
@@ -117,7 +116,7 @@ class Barrier(StateIndependentFeature):
         params = [_format_float(self.threshold), "up=" + str(self.up)]
         return self._get_name() + "(" + ", ".join(params) + ")"
 
-    def __getitem__(self, time_step: Optional[int]) -> Tensor:
+    def get(self, time_step: Optional[int] = None) -> Tensor:
         spot = self.derivative.ul().spot
         if time_step is None:
             if self.up:
@@ -142,7 +141,7 @@ class Zeros(StateIndependentFeature):
     def __str__(self) -> str:
         return "zeros"
 
-    def __getitem__(self, time_step: Optional[int]) -> Tensor:
+    def get(self, time_step: Optional[int] = None) -> Tensor:
         index = [time_step] if time_step is not None else ...
         return torch.zeros_like(self.derivative.ul().spot[..., index]).unsqueeze(-1)
 
@@ -153,7 +152,7 @@ class Empty(StateIndependentFeature):
     def __str__(self) -> str:
         return "empty"
 
-    def __getitem__(self, time_step: Optional[int]) -> Tensor:
+    def get(self, time_step: Optional[int] = None) -> Tensor:
         index = [time_step] if time_step is not None else ...
         return torch.empty_like(self.derivative.ul().spot[..., index]).unsqueeze(-1)
 
@@ -174,7 +173,7 @@ class MaxMoneyness(StateIndependentFeature):
     def __str__(self) -> str:
         return "max_log_moneyness" if self.log else "max_moneyness"
 
-    def __getitem__(self, time_step: Optional[int]) -> Tensor:
+    def get(self, time_step: Optional[int] = None) -> Tensor:
         return self.derivative.max_moneyness(time_step, log=self.log).unsqueeze(-1)
 
 

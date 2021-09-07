@@ -108,7 +108,7 @@ maturity=5/250, strike=1.01)
         params.append("maturity=" + _format_float(self.maturity))
         return ", ".join(params)
 
-    def payoff(self) -> Tensor:
+    def payoff_fn(self) -> Tensor:
         return american_binary_payoff(
             self.ul().spot, call=self.call, strike=self.strike
         )
