@@ -32,7 +32,7 @@ jobs:
       uses: peter-evans/create-pull-request@v3
       with:
         author: GitHub Actions <action@github.com>
-        commit-message: bump version
+        commit-message: ${{ steps.bump.outputs.PR_TITLE }}
         delete-branch: true
         branch-suffix: short-commit-hash
         title: ${{ steps.bump.outputs.PR_TITLE }}
