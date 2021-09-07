@@ -32,7 +32,7 @@ class FeatureList(Feature):
         >>> f = FeatureList(["moneyness", "volatility", "empty"]).of(derivative)
         >>> len(f)
         3
-        >>> f[0].size()
+        >>> f.get(0).size()
         torch.Size([2, 1, 3])
     """
 
@@ -42,9 +42,9 @@ class FeatureList(Feature):
     def __len__(self):
         return len(self.features)
 
-    def __getitem__(self, time_step: Optional[int]) -> Tensor:
+    def get(self, time_step: Optional[int]) -> Tensor:
         # Return size: (N, T, F)
-        return torch.cat([f[time_step] for f in self.features], dim=-1)
+        return torch.cat([f.get(time_step) for f in self.features], dim=-1)
 
     def __repr__(self):
         return str(list(map(str, self.features)))
@@ -80,7 +80,7 @@ class ModuleOutput(Feature, Module):
         >>>
         >>> m = Linear(2, 1)
         >>> f = ModuleOutput(m, inputs=["moneyness", "expiry_time"]).of(derivative)
-        >>> f[0].size()
+        >>> f.get(0).size()
         torch.Size([3, 1, 1])
         >>> f
         ModuleOutput(
@@ -96,7 +96,7 @@ class ModuleOutput(Feature, Module):
         >>> m = BlackScholes(derivative)
         >>> f = ModuleOutput(m, ["log_moneyness", "expiry_time", "volatility"])
         >>> f = f.of(derivative)
-        >>> f[0].size()
+        >>> f.get(0).size()
         torch.Size([3, 1, 1])
     """
 
@@ -116,8 +116,8 @@ class ModuleOutput(Feature, Module):
     def forward(self, input: Tensor) -> Tensor:
         return self.module(input)
 
-    def __getitem__(self, time_step: Optional[int]) -> Tensor:
-        return self(self.inputs[time_step])
+    def get(self, time_step: Optional[int]) -> Tensor:
+        return self(self.inputs.get(time_step))
 
     def of(self, derivative=None, hedger=None):
         self.inputs = self.inputs.of(derivative, hedger)

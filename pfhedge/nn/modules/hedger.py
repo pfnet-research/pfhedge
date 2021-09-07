@@ -244,7 +244,7 @@ class Hedger(Module):
             >>> hedger.get_input(0)
             tensor([[[0.0800, 0.2000]]])
         """
-        return self.inputs[time_step]
+        return self.inputs.get(time_step)
 
     def compute_hedge(
         self, derivative: Derivative, hedge: Optional[List[Instrument]] = None
