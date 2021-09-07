@@ -35,6 +35,9 @@ class EuropeanOption(BaseOption):
 
         \\mathrm{payoff} = \\max(K - S, 0)
 
+    .. seealso::
+        :func:`pfhedge.nn.functional.european_payoff`: Payoff function.
+
     Args:
         underlier (:class:`Primary`): The underlying instrument of the option.
         call (bool, default=True): Specifies whether the option is call or put.
