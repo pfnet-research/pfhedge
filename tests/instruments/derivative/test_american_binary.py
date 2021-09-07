@@ -5,8 +5,6 @@ from torch.testing import assert_close
 from pfhedge.instruments import AmericanBinaryOption
 from pfhedge.instruments import BrownianStock
 
-cls = AmericanBinaryOption
-
 
 class TestAmericanBinaryOption:
     """
@@ -72,7 +70,3 @@ AmericanBinaryOption(
   (underlier): BrownianStock(sigma=0.2000, dt=0.0040)
 )"""
         assert repr(derivative) == expect
-
-    def test_init_dtype_deprecated(self):
-        with pytest.raises(DeprecationWarning):
-            _ = cls(BrownianStock(), dtype=torch.float64)

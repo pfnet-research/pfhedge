@@ -33,6 +33,14 @@ class VarianceSwap(Derivative):
         underlier (:class:`Primary`): The underlying instrument.
         strike (float, default=0.04): The strike variance of the swap.
         maturity (float, default=20/250): The maturity of the derivative.
+        dtype (torch.device, optional): Desired device of returned tensor.
+            Default: If None, uses a global default
+            (see :func:`torch.set_default_tensor_type()`).
+        device (torch.device, optional): Desired device of returned tensor.
+            Default: if None, uses the current device for the default tensor type
+            (see :func:`torch.set_default_tensor_type()`).
+            ``device`` will be the CPU for CPU tensor types and
+            the current CUDA device for CUDA tensor types.
 
     Attributes:
         dtype (torch.dtype): The dtype with which the simulated time-series are
@@ -70,14 +78,7 @@ class VarianceSwap(Derivative):
         self.underlier = underlier
         self.strike = strike
         self.maturity = maturity
-
-        # TODO(simaki): Remove later. Deprecated for > v0.12.3
-        if dtype is not None or device is not None:
-            self.to(dtype=dtype, device=device)
-            raise DeprecationWarning(
-                "Specifying device and dtype when constructing a Derivative is deprecated."
-                "Specify them in the constructor of the underlier instead."
-            )
+        self.to(dtype=dtype, device=device)
 
     def extra_repr(self):
         return ", ".join(
