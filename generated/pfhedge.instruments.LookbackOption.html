@@ -243,8 +243,7 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="pfhedge.instruments.LookbackOption">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pfhedge.instruments.</span></span><span class="sig-name descname"><span class="pre">LookbackOption</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">underlier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">call</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strike</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maturity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/derivative/lookback.html#LookbackOption"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.LookbackOption" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="pfhedge.instruments.BaseOption.html#pfhedge.instruments.BaseOption" title="pfhedge.instruments.derivative.base.BaseOption"><code class="xref py py-class docutils literal notranslate"><span class="pre">pfhedge.instruments.derivative.base.BaseOption</span></code></a></p>
-<p>A lookback option with fixed strike.</p>
+<dd><p>A lookback option with fixed strike.</p>
 <p>A lookback call option provides its holder the right to buy an underlying with
 the strike price and to sell with the highest price until the date of maturity.</p>
 <p>A lookback put option provides its holder the right to sell an underlying with
@@ -265,6 +264,14 @@ until maturity and <span class="math notranslate nohighlight">\(K\)</span> is th
 <li><p><strong>call</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>default=True</em>) – Specifies whether the option is call or put.</p></li>
 <li><p><strong>strike</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>default=1.0</em>) – The strike price of the option.</p></li>
 <li><p><strong>maturity</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>default=20/250</em>) – The maturity of the option.</p></li>
+<li><p><strong>dtype</strong> (<em>torch.dtype</em><em>, </em><em>optional</em>) – Desired device of returned tensor.
+Default: If None, uses a global default
+(see <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.set_default_tensor_type.html#torch.set_default_tensor_type" title="(in PyTorch v1.9.0a0+gitd69c22d)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.set_default_tensor_type()</span></code></a>).</p></li>
+<li><p><strong>device</strong> (<em>torch.device</em><em>, </em><em>optional</em>) – Desired device of returned tensor.
+Default: if None, uses the current device for the default tensor type
+(see <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.set_default_tensor_type.html#torch.set_default_tensor_type" title="(in PyTorch v1.9.0a0+gitd69c22d)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.set_default_tensor_type()</span></code></a>).
+<code class="docutils literal notranslate"><span class="pre">device</span></code> will be the CPU for CPU tensor types and
+the current CUDA device for CUDA tensor types.</p></li>
 </ul>
 </dd>
 </dl>
