@@ -122,7 +122,7 @@ class EuropeanOption(BaseOption):
         params.append("maturity=" + _format_float(self.maturity))
         return ", ".join(params)
 
-    def payoff(self) -> Tensor:
+    def payoff_fn(self) -> Tensor:
         return european_payoff(self.ul().spot, call=self.call, strike=self.strike)
 
 
