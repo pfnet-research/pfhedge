@@ -29,7 +29,7 @@ class ZeroDerivative(Derivative):
         self.underlier = underlier
         self.maturity = maturity
 
-    def payoff(self):
+    def payoff_fn(self):
         return torch.zeros_like(self.ul().spot[..., 0])
 
 

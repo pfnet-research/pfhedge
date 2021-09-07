@@ -27,7 +27,8 @@ from pfhedge.nn import Naked
 class _TestFeature:
     def assert_same_dtype(self, feature, derivative, dtype):
         derivative.to(dtype).simulate()
-        assert feature.of(derivative)[0].dtype == dtype
+        f = feature.of(derivative)
+        assert f.get(0).dtype == dtype
 
 
 class TestMoneyness(_TestFeature):
@@ -41,25 +42,25 @@ class TestMoneyness(_TestFeature):
         derivative.underlier.register_buffer("spot", spot)
         f = Moneyness(log=log).of(derivative)
 
-        result = f[0]
+        result = f.get(0)
         expect = torch.tensor([[1.0], [4.0]]) / strike
         expect = expect.log() if log else expect
         expect = expect.unsqueeze(-1)
         assert_close(result, expect)
 
-        result = f[1]
+        result = f.get(1)
         expect = torch.tensor([[2.0], [5.0]]) / strike
         expect = expect.log() if log else expect
         expect = expect.unsqueeze(-1)
         assert_close(result, expect)
 
-        result = f[2]
+        result = f.get(2)
         expect = torch.tensor([[3.0], [6.0]]) / strike
         expect = expect.log() if log else expect
         expect = expect.unsqueeze(-1)
         assert_close(result, expect)
 
-        result = f[None]
+        result = f.get()
         expect = spot / strike
         expect = expect.log() if log else expect
         expect = expect.unsqueeze(-1)
@@ -80,6 +81,23 @@ class TestMoneyness(_TestFeature):
         f = Moneyness().of(derivative, hedger)
         assert not f.is_state_dependent()
 
+    # def test_getitem_deprecation_warning(self):
+    #     derivative = EuropeanOption(BrownianStock())
+    #     spot = torch.empty(2, 3)
+    #     derivative.underlier.register_buffer("spot", spot)
+    #     f = Moneyness().of(derivative)
+
+    #     with pytest.raises(DeprecationWarning):
+    #         _ = f[0]
+
+    @pytest.mark.filterwarnings("ignore")
+    def test_getitem_get(self):
+        derivative = EuropeanOption(BrownianStock())
+        spot = torch.empty(2, 3)
+        derivative.underlier.register_buffer("spot", spot)
+        f = Moneyness().of(derivative)
+        assert_close(f.get(0), f[0])
+
 
 class TestLogMoneyness(_TestFeature):
     @pytest.mark.parametrize("strike", [1.0, 2.0])
@@ -90,17 +108,17 @@ class TestLogMoneyness(_TestFeature):
         #         [4., 5., 6.]])
         f = LogMoneyness().of(derivative)
 
-        result = f[0]
+        result = f.get(0)
         expect = (torch.tensor([[1.0], [4.0]]) / strike).log()
         expect = expect.unsqueeze(-1)
         assert_close(result, expect)
 
-        result = f[1]
+        result = f.get(1)
         expect = (torch.tensor([[2.0], [5.0]]) / strike).log()
         expect = expect.unsqueeze(-1)
         assert_close(result, expect)
 
-        result = f[2]
+        result = f.get(2)
         expect = (torch.tensor([[3.0], [6.0]]) / strike).log()
         expect = expect.unsqueeze(-1)
         assert_close(result, expect)
@@ -126,22 +144,22 @@ class TestTimeToMaturity(_TestFeature):
         derivative.ul().register_buffer("spot", torch.empty(2, 3))
         f = TimeToMaturity().of(derivative)
 
-        result = f[0]
+        result = f.get(0)
         expect = torch.full((2, 1), 0.2)
         expect = expect.unsqueeze(-1)
         assert_close(result, expect, check_stride=False)
 
-        result = f[1]
+        result = f.get(1)
         expect = torch.full((2, 1), 0.1)
         expect = expect.unsqueeze(-1)
         assert_close(result, expect, check_stride=False)
 
-        result = f[2]
+        result = f.get(2)
         expect = torch.full((2, 1), 0.0)
         expect = expect.unsqueeze(-1)
         assert_close(result, expect, check_stride=False)
 
-        result = f[None]
+        result = f.get()
         expect = torch.tensor([[0.2, 0.1, 0.0], [0.2, 0.1, 0.0]])
         expect = expect.unsqueeze(-1)
         assert_close(result, expect, check_stride=False)
@@ -151,22 +169,22 @@ class TestTimeToMaturity(_TestFeature):
         derivative.underlier.register_buffer("spot", torch.empty(2, 3))
         f = TimeToMaturity().of(derivative)
 
-        result = f[0]
+        result = f.get(0)
         expect = torch.full((2, 1), 0.2)
         expect = expect.unsqueeze(-1)
         assert_close(result, expect, check_stride=False)
 
-        result = f[1]
+        result = f.get(1)
         expect = torch.full((2, 1), 0.1)
         expect = expect.unsqueeze(-1)
         assert_close(result, expect, check_stride=False)
 
-        result = f[2]
+        result = f.get(2)
         expect = torch.full((2, 1), 0.0)
         expect = expect.unsqueeze(-1)
         assert_close(result, expect, check_stride=False)
 
-        result = f[None]
+        result = f.get()
         expect = torch.tensor([[0.2, 0.1, 0.0], [0.2, 0.1, 0.0]])
         expect = expect.unsqueeze(-1)
         assert_close(result, expect, check_stride=False)
@@ -195,22 +213,22 @@ class TestVolatility(_TestFeature):
 
         f = Volatility().of(derivative)
 
-        result = f[0]
+        result = f.get(0)
         expect = torch.full((2, 1), sigma)
         expect = expect.unsqueeze(-1)
         assert_close(result, expect, check_stride=False)
 
-        result = f[1]
+        result = f.get(1)
         expect = torch.full((2, 1), sigma)
         expect = expect.unsqueeze(-1)
         assert_close(result, expect, check_stride=False)
 
-        result = f[2]
+        result = f.get(2)
         expect = torch.full((2, 1), sigma)
         expect = expect.unsqueeze(-1)
         assert_close(result, expect, check_stride=False)
 
-        result = f[None]
+        result = f.get()
         expect = torch.full((2, 3), sigma)
         expect = expect.unsqueeze(-1)
         assert_close(result, expect, check_stride=False)
@@ -222,17 +240,17 @@ class TestVolatility(_TestFeature):
 
         f = Volatility().of(derivative)
 
-        result = f[0]
+        result = f.get(0)
         expect = variance[:, [0]].sqrt()
         expect = expect.unsqueeze(-1)
         assert_close(result, expect, check_stride=False)
 
-        result = f[1]
+        result = f.get(1)
         expect = variance[:, [1]].sqrt()
         expect = expect.unsqueeze(-1)
         assert_close(result, expect, check_stride=False)
 
-        result = f[None]
+        result = f.get()
         expect = variance.sqrt()
         expect = expect.unsqueeze(-1)
         assert_close(result, expect, check_stride=False)
@@ -329,20 +347,20 @@ class TestPrevHedge(_TestFeature):
         f = PrevHedge().of(derivative, hedger)
 
         with pytest.raises(AttributeError):
-            _ = f[0]
+            _ = f.get(0)
             # expect = torch.zeros((N, 1, 1))
             # assert_close(result, expect)
 
         # input = torch.cat([feature[0] for feature in hedger.inputs], dim=-1)
         input = torch.randn(N, 1, 2)
         expect = hedger(input)
-        result = f[1]
+        result = f.get(1)
         assert_close(result, expect)
 
         # input = torch.cat([feature[1] for feature in hedger.inputs], dim=-1)
         input = torch.randn(N, 1, 2)
         expect = hedger(input)
-        result = f[2]
+        result = f.get(2)
         assert_close(result, expect)
 
     def test_str(self):
@@ -359,7 +377,7 @@ class TestPrevHedge(_TestFeature):
         hedger = Hedger(Naked(), inputs=["empty"])
         f = PrevHedge().of(derivative, hedger)
         with pytest.raises(ValueError):
-            _ = f[None]
+            _ = f.get(None)
 
 
 class TestBarrier(_TestFeature):
@@ -378,27 +396,27 @@ class TestBarrier(_TestFeature):
         )
         f = Barrier(2.0, up=True).of(derivative)
 
-        result = f[0]
+        result = f.get(0)
         expect = torch.tensor([0.0, 1.0, 1.0, 0.0])
         expect = expect.unsqueeze(-1).unsqueeze(-1)
         assert_close(result, expect)
 
-        result = f[1]
+        result = f.get(1)
         expect = torch.tensor([0.0, 1.0, 1.0, 0.0])
         expect = expect.unsqueeze(-1).unsqueeze(-1)
         assert_close(result, expect)
 
-        result = f[2]
+        result = f.get(2)
         expect = torch.tensor([1.0, 1.0, 1.0, 0.0])
         expect = expect.unsqueeze(-1).unsqueeze(-1)
         assert_close(result, expect)
 
-        result = f[3]
+        result = f.get(3)
         expect = torch.tensor([1.0, 1.0, 1.0, 0.0])
         expect = expect.unsqueeze(-1).unsqueeze(-1)
         assert_close(result, expect)
 
-        result = f[None]
+        result = f.get()
         expect = torch.tensor(
             [
                 [0.0, 0.0, 1.0, 1.0],
@@ -423,27 +441,27 @@ class TestBarrier(_TestFeature):
         )
         f = Barrier(2.0, up=False).of(derivative)
 
-        result = f[0]
+        result = f.get(0)
         expect = torch.tensor([0.0, 1.0, 0.0, 1.0]).reshape(-1, 1)
         expect = expect.unsqueeze(-1)
         assert_close(result, expect)
 
-        result = f[1]
+        result = f.get(1)
         expect = torch.tensor([1.0, 1.0, 0.0, 1.0]).reshape(-1, 1)
         expect = expect.unsqueeze(-1)
         assert_close(result, expect)
 
-        result = f[2]
+        result = f.get(2)
         expect = torch.tensor([1.0, 1.0, 0.0, 1.0]).reshape(-1, 1)
         expect = expect.unsqueeze(-1)
         assert_close(result, expect)
 
-        result = f[3]
+        result = f.get(3)
         expect = torch.tensor([1.0, 1.0, 0.0, 1.0]).reshape(-1, 1)
         expect = expect.unsqueeze(-1)
         assert_close(result, expect)
 
-        result = f[None]
+        result = f.get(None)
         expect = torch.tensor(
             [
                 [0.0, 1.0, 1.0, 1.0],
@@ -484,22 +502,22 @@ class TestZeros(_TestFeature):
 
         f = Zeros().of(derivative)
 
-        result = f[0]
+        result = f.get(0)
         expect = torch.zeros((2, 1))
         expect = expect.unsqueeze(-1)
         assert_close(result, expect)
 
-        result = f[1]
+        result = f.get(1)
         expect = torch.zeros((2, 1))
         expect = expect.unsqueeze(-1)
         assert_close(result, expect)
 
-        result = f[2]
+        result = f.get(2)
         expect = torch.zeros((2, 1))
         expect = expect.unsqueeze(-1)
         assert_close(result, expect)
 
-        result = f[None]
+        result = f.get(None)
         expect = torch.zeros((2, 3))
         expect = expect.unsqueeze(-1)
         assert_close(result, expect)
@@ -527,16 +545,16 @@ class TestEmpty(_TestFeature):
 
         f = Empty().of(derivative)
 
-        result = f[0]
+        result = f.get(0)
         assert result.size() == torch.Size((2, 1, 1))
 
-        result = f[1]
+        result = f.get(1)
         assert result.size() == torch.Size((2, 1, 1))
 
-        result = f[2]
+        result = f.get(2)
         assert result.size() == torch.Size((2, 1, 1))
 
-        result = f[None]
+        result = f.get(None)
         assert result.size() == torch.Size((2, 3, 1))
 
     def test_str(self):
@@ -565,25 +583,25 @@ class TestMaxMoneyness(_TestFeature):
 
         f = MaxMoneyness(log=log).of(derivative)
 
-        result = f[0]
+        result = f.get(0)
         expect = torch.tensor([[1.0], [2.0], [3.0]]) / strike
         expect = expect.log() if log else expect
         expect = expect.unsqueeze(-1)
         assert_close(result, expect)
 
-        result = f[1]
+        result = f.get(1)
         expect = torch.tensor([[2.0], [3.0], [3.0]]) / strike
         expect = expect.log() if log else expect
         expect = expect.unsqueeze(-1)
         assert_close(result, expect)
 
-        result = f[2]
+        result = f.get(2)
         expect = torch.tensor([[2.0], [4.0], [3.0]]) / strike
         expect = expect.log() if log else expect
         expect = expect.unsqueeze(-1)
         assert_close(result, expect)
 
-        result = f[None]
+        result = f.get(None)
         expect = (
             torch.tensor([[1.0, 2.0, 2.0], [2.0, 3.0, 4.0], [3.0, 3.0, 3.0]]) / strike
         )
@@ -617,22 +635,22 @@ class TestMaxLogMoneyness(_TestFeature):
 
         f = MaxLogMoneyness().of(derivative)
 
-        result = f[0]
+        result = f.get(0)
         expect = (torch.tensor([[1.0], [2.0], [3.0]]) / strike).log()
         expect = expect.unsqueeze(-1)
         assert_close(result, expect)
 
-        result = f[1]
+        result = f.get(1)
         expect = (torch.tensor([[2.0], [3.0], [3.0]]) / strike).log()
         expect = expect.unsqueeze(-1)
         assert_close(result, expect)
 
-        result = f[2]
+        result = f.get(2)
         expect = (torch.tensor([[2.0], [4.0], [3.0]]) / strike).log()
         expect = expect.unsqueeze(-1)
         assert_close(result, expect)
 
-        result = f[None]
+        result = f.get(None)
         expect = (
             torch.tensor([[1.0, 2.0, 2.0], [2.0, 3.0, 4.0], [3.0, 3.0, 3.0]]) / strike
         ).log()
@@ -663,16 +681,16 @@ class TestModuleOutput(_TestFeature):
         x1, x2 = Moneyness(), TimeToMaturity()
         f = ModuleOutput(module, [x1, x2]).of(derivative)
 
-        result = f[0]
-        expect = module(torch.cat([x1[0], x2[0]], dim=-1))
+        result = f.get(0)
+        expect = module(torch.cat([x1.get(0), x2.get(0)], dim=-1))
         assert_close(result, expect)
 
-        result = f[1]
-        expect = module(torch.cat([x1[1], x2[1]], dim=-1))
+        result = f.get(1)
+        expect = module(torch.cat([x1.get(1), x2.get(1)], dim=-1))
         assert_close(result, expect)
 
-        result = f[2]
-        expect = module(torch.cat([x1[2], x2[2]], dim=-1))
+        result = f.get(2)
+        expect = module(torch.cat([x1.get(2), x2.get(2)], dim=-1))
         assert_close(result, expect)
 
     def test_repr(self):
@@ -732,16 +750,16 @@ class TestFeatureList:
         f1 = ExpiryTime().of(derivative, hedger)
         f = FeatureList([f0, f1]).of(derivative, hedger)
 
-        result = f[0]
-        expect = torch.cat([f0[0], f1[0]], dim=-1)
+        result = f.get(0)
+        expect = torch.cat([f0.get(0), f1.get(0)], dim=-1)
         assert_close(result, expect)
 
-        result = f[1]
-        expect = torch.cat([f0[1], f1[1]], dim=-1)
+        result = f.get(1)
+        expect = torch.cat([f0.get(1), f1.get(1)], dim=-1)
         assert_close(result, expect)
 
-        result = f[None]
-        expect = torch.cat([f0[None], f1[None]], dim=-1)
+        result = f.get(None)
+        expect = torch.cat([f0.get(None), f1.get(None)], dim=-1)
         assert_close(result, expect)
 
         torch.manual_seed(42)
@@ -751,13 +769,13 @@ class TestFeatureList:
         f = FeatureList([f0, f1]).of(derivative, hedger)
 
         hedger(torch.ones(derivative.ul().spot.size(0), 1, 2))
-        result = f[1]
-        expect = torch.cat([f0[1], f1[1]], dim=-1)
+        result = f.get(1)
+        expect = torch.cat([f0.get(1), f1.get(1)], dim=-1)
         assert_close(result, expect)
 
         hedger(torch.ones(derivative.ul().spot.size(0), 1, 2))
-        result = f[2]
-        expect = torch.cat([f0[2], f1[2]], dim=-1)
+        result = f.get(2)
+        expect = torch.cat([f0.get(2), f1.get(2)], dim=-1)
         assert_close(result, expect)
 
     def test_is_state_dependent(self):
