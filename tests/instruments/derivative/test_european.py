@@ -204,6 +204,10 @@ EuropeanOption(
         with pytest.raises(ValueError):
             _ = derivative.spot
 
+    def test_init_dtype_deprecated(self):
+        with pytest.raises(DeprecationWarning):
+            _ = EuropeanOption(BrownianStock(), dtype=torch.float64)
+
     def test_clause(self):
         torch.manual_seed(42)
 
