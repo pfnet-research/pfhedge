@@ -14,7 +14,7 @@ from .base import Derivative
 
 
 class EuropeanOption(BaseOption):
-    """A European option.
+    r"""A European option.
 
     A European option provides its holder the right to buy (for call option)
     or sell (for put option) an underlying asset with the strike price
@@ -24,7 +24,7 @@ class EuropeanOption(BaseOption):
 
     .. math::
 
-        \\mathrm{payoff} = \\max(S - K, 0)
+        \mathrm{payoff} = \max(S - K, 0)
 
     Here, :math:`S` is the underlying asset's price at maturity and
     :math:`K` is the strike price (`strike`) of the option.
@@ -33,7 +33,7 @@ class EuropeanOption(BaseOption):
 
     .. math::
 
-        \\mathrm{payoff} = \\max(K - S, 0)
+        \mathrm{payoff} = \max(K - S, 0)
 
     .. seealso::
         :func:`pfhedge.nn.functional.european_payoff`: Payoff function.
@@ -107,8 +107,8 @@ class EuropeanOption(BaseOption):
         >>> derivative
         EuropeanOption(
           strike=1., maturity=0.0200
+          clauses=['knockout']
           (underlier): BrownianStock(sigma=0.2000, dt=0.0040)
-          (clauses): ['knockout']
         )
         >>> derivative.payoff()
         tensor([0.0000, 0.0000, 0.0113, 0.0000, 0.0000, 0.0008, 0.0000, 0.0000])

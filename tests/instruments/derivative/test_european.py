@@ -179,8 +179,8 @@ EuropeanOption(
         expect = """\
 EuropeanOption(
   strike=1., maturity=1.
+  clauses=['knockout']
   (underlier): BrownianStock(sigma=0.2000, dt=0.0040)
-  (clauses): ['knockout']
 )"""
         assert repr(derivative) == expect
 
