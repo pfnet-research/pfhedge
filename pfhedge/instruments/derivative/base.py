@@ -137,12 +137,12 @@ class Derivative(Instrument):
         self.cost = cost
 
     def add_clause(
-        self: "Derivative", name: str, clause: Callable[["Derivative", Tensor], Tensor]
+        self, name: str, clause: Callable[["Derivative", Tensor], Tensor]
     ) -> None:
         """Adds a clause to the derivative.
 
         The clause will be called after :meth:`payoff_fn` method
-        has computed the payoff and modifies the payoff tensor.
+        has computed the payoff and modify the payoff tensor.
         It should have the following signature::
 
             clause(derivative, payoff) -> modified payoff

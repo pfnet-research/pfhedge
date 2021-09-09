@@ -45,6 +45,9 @@ class EuropeanBinaryOption(BaseOption):
             0 & (\\text{otherwise})
         \\end{cases}
 
+    .. seealso::
+        :func:`pfhedge.nn.functional.european_binary_payoff`: Payoff function.
+
     Args:
         underlier (:class:`Primary`): The underlying instrument of the option.
         call (bool, default=True): Specifies whether the option is call or put.
