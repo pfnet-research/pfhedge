@@ -178,6 +178,9 @@ class Derivative(Instrument):
         main_str = self._get_name() + "(\n  "
         main_str += self.extra_repr() + "\n"
         main_str += _addindent("(underlier): " + repr(self.ul()))
+        if self._clauses:
+            main_str += "\n"
+            main_str += _addindent("(clauses): " + repr(list(self._clauses.keys())))
         main_str += "\n)"
         return main_str
 

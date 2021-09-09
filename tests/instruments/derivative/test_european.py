@@ -174,6 +174,16 @@ EuropeanOption(
 )"""
         assert repr(derivative) == expect
 
+        derivative = cls(BrownianStock(), maturity=1.0)
+        derivative.add_clause("knockout", lambda derivative, payoff: payoff)
+        expect = """\
+EuropeanOption(
+  strike=1., maturity=1.
+  (underlier): BrownianStock(sigma=0.2000, dt=0.0040)
+  (clauses): ['knockout']
+)"""
+        assert repr(derivative) == expect
+
         derivative = EuropeanOption(BrownianStock(), maturity=1.0, call=False)
         expect = """\
 EuropeanOption(
