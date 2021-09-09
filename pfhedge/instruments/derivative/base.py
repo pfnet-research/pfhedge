@@ -175,14 +175,15 @@ class Derivative(Instrument):
         return self.pricer(self)
 
     def __repr__(self) -> str:
-        main_str = self._get_name() + "(\n  "
-        main_str += self.extra_repr() + "\n"
-        main_str += _addindent("(underlier): " + repr(self.ul()))
+        params_str = ""
+        if self.extra_repr() != "":
+            params_str += self.extra_repr() + "\n"
         if self._clauses:
-            main_str += "\n"
-            main_str += _addindent("(clauses): " + repr(list(self._clauses.keys())))
-        main_str += "\n)"
-        return main_str
+            params_str += "clauses=" + repr(list(self._clauses.keys())) + "\n"
+        params_str += "(underlier): " + repr(self.ul())
+        if params_str != "":
+            params_str = "\n" + _addindent(params_str) + "\n"
+        return self._get_name() + "(" + params_str + ")"
 
 
 class BaseOption(Derivative):
