@@ -49,6 +49,9 @@ class AmericanBinaryOption(BaseOption):
 
     Here, :math:`\\mathrm{Min}` is the minimum of the underlying asset's price.
 
+    .. seealso::
+        :func:`pfhedge.nn.functional.american_binary_payoff`: Payoff function.
+
     Args:
         underlier (:class:`Primary`): The underlying instrument of the option.
         call (bool, default=True): Specifies whether the option is call or put.
