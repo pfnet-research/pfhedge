@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Type
 from typing import Optional
 from typing import TypeVar
 from typing import Union
@@ -10,7 +10,7 @@ from torch.nn import Module
 from pfhedge.instruments import Derivative
 
 from ._base import Feature
-from ._getter import get_feature
+from ._getter import get_feature, get_feature_class
 
 T = TypeVar("T", bound="FeatureList")
 
@@ -55,6 +55,52 @@ class FeatureList(Feature):
 
     def is_state_dependent(self) -> bool:
         return any(map(lambda f: f.is_state_dependent(), self.features))
+
+
+class FeatureClassList:
+    """Holds feature classes in a list.
+
+    Args:
+        features (list[str | Feature class]): A list of features.
+
+    Examples:
+
+        >>> from pfhedge.features import FeatureClassList
+        >>> from pfhedge.instruments import BrownianStock
+        >>> from pfhedge.instruments import EuropeanOption
+        >>>
+        >>> derivative = EuropeanOption(BrownianStock(), maturity=5/250)
+        >>> derivative.simulate(n_paths=2)
+        >>> cl = FeatureClassList(["moneyness", "volatility", "empty"])
+        >>> len(cl)
+        3
+        >>> f = cl(derivative=derivative)
+        >>> f.get(0).size()
+        torch.Size([2, 1, 3])
+    """
+    def __init__(self, features: List[Union[str, Type[Feature]]]):
+        self.feature_classes = list(map(get_feature_class, features))
+
+    def __len__(self):
+        return len(self.feature_classes)
+
+    def __repr__(self):
+        return "FeatureClassList" + str(self.to_feature_list())
+
+    def __call__(self, derivative: Derivative = None, hedger: Optional[Module] = None) -> T:
+        features = self.to_feature_list()
+        if derivative is not None or hedger is not None:
+            features = features.of(derivative=derivative, hedger=hedger)
+        return features
+
+    def to_feature_list(self) -> T:
+        return FeatureList(features=[x() for x in self.feature_classes])
+
+    def of(self, derivative: Derivative, hedger: Optional[Module] = None) -> T:
+        return self.to_feature_list().of(derivative=derivative, hedger=hedger)
+
+    def is_state_dependent(self) -> bool:
+        return any(map(lambda f: f().is_state_dependent(), self.feature_classes))
 
 
 class ModuleOutput(Feature, Module):
