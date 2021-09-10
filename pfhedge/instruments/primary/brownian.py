@@ -17,15 +17,14 @@ from .base import Primary
 
 
 class BrownianStock(Primary):
-    """A stock of which spot prices follow the geometric Brownian motion.
+    r"""A stock of which spot prices follow the geometric Brownian motion.
 
-    The drift of the spot prices is assumed to be vanishing.
-
-    See :func:`pfhedge.stochastic.generate_geometric_brownian`
-    for details of the process.
+    .. seealso::
+        - :func:`pfhedge.stochastic.generate_geometric_brownian`:
+          The stochastic process.
 
     Args:
-        sigma (float, default=0.2): The parameter :math:`\\sigma`,
+        sigma (float, default=0.2): The parameter :math:`\sigma`,
             which stands for the volatility of the spot price.
         cost (float, default=0.0): The transaction cost rate.
         dt (float, default=1/250): The intervals of the time steps.
@@ -46,7 +45,6 @@ class BrownianStock(Primary):
           :math:`T` is the number of time steps.
 
     Examples:
-
         >>> from pfhedge.instruments import BrownianStock
         >>>
         >>> _ = torch.manual_seed(42)
