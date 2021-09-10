@@ -5,7 +5,7 @@ from typing import Type
 from typing import Union
 
 from ._base import Feature
-from .features import Empty
+from .features import Empty, Spot, UnderlierSpot
 from .features import ExpiryTime
 from .features import LogMoneyness
 from .features import MaxLogMoneyness
@@ -29,6 +29,8 @@ FEATURES: List[Type[Feature]] = [
     Variance,
     Volatility,
     Zeros,
+    Spot,
+    UnderlierSpot
 ]
 
 DICT_FEATURES: Mapping[str, Type[Feature]] = {str(f()): f for f in FEATURES}
