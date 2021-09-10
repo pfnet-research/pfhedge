@@ -30,7 +30,7 @@ class BSEuropeanBinaryOption(BSModuleMixin):
         - Output: :math:`(N, *, 1)`.
           All but the last dimension are the same shape as the input.
 
-    .. seealso ::
+    .. seealso::
         - :class:`pfhedge.nn.BlackScholes`:
           Initialize Black-Scholes formula module from a derivative.
 

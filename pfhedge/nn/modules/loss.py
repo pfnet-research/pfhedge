@@ -63,17 +63,21 @@ class HedgeLoss(Module, ABC):
 
 
 class EntropicRiskMeasure(HedgeLoss):
-    """Creates a loss given by the entropic risk measure.
+    r"""Creates a loss given by the entropic risk measure.
 
     The entropic risk measure of the profit-loss distribution
-    :math:`\\text{pnl}` is given by:
+    :math:`\text{pnl}` is given by:
 
     .. math::
 
-        \\text{loss}(\\text{pnl}) = \\frac{1}{a}
-        \\log(- \\mathbf{E}[u(\\text{pnl})]) \\,,
-        \\quad
-        u(x) = -\\exp(-a x) \\,.
+        \text{loss}(\text{pnl}) = \frac{1}{a}
+        \log(- \mathbf{E}[u(\text{pnl})]) \,,
+        \quad
+        u(x) = -\exp(-a x) \,.
+
+    .. seealso::
+        - :func:`pfhedge.nn.functional.exp_utility`:
+          The corresponding utility function.
 
     Args:
         a (float, default=1.0): Risk aversion coefficient of
@@ -115,15 +119,19 @@ class EntropicRiskMeasure(HedgeLoss):
 
 
 class EntropicLoss(HedgeLoss):
-    """Creates a loss given by the negative of expected exponential utility.
+    r"""Creates a loss given by the negative of expected exponential utility.
 
-    The loss of the profit-loss :math:`\\text{pnl}` is given by:
+    The loss of the profit-loss :math:`\text{pnl}` is given by:
 
     .. math::
 
-        \\text{loss}(\\text{pnl}) = -\\mathbf{E}[u(\\text{pnl})] \\,,
-        \\quad
-        u(x) = -\\exp(-a x) \\,.
+        \text{loss}(\text{pnl}) = -\mathbf{E}[u(\text{pnl})] \,,
+        \quad
+        u(x) = -\exp(-a x) \,.
+
+    .. seealso::
+        - :func:`pfhedge.nn.functional.exp_utility`:
+          The corresponding utility function.
 
     Args:
         a (float > 0, default=1.0): Risk aversion coefficient of
@@ -164,22 +172,26 @@ class EntropicLoss(HedgeLoss):
 
 
 class IsoelasticLoss(HedgeLoss):
-    """Creates a loss function that measures the isoelastic utility.
+    r"""Creates a loss function that measures the isoelastic utility.
 
-    The loss of the profit-loss :math:`\\text{pnl}` is given by:
+    The loss of the profit-loss :math:`\text{pnl}` is given by:
 
     .. math::
 
-        \\text{loss}(\\text{pnl}) = -\\mathbf{E}[u(\\text{pnl})] \\,,
-        \\quad
-        u(x) = \\begin{cases}
-        x^{1 - a} & a \\neq 1 \\\\
-        \\log{x} & a = 1
-        \\end{cases} \\,.
+        \text{loss}(\text{pnl}) = -\mathbf{E}[u(\text{pnl})] \,,
+        \quad
+        u(x) = \begin{cases}
+        x^{1 - a} & a \neq 1 \\
+        \log{x} & a = 1
+        \end{cases} \,.
+
+    .. seealso::
+        - :func:`pfhedge.nn.functional.isoelastic_utility`:
+          The corresponding utility function.
 
     Args:
         a (float): Relative risk aversion coefficient of the isoelastic utility.
-            This parameter should satisfy :math:`0 < a \\leq 1`.
+            This parameter should satisfy :math:`0 < a \leq 1`.
 
     Shape:
         - Input: :math:`(N, *)` where
@@ -222,11 +234,14 @@ class IsoelasticLoss(HedgeLoss):
 
 
 class ExpectedShortfall(HedgeLoss):
-    """Creates a criterion that measures the expected shortfall.
+    r"""Creates a criterion that measures the expected shortfall.
+
+    .. seealso::
+        - :func:`pfhedge.nn.functional.expected_shortfall`
 
     Args:
         p (float, default=0.1): Quantile level.
-            This parameter should satisfy :math:`0 < p \\leq 1`.
+            This parameter should satisfy :math:`0 < p \leq 1`.
 
     Shape:
         - Input: :math:`(N, *)` where
