@@ -14,3 +14,5 @@ from .features import TimeToMaturity
 from .features import Variance
 from .features import Volatility
 from .features import Zeros
+from .features import UnderlierSpot
+from .features import Spot
