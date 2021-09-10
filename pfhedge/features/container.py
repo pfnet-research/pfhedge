@@ -1,5 +1,6 @@
-from typing import List, Type
+from typing import List
 from typing import Optional
+from typing import Type
 from typing import TypeVar
 from typing import Union
 
@@ -10,7 +11,8 @@ from torch.nn import Module
 from pfhedge.instruments import Derivative
 
 from ._base import Feature
-from ._getter import get_feature, get_feature_class
+from ._getter import get_feature
+from ._getter import get_feature_class
 
 T = TypeVar("T", bound="FeatureList")
 
@@ -78,6 +80,7 @@ class FeatureClassList:
         >>> f.get(0).size()
         torch.Size([2, 1, 3])
     """
+
     def __init__(self, features: List[Union[str, Type[Feature]]]):
         self.feature_classes = list(map(get_feature_class, features))
 
@@ -87,16 +90,20 @@ class FeatureClassList:
     def __repr__(self):
         return "FeatureClassList" + str(self.to_feature_list())
 
-    def __call__(self, derivative: Derivative = None, hedger: Optional[Module] = None) -> T:
-        features = self.to_feature_list()
-        if derivative is not None or hedger is not None:
+    def __call__(
+        self, derivative: Optional[Derivative] = None, hedger: Optional[Module] = None
+    ) -> FeatureList:
+        features: FeatureList = self.to_feature_list()
+        if derivative is not None:
             features = features.of(derivative=derivative, hedger=hedger)
         return features
 
-    def to_feature_list(self) -> T:
+    def to_feature_list(self) -> FeatureList:
         return FeatureList(features=[x() for x in self.feature_classes])
 
-    def of(self, derivative: Derivative, hedger: Optional[Module] = None) -> T:
+    def of(
+        self, derivative: Derivative, hedger: Optional[Module] = None
+    ) -> FeatureList:
         return self.to_feature_list().of(derivative=derivative, hedger=hedger)
 
     def is_state_dependent(self) -> bool:
