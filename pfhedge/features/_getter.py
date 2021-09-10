@@ -3,7 +3,7 @@ from typing import Mapping
 from typing import Union
 
 from ._base import Feature
-from .features import Empty
+from .features import Empty, Spot, UnderlierSpot
 from .features import ExpiryTime
 from .features import LogMoneyness
 from .features import MaxLogMoneyness
@@ -27,6 +27,8 @@ FEATURES = [
     Variance,
     Volatility,
     Zeros,
+    Spot,
+    UnderlierSpot
 ]
 
 DICT_FEATURES = {str(f()): f for f in FEATURES}
