@@ -1,3 +1,4 @@
+import copy
 import warnings
 from abc import ABC
 from abc import abstractmethod
@@ -55,9 +56,10 @@ class Feature(ABC):
         Returns:
             self
         """
-        self.register_derivative(derivative)
-        self.register_hedger(hedger)
-        return self
+        output = copy.copy(self)
+        output.register_derivative(derivative)
+        output.register_hedger(hedger)
+        return output
 
     def register_derivative(self, derivative: Derivative) -> None:
         setattr(self, "derivative", derivative)
@@ -85,6 +87,4 @@ class StateIndependentFeature(Feature):
     hedger: None
 
     def of(self: T, derivative: Derivative, hedger: Optional[Module] = None) -> T:
-        self.register_derivative(derivative)
-        self.register_hedger(None)
-        return self
+        return super().of(derivative=derivative, hedger=None)
