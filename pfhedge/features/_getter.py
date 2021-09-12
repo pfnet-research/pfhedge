@@ -12,9 +12,7 @@ from .features import MaxLogMoneyness
 from .features import MaxMoneyness
 from .features import Moneyness
 from .features import PrevHedge
-from .features import Spot
 from .features import TimeToMaturity
-from .features import UnderlierSpot
 from .features import Variance
 from .features import Volatility
 from .features import Zeros
@@ -31,8 +29,6 @@ FEATURES: List[Type[Feature]] = [
     Variance,
     Volatility,
     Zeros,
-    Spot,
-    UnderlierSpot,
 ]
 
 DICT_FEATURES: Mapping[str, Type[Feature]] = {str(f()): f for f in FEATURES}
