@@ -1,5 +1,7 @@
 from typing import Callable
+from typing import List
 from typing import Mapping
+from typing import Type
 from typing import Union
 
 from ._base import Feature
@@ -17,7 +19,7 @@ from .features import Variance
 from .features import Volatility
 from .features import Zeros
 
-FEATURES = [
+FEATURES: List[Type[Feature]] = [
     Empty,
     ExpiryTime,
     TimeToMaturity,
@@ -33,7 +35,28 @@ FEATURES = [
     UnderlierSpot,
 ]
 
-DICT_FEATURES = {str(f()): f for f in FEATURES}
+DICT_FEATURES: Mapping[str, Type[Feature]] = {str(f()): f for f in FEATURES}
+
+
+def get_feature_class(feature_class: Union[str, Type[Feature]]) -> Type[Feature]:
+    """Get feature class from name.
+
+    Args:
+        name (str): Name of feature.
+
+    Returns:
+        Feature class
+    """
+    if isinstance(feature_class, str):
+        if feature_class not in DICT_FEATURES:
+            raise ValueError(
+                f"{feature_class} is not a valid value. "
+                "Use sorted(pfhedge.features.FEATURES) to get valid options."
+            )
+        feature_class = DICT_FEATURES[feature_class]
+    elif not issubclass(feature_class, Feature):
+        raise TypeError(f"{feature_class} is not Feature.")
+    return feature_class
 
 
 def get_feature(feature: Union[str, Feature]) -> Feature:
@@ -45,15 +68,8 @@ def get_feature(feature: Union[str, Feature]) -> Feature:
     Returns:
         Feature
     """
-    dict_features: Mapping[str, Callable[[], Feature]] = DICT_FEATURES
-
     if isinstance(feature, str):
-        if feature not in dict_features:
-            raise ValueError(
-                f"{feature} is not a valid value. "
-                "Use sorted(pfhedge.features.FEATURES) to get valid options."
-            )
-        feature = dict_features[feature]()
+        feature = get_feature_class(feature)()
     elif not isinstance(feature, Feature):
         raise TypeError(f"{feature} is not an instance of Feature.")
     return feature

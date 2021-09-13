@@ -684,15 +684,21 @@ class TestModuleOutput(_TestFeature):
         f = ModuleOutput(module, [x1, x2]).of(derivative)
 
         result = f.get(0)
-        expect = module(torch.cat([x1.get(0), x2.get(0)], dim=-1))
+        expect = module(
+            torch.cat([x1.of(derivative).get(0), x2.of(derivative).get(0)], dim=-1)
+        )
         assert_close(result, expect)
 
         result = f.get(1)
-        expect = module(torch.cat([x1.get(1), x2.get(1)], dim=-1))
+        expect = module(
+            torch.cat([x1.of(derivative).get(1), x2.of(derivative).get(1)], dim=-1)
+        )
         assert_close(result, expect)
 
         result = f.get(2)
-        expect = module(torch.cat([x1.get(2), x2.get(2)], dim=-1))
+        expect = module(
+            torch.cat([x1.of(derivative).get(2), x2.of(derivative).get(2)], dim=-1)
+        )
         assert_close(result, expect)
 
     def test_repr(self):

@@ -269,9 +269,9 @@ Hedger(
         derivative.simulate()
         _ = hedger.compute_pnl(derivative, n_paths=1)
         N, T = derivative.ul().spot.size()
-        input = hedger.get_input(0)
+        input = hedger.get_input(derivative, 0)
         assert input.size() == torch.Size((N, 1, h_in))
-        input = hedger.get_input(None)
+        input = hedger.get_input(derivative, None)
         assert input.size() == torch.Size((N, T, h_in))
 
     @pytest.mark.parametrize("h_in", [1, 2, 3])

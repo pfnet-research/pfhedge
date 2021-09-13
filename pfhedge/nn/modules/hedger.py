@@ -207,7 +207,7 @@ class Hedger(Module):
     def extra_repr(self) -> str:
         return "inputs=" + str(self.inputs)
 
-    def get_input(self, time_step: Optional[int]) -> Tensor:
+    def get_input(self, derivative: Derivative, time_step: Optional[int]) -> Tensor:
         """Returns the input tensor to the model at the given time step.
 
         Note:
@@ -218,6 +218,7 @@ class Hedger(Module):
             before calling this method.
 
         Args:
+            derivative (Derivative): The derivative used for getting the input.
             time_step (int, optional): The time step to get the input tensor.
                 If ``None`` an input tensor for all time steps is returned.
 
@@ -241,10 +242,10 @@ class Hedger(Module):
             >>> derivative.simulate()
             >>> hedger = Hedger(Naked(), ["time_to_maturity", "volatility"])
             >>> _ = hedger.compute_pnl(derivative, n_paths=1)  # Materialize features
-            >>> hedger.get_input(0)
+            >>> hedger.get_input(derivative, 0)
             tensor([[[0.0800, 0.2000]]])
         """
-        return self.inputs.get(time_step)
+        return self.inputs.of(derivative=derivative).get(time_step)
 
     def compute_hedge(
         self, derivative: Derivative, hedge: Optional[List[Instrument]] = None
@@ -284,7 +285,7 @@ class Hedger(Module):
             tensor([[0.5056, 0.5295, 0.5845, 0.6610, 0.2918, 0.2918],
                     [0.5056, 0.3785, 0.4609, 0.5239, 0.7281, 0.7281]])
         """
-        self.inputs = self.inputs.of(derivative, self)
+        inputs = self.inputs.of(derivative, self)
         hedge = cast(List[Instrument], [derivative.ul()] if hedge is None else hedge)
 
         # Check that the spot prices of the hedges have the same sizes
@@ -292,19 +293,19 @@ class Hedger(Module):
             raise ValueError("The spot prices of the hedges must have the same size")
 
         (n_paths, n_steps), n_hedges = hedge[0].spot.size(), len(hedge)
-        if self.inputs.is_state_dependent():
+        if inputs.is_state_dependent():
             zeros = hedge[0].spot.new_zeros((n_paths, 1, n_hedges))
             save_prev_output(self, input=None, output=zeros)
             outputs = []
             for time_step in range(n_steps - 1):
-                input = self.get_input(time_step)  # (N, T=1, F)
+                input = inputs.get(time_step)  # (N, T=1, F)
                 outputs.append(self(input))  # (N, T=1, H)
             outputs.append(outputs[-1])
             output = torch.cat(outputs, dim=-2)  # (N, T, H)
         else:
             # If all features are state-independent, compute the output at all
             # time steps at once, which would be faster.
-            input = self.get_input(None)  # (N, T, F)
+            input = inputs.get(None)  # (N, T, F)
             output = self(input)  # (N, T, H)
             # This maintains consistency with the previous implementations.
             # In previous implementation for loop is computed for 0...T-2 and
