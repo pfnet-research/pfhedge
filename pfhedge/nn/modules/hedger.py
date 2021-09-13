@@ -207,7 +207,7 @@ class Hedger(Module):
     def extra_repr(self) -> str:
         return "inputs=" + str(self.inputs)
 
-    def get_input(self, time_step: Optional[int], derivative: Derivative) -> Tensor:
+    def get_input(self, derivative: Derivative, time_step: Optional[int]) -> Tensor:
         """Returns the input tensor to the model at the given time step.
 
         Note:
@@ -218,6 +218,7 @@ class Hedger(Module):
             before calling this method.
 
         Args:
+            derivative (Derivative): The derivative used for getting the input.
             time_step (int, optional): The time step to get the input tensor.
                 If ``None`` an input tensor for all time steps is returned.
 
@@ -241,7 +242,7 @@ class Hedger(Module):
             >>> derivative.simulate()
             >>> hedger = Hedger(Naked(), ["time_to_maturity", "volatility"])
             >>> _ = hedger.compute_pnl(derivative, n_paths=1)  # Materialize features
-            >>> hedger.get_input(0, derivative=derivative)
+            >>> hedger.get_input(derivative, 0)
             tensor([[[0.0800, 0.2000]]])
         """
         return self.inputs.of(derivative=derivative).get(time_step)
