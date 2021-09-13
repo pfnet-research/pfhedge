@@ -1,3 +1,4 @@
+import copy
 from typing import List
 from typing import Optional
 from typing import Type
@@ -51,8 +52,9 @@ class FeatureList(Feature):
         return str(list(map(str, self.features)))
 
     def of(self: T, derivative: Derivative, hedger: Optional[Module] = None) -> T:
-        self.features = [f.of(derivative, hedger) for f in self.features]
-        return self
+        output = copy.copy(self)
+        output.features = [f.of(derivative, hedger) for f in self.features]
+        return output
 
     def is_state_dependent(self) -> bool:
         return any(map(lambda f: f.is_state_dependent(), self.features))
