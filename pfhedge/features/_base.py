@@ -86,5 +86,9 @@ class StateIndependentFeature(Feature):
     derivative: Derivative
     hedger: None
 
-    def of(self: T, derivative: Derivative, hedger: Optional[Module] = None) -> T:
+    def of(
+        self: "StateIndependentFeature",
+        derivative: Derivative,
+        hedger: Optional[Module] = None,
+    ) -> "StateIndependentFeature":
         return super().of(derivative=derivative, hedger=None)
