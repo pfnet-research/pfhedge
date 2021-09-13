@@ -298,8 +298,8 @@ class Hedger(Module):
             save_prev_output(self, input=None, output=zeros)
             outputs = []
             for time_step in range(n_steps - 1):
-                input_ = inputs.get(time_step)  # (N, T=1, F)
-                outputs.append(self(input_))  # (N, T=1, H)
+                input = inputs.get(time_step)  # (N, T=1, F)
+                outputs.append(self(input))  # (N, T=1, H)
             outputs.append(outputs[-1])
             output = torch.cat(outputs, dim=-2)  # (N, T, H)
         else:
