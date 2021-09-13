@@ -13,7 +13,9 @@ from pfhedge.features import MaxMoneyness
 from pfhedge.features import ModuleOutput
 from pfhedge.features import Moneyness
 from pfhedge.features import PrevHedge
+from pfhedge.features import Spot
 from pfhedge.features import TimeToMaturity
+from pfhedge.features import UnderlierSpot
 from pfhedge.features import Variance
 from pfhedge.features import Volatility
 from pfhedge.features import Zeros
@@ -792,3 +794,91 @@ class TestFeatureList:
         f = f.of(derivative, hedger)
 
         assert f.is_state_dependent()
+
+
+class TestUnderlierSpot(_TestFeature):
+    @pytest.mark.parametrize("strike", [1.0, 2.0])
+    @pytest.mark.parametrize("log", [True, False])
+    def test_value(self, strike, log):
+        derivative = EuropeanOption(BrownianStock(), strike=strike)
+        spot = torch.arange(1.0, 7.0).reshape(2, 3)
+        # tensor([[1., 2., 3.],
+        #         [4., 5., 6.]])
+        derivative.underlier.register_buffer("spot", spot)
+        f = UnderlierSpot(log=log).of(derivative)
+
+        result = f.get(0)
+        expect = torch.tensor([[1.0], [4.0]])
+        expect = expect.log() if log else expect
+        expect = expect.unsqueeze(-1)
+        assert_close(result, expect)
+
+        result = f.get(1)
+        expect = torch.tensor([[2.0], [5.0]])
+        expect = expect.log() if log else expect
+        expect = expect.unsqueeze(-1)
+        assert_close(result, expect)
+
+        result = f.get(2)
+        expect = torch.tensor([[3.0], [6.0]])
+        expect = expect.log() if log else expect
+        expect = expect.unsqueeze(-1)
+        assert_close(result, expect)
+
+        result = f.get()
+        expect = expect.log() if log else expect
+        expect = spot.unsqueeze(-1)
+        assert_close(result, expect)
+
+    def test_str(self):
+        assert str(UnderlierSpot()) == "underlier_spot"
+
+    def test_is_state_dependent(self):
+        derivative = EuropeanOption(BrownianStock())
+        hedger = Hedger(Naked(), inputs=["empty"])
+        f = UnderlierSpot().of(derivative, hedger)
+        assert not f.is_state_dependent()
+
+
+class TestSpot(_TestFeature):
+    @pytest.mark.parametrize("strike", [1.0, 2.0])
+    @pytest.mark.parametrize("log", [True, False])
+    def test_value(self, strike, log):
+        derivative = EuropeanOption(BrownianStock(), strike=strike)
+        spot = torch.arange(1.0, 7.0).reshape(2, 3)
+        # tensor([[1., 2., 3.],
+        #         [4., 5., 6.]])
+        derivative.list(lambda _: spot)
+        f = Spot(log=log).of(derivative)
+
+        result = f.get(0)
+        expect = torch.tensor([[1.0], [4.0]])
+        expect = expect.log() if log else expect
+        expect = expect.unsqueeze(-1)
+        assert_close(result, expect)
+
+        result = f.get(1)
+        expect = torch.tensor([[2.0], [5.0]])
+        expect = expect.log() if log else expect
+        expect = expect.unsqueeze(-1)
+        assert_close(result, expect)
+
+        result = f.get(2)
+        expect = torch.tensor([[3.0], [6.0]])
+        expect = expect.log() if log else expect
+        expect = expect.unsqueeze(-1)
+        assert_close(result, expect)
+
+        result = f.get()
+        expect = expect.log() if log else expect
+        expect = spot.unsqueeze(-1)
+        assert_close(result, expect)
+
+    def test_str(self):
+        assert str(Spot()) == "spot"
+
+    def test_is_state_dependent(self):
+        derivative = EuropeanOption(BrownianStock())
+        hedger = Hedger(Naked(), inputs=["empty"])
+        f = UnderlierSpot().of(derivative, hedger)
+        assert not f.is_state_dependent()
