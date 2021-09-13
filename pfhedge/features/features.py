@@ -62,23 +62,37 @@ class ExpiryTime(TimeToMaturity):
 class UnderlierSpot(StateIndependentFeature):
     """Spot of the underlier of the derivative."""
 
+    def __init__(self, log: bool = False) -> None:
+        super().__init__()
+        self.log = log
+
     def __str__(self) -> str:
-        return "UnderlierSpot"
+        return "UnderlierLogSpot" if self.log else "UnderlierSpot"
 
     def get(self, time_step: Optional[int] = None) -> Tensor:
         index = [time_step] if isinstance(time_step, int) else ...
-        return self.derivative.ul().spot[:, index].unsqueeze(-1)
+        output = self.derivative.ul().spot[:, index].unsqueeze(-1)
+        if self.log:
+            output.log_()
+        return output
 
 
 class Spot(StateIndependentFeature):
     """Spot of the derivative."""
 
+    def __init__(self, log: bool = False) -> None:
+        super().__init__()
+        self.log = log
+
     def __str__(self) -> str:
-        return "Spot"
+        return "LogSpot" if self.log else "Spot"
 
     def get(self, time_step: Optional[int] = None) -> Tensor:
         index = [time_step] if isinstance(time_step, int) else ...
-        return self.derivative.spot[:, index].unsqueeze(-1)
+        output = self.derivative.spot[:, index].unsqueeze(-1)
+        if self.log:
+            output.log_()
+        return output
 
 
 class Volatility(StateIndependentFeature):
