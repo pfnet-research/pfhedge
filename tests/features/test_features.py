@@ -831,7 +831,7 @@ class TestUnderlierSpot(_TestFeature):
         assert_close(result, expect)
 
     def test_str(self):
-        assert str(UnderlierSpot()) == "UnderlierSpot"
+        assert str(UnderlierSpot()) == "underlier_spot"
 
     def test_is_state_dependent(self):
         derivative = EuropeanOption(BrownianStock())
@@ -875,7 +875,7 @@ class TestSpot(_TestFeature):
         assert_close(result, expect)
 
     def test_str(self):
-        assert str(Spot()) == "Spot"
+        assert str(Spot()) == "spot"
 
     def test_is_state_dependent(self):
         derivative = EuropeanOption(BrownianStock())

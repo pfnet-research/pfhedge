@@ -67,7 +67,7 @@ class UnderlierSpot(StateIndependentFeature):
         self.log = log
 
     def __str__(self) -> str:
-        return "UnderlierLogSpot" if self.log else "UnderlierSpot"
+        return "underlier_log_spot" if self.log else "underlier_spot"
 
     def get(self, time_step: Optional[int] = None) -> Tensor:
         index = [time_step] if isinstance(time_step, int) else ...
@@ -85,7 +85,7 @@ class Spot(StateIndependentFeature):
         self.log = log
 
     def __str__(self) -> str:
-        return "LogSpot" if self.log else "Spot"
+        return "log_spot" if self.log else "spot"
 
     def get(self, time_step: Optional[int] = None) -> Tensor:
         index = [time_step] if isinstance(time_step, int) else ...
