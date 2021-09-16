@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="LookbackOption" href="pfhedge.instruments.LookbackOption.html" /><link rel="prev" title="BaseOption" href="pfhedge.instruments.BaseOption.html" />
 
-    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.31"/>
+    <meta name="generator" content="sphinx-4.2.0, furo 2021.09.08"/>
         <title>EuropeanOption - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=c7c65a82b42f6b978e58466c1e9ef2509836d916" />
@@ -223,7 +223,7 @@
   </aside>
   <div class="main">
     <div class="content">
-      <article role="main">
+      <div class="article-container">
         <div class="content-icon-container">
           <div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
@@ -238,7 +238,8 @@
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
-        <section id="europeanoption">
+        <article role="main">
+          <section id="europeanoption">
 <h1>EuropeanOption<a class="headerlink" href="#europeanoption" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="pfhedge.instruments.EuropeanOption">
@@ -256,6 +257,10 @@ on the date of maturity.</p>
 <p>The payoff of a European put option is given by:</p>
 <div class="math-wrapper"><div class="math notranslate nohighlight">
 \[\mathrm{payoff} = \max(K - S, 0)\]</div></div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="../nn.functional.html#pfhedge.nn.functional.european_payoff" title="pfhedge.nn.functional.european_payoff"><code class="xref py py-func docutils literal notranslate"><span class="pre">pfhedge.nn.functional.european_payoff()</span></code></a>: Payoff function.</p>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -327,6 +332,28 @@ represented.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span><span class="o">.</span><span class="n">spot</span>
 <span class="go">tensor([[0.0113, 0.0028, 0.0006, 0.0009, 0.0028, 0.0049],</span>
 <span class="go">        [0.0113, 0.0060, 0.0130, 0.0180, 0.0131, 0.0220]])</span>
+</pre></div>
+</div>
+<p>Add a knock-out clause with a barrier at 1.03:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span> <span class="o">=</span> <span class="n">EuropeanOption</span><span class="p">(</span><span class="n">BrownianStock</span><span class="p">(),</span> <span class="n">maturity</span><span class="o">=</span><span class="mi">5</span><span class="o">/</span><span class="mi">250</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">n_paths</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span><span class="o">.</span><span class="n">payoff</span><span class="p">()</span>
+<span class="go">tensor([0.0000, 0.0000, 0.0113, 0.0414, 0.0389, 0.0008, 0.0000, 0.0000])</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">knockout</span><span class="p">(</span><span class="n">derivative</span><span class="p">,</span> <span class="n">payoff</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="nb">max</span> <span class="o">=</span> <span class="n">derivative</span><span class="o">.</span><span class="n">underlier</span><span class="o">.</span><span class="n">spot</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">payoff</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="nb">max</span> <span class="o">&lt;</span> <span class="mf">1.03</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="nb">max</span><span class="p">))</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span><span class="o">.</span><span class="n">add_clause</span><span class="p">(</span><span class="s2">"knockout"</span><span class="p">,</span> <span class="n">knockout</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span>
+<span class="go">EuropeanOption(</span>
+<span class="go">  strike=1., maturity=0.0200</span>
+<span class="go">  clauses=['knockout']</span>
+<span class="go">  (underlier): BrownianStock(sigma=0.2000, dt=0.0040)</span>
+<span class="go">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span><span class="o">.</span><span class="n">payoff</span><span class="p">()</span>
+<span class="go">tensor([0.0000, 0.0000, 0.0113, 0.0000, 0.0000, 0.0008, 0.0000, 0.0000])</span>
 </pre></div>
 </div>
 <dl class="py method">
@@ -489,7 +516,8 @@ the buffers in this instrument.</p></li>
 </dd></dl>
 </section>
 
-      </article>
+        </article>
+      </div>
       <footer>
         
         <div class="related-pages">
@@ -516,13 +544,11 @@ the buffers in this instrument.</p></li>
         </div>
 
         <div class="related-information">
-              Copyright &#169; 2021, pfnet-research
-            |
+              Copyright &#169; 2021, pfnet-research |
             Built with <a href="https://www.sphinx-doc.org/">Sphinx</a>
               and
               <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
-              <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
-            |
+              <a href="https://github.com/pradyunsg/furo">Furo theme</a>. |
             <a class="muted-link" href="../_sources/generated/pfhedge.instruments.EuropeanOption.rst.txt"
                rel="nofollow">
               Show Source

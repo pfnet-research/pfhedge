@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="BlackScholes" href="pfhedge.nn.BlackScholes.html" /><link rel="prev" title="pfhedge.nn" href="../nn.html" />
 
-    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.31"/>
+    <meta name="generator" content="sphinx-4.2.0, furo 2021.09.08"/>
         <title>Hedger - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=c7c65a82b42f6b978e58466c1e9ef2509836d916" />
@@ -223,7 +223,7 @@
   </aside>
   <div class="main">
     <div class="content">
-      <article role="main">
+      <div class="article-container">
         <div class="content-icon-container">
           <div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
@@ -238,7 +238,8 @@
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
-        <section id="hedger">
+        <article role="main">
+          <section id="hedger">
 <h1>Hedger<a class="headerlink" href="#hedger" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="pfhedge.nn.Hedger">
@@ -631,7 +632,7 @@ The optimizer will be initialized as <code class="docutils literal notranslate">
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pfhedge.nn.Hedger.get_input">
-<span class="sig-name descname"><span class="pre">get_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_step</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/hedger.html#Hedger.get_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.Hedger.get_input" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">derivative</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_step</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/hedger.html#Hedger.get_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.Hedger.get_input" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the input tensor to the model at the given time step.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -643,8 +644,11 @@ before calling this method.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>time_step</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><em>optional</em>) – The time step to get the input tensor.
-If <code class="docutils literal notranslate"><span class="pre">None</span></code> an input tensor for all time steps is returned.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>derivative</strong> (<a class="reference internal" href="pfhedge.instruments.Derivative.html#pfhedge.instruments.Derivative" title="pfhedge.instruments.Derivative"><em>Derivative</em></a>) – The derivative used for getting the input.</p></li>
+<li><p><strong>time_step</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><em>optional</em>) – The time step to get the input tensor.
+If <code class="docutils literal notranslate"><span class="pre">None</span></code> an input tensor for all time steps is returned.</p></li>
+</ul>
 </dd>
 </dl>
 <dl class="simple">
@@ -671,7 +675,7 @@ If <code class="docutils literal notranslate"><span class="pre">time_step</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span><span class="o">.</span><span class="n">simulate</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hedger</span> <span class="o">=</span> <span class="n">Hedger</span><span class="p">(</span><span class="n">Naked</span><span class="p">(),</span> <span class="p">[</span><span class="s2">"time_to_maturity"</span><span class="p">,</span> <span class="s2">"volatility"</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">hedger</span><span class="o">.</span><span class="n">compute_pnl</span><span class="p">(</span><span class="n">derivative</span><span class="p">,</span> <span class="n">n_paths</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># Materialize features</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">hedger</span><span class="o">.</span><span class="n">get_input</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hedger</span><span class="o">.</span><span class="n">get_input</span><span class="p">(</span><span class="n">derivative</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 <span class="go">tensor([[[0.0800, 0.2000]]])</span>
 </pre></div>
 </div>
@@ -727,7 +731,8 @@ calculation to on or off.</p></li>
 </dd></dl>
 </section>
 
-      </article>
+        </article>
+      </div>
       <footer>
         
         <div class="related-pages">
@@ -754,13 +759,11 @@ calculation to on or off.</p></li>
         </div>
 
         <div class="related-information">
-              Copyright &#169; 2021, pfnet-research
-            |
+              Copyright &#169; 2021, pfnet-research |
             Built with <a href="https://www.sphinx-doc.org/">Sphinx</a>
               and
               <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
-              <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
-            |
+              <a href="https://github.com/pradyunsg/furo">Furo theme</a>. |
             <a class="muted-link" href="../_sources/generated/pfhedge.nn.Hedger.rst.txt"
                rel="nofollow">
               Show Source

@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="LeakyClamp" href="pfhedge.nn.LeakyClamp.html" /><link rel="prev" title="WhalleyWilmott" href="pfhedge.nn.WhalleyWilmott.html" />
 
-    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.31"/>
+    <meta name="generator" content="sphinx-4.2.0, furo 2021.09.08"/>
         <title>Clamp - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=c7c65a82b42f6b978e58466c1e9ef2509836d916" />
@@ -223,7 +223,7 @@
   </aside>
   <div class="main">
     <div class="content">
-      <article role="main">
+      <div class="article-container">
         <div class="content-icon-container">
           <div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
@@ -238,7 +238,8 @@
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
-        <section id="clamp">
+        <article role="main">
+          <section id="clamp">
 <h1>Clamp<a class="headerlink" href="#clamp" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="pfhedge.nn.Clamp">
@@ -261,6 +262,13 @@
     \max
     &amp; \text{inverted_output} = \text{'max'} \\
 \end{cases}\end{split}\]</div></div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.clamp.html#torch.clamp" title="(in PyTorch v1.9.0a0+gitd69c22d)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.clamp()</span></code></a></p></li>
+<li><p><a class="reference internal" href="../nn.functional.html#pfhedge.nn.functional.clamp" title="pfhedge.nn.functional.clamp"><code class="xref py py-func docutils literal notranslate"><span class="pre">pfhedge.nn.functional.clamp()</span></code></a></p></li>
+</ul>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>inverted_output</strong> (<em>{'mean'</em><em>, </em><em>''max'}</em><em>, </em><em>default='mean'</em>) – Controls the output when <span class="math notranslate nohighlight">\(\min &gt; \max\)</span>.
@@ -319,7 +327,8 @@
 </dd></dl>
 </section>
 
-      </article>
+        </article>
+      </div>
       <footer>
         
         <div class="related-pages">
@@ -346,13 +355,11 @@
         </div>
 
         <div class="related-information">
-              Copyright &#169; 2021, pfnet-research
-            |
+              Copyright &#169; 2021, pfnet-research |
             Built with <a href="https://www.sphinx-doc.org/">Sphinx</a>
               and
               <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
-              <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
-            |
+              <a href="https://github.com/pradyunsg/furo">Furo theme</a>. |
             <a class="muted-link" href="../_sources/generated/pfhedge.nn.Clamp.rst.txt"
                rel="nofollow">
               Show Source

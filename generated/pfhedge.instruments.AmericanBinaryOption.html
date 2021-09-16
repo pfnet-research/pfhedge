@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="VarianceSwap" href="pfhedge.instruments.VarianceSwap.html" /><link rel="prev" title="EuropeanBinaryOption" href="pfhedge.instruments.EuropeanBinaryOption.html" />
 
-    <meta name="generator" content="sphinx-4.1.2, furo 2021.08.31"/>
+    <meta name="generator" content="sphinx-4.2.0, furo 2021.09.08"/>
         <title>AmericanBinaryOption - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=c7c65a82b42f6b978e58466c1e9ef2509836d916" />
@@ -223,7 +223,7 @@
   </aside>
   <div class="main">
     <div class="content">
-      <article role="main">
+      <div class="article-container">
         <div class="content-icon-container">
           <div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
@@ -238,7 +238,8 @@
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
-        <section id="americanbinaryoption">
+        <article role="main">
+          <section id="americanbinaryoption">
 <h1>AmericanBinaryOption<a class="headerlink" href="#americanbinaryoption" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="pfhedge.instruments.AmericanBinaryOption">
@@ -268,6 +269,10 @@ until maturity and <span class="math notranslate nohighlight">\(K\)</span> is th
     0 &amp; (\text{otherwise})
 \end{cases}\end{split}\]</div></div>
 <p>Here, <span class="math notranslate nohighlight">\(\mathrm{Min}\)</span> is the minimum of the underlying asset’s price.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="../nn.functional.html#pfhedge.nn.functional.american_binary_payoff" title="pfhedge.nn.functional.american_binary_payoff"><code class="xref py py-func docutils literal notranslate"><span class="pre">pfhedge.nn.functional.american_binary_payoff()</span></code></a>: Payoff function.</p>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -474,7 +479,8 @@ the buffers in this instrument.</p></li>
 </dd></dl>
 </section>
 
-      </article>
+        </article>
+      </div>
       <footer>
         
         <div class="related-pages">
@@ -501,13 +507,11 @@ the buffers in this instrument.</p></li>
         </div>
 
         <div class="related-information">
-              Copyright &#169; 2021, pfnet-research
-            |
+              Copyright &#169; 2021, pfnet-research |
             Built with <a href="https://www.sphinx-doc.org/">Sphinx</a>
               and
               <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
-              <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
-            |
+              <a href="https://github.com/pradyunsg/furo">Furo theme</a>. |
             <a class="muted-link" href="../_sources/generated/pfhedge.instruments.AmericanBinaryOption.rst.txt"
                rel="nofollow">
               Show Source
