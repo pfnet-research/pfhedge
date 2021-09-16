@@ -19,14 +19,14 @@
 Hedging [financial derivatives](https://en.wikipedia.org/wiki/Derivative_(finance)) in the presence of market frictions (e.g., transaction cost) is a challenging task.
 In the absence of market frictions, the perfect hedge is accessible based on the [Black-Scholes model](https://en.wikipedia.org/wiki/Black%E2%80%93Scholes_model).
 The real market, in contrast, always involves frictions and thereby makes hedging optimization much more challenging.
-Since the analytic formulas (such as the [Black-Scholes formula](https://en.wikipedia.org/wiki/Black%E2%80%93Scholes_model#Black%E2%80%93Scholes_formula)) are no longer available in such a market, human traders may manually adjust model-based Greeks to hedge and price derivatives based on their experiences.
+Since the analytic formulas (such as the [Black-Scholes formula](https://en.wikipedia.org/wiki/Black%E2%80%93Scholes_model#Black%E2%80%93Scholes_formula)) are no longer available in such a market, it may be necessary to adjust model-based Greeks to hedge and price derivatives based on experiences.
 
-[Deep Hedging][deep-hedging-arxiv] is a ground-breaking framework to automate and optimize such hedging operations.
+[Deep Hedging][deep-hedging-arxiv] is a ground-breaking framework to optimize such hedging operations.
 In this framework, a neural network is trained to hedge derivatives so that it minimizes a proper [risk measure](https://en.wikipedia.org/wiki/Risk_measure).
 By virtue of the high representability of a neural network and modern optimization algorithms, one can expect to achieve the optimal hedge by training a neural network.
 Indeed, the experiments in [Bühler *et al.* 18][deep-hedging-qf] and [Imaki *et al.* 21][ntb-network-arxiv] show high feasibility and scalability of Deep Hedging algorithms for options under transaction costs.
 
-Global investment banks are looking to [replace the Greeks-based manual hedging](https://www.risk.net/derivatives/6875321/deep-hedging-and-the-end-of-the-black-scholes-era) with Deep Hedging and [slash up to 80% of hedging costs](https://www.risk.net/derivatives/6691696/jp-morgan-turns-to-machine-learning-for-options-hedging).
+Global investment banks are looking to [rethink the Greeks-based hedging](https://www.risk.net/derivatives/6875321/deep-hedging-and-the-end-of-the-black-scholes-era) with Deep Hedging and [slash considerable amount of hedging costs](https://www.risk.net/derivatives/6691696/jp-morgan-turns-to-machine-learning-for-options-hedging).
 This could be the "game-changer" in the trillion-dollar industry of derivatives.
 
 PFHedge enables you to experience this revolutionary framework on your own.
