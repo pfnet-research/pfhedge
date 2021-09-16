@@ -137,12 +137,12 @@ class Derivative(Instrument):
         self.cost = cost
 
     def add_clause(
-        self: "Derivative", name: str, clause: Callable[["Derivative", Tensor], Tensor]
+        self, name: str, clause: Callable[["Derivative", Tensor], Tensor]
     ) -> None:
         """Adds a clause to the derivative.
 
         The clause will be called after :meth:`payoff_fn` method
-        has computed the payoff and modifies the payoff tensor.
+        has computed the payoff and modify the payoff tensor.
         It should have the following signature::
 
             clause(derivative, payoff) -> modified payoff
@@ -175,11 +175,15 @@ class Derivative(Instrument):
         return self.pricer(self)
 
     def __repr__(self) -> str:
-        main_str = self._get_name() + "(\n  "
-        main_str += self.extra_repr() + "\n"
-        main_str += _addindent("(underlier): " + repr(self.ul()))
-        main_str += "\n)"
-        return main_str
+        params_str = ""
+        if self.extra_repr() != "":
+            params_str += self.extra_repr() + "\n"
+        if self._clauses:
+            params_str += "clauses=" + repr(list(self._clauses.keys())) + "\n"
+        params_str += "(underlier): " + repr(self.ul())
+        if params_str != "":
+            params_str = "\n" + _addindent(params_str) + "\n"
+        return self._get_name() + "(" + params_str + ")"
 
 
 class BaseOption(Derivative):

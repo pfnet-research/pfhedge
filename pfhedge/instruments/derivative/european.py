@@ -14,7 +14,7 @@ from .base import Derivative
 
 
 class EuropeanOption(BaseOption):
-    """A European option.
+    r"""A European option.
 
     A European option provides its holder the right to buy (for call option)
     or sell (for put option) an underlying asset with the strike price
@@ -24,7 +24,7 @@ class EuropeanOption(BaseOption):
 
     .. math::
 
-        \\mathrm{payoff} = \\max(S - K, 0)
+        \mathrm{payoff} = \max(S - K, 0)
 
     Here, :math:`S` is the underlying asset's price at maturity and
     :math:`K` is the strike price (`strike`) of the option.
@@ -33,7 +33,10 @@ class EuropeanOption(BaseOption):
 
     .. math::
 
-        \\mathrm{payoff} = \\max(K - S, 0)
+        \mathrm{payoff} = \max(K - S, 0)
+
+    .. seealso::
+        :func:`pfhedge.nn.functional.european_payoff`: Payoff function.
 
     Args:
         underlier (:class:`Primary`): The underlying instrument of the option.
@@ -87,6 +90,28 @@ class EuropeanOption(BaseOption):
         >>> derivative.spot
         tensor([[0.0113, 0.0028, 0.0006, 0.0009, 0.0028, 0.0049],
                 [0.0113, 0.0060, 0.0130, 0.0180, 0.0131, 0.0220]])
+
+        Add a knock-out clause with a barrier at 1.03:
+
+        >>> _ = torch.manual_seed(42)
+        >>> derivative = EuropeanOption(BrownianStock(), maturity=5/250)
+        >>> derivative.simulate(n_paths=8)
+        >>> derivative.payoff()
+        tensor([0.0000, 0.0000, 0.0113, 0.0414, 0.0389, 0.0008, 0.0000, 0.0000])
+        >>>
+        >>> def knockout(derivative, payoff):
+        ...     max = derivative.underlier.spot.max(-1).values
+        ...     return payoff.where(max < 1.03, torch.zeros_like(max))
+        >>>
+        >>> derivative.add_clause("knockout", knockout)
+        >>> derivative
+        EuropeanOption(
+          strike=1., maturity=0.0200
+          clauses=['knockout']
+          (underlier): BrownianStock(sigma=0.2000, dt=0.0040)
+        )
+        >>> derivative.payoff()
+        tensor([0.0000, 0.0000, 0.0113, 0.0000, 0.0000, 0.0008, 0.0000, 0.0000])
     """
 
     def __init__(

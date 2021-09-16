@@ -10,38 +10,41 @@ from ..functional import leaky_clamp
 
 
 class LeakyClamp(Module):
-    """Leakily Clamp all elements in ``input`` into the range :math:`[\\min, \\max]`.
+    r"""Leakily Clamp all elements in ``input`` into the range :math:`[\min, \max]`.
 
-    The bounds :math:`\\min` and :math:`\\max` can be tensors.
+    The bounds :math:`\min` and :math:`\max` can be tensors.
 
-    If :math:`\\min \\leq \\max`:
-
-    .. math::
-
-        \\text{output} = \\begin{cases}
-            \\min + \\text{clampled_slope} * (\\text{input} - \\min) &
-            \\text{input} < \\min \\\\
-            \\text{input} & \\min \\leq \\text{input} \\leq \\max \\\\
-            \\max + \\text{clampled_slope} * (\\text{input} - \\max) &
-            \\max < \\text{input}
-        \\end{cases}
-
-    If :math:`\\min > \\max`:
+    If :math:`\min \leq \max`:
 
     .. math::
 
-        \\text{output} = \\begin{cases}
-            \\frac12 (\\min + \\max)
-            & \\text{inverted_output} = \\text{'mean'} \\\\
-            \\max
-            & \\text{inverted_output} = \\text{'max'} \\\\
-        \\end{cases}
+        \text{output} = \begin{cases}
+            \min + \text{clampled_slope} * (\text{input} - \min) &
+            \text{input} < \min \\
+            \text{input} & \min \leq \text{input} \leq \max \\
+            \max + \text{clampled_slope} * (\text{input} - \max) &
+            \max < \text{input}
+        \end{cases}
+
+    If :math:`\min > \max`:
+
+    .. math::
+
+        \text{output} = \begin{cases}
+            \frac12 (\min + \max)
+            & \text{inverted_output} = \text{'mean'} \\
+            \max
+            & \text{inverted_output} = \text{'max'} \\
+        \end{cases}
+
+    .. seealso::
+        - :func:`pfhedge.nn.functional.leaky_clamp`
 
     Args:
         clamped_slope (float, default=0.01):
             Controls the slope in the clampled regions.
         inverted_output ({'mean', ''max'}, default='mean'):
-            Controls the output when :math:`\\min > \\max`.
+            Controls the output when :math:`\min > \max`.
             'max' is consistent with :func:`torch.clamp`.
 
     Shape:
@@ -81,7 +84,7 @@ class LeakyClamp(Module):
     def forward(
         self, input: Tensor, min: Optional[Tensor] = None, max: Optional[Tensor] = None
     ) -> Tensor:
-        """Clamp all elements in ``input`` into the range :math:`[\\min, \\max]`.
+        r"""Clamp all elements in ``input`` into the range :math:`[\min, \max]`.
 
         Args:
             input (torch.Tensor): The input tensor.
@@ -95,34 +98,38 @@ class LeakyClamp(Module):
 
 
 class Clamp(Module):
-    """Clamp all elements in ``input`` into the range :math:`[\\min, \\max]`.
+    r"""Clamp all elements in ``input`` into the range :math:`[\min, \max]`.
 
-    The bounds :math:`\\min` and :math:`\\max` can be tensors.
+    The bounds :math:`\min` and :math:`\max` can be tensors.
 
-    If :math:`\\min \\leq \\max`:
-
-    .. math::
-
-        \\text{output} = \\begin{cases}
-        \\min & \\text{input} < \\min \\\\
-        \\text{input} & \\min \\leq \\text{input} \\leq \\max \\\\
-        \\max & \\max < \\text{input}
-        \\end{cases}
-
-    If :math:`\\min > \\max`:
+    If :math:`\min \leq \max`:
 
     .. math::
 
-        \\text{output} = \\begin{cases}
-            \\frac12 (\\min + \\max)
-            & \\text{inverted_output} = \\text{'mean'} \\\\
-            \\max
-            & \\text{inverted_output} = \\text{'max'} \\\\
-        \\end{cases}
+        \text{output} = \begin{cases}
+        \min & \text{input} < \min \\
+        \text{input} & \min \leq \text{input} \leq \max \\
+        \max & \max < \text{input}
+        \end{cases}
+
+    If :math:`\min > \max`:
+
+    .. math::
+
+        \text{output} = \begin{cases}
+            \frac12 (\min + \max)
+            & \text{inverted_output} = \text{'mean'} \\
+            \max
+            & \text{inverted_output} = \text{'max'} \\
+        \end{cases}
+
+    .. seealso::
+        - :func:`torch.clamp`
+        - :func:`pfhedge.nn.functional.clamp`
 
     Args:
         inverted_output ({'mean', ''max'}, default='mean'):
-            Controls the output when :math:`\\min > \\max`.
+            Controls the output when :math:`\min > \max`.
             'max' is consistent with :func:`torch.clamp`.
 
     Shape:
@@ -146,7 +153,7 @@ class Clamp(Module):
         tensor([0.0000, 0.0000, 0.0000, 0.1000, 0.2000, 0.3000, 0.4000, 0.5000, 0.6000,
                 0.7000, 0.8000, 0.9000, 1.0000, 1.0000, 1.0000])
 
-        When :math:`\\min > \\max`, returns the mean of :math:`\\min` and :math:`\\max`.
+        When :math:`\min > \max`, returns the mean of :math:`\min` and :math:`\max`.
 
         >>> input = torch.tensor([1.0, 0.0])
         >>> min = torch.tensor([0.0, 1.0])
@@ -158,7 +165,7 @@ class Clamp(Module):
     def forward(
         self, input: Tensor, min: Optional[Tensor] = None, max: Optional[Tensor] = None
     ) -> Tensor:
-        """Clamp all elements in ``input`` into the range :math:`[\\min, \\max]`.
+        r"""Clamp all elements in ``input`` into the range :math:`[\min, \max]`.
 
         Args:
             input (torch.Tensor): The input tensor.

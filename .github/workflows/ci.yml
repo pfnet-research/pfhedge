@@ -54,7 +54,7 @@ jobs:
 
     - name: Upload codecov report
       uses: codecov/codecov-action@v1
-      if: ${{ matrix.python-version == '3.8' }}
+      if: ${{ matrix.python-version == '3.9' }}
 
   type:
 
@@ -88,6 +88,8 @@ jobs:
     - uses: actions/setup-python@v2
 
     - uses: psf/black@21.5b1
+      with:
+        options: --check --diff --skip-magic-trailing-comma
 
     - uses: jamescurtin/isort-action@master
       with:
@@ -111,18 +113,18 @@ jobs:
 
     - uses: psf/black@21.5b1
       with:
-        options: '--skip-magic-trailing-comma'
+        options: --skip-magic-trailing-comma
 
     - uses: jamescurtin/isort-action@master
       with:
-        configuration: '--force-single-line'
+        configuration: --force-single-line
 
-    - name: Create Pull Request
+    - name: Create pull request
       uses: peter-evans/create-pull-request@v3
       with:
         author: GitHub Actions <action@github.com>
         base: ${{ github.event.pull_request.head.ref }}
-        commit-message: format
+        commit-message: Automated Format
         delete-branch: true
         branch-suffix: short-commit-hash
         title: Automated Format

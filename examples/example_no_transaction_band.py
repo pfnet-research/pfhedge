@@ -65,13 +65,13 @@ class NoTransactionBandNet(Module):
         return self.delta.inputs() + ["prev_hedge"]
 
     def forward(self, input: Tensor) -> Tensor:
-        prev_hedge = input[:, [-1]]
+        prev_hedge = input[..., [-1]]
 
-        delta = self.delta(input[:, :-1]).reshape(-1, 1)
-        width = self.mlp(input[:, :-1])
+        delta = self.delta(input[..., :-1])
+        width = self.mlp(input[..., :-1])
 
-        min = delta - fn.leaky_relu(width[:, [0]])
-        max = delta + fn.leaky_relu(width[:, [1]])
+        min = delta - fn.leaky_relu(width[..., [0]])
+        max = delta + fn.leaky_relu(width[..., [1]])
 
         return self.clamp(prev_hedge, min=min, max=max)
 

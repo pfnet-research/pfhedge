@@ -18,7 +18,9 @@ from .base import Primary
 class CIRRate(Primary):
     """A rate which follow the CIR process.
 
-    See :func:`pfhedge.stochastic.generate_cir` for details of the process.
+    .. seealso::
+        - :func:`pfhedge.stochastic.generate_cir`:
+          The stochastic process.
 
     Args:
         kappa (float, default=1.0): The parameter :math:`\\kappa`.
