@@ -150,7 +150,7 @@ class Primary(Instrument):
         if "_buffers" in self.__dict__:
             _buffers = self.__dict__["_buffers"]
             if name in _buffers:
-                return _buffers["spot"]
+                return _buffers[name]
         raise AttributeError(
             f"'{self._get_name()}' object has no attribute '{name}'. "
             "Asset may not be simulated."
