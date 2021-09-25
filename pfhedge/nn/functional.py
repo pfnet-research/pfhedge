@@ -327,19 +327,19 @@ def terminal_value(
     payoff: Optional[Tensor] = None,
     deduct_first_cost: bool = True,
 ):
-    """Returns the terminal portfolio value.
+    r"""Returns the terminal portfolio value.
 
     The terminal value of a hedger's portfolio is given by
 
     .. math::
 
-        \\text{PL}(Z, \\delta, S) =
+        \text{PL}(Z, \delta, S) =
         - Z
-        + \\sum_{i = 0}^{T - 2} \\delta_{i - 1} (S_{i} - S_{i - 1})
-        - c \\sum_{i = 0}^{T - 1} |\\delta_{i} - \\delta_{i - 1}| S_{i}
+        + \sum_{i = 0}^{T - 2} \delta_{i - 1} (S_{i} - S_{i - 1})
+        - c \sum_{i = 0}^{T - 1} |\delta_{i} - \delta_{i - 1}| S_{i}
 
     where :math:`Z` is the payoff of the derivative, :math:`T` is the number of
-    time steps, :math:`S` is the spot price, :math:`\\delta` is the signed number
+    time steps, :math:`S` is the spot price, :math:`\delta` is the signed number
     of shares held at each time step.
     We define :math:`\delta_0 = 0` for notational convenience.
 
@@ -358,7 +358,7 @@ def terminal_value(
     Args:
         spot (torch.Tensor): The spot price of the underlying asset :math:`S`.
         unit (torch.Tensor): The signed number of shares of the underlying asset
-            :math:`\\delta`.
+            :math:`\delta`.
         cost (float, default=0.0): The proportional transaction cost rate of
             the underlying asset :math:`c`.
         payoff (torch.Tensor, optional): The payoff of the derivative :math:`Z`.
