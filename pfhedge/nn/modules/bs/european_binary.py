@@ -19,6 +19,9 @@ from ._base import BSModuleMixin
 class BSEuropeanBinaryOption(BSModuleMixin):
     """Black-Scholes formula for a European binary option.
 
+    Note:
+        Risk-free rate is set to zero.
+
     Args:
         call (bool, default=True): Specifies whether the option is call or put.
         strike (float, default=1.0): The strike price of the option.
