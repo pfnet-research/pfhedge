@@ -39,17 +39,14 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Install
-      run: |
-        python3 -m pip install --upgrade pip
-        python3 -m pip install .
-        python3 -m pip install pytest pytest-cov codecov
+      run: pip install poetry && poetry install
 
     - name: Run doctest
-      run: python3 -m pytest --doctest-modules ${PROJECT_NAME}
+      run: make doctest
       if: always()
 
     - name: Run pytest
-      run: python3 -m pytest --cov=${PROJECT_NAME} tests
+      run: make test-cov
       if: always()
 
     - name: Upload codecov report
@@ -70,7 +67,7 @@ jobs:
 
     - run: pip install poetry && poetry install
 
-    - run: poetry run python -m mypy ${PROJECT_NAME}
+    - run: make mypy
 
   lint:
 
