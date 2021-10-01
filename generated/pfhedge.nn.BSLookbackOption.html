@@ -5,10 +5,10 @@
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="WhalleyWilmott" href="pfhedge.nn.WhalleyWilmott.html" /><link rel="prev" title="BSEuropeanBinaryOption" href="pfhedge.nn.BSEuropeanBinaryOption.html" />
 
-    <meta name="generator" content="sphinx-4.2.0, furo 2021.09.08"/>
+    <meta name="generator" content="sphinx-4.2.0, furo 2021.09.22"/>
         <title>BSLookbackOption - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=c7c65a82b42f6b978e58466c1e9ef2509836d916" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=150e365fa939648e89c22f6d7d13c72a1657915a" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
     
@@ -246,6 +246,10 @@
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pfhedge.nn.</span></span><span class="sig-name descname"><span class="pre">BSLookbackOption</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">call</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strike</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/bs/lookback.html#BSLookbackOption"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.BSLookbackOption" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pfhedge.nn.modules.bs._base.BSModuleMixin</span></code></p>
 <p>Black-Scholes formula for a lookback option with a fixed strike.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Risk-free rate is set to zero.</p>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -269,6 +273,8 @@ All but the last dimension are the same shape as the input.</p></li>
 <ul class="simple">
 <li><p><a class="reference internal" href="pfhedge.nn.BlackScholes.html#pfhedge.nn.BlackScholes" title="pfhedge.nn.BlackScholes"><code class="xref py py-class docutils literal notranslate"><span class="pre">pfhedge.nn.BlackScholes</span></code></a>:
 Initialize Black-Scholes formula module from a derivative.</p></li>
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">pfhedge.instruments.LookBackOption</span></code>:
+Corresponding derivative.</p></li>
 </ul>
 </div>
 <div class="admonition-references admonition">
@@ -301,10 +307,10 @@ The Journal of Finance, 46(5), pp.1893-1907.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>log_moneyness</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a>) – Log moneyness of the underlying asset.</p></li>
-<li><p><strong>max_log_moneyness</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a>) – Cumulative maximum of the log moneyness.</p></li>
-<li><p><strong>time_to_maturity</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a>) – Time to expiry of the option.</p></li>
-<li><p><strong>volatility</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a>) – Volatility of the underlying asset.</p></li>
+<li><p><strong>log_moneyness</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.1)"><em>torch.Tensor</em></a>) – Log moneyness of the underlying asset.</p></li>
+<li><p><strong>max_log_moneyness</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.1)"><em>torch.Tensor</em></a>) – Cumulative maximum of the log moneyness.</p></li>
+<li><p><strong>time_to_maturity</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.1)"><em>torch.Tensor</em></a>) – Time to expiry of the option.</p></li>
+<li><p><strong>volatility</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.1)"><em>torch.Tensor</em></a>) – Volatility of the underlying asset.</p></li>
 <li><p><strong>create_graph</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>default=False</em>) – If True, graph of the derivative
 will be constructed. This option is used to compute gamma.</p></li>
 </ul>
@@ -333,7 +339,7 @@ will be constructed. This option is used to compute gamma.</p></li>
 <dd><p>Returns delta of the derivative.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>input</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a>) – The input tensor. Features are concatenated along
+<dd class="field-odd"><p><strong>input</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.1)"><em>torch.Tensor</em></a>) – The input tensor. Features are concatenated along
 the last dimension.
 See <a class="reference internal" href="#pfhedge.nn.BSLookbackOption.inputs" title="pfhedge.nn.BSLookbackOption.inputs"><code class="xref py py-meth docutils literal notranslate"><span class="pre">inputs()</span></code></a> for the names of the input features.</p>
 </dd>
@@ -372,10 +378,10 @@ See <a class="reference internal" href="#pfhedge.nn.BSLookbackOption.inputs" tit
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>log_moneyness</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a>) – Log moneyness of the underlying asset.</p></li>
-<li><p><strong>max_log_moneyness</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a>) – Cumulative maximum of the log moneyness.</p></li>
-<li><p><strong>time_to_maturity</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a>) – Time to expiry of the option.</p></li>
-<li><p><strong>volatility</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a>) – Volatility of the underlying asset.</p></li>
+<li><p><strong>log_moneyness</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.1)"><em>torch.Tensor</em></a>) – Log moneyness of the underlying asset.</p></li>
+<li><p><strong>max_log_moneyness</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.1)"><em>torch.Tensor</em></a>) – Cumulative maximum of the log moneyness.</p></li>
+<li><p><strong>time_to_maturity</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.1)"><em>torch.Tensor</em></a>) – Time to expiry of the option.</p></li>
+<li><p><strong>volatility</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.1)"><em>torch.Tensor</em></a>) – Volatility of the underlying asset.</p></li>
 </ul>
 </dd>
 </dl>
@@ -403,10 +409,10 @@ See <a class="reference internal" href="#pfhedge.nn.BSLookbackOption.inputs" tit
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>log_moneyness</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a>) – Log moneyness of the underlying asset.</p></li>
-<li><p><strong>max_log_moneyness</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a>) – Cumulative maximum of the log moneyness.</p></li>
-<li><p><strong>time_to_maturity</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a>) – Time to expiry of the option.</p></li>
-<li><p><strong>price</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a>) – Price of the derivative.</p></li>
+<li><p><strong>log_moneyness</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.1)"><em>torch.Tensor</em></a>) – Log moneyness of the underlying asset.</p></li>
+<li><p><strong>max_log_moneyness</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.1)"><em>torch.Tensor</em></a>) – Cumulative maximum of the log moneyness.</p></li>
+<li><p><strong>time_to_maturity</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.1)"><em>torch.Tensor</em></a>) – Time to expiry of the option.</p></li>
+<li><p><strong>price</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.1)"><em>torch.Tensor</em></a>) – Price of the derivative.</p></li>
 <li><p><strong>precision</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>default=1e-6</em>) – Precision of the implied volatility.</p></li>
 </ul>
 </dd>
@@ -445,10 +451,10 @@ See <a class="reference internal" href="#pfhedge.nn.BSLookbackOption.inputs" tit
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>log_moneyness</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a>) – Log moneyness of the underlying asset.</p></li>
-<li><p><strong>max_log_moneyness</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a>) – Cumulative maximum of the log moneyness.</p></li>
-<li><p><strong>time_to_maturity</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a>) – Time to expiry of the option.</p></li>
-<li><p><strong>volatility</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a>) – Volatility of the underlying asset.</p></li>
+<li><p><strong>log_moneyness</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.1)"><em>torch.Tensor</em></a>) – Log moneyness of the underlying asset.</p></li>
+<li><p><strong>max_log_moneyness</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.1)"><em>torch.Tensor</em></a>) – Cumulative maximum of the log moneyness.</p></li>
+<li><p><strong>time_to_maturity</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.1)"><em>torch.Tensor</em></a>) – Time to expiry of the option.</p></li>
+<li><p><strong>volatility</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.1)"><em>torch.Tensor</em></a>) – Volatility of the underlying asset.</p></li>
 </ul>
 </dd>
 </dl>

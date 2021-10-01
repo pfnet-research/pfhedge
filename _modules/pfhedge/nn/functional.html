@@ -4,10 +4,10 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
-    <meta name="generator" content="sphinx-4.2.0, furo 2021.09.08"/>
+    <meta name="generator" content="sphinx-4.2.0, furo 2021.09.22"/>
         <title>pfhedge.nn.functional - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=c7c65a82b42f6b978e58466c1e9ef2509836d916" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=150e365fa939648e89c22f6d7d13c72a1657915a" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
     
@@ -349,13 +349,13 @@
 
 
 <div class="viewcode-block" id="exp_utility"><a class="viewcode-back" href="../../../nn.functional.html#pfhedge.nn.functional.exp_utility">[docs]</a><span class="k">def</span> <span class="nf">exp_utility</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-    <span class="sd">"""Applies an exponential utility function.</span>
+    <span class="sa">r</span><span class="sd">"""Applies an exponential utility function.</span>
 
 <span class="sd">    An exponential utility function is defined as:</span>
 
 <span class="sd">    .. math::</span>
 
-<span class="sd">        u(x) = -\\exp(-a x) \\,.</span>
+<span class="sd">        u(x) = -\exp(-a x) \,.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        input (torch.Tensor): The input tensor.</span>
@@ -369,16 +369,16 @@
 
 
 <div class="viewcode-block" id="isoelastic_utility"><a class="viewcode-back" href="../../../nn.functional.html#pfhedge.nn.functional.isoelastic_utility">[docs]</a><span class="k">def</span> <span class="nf">isoelastic_utility</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-    <span class="sd">"""Applies an isoelastic utility function.</span>
+    <span class="sa">r</span><span class="sd">"""Applies an isoelastic utility function.</span>
 
 <span class="sd">    An isoelastic utility function is defined as:</span>
 
 <span class="sd">    .. math::</span>
 
-<span class="sd">        u(x) = \\begin{cases}</span>
-<span class="sd">        x^{1 - a} &amp; a \\neq 1 \\\\</span>
-<span class="sd">        \\log{x} &amp; a = 1</span>
-<span class="sd">        \\end{cases} \\,.</span>
+<span class="sd">        u(x) = \begin{cases}</span>
+<span class="sd">        x^{1 - a} &amp; a \neq 1 \\</span>
+<span class="sd">        \log{x} &amp; a = 1</span>
+<span class="sd">        \end{cases} \,.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        input (torch.Tensor): The input tensor.</span>
@@ -442,12 +442,13 @@
 <span class="sd">        dim (int, optional): The dimension to sort along.</span>
 
 <span class="sd">    Examples:</span>
-
 <span class="sd">        &gt;&gt;&gt; from pfhedge.nn.functional import expected_shortfall</span>
 <span class="sd">        &gt;&gt;&gt;</span>
-<span class="sd">        &gt;&gt;&gt; input = -torch.arange(1., 6.)</span>
-<span class="sd">        &gt;&gt;&gt; expected_shortfall(input, 3 / 5)</span>
-<span class="sd">        tensor(4.)</span>
+<span class="sd">        &gt;&gt;&gt; input = -torch.arange(1.0, 10.0)</span>
+<span class="sd">        &gt;&gt;&gt; input</span>
+<span class="sd">        tensor([-1., -2., -3., -4., -5., -6., -7., -8., -9.])</span>
+<span class="sd">        &gt;&gt;&gt; expected_shortfall(input, 0.3)</span>
+<span class="sd">        tensor(8.)</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        torch.Tensor</span>
@@ -465,7 +466,7 @@
     <span class="n">clamped_slope</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span>
     <span class="n">inverted_output</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"mean"</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-    <span class="sd">"""Leakily clamp all elements in ``input`` into the range :math:`[\\min, \\max]`.</span>
+    <span class="sa">r</span><span class="sd">"""Leakily clamp all elements in ``input`` into the range :math:`[\min, \max]`.</span>
 
 <span class="sd">    See :class:`pfhedge.nn.LeakyClamp` for details.</span>
 <span class="sd">    """</span>
@@ -497,7 +498,7 @@
     <span class="nb">max</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">inverted_output</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"mean"</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-    <span class="sd">"""Clamp all elements in ``input`` into the range :math:`[\\min, \\max]`.</span>
+    <span class="sa">r</span><span class="sd">"""Clamp all elements in ``input`` into the range :math:`[\min, \max]`.</span>
 
 <span class="sd">    See :class:`pfhedge.nn.Clamp` for details.</span>
 <span class="sd">    """</span>
@@ -511,14 +512,14 @@
 
 
 <div class="viewcode-block" id="realized_variance"><a class="viewcode-back" href="../../../nn.functional.html#pfhedge.nn.functional.realized_variance">[docs]</a><span class="k">def</span> <span class="nf">realized_variance</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">dt</span><span class="p">:</span> <span class="n">TensorOrScalar</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-    <span class="sd">"""Returns the realized variance of the price.</span>
+    <span class="sa">r</span><span class="sd">"""Returns the realized variance of the price.</span>
 
-<span class="sd">    Realized variance :math:`\\sigma^2` of the stock price :math:`S` is defined as:</span>
+<span class="sd">    Realized variance :math:`\sigma^2` of the stock price :math:`S` is defined as:</span>
 
 <span class="sd">    .. math::</span>
 
-<span class="sd">        \\sigma^2 = \\frac{1}{T - 1} \\sum_{i = 1}^{T - 1}</span>
-<span class="sd">        \\frac{1}{dt} \\log(S_{i + 1} / S_i)^2</span>
+<span class="sd">        \sigma^2 = \frac{1}{T - 1} \sum_{i = 1}^{T - 1}</span>
+<span class="sd">        \frac{1}{dt} \log(S_{i + 1} / S_i)^2</span>
 
 <span class="sd">    where :math:`T` is the number of time steps.</span>
 
@@ -568,19 +569,19 @@
     <span class="n">payoff</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">deduct_first_cost</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">):</span>
-    <span class="sd">"""Returns the terminal portfolio value.</span>
+    <span class="sa">r</span><span class="sd">"""Returns the terminal portfolio value.</span>
 
 <span class="sd">    The terminal value of a hedger's portfolio is given by</span>
 
 <span class="sd">    .. math::</span>
 
-<span class="sd">        \\text{PL}(Z, \\delta, S) =</span>
+<span class="sd">        \text{PL}(Z, \delta, S) =</span>
 <span class="sd">        - Z</span>
-<span class="sd">        + \\sum_{i = 0}^{T - 2} \\delta_{i - 1} (S_{i} - S_{i - 1})</span>
-<span class="sd">        - c \\sum_{i = 0}^{T - 1} |\\delta_{i} - \\delta_{i - 1}| S_{i}</span>
+<span class="sd">        + \sum_{i = 0}^{T - 2} \delta_{i - 1} (S_{i} - S_{i - 1})</span>
+<span class="sd">        - c \sum_{i = 0}^{T - 1} |\delta_{i} - \delta_{i - 1}| S_{i}</span>
 
 <span class="sd">    where :math:`Z` is the payoff of the derivative, :math:`T` is the number of</span>
-<span class="sd">    time steps, :math:`S` is the spot price, :math:`\\delta` is the signed number</span>
+<span class="sd">    time steps, :math:`S` is the spot price, :math:`\delta` is the signed number</span>
 <span class="sd">    of shares held at each time step.</span>
 <span class="sd">    We define :math:`\delta_0 = 0` for notational convenience.</span>
 
@@ -599,7 +600,7 @@
 <span class="sd">    Args:</span>
 <span class="sd">        spot (torch.Tensor): The spot price of the underlying asset :math:`S`.</span>
 <span class="sd">        unit (torch.Tensor): The signed number of shares of the underlying asset</span>
-<span class="sd">            :math:`\\delta`.</span>
+<span class="sd">            :math:`\delta`.</span>
 <span class="sd">        cost (float, default=0.0): The proportional transaction cost rate of</span>
 <span class="sd">            the underlying asset :math:`c`.</span>
 <span class="sd">        payoff (torch.Tensor, optional): The payoff of the derivative :math:`Z`.</span>
@@ -675,7 +676,19 @@
 
 
 <div class="viewcode-block" id="d1"><a class="viewcode-back" href="../../../nn.functional.html#pfhedge.nn.functional.d1">[docs]</a><span class="k">def</span> <span class="nf">d1</span><span class="p">(</span><span class="n">log_moneyness</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">time_to_maturity</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">volatility</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-    <span class="sd">"""Returns :math:`d_1` in the Black-Scholes formula.</span>
+    <span class="sa">r</span><span class="sd">"""Returns :math:`d_1` in the Black-Scholes formula.</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        d_1 = \frac{s + \frac12 \sigma^2 t}{\sigma \sqrt{t}}</span>
+
+<span class="sd">    where</span>
+<span class="sd">    :math:`s` is the log moneyness,</span>
+<span class="sd">    :math:`t` is the time to maturity, and</span>
+<span class="sd">    :math:`\sigma` is the volatility.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        Risk-free rate is set to zero.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        log_moneyness (torch.Tensor or float): Log moneyness of the underlying asset.</span>
@@ -690,7 +703,19 @@
 
 
 <div class="viewcode-block" id="d2"><a class="viewcode-back" href="../../../nn.functional.html#pfhedge.nn.functional.d2">[docs]</a><span class="k">def</span> <span class="nf">d2</span><span class="p">(</span><span class="n">log_moneyness</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">time_to_maturity</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">volatility</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-    <span class="sd">"""Returns :math:`d_2` in the Black-Scholes formula.</span>
+    <span class="sa">r</span><span class="sd">"""Returns :math:`d_2` in the Black-Scholes formula.</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        d_2 = \frac{s - \frac12 \sigma^2 t}{\sigma \sqrt{t}}</span>
+
+<span class="sd">    where</span>
+<span class="sd">    :math:`s` is the log moneyness,</span>
+<span class="sd">    :math:`t` is the time to maturity, and</span>
+<span class="sd">    :math:`\sigma` is the volatility.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        Risk-free rate is set to zero.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        log_moneyness (torch.Tensor or float): Log moneyness of the underlying asset.</span>

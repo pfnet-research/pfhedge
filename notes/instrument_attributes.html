@@ -5,10 +5,10 @@
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="prev" title="Getting Started" href="../examples/getting_started.html" />
 
-    <meta name="generator" content="sphinx-4.2.0, furo 2021.09.08"/>
+    <meta name="generator" content="sphinx-4.2.0, furo 2021.09.22"/>
         <title>Instrument dtype and device - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=c7c65a82b42f6b978e58466c1e9ef2509836d916" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=150e365fa939648e89c22f6d7d13c72a1657915a" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
     
@@ -262,7 +262,7 @@ passing a <code class="docutils literal notranslate"><span class="pre">torch.dty
 </pre></div>
 </div>
 <p>The methods <a class="reference internal" href="../generated/pfhedge.instruments.Primary.html#id2" title="pfhedge.instruments.Primary.to"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Primary.to()</span></code></a> and <a class="reference internal" href="../generated/pfhedge.instruments.Derivative.html#id2" title="pfhedge.instruments.Derivative.to"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Derivative.to()</span></code></a> work as
-<a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module.to" title="(in PyTorch v1.9.0a0+gitd69c22d)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">torch.nn.Module.to()</span></code></a> and cast/move the dtype and device of the instrument
+<a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module.to" title="(in PyTorch v1.9.1)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">torch.nn.Module.to()</span></code></a> and cast/move the dtype and device of the instrument
 to the desired ones.</p>
 <p>In the rest of this note we will describe these attributes in detail
 and show how to use <code class="docutils literal notranslate"><span class="pre">to</span></code> method.</p>
@@ -274,7 +274,7 @@ and show how to use <code class="docutils literal notranslate"><span class="pre"
 to get the associated buffers (e.g., <code class="docutils literal notranslate"><span class="pre">spot</span></code>).</p>
 <p>The simulation will be performed with a <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.dtype</span></code>
 specified by <a class="reference internal" href="../generated/pfhedge.instruments.Primary.html#pfhedge.instruments.Primary.dtype" title="pfhedge.instruments.Primary.dtype"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Primary.dtype</span></code></a>.
-The default dtype is the global default (see <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.set_default_tensor_type.html#torch.set_default_tensor_type" title="(in PyTorch v1.9.0a0+gitd69c22d)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.set_default_tensor_type()</span></code></a>).
+The default dtype is the global default (see <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.set_default_tensor_type.html#torch.set_default_tensor_type" title="(in PyTorch v1.9.1)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.set_default_tensor_type()</span></code></a>).
 The <a class="reference internal" href="../generated/pfhedge.instruments.Primary.html#id2" title="pfhedge.instruments.Primary.to"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Primary.to()</span></code></a> method modifies the instrument so that
 subsequent simulations will be performed with the desired dtype.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">BrownianStock</span>
@@ -326,7 +326,7 @@ As a result, the <code class="docutils literal notranslate"><span class="pre">pa
 <p>The simulation will be performed with a <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.device</span></code>
 specified by <a class="reference internal" href="../generated/pfhedge.instruments.Primary.html#pfhedge.instruments.Primary.device" title="pfhedge.instruments.Primary.device"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Primary.device</span></code></a>.
 The default device is the current device for the default tensor type
-(see <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.set_default_tensor_type.html#torch.set_default_tensor_type" title="(in PyTorch v1.9.0a0+gitd69c22d)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.set_default_tensor_type()</span></code></a>).
+(see <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.set_default_tensor_type.html#torch.set_default_tensor_type" title="(in PyTorch v1.9.1)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.set_default_tensor_type()</span></code></a>).
 The <a class="reference internal" href="../generated/pfhedge.instruments.Primary.html#id2" title="pfhedge.instruments.Primary.to"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Primary.to()</span></code></a> method modifies the instument so that
 subsequent simulations will be performed on the desired device.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">BrownianStock</span>

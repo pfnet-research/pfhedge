@@ -5,10 +5,10 @@
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="LookbackOption" href="pfhedge.instruments.LookbackOption.html" /><link rel="prev" title="BaseOption" href="pfhedge.instruments.BaseOption.html" />
 
-    <meta name="generator" content="sphinx-4.2.0, furo 2021.09.08"/>
+    <meta name="generator" content="sphinx-4.2.0, furo 2021.09.22"/>
         <title>EuropeanOption - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=c7c65a82b42f6b978e58466c1e9ef2509836d916" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=150e365fa939648e89c22f6d7d13c72a1657915a" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
     
@@ -420,7 +420,7 @@ If <code class="docutils literal notranslate"><span class="pre">time_step</span>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>n_paths</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The number of paths to simulate.</p></li>
-<li><p><strong>init_state</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>]</em><em>, </em><em>optional</em>) – The initial state of
+<li><p><strong>init_state</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.1)"><em>torch.Tensor</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>]</em><em>, </em><em>optional</em>) – The initial state of
 the underlier.</p></li>
 <li><p><strong>**kwargs</strong> – Other parameters passed to <code class="docutils literal notranslate"><span class="pre">self.underlier.simulate()</span></code>.</p></li>
 </ul>
@@ -470,7 +470,7 @@ If <code class="docutils literal notranslate"><span class="pre">time_step</span>
 <dt class="sig sig-object py" id="id2">
 <span class="sig-name descname"><span class="pre">to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id2" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-<p>Its signature is similar to <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module.to" title="(in PyTorch v1.9.0a0+gitd69c22d)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">torch.nn.Module.to()</span></code></a>.
+<p>Its signature is similar to <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module.to" title="(in PyTorch v1.9.1)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">torch.nn.Module.to()</span></code></a>.
 It only accepts floating point dtypes.
 See <a class="reference internal" href="../notes/instrument_attributes.html#instrument-attributes-doc"><span class="std std-ref">Instrument dtype and device</span></a> for details.</p>
 <div class="admonition note">
@@ -495,7 +495,7 @@ See <a class="reference internal" href="../notes/instrument_attributes.html#inst
 the buffers in this instrument.</p></li>
 <li><p><strong>device</strong> (<em>torch.device</em>) – The desired device of
 the buffers in this instrument.</p></li>
-<li><p><strong>tensor</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a>) – Tensor whose dtype and device are
+<li><p><strong>tensor</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.1)"><em>torch.Tensor</em></a>) – Tensor whose dtype and device are
 the desired dtype and device of
 the buffers in this instrument.</p></li>
 <li><p><strong>instrument</strong> (<a class="reference internal" href="pfhedge.instruments.Instrument.html#pfhedge.instruments.Instrument" title="pfhedge.instruments.Instrument"><em>Instrument</em></a>) – Instrument whose dtype and device are

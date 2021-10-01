@@ -5,10 +5,10 @@
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="LeakyClamp" href="pfhedge.nn.LeakyClamp.html" /><link rel="prev" title="WhalleyWilmott" href="pfhedge.nn.WhalleyWilmott.html" />
 
-    <meta name="generator" content="sphinx-4.2.0, furo 2021.09.08"/>
+    <meta name="generator" content="sphinx-4.2.0, furo 2021.09.22"/>
         <title>Clamp - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=c7c65a82b42f6b978e58466c1e9ef2509836d916" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=150e365fa939648e89c22f6d7d13c72a1657915a" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
     
@@ -265,14 +265,14 @@
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <ul class="simple">
-<li><p><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.clamp.html#torch.clamp" title="(in PyTorch v1.9.0a0+gitd69c22d)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.clamp()</span></code></a></p></li>
+<li><p><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.clamp.html#torch.clamp" title="(in PyTorch v1.9.1)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.clamp()</span></code></a></p></li>
 <li><p><a class="reference internal" href="../nn.functional.html#pfhedge.nn.functional.clamp" title="pfhedge.nn.functional.clamp"><code class="xref py py-func docutils literal notranslate"><span class="pre">pfhedge.nn.functional.clamp()</span></code></a></p></li>
 </ul>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>inverted_output</strong> (<em>{'mean'</em><em>, </em><em>''max'}</em><em>, </em><em>default='mean'</em>) – Controls the output when <span class="math notranslate nohighlight">\(\min &gt; \max\)</span>.
-‘max’ is consistent with <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.clamp.html#torch.clamp" title="(in PyTorch v1.9.0a0+gitd69c22d)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.clamp()</span></code></a>.</p>
+‘max’ is consistent with <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.clamp.html#torch.clamp" title="(in PyTorch v1.9.1)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.clamp()</span></code></a>.</p>
 </dd>
 </dl>
 <dl class="simple">
@@ -314,9 +314,9 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>input</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a>) – The input tensor.</p></li>
-<li><p><strong>min</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Lower-bound of the range to be clamped to.</p></li>
-<li><p><strong>max</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.0a0+gitd69c22d)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Upper-bound of the range to be clamped to.</p></li>
+<li><p><strong>input</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.1)"><em>torch.Tensor</em></a>) – The input tensor.</p></li>
+<li><p><strong>min</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.1)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Lower-bound of the range to be clamped to.</p></li>
+<li><p><strong>max</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.9.1)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Upper-bound of the range to be clamped to.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
