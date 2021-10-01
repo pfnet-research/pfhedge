@@ -108,13 +108,13 @@ def european_binary_payoff(
 
 
 def exp_utility(input: Tensor, a: float = 1.0) -> Tensor:
-    """Applies an exponential utility function.
+    r"""Applies an exponential utility function.
 
     An exponential utility function is defined as:
 
     .. math::
 
-        u(x) = -\\exp(-a x) \\,.
+        u(x) = -\exp(-a x) \,.
 
     Args:
         input (torch.Tensor): The input tensor.
@@ -128,16 +128,16 @@ def exp_utility(input: Tensor, a: float = 1.0) -> Tensor:
 
 
 def isoelastic_utility(input: Tensor, a: float) -> Tensor:
-    """Applies an isoelastic utility function.
+    r"""Applies an isoelastic utility function.
 
     An isoelastic utility function is defined as:
 
     .. math::
 
-        u(x) = \\begin{cases}
-        x^{1 - a} & a \\neq 1 \\\\
-        \\log{x} & a = 1
-        \\end{cases} \\,.
+        u(x) = \begin{cases}
+        x^{1 - a} & a \neq 1 \\
+        \log{x} & a = 1
+        \end{cases} \,.
 
     Args:
         input (torch.Tensor): The input tensor.
@@ -201,12 +201,13 @@ def expected_shortfall(input: Tensor, p: float, dim: Optional[int] = None) -> Te
         dim (int, optional): The dimension to sort along.
 
     Examples:
-
         >>> from pfhedge.nn.functional import expected_shortfall
         >>>
-        >>> input = -torch.arange(1., 6.)
-        >>> expected_shortfall(input, 3 / 5)
-        tensor(4.)
+        >>> input = -torch.arange(1.0, 10.0)
+        >>> input
+        tensor([-1., -2., -3., -4., -5., -6., -7., -8., -9.])
+        >>> expected_shortfall(input, 0.3)
+        tensor(8.)
 
     Returns:
         torch.Tensor
@@ -224,7 +225,7 @@ def leaky_clamp(
     clamped_slope: float = 0.01,
     inverted_output: str = "mean",
 ) -> Tensor:
-    """Leakily clamp all elements in ``input`` into the range :math:`[\\min, \\max]`.
+    r"""Leakily clamp all elements in ``input`` into the range :math:`[\min, \max]`.
 
     See :class:`pfhedge.nn.LeakyClamp` for details.
     """
@@ -256,7 +257,7 @@ def clamp(
     max: Optional[Tensor] = None,
     inverted_output: str = "mean",
 ) -> Tensor:
-    """Clamp all elements in ``input`` into the range :math:`[\\min, \\max]`.
+    r"""Clamp all elements in ``input`` into the range :math:`[\min, \max]`.
 
     See :class:`pfhedge.nn.Clamp` for details.
     """
@@ -270,14 +271,14 @@ def clamp(
 
 
 def realized_variance(input: Tensor, dt: TensorOrScalar) -> Tensor:
-    """Returns the realized variance of the price.
+    r"""Returns the realized variance of the price.
 
-    Realized variance :math:`\\sigma^2` of the stock price :math:`S` is defined as:
+    Realized variance :math:`\sigma^2` of the stock price :math:`S` is defined as:
 
     .. math::
 
-        \\sigma^2 = \\frac{1}{T - 1} \\sum_{i = 1}^{T - 1}
-        \\frac{1}{dt} \\log(S_{i + 1} / S_i)^2
+        \sigma^2 = \frac{1}{T - 1} \sum_{i = 1}^{T - 1}
+        \frac{1}{dt} \log(S_{i + 1} / S_i)^2
 
     where :math:`T` is the number of time steps.
 
@@ -327,19 +328,19 @@ def terminal_value(
     payoff: Optional[Tensor] = None,
     deduct_first_cost: bool = True,
 ):
-    """Returns the terminal portfolio value.
+    r"""Returns the terminal portfolio value.
 
     The terminal value of a hedger's portfolio is given by
 
     .. math::
 
-        \\text{PL}(Z, \\delta, S) =
+        \text{PL}(Z, \delta, S) =
         - Z
-        + \\sum_{i = 0}^{T - 2} \\delta_{i - 1} (S_{i} - S_{i - 1})
-        - c \\sum_{i = 0}^{T - 1} |\\delta_{i} - \\delta_{i - 1}| S_{i}
+        + \sum_{i = 0}^{T - 2} \delta_{i - 1} (S_{i} - S_{i - 1})
+        - c \sum_{i = 0}^{T - 1} |\delta_{i} - \delta_{i - 1}| S_{i}
 
     where :math:`Z` is the payoff of the derivative, :math:`T` is the number of
-    time steps, :math:`S` is the spot price, :math:`\\delta` is the signed number
+    time steps, :math:`S` is the spot price, :math:`\delta` is the signed number
     of shares held at each time step.
     We define :math:`\delta_0 = 0` for notational convenience.
 
@@ -358,7 +359,7 @@ def terminal_value(
     Args:
         spot (torch.Tensor): The spot price of the underlying asset :math:`S`.
         unit (torch.Tensor): The signed number of shares of the underlying asset
-            :math:`\\delta`.
+            :math:`\delta`.
         cost (float, default=0.0): The proportional transaction cost rate of
             the underlying asset :math:`c`.
         payoff (torch.Tensor, optional): The payoff of the derivative :math:`Z`.
@@ -434,7 +435,19 @@ def npdf(input: Tensor) -> Tensor:
 
 
 def d1(log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor) -> Tensor:
-    """Returns :math:`d_1` in the Black-Scholes formula.
+    r"""Returns :math:`d_1` in the Black-Scholes formula.
+
+    .. math::
+
+        d_1 = \frac{s + \frac12 \sigma^2 t}{\sigma \sqrt{t}}
+
+    where
+    :math:`s` is the log moneyness,
+    :math:`t` is the time to maturity, and
+    :math:`\sigma` is the volatility.
+
+    Note:
+        Risk-free rate is set to zero.
 
     Args:
         log_moneyness (torch.Tensor or float): Log moneyness of the underlying asset.
@@ -449,7 +462,19 @@ def d1(log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor) -> T
 
 
 def d2(log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor) -> Tensor:
-    """Returns :math:`d_2` in the Black-Scholes formula.
+    r"""Returns :math:`d_2` in the Black-Scholes formula.
+
+    .. math::
+
+        d_2 = \frac{s - \frac12 \sigma^2 t}{\sigma \sqrt{t}}
+
+    where
+    :math:`s` is the log moneyness,
+    :math:`t` is the time to maturity, and
+    :math:`\sigma` is the volatility.
+
+    Note:
+        Risk-free rate is set to zero.
 
     Args:
         log_moneyness (torch.Tensor or float): Log moneyness of the underlying asset.

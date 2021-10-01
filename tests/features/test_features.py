@@ -832,8 +832,9 @@ class TestUnderlierSpot(_TestFeature):
         assert_close(result, expect)
 
         result = f.get()
-        expect = expect.log() if log else expect
-        expect = spot.unsqueeze(-1)
+        expect = spot
+        expect = expect.log_() if log else expect
+        expect = expect.unsqueeze(-1)
         assert_close(result, expect)
 
     def test_str(self):
@@ -876,8 +877,9 @@ class TestSpot(_TestFeature):
         assert_close(result, expect)
 
         result = f.get()
-        expect = expect.log() if log else expect
-        expect = spot.unsqueeze(-1)
+        expect = spot
+        expect = expect.log_() if log else expect
+        expect = expect.unsqueeze(-1)
         assert_close(result, expect)
 
     def test_str(self):
@@ -886,5 +888,5 @@ class TestSpot(_TestFeature):
     def test_is_state_dependent(self):
         derivative = EuropeanOption(BrownianStock())
         hedger = Hedger(Naked(), inputs=["empty"])
-        f = UnderlierSpot().of(derivative, hedger)
+        f = Spot().of(derivative, hedger)
         assert not f.is_state_dependent()
