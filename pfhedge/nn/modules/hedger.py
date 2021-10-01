@@ -312,7 +312,7 @@ class Hedger(Module):
             # the last time step is not included.
             output[..., -1, :] = output[..., -2, :]
 
-        output = output.transpose(-1, -2)  #  (N, H, T)
+        output = output.transpose(-1, -2)  # (N, H, T)
 
         return output
 

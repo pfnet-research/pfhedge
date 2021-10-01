@@ -10,7 +10,7 @@ from .clamp import Clamp
 
 
 class WhalleyWilmott(Module):
-    """Initialize Whalley-Wilmott's hedging strategy of a derivative.
+    r"""Initialize Whalley-Wilmott's hedging strategy of a derivative.
 
     The ``forward`` method returns the next hedge ratio.
 
@@ -21,18 +21,18 @@ class WhalleyWilmott(Module):
 
     .. math::
 
-        w = \\left( \\frac{3 c \\Gamma^2 S}{2 a} \\right)^{1 / 3} \,,
+        w = \left( \frac{3 c \Gamma^2 S}{2 a} \right)^{1 / 3} \,,
 
     where :math:`c` is the transaction cost rate,
-    :math:`\\Gamma` is the gamma of the derivative,
+    :math:`\Gamma` is the gamma of the derivative,
     :math:`S` is the spot price of the underlying instrument, and
     :math:`a` is the risk-aversion coefficient of the exponential utility.
 
     Note:
         A backward computation for this module generates ``nan``
-        if the :math:`\\Gamma` of the derivative is too small.
-        This is because the output is proportional to :math:`\\Gamma^{2 / 3}`
-        of which gradient diverges for :math:`\\Gamma \\to 0`.
+        if the :math:`\Gamma` of the derivative is too small.
+        This is because the output is proportional to :math:`\Gamma^{2 / 3}`
+        of which gradient diverges for :math:`\Gamma \to 0`.
         A ``dtype`` with higher precision may alleviate this problem.
 
     References:
@@ -48,9 +48,9 @@ class WhalleyWilmott(Module):
         a (float, default=1.0): Risk aversion parameter in exponential utility.
 
     Shape:
-        - Input: :math:`(N, *, H_{\\text{in}})` where
+        - Input: :math:`(N, *, H_{\text{in}})` where
           :math:`*` means any number of additional dimensions and
-          :math:`H_{\\text{in}}` is the number of input features.
+          :math:`H_{\text{in}}` is the number of input features.
           See :meth:`inputs()` for the names of input features.
         - Output: :math:`(N, *, 1)`.
 
@@ -130,15 +130,15 @@ class WhalleyWilmott(Module):
         return self.clamp(prev_hedge, min=min, max=max)
 
     def width(self, input: Tensor) -> Tensor:
-        """Returns half-width of the no-transaction band.
+        r"""Returns half-width of the no-transaction band.
 
         Args:
             input (Tensor): The input tensor.
 
         Shape:
-            - Input: :math:`(N, *, H_{\\text{in}} - 1)` where
+            - Input: :math:`(N, *, H_{\text{in}} - 1)` where
               :math:`*` means any number of additional dimensions and
-              :math:`H_{\\text{in}}` is the number of input features.
+              :math:`H_{\text{in}}` is the number of input features.
               See :meth:`inputs()` for the names of input features.
             - Output: :math:`(N, *, 1)`
 

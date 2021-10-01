@@ -1,6 +1,5 @@
 from typing import Optional
 from typing import Tuple
-from typing import Union
 from typing import cast
 
 import torch

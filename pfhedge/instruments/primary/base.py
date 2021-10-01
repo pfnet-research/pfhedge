@@ -10,7 +10,6 @@ from typing import no_type_check
 
 import torch
 from torch import Tensor
-from torch.nn import Module
 
 from pfhedge._utils.doc import _set_attr_and_docstring
 from pfhedge._utils.doc import _set_docstring
