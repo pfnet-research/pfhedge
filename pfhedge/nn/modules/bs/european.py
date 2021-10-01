@@ -28,9 +28,10 @@ class BSEuropeanOption(BSModuleMixin):
           All but the last dimension are the same shape as the input.
 
     .. seealso::
-
         - :class:`pfhedge.nn.BlackScholes`:
           Initialize Black-Scholes formula module from a derivative.
+        - :class:`pfhedge.instruments.EuropeanOption`:
+          Corresponding derivative.
 
     References:
         - John C. Hull, 2003. Options futures and other derivatives. Pearson.
