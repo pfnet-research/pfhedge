@@ -434,7 +434,19 @@ def npdf(input: Tensor) -> Tensor:
 
 
 def d1(log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor) -> Tensor:
-    """Returns :math:`d_1` in the Black-Scholes formula.
+    r"""Returns :math:`d_1` in the Black-Scholes formula.
+
+    .. math::
+
+        d_1 = \frac{s + \frac12 \sigma^2 t}{\sigma \sqrt{t}}
+
+    where
+    :math:`s` is the log moneyness,
+    :math:`t` is the time to maturity, and
+    :math:`\sigma` is the volatility.
+
+    Note:
+        Risk-free rate is set to zero.
 
     Args:
         log_moneyness (torch.Tensor or float): Log moneyness of the underlying asset.
@@ -449,7 +461,19 @@ def d1(log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor) -> T
 
 
 def d2(log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor) -> Tensor:
-    """Returns :math:`d_2` in the Black-Scholes formula.
+    r"""Returns :math:`d_2` in the Black-Scholes formula.
+
+    .. math::
+
+        d_2 = \frac{s - \frac12 \sigma^2 t}{\sigma \sqrt{t}}
+
+    where
+    :math:`s` is the log moneyness,
+    :math:`t` is the time to maturity, and
+    :math:`\sigma` is the volatility.
+
+    Note:
+        Risk-free rate is set to zero.
 
     Args:
         log_moneyness (torch.Tensor or float): Log moneyness of the underlying asset.
