@@ -19,6 +19,7 @@ Utility Functions
 
 .. autofunction:: exp_utility
 .. autofunction:: isoelastic_utility
+.. autofunction:: entropic_risk_measure
 .. autofunction:: expected_shortfall
 
 Other Functions
