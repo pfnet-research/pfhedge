@@ -14,12 +14,13 @@ Payoff Functions
 .. autofunction:: american_binary_payoff
 .. autofunction:: european_binary_payoff
 
-Utility Functions
------------------
+Criterion Functions
+-------------------
 
 .. autofunction:: exp_utility
 .. autofunction:: isoelastic_utility
 .. autofunction:: expected_shortfall
+.. autofunction:: value_at_risk
 
 Other Functions
 -----------------
