@@ -47,7 +47,6 @@ Install:
 
    notes/*
 
-
 .. toctree::
    :caption: Development
    :hidden:
