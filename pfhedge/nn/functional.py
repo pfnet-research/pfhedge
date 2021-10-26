@@ -175,7 +175,6 @@ def topp(input: Tensor, p: float, dim: Optional[int] = None, largest: bool = Tru
         torch.Tensor
 
     Examples:
-
         >>> from pfhedge.nn.functional import topp
         >>>
         >>> input = torch.arange(1.0, 6.0)
@@ -327,7 +326,7 @@ def terminal_value(
     cost: float = 0.0,
     payoff: Optional[Tensor] = None,
     deduct_first_cost: bool = True,
-):
+) -> Tensor:
     r"""Returns the terminal portfolio value.
 
     The terminal value of a hedger's portfolio is given by
