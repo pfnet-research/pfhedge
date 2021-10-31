@@ -17,7 +17,7 @@ class HestonTuple(namedtuple("HestonTuple", ["spot", "variance"])):
 
     __module__ = "pfhedge.stochastic"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         items_str_list = []
         for field, tensor in self._asdict().items():
             items_str_list.append(field + "=\n" + str(tensor))
