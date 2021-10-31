@@ -79,7 +79,7 @@ class VarianceSwap(Derivative):
                 "Specify them in the constructor of the underlier instead."
             )
 
-    def extra_repr(self):
+    def extra_repr(self) -> str:
         return ", ".join(
             (
                 "strike=" + _format_float(self.strike),

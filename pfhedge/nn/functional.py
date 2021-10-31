@@ -153,6 +153,14 @@ def isoelastic_utility(input: Tensor, a: float) -> Tensor:
         return input.pow(1.0 - a)
 
 
+def entropic_risk_measure(input: Tensor, a: float = 1.0) -> Tensor:
+    """Returns the entropic risk measure.
+
+    See :class:`pfhedge.nn.EntropicRiskMeasure` for details.
+    """
+    return (-exp_utility(input, a=a).mean(0)).log() / a
+
+
 def topp(input: Tensor, p: float, dim: Optional[int] = None, largest: bool = True):
     """Returns the largest :math:`p * N` elements of the given input tensor,
     where :math:`N` stands for the total number of elements in the input tensor.
@@ -166,7 +174,7 @@ def topp(input: Tensor, p: float, dim: Optional[int] = None, largest: bool = Tru
 
     Args:
         input (torch.Tensor): The input tensor.
-        p (float): Quantile level.
+        p (float): The quantile level.
         dim (int, optional): The dimension to sort along.
         largest (bool, default=True): Controls whether to return largest or smallest
             elements.
@@ -175,7 +183,6 @@ def topp(input: Tensor, p: float, dim: Optional[int] = None, largest: bool = Tru
         torch.Tensor
 
     Examples:
-
         >>> from pfhedge.nn.functional import topp
         >>>
         >>> input = torch.arange(1.0, 6.0)
@@ -197,15 +204,15 @@ def expected_shortfall(input: Tensor, p: float, dim: Optional[int] = None) -> Te
 
     Args:
         input (torch.Tensor): The input tensor.
-        p (float): Quantile level.
+        p (float): The quantile level.
         dim (int, optional): The dimension to sort along.
 
     Examples:
         >>> from pfhedge.nn.functional import expected_shortfall
         >>>
-        >>> input = -torch.arange(1.0, 10.0)
+        >>> input = -torch.arange(10.0)
         >>> input
-        tensor([-1., -2., -3., -4., -5., -6., -7., -8., -9.])
+        tensor([-0., -1., -2., -3., -4., -5., -6., -7., -8., -9.])
         >>> expected_shortfall(input, 0.3)
         tensor(8.)
 
@@ -216,6 +223,52 @@ def expected_shortfall(input: Tensor, p: float, dim: Optional[int] = None) -> Te
         return -topp(input, p=p, largest=False).values.mean()
     else:
         return -topp(input, p=p, largest=False, dim=dim).values.mean(dim=dim)
+
+
+def _min_values(input: Tensor, dim: Optional[int] = None) -> Tensor:
+    return input.min() if dim is None else input.min(dim=dim).values
+
+
+def _max_values(input: Tensor, dim: Optional[int] = None) -> Tensor:
+    return input.max() if dim is None else input.max(dim=dim).values
+
+
+def value_at_risk(input: Tensor, p: float, dim: Optional[int] = None) -> Tensor:
+    """Returns the value at risk of the given input tensor.
+
+    Note:
+        If :math:`p \leq 1 / N`` with :math:`N` being the number of elements to sort,
+        returns the smallest element in the tensor.
+        If :math:`p > 1 - 1 / N``, returns the largest element in the tensor.
+
+    Args:
+        input (torch.Tensor): The input tensor.
+        p (float): The quantile level.
+        dim (int, optional): The dimension to sort along.
+
+    Examples:
+        >>> from pfhedge.nn.functional import value_at_risk
+        >>>
+        >>> input = -torch.arange(10.0)
+        >>> input
+        tensor([-0., -1., -2., -3., -4., -5., -6., -7., -8., -9.])
+        >>> value_at_risk(input, 0.3)
+        tensor(-7.)
+
+    Returns:
+        torch.Tensor
+    """
+    n = input.numel() if dim is None else input.size(dim)
+
+    if p <= 1 / n:
+        output = _min_values(input, dim=dim)
+    elif p > 1 - 1 / n:
+        output = _max_values(input, dim=dim)
+    else:
+        q = (p - (1 / n)) / (1 - (1 / n))
+        output = input.quantile(q, dim=dim)
+
+    return output
 
 
 def leaky_clamp(
@@ -327,7 +380,7 @@ def terminal_value(
     cost: float = 0.0,
     payoff: Optional[Tensor] = None,
     deduct_first_cost: bool = True,
-):
+) -> Tensor:
     r"""Returns the terminal portfolio value.
 
     The terminal value of a hedger's portfolio is given by
