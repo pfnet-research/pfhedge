@@ -10,6 +10,7 @@ from pfhedge.nn.functional import realized_variance
 from pfhedge.nn.functional import realized_volatility
 from pfhedge.nn.functional import terminal_value
 from pfhedge.nn.functional import topp
+from pfhedge.nn.functional import value_at_risk
 
 
 def test_exp_utility():
@@ -58,6 +59,17 @@ def test_expected_shortfall():
     result = expected_shortfall(input, 3 / 5)
     expect = torch.tensor(-2.0)
     assert_close(result, expect)
+
+
+def test_value_at_risk():
+    input = -torch.arange(10.0)
+
+    assert_close(value_at_risk(input, 0.0), -torch.tensor(9.0))
+    assert_close(value_at_risk(input, 0.1), -torch.tensor(9.0))
+    assert_close(value_at_risk(input, 0.2), -torch.tensor(8.0))
+    assert_close(value_at_risk(input, 0.8), -torch.tensor(2.0))
+    assert_close(value_at_risk(input, 0.9), -torch.tensor(1.0))
+    assert_close(value_at_risk(input, 1.0), -torch.tensor(0.0))
 
 
 def test_leaky_clamp():
