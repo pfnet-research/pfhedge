@@ -1,5 +1,9 @@
 name: Doc
 
+env:
+  PROJECT_NAME: pfhedge
+  PYTHON_VERSION: '3.9'
+
 on:
   push:
     branches:
@@ -26,6 +30,8 @@ jobs:
     - uses: actions/checkout@v2
 
     - uses: actions/setup-python@v2
+      with:
+        python-version: ${PYTHON_VERSION}
 
     - run: pip install poetry && poetry install
 
