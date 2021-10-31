@@ -4,7 +4,6 @@ import torch
 from torch import Tensor
 from torch.distributions.utils import broadcast_all
 
-import pfhedge.autogreek as autogreek
 from pfhedge._utils.bisect import find_implied_volatility
 from pfhedge._utils.doc import _set_attr_and_docstring
 from pfhedge._utils.str import _format_float
@@ -18,6 +17,9 @@ from ._base import BSModuleMixin
 
 class BSAmericanBinaryOption(BSModuleMixin):
     """Black-Scholes formula for an American Binary Option.
+
+    Note:
+        Risk-free rate is set to zero.
 
     Args:
         call (bool, default=True): Specifies whether the option is call or put.
@@ -33,6 +35,8 @@ class BSAmericanBinaryOption(BSModuleMixin):
     .. seealso::
         - :class:`pfhedge.nn.BlackScholes`:
           Initialize Black-Scholes formula module from a derivative.
+        - :class:`pfhedge.instruments.AmericanBinaryOption`:
+          Corresponding derivative.
 
     References:
         - Dai, M., 2000. A closed-form solution for perpetual American floating strike

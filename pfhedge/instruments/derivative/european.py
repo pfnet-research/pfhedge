@@ -137,7 +137,7 @@ class EuropeanOption(BaseOption):
                 "Specify them in the constructor of the underlier instead."
             )
 
-    def extra_repr(self):
+    def extra_repr(self) -> str:
         params = []
         if not self.call:
             params.append("call=" + str(self.call))

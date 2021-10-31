@@ -62,7 +62,7 @@ We hope PFHedge accelerates the research and development of Deep Hedging.
 ## Install
 
 ```sh
-$ pip install pfhedge
+pip install pfhedge
 ```
 
 ## How to Use

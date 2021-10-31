@@ -47,7 +47,7 @@ class Derivative(Instrument):
     pricer: Optional[Callable[[Any], Tensor]]
     _clauses: Dict[str, Callable[["Derivative", Tensor], Tensor]]
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.pricer = None
         self.cost = 0.0
@@ -252,7 +252,9 @@ class BaseOption(Derivative):
             t = torch.tensor([[time]]).to(self.underlier.spot) * self.underlier.dt
             return t.expand(n_paths, -1)
 
-    def max_moneyness(self, time_step: Optional[int] = None, log=False) -> Tensor:
+    def max_moneyness(
+        self, time_step: Optional[int] = None, log: bool = False
+    ) -> Tensor:
         """Returns the cumulative maximum of the moneyness.
 
         Args:

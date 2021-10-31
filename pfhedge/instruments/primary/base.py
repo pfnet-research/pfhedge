@@ -10,7 +10,6 @@ from typing import no_type_check
 
 import torch
 from torch import Tensor
-from torch.nn import Module
 
 from pfhedge._utils.doc import _set_attr_and_docstring
 from pfhedge._utils.doc import _set_docstring
@@ -150,7 +149,7 @@ class Primary(Instrument):
         if "_buffers" in self.__dict__:
             _buffers = self.__dict__["_buffers"]
             if name in _buffers:
-                return _buffers["spot"]
+                return _buffers[name]
         raise AttributeError(
             f"'{self._get_name()}' object has no attribute '{name}'. "
             "Asset may not be simulated."

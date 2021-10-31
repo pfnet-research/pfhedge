@@ -2,7 +2,6 @@ from typing import List
 
 import torch
 from torch import Tensor
-from torch.distributions.utils import broadcast_all
 
 from pfhedge._utils.bisect import find_implied_volatility
 from pfhedge._utils.doc import _set_attr_and_docstring
@@ -19,6 +18,9 @@ from ._base import BSModuleMixin
 class BSLookbackOption(BSModuleMixin):
     """Black-Scholes formula for a lookback option with a fixed strike.
 
+    Note:
+        Risk-free rate is set to zero.
+
     Args:
         call (bool, default=True): Specifies whether the option is call or put.
         strike (float, default=1.0): The strike price of the option.
@@ -31,9 +33,10 @@ class BSLookbackOption(BSModuleMixin):
           All but the last dimension are the same shape as the input.
 
     .. seealso::
-
         - :class:`pfhedge.nn.BlackScholes`:
           Initialize Black-Scholes formula module from a derivative.
+        - :class:`pfhedge.instruments.LookBackOption`:
+          Corresponding derivative.
 
     References:
         - Conze, A., 1991. Path dependent options: The case of lookback options.

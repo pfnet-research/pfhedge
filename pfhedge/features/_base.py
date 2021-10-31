@@ -1,5 +1,4 @@
 import copy
-import warnings
 from abc import ABC
 from abc import abstractmethod
 from typing import Optional
@@ -22,7 +21,7 @@ class Feature(ABC):
     derivative: Derivative
     hedger: Optional[Module]
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.register_hedger(None)
 
     @abstractmethod

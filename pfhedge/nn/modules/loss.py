@@ -9,6 +9,7 @@ from torch.nn import Parameter
 from pfhedge._utils.bisect import bisect
 from pfhedge._utils.str import _format_float
 
+from ..functional import entropic_risk_measure
 from ..functional import exp_utility
 from ..functional import expected_shortfall
 from ..functional import isoelastic_utility
@@ -112,7 +113,7 @@ class EntropicRiskMeasure(HedgeLoss):
         return "a=" + _format_float(self.a) if self.a != 1 else ""
 
     def forward(self, input: Tensor) -> Tensor:
-        return (-exp_utility(input, a=self.a).mean(0)).log() / self.a
+        return entropic_risk_measure(input, a=self.a)
 
     def cash(self, input: Tensor) -> Tensor:
         return -self(input)

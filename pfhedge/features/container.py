@@ -1,7 +1,6 @@
 import copy
 from typing import List
 from typing import Optional
-from typing import Type
 from typing import TypeVar
 from typing import Union
 
@@ -41,14 +40,14 @@ class FeatureList(Feature):
     def __init__(self, features: List[Union[str, Feature]]):
         self.features = list(map(get_feature, features))
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.features)
 
     def get(self, time_step: Optional[int]) -> Tensor:
         # Return size: (N, T, F)
         return torch.cat([f.get(time_step) for f in self.features], dim=-1)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(list(map(str, self.features)))
 
     def of(self: T, derivative: Derivative, hedger: Optional[Module] = None) -> T:
@@ -126,5 +125,5 @@ class ModuleOutput(Feature, Module):
         self.inputs = self.inputs.of(derivative, hedger)
         return self
 
-    def is_state_dependent(self):
+    def is_state_dependent(self) -> bool:
         return self.inputs.is_state_dependent()
