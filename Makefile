@@ -1,4 +1,5 @@
 PROJECT_NAME := pfhedge
+RUN := poetry run
 
 .PHONY: check
 check: test lint mypy
@@ -12,41 +13,41 @@ test: doctest pytest
 
 .PHONY: doctest
 doctest:
-	@poetry run pytest --doctest-modules $(PROJECT_NAME)
+	$(RUN) pytest --doctest-modules $(PROJECT_NAME)
 
 .PHONY: pytest
 pytest:
-	@poetry run pytest --doctest-modules tests
+	$(RUN) pytest --doctest-modules tests
 
 .PHONY: test-cov
 test-cov:
-	@poetry run pytest --cov=$(PROJECT_NAME) --cov-report=html
+	$(RUN) pytest --cov=$(PROJECT_NAME) --cov-report=html
 
 .PHONY: lint
 lint: lint-black lint-isort
 
 .PHONY: lint-black
 lint-black:
-	@poetry run black --check --diff --quiet --skip-magic-trailing-comma .
+	$(RUN) black --check --diff --quiet --skip-magic-trailing-comma .
 
 .PHONY: lint-isort
 lint-isort:
-	@poetry run isort --check --force-single-line-imports --quiet .
+	$(RUN) isort --check --force-single-line-imports --quiet .
 
 .PHONY: mypy
 mypy:
-	@poetry run mypy $(PROJECT_NAME)
+	$(RUN) mypy $(PROJECT_NAME)
 
 .PHONY: format
 format: format-black format-isort
 
 .PHONY: format-black
 format-black:
-	@poetry run black --quiet --skip-magic-trailing-comma .
+	$(RUN) black --quiet --skip-magic-trailing-comma .
 
 .PHONY: format-isort
 format-isort:
-	@poetry run isort --force-single-line-imports --quiet .
+	$(RUN) isort --force-single-line-imports --quiet .
 
 .PHONY: doc
 doc:
