@@ -17,8 +17,8 @@ def save_prev_output(
         >>> hook = m.register_forward_hook(save_prev_output)
         >>> input = torch.randn(1, 3)
         >>> m(input)
-        tensor([[-1.1647,  0.0244]], grad_fn=<AddmmBackward>)
+        tensor([[-1.1647,  0.0244]], ...)
         >>> m.prev_output
-        tensor([[-1.1647,  0.0244]], grad_fn=<AddmmBackward>)
+        tensor([[-1.1647,  0.0244]], ...)
     """
     module.register_buffer("prev_output", output, persistent=False)
