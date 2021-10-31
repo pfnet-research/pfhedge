@@ -153,6 +153,14 @@ def isoelastic_utility(input: Tensor, a: float) -> Tensor:
         return input.pow(1.0 - a)
 
 
+def entropic_risk_measure(input: Tensor, a: float = 1.0) -> Tensor:
+    """Returns the entropic risk measure.
+
+    See :class:`pfhedge.nn.EntropicRiskMeasure` for details.
+    """
+    return (-exp_utility(input, a=a).mean(0)).log() / a
+
+
 def topp(input: Tensor, p: float, dim: Optional[int] = None, largest: bool = True):
     """Returns the largest :math:`p * N` elements of the given input tensor,
     where :math:`N` stands for the total number of elements in the input tensor.
