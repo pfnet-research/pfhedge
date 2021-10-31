@@ -8,8 +8,8 @@ from torch.nn import Linear
 from torch.nn import Module
 from torch.testing import assert_close
 
+from pfhedge.instruments import BaseDerivative
 from pfhedge.instruments import BrownianStock
-from pfhedge.instruments import Derivative
 from pfhedge.instruments import EuropeanOption
 from pfhedge.nn import BlackScholes
 from pfhedge.nn import EntropicRiskMeasure
@@ -23,7 +23,7 @@ def void(*args, **kwargs):
     pass
 
 
-class ZeroDerivative(Derivative):
+class ZeroDerivative(BaseDerivative):
     def __init__(self, underlier, maturity=20 / 250):
         super().__init__()
         self.underlier = underlier

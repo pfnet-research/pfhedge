@@ -12,10 +12,10 @@ from pfhedge._utils.str import _format_float
 from pfhedge._utils.typing import TensorOrScalar
 from pfhedge.stochastic import generate_geometric_brownian
 
-from .base import Primary
+from .base import BasePrimary
 
 
-class BrownianStock(Primary):
+class BrownianStock(BasePrimary):
     r"""A stock of which spot prices follow the geometric Brownian motion.
 
     .. seealso::
@@ -153,5 +153,5 @@ class BrownianStock(Primary):
 
 
 # Assign docstrings so they appear in Sphinx documentation
-_set_docstring(BrownianStock, "default_init_state", Primary.default_init_state)
-_set_attr_and_docstring(BrownianStock, "to", Primary.to)
+_set_docstring(BrownianStock, "default_init_state", BasePrimary.default_init_state)
+_set_attr_and_docstring(BrownianStock, "to", BasePrimary.to)

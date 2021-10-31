@@ -8,9 +8,9 @@ from pfhedge._utils.doc import _set_docstring
 from pfhedge._utils.str import _format_float
 from pfhedge.nn.functional import american_binary_payoff
 
-from ..primary.base import Primary
+from ..primary.base import BasePrimary
+from .base import BaseDerivative
 from .base import BaseOption
-from .base import Derivative
 
 
 class AmericanBinaryOption(BaseOption):
@@ -53,7 +53,7 @@ class AmericanBinaryOption(BaseOption):
         :func:`pfhedge.nn.functional.american_binary_payoff`: Payoff function.
 
     Args:
-        underlier (:class:`Primary`): The underlying instrument of the option.
+        underlier (:class:`BasePrimary`): The underlying instrument of the option.
         call (bool, default=True): Specifies whether the option is call or put.
         strike (float, default=1.0): The strike price of the option.
         maturity (float, default=20/250): The maturity of the option.
@@ -82,7 +82,7 @@ maturity=5/250, strike=1.01)
 
     def __init__(
         self,
-        underlier: Primary,
+        underlier: BasePrimary,
         call: bool = True,
         strike: float = 1.0,
         maturity: float = 20 / 250,
@@ -118,11 +118,11 @@ maturity=5/250, strike=1.01)
 
 
 # Assign docstrings so they appear in Sphinx documentation
-_set_attr_and_docstring(AmericanBinaryOption, "simulate", Derivative.simulate)
-_set_attr_and_docstring(AmericanBinaryOption, "to", Derivative.to)
-_set_attr_and_docstring(AmericanBinaryOption, "ul", Derivative.ul)
-_set_attr_and_docstring(AmericanBinaryOption, "list", Derivative.list)
-_set_docstring(AmericanBinaryOption, "payoff", Derivative.payoff)
+_set_attr_and_docstring(AmericanBinaryOption, "simulate", BaseDerivative.simulate)
+_set_attr_and_docstring(AmericanBinaryOption, "to", BaseDerivative.to)
+_set_attr_and_docstring(AmericanBinaryOption, "ul", BaseDerivative.ul)
+_set_attr_and_docstring(AmericanBinaryOption, "list", BaseDerivative.list)
+_set_docstring(AmericanBinaryOption, "payoff", BaseDerivative.payoff)
 _set_attr_and_docstring(AmericanBinaryOption, "moneyness", BaseOption.moneyness)
 _set_attr_and_docstring(AmericanBinaryOption, "log_moneyness", BaseOption.log_moneyness)
 _set_attr_and_docstring(

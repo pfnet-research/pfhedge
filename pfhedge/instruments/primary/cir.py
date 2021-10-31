@@ -10,10 +10,10 @@ from pfhedge._utils.str import _format_float
 from pfhedge._utils.typing import TensorOrScalar
 from pfhedge.stochastic import generate_cir
 
-from .base import Primary
+from .base import BasePrimary
 
 
-class CIRRate(Primary):
+class CIRRate(BasePrimary):
     """A rate which follow the CIR process.
 
     .. seealso::
@@ -132,5 +132,5 @@ class CIRRate(Primary):
 
 
 # Assign docstrings so they appear in Sphinx documentation
-_set_docstring(CIRRate, "default_init_state", Primary.default_init_state)
-_set_attr_and_docstring(CIRRate, "to", Primary.to)
+_set_docstring(CIRRate, "default_init_state", BasePrimary.default_init_state)
+_set_attr_and_docstring(CIRRate, "to", BasePrimary.to)

@@ -21,9 +21,8 @@ from pfhedge._utils.str import _format_float
 from pfhedge._utils.typing import TensorOrScalar
 from pfhedge.features import FeatureList
 from pfhedge.features._base import Feature
-from pfhedge.instruments.base import Instrument
-from pfhedge.instruments.derivative.base import Derivative
-from pfhedge.instruments.primary.base import Primary
+from pfhedge.instruments.base import BaseInstrument
+from pfhedge.instruments.derivative.base import BaseDerivative
 from pfhedge.nn.functional import terminal_value
 
 from .loss import EntropicRiskMeasure
@@ -134,7 +133,7 @@ class Hedger(Module):
         tensor(...)
 
         It is possible to hedge a derivative with another listed derivative by
-        ``Derivative.list()`` method.
+        ``list()`` method.
 
         >>> from pfhedge.instruments import LookbackOption
         >>> from pfhedge.nn import BlackScholes
@@ -207,7 +206,7 @@ class Hedger(Module):
     def extra_repr(self) -> str:
         return "inputs=" + str(self.inputs)
 
-    def get_input(self, derivative: Derivative, time_step: Optional[int]) -> Tensor:
+    def get_input(self, derivative: BaseDerivative, time_step: Optional[int]) -> Tensor:
         """Returns the input tensor to the model at the given time step.
 
         Note:
@@ -218,7 +217,7 @@ class Hedger(Module):
             before calling this method.
 
         Args:
-            derivative (Derivative): The derivative used for getting the input.
+            derivative (BaseDerivative): The derivative used for getting the input.
             time_step (int, optional): The time step to get the input tensor.
                 If ``None`` an input tensor for all time steps is returned.
 
@@ -248,14 +247,14 @@ class Hedger(Module):
         return self.inputs.of(derivative=derivative).get(time_step)
 
     def compute_hedge(
-        self, derivative: Derivative, hedge: Optional[List[Instrument]] = None
+        self, derivative: BaseDerivative, hedge: Optional[List[BaseInstrument]] = None
     ) -> Tensor:
         """Compute the hedge ratio at each time step.
         It assumes that the derivative is already simulated.
 
         Args:
-            derivative (Derivative): The derivative to hedge.
-            hedge (Instrument, optional): The hedging instrument.
+            derivative (BaseDerivative): The derivative to hedge.
+            hedge (BaseInstrument, optional): The hedging instrument.
                 If ``None`` (default), use ``derivative.underlier``.
 
         Shape:
@@ -286,7 +285,9 @@ class Hedger(Module):
                     [0.5056, 0.3785, 0.4609, 0.5239, 0.7281, 0.7281]])
         """
         inputs = self.inputs.of(derivative, self)
-        hedge = cast(List[Instrument], [derivative.ul()] if hedge is None else hedge)
+        hedge = cast(
+            List[BaseInstrument], [derivative.ul()] if hedge is None else hedge
+        )
 
         # Check that the spot prices of the hedges have the same sizes
         if not all(h.spot.size() == hedge[0].spot.size() for h in hedge):
@@ -318,8 +319,8 @@ class Hedger(Module):
 
     def compute_pnl(
         self,
-        derivative: Derivative,
-        hedge: Optional[List[Instrument]] = None,
+        derivative: BaseDerivative,
+        hedge: Optional[List[BaseInstrument]] = None,
         n_paths: int = 1000,
         init_state: Optional[Tuple[TensorOrScalar, ...]] = None,
     ) -> Tensor:
@@ -331,8 +332,8 @@ class Hedger(Module):
         terminal portyol value after hedging a derivative.
 
         Args:
-            derivative (Derivative): The derivative to hedge.
-            hedge (list[Instrument], optional): The hedging instruments.
+            derivative (BaseDerivative): The derivative to hedge.
+            hedge (list[BaseInstrument], optional): The hedging instruments.
                 If ``None`` (default), use ``[derivative.underlier]``.
             n_paths (int, default=1000): The number of simulated price paths of the
                 underlying instrument.
@@ -361,7 +362,9 @@ class Hedger(Module):
             tensor([..., ...])
         """
         derivative.simulate(n_paths=n_paths, init_state=init_state)
-        hedge = cast(List[Instrument], [derivative.ul()] if hedge is None else hedge)
+        hedge = cast(
+            List[BaseInstrument], [derivative.ul()] if hedge is None else hedge
+        )
 
         unit = self.compute_hedge(derivative, hedge=hedge)
 
@@ -373,8 +376,8 @@ class Hedger(Module):
 
     def compute_loss(
         self,
-        derivative: Derivative,
-        hedge: Optional[List[Instrument]] = None,
+        derivative: BaseDerivative,
+        hedge: Optional[List[BaseInstrument]] = None,
         n_paths: int = 1000,
         n_times: int = 1,
         init_state: Optional[Tuple[TensorOrScalar, ...]] = None,
@@ -387,8 +390,8 @@ class Hedger(Module):
         where ``pnl`` is given by :meth:`compute_pnl`.
 
         Args:
-            derivative (Derivative): The derivative to hedge.
-            hedge (list[Instrument], optional): The hedging instruments.
+            derivative (BaseDerivative): The derivative to hedge.
+            hedge (list[BaseInstrument], optional): The hedging instruments.
                 If ``None`` (default), use ``[derivative.underlier]``.
             n_paths (int, default=1000): The number of simulated price paths of the
                 underlying instrument.
@@ -432,7 +435,7 @@ class Hedger(Module):
 
     def _configure_optimizer(
         self,
-        derivative: Derivative,
+        derivative: BaseDerivative,
         optimizer: Union[Optimizer, Callable[..., Optimizer]],
     ) -> Optimizer:
         if not isinstance(optimizer, Optimizer):
@@ -450,8 +453,8 @@ class Hedger(Module):
 
     def fit(
         self,
-        derivative: Derivative,
-        hedge: Optional[List[Instrument]] = None,
+        derivative: BaseDerivative,
+        hedge: Optional[List[BaseInstrument]] = None,
         n_epochs: int = 100,
         n_paths: int = 1000,
         n_times: int = 1,
@@ -469,8 +472,8 @@ class Hedger(Module):
         validation loss after each simulation.
 
         Args:
-            derivative (Derivative): The derivative to hedge.
-            hedge (list[Instrument], optional): The hedging instruments.
+            derivative (BaseDerivative): The derivative to hedge.
+            hedge (list[BaseInstrument], optional): The hedging instruments.
                 If ``None`` (default), use ``[derivative.underlier]``.
             n_epochs (int, default=100): Number of Monte-Carlo simulations.
             n_paths (int, default=1000): The number of simulated price paths of the
@@ -565,8 +568,8 @@ class Hedger(Module):
 
     def price(
         self,
-        derivative: Derivative,
-        hedge: Optional[List[Instrument]] = None,
+        derivative: BaseDerivative,
+        hedge: Optional[List[BaseInstrument]] = None,
         n_paths: int = 1000,
         n_times: int = 1,
         init_state: Optional[Tuple[TensorOrScalar, ...]] = None,
@@ -575,8 +578,8 @@ class Hedger(Module):
         """Evaluate the premium of the given derivative.
 
         Args:
-            derivative (Derivative): The derivative to price.
-            hedge (list[Instrument], optional): The hedging instruments.
+            derivative (BaseDerivative): The derivative to price.
+            hedge (list[BaseInstrument], optional): The hedging instruments.
                 If ``None`` (default), use ``[derivative.underlier]``.
             n_paths (int, default=1000): The number of simulated price paths of the
                 underlying instrument.
