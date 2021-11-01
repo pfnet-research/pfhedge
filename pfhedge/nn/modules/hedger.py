@@ -92,7 +92,6 @@ class Hedger(Module):
           inputs=['log_moneyness', 'time_to_maturity', 'volatility', 'prev_hedge']
           (model): WhalleyWilmott(
             (bs): BSEuropeanOption(strike=1.)
-            (clamp): Clamp()
           )
           (criterion): EntropicRiskMeasure()
         )
