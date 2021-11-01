@@ -552,8 +552,8 @@ def ww_width(
     Args:
         gamma (torch.Tensor): The gamma of the derivative,
         spot (torch.Tensor): The spot price of the underlier.
-        cost (torch.Tensor): The cost rate of the underlier.
-        a (float, default=1.0): Risk aversion parameter in exponential utility.
+        cost (torch.Tensor or float): The cost rate of the underlier.
+        a (torch.Tensor or float, default=1.0): Risk aversion parameter in exponential utility.
 
     Returns:
         torch.Tensor
