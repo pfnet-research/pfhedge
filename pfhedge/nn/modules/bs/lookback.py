@@ -21,6 +21,16 @@ class BSLookbackOption(BSModuleMixin):
     Note:
         Risk-free rate is set to zero.
 
+    .. seealso::
+        - :class:`pfhedge.nn.BlackScholes`:
+          Initialize Black-Scholes formula module from a derivative.
+        - :class:`pfhedge.instruments.LookbackOption`:
+          Corresponding derivative.
+
+    References:
+        - Conze, A., 1991. Path dependent options: The case of lookback options.
+          The Journal of Finance, 46(5), pp.1893-1907.
+
     Args:
         call (bool, default=True): Specifies whether the option is call or put.
         strike (float, default=1.0): The strike price of the option.
@@ -32,18 +42,7 @@ class BSLookbackOption(BSModuleMixin):
         - Output: :math:`(N, *, 1)`.
           All but the last dimension are the same shape as the input.
 
-    .. seealso::
-        - :class:`pfhedge.nn.BlackScholes`:
-          Initialize Black-Scholes formula module from a derivative.
-        - :class:`pfhedge.instruments.LookBackOption`:
-          Corresponding derivative.
-
-    References:
-        - Conze, A., 1991. Path dependent options: The case of lookback options.
-          The Journal of Finance, 46(5), pp.1893-1907.
-
     Examples:
-
         >>> from pfhedge.nn import BSLookbackOption
         >>>
         >>> m = BSLookbackOption()
@@ -59,7 +58,7 @@ class BSLookbackOption(BSModuleMixin):
                 [1.0515]])
     """
 
-    def __init__(self, call: bool = True, strike: float = 1.0):
+    def __init__(self, call: bool = True, strike: float = 1.0) -> None:
         if not call:
             raise ValueError(
                 f"{self.__class__.__name__} for a put option is not yet supported."
@@ -107,7 +106,19 @@ class BSLookbackOption(BSModuleMixin):
         time_to_maturity: Tensor,
         volatility: Tensor,
     ) -> Tensor:
-        """Returns price of the derivative.
+        r"""Returns price of the derivative.
+
+        The price if given by:
+
+        .. math::
+            p = \begin{cases}
+                    S(0) \{
+                        N(d_1) + \sigma \sqrt{T} [N'(d_1) + d_1 N(d_1)]
+                    \} - K N(d_2)
+                    & (\max \leq K) \\
+                    ...
+                    & (\max > K) \\
+                \end{cases}
 
         Args:
             log_moneyness (torch.Tensor): Log moneyness of the underlying asset.
@@ -131,18 +142,19 @@ class BSLookbackOption(BSModuleMixin):
             (log_moneyness, max_log_moneyness, time_to_maturity, volatility),
         )
 
+        spot = s.exp() * self.strike
         d1_ = d1(s, t, v)
         d2_ = d2(s, t, v)
         e1 = (s - m + (v.square() / 2) * t) / (v * t.sqrt())  # d' in paper
         e2 = (s - m - (v.square() / 2) * t) / (v * t.sqrt())
 
-        # when max moneyness < strike
-        price_0 = self.strike * (
-            s.exp() * ncdf(d1_)
-            - ncdf(d2_)
-            + s.exp() * v * t.sqrt() * (d1_ * ncdf(d1_) + npdf(d1_))
+        # when max < strike
+        price_0 = (
+            spot * ncdf(d1_)
+            - self.strike * ncdf(d2_)
+            + spot * v * t.sqrt() * (d1_ * ncdf(d1_) + npdf(d1_))
         )
-        # when max moneyness >= strike
+        # when max >= strike
         price_1 = self.strike * (
             s.exp() * ncdf(e1)
             - m.exp() * ncdf(e2)

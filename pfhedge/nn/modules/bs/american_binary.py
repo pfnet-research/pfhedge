@@ -16,7 +16,7 @@ from ._base import BSModuleMixin
 
 
 class BSAmericanBinaryOption(BSModuleMixin):
-    """Black-Scholes formula for an American Binary Option.
+    """Black-Scholes formula for an american binary option.
 
     Note:
         Risk-free rate is set to zero.
