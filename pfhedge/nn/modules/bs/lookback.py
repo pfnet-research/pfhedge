@@ -7,8 +7,8 @@ from pfhedge._utils.bisect import find_implied_volatility
 from pfhedge._utils.doc import _set_attr_and_docstring
 from pfhedge._utils.doc import _set_docstring
 from pfhedge._utils.str import _format_float
-from pfhedge.nn.functional import d1
-from pfhedge.nn.functional import d2
+from pfhedge.nn.functional import d1 as compute_d1
+from pfhedge.nn.functional import d2 as compute_d2
 from pfhedge.nn.functional import ncdf
 from pfhedge.nn.functional import npdf
 
@@ -80,7 +80,6 @@ class BSLookbackOption(BSModuleMixin):
             BSLookbackOption
 
         Examples:
-
             >>> from pfhedge.instruments import BrownianStock
             >>> from pfhedge.instruments import LookbackOption
             >>>
@@ -108,17 +107,23 @@ class BSLookbackOption(BSModuleMixin):
     ) -> Tensor:
         r"""Returns price of the derivative.
 
-        The price if given by:
+        The price is given by:
 
         .. math::
-            p = \begin{cases}
-                    S(0) \{
-                        N(d_1) + \sigma \sqrt{T} [N'(d_1) + d_1 N(d_1)]
-                    \} - K N(d_2)
-                    & (\max \leq K) \\
-                    ...
-                    & (\max > K) \\
-                \end{cases}
+            \begin{cases}
+                S(0) \{
+                    N(d_1) + \sigma \sqrt{T} [N'(d_1) + d_1 N(d_1)]
+                \} - K N(d_2)
+                & (M \leq K) \\
+                S(0) \{
+                    N(d_1') + \sigma \sqrt{T} [N'(d_1') + d_1' N(d_1')]
+                \} - K + M [1 - N(d_2')]
+                & (M > K) \\
+            \end{cases}
+        where
+        :math:`M = \max_{t < 0} S(t)`,
+        :math:`d_1' = [\log(S(0) / M) + \frac12 \sigma^2 T] / \sigma \sqrt{T}`, and
+        :math:`d_2' = [\log(S(0) / M) - \frac12 \sigma^2 T] / \sigma \sqrt{T}`.
 
         Args:
             log_moneyness (torch.Tensor): Log moneyness of the underlying asset.
@@ -143,27 +148,24 @@ class BSLookbackOption(BSModuleMixin):
         )
 
         spot = s.exp() * self.strike
-        d1_ = d1(s, t, v)
-        d2_ = d2(s, t, v)
-        e1 = (s - m + (v.square() / 2) * t) / (v * t.sqrt())  # d' in paper
-        e2 = (s - m - (v.square() / 2) * t) / (v * t.sqrt())
+        max = m.exp() * self.strike
+        d1 = compute_d1(s, t, v)
+        d2 = compute_d2(s, t, v)
+        m1 = compute_d1(s - m, t, v)  # d' in the paper
+        m2 = compute_d2(s - m, t, v)
 
         # when max < strike
-        price_0 = (
-            spot * ncdf(d1_)
-            - self.strike * ncdf(d2_)
-            + spot * v * t.sqrt() * (d1_ * ncdf(d1_) + npdf(d1_))
-        )
+        price_0 = spot * (
+            ncdf(d1) + v * t.sqrt() * (d1 * ncdf(d1) + npdf(d1))
+        ) - self.strike * ncdf(d2)
         # when max >= strike
-        price_1 = self.strike * (
-            s.exp() * ncdf(e1)
-            - m.exp() * ncdf(e2)
-            + m.exp()
-            - 1
-            + s.exp() * v * t.sqrt() * (e1 * ncdf(e1) + npdf(e1))
+        price_1 = (
+            spot * (ncdf(m1) + v * t.sqrt() * (m1 * ncdf(m1) + npdf(m1)))
+            - self.strike
+            + max * (1 - ncdf(m2))
         )
 
-        return torch.where(m < 0, price_0, price_1)
+        return torch.where(max < self.strike, price_0, price_1)
 
     @torch.enable_grad()
     def delta(

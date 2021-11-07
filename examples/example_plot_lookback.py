@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import torch
 
 sys.path.append("..")
-from pfhedge.nn import BSEuropeanBinaryOption
+from pfhedge.nn import BSLookbackOption
 
 LOG_MONEYNESS_MIN = -0.2
 LOG_MONEYNESS_MAX = 0.2
@@ -17,87 +17,87 @@ TIME_TO_MATURITY_DEFAULT = 0.1
 
 
 def plot_delta() -> None:
-    m = BSEuropeanBinaryOption()
+    m = BSLookbackOption()
 
     plt.figure()
     for volatility in VOLATILITY_RANGE:
         s = S
         t = torch.full_like(s, TIME_TO_MATURITY_DEFAULT)
         v = torch.full_like(s, volatility)
-        y = m.delta(s, t, v)
+        y = m.delta(s, s, t, v)
         plt.plot(s, y, label=f"Volatility={volatility:.1f}")
     plt.xlabel("Log moneyness")
     plt.ylabel("Delta")
     plt.legend()
-    plt.savefig("./output/european-binary-delta-volatility.png")
+    plt.savefig("./output/lookback-delta-volatility.png")
 
     plt.figure()
     for time_to_maturity in TIME_TO_MATURITY_RANGE:
         s = S
         t = torch.full_like(s, time_to_maturity)
         v = torch.full_like(s, TIME_TO_MATURITY_DEFAULT)
-        y = m.delta(s, t, v)
+        y = m.delta(s, s, t, v)
         plt.plot(s, y, label=f"Time to maturity={time_to_maturity:.1f}")
     plt.xlabel("Log moneyness")
     plt.ylabel("Delta")
     plt.legend()
-    plt.savefig("./output/european-binary-delta-time.png")
+    plt.savefig("./output/lookback-delta-time.png")
 
 
 def plot_gamma() -> None:
-    m = BSEuropeanBinaryOption()
+    m = BSLookbackOption()
 
     plt.figure()
     for volatility in VOLATILITY_RANGE:
         s = S
         t = torch.full_like(s, TIME_TO_MATURITY_DEFAULT)
         v = torch.full_like(s, volatility)
-        y = m.gamma(s, t, v)
+        y = m.gamma(s, s, t, v)
         plt.plot(s, y, label=f"Volatility={volatility:.1f}")
     plt.xlabel("Log moneyness")
     plt.ylabel("Gamma")
     plt.legend()
-    plt.savefig("./output/european-binary-gamma-volatility.png")
+    plt.savefig("./output/lookback-gamma-volatility.png")
 
     plt.figure()
     for time_to_maturity in TIME_TO_MATURITY_RANGE:
         s = S
         t = torch.full_like(s, time_to_maturity)
         v = torch.full_like(s, TIME_TO_MATURITY_DEFAULT)
-        y = m.gamma(s, t, v)
+        y = m.gamma(s, s, t, v)
         plt.plot(s, y, label=f"Time to maturity={time_to_maturity:.1f}")
     plt.xlabel("Log moneyness")
     plt.ylabel("Gamma")
     plt.legend()
-    plt.savefig("./output/european-binary-gamma-time.png")
+    plt.savefig("./output/lookback-gamma-time.png")
 
 
 def plot_price() -> None:
-    m = BSEuropeanBinaryOption()
+    m = BSLookbackOption()
 
     plt.figure()
     for volatility in VOLATILITY_RANGE:
         s = S
         t = torch.full_like(s, TIME_TO_MATURITY_DEFAULT)
         v = torch.full_like(s, volatility)
-        y = m.price(s, t, v)
+        y = m.price(s, s, t, v)
         plt.plot(s, y, label=f"Volatility={volatility:.1f}")
     plt.xlabel("Log moneyness")
     plt.ylabel("Price")
     plt.legend()
-    plt.savefig("./output/european-binary-price-volatility.png")
+    plt.savefig("./output/lookback-price-volatility.png")
 
     plt.figure()
     for time_to_maturity in TIME_TO_MATURITY_RANGE:
         s = S
         t = torch.full_like(s, time_to_maturity)
         v = torch.full_like(s, TIME_TO_MATURITY_DEFAULT)
-        y = m.price(s, t, v)
+        y = m.price(s, s, t, v)
         plt.plot(s, y, label=f"Time to maturity={time_to_maturity:.1f}")
     plt.xlabel("Log moneyness")
     plt.ylabel("Price")
     plt.legend()
-    plt.savefig("./output/european-binary-price-time.png")
+    plt.savefig("./output/lookback-price-time.png")
 
 
 def main():

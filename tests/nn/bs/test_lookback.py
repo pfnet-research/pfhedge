@@ -142,18 +142,22 @@ class TestBSLookbackOption(_TestBSModule):
         result1 = compute_price(m, torch.tensor([[1e-5, 1e-5, 0.1, 0.2]]))
         assert_close(result0, result1, atol=1e-4, rtol=0)
 
-    # TODO(simaki): monte carlo test
+    # # TODO(simaki): monte carlo test
 
     # def test_check_price_monte_carlo(self):
     #     torch.manual_seed(42)
 
-    #     d = LookbackOption(BrownianStock(), strike=1.03)
+    #     k = 1.01
+    #     d = LookbackOption(BrownianStock(), strike=k)
     #     m = BSLookbackOption.from_derivative(d)
-    #     d.simulate(n_paths=int(1e6))
+    #     d.simulate(n_paths=int(1e6), init_state=(1.0,))
 
-    #     input = torch.tensor([[0.0, 0.0, d.maturity, d.ul().sigma]])
+    #     s = torch.tensor([1.0 / k]).log()
+    #     input = torch.tensor([[s, s, d.maturity, d.ul().sigma]])
     #     result = compute_price(m, input)
     #     expect = d.payoff().mean(0, keepdim=True)
+    #     print(d.payoff().max())
+    #     print(d.payoff().min())
     #     print(result, expect)
     #     assert_close(result, expect, rtol=1e-2, atol=0.0)
 

@@ -1,11 +1,14 @@
+import sys
+
 import matplotlib.pyplot as plt
 import torch
 
+sys.path.append("..")
 from pfhedge.nn import BSEuropeanOption
 
 LOG_MONEYNESS_MIN = -0.2
 LOG_MONEYNESS_MAX = 0.2
-LOG_MONEYNESS_STEPS = 100
+LOG_MONEYNESS_STEPS = 1000
 S = torch.linspace(LOG_MONEYNESS_MIN, LOG_MONEYNESS_MAX, LOG_MONEYNESS_STEPS)
 VOLATILITY_RANGE = [0.1, 0.2, 0.3]
 VOLATILITY_DEFAULT = 0.1
