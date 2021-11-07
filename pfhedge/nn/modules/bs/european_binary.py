@@ -80,7 +80,6 @@ class BSEuropeanBinaryOption(BSModuleMixin):
             BSEuropeanBinaryOption
 
         Examples:
-
             >>> from pfhedge.instruments import BrownianStock
             >>> from pfhedge.instruments import EuropeanBinaryOption
             >>>
@@ -147,7 +146,8 @@ class BSEuropeanBinaryOption(BSModuleMixin):
         """
         s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
 
-        delta = npdf(d2(s, t, v)) / (self.strike * s.exp() * v * t.sqrt())
+        spot = s.exp() * self.strike
+        delta = npdf(d2(s, t, v)) / (spot * v * t.sqrt())
         return delta
 
     def gamma(
@@ -169,6 +169,7 @@ class BSEuropeanBinaryOption(BSModuleMixin):
         Returns:
             torch.Tensor
         """
+        # TODO(simaki): Directly compute gamma.
         return super().gamma(
             strike=self.strike,
             log_moneyness=log_moneyness,
