@@ -10,7 +10,7 @@ from .clamp import Clamp
 
 
 class WhalleyWilmott(Module):
-    r"""Initialize Whalley-Wilmott's hedging strategy of a derivative.
+    r"""Creates a module for Whalley-Wilmott's hedging strategy.
 
     The ``forward`` method returns the next hedge ratio.
 
@@ -20,7 +20,6 @@ class WhalleyWilmott(Module):
     The half-width of the no-transaction band is given by
 
     .. math::
-
         w = \left( \frac{3 c \Gamma^2 S}{2 a} \right)^{1 / 3} \,,
 
     where :math:`c` is the transaction cost rate,
@@ -55,7 +54,6 @@ class WhalleyWilmott(Module):
         - Output: :math:`(N, *, 1)`.
 
     Examples:
-
         An example for :class:`pfhedge.instruments.EuropeanOption`.
 
         >>> import torch

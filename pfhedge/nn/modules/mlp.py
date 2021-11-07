@@ -13,7 +13,7 @@ from torch.nn import Sequential
 
 
 class MultiLayerPerceptron(Sequential):
-    """A feed-forward neural network.
+    r"""Creates a multilayer perceptron.
 
     Number of input features is lazily determined.
 
@@ -36,12 +36,12 @@ class MultiLayerPerceptron(Sequential):
             Default is a :class:`torch.nn.Identity` instance.
 
     Shape:
-        - Input: :math:`(N, *, H_{\\text{in}})` where
+        - Input: :math:`(N, *, H_{\text{in}})` where
           :math:`*` means any number of additional dimensions and
-          :math:`H_{\\text{in}}` is the number of input features.
-        - Output: :math:`(N, *, H_{\\text{out}})` where
+          :math:`H_{\text{in}}` is the number of input features.
+        - Output: :math:`(N, *, H_{\text{out}})` where
           all but the last dimension are the same shape as the input and
-          :math:`H_{\\text{out}}` is the number of output features.
+          :math:`H_{\text{out}}` is the number of output features.
 
     Examples:
 
