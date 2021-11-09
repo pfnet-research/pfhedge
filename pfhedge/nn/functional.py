@@ -207,6 +207,9 @@ def expected_shortfall(input: Tensor, p: float, dim: Optional[int] = None) -> Te
         p (float): The quantile level.
         dim (int, optional): The dimension to sort along.
 
+    Returns:
+        torch.Tensor
+
     Examples:
         >>> from pfhedge.nn.functional import expected_shortfall
         >>>
@@ -215,9 +218,6 @@ def expected_shortfall(input: Tensor, p: float, dim: Optional[int] = None) -> Te
         tensor([-0., -1., -2., -3., -4., -5., -6., -7., -8., -9.])
         >>> expected_shortfall(input, 0.3)
         tensor(8.)
-
-    Returns:
-        torch.Tensor
     """
     if dim is None:
         return -topp(input, p=p, largest=False).values.mean()
@@ -246,6 +246,9 @@ def value_at_risk(input: Tensor, p: float, dim: Optional[int] = None) -> Tensor:
         p (float): The quantile level.
         dim (int, optional): The dimension to sort along.
 
+    Returns:
+        torch.Tensor
+
     Examples:
         >>> from pfhedge.nn.functional import value_at_risk
         >>>
@@ -254,9 +257,6 @@ def value_at_risk(input: Tensor, p: float, dim: Optional[int] = None) -> Tensor:
         tensor([-0., -1., -2., -3., -4., -5., -6., -7., -8., -9.])
         >>> value_at_risk(input, 0.3)
         tensor(-7.)
-
-    Returns:
-        torch.Tensor
     """
     n = input.numel() if dim is None else input.size(dim)
 
