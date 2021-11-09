@@ -450,7 +450,12 @@ def terminal_value(
 
 
 def ncdf(input: Tensor) -> Tensor:
-    """Returns a new tensor with the normal cumulative distribution function.
+    r"""Returns a new tensor with the normal cumulative distribution function.
+
+    .. math::
+        \text{ncdf}(x) =
+            \int_{-\infty}^x
+            \frac{1}{\sqrt{2 \pi}} e^{-\frac{y^2}{2}} dy
 
     Args:
         input (torch.Tensor): The input tensor.
@@ -469,7 +474,10 @@ def ncdf(input: Tensor) -> Tensor:
 
 
 def npdf(input: Tensor) -> Tensor:
-    """Returns a new tensor with the normal distribution function.
+    r"""Returns a new tensor with the normal distribution function.
+
+    .. math::
+        \text{npdf}(x) = \frac{1}{\sqrt{2 \pi}} e^{-\frac{x^2}{2}}
 
     Args:
         input (torch.Tensor): The input tensor.
@@ -491,7 +499,6 @@ def d1(log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor) -> T
     r"""Returns :math:`d_1` in the Black-Scholes formula.
 
     .. math::
-
         d_1 = \frac{s + \frac12 \sigma^2 t}{\sigma \sqrt{t}}
 
     where
@@ -518,7 +525,6 @@ def d2(log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor) -> T
     r"""Returns :math:`d_2` in the Black-Scholes formula.
 
     .. math::
-
         d_2 = \frac{s - \frac12 \sigma^2 t}{\sigma \sqrt{t}}
 
     where

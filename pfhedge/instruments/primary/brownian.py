@@ -115,7 +115,7 @@ class BrownianStock(Primary):
             init_state (tuple[torch.Tensor | float], optional): The initial state of
                 the instrument.
                 This is specified by a tuple :math:`(S(0),)` where
-                :math:`spot` is the initial value of the spot price.
+                :math:`S(0)` is the initial value of the spot price.
                 If ``None`` (default), it uses the default value
                 (See :attr:`default_init_state`).
                 It also accepts a :class:`float` or a :class:`torch.Tensor`.
