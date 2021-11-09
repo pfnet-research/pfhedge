@@ -183,13 +183,13 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../nn.functional.html">pfhedge.nn.functional</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../../instruments.html">pfhedge.instruments</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.Instrument.html">Instrument</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.Primary.html">Primary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.BaseInstrument.html">BaseInstrument</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.BasePrimary.html">BasePrimary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.BaseDerivative.html">BaseDerivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.HestonStock.html">HestonStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.CIRRate.html">CIRRate</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.Derivative.html">Derivative</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
@@ -251,10 +251,10 @@
 <span class="kn">from</span> <span class="nn">pfhedge._utils.typing</span> <span class="kn">import</span> <span class="n">TensorOrScalar</span>
 <span class="kn">from</span> <span class="nn">pfhedge.stochastic</span> <span class="kn">import</span> <span class="n">generate_cir</span>
 
-<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">Primary</span>
+<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">BasePrimary</span>
 
 
-<div class="viewcode-block" id="CIRRate"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.CIRRate.html#pfhedge.instruments.CIRRate">[docs]</a><span class="k">class</span> <span class="nc">CIRRate</span><span class="p">(</span><span class="n">Primary</span><span class="p">):</span>
+<div class="viewcode-block" id="CIRRate"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.CIRRate.html#pfhedge.instruments.CIRRate">[docs]</a><span class="k">class</span> <span class="nc">CIRRate</span><span class="p">(</span><span class="n">BasePrimary</span><span class="p">):</span>
     <span class="sd">"""A rate which follow the CIR process.</span>
 
 <span class="sd">    .. seealso::</span>
@@ -373,8 +373,8 @@
 
 
 <span class="c1"># Assign docstrings so they appear in Sphinx documentation</span>
-<span class="n">_set_docstring</span><span class="p">(</span><span class="n">CIRRate</span><span class="p">,</span> <span class="s2">"default_init_state"</span><span class="p">,</span> <span class="n">Primary</span><span class="o">.</span><span class="n">default_init_state</span><span class="p">)</span>
-<span class="n">_set_attr_and_docstring</span><span class="p">(</span><span class="n">CIRRate</span><span class="p">,</span> <span class="s2">"to"</span><span class="p">,</span> <span class="n">Primary</span><span class="o">.</span><span class="n">to</span><span class="p">)</span>
+<span class="n">_set_docstring</span><span class="p">(</span><span class="n">CIRRate</span><span class="p">,</span> <span class="s2">"default_init_state"</span><span class="p">,</span> <span class="n">BasePrimary</span><span class="o">.</span><span class="n">default_init_state</span><span class="p">)</span>
+<span class="n">_set_attr_and_docstring</span><span class="p">(</span><span class="n">CIRRate</span><span class="p">,</span> <span class="s2">"to"</span><span class="p">,</span> <span class="n">BasePrimary</span><span class="o">.</span><span class="n">to</span><span class="p">)</span>
 </pre></div>
         </article>
       </div>

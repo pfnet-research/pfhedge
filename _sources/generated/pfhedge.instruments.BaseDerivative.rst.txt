@@ -3,10 +3,10 @@
 .. currentmodule:: pfhedge.instruments
 
 
-Derivative
-==========
+BaseDerivative
+==============
 
-.. autoclass:: Derivative
+.. autoclass:: BaseDerivative
     :members:
 
 

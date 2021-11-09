@@ -184,13 +184,13 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../nn.functional.html">pfhedge.nn.functional</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../instruments.html">pfhedge.instruments</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.Instrument.html">Instrument</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.Primary.html">Primary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BaseInstrument.html">BaseInstrument</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BasePrimary.html">BasePrimary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BaseDerivative.html">BaseDerivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.HestonStock.html">HestonStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.CIRRate.html">CIRRate</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.Derivative.html">Derivative</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
@@ -312,7 +312,6 @@ See <a class="reference internal" href="pfhedge.nn.WhalleyWilmott.html#pfhedge.n
 <span class="go">  inputs=['log_moneyness', 'time_to_maturity', 'volatility', 'prev_hedge']</span>
 <span class="go">  (model): WhalleyWilmott(</span>
 <span class="go">    (bs): BSEuropeanOption(strike=1.)</span>
-<span class="go">    (clamp): Clamp()</span>
 <span class="go">  )</span>
 <span class="go">  (criterion): EntropicRiskMeasure()</span>
 <span class="go">)</span>
@@ -355,7 +354,7 @@ See <a class="reference internal" href="pfhedge.nn.MultiLayerPerceptron.html#pfh
 </pre></div>
 </div>
 <p>It is possible to hedge a derivative with another listed derivative by
-<code class="docutils literal notranslate"><span class="pre">Derivative.list()</span></code> method.</p>
+<code class="docutils literal notranslate"><span class="pre">list()</span></code> method.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">LookbackOption</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">BlackScholes</span>
 <span class="go">&gt;&gt;&gt;</span>
@@ -409,8 +408,8 @@ It assumes that the derivative is already simulated.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>derivative</strong> (<a class="reference internal" href="pfhedge.instruments.Derivative.html#pfhedge.instruments.Derivative" title="pfhedge.instruments.Derivative"><em>Derivative</em></a>) – The derivative to hedge.</p></li>
-<li><p><strong>hedge</strong> (<a class="reference internal" href="pfhedge.instruments.Instrument.html#pfhedge.instruments.Instrument" title="pfhedge.instruments.Instrument"><em>Instrument</em></a><em>, </em><em>optional</em>) – The hedging instrument.
+<li><p><strong>derivative</strong> (<a class="reference internal" href="pfhedge.instruments.BaseDerivative.html#pfhedge.instruments.BaseDerivative" title="pfhedge.instruments.BaseDerivative"><em>BaseDerivative</em></a>) – The derivative to hedge.</p></li>
+<li><p><strong>hedge</strong> (<a class="reference internal" href="pfhedge.instruments.BaseInstrument.html#pfhedge.instruments.BaseInstrument" title="pfhedge.instruments.BaseInstrument"><em>BaseInstrument</em></a><em>, </em><em>optional</em>) – The hedging instrument.
 If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), use <code class="docutils literal notranslate"><span class="pre">derivative.underlier</span></code>.</p></li>
 </ul>
 </dd>
@@ -458,8 +457,8 @@ where <code class="docutils literal notranslate"><span class="pre">pnl</span></c
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>derivative</strong> (<a class="reference internal" href="pfhedge.instruments.Derivative.html#pfhedge.instruments.Derivative" title="pfhedge.instruments.Derivative"><em>Derivative</em></a>) – The derivative to hedge.</p></li>
-<li><p><strong>hedge</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a><em>[</em><a class="reference internal" href="pfhedge.instruments.Instrument.html#pfhedge.instruments.Instrument" title="pfhedge.instruments.Instrument"><em>Instrument</em></a><em>]</em><em>, </em><em>optional</em>) – The hedging instruments.
+<li><p><strong>derivative</strong> (<a class="reference internal" href="pfhedge.instruments.BaseDerivative.html#pfhedge.instruments.BaseDerivative" title="pfhedge.instruments.BaseDerivative"><em>BaseDerivative</em></a>) – The derivative to hedge.</p></li>
+<li><p><strong>hedge</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a><em>[</em><a class="reference internal" href="pfhedge.instruments.BaseInstrument.html#pfhedge.instruments.BaseInstrument" title="pfhedge.instruments.BaseInstrument"><em>BaseInstrument</em></a><em>]</em><em>, </em><em>optional</em>) – The hedging instruments.
 If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), use <code class="docutils literal notranslate"><span class="pre">[derivative.underlier]</span></code>.</p></li>
 <li><p><strong>n_paths</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>default=1000</em>) – The number of simulated price paths of the
 underlying instrument.</p></li>
@@ -510,8 +509,8 @@ terminal portyol value after hedging a derivative.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>derivative</strong> (<a class="reference internal" href="pfhedge.instruments.Derivative.html#pfhedge.instruments.Derivative" title="pfhedge.instruments.Derivative"><em>Derivative</em></a>) – The derivative to hedge.</p></li>
-<li><p><strong>hedge</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a><em>[</em><a class="reference internal" href="pfhedge.instruments.Instrument.html#pfhedge.instruments.Instrument" title="pfhedge.instruments.Instrument"><em>Instrument</em></a><em>]</em><em>, </em><em>optional</em>) – The hedging instruments.
+<li><p><strong>derivative</strong> (<a class="reference internal" href="pfhedge.instruments.BaseDerivative.html#pfhedge.instruments.BaseDerivative" title="pfhedge.instruments.BaseDerivative"><em>BaseDerivative</em></a>) – The derivative to hedge.</p></li>
+<li><p><strong>hedge</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a><em>[</em><a class="reference internal" href="pfhedge.instruments.BaseInstrument.html#pfhedge.instruments.BaseInstrument" title="pfhedge.instruments.BaseInstrument"><em>BaseInstrument</em></a><em>]</em><em>, </em><em>optional</em>) – The hedging instruments.
 If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), use <code class="docutils literal notranslate"><span class="pre">[derivative.underlier]</span></code>.</p></li>
 <li><p><strong>n_paths</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>default=1000</em>) – The number of simulated price paths of the
 underlying instrument.</p></li>
@@ -558,8 +557,8 @@ validation loss after each simulation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>derivative</strong> (<a class="reference internal" href="pfhedge.instruments.Derivative.html#pfhedge.instruments.Derivative" title="pfhedge.instruments.Derivative"><em>Derivative</em></a>) – The derivative to hedge.</p></li>
-<li><p><strong>hedge</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a><em>[</em><a class="reference internal" href="pfhedge.instruments.Instrument.html#pfhedge.instruments.Instrument" title="pfhedge.instruments.Instrument"><em>Instrument</em></a><em>]</em><em>, </em><em>optional</em>) – The hedging instruments.
+<li><p><strong>derivative</strong> (<a class="reference internal" href="pfhedge.instruments.BaseDerivative.html#pfhedge.instruments.BaseDerivative" title="pfhedge.instruments.BaseDerivative"><em>BaseDerivative</em></a>) – The derivative to hedge.</p></li>
+<li><p><strong>hedge</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a><em>[</em><a class="reference internal" href="pfhedge.instruments.BaseInstrument.html#pfhedge.instruments.BaseInstrument" title="pfhedge.instruments.BaseInstrument"><em>BaseInstrument</em></a><em>]</em><em>, </em><em>optional</em>) – The hedging instruments.
 If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), use <code class="docutils literal notranslate"><span class="pre">[derivative.underlier]</span></code>.</p></li>
 <li><p><strong>n_epochs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>default=100</em>) – Number of Monte-Carlo simulations.</p></li>
 <li><p><strong>n_paths</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>default=1000</em>) – The number of simulated price paths of the
@@ -645,7 +644,7 @@ before calling this method.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>derivative</strong> (<a class="reference internal" href="pfhedge.instruments.Derivative.html#pfhedge.instruments.Derivative" title="pfhedge.instruments.Derivative"><em>Derivative</em></a>) – The derivative used for getting the input.</p></li>
+<li><p><strong>derivative</strong> (<a class="reference internal" href="pfhedge.instruments.BaseDerivative.html#pfhedge.instruments.BaseDerivative" title="pfhedge.instruments.BaseDerivative"><em>BaseDerivative</em></a>) – The derivative used for getting the input.</p></li>
 <li><p><strong>time_step</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>optional</em>) – The time step to get the input tensor.
 If <code class="docutils literal notranslate"><span class="pre">None</span></code> an input tensor for all time steps is returned.</p></li>
 </ul>
@@ -687,8 +686,8 @@ If <code class="docutils literal notranslate"><span class="pre">time_step</span>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>derivative</strong> (<a class="reference internal" href="pfhedge.instruments.Derivative.html#pfhedge.instruments.Derivative" title="pfhedge.instruments.Derivative"><em>Derivative</em></a>) – The derivative to price.</p></li>
-<li><p><strong>hedge</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a><em>[</em><a class="reference internal" href="pfhedge.instruments.Instrument.html#pfhedge.instruments.Instrument" title="pfhedge.instruments.Instrument"><em>Instrument</em></a><em>]</em><em>, </em><em>optional</em>) – The hedging instruments.
+<li><p><strong>derivative</strong> (<a class="reference internal" href="pfhedge.instruments.BaseDerivative.html#pfhedge.instruments.BaseDerivative" title="pfhedge.instruments.BaseDerivative"><em>BaseDerivative</em></a>) – The derivative to price.</p></li>
+<li><p><strong>hedge</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a><em>[</em><a class="reference internal" href="pfhedge.instruments.BaseInstrument.html#pfhedge.instruments.BaseInstrument" title="pfhedge.instruments.BaseInstrument"><em>BaseInstrument</em></a><em>]</em><em>, </em><em>optional</em>) – The hedging instruments.
 If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), use <code class="docutils literal notranslate"><span class="pre">[derivative.underlier]</span></code>.</p></li>
 <li><p><strong>n_paths</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>default=1000</em>) – The number of simulated price paths of the
 underlying instrument.</p></li>

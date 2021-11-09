@@ -183,13 +183,13 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../nn.functional.html">pfhedge.nn.functional</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../../instruments.html">pfhedge.instruments</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.Instrument.html">Instrument</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.Primary.html">Primary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.BaseInstrument.html">BaseInstrument</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.BasePrimary.html">BasePrimary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.BaseDerivative.html">BaseDerivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.HestonStock.html">HestonStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.CIRRate.html">CIRRate</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.Derivative.html">Derivative</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
@@ -249,9 +249,9 @@
 <span class="kn">from</span> <span class="nn">pfhedge._utils.str</span> <span class="kn">import</span> <span class="n">_format_float</span>
 <span class="kn">from</span> <span class="nn">pfhedge.nn.functional</span> <span class="kn">import</span> <span class="n">european_payoff</span>
 
-<span class="kn">from</span> <span class="nn">..primary.base</span> <span class="kn">import</span> <span class="n">Primary</span>
+<span class="kn">from</span> <span class="nn">..primary.base</span> <span class="kn">import</span> <span class="n">BasePrimary</span>
+<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">BaseDerivative</span>
 <span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">BaseOption</span>
-<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">Derivative</span>
 
 
 <div class="viewcode-block" id="EuropeanOption"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.EuropeanOption.html#pfhedge.instruments.EuropeanOption">[docs]</a><span class="k">class</span> <span class="nc">EuropeanOption</span><span class="p">(</span><span class="n">BaseOption</span><span class="p">):</span>
@@ -280,7 +280,7 @@
 <span class="sd">        :func:`pfhedge.nn.functional.european_payoff`: Payoff function.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        underlier (:class:`Primary`): The underlying instrument of the option.</span>
+<span class="sd">        underlier (:class:`BasePrimary`): The underlying instrument of the option.</span>
 <span class="sd">        call (bool, default=True): Specifies whether the option is call or put.</span>
 <span class="sd">        strike (float, default=1.0): The strike price of the option.</span>
 <span class="sd">        maturity (float, default=20/250): The maturity of the option.</span>
@@ -357,7 +357,7 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">underlier</span><span class="p">:</span> <span class="n">Primary</span><span class="p">,</span>
+        <span class="n">underlier</span><span class="p">:</span> <span class="n">BasePrimary</span><span class="p">,</span>
         <span class="n">call</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">strike</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
         <span class="n">maturity</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">20</span> <span class="o">/</span> <span class="mi">250</span><span class="p">,</span>
@@ -391,11 +391,11 @@
 
 
 <span class="c1"># Assign docstrings so they appear in Sphinx documentation</span>
-<span class="n">_set_attr_and_docstring</span><span class="p">(</span><span class="n">EuropeanOption</span><span class="p">,</span> <span class="s2">"simulate"</span><span class="p">,</span> <span class="n">Derivative</span><span class="o">.</span><span class="n">simulate</span><span class="p">)</span>
-<span class="n">_set_attr_and_docstring</span><span class="p">(</span><span class="n">EuropeanOption</span><span class="p">,</span> <span class="s2">"to"</span><span class="p">,</span> <span class="n">Derivative</span><span class="o">.</span><span class="n">to</span><span class="p">)</span>
-<span class="n">_set_attr_and_docstring</span><span class="p">(</span><span class="n">EuropeanOption</span><span class="p">,</span> <span class="s2">"ul"</span><span class="p">,</span> <span class="n">Derivative</span><span class="o">.</span><span class="n">ul</span><span class="p">)</span>
-<span class="n">_set_attr_and_docstring</span><span class="p">(</span><span class="n">EuropeanOption</span><span class="p">,</span> <span class="s2">"list"</span><span class="p">,</span> <span class="n">Derivative</span><span class="o">.</span><span class="n">list</span><span class="p">)</span>
-<span class="n">_set_docstring</span><span class="p">(</span><span class="n">EuropeanOption</span><span class="p">,</span> <span class="s2">"payoff"</span><span class="p">,</span> <span class="n">Derivative</span><span class="o">.</span><span class="n">payoff</span><span class="p">)</span>
+<span class="n">_set_attr_and_docstring</span><span class="p">(</span><span class="n">EuropeanOption</span><span class="p">,</span> <span class="s2">"simulate"</span><span class="p">,</span> <span class="n">BaseDerivative</span><span class="o">.</span><span class="n">simulate</span><span class="p">)</span>
+<span class="n">_set_attr_and_docstring</span><span class="p">(</span><span class="n">EuropeanOption</span><span class="p">,</span> <span class="s2">"to"</span><span class="p">,</span> <span class="n">BaseDerivative</span><span class="o">.</span><span class="n">to</span><span class="p">)</span>
+<span class="n">_set_attr_and_docstring</span><span class="p">(</span><span class="n">EuropeanOption</span><span class="p">,</span> <span class="s2">"ul"</span><span class="p">,</span> <span class="n">BaseDerivative</span><span class="o">.</span><span class="n">ul</span><span class="p">)</span>
+<span class="n">_set_attr_and_docstring</span><span class="p">(</span><span class="n">EuropeanOption</span><span class="p">,</span> <span class="s2">"list"</span><span class="p">,</span> <span class="n">BaseDerivative</span><span class="o">.</span><span class="n">list</span><span class="p">)</span>
+<span class="n">_set_docstring</span><span class="p">(</span><span class="n">EuropeanOption</span><span class="p">,</span> <span class="s2">"payoff"</span><span class="p">,</span> <span class="n">BaseDerivative</span><span class="o">.</span><span class="n">payoff</span><span class="p">)</span>
 <span class="n">_set_attr_and_docstring</span><span class="p">(</span><span class="n">EuropeanOption</span><span class="p">,</span> <span class="s2">"moneyness"</span><span class="p">,</span> <span class="n">BaseOption</span><span class="o">.</span><span class="n">moneyness</span><span class="p">)</span>
 <span class="n">_set_attr_and_docstring</span><span class="p">(</span><span class="n">EuropeanOption</span><span class="p">,</span> <span class="s2">"log_moneyness"</span><span class="p">,</span> <span class="n">BaseOption</span><span class="o">.</span><span class="n">log_moneyness</span><span class="p">)</span>
 <span class="n">_set_attr_and_docstring</span><span class="p">(</span><span class="n">EuropeanOption</span><span class="p">,</span> <span class="s2">"time_to_maturity"</span><span class="p">,</span> <span class="n">BaseOption</span><span class="o">.</span><span class="n">time_to_maturity</span><span class="p">)</span>

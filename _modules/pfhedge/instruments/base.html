@@ -183,13 +183,13 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../nn.functional.html">pfhedge.nn.functional</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../instruments.html">pfhedge.instruments</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.Instrument.html">Instrument</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.Primary.html">Primary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.BaseInstrument.html">BaseInstrument</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.BasePrimary.html">BasePrimary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.BaseDerivative.html">BaseDerivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.HestonStock.html">HestonStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.CIRRate.html">CIRRate</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.Derivative.html">Derivative</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
@@ -249,10 +249,10 @@
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
 
-<span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"T"</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">"Instrument"</span><span class="p">)</span>
+<span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"T"</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">"BaseInstrument"</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="Instrument"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.Instrument.html#pfhedge.instruments.Instrument">[docs]</a><span class="k">class</span> <span class="nc">Instrument</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseInstrument"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.BaseInstrument.html#pfhedge.instruments.BaseInstrument">[docs]</a><span class="k">class</span> <span class="nc">BaseInstrument</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
     <span class="sd">"""Base class for all financial instruments."""</span>
 
     <span class="n">cost</span><span class="p">:</span> <span class="nb">float</span>
@@ -262,7 +262,7 @@
     <span class="k">def</span> <span class="nf">spot</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
         <span class="sd">"""Returns the spot price of self."""</span>
 
-<div class="viewcode-block" id="Instrument.simulate"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.Instrument.html#pfhedge.instruments.Instrument.simulate">[docs]</a>    <span class="nd">@abstractmethod</span>
+<div class="viewcode-block" id="BaseInstrument.simulate"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.BaseInstrument.html#pfhedge.instruments.BaseInstrument.simulate">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="nd">@no_type_check</span>
     <span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_paths</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">time_horizon</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">"""Simulate time series associated with the instrument itself</span>
@@ -277,7 +277,7 @@
 <span class="sd">            None</span>
 <span class="sd">        """</span></div>
 
-<div class="viewcode-block" id="Instrument.to"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.Instrument.html#pfhedge.instruments.Instrument.to">[docs]</a>    <span class="nd">@abstractmethod</span>
+<div class="viewcode-block" id="BaseInstrument.to"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.BaseInstrument.html#pfhedge.instruments.BaseInstrument.to">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">to</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
         <span class="sd">"""Moves and/or casts the buffers of the instrument.</span>
 
@@ -310,7 +310,7 @@
 <span class="sd">            tensor (torch.Tensor): Tensor whose dtype and device are</span>
 <span class="sd">                the desired dtype and device of</span>
 <span class="sd">                the buffers in this instrument.</span>
-<span class="sd">            instrument (Instrument): Instrument whose dtype and device are</span>
+<span class="sd">            instrument (BaseInstrument): Instrument whose dtype and device are</span>
 <span class="sd">                the desired dtype and device of</span>
 <span class="sd">                the buffers in this instrument.</span>
 
@@ -318,7 +318,7 @@
 <span class="sd">            self</span>
 <span class="sd">        """</span></div>
 
-<div class="viewcode-block" id="Instrument.cpu"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.Instrument.html#pfhedge.instruments.Instrument.cpu">[docs]</a>    <span class="k">def</span> <span class="nf">cpu</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+<div class="viewcode-block" id="BaseInstrument.cpu"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.BaseInstrument.html#pfhedge.instruments.BaseInstrument.cpu">[docs]</a>    <span class="k">def</span> <span class="nf">cpu</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
         <span class="sd">"""Moves all buffers of this instrument and its underlier to the CPU.</span>
 
 <span class="sd">        Note:</span>
@@ -329,7 +329,7 @@
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">"cpu"</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="Instrument.cuda"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.Instrument.html#pfhedge.instruments.Instrument.cuda">[docs]</a>    <span class="k">def</span> <span class="nf">cuda</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+<div class="viewcode-block" id="BaseInstrument.cuda"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.BaseInstrument.html#pfhedge.instruments.BaseInstrument.cuda">[docs]</a>    <span class="k">def</span> <span class="nf">cuda</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
         <span class="sd">"""Moves all buffers of this instrument and its underlier to the GPU.</span>
 
 <span class="sd">        Note:</span>
@@ -344,7 +344,7 @@
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="sa">f</span><span class="s2">"cuda:</span><span class="si">{</span><span class="n">device</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="n">device</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">"cuda"</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="Instrument.double"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.Instrument.html#pfhedge.instruments.Instrument.double">[docs]</a>    <span class="k">def</span> <span class="nf">double</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+<div class="viewcode-block" id="BaseInstrument.double"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.BaseInstrument.html#pfhedge.instruments.BaseInstrument.double">[docs]</a>    <span class="k">def</span> <span class="nf">double</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
         <span class="sd">"""Casts all floating point parameters and buffers to</span>
 <span class="sd">        ``torch.float64`` datatype.</span>
 
@@ -356,7 +356,7 @@
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Instrument.float"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.Instrument.html#pfhedge.instruments.Instrument.float">[docs]</a>    <span class="k">def</span> <span class="nf">float</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+<div class="viewcode-block" id="BaseInstrument.float"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.BaseInstrument.html#pfhedge.instruments.BaseInstrument.float">[docs]</a>    <span class="k">def</span> <span class="nf">float</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
         <span class="sd">"""Casts all floating point parameters and buffers to</span>
 <span class="sd">        ``torch.float32`` datatype.</span>
 
@@ -368,7 +368,7 @@
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Instrument.half"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.Instrument.html#pfhedge.instruments.Instrument.half">[docs]</a>    <span class="k">def</span> <span class="nf">half</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+<div class="viewcode-block" id="BaseInstrument.half"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.BaseInstrument.html#pfhedge.instruments.BaseInstrument.half">[docs]</a>    <span class="k">def</span> <span class="nf">half</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
         <span class="sd">"""Casts all floating point parameters and buffers to</span>
 <span class="sd">        ``torch.float16`` datatype.</span>
 
@@ -380,7 +380,7 @@
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">float16</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Instrument.bfloat16"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.Instrument.html#pfhedge.instruments.Instrument.bfloat16">[docs]</a>    <span class="k">def</span> <span class="nf">bfloat16</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+<div class="viewcode-block" id="BaseInstrument.bfloat16"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.BaseInstrument.html#pfhedge.instruments.BaseInstrument.bfloat16">[docs]</a>    <span class="k">def</span> <span class="nf">bfloat16</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
         <span class="sd">"""Casts all floating point parameters and buffers to</span>
 <span class="sd">        ``torch.bfloat16`` datatype.</span>
 
@@ -392,7 +392,7 @@
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">bfloat16</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Instrument.extra_repr"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.Instrument.html#pfhedge.instruments.Instrument.extra_repr">[docs]</a>    <span class="k">def</span> <span class="nf">extra_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="BaseInstrument.extra_repr"><a class="viewcode-back" href="../../../generated/pfhedge.instruments.BaseInstrument.html#pfhedge.instruments.BaseInstrument.extra_repr">[docs]</a>    <span class="k">def</span> <span class="nf">extra_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="sd">"""Set the extra representation of the instrument.</span>
 
 <span class="sd">        To print customized extra information,</span>
@@ -428,6 +428,14 @@
                 <span class="n">dinfo</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"device='"</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">device</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"'"</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">dinfo</span></div>
+
+
+<span class="k">class</span> <span class="nc">Instrument</span><span class="p">(</span><span class="n">BaseInstrument</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">DeprecationWarning</span><span class="p">(</span>
+            <span class="s2">"Instrument is deprecated. Use BaseInstrument instead."</span>
+        <span class="p">)</span>
 </pre></div>
         </article>
       </div>

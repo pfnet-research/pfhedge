@@ -184,13 +184,13 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../nn.functional.html">pfhedge.nn.functional</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../instruments.html">pfhedge.instruments</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.Instrument.html">Instrument</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.Primary.html">Primary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BaseInstrument.html">BaseInstrument</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BasePrimary.html">BasePrimary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BaseDerivative.html">BaseDerivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.HestonStock.html">HestonStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.CIRRate.html">CIRRate</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.Derivative.html">Derivative</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
@@ -250,6 +250,21 @@
 <p class="admonition-title">Note</p>
 <p>Risk-free rate is set to zero.</p>
 </div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="pfhedge.nn.BlackScholes.html#pfhedge.nn.BlackScholes" title="pfhedge.nn.BlackScholes"><code class="xref py py-class docutils literal notranslate"><span class="pre">pfhedge.nn.BlackScholes</span></code></a>:
+Initialize Black-Scholes formula module from a derivative.</p></li>
+<li><p><a class="reference internal" href="pfhedge.instruments.EuropeanOption.html#pfhedge.instruments.EuropeanOption" title="pfhedge.instruments.EuropeanOption"><code class="xref py py-class docutils literal notranslate"><span class="pre">pfhedge.instruments.EuropeanOption</span></code></a>:
+Corresponding derivative.</p></li>
+</ul>
+</div>
+<div class="admonition-references admonition">
+<p class="admonition-title">References</p>
+<ul class="simple">
+<li><p>John C. Hull, 2003. Options futures and other derivatives. Pearson.</p></li>
+</ul>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -268,21 +283,6 @@ All but the last dimension are the same shape as the input.</p></li>
 </ul>
 </dd>
 </dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<ul class="simple">
-<li><p><a class="reference internal" href="pfhedge.nn.BlackScholes.html#pfhedge.nn.BlackScholes" title="pfhedge.nn.BlackScholes"><code class="xref py py-class docutils literal notranslate"><span class="pre">pfhedge.nn.BlackScholes</span></code></a>:
-Initialize Black-Scholes formula module from a derivative.</p></li>
-<li><p><a class="reference internal" href="pfhedge.instruments.EuropeanOption.html#pfhedge.instruments.EuropeanOption" title="pfhedge.instruments.EuropeanOption"><code class="xref py py-class docutils literal notranslate"><span class="pre">pfhedge.instruments.EuropeanOption</span></code></a>:
-Corresponding derivative.</p></li>
-</ul>
-</div>
-<div class="admonition-references admonition">
-<p class="admonition-title">References</p>
-<ul class="simple">
-<li><p>John C. Hull, 2003. Options futures and other derivatives. Pearson.</p></li>
-</ul>
-</div>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">BSEuropeanOption</span>
 <span class="go">&gt;&gt;&gt;</span>

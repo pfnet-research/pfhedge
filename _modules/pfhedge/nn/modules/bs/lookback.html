@@ -183,13 +183,13 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../nn.functional.html">pfhedge.nn.functional</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../../../instruments.html">pfhedge.instruments</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.Instrument.html">Instrument</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.Primary.html">Primary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.BaseInstrument.html">BaseInstrument</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.BasePrimary.html">BasePrimary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.BaseDerivative.html">BaseDerivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.HestonStock.html">HestonStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.CIRRate.html">CIRRate</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.Derivative.html">Derivative</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
@@ -248,8 +248,8 @@
 <span class="kn">from</span> <span class="nn">pfhedge._utils.doc</span> <span class="kn">import</span> <span class="n">_set_attr_and_docstring</span>
 <span class="kn">from</span> <span class="nn">pfhedge._utils.doc</span> <span class="kn">import</span> <span class="n">_set_docstring</span>
 <span class="kn">from</span> <span class="nn">pfhedge._utils.str</span> <span class="kn">import</span> <span class="n">_format_float</span>
-<span class="kn">from</span> <span class="nn">pfhedge.nn.functional</span> <span class="kn">import</span> <span class="n">d1</span>
-<span class="kn">from</span> <span class="nn">pfhedge.nn.functional</span> <span class="kn">import</span> <span class="n">d2</span>
+<span class="kn">from</span> <span class="nn">pfhedge.nn.functional</span> <span class="kn">import</span> <span class="n">d1</span> <span class="k">as</span> <span class="n">compute_d1</span>
+<span class="kn">from</span> <span class="nn">pfhedge.nn.functional</span> <span class="kn">import</span> <span class="n">d2</span> <span class="k">as</span> <span class="n">compute_d2</span>
 <span class="kn">from</span> <span class="nn">pfhedge.nn.functional</span> <span class="kn">import</span> <span class="n">ncdf</span>
 <span class="kn">from</span> <span class="nn">pfhedge.nn.functional</span> <span class="kn">import</span> <span class="n">npdf</span>
 
@@ -262,6 +262,16 @@
 <span class="sd">    Note:</span>
 <span class="sd">        Risk-free rate is set to zero.</span>
 
+<span class="sd">    .. seealso::</span>
+<span class="sd">        - :class:`pfhedge.nn.BlackScholes`:</span>
+<span class="sd">          Initialize Black-Scholes formula module from a derivative.</span>
+<span class="sd">        - :class:`pfhedge.instruments.LookbackOption`:</span>
+<span class="sd">          Corresponding derivative.</span>
+
+<span class="sd">    References:</span>
+<span class="sd">        - Conze, A., 1991. Path dependent options: The case of lookback options.</span>
+<span class="sd">          The Journal of Finance, 46(5), pp.1893-1907.</span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        call (bool, default=True): Specifies whether the option is call or put.</span>
 <span class="sd">        strike (float, default=1.0): The strike price of the option.</span>
@@ -273,18 +283,7 @@
 <span class="sd">        - Output: :math:`(N, *, 1)`.</span>
 <span class="sd">          All but the last dimension are the same shape as the input.</span>
 
-<span class="sd">    .. seealso::</span>
-<span class="sd">        - :class:`pfhedge.nn.BlackScholes`:</span>
-<span class="sd">          Initialize Black-Scholes formula module from a derivative.</span>
-<span class="sd">        - :class:`pfhedge.instruments.LookBackOption`:</span>
-<span class="sd">          Corresponding derivative.</span>
-
-<span class="sd">    References:</span>
-<span class="sd">        - Conze, A., 1991. Path dependent options: The case of lookback options.</span>
-<span class="sd">          The Journal of Finance, 46(5), pp.1893-1907.</span>
-
 <span class="sd">    Examples:</span>
-
 <span class="sd">        &gt;&gt;&gt; from pfhedge.nn import BSLookbackOption</span>
 <span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt; m = BSLookbackOption()</span>
@@ -300,7 +299,7 @@
 <span class="sd">                [1.0515]])</span>
 <span class="sd">    """</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">call</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">strike</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">call</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">strike</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">call</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> for a put option is not yet supported."</span>
@@ -322,7 +321,6 @@
 <span class="sd">            BSLookbackOption</span>
 
 <span class="sd">        Examples:</span>
-
 <span class="sd">            &gt;&gt;&gt; from pfhedge.instruments import BrownianStock</span>
 <span class="sd">            &gt;&gt;&gt; from pfhedge.instruments import LookbackOption</span>
 <span class="sd">            &gt;&gt;&gt;</span>
@@ -348,7 +346,25 @@
         <span class="n">time_to_maturity</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
         <span class="n">volatility</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">"""Returns price of the derivative.</span>
+        <span class="sa">r</span><span class="sd">"""Returns price of the derivative.</span>
+
+<span class="sd">        The price is given by:</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">            \begin{cases}</span>
+<span class="sd">                S(0) \{</span>
+<span class="sd">                    N(d_1) + \sigma \sqrt{T} [N'(d_1) + d_1 N(d_1)]</span>
+<span class="sd">                \} - K N(d_2)</span>
+<span class="sd">                &amp; (M \leq K) \\</span>
+<span class="sd">                S(0) \{</span>
+<span class="sd">                    N(d_1') + \sigma \sqrt{T} [N'(d_1') + d_1' N(d_1')]</span>
+<span class="sd">                \} - K + M [1 - N(d_2')]</span>
+<span class="sd">                &amp; (M &gt; K) \\</span>
+<span class="sd">            \end{cases}</span>
+<span class="sd">        where</span>
+<span class="sd">        :math:`M = \max_{t &lt; 0} S(t)`,</span>
+<span class="sd">        :math:`d_1' = [\log(S(0) / M) + \frac12 \sigma^2 T] / \sigma \sqrt{T}`, and</span>
+<span class="sd">        :math:`d_2' = [\log(S(0) / M) - \frac12 \sigma^2 T] / \sigma \sqrt{T}`.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            log_moneyness (torch.Tensor): Log moneyness of the underlying asset.</span>
@@ -372,27 +388,25 @@
             <span class="p">(</span><span class="n">log_moneyness</span><span class="p">,</span> <span class="n">max_log_moneyness</span><span class="p">,</span> <span class="n">time_to_maturity</span><span class="p">,</span> <span class="n">volatility</span><span class="p">),</span>
         <span class="p">)</span>
 
-        <span class="n">d1_</span> <span class="o">=</span> <span class="n">d1</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
-        <span class="n">d2_</span> <span class="o">=</span> <span class="n">d2</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
-        <span class="n">e1</span> <span class="o">=</span> <span class="p">(</span><span class="n">s</span> <span class="o">-</span> <span class="n">m</span> <span class="o">+</span> <span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">square</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">t</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">v</span> <span class="o">*</span> <span class="n">t</span><span class="o">.</span><span class="n">sqrt</span><span class="p">())</span>  <span class="c1"># d' in paper</span>
-        <span class="n">e2</span> <span class="o">=</span> <span class="p">(</span><span class="n">s</span> <span class="o">-</span> <span class="n">m</span> <span class="o">-</span> <span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">square</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">t</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">v</span> <span class="o">*</span> <span class="n">t</span><span class="o">.</span><span class="n">sqrt</span><span class="p">())</span>
+        <span class="n">spot</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">exp</span><span class="p">()</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">strike</span>
+        <span class="nb">max</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">exp</span><span class="p">()</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">strike</span>
+        <span class="n">d1</span> <span class="o">=</span> <span class="n">compute_d1</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+        <span class="n">d2</span> <span class="o">=</span> <span class="n">compute_d2</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+        <span class="n">m1</span> <span class="o">=</span> <span class="n">compute_d1</span><span class="p">(</span><span class="n">s</span> <span class="o">-</span> <span class="n">m</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>  <span class="c1"># d' in the paper</span>
+        <span class="n">m2</span> <span class="o">=</span> <span class="n">compute_d2</span><span class="p">(</span><span class="n">s</span> <span class="o">-</span> <span class="n">m</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
 
-        <span class="c1"># when max moneyness &lt; strike</span>
-        <span class="n">price_0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">strike</span> <span class="o">*</span> <span class="p">(</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">exp</span><span class="p">()</span> <span class="o">*</span> <span class="n">ncdf</span><span class="p">(</span><span class="n">d1_</span><span class="p">)</span>
-            <span class="o">-</span> <span class="n">ncdf</span><span class="p">(</span><span class="n">d2_</span><span class="p">)</span>
-            <span class="o">+</span> <span class="n">s</span><span class="o">.</span><span class="n">exp</span><span class="p">()</span> <span class="o">*</span> <span class="n">v</span> <span class="o">*</span> <span class="n">t</span><span class="o">.</span><span class="n">sqrt</span><span class="p">()</span> <span class="o">*</span> <span class="p">(</span><span class="n">d1_</span> <span class="o">*</span> <span class="n">ncdf</span><span class="p">(</span><span class="n">d1_</span><span class="p">)</span> <span class="o">+</span> <span class="n">npdf</span><span class="p">(</span><span class="n">d1_</span><span class="p">))</span>
-        <span class="p">)</span>
-        <span class="c1"># when max moneyness &gt;= strike</span>
-        <span class="n">price_1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">strike</span> <span class="o">*</span> <span class="p">(</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">exp</span><span class="p">()</span> <span class="o">*</span> <span class="n">ncdf</span><span class="p">(</span><span class="n">e1</span><span class="p">)</span>
-            <span class="o">-</span> <span class="n">m</span><span class="o">.</span><span class="n">exp</span><span class="p">()</span> <span class="o">*</span> <span class="n">ncdf</span><span class="p">(</span><span class="n">e2</span><span class="p">)</span>
-            <span class="o">+</span> <span class="n">m</span><span class="o">.</span><span class="n">exp</span><span class="p">()</span>
-            <span class="o">-</span> <span class="mi">1</span>
-            <span class="o">+</span> <span class="n">s</span><span class="o">.</span><span class="n">exp</span><span class="p">()</span> <span class="o">*</span> <span class="n">v</span> <span class="o">*</span> <span class="n">t</span><span class="o">.</span><span class="n">sqrt</span><span class="p">()</span> <span class="o">*</span> <span class="p">(</span><span class="n">e1</span> <span class="o">*</span> <span class="n">ncdf</span><span class="p">(</span><span class="n">e1</span><span class="p">)</span> <span class="o">+</span> <span class="n">npdf</span><span class="p">(</span><span class="n">e1</span><span class="p">))</span>
+        <span class="c1"># when max &lt; strike</span>
+        <span class="n">price_0</span> <span class="o">=</span> <span class="n">spot</span> <span class="o">*</span> <span class="p">(</span>
+            <span class="n">ncdf</span><span class="p">(</span><span class="n">d1</span><span class="p">)</span> <span class="o">+</span> <span class="n">v</span> <span class="o">*</span> <span class="n">t</span><span class="o">.</span><span class="n">sqrt</span><span class="p">()</span> <span class="o">*</span> <span class="p">(</span><span class="n">d1</span> <span class="o">*</span> <span class="n">ncdf</span><span class="p">(</span><span class="n">d1</span><span class="p">)</span> <span class="o">+</span> <span class="n">npdf</span><span class="p">(</span><span class="n">d1</span><span class="p">))</span>
+        <span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">strike</span> <span class="o">*</span> <span class="n">ncdf</span><span class="p">(</span><span class="n">d2</span><span class="p">)</span>
+        <span class="c1"># when max &gt;= strike</span>
+        <span class="n">price_1</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">spot</span> <span class="o">*</span> <span class="p">(</span><span class="n">ncdf</span><span class="p">(</span><span class="n">m1</span><span class="p">)</span> <span class="o">+</span> <span class="n">v</span> <span class="o">*</span> <span class="n">t</span><span class="o">.</span><span class="n">sqrt</span><span class="p">()</span> <span class="o">*</span> <span class="p">(</span><span class="n">m1</span> <span class="o">*</span> <span class="n">ncdf</span><span class="p">(</span><span class="n">m1</span><span class="p">)</span> <span class="o">+</span> <span class="n">npdf</span><span class="p">(</span><span class="n">m1</span><span class="p">)))</span>
+            <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">strike</span>
+            <span class="o">+</span> <span class="nb">max</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">ncdf</span><span class="p">(</span><span class="n">m2</span><span class="p">))</span>
         <span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">m</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">price_0</span><span class="p">,</span> <span class="n">price_1</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="nb">max</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">strike</span><span class="p">,</span> <span class="n">price_0</span><span class="p">,</span> <span class="n">price_1</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="BSLookbackOption.delta"><a class="viewcode-back" href="../../../../../generated/pfhedge.nn.BSLookbackOption.html#pfhedge.nn.BSLookbackOption.delta">[docs]</a>    <span class="nd">@torch</span><span class="o">.</span><span class="n">enable_grad</span><span class="p">()</span>
     <span class="k">def</span> <span class="nf">delta</span><span class="p">(</span>

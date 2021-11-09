@@ -3,10 +3,10 @@
 .. currentmodule:: pfhedge.instruments
 
 
-Primary
-=======
+BasePrimary
+===========
 
-.. autoclass:: Primary
+.. autoclass:: BasePrimary
     :members:
 
 

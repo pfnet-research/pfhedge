@@ -183,13 +183,13 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../nn.functional.html">pfhedge.nn.functional</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../../../instruments.html">pfhedge.instruments</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.Instrument.html">Instrument</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.Primary.html">Primary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.BaseInstrument.html">BaseInstrument</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.BasePrimary.html">BasePrimary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.BaseDerivative.html">BaseDerivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.HestonStock.html">HestonStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.CIRRate.html">CIRRate</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.Derivative.html">Derivative</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
@@ -260,6 +260,15 @@
 <span class="sd">    Note:</span>
 <span class="sd">        Risk-free rate is set to zero.</span>
 
+<span class="sd">    .. seealso::</span>
+<span class="sd">        - :class:`pfhedge.nn.BlackScholes`:</span>
+<span class="sd">          Initialize Black-Scholes formula module from a derivative.</span>
+<span class="sd">        - :class:`pfhedge.instruments.EuropeanOption`:</span>
+<span class="sd">          Corresponding derivative.</span>
+
+<span class="sd">    References:</span>
+<span class="sd">        - John C. Hull, 2003. Options futures and other derivatives. Pearson.</span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        call (bool, default=True): Specifies whether the option is call or put.</span>
 <span class="sd">        strike (float, default=1.0): The strike price of the option.</span>
@@ -271,17 +280,7 @@
 <span class="sd">        - Output: :math:`(N, *, 1)`.</span>
 <span class="sd">          All but the last dimension are the same shape as the input.</span>
 
-<span class="sd">    .. seealso::</span>
-<span class="sd">        - :class:`pfhedge.nn.BlackScholes`:</span>
-<span class="sd">          Initialize Black-Scholes formula module from a derivative.</span>
-<span class="sd">        - :class:`pfhedge.instruments.EuropeanOption`:</span>
-<span class="sd">          Corresponding derivative.</span>
-
-<span class="sd">    References:</span>
-<span class="sd">        - John C. Hull, 2003. Options futures and other derivatives. Pearson.</span>
-
 <span class="sd">    Examples:</span>
-
 <span class="sd">        &gt;&gt;&gt; from pfhedge.nn import BSEuropeanOption</span>
 <span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt; m = BSEuropeanOption()</span>

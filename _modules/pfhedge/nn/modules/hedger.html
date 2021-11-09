@@ -183,13 +183,13 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../nn.functional.html">pfhedge.nn.functional</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../../instruments.html">pfhedge.instruments</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.Instrument.html">Instrument</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.Primary.html">Primary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.BaseInstrument.html">BaseInstrument</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.BasePrimary.html">BasePrimary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.BaseDerivative.html">BaseDerivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.HestonStock.html">HestonStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.CIRRate.html">CIRRate</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.Derivative.html">Derivative</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
@@ -262,9 +262,8 @@
 <span class="kn">from</span> <span class="nn">pfhedge._utils.typing</span> <span class="kn">import</span> <span class="n">TensorOrScalar</span>
 <span class="kn">from</span> <span class="nn">pfhedge.features</span> <span class="kn">import</span> <span class="n">FeatureList</span>
 <span class="kn">from</span> <span class="nn">pfhedge.features._base</span> <span class="kn">import</span> <span class="n">Feature</span>
-<span class="kn">from</span> <span class="nn">pfhedge.instruments.base</span> <span class="kn">import</span> <span class="n">Instrument</span>
-<span class="kn">from</span> <span class="nn">pfhedge.instruments.derivative.base</span> <span class="kn">import</span> <span class="n">Derivative</span>
-<span class="kn">from</span> <span class="nn">pfhedge.instruments.primary.base</span> <span class="kn">import</span> <span class="n">Primary</span>
+<span class="kn">from</span> <span class="nn">pfhedge.instruments.base</span> <span class="kn">import</span> <span class="n">BaseInstrument</span>
+<span class="kn">from</span> <span class="nn">pfhedge.instruments.derivative.base</span> <span class="kn">import</span> <span class="n">BaseDerivative</span>
 <span class="kn">from</span> <span class="nn">pfhedge.nn.functional</span> <span class="kn">import</span> <span class="n">terminal_value</span>
 
 <span class="kn">from</span> <span class="nn">.loss</span> <span class="kn">import</span> <span class="n">EntropicRiskMeasure</span>
@@ -333,7 +332,6 @@
 <span class="sd">          inputs=['log_moneyness', 'time_to_maturity', 'volatility', 'prev_hedge']</span>
 <span class="sd">          (model): WhalleyWilmott(</span>
 <span class="sd">            (bs): BSEuropeanOption(strike=1.)</span>
-<span class="sd">            (clamp): Clamp()</span>
 <span class="sd">          )</span>
 <span class="sd">          (criterion): EntropicRiskMeasure()</span>
 <span class="sd">        )</span>
@@ -375,7 +373,7 @@
 <span class="sd">        tensor(...)</span>
 
 <span class="sd">        It is possible to hedge a derivative with another listed derivative by</span>
-<span class="sd">        ``Derivative.list()`` method.</span>
+<span class="sd">        ``list()`` method.</span>
 
 <span class="sd">        &gt;&gt;&gt; from pfhedge.instruments import LookbackOption</span>
 <span class="sd">        &gt;&gt;&gt; from pfhedge.nn import BlackScholes</span>
@@ -448,7 +446,7 @@
     <span class="k">def</span> <span class="nf">extra_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">"inputs="</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Hedger.get_input"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.Hedger.html#pfhedge.nn.Hedger.get_input">[docs]</a>    <span class="k">def</span> <span class="nf">get_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">derivative</span><span class="p">:</span> <span class="n">Derivative</span><span class="p">,</span> <span class="n">time_step</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+<div class="viewcode-block" id="Hedger.get_input"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.Hedger.html#pfhedge.nn.Hedger.get_input">[docs]</a>    <span class="k">def</span> <span class="nf">get_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">derivative</span><span class="p">:</span> <span class="n">BaseDerivative</span><span class="p">,</span> <span class="n">time_step</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
         <span class="sd">"""Returns the input tensor to the model at the given time step.</span>
 
 <span class="sd">        Note:</span>
@@ -459,7 +457,7 @@
 <span class="sd">            before calling this method.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            derivative (Derivative): The derivative used for getting the input.</span>
+<span class="sd">            derivative (BaseDerivative): The derivative used for getting the input.</span>
 <span class="sd">            time_step (int, optional): The time step to get the input tensor.</span>
 <span class="sd">                If ``None`` an input tensor for all time steps is returned.</span>
 
@@ -489,14 +487,14 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="n">derivative</span><span class="o">=</span><span class="n">derivative</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">time_step</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Hedger.compute_hedge"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.Hedger.html#pfhedge.nn.Hedger.compute_hedge">[docs]</a>    <span class="k">def</span> <span class="nf">compute_hedge</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">derivative</span><span class="p">:</span> <span class="n">Derivative</span><span class="p">,</span> <span class="n">hedge</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Instrument</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">derivative</span><span class="p">:</span> <span class="n">BaseDerivative</span><span class="p">,</span> <span class="n">hedge</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">BaseInstrument</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
         <span class="sd">"""Compute the hedge ratio at each time step.</span>
 <span class="sd">        It assumes that the derivative is already simulated.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            derivative (Derivative): The derivative to hedge.</span>
-<span class="sd">            hedge (Instrument, optional): The hedging instrument.</span>
+<span class="sd">            derivative (BaseDerivative): The derivative to hedge.</span>
+<span class="sd">            hedge (BaseInstrument, optional): The hedging instrument.</span>
 <span class="sd">                If ``None`` (default), use ``derivative.underlier``.</span>
 
 <span class="sd">        Shape:</span>
@@ -527,7 +525,9 @@
 <span class="sd">                    [0.5056, 0.3785, 0.4609, 0.5239, 0.7281, 0.7281]])</span>
 <span class="sd">        """</span>
         <span class="n">inputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="n">derivative</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
-        <span class="n">hedge</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">List</span><span class="p">[</span><span class="n">Instrument</span><span class="p">],</span> <span class="p">[</span><span class="n">derivative</span><span class="o">.</span><span class="n">ul</span><span class="p">()]</span> <span class="k">if</span> <span class="n">hedge</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">hedge</span><span class="p">)</span>
+        <span class="n">hedge</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
+            <span class="n">List</span><span class="p">[</span><span class="n">BaseInstrument</span><span class="p">],</span> <span class="p">[</span><span class="n">derivative</span><span class="o">.</span><span class="n">ul</span><span class="p">()]</span> <span class="k">if</span> <span class="n">hedge</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">hedge</span>
+        <span class="p">)</span>
 
         <span class="c1"># Check that the spot prices of the hedges have the same sizes</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">h</span><span class="o">.</span><span class="n">spot</span><span class="o">.</span><span class="n">size</span><span class="p">()</span> <span class="o">==</span> <span class="n">hedge</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">spot</span><span class="o">.</span><span class="n">size</span><span class="p">()</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">hedge</span><span class="p">):</span>
@@ -559,8 +559,8 @@
 
 <div class="viewcode-block" id="Hedger.compute_pnl"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.Hedger.html#pfhedge.nn.Hedger.compute_pnl">[docs]</a>    <span class="k">def</span> <span class="nf">compute_pnl</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">derivative</span><span class="p">:</span> <span class="n">Derivative</span><span class="p">,</span>
-        <span class="n">hedge</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Instrument</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">derivative</span><span class="p">:</span> <span class="n">BaseDerivative</span><span class="p">,</span>
+        <span class="n">hedge</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">BaseInstrument</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">n_paths</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
         <span class="n">init_state</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">TensorOrScalar</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
@@ -572,8 +572,8 @@
 <span class="sd">        terminal portyol value after hedging a derivative.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            derivative (Derivative): The derivative to hedge.</span>
-<span class="sd">            hedge (list[Instrument], optional): The hedging instruments.</span>
+<span class="sd">            derivative (BaseDerivative): The derivative to hedge.</span>
+<span class="sd">            hedge (list[BaseInstrument], optional): The hedging instruments.</span>
 <span class="sd">                If ``None`` (default), use ``[derivative.underlier]``.</span>
 <span class="sd">            n_paths (int, default=1000): The number of simulated price paths of the</span>
 <span class="sd">                underlying instrument.</span>
@@ -602,7 +602,9 @@
 <span class="sd">            tensor([..., ...])</span>
 <span class="sd">        """</span>
         <span class="n">derivative</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">n_paths</span><span class="o">=</span><span class="n">n_paths</span><span class="p">,</span> <span class="n">init_state</span><span class="o">=</span><span class="n">init_state</span><span class="p">)</span>
-        <span class="n">hedge</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">List</span><span class="p">[</span><span class="n">Instrument</span><span class="p">],</span> <span class="p">[</span><span class="n">derivative</span><span class="o">.</span><span class="n">ul</span><span class="p">()]</span> <span class="k">if</span> <span class="n">hedge</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">hedge</span><span class="p">)</span>
+        <span class="n">hedge</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
+            <span class="n">List</span><span class="p">[</span><span class="n">BaseInstrument</span><span class="p">],</span> <span class="p">[</span><span class="n">derivative</span><span class="o">.</span><span class="n">ul</span><span class="p">()]</span> <span class="k">if</span> <span class="n">hedge</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">hedge</span>
+        <span class="p">)</span>
 
         <span class="n">unit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_hedge</span><span class="p">(</span><span class="n">derivative</span><span class="p">,</span> <span class="n">hedge</span><span class="o">=</span><span class="n">hedge</span><span class="p">)</span>
 
@@ -614,8 +616,8 @@
 
 <div class="viewcode-block" id="Hedger.compute_loss"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.Hedger.html#pfhedge.nn.Hedger.compute_loss">[docs]</a>    <span class="k">def</span> <span class="nf">compute_loss</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">derivative</span><span class="p">:</span> <span class="n">Derivative</span><span class="p">,</span>
-        <span class="n">hedge</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Instrument</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">derivative</span><span class="p">:</span> <span class="n">BaseDerivative</span><span class="p">,</span>
+        <span class="n">hedge</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">BaseInstrument</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">n_paths</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
         <span class="n">n_times</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
         <span class="n">init_state</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">TensorOrScalar</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -628,8 +630,8 @@
 <span class="sd">        where ``pnl`` is given by :meth:`compute_pnl`.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            derivative (Derivative): The derivative to hedge.</span>
-<span class="sd">            hedge (list[Instrument], optional): The hedging instruments.</span>
+<span class="sd">            derivative (BaseDerivative): The derivative to hedge.</span>
+<span class="sd">            hedge (list[BaseInstrument], optional): The hedging instruments.</span>
 <span class="sd">                If ``None`` (default), use ``[derivative.underlier]``.</span>
 <span class="sd">            n_paths (int, default=1000): The number of simulated price paths of the</span>
 <span class="sd">                underlying instrument.</span>
@@ -673,7 +675,7 @@
 
     <span class="k">def</span> <span class="nf">_configure_optimizer</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">derivative</span><span class="p">:</span> <span class="n">Derivative</span><span class="p">,</span>
+        <span class="n">derivative</span><span class="p">:</span> <span class="n">BaseDerivative</span><span class="p">,</span>
         <span class="n">optimizer</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Optimizer</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Optimizer</span><span class="p">]],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optimizer</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">Optimizer</span><span class="p">):</span>
@@ -691,8 +693,8 @@
 
 <div class="viewcode-block" id="Hedger.fit"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.Hedger.html#pfhedge.nn.Hedger.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">derivative</span><span class="p">:</span> <span class="n">Derivative</span><span class="p">,</span>
-        <span class="n">hedge</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Instrument</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">derivative</span><span class="p">:</span> <span class="n">BaseDerivative</span><span class="p">,</span>
+        <span class="n">hedge</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">BaseInstrument</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">n_epochs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
         <span class="n">n_paths</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
         <span class="n">n_times</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
@@ -710,8 +712,8 @@
 <span class="sd">        validation loss after each simulation.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            derivative (Derivative): The derivative to hedge.</span>
-<span class="sd">            hedge (list[Instrument], optional): The hedging instruments.</span>
+<span class="sd">            derivative (BaseDerivative): The derivative to hedge.</span>
+<span class="sd">            hedge (list[BaseInstrument], optional): The hedging instruments.</span>
 <span class="sd">                If ``None`` (default), use ``[derivative.underlier]``.</span>
 <span class="sd">            n_epochs (int, default=100): Number of Monte-Carlo simulations.</span>
 <span class="sd">            n_paths (int, default=1000): The number of simulated price paths of the</span>
@@ -806,8 +808,8 @@
 
 <div class="viewcode-block" id="Hedger.price"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.Hedger.html#pfhedge.nn.Hedger.price">[docs]</a>    <span class="k">def</span> <span class="nf">price</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">derivative</span><span class="p">:</span> <span class="n">Derivative</span><span class="p">,</span>
-        <span class="n">hedge</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Instrument</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">derivative</span><span class="p">:</span> <span class="n">BaseDerivative</span><span class="p">,</span>
+        <span class="n">hedge</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">BaseInstrument</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">n_paths</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
         <span class="n">n_times</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
         <span class="n">init_state</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">TensorOrScalar</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -816,8 +818,8 @@
         <span class="sd">"""Evaluate the premium of the given derivative.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            derivative (Derivative): The derivative to price.</span>
-<span class="sd">            hedge (list[Instrument], optional): The hedging instruments.</span>
+<span class="sd">            derivative (BaseDerivative): The derivative to price.</span>
+<span class="sd">            hedge (list[BaseInstrument], optional): The hedging instruments.</span>
 <span class="sd">                If ``None`` (default), use ``[derivative.underlier]``.</span>
 <span class="sd">            n_paths (int, default=1000): The number of simulated price paths of the</span>
 <span class="sd">                underlying instrument.</span>

@@ -184,13 +184,13 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../nn.functional.html">pfhedge.nn.functional</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../instruments.html">pfhedge.instruments</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.Instrument.html">Instrument</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.Primary.html">Primary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BaseInstrument.html">BaseInstrument</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BasePrimary.html">BasePrimary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BaseDerivative.html">BaseDerivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.HestonStock.html">HestonStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.CIRRate.html">CIRRate</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.Derivative.html">Derivative</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
@@ -250,6 +250,22 @@
 <p class="admonition-title">Note</p>
 <p>Risk-free rate is set to zero.</p>
 </div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="pfhedge.nn.BlackScholes.html#pfhedge.nn.BlackScholes" title="pfhedge.nn.BlackScholes"><code class="xref py py-class docutils literal notranslate"><span class="pre">pfhedge.nn.BlackScholes</span></code></a>:
+Initialize Black-Scholes formula module from a derivative.</p></li>
+<li><p><a class="reference internal" href="pfhedge.instruments.LookbackOption.html#pfhedge.instruments.LookbackOption" title="pfhedge.instruments.LookbackOption"><code class="xref py py-class docutils literal notranslate"><span class="pre">pfhedge.instruments.LookbackOption</span></code></a>:
+Corresponding derivative.</p></li>
+</ul>
+</div>
+<div class="admonition-references admonition">
+<p class="admonition-title">References</p>
+<ul class="simple">
+<li><p>Conze, A., 1991. Path dependent options: The case of lookback options.
+The Journal of Finance, 46(5), pp.1893-1907.</p></li>
+</ul>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -268,22 +284,6 @@ All but the last dimension are the same shape as the input.</p></li>
 </ul>
 </dd>
 </dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<ul class="simple">
-<li><p><a class="reference internal" href="pfhedge.nn.BlackScholes.html#pfhedge.nn.BlackScholes" title="pfhedge.nn.BlackScholes"><code class="xref py py-class docutils literal notranslate"><span class="pre">pfhedge.nn.BlackScholes</span></code></a>:
-Initialize Black-Scholes formula module from a derivative.</p></li>
-<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">pfhedge.instruments.LookBackOption</span></code>:
-Corresponding derivative.</p></li>
-</ul>
-</div>
-<div class="admonition-references admonition">
-<p class="admonition-title">References</p>
-<ul class="simple">
-<li><p>Conze, A., 1991. Path dependent options: The case of lookback options.
-The Journal of Finance, 46(5), pp.1893-1907.</p></li>
-</ul>
-</div>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">BSLookbackOption</span>
 <span class="go">&gt;&gt;&gt;</span>
@@ -448,6 +448,22 @@ See <a class="reference internal" href="#pfhedge.nn.BSLookbackOption.inputs" tit
 <dt class="sig sig-object py" id="pfhedge.nn.BSLookbackOption.price">
 <span class="sig-name descname"><span class="pre">price</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_moneyness</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_log_moneyness</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_to_maturity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volatility</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/bs/lookback.html#BSLookbackOption.price"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.BSLookbackOption.price" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns price of the derivative.</p>
+<p>The price is given by:</p>
+<div class="math-wrapper"><div class="math notranslate nohighlight">
+\[\begin{split}\begin{cases}
+    S(0) \{
+        N(d_1) + \sigma \sqrt{T} [N'(d_1) + d_1 N(d_1)]
+    \} - K N(d_2)
+    &amp; (M \leq K) \\
+    S(0) \{
+        N(d_1') + \sigma \sqrt{T} [N'(d_1') + d_1' N(d_1')]
+    \} - K + M [1 - N(d_2')]
+    &amp; (M &gt; K) \\
+\end{cases}\end{split}\]</div></div>
+<p>where
+<span class="math notranslate nohighlight">\(M = \max_{t &lt; 0} S(t)\)</span>,
+<span class="math notranslate nohighlight">\(d_1' = [\log(S(0) / M) + \frac12 \sigma^2 T] / \sigma \sqrt{T}\)</span>, and
+<span class="math notranslate nohighlight">\(d_2' = [\log(S(0) / M) - \frac12 \sigma^2 T] / \sigma \sqrt{T}\)</span>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">

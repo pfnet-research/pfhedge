@@ -3,10 +3,10 @@
 .. currentmodule:: pfhedge.instruments
 
 
-Instrument
-==========
+BaseInstrument
+==============
 
-.. autoclass:: Instrument
+.. autoclass:: BaseInstrument
     :members:
 
 

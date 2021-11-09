@@ -183,13 +183,13 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../nn.functional.html">pfhedge.nn.functional</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../../instruments.html">pfhedge.instruments</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.Instrument.html">Instrument</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.Primary.html">Primary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.BaseInstrument.html">BaseInstrument</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.BasePrimary.html">BasePrimary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.BaseDerivative.html">BaseDerivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.HestonStock.html">HestonStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.CIRRate.html">CIRRate</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.Derivative.html">Derivative</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
@@ -246,7 +246,6 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TypeVar</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">no_type_check</span>
 
 <span class="kn">import</span> <span class="nn">torch</span>
@@ -256,12 +255,12 @@
 <span class="kn">from</span> <span class="nn">pfhedge._utils.doc</span> <span class="kn">import</span> <span class="n">_set_docstring</span>
 <span class="kn">from</span> <span class="nn">pfhedge._utils.typing</span> <span class="kn">import</span> <span class="n">TensorOrScalar</span>
 
-<span class="kn">from</span> <span class="nn">..base</span> <span class="kn">import</span> <span class="n">Instrument</span>
+<span class="kn">from</span> <span class="nn">..base</span> <span class="kn">import</span> <span class="n">BaseInstrument</span>
 
-<span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"T"</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">"Primary"</span><span class="p">)</span>
+<span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"T"</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">"BasePrimary"</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="Primary"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.Primary.html#pfhedge.instruments.Primary">[docs]</a><span class="k">class</span> <span class="nc">Primary</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span>
+<div class="viewcode-block" id="BasePrimary"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.BasePrimary.html#pfhedge.instruments.BasePrimary">[docs]</a><span class="k">class</span> <span class="nc">BasePrimary</span><span class="p">(</span><span class="n">BaseInstrument</span><span class="p">):</span>
     <span class="sd">"""Base class for all primary instruments.</span>
 
 <span class="sd">    A primary instrument is a basic financial instrument which is traded on a market</span>
@@ -269,7 +268,7 @@
 <span class="sd">    Examples include stocks, bonds, commodities, and currencies.</span>
 
 <span class="sd">    Derivatives are issued based on primary instruments</span>
-<span class="sd">    (See :class:`Derivative` for details).</span>
+<span class="sd">    (See :class:`BaseDerivative` for details).</span>
 
 <span class="sd">    Buffers:</span>
 <span class="sd">        - spot (:class:`torch.Tensor`): The spot price of the instrument.</span>
@@ -297,7 +296,7 @@
 
     <span class="c1"># TODO(simaki): Remove @no_type_check once BrownianStock and HestonStock get</span>
     <span class="c1">#   unified signatures.</span>
-<div class="viewcode-block" id="Primary.simulate"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.Primary.html#pfhedge.instruments.Primary.simulate">[docs]</a>    <span class="nd">@abstractmethod</span>
+<div class="viewcode-block" id="BasePrimary.simulate"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.BasePrimary.html#pfhedge.instruments.BasePrimary.simulate">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="nd">@no_type_check</span>
     <span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -320,7 +319,7 @@
 <span class="sd">                (See :attr:`default_init_state`).</span>
 <span class="sd">        """</span></div>
 
-<div class="viewcode-block" id="Primary.register_buffer"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.Primary.html#pfhedge.instruments.Primary.register_buffer">[docs]</a>    <span class="k">def</span> <span class="nf">register_buffer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">tensor</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tensor</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="BasePrimary.register_buffer"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.BasePrimary.html#pfhedge.instruments.BasePrimary.register_buffer">[docs]</a>    <span class="k">def</span> <span class="nf">register_buffer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">tensor</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tensor</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">"""Adds a buffer to the instrument.</span>
 <span class="sd">        The dtype and device of the buffer are the instrument's dtype and device.</span>
 
@@ -334,7 +333,7 @@
 <span class="sd">        """</span>
         <span class="c1"># Implementation here refers to torch.nn.Module.register_buffer.</span>
         <span class="k">if</span> <span class="s2">"_buffers"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">"cannot assign buffer before Primary.__init__() call"</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">"cannot assign buffer before __init__() call"</span><span class="p">)</span>
         <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">_six</span><span class="o">.</span><span class="n">string_classes</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
                 <span class="s2">"buffer name should be a string. "</span> <span class="s2">"Got </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">typename</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
@@ -355,7 +354,7 @@
                 <span class="n">tensor</span> <span class="o">=</span> <span class="n">tensor</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_buffers</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">tensor</span></div>
 
-<div class="viewcode-block" id="Primary.named_buffers"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.Primary.html#pfhedge.instruments.Primary.named_buffers">[docs]</a>    <span class="k">def</span> <span class="nf">named_buffers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">]]:</span>
+<div class="viewcode-block" id="BasePrimary.named_buffers"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.BasePrimary.html#pfhedge.instruments.BasePrimary.named_buffers">[docs]</a>    <span class="k">def</span> <span class="nf">named_buffers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">]]:</span>
         <span class="sd">"""Returns an iterator over module buffers, yielding both the</span>
 <span class="sd">        name of the buffer as well as the buffer itself.</span>
 
@@ -366,7 +365,7 @@
             <span class="k">if</span> <span class="n">buffer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">yield</span> <span class="n">name</span><span class="p">,</span> <span class="n">buffer</span></div>
 
-<div class="viewcode-block" id="Primary.buffers"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.Primary.html#pfhedge.instruments.Primary.buffers">[docs]</a>    <span class="k">def</span> <span class="nf">buffers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tensor</span><span class="p">]:</span>
+<div class="viewcode-block" id="BasePrimary.buffers"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.BasePrimary.html#pfhedge.instruments.BasePrimary.buffers">[docs]</a>    <span class="k">def</span> <span class="nf">buffers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tensor</span><span class="p">]:</span>
         <span class="sa">r</span><span class="sd">"""Returns an iterator over module buffers.</span>
 
 <span class="sd">        Yields:</span>
@@ -396,12 +395,12 @@
             <span class="s2">"Asset may not be simulated."</span>
         <span class="p">)</span>
 
-<div class="viewcode-block" id="Primary.to"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.Primary.html#pfhedge.instruments.Primary.to">[docs]</a>    <span class="k">def</span> <span class="nf">to</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+<div class="viewcode-block" id="BasePrimary.to"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.BasePrimary.html#pfhedge.instruments.BasePrimary.to">[docs]</a>    <span class="k">def</span> <span class="nf">to</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
         <span class="n">device</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_to</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">dtype</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">dtype</span><span class="o">.</span><span class="n">is_floating_point</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                <span class="s2">"Instrument.to only accepts floating point "</span>
+                <span class="s2">"to() only accepts floating point "</span>
                 <span class="s2">"dtypes, but got desired dtype="</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
             <span class="p">)</span>
 
@@ -422,7 +421,7 @@
         <span class="c1">#   to(tensor)</span>
         <span class="c1">#   to(instrument)</span>
         <span class="c1"># and return a tuple (device, dtype, ...)</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Instrument</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">BaseInstrument</span><span class="p">):</span>
             <span class="n">instrument</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">return</span> <span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="s2">"device"</span><span class="p">),</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="s2">"dtype"</span><span class="p">))</span>
         <span class="k">elif</span> <span class="s2">"instrument"</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
@@ -441,13 +440,19 @@
         <span class="k">return</span> <span class="n">main_str</span></div>
 
 
+<span class="k">class</span> <span class="nc">Primary</span><span class="p">(</span><span class="n">BasePrimary</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">DeprecationWarning</span><span class="p">(</span><span class="s2">"Primary is deprecated. Use BasePrimary instead."</span><span class="p">)</span>
+
+
 <span class="c1"># Assign docstrings so they appear in Sphinx documentation</span>
-<span class="n">_set_docstring</span><span class="p">(</span><span class="n">Primary</span><span class="p">,</span> <span class="s2">"to"</span><span class="p">,</span> <span class="n">Instrument</span><span class="o">.</span><span class="n">to</span><span class="p">)</span>
-<span class="n">_set_attr_and_docstring</span><span class="p">(</span><span class="n">Primary</span><span class="p">,</span> <span class="s2">"cpu"</span><span class="p">,</span> <span class="n">Instrument</span><span class="o">.</span><span class="n">cpu</span><span class="p">)</span>
-<span class="n">_set_attr_and_docstring</span><span class="p">(</span><span class="n">Primary</span><span class="p">,</span> <span class="s2">"cuda"</span><span class="p">,</span> <span class="n">Instrument</span><span class="o">.</span><span class="n">cuda</span><span class="p">)</span>
-<span class="n">_set_attr_and_docstring</span><span class="p">(</span><span class="n">Primary</span><span class="p">,</span> <span class="s2">"double"</span><span class="p">,</span> <span class="n">Instrument</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
-<span class="n">_set_attr_and_docstring</span><span class="p">(</span><span class="n">Primary</span><span class="p">,</span> <span class="s2">"float"</span><span class="p">,</span> <span class="n">Instrument</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
-<span class="n">_set_attr_and_docstring</span><span class="p">(</span><span class="n">Primary</span><span class="p">,</span> <span class="s2">"half"</span><span class="p">,</span> <span class="n">Instrument</span><span class="o">.</span><span class="n">half</span><span class="p">)</span>
+<span class="n">_set_docstring</span><span class="p">(</span><span class="n">BasePrimary</span><span class="p">,</span> <span class="s2">"to"</span><span class="p">,</span> <span class="n">BaseInstrument</span><span class="o">.</span><span class="n">to</span><span class="p">)</span>
+<span class="n">_set_attr_and_docstring</span><span class="p">(</span><span class="n">BasePrimary</span><span class="p">,</span> <span class="s2">"cpu"</span><span class="p">,</span> <span class="n">BaseInstrument</span><span class="o">.</span><span class="n">cpu</span><span class="p">)</span>
+<span class="n">_set_attr_and_docstring</span><span class="p">(</span><span class="n">BasePrimary</span><span class="p">,</span> <span class="s2">"cuda"</span><span class="p">,</span> <span class="n">BaseInstrument</span><span class="o">.</span><span class="n">cuda</span><span class="p">)</span>
+<span class="n">_set_attr_and_docstring</span><span class="p">(</span><span class="n">BasePrimary</span><span class="p">,</span> <span class="s2">"double"</span><span class="p">,</span> <span class="n">BaseInstrument</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
+<span class="n">_set_attr_and_docstring</span><span class="p">(</span><span class="n">BasePrimary</span><span class="p">,</span> <span class="s2">"float"</span><span class="p">,</span> <span class="n">BaseInstrument</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+<span class="n">_set_attr_and_docstring</span><span class="p">(</span><span class="n">BasePrimary</span><span class="p">,</span> <span class="s2">"half"</span><span class="p">,</span> <span class="n">BaseInstrument</span><span class="o">.</span><span class="n">half</span><span class="p">)</span>
 </pre></div>
         </article>
       </div>

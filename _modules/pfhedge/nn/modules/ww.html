@@ -183,13 +183,13 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../nn.functional.html">pfhedge.nn.functional</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../../instruments.html">pfhedge.instruments</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.Instrument.html">Instrument</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.Primary.html">Primary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.BaseInstrument.html">BaseInstrument</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.BasePrimary.html">BasePrimary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.BaseDerivative.html">BaseDerivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.HestonStock.html">HestonStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.CIRRate.html">CIRRate</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.Derivative.html">Derivative</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
@@ -245,9 +245,9 @@
 <span class="kn">from</span> <span class="nn">torch.nn</span> <span class="kn">import</span> <span class="n">Module</span>
 
 <span class="kn">from</span> <span class="nn">pfhedge._utils.str</span> <span class="kn">import</span> <span class="n">_format_float</span>
+<span class="kn">from</span> <span class="nn">pfhedge.nn.functional</span> <span class="kn">import</span> <span class="n">ww_width</span>
 
 <span class="kn">from</span> <span class="nn">.bs.black_scholes</span> <span class="kn">import</span> <span class="n">BlackScholes</span>
-<span class="kn">from</span> <span class="nn">.clamp</span> <span class="kn">import</span> <span class="n">Clamp</span>
 
 
 <div class="viewcode-block" id="WhalleyWilmott"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.WhalleyWilmott.html#pfhedge.nn.WhalleyWilmott">[docs]</a><span class="k">class</span> <span class="nc">WhalleyWilmott</span><span class="p">(</span><span class="n">Module</span><span class="p">):</span>
@@ -285,7 +285,7 @@
 <span class="sd">          1997, 7, 307–324.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        derivative (:class:`pfhedge.instruments.Derivative`): Derivative to hedge.</span>
+<span class="sd">        derivative (:class:`pfhedge.instruments.BaseDerivative`): Derivative to hedge.</span>
 <span class="sd">        a (float, default=1.0): Risk aversion parameter in exponential utility.</span>
 
 <span class="sd">    Shape:</span>
@@ -296,7 +296,6 @@
 <span class="sd">        - Output: :math:`(N, *, 1)`.</span>
 
 <span class="sd">    Examples:</span>
-
 <span class="sd">        An example for :class:`pfhedge.instruments.EuropeanOption`.</span>
 
 <span class="sd">        &gt;&gt;&gt; import torch</span>
@@ -347,7 +346,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="n">a</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">bs</span> <span class="o">=</span> <span class="n">BlackScholes</span><span class="p">(</span><span class="n">derivative</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">clamp</span> <span class="o">=</span> <span class="n">Clamp</span><span class="p">()</span>
 
 <div class="viewcode-block" id="WhalleyWilmott.inputs"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.WhalleyWilmott.html#pfhedge.nn.WhalleyWilmott.inputs">[docs]</a>    <span class="k">def</span> <span class="nf">inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="sd">"""Returns the names of input features.</span>
@@ -368,13 +366,13 @@
         <span class="nb">min</span> <span class="o">=</span> <span class="n">delta</span> <span class="o">-</span> <span class="n">width</span>
         <span class="nb">max</span> <span class="o">=</span> <span class="n">delta</span> <span class="o">+</span> <span class="n">width</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="n">prev_hedge</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="nb">max</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">prev_hedge</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="nb">max</span><span class="p">)</span>
 
 <div class="viewcode-block" id="WhalleyWilmott.width"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.WhalleyWilmott.html#pfhedge.nn.WhalleyWilmott.width">[docs]</a>    <span class="k">def</span> <span class="nf">width</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
         <span class="sa">r</span><span class="sd">"""Returns half-width of the no-transaction band.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            input (Tensor): The input tensor.</span>
+<span class="sd">            input (torch.Tensor): The input tensor.</span>
 
 <span class="sd">        Shape:</span>
 <span class="sd">            - Input: :math:`(N, *, H_{\text{in}} - 1)` where</span>
@@ -387,12 +385,11 @@
 <span class="sd">            torch.Tensor</span>
 <span class="sd">        """</span>
         <span class="n">cost</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">derivative</span><span class="o">.</span><span class="n">underlier</span><span class="o">.</span><span class="n">cost</span>
-
         <span class="n">spot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">derivative</span><span class="o">.</span><span class="n">strike</span> <span class="o">*</span> <span class="nb">input</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">exp</span><span class="p">()</span>
         <span class="n">gamma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bs</span><span class="o">.</span><span class="n">gamma</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="nb">input</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">input</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">))))</span>
         <span class="n">width</span> <span class="o">=</span> <span class="p">(</span><span class="n">cost</span> <span class="o">*</span> <span class="p">(</span><span class="mi">3</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">gamma</span><span class="o">.</span><span class="n">square</span><span class="p">()</span> <span class="o">*</span> <span class="n">spot</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">)</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">width</span></div></div>
+        <span class="k">return</span> <span class="n">ww_width</span><span class="p">(</span><span class="n">gamma</span><span class="o">=</span><span class="n">gamma</span><span class="p">,</span> <span class="n">spot</span><span class="o">=</span><span class="n">spot</span><span class="p">,</span> <span class="n">cost</span><span class="o">=</span><span class="n">cost</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">)</span></div></div>
 </pre></div>
         </article>
       </div>

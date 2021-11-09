@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="BaseOption" href="pfhedge.instruments.BaseOption.html" /><link rel="prev" title="CIRRate" href="pfhedge.instruments.CIRRate.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="BaseDerivative" href="pfhedge.instruments.BaseDerivative.html" /><link rel="prev" title="BaseInstrument" href="pfhedge.instruments.BaseInstrument.html" />
 
     <meta name="generator" content="sphinx-4.2.0, furo 2021.10.09"/>
-        <title>Derivative - PFHedge documentation</title>
+        <title>BasePrimary - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=0254c309f5cadf746f1a613e7677379ac9c8cdcd" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
@@ -184,13 +184,13 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../nn.functional.html">pfhedge.nn.functional</a></li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="../instruments.html">pfhedge.instruments</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.Instrument.html">Instrument</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.Primary.html">Primary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BaseInstrument.html">BaseInstrument</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">BasePrimary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BaseDerivative.html">BaseDerivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.HestonStock.html">HestonStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.CIRRate.html">CIRRate</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Derivative</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
@@ -239,34 +239,27 @@
           </label>
         </div>
         <article role="main">
-          <section id="derivative">
-<h1>Derivative<a class="headerlink" href="#derivative" title="Permalink to this headline">¶</a></h1>
+          <section id="baseprimary">
+<h1>BasePrimary<a class="headerlink" href="#baseprimary" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="pfhedge.instruments.Derivative">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pfhedge.instruments.</span></span><span class="sig-name descname"><span class="pre">Derivative</span></span><a class="reference internal" href="../_modules/pfhedge/instruments/derivative/base.html#Derivative"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Derivative" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="pfhedge.instruments.Instrument.html#pfhedge.instruments.Instrument" title="pfhedge.instruments.base.Instrument"><code class="xref py py-class docutils literal notranslate"><span class="pre">pfhedge.instruments.base.Instrument</span></code></a></p>
-<p>Base class for all derivatives.</p>
-<p>A derivative is a financial instrument whose payoff is contingent on
-a primary instrument (or a set of primary instruments).
-A (over-the-counter) derivative is not traded on the market and therefore the price
-is not directly accessible.
-Examples include options and swaps.</p>
-<p>A derivative relies on primary assets (See <a class="reference internal" href="pfhedge.instruments.Primary.html#pfhedge.instruments.Primary" title="pfhedge.instruments.Primary"><code class="xref py py-class docutils literal notranslate"><span class="pre">Primary</span></code></a> for details), such as
-stocks, bonds, commodities, and currencies.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pfhedge.instruments.Derivative.underlier">
-<span class="sig-name descname"><span class="pre">underlier</span></span><a class="headerlink" href="#pfhedge.instruments.Derivative.underlier" title="Permalink to this definition">¶</a></dt>
-<dd><p>The underlying asset on which the derivative’s
-payoff relies.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="pfhedge.instruments.Primary.html#pfhedge.instruments.Primary" title="pfhedge.instruments.Primary"><code class="xref py py-class docutils literal notranslate"><span class="pre">Primary</span></code></a></p>
+<dt class="sig sig-object py" id="pfhedge.instruments.BasePrimary">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pfhedge.instruments.</span></span><span class="sig-name descname"><span class="pre">BasePrimary</span></span><a class="reference internal" href="../_modules/pfhedge/instruments/primary/base.html#BasePrimary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.BasePrimary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pfhedge.instruments.BaseInstrument.html#pfhedge.instruments.BaseInstrument" title="pfhedge.instruments.base.BaseInstrument"><code class="xref py py-class docutils literal notranslate"><span class="pre">pfhedge.instruments.base.BaseInstrument</span></code></a></p>
+<p>Base class for all primary instruments.</p>
+<p>A primary instrument is a basic financial instrument which is traded on a market
+and therefore the price is accessible as the market price.
+Examples include stocks, bonds, commodities, and currencies.</p>
+<p>Derivatives are issued based on primary instruments
+(See <a class="reference internal" href="pfhedge.instruments.BaseDerivative.html#pfhedge.instruments.BaseDerivative" title="pfhedge.instruments.BaseDerivative"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseDerivative</span></code></a> for details).</p>
+<dl class="simple">
+<dt>Buffers:</dt><dd><ul class="simple">
+<li><p>spot (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.10.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.Tensor</span></code></a>): The spot price of the instrument.</p></li>
+</ul>
 </dd>
 </dl>
-</dd></dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="pfhedge.instruments.Derivative.dtype">
-<span class="sig-name descname"><span class="pre">dtype</span></span><a class="headerlink" href="#pfhedge.instruments.Derivative.dtype" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pfhedge.instruments.BasePrimary.dtype">
+<span class="sig-name descname"><span class="pre">dtype</span></span><a class="headerlink" href="#pfhedge.instruments.BasePrimary.dtype" title="Permalink to this definition">¶</a></dt>
 <dd><p>The dtype with which the simulated time-series are
 represented.</p>
 <dl class="field-list simple">
@@ -276,8 +269,8 @@ represented.</p>
 </dl>
 </dd></dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="pfhedge.instruments.Derivative.device">
-<span class="sig-name descname"><span class="pre">device</span></span><a class="headerlink" href="#pfhedge.instruments.Derivative.device" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pfhedge.instruments.BasePrimary.device">
+<span class="sig-name descname"><span class="pre">device</span></span><a class="headerlink" href="#pfhedge.instruments.BasePrimary.device" title="Permalink to this definition">¶</a></dt>
 <dd><p>The device where the simulated time-series are.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -286,27 +279,18 @@ represented.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="pfhedge.instruments.Derivative.add_clause">
-<span class="sig-name descname"><span class="pre">add_clause</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clause</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/derivative/base.html#Derivative.add_clause"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Derivative.add_clause" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds a clause to the derivative.</p>
-<p>The clause will be called after <a class="reference internal" href="#pfhedge.instruments.Derivative.payoff_fn" title="pfhedge.instruments.Derivative.payoff_fn"><code class="xref py py-meth docutils literal notranslate"><span class="pre">payoff_fn()</span></code></a> method
-has computed the payoff and modify the payoff tensor.
-It should have the following signature:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">clause</span><span class="p">(</span><span class="n">derivative</span><span class="p">,</span> <span class="n">payoff</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">modified</span> <span class="n">payoff</span>
-</pre></div>
-</div>
+<dt class="sig sig-object py" id="pfhedge.instruments.BasePrimary.buffers">
+<span class="sig-name descname"><span class="pre">buffers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/primary/base.html#BasePrimary.buffers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.BasePrimary.buffers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an iterator over module buffers.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – The name of the clause.</p></li>
-<li><p><strong>clause</strong> (<em>callable</em><em>[</em><em>[</em><a class="reference internal" href="#pfhedge.instruments.Derivative" title="pfhedge.instruments.Derivative"><em>Derivative</em></a><em>, </em><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.10.0)"><em>torch.Tensor</em></a><em>]</em><em>, </em><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.10.0)"><em>torch.Tensor</em></a><em>]</em>) – The clause to add.</p></li>
-</ul>
+<dt class="field-odd">Yields</dt>
+<dd class="field-odd"><p><em>torch.Tensor</em> – module buffer</p>
 </dd>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="pfhedge.instruments.Derivative.cpu">
-<span class="sig-name descname"><span class="pre">cpu</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.Derivative.cpu" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pfhedge.instruments.BasePrimary.cpu">
+<span class="sig-name descname"><span class="pre">cpu</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.BasePrimary.cpu" title="Permalink to this definition">¶</a></dt>
 <dd><p>Moves all buffers of this instrument and its underlier to the CPU.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -319,8 +303,8 @@ It should have the following signature:</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="pfhedge.instruments.Derivative.cuda">
-<span class="sig-name descname"><span class="pre">cuda</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.Derivative.cuda" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pfhedge.instruments.BasePrimary.cuda">
+<span class="sig-name descname"><span class="pre">cuda</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.BasePrimary.cuda" title="Permalink to this definition">¶</a></dt>
 <dd><p>Moves all buffers of this instrument and its underlier to the GPU.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -336,9 +320,14 @@ all buffers will be copied to that device.</p>
 </dd>
 </dl>
 </dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="pfhedge.instruments.BasePrimary.default_init_state">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">default_init_state</span></span><a class="headerlink" href="#pfhedge.instruments.BasePrimary.default_init_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the default initial state of simulation.</p>
+</dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="pfhedge.instruments.Derivative.double">
-<span class="sig-name descname"><span class="pre">double</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.Derivative.double" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pfhedge.instruments.BasePrimary.double">
+<span class="sig-name descname"><span class="pre">double</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.BasePrimary.double" title="Permalink to this definition">¶</a></dt>
 <dd><p>Casts all floating point parameters and buffers to
 <code class="docutils literal notranslate"><span class="pre">torch.float64</span></code> datatype.</p>
 <div class="admonition note">
@@ -352,8 +341,8 @@ all buffers will be copied to that device.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="pfhedge.instruments.Derivative.float">
-<span class="sig-name descname"><span class="pre">float</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.Derivative.float" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pfhedge.instruments.BasePrimary.float">
+<span class="sig-name descname"><span class="pre">float</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.BasePrimary.float" title="Permalink to this definition">¶</a></dt>
 <dd><p>Casts all floating point parameters and buffers to
 <code class="docutils literal notranslate"><span class="pre">torch.float32</span></code> datatype.</p>
 <div class="admonition note">
@@ -367,8 +356,8 @@ all buffers will be copied to that device.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="pfhedge.instruments.Derivative.half">
-<span class="sig-name descname"><span class="pre">half</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.Derivative.half" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pfhedge.instruments.BasePrimary.half">
+<span class="sig-name descname"><span class="pre">half</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.BasePrimary.half" title="Permalink to this definition">¶</a></dt>
 <dd><p>Casts all floating point parameters and buffers to
 <code class="docutils literal notranslate"><span class="pre">torch.float16</span></code> datatype.</p>
 <div class="admonition note">
@@ -382,102 +371,69 @@ all buffers will be copied to that device.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="pfhedge.instruments.Derivative.list">
-<span class="sig-name descname"><span class="pre">list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pricer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/derivative/base.html#Derivative.list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Derivative.list" title="Permalink to this definition">¶</a></dt>
-<dd><p>Make self a listed derivative.</p>
-<p>After this method self will be a exchange-traded derivative which can be transacted
-at any time with the spot price given by <code class="docutils literal notranslate"><span class="pre">self.spot</span></code>.</p>
-<p>See an example in <a class="reference internal" href="pfhedge.instruments.EuropeanOption.html#pfhedge.instruments.EuropeanOption" title="pfhedge.instruments.EuropeanOption"><code class="xref py py-class docutils literal notranslate"><span class="pre">EuropeanOption</span></code></a> for a usage.</p>
+<dt class="sig sig-object py" id="pfhedge.instruments.BasePrimary.named_buffers">
+<span class="sig-name descname"><span class="pre">named_buffers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/primary/base.html#BasePrimary.named_buffers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.BasePrimary.named_buffers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an iterator over module buffers, yielding both the
+name of the buffer as well as the buffer itself.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Yields</dt>
+<dd class="field-odd"><p><em>(string, torch.Tensor)</em> – Tuple containing the name and buffer</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pfhedge.instruments.BasePrimary.register_buffer">
+<span class="sig-name descname"><span class="pre">register_buffer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tensor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/primary/base.html#BasePrimary.register_buffer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.BasePrimary.register_buffer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a buffer to the instrument.
+The dtype and device of the buffer are the instrument’s dtype and device.</p>
+<p>Buffers can be accessed as attributes using given names.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pricer</strong> (<em>Callable</em><em>[</em><em>[</em><a class="reference internal" href="#pfhedge.instruments.Derivative" title="pfhedge.instruments.Derivative"><em>Derivative</em></a><em>]</em><em>, </em><em>Tensor</em><em>]</em><em>]</em>) – A function that takes self
-and returns the spot price tensor of self.</p></li>
-<li><p><strong>cost</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – The transaction cost rate.</p></li>
+<li><p><strong>name</strong> (<em>string</em>) – name of the buffer. The buffer can be accessed
+from this module using the given name</p></li>
+<li><p><strong>tensor</strong> (<em>Tensor</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><em>None</em></a>) – buffer to be registered. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, then
+operations that run on buffers, such as <a class="reference internal" href="#pfhedge.instruments.BasePrimary.cuda" title="pfhedge.instruments.BasePrimary.cuda"><code class="xref py py-attr docutils literal notranslate"><span class="pre">cuda</span></code></a>, are ignored.</p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="pfhedge.instruments.Derivative.payoff">
-<span class="sig-name descname"><span class="pre">payoff</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/derivative/base.html#Derivative.payoff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Derivative.payoff" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the payoff of the derivative.</p>
-<dl class="simple">
-<dt>Shape:</dt><dd><ul class="simple">
-<li><p>Output: <span class="math notranslate nohighlight">\((N)\)</span> where
-<span class="math notranslate nohighlight">\(N\)</span> stands for the number of simulated paths.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>torch.Tensor</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="pfhedge.instruments.Derivative.payoff_fn">
-<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">payoff_fn</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/derivative/base.html#Derivative.payoff_fn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Derivative.payoff_fn" title="Permalink to this definition">¶</a></dt>
-<dd><p>Defines the payoff function of the derivative.</p>
-<p>This should be overridden by all subclasses.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Although the payoff function needs to be defined within this function,
-one should use the <a class="reference internal" href="#pfhedge.instruments.Derivative.payoff" title="pfhedge.instruments.Derivative.payoff"><code class="xref py py-meth docutils literal notranslate"><span class="pre">payoff()</span></code></a> method afterwards instead of this
-since the former takes care of applying the registered clauses
-(See <a class="reference internal" href="#pfhedge.instruments.Derivative.add_clause" title="pfhedge.instruments.Derivative.add_clause"><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_clause()</span></code></a>)
-while the latter silently ignores them.</p>
-</div>
-<dl class="simple">
-<dt>Shape:</dt><dd><ul class="simple">
-<li><p>Output: <span class="math notranslate nohighlight">\((N)\)</span> where
-<span class="math notranslate nohighlight">\(N\)</span> stands for the number of simulated paths.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>torch.Tensor</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="pfhedge.instruments.Derivative.simulate">
-<span class="sig-name descname"><span class="pre">simulate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/derivative/base.html#Derivative.simulate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Derivative.simulate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Simulate time series associated with the underlier.</p>
+<dt class="sig sig-object py" id="pfhedge.instruments.BasePrimary.simulate">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">simulate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_horizon</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/primary/base.html#BasePrimary.simulate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.BasePrimary.simulate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simulate time series associated with the instrument and add them as buffers.</p>
+<p>The shapes of the registered buffers should be <code class="docutils literal notranslate"><span class="pre">(n_paths,</span> <span class="pre">n_steps)</span></code>
+where <code class="docutils literal notranslate"><span class="pre">n_steps</span></code> is the minimum integer that satisfies
+<code class="docutils literal notranslate"><span class="pre">n_steps</span> <span class="pre">*</span> <span class="pre">self.dt</span> <span class="pre">&gt;=</span> <span class="pre">time_horizon</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>n_paths</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The number of paths to simulate.</p></li>
+<li><p><strong>time_horizon</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – The period of time to simulate the price.</p></li>
 <li><p><strong>init_state</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.10)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.10.0)"><em>torch.Tensor</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>]</em><em>, </em><em>optional</em>) – The initial state of
-the underlier.</p></li>
-<li><p><strong>**kwargs</strong> – Other parameters passed to <code class="docutils literal notranslate"><span class="pre">self.underlier.simulate()</span></code>.</p></li>
+the instrument.
+If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), it uses the default value
+(See <a class="reference internal" href="#pfhedge.instruments.BasePrimary.default_init_state" title="pfhedge.instruments.BasePrimary.default_init_state"><code class="xref py py-attr docutils literal notranslate"><span class="pre">default_init_state</span></code></a>).</p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="pfhedge.instruments.Derivative.spot">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">spot</span></span><a class="headerlink" href="#pfhedge.instruments.Derivative.spot" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns <code class="docutils literal notranslate"><span class="pre">self.pricer(self)</span></code> if self is listed.</p>
-<p>See <a class="reference internal" href="#pfhedge.instruments.Derivative.list" title="pfhedge.instruments.Derivative.list"><code class="xref py py-meth docutils literal notranslate"><span class="pre">list()</span></code></a> for details.</p>
-</dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="pfhedge.instruments.Derivative.to">
-<span class="sig-name descname"><span class="pre">to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/derivative/base.html#Derivative.to"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Derivative.to" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pfhedge.instruments.BasePrimary.to">
+<span class="sig-name descname"><span class="pre">to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/primary/base.html#BasePrimary.to"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.BasePrimary.to" title="Permalink to this definition">¶</a></dt>
 <dd><p>Moves and/or casts the buffers of the instrument.</p>
 <p>This can be called as</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="id0">
-<span class="sig-name descname"><span class="pre">to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/derivative/base.html#Derivative.to"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/primary/base.html#BasePrimary.to"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="id1">
-<span class="sig-name descname"><span class="pre">to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/derivative/base.html#Derivative.to"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id1" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/primary/base.html#BasePrimary.to"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id1" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="id2">
-<span class="sig-name descname"><span class="pre">to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/derivative/base.html#Derivative.to"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id2" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/primary/base.html#BasePrimary.to"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id2" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <p>Its signature is similar to <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module.to" title="(in PyTorch v1.10.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">torch.nn.Module.to()</span></code></a>.
 It only accepts floating point dtypes.
@@ -489,12 +445,12 @@ See <a class="reference internal" href="../notes/instrument_attributes.html#inst
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="#pfhedge.instruments.Derivative.float" title="pfhedge.instruments.Derivative.float"><code class="xref py py-meth docutils literal notranslate"><span class="pre">float()</span></code></a>: Cast to <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.float32</span></code>.</p></li>
-<li><p><a class="reference internal" href="#pfhedge.instruments.Derivative.double" title="pfhedge.instruments.Derivative.double"><code class="xref py py-meth docutils literal notranslate"><span class="pre">double()</span></code></a>: Cast to <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.float64</span></code>.</p></li>
-<li><p><a class="reference internal" href="#pfhedge.instruments.Derivative.half" title="pfhedge.instruments.Derivative.half"><code class="xref py py-meth docutils literal notranslate"><span class="pre">half()</span></code></a>: Cast to <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.float16</span></code>.</p></li>
+<li><p><a class="reference internal" href="#pfhedge.instruments.BasePrimary.float" title="pfhedge.instruments.BasePrimary.float"><code class="xref py py-meth docutils literal notranslate"><span class="pre">float()</span></code></a>: Cast to <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.float32</span></code>.</p></li>
+<li><p><a class="reference internal" href="#pfhedge.instruments.BasePrimary.double" title="pfhedge.instruments.BasePrimary.double"><code class="xref py py-meth docutils literal notranslate"><span class="pre">double()</span></code></a>: Cast to <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.float64</span></code>.</p></li>
+<li><p><a class="reference internal" href="#pfhedge.instruments.BasePrimary.half" title="pfhedge.instruments.BasePrimary.half"><code class="xref py py-meth docutils literal notranslate"><span class="pre">half()</span></code></a>: Cast to <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.float16</span></code>.</p></li>
 <li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">bfloat16()</span></code>: Cast to <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.bfloat16</span></code>.</p></li>
-<li><p><a class="reference internal" href="#pfhedge.instruments.Derivative.cuda" title="pfhedge.instruments.Derivative.cuda"><code class="xref py py-meth docutils literal notranslate"><span class="pre">cuda()</span></code></a>: Move to CUDA memory.</p></li>
-<li><p><a class="reference internal" href="#pfhedge.instruments.Derivative.cpu" title="pfhedge.instruments.Derivative.cpu"><code class="xref py py-meth docutils literal notranslate"><span class="pre">cpu()</span></code></a>: Move to CPU memory.</p></li>
+<li><p><a class="reference internal" href="#pfhedge.instruments.BasePrimary.cuda" title="pfhedge.instruments.BasePrimary.cuda"><code class="xref py py-meth docutils literal notranslate"><span class="pre">cuda()</span></code></a>: Move to CUDA memory.</p></li>
+<li><p><a class="reference internal" href="#pfhedge.instruments.BasePrimary.cpu" title="pfhedge.instruments.BasePrimary.cpu"><code class="xref py py-meth docutils literal notranslate"><span class="pre">cpu()</span></code></a>: Move to CPU memory.</p></li>
 </ul>
 </div>
 <dl class="field-list simple">
@@ -507,7 +463,7 @@ the buffers in this instrument.</p></li>
 <li><p><strong>tensor</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.10.0)"><em>torch.Tensor</em></a>) – Tensor whose dtype and device are
 the desired dtype and device of
 the buffers in this instrument.</p></li>
-<li><p><strong>instrument</strong> (<a class="reference internal" href="pfhedge.instruments.Instrument.html#pfhedge.instruments.Instrument" title="pfhedge.instruments.Instrument"><em>Instrument</em></a>) – Instrument whose dtype and device are
+<li><p><strong>instrument</strong> (<a class="reference internal" href="pfhedge.instruments.BaseInstrument.html#pfhedge.instruments.BaseInstrument" title="pfhedge.instruments.BaseInstrument"><em>BaseInstrument</em></a>) – Instrument whose dtype and device are
 the desired dtype and device of
 the buffers in this instrument.</p></li>
 </ul>
@@ -517,11 +473,6 @@ the buffers in this instrument.</p></li>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="pfhedge.instruments.Derivative.ul">
-<span class="sig-name descname"><span class="pre">ul</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/derivative/base.html#Derivative.ul"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.Derivative.ul" title="Permalink to this definition">¶</a></dt>
-<dd><p>Alias for <code class="docutils literal notranslate"><span class="pre">self.underlier</span></code>.</p>
-</dd></dl>
 </dd></dl>
 </section>
 
@@ -530,23 +481,23 @@ the buffers in this instrument.</p></li>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="pfhedge.instruments.BaseOption.html">
+          <a class="next-page" href="pfhedge.instruments.BaseDerivative.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">BaseOption</div>
+                <div class="title">BaseDerivative</div>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="pfhedge.instruments.CIRRate.html">
+          <a class="prev-page" href="pfhedge.instruments.BaseInstrument.html">
               <svg><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">CIRRate</div>
+                <div class="title">BaseInstrument</div>
                 
               </div>
             </a>
@@ -558,7 +509,7 @@ the buffers in this instrument.</p></li>
               and
               <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
               <a href="https://github.com/pradyunsg/furo">Furo theme</a>. |
-            <a class="muted-link" href="../_sources/generated/pfhedge.instruments.Derivative.rst.txt"
+            <a class="muted-link" href="../_sources/generated/pfhedge.instruments.BasePrimary.rst.txt"
                rel="nofollow">
               Show Source
             </a>
@@ -579,6 +530,5 @@ the buffers in this instrument.</p></li>
     <script src="../_static/scripts/main.js"></script>
     <script src="../_static/clipboard.min.js"></script>
     <script src="../_static/copybutton.js"></script>
-    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     </body>
 </html>
