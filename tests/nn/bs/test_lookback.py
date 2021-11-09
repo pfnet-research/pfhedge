@@ -9,18 +9,9 @@ from pfhedge.instruments import LookbackOption
 from pfhedge.nn import BSLookbackOption
 
 from ._base import _TestBSModule
-
-
-def compute_delta(module, input: Tensor) -> Tensor:
-    return module.delta(*(input[..., i] for i in range(4)))
-
-
-def compute_gamma(module, input: Tensor) -> Tensor:
-    return module.gamma(*(input[..., i] for i in range(4)))
-
-
-def compute_price(module, input: Tensor) -> Tensor:
-    return module.price(*(input[..., i] for i in range(4)))
+from ._utils import compute_delta
+from ._utils import compute_gamma
+from ._utils import compute_price
 
 
 class TestBSLookbackOption(_TestBSModule):
@@ -64,7 +55,7 @@ class TestBSLookbackOption(_TestBSModule):
         expect = torch.tensor([0.0])
         assert_close(result, expect)
 
-        # delta = 0 for spot / k < 1 and volatility --> +0
+        # delta = 0 for volatility --> +0
         result = compute_delta(m, torch.tensor([[-0.01, -0.01, 0.1, 1e-10]]))
         expect = torch.tensor([0.0])
         assert_close(result, expect)
@@ -142,24 +133,20 @@ class TestBSLookbackOption(_TestBSModule):
         result1 = compute_price(m, torch.tensor([[1e-5, 1e-5, 0.1, 0.2]]))
         assert_close(result0, result1, atol=1e-4, rtol=0)
 
-    # # TODO(simaki): monte carlo test
+    def test_check_price_monte_carlo(self):
+        torch.manual_seed(42)
 
-    # def test_check_price_monte_carlo(self):
-    #     torch.manual_seed(42)
+        # Monte Carlo evaluation of a lookback option needs small dt
+        k = 1.01
+        d = LookbackOption(BrownianStock(dt=1e-5), strike=k)
+        m = BSLookbackOption.from_derivative(d)
+        d.simulate(n_paths=int(1e4), init_state=(1.0,))
 
-    #     k = 1.01
-    #     d = LookbackOption(BrownianStock(), strike=k)
-    #     m = BSLookbackOption.from_derivative(d)
-    #     d.simulate(n_paths=int(1e6), init_state=(1.0,))
-
-    #     s = torch.tensor([1.0 / k]).log()
-    #     input = torch.tensor([[s, s, d.maturity, d.ul().sigma]])
-    #     result = compute_price(m, input)
-    #     expect = d.payoff().mean(0, keepdim=True)
-    #     print(d.payoff().max())
-    #     print(d.payoff().min())
-    #     print(result, expect)
-    #     assert_close(result, expect, rtol=1e-2, atol=0.0)
+        s = torch.tensor([1.0 / k]).log()
+        input = torch.tensor([[s, s, d.maturity, d.ul().sigma]])
+        result = compute_price(m, input)
+        expect = d.payoff().mean(0, keepdim=True)
+        assert_close(result, expect, rtol=1e-2, atol=0.0)
 
     def test_forward(self):
         m = BSLookbackOption()
