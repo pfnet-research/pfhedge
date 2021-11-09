@@ -545,3 +545,23 @@ def d2(log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor) -> T
     """
     s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
     return (s - (v.square() / 2) * t).div(v * t.sqrt())
+
+
+def ww_width(
+    gamma: Tensor, spot: Tensor, cost: TensorOrScalar, a: TensorOrScalar = 1.0
+) -> Tensor:
+    r"""Returns half-width of the no-transaction band for
+    Whalley-Wilmott's hedging strategy.
+
+    See :class:`pfhedge.nn.WhalleyWilmott` for details.
+
+    Args:
+        gamma (torch.Tensor): The gamma of the derivative,
+        spot (torch.Tensor): The spot price of the underlier.
+        cost (torch.Tensor or float): The cost rate of the underlier.
+        a (torch.Tensor or float, default=1.0): Risk aversion parameter in exponential utility.
+
+    Returns:
+        torch.Tensor
+    """
+    return (cost * (3 / 2) * gamma.square() * spot / a).pow(1 / 3)

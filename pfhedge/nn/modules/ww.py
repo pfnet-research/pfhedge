@@ -4,9 +4,9 @@ from torch import Tensor
 from torch.nn import Module
 
 from pfhedge._utils.str import _format_float
+from pfhedge.nn.functional import ww_width
 
 from .bs.black_scholes import BlackScholes
-from .clamp import Clamp
 
 
 class WhalleyWilmott(Module):
@@ -55,7 +55,6 @@ class WhalleyWilmott(Module):
         - Output: :math:`(N, *, 1)`.
 
     Examples:
-
         An example for :class:`pfhedge.instruments.EuropeanOption`.
 
         >>> import torch
@@ -106,7 +105,6 @@ class WhalleyWilmott(Module):
         self.a = a
 
         self.bs = BlackScholes(derivative)
-        self.clamp = Clamp()
 
     def inputs(self) -> List[str]:
         """Returns the names of input features.
@@ -127,13 +125,13 @@ class WhalleyWilmott(Module):
         min = delta - width
         max = delta + width
 
-        return self.clamp(prev_hedge, min=min, max=max)
+        return prev_hedge.clamp(min=min, max=max)
 
     def width(self, input: Tensor) -> Tensor:
         r"""Returns half-width of the no-transaction band.
 
         Args:
-            input (Tensor): The input tensor.
+            input (torch.Tensor): The input tensor.
 
         Shape:
             - Input: :math:`(N, *, H_{\text{in}} - 1)` where
@@ -146,9 +144,8 @@ class WhalleyWilmott(Module):
             torch.Tensor
         """
         cost = self.derivative.underlier.cost
-
         spot = self.derivative.strike * input[..., [0]].exp()
         gamma = self.bs.gamma(*(input[..., [i]] for i in range(input.size(-1))))
         width = (cost * (3 / 2) * gamma.square() * spot / self.a).pow(1 / 3)
 
-        return width
+        return ww_width(gamma=gamma, spot=spot, cost=cost, a=self.a)

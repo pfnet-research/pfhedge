@@ -15,7 +15,6 @@ class TestWhalleyWilmott:
         expect = """\
 WhalleyWilmott(
   (bs): BSEuropeanOption(strike=1.)
-  (clamp): Clamp()
 )"""
         assert repr(m) == expect
 
@@ -25,7 +24,6 @@ WhalleyWilmott(
 WhalleyWilmott(
   a=2.
   (bs): BSEuropeanOption(strike=1.)
-  (clamp): Clamp()
 )"""
         assert repr(m) == expect
 
@@ -34,7 +32,6 @@ WhalleyWilmott(
         expect = """\
 WhalleyWilmott(
   (bs): BSLookbackOption(strike=1.)
-  (clamp): Clamp()
 )"""
         assert repr(m) == expect
 
