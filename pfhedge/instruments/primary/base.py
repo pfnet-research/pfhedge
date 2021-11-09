@@ -5,7 +5,6 @@ from typing import Iterator
 from typing import Optional
 from typing import Tuple
 from typing import TypeVar
-from typing import Union
 from typing import no_type_check
 
 import torch
@@ -15,12 +14,12 @@ from pfhedge._utils.doc import _set_attr_and_docstring
 from pfhedge._utils.doc import _set_docstring
 from pfhedge._utils.typing import TensorOrScalar
 
-from ..base import Instrument
+from ..base import BaseInstrument
 
-T = TypeVar("T", bound="Primary")
+T = TypeVar("T", bound="BasePrimary")
 
 
-class Primary(Instrument):
+class BasePrimary(BaseInstrument):
     """Base class for all primary instruments.
 
     A primary instrument is a basic financial instrument which is traded on a market
@@ -28,7 +27,7 @@ class Primary(Instrument):
     Examples include stocks, bonds, commodities, and currencies.
 
     Derivatives are issued based on primary instruments
-    (See :class:`Derivative` for details).
+    (See :class:`BaseDerivative` for details).
 
     Buffers:
         - spot (:class:`torch.Tensor`): The spot price of the instrument.
@@ -93,7 +92,7 @@ class Primary(Instrument):
         """
         # Implementation here refers to torch.nn.Module.register_buffer.
         if "_buffers" not in self.__dict__:
-            raise AttributeError("cannot assign buffer before Primary.__init__() call")
+            raise AttributeError("cannot assign buffer before __init__() call")
         elif not isinstance(name, torch._six.string_classes):
             raise TypeError(
                 "buffer name should be a string. " "Got {}".format(torch.typename(name))
@@ -160,7 +159,7 @@ class Primary(Instrument):
 
         if dtype is not None and not dtype.is_floating_point:
             raise TypeError(
-                "Instrument.to only accepts floating point "
+                "to() only accepts floating point "
                 "dtypes, but got desired dtype=" + str(dtype)
             )
 
@@ -181,7 +180,7 @@ class Primary(Instrument):
         #   to(tensor)
         #   to(instrument)
         # and return a tuple (device, dtype, ...)
-        if len(args) > 0 and isinstance(args[0], Instrument):
+        if len(args) > 0 and isinstance(args[0], BaseInstrument):
             instrument = args[0]
             return (getattr(instrument, "device"), getattr(instrument, "dtype"))
         elif "instrument" in kwargs:
@@ -200,10 +199,16 @@ class Primary(Instrument):
         return main_str
 
 
+class Primary(BasePrimary):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        raise DeprecationWarning("Primary is deprecated. Use BasePrimary instead.")
+
+
 # Assign docstrings so they appear in Sphinx documentation
-_set_docstring(Primary, "to", Instrument.to)
-_set_attr_and_docstring(Primary, "cpu", Instrument.cpu)
-_set_attr_and_docstring(Primary, "cuda", Instrument.cuda)
-_set_attr_and_docstring(Primary, "double", Instrument.double)
-_set_attr_and_docstring(Primary, "float", Instrument.float)
-_set_attr_and_docstring(Primary, "half", Instrument.half)
+_set_docstring(BasePrimary, "to", BaseInstrument.to)
+_set_attr_and_docstring(BasePrimary, "cpu", BaseInstrument.cpu)
+_set_attr_and_docstring(BasePrimary, "cuda", BaseInstrument.cuda)
+_set_attr_and_docstring(BasePrimary, "double", BaseInstrument.double)
+_set_attr_and_docstring(BasePrimary, "float", BaseInstrument.float)
+_set_attr_and_docstring(BasePrimary, "half", BaseInstrument.half)

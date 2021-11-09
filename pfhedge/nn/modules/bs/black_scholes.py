@@ -16,7 +16,7 @@ class BlackScholes(Module):
     The ``forward`` method returns the Black-Scholes delta.
 
     Args:
-        derivative (:class:`Derivative`): The derivative to get
+        derivative (:class:`BaseDerivative`): The derivative to get
             the Black-Scholes formula.
 
     Shape:
