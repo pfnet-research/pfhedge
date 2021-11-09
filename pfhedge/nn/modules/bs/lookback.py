@@ -7,8 +7,8 @@ from pfhedge._utils.bisect import find_implied_volatility
 from pfhedge._utils.doc import _set_attr_and_docstring
 from pfhedge._utils.doc import _set_docstring
 from pfhedge._utils.str import _format_float
-from pfhedge.nn.functional import d1
-from pfhedge.nn.functional import d2
+from pfhedge.nn.functional import d1 as compute_d1
+from pfhedge.nn.functional import d2 as compute_d2
 from pfhedge.nn.functional import ncdf
 from pfhedge.nn.functional import npdf
 
@@ -21,6 +21,16 @@ class BSLookbackOption(BSModuleMixin):
     Note:
         Risk-free rate is set to zero.
 
+    .. seealso::
+        - :class:`pfhedge.nn.BlackScholes`:
+          Initialize Black-Scholes formula module from a derivative.
+        - :class:`pfhedge.instruments.LookbackOption`:
+          Corresponding derivative.
+
+    References:
+        - Conze, A., 1991. Path dependent options: The case of lookback options.
+          The Journal of Finance, 46(5), pp.1893-1907.
+
     Args:
         call (bool, default=True): Specifies whether the option is call or put.
         strike (float, default=1.0): The strike price of the option.
@@ -32,18 +42,7 @@ class BSLookbackOption(BSModuleMixin):
         - Output: :math:`(N, *, 1)`.
           All but the last dimension are the same shape as the input.
 
-    .. seealso::
-        - :class:`pfhedge.nn.BlackScholes`:
-          Initialize Black-Scholes formula module from a derivative.
-        - :class:`pfhedge.instruments.LookBackOption`:
-          Corresponding derivative.
-
-    References:
-        - Conze, A., 1991. Path dependent options: The case of lookback options.
-          The Journal of Finance, 46(5), pp.1893-1907.
-
     Examples:
-
         >>> from pfhedge.nn import BSLookbackOption
         >>>
         >>> m = BSLookbackOption()
@@ -59,7 +58,7 @@ class BSLookbackOption(BSModuleMixin):
                 [1.0515]])
     """
 
-    def __init__(self, call: bool = True, strike: float = 1.0):
+    def __init__(self, call: bool = True, strike: float = 1.0) -> None:
         if not call:
             raise ValueError(
                 f"{self.__class__.__name__} for a put option is not yet supported."
@@ -81,7 +80,6 @@ class BSLookbackOption(BSModuleMixin):
             BSLookbackOption
 
         Examples:
-
             >>> from pfhedge.instruments import BrownianStock
             >>> from pfhedge.instruments import LookbackOption
             >>>
@@ -107,7 +105,25 @@ class BSLookbackOption(BSModuleMixin):
         time_to_maturity: Tensor,
         volatility: Tensor,
     ) -> Tensor:
-        """Returns price of the derivative.
+        r"""Returns price of the derivative.
+
+        The price is given by:
+
+        .. math::
+            \begin{cases}
+                S(0) \{
+                    N(d_1) + \sigma \sqrt{T} [N'(d_1) + d_1 N(d_1)]
+                \} - K N(d_2)
+                & (M \leq K) \\
+                S(0) \{
+                    N(d_1') + \sigma \sqrt{T} [N'(d_1') + d_1' N(d_1')]
+                \} - K + M [1 - N(d_2')]
+                & (M > K) \\
+            \end{cases}
+        where
+        :math:`M = \max_{t < 0} S(t)`,
+        :math:`d_1' = [\log(S(0) / M) + \frac12 \sigma^2 T] / \sigma \sqrt{T}`, and
+        :math:`d_2' = [\log(S(0) / M) - \frac12 \sigma^2 T] / \sigma \sqrt{T}`.
 
         Args:
             log_moneyness (torch.Tensor): Log moneyness of the underlying asset.
@@ -131,27 +147,25 @@ class BSLookbackOption(BSModuleMixin):
             (log_moneyness, max_log_moneyness, time_to_maturity, volatility),
         )
 
-        d1_ = d1(s, t, v)
-        d2_ = d2(s, t, v)
-        e1 = (s - m + (v.square() / 2) * t) / (v * t.sqrt())  # d' in paper
-        e2 = (s - m - (v.square() / 2) * t) / (v * t.sqrt())
+        spot = s.exp() * self.strike
+        max = m.exp() * self.strike
+        d1 = compute_d1(s, t, v)
+        d2 = compute_d2(s, t, v)
+        m1 = compute_d1(s - m, t, v)  # d' in the paper
+        m2 = compute_d2(s - m, t, v)
 
-        # when max moneyness < strike
-        price_0 = self.strike * (
-            s.exp() * ncdf(d1_)
-            - ncdf(d2_)
-            + s.exp() * v * t.sqrt() * (d1_ * ncdf(d1_) + npdf(d1_))
-        )
-        # when max moneyness >= strike
-        price_1 = self.strike * (
-            s.exp() * ncdf(e1)
-            - m.exp() * ncdf(e2)
-            + m.exp()
-            - 1
-            + s.exp() * v * t.sqrt() * (e1 * ncdf(e1) + npdf(e1))
+        # when max < strike
+        price_0 = spot * (
+            ncdf(d1) + v * t.sqrt() * (d1 * ncdf(d1) + npdf(d1))
+        ) - self.strike * ncdf(d2)
+        # when max >= strike
+        price_1 = (
+            spot * (ncdf(m1) + v * t.sqrt() * (m1 * ncdf(m1) + npdf(m1)))
+            - self.strike
+            + max * (1 - ncdf(m2))
         )
 
-        return torch.where(m < 0, price_0, price_1)
+        return torch.where(max < self.strike, price_0, price_1)
 
     @torch.enable_grad()
     def delta(

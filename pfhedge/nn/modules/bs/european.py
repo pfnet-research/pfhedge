@@ -19,6 +19,15 @@ class BSEuropeanOption(BSModuleMixin):
     Note:
         Risk-free rate is set to zero.
 
+    .. seealso::
+        - :class:`pfhedge.nn.BlackScholes`:
+          Initialize Black-Scholes formula module from a derivative.
+        - :class:`pfhedge.instruments.EuropeanOption`:
+          Corresponding derivative.
+
+    References:
+        - John C. Hull, 2003. Options futures and other derivatives. Pearson.
+
     Args:
         call (bool, default=True): Specifies whether the option is call or put.
         strike (float, default=1.0): The strike price of the option.
@@ -30,17 +39,7 @@ class BSEuropeanOption(BSModuleMixin):
         - Output: :math:`(N, *, 1)`.
           All but the last dimension are the same shape as the input.
 
-    .. seealso::
-        - :class:`pfhedge.nn.BlackScholes`:
-          Initialize Black-Scholes formula module from a derivative.
-        - :class:`pfhedge.instruments.EuropeanOption`:
-          Corresponding derivative.
-
-    References:
-        - John C. Hull, 2003. Options futures and other derivatives. Pearson.
-
     Examples:
-
         >>> from pfhedge.nn import BSEuropeanOption
         >>>
         >>> m = BSEuropeanOption()

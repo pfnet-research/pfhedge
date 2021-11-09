@@ -8,11 +8,11 @@ from pfhedge._utils.doc import _set_docstring
 from pfhedge._utils.str import _format_float
 from pfhedge.nn.functional import realized_variance
 
-from ..primary.base import Primary
-from .base import Derivative
+from ..primary.base import BasePrimary
+from .base import BaseDerivative
 
 
-class VarianceSwap(Derivative):
+class VarianceSwap(BaseDerivative):
     r"""Variance swap.
 
     A variance swap pays cash in the amount of the realized variance
@@ -30,7 +30,7 @@ class VarianceSwap(Derivative):
     the realized variance.
 
     Args:
-        underlier (:class:`Primary`): The underlying instrument.
+        underlier (:class:`BasePrimary`): The underlying instrument.
         strike (float, default=0.04): The strike variance of the swap.
         maturity (float, default=20/250): The maturity of the derivative.
 
@@ -59,7 +59,7 @@ class VarianceSwap(Derivative):
 
     def __init__(
         self,
-        underlier: Primary,
+        underlier: BasePrimary,
         strike: float = 0.04,
         maturity: float = 20 / 250,
         dtype: Optional[torch.dtype] = None,
@@ -91,8 +91,8 @@ class VarianceSwap(Derivative):
 
 
 # Assign docstrings so they appear in Sphinx documentation
-_set_attr_and_docstring(VarianceSwap, "simulate", Derivative.simulate)
-_set_attr_and_docstring(VarianceSwap, "to", Derivative.to)
-_set_attr_and_docstring(VarianceSwap, "ul", Derivative.ul)
-_set_attr_and_docstring(VarianceSwap, "list", Derivative.list)
-_set_docstring(VarianceSwap, "payoff", Derivative.payoff)
+_set_attr_and_docstring(VarianceSwap, "simulate", BaseDerivative.simulate)
+_set_attr_and_docstring(VarianceSwap, "to", BaseDerivative.to)
+_set_attr_and_docstring(VarianceSwap, "ul", BaseDerivative.ul)
+_set_attr_and_docstring(VarianceSwap, "list", BaseDerivative.list)
+_set_docstring(VarianceSwap, "payoff", BaseDerivative.payoff)
