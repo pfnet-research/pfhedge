@@ -14,7 +14,7 @@ from .base import Derivative
 
 
 class EuropeanBinaryOption(BaseOption):
-    """A European binary option.
+    r"""European binary option.
 
     An American binary call option pays an unit amount of cash if and only if
     the underlying asset's price at maturity is equal or greater than the strike price.
@@ -25,12 +25,11 @@ class EuropeanBinaryOption(BaseOption):
     The payoff of an American binary call option is given by:
 
     .. math::
-
-        \\mathrm{payoff} =
-        \\begin{cases}
-            1 & (S \\geq K) \\\\
-            0 & (\\text{otherwise})
-        \\end{cases}
+        \mathrm{payoff} =
+        \begin{cases}
+            1 & (S \geq K) \\
+            0 & (\text{otherwise})
+        \end{cases}
 
     with :math:`S` being the underlying asset's price at maturity and
     :math:`K` being the strike price (`strike`) of the option
@@ -38,12 +37,11 @@ class EuropeanBinaryOption(BaseOption):
     The payoff of an American binary put option is given by:
 
     .. math::
-
-        \\mathrm{payoff} =
-        \\begin{cases}
-            1 & (S \\leq K) \\\\
-            0 & (\\text{otherwise})
-        \\end{cases}
+        \mathrm{payoff} =
+        \begin{cases}
+            1 & (S \leq K) \\
+            0 & (\text{otherwise})
+        \end{cases}
 
     .. seealso::
         :func:`pfhedge.nn.functional.european_binary_payoff`: Payoff function.
@@ -60,7 +58,6 @@ class EuropeanBinaryOption(BaseOption):
         device (torch.device): The device where the simulated time-series are.
 
     Examples:
-
         >>> import torch
         >>> from pfhedge.instruments import BrownianStock
         >>> from pfhedge.instruments import EuropeanBinaryOption

@@ -14,7 +14,7 @@ from .base import Derivative
 
 
 class LookbackOption(BaseOption):
-    """A lookback option with fixed strike.
+    r"""Lookback option with fixed strike.
 
     A lookback call option provides its holder the right to buy an underlying with
     the strike price and to sell with the highest price until the date of maturity.
@@ -25,19 +25,17 @@ class LookbackOption(BaseOption):
     The payoff of a lookback call option is given by:
 
     .. math::
+        \mathrm{payoff} = \max(\mathrm{Max} - K, 0)
 
-        \\mathrm{payoff} = \\max(\\mathrm{Max} - K, 0)
-
-    Here, :math:`\\mathrm{Max}` is the maximum of the underlying asset's price
+    Here, :math:`\mathrm{Max}` is the maximum of the underlying asset's price
     until maturity and :math:`K` is the strike price (`strike`) of the option.
 
     The payoff of a lookback put option is given by:
 
     .. math::
+        \mathrm{payoff} = \max(K - \mathrm{Min}, 0)
 
-        \\mathrm{payoff} = \\max(K - \\mathrm{Min}, 0)
-
-    Here, :math:`\\mathrm{Min}` is the minimum of the underlying asset's price.
+    Here, :math:`\mathrm{Min}` is the minimum of the underlying asset's price.
 
     .. seealso::
         :func:`pfhedge.nn.functional.lookback_payoff`: Payoff function.
@@ -54,7 +52,6 @@ class LookbackOption(BaseOption):
         device (torch.device): The device where the simulated time-series are.
 
     Examples:
-
         >>> import torch
         >>> from pfhedge.instruments import BrownianStock
         >>> from pfhedge.instruments import LookbackOption
