@@ -3,8 +3,8 @@ import torch
 from torch import Tensor
 from torch.testing import assert_close
 
+from pfhedge.instruments import BaseDerivative
 from pfhedge.instruments import BrownianStock
-from pfhedge.instruments import Derivative
 from pfhedge.instruments import EuropeanOption
 
 cls = EuropeanOption
@@ -225,7 +225,7 @@ EuropeanOption(
         derivative.simulate()
         strike = derivative.ul().spot.max(-1).values.mean()
 
-        def knockout(derivative: Derivative, payoff: Tensor) -> Tensor:
+        def knockout(derivative: BaseDerivative, payoff: Tensor) -> Tensor:
             max = derivative.ul().spot.max(-1).values
             return payoff.where(max >= strike, torch.zeros_like(max))
 
@@ -239,7 +239,7 @@ EuropeanOption(
     def test_add_clause_error(self):
         derivative = cls(BrownianStock())
 
-        def knockout(derivative: Derivative, payoff: Tensor) -> Tensor:
+        def knockout(derivative: BaseDerivative, payoff: Tensor) -> Tensor:
             max = derivative.ul().spot.max(-1).values
             return payoff.where(max >= 1.1, torch.zeros_like(max))
 

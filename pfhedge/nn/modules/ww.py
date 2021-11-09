@@ -44,7 +44,7 @@ class WhalleyWilmott(Module):
           1997, 7, 307–324.
 
     Args:
-        derivative (:class:`pfhedge.instruments.Derivative`): Derivative to hedge.
+        derivative (:class:`pfhedge.instruments.BaseDerivative`): Derivative to hedge.
         a (float, default=1.0): Risk aversion parameter in exponential utility.
 
     Shape:

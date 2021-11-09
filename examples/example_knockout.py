@@ -8,13 +8,13 @@ if __name__ == "__main__":
     import torch
     from torch import Tensor
 
+    from pfhedge.instruments import BaseDerivative
     from pfhedge.instruments import BrownianStock
-    from pfhedge.instruments import Derivative
     from pfhedge.instruments import EuropeanOption
 
     derivative = EuropeanOption(BrownianStock(cost=1e-4))
 
-    def knockout(derivative: Derivative, payoff: Tensor) -> Tensor:
+    def knockout(derivative: BaseDerivative, payoff: Tensor) -> Tensor:
         max = derivative.ul().spot.max(-1).values
         return payoff.where(max <= 1.1, torch.zeros_like(max))
 
