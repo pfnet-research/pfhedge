@@ -2,12 +2,12 @@ import pytest
 import torch
 from torch.testing import assert_close
 
+from pfhedge.instruments import BasePrimary
 from pfhedge.instruments import BrownianStock
 from pfhedge.instruments import EuropeanOption
-from pfhedge.instruments import Primary
 
 
-class NullPrimary(Primary):
+class NullPrimary(BasePrimary):
     def simulate(self):
         pass
 
@@ -67,7 +67,7 @@ class TestBrownianStock:
         assert result == expect
 
     def test_buffer_attribute_error(self):
-        class MyPrimary(Primary):
+        class MyPrimary(BasePrimary):
             # Primary without super().__init__()
             def __init__(self):
                 pass

@@ -17,7 +17,6 @@ class LeakyClamp(Module):
     If :math:`\min \leq \max`:
 
     .. math::
-
         \text{output} = \begin{cases}
             \min + \text{clampled_slope} * (\text{input} - \min) &
             \text{input} < \min \\
@@ -55,7 +54,6 @@ class LeakyClamp(Module):
         - output: :math:`(N, *)`, same shape as the input.
 
     Examples:
-
         >>> import torch
         >>> from pfhedge.nn import LeakyClamp
         >>> m = LeakyClamp()
@@ -75,11 +73,7 @@ class LeakyClamp(Module):
         self.inverted_output = inverted_output
 
     def extra_repr(self) -> str:
-        return (
-            "clamped_slope=" + _format_float(self.clamped_slope)
-            if self.clamped_slope != 0
-            else ""
-        )
+        return "clamped_slope=" + _format_float(self.clamped_slope)
 
     def forward(
         self, input: Tensor, min: Optional[Tensor] = None, max: Optional[Tensor] = None

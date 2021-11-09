@@ -207,6 +207,9 @@ def expected_shortfall(input: Tensor, p: float, dim: Optional[int] = None) -> Te
         p (float): The quantile level.
         dim (int, optional): The dimension to sort along.
 
+    Returns:
+        torch.Tensor
+
     Examples:
         >>> from pfhedge.nn.functional import expected_shortfall
         >>>
@@ -215,9 +218,6 @@ def expected_shortfall(input: Tensor, p: float, dim: Optional[int] = None) -> Te
         tensor([-0., -1., -2., -3., -4., -5., -6., -7., -8., -9.])
         >>> expected_shortfall(input, 0.3)
         tensor(8.)
-
-    Returns:
-        torch.Tensor
     """
     if dim is None:
         return -topp(input, p=p, largest=False).values.mean()
@@ -246,6 +246,9 @@ def value_at_risk(input: Tensor, p: float, dim: Optional[int] = None) -> Tensor:
         p (float): The quantile level.
         dim (int, optional): The dimension to sort along.
 
+    Returns:
+        torch.Tensor
+
     Examples:
         >>> from pfhedge.nn.functional import value_at_risk
         >>>
@@ -254,9 +257,6 @@ def value_at_risk(input: Tensor, p: float, dim: Optional[int] = None) -> Tensor:
         tensor([-0., -1., -2., -3., -4., -5., -6., -7., -8., -9.])
         >>> value_at_risk(input, 0.3)
         tensor(-7.)
-
-    Returns:
-        torch.Tensor
     """
     n = input.numel() if dim is None else input.size(dim)
 
@@ -450,7 +450,12 @@ def terminal_value(
 
 
 def ncdf(input: Tensor) -> Tensor:
-    """Returns a new tensor with the normal cumulative distribution function.
+    r"""Returns a new tensor with the normal cumulative distribution function.
+
+    .. math::
+        \text{ncdf}(x) =
+            \int_{-\infty}^x
+            \frac{1}{\sqrt{2 \pi}} e^{-\frac{y^2}{2}} dy
 
     Args:
         input (torch.Tensor): The input tensor.
@@ -469,7 +474,10 @@ def ncdf(input: Tensor) -> Tensor:
 
 
 def npdf(input: Tensor) -> Tensor:
-    """Returns a new tensor with the normal distribution function.
+    r"""Returns a new tensor with the normal distribution function.
+
+    .. math::
+        \text{npdf}(x) = \frac{1}{\sqrt{2 \pi}} e^{-\frac{x^2}{2}}
 
     Args:
         input (torch.Tensor): The input tensor.
@@ -491,7 +499,6 @@ def d1(log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor) -> T
     r"""Returns :math:`d_1` in the Black-Scholes formula.
 
     .. math::
-
         d_1 = \frac{s + \frac12 \sigma^2 t}{\sigma \sqrt{t}}
 
     where
@@ -518,7 +525,6 @@ def d2(log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor) -> T
     r"""Returns :math:`d_2` in the Black-Scholes formula.
 
     .. math::
-
         d_2 = \frac{s - \frac12 \sigma^2 t}{\sigma \sqrt{t}}
 
     where
@@ -539,3 +545,23 @@ def d2(log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor) -> T
     """
     s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
     return (s - (v.square() / 2) * t).div(v * t.sqrt())
+
+
+def ww_width(
+    gamma: Tensor, spot: Tensor, cost: TensorOrScalar, a: TensorOrScalar = 1.0
+) -> Tensor:
+    r"""Returns half-width of the no-transaction band for
+    Whalley-Wilmott's hedging strategy.
+
+    See :class:`pfhedge.nn.WhalleyWilmott` for details.
+
+    Args:
+        gamma (torch.Tensor): The gamma of the derivative,
+        spot (torch.Tensor): The spot price of the underlier.
+        cost (torch.Tensor or float): The cost rate of the underlier.
+        a (torch.Tensor or float, default=1.0): Risk aversion parameter in exponential utility.
+
+    Returns:
+        torch.Tensor
+    """
+    return (cost * (3 / 2) * gamma.square() * spot / a).pow(1 / 3)

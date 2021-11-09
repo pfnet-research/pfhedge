@@ -8,10 +8,10 @@ from typing import no_type_check
 import torch
 from torch import Tensor
 
-T = TypeVar("T", bound="Instrument")
+T = TypeVar("T", bound="BaseInstrument")
 
 
-class Instrument(ABC):
+class BaseInstrument(ABC):
     """Base class for all financial instruments."""
 
     cost: float
@@ -69,7 +69,7 @@ class Instrument(ABC):
             tensor (torch.Tensor): Tensor whose dtype and device are
                 the desired dtype and device of
                 the buffers in this instrument.
-            instrument (Instrument): Instrument whose dtype and device are
+            instrument (BaseInstrument): Instrument whose dtype and device are
                 the desired dtype and device of
                 the buffers in this instrument.
 
@@ -187,3 +187,11 @@ class Instrument(ABC):
                 dinfo.append("device='" + str(device) + "'")
 
         return dinfo
+
+
+class Instrument(BaseInstrument):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        raise DeprecationWarning(
+            "Instrument is deprecated. Use BaseInstrument instead."
+        )

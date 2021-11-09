@@ -15,7 +15,6 @@ class TestWhalleyWilmott:
         expect = """\
 WhalleyWilmott(
   (bs): BSEuropeanOption(strike=1.)
-  (clamp): Clamp()
 )"""
         assert repr(m) == expect
 
@@ -25,7 +24,6 @@ WhalleyWilmott(
 WhalleyWilmott(
   a=2.
   (bs): BSEuropeanOption(strike=1.)
-  (clamp): Clamp()
 )"""
         assert repr(m) == expect
 
@@ -34,7 +32,6 @@ WhalleyWilmott(
         expect = """\
 WhalleyWilmott(
   (bs): BSLookbackOption(strike=1.)
-  (clamp): Clamp()
 )"""
         assert repr(m) == expect
 
@@ -66,13 +63,12 @@ WhalleyWilmott(
         assert not pnl.isnan().any()
 
     def test_autogreek_generate_nan_for_float64(self):
-        with torch.autograd.detect_anomaly():
-            derivative = EuropeanOption(BrownianStock(cost=1e-4)).to(torch.float64)
-            model = WhalleyWilmott(derivative).to(torch.float64)
-            hedger = Hedger(model, model.inputs()).to(torch.float64)
+        derivative = EuropeanOption(BrownianStock(cost=1e-4)).to(torch.float64)
+        model = WhalleyWilmott(derivative).to(torch.float64)
+        hedger = Hedger(model, model.inputs()).to(torch.float64)
 
-            def pricer(spot):
-                return hedger.price(derivative, init_state=(spot,), enable_grad=True)
+        def pricer(spot):
+            return hedger.price(derivative, init_state=(spot,), enable_grad=True)
 
-            delta = autogreek.delta(pricer, spot=torch.tensor(1.0))
-            assert not delta.isnan().any()
+        delta = autogreek.delta(pricer, spot=torch.tensor(1.0))
+        assert not delta.isnan().any()

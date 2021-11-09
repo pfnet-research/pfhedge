@@ -8,7 +8,7 @@ import torch
 from torch import Tensor
 from torch.nn import Module
 
-from pfhedge.instruments import Derivative
+from pfhedge.instruments import BaseDerivative
 
 from ._base import Feature
 from ._getter import get_feature
@@ -50,7 +50,7 @@ class FeatureList(Feature):
     def __repr__(self) -> str:
         return str(list(map(str, self.features)))
 
-    def of(self: T, derivative: Derivative, hedger: Optional[Module] = None) -> T:
+    def of(self: T, derivative: BaseDerivative, hedger: Optional[Module] = None) -> T:
         output = copy.copy(self)
         output.features = [f.of(derivative, hedger) for f in self.features]
         return output

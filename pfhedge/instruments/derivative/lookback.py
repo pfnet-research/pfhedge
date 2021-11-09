@@ -8,9 +8,9 @@ from pfhedge._utils.doc import _set_docstring
 from pfhedge._utils.str import _format_float
 from pfhedge.nn.functional import lookback_payoff
 
-from ..primary.base import Primary
+from ..primary.base import BasePrimary
+from .base import BaseDerivative
 from .base import BaseOption
-from .base import Derivative
 
 
 class LookbackOption(BaseOption):
@@ -41,7 +41,7 @@ class LookbackOption(BaseOption):
         :func:`pfhedge.nn.functional.lookback_payoff`: Payoff function.
 
     Args:
-        underlier (:class:`Primary`): The underlying instrument of the option.
+        underlier (:class:`BasePrimary`): The underlying instrument of the option.
         call (bool, default=True): Specifies whether the option is call or put.
         strike (float, default=1.0): The strike price of the option.
         maturity (float, default=20/250): The maturity of the option.
@@ -68,7 +68,7 @@ class LookbackOption(BaseOption):
 
     def __init__(
         self,
-        underlier: Primary,
+        underlier: BasePrimary,
         call: bool = True,
         strike: float = 1.0,
         maturity: float = 20 / 250,
@@ -102,11 +102,11 @@ class LookbackOption(BaseOption):
 
 
 # Assign docstrings so they appear in Sphinx documentation
-_set_attr_and_docstring(LookbackOption, "simulate", Derivative.simulate)
-_set_attr_and_docstring(LookbackOption, "to", Derivative.to)
-_set_attr_and_docstring(LookbackOption, "ul", Derivative.ul)
-_set_attr_and_docstring(LookbackOption, "list", Derivative.list)
-_set_docstring(LookbackOption, "payoff", Derivative.payoff)
+_set_attr_and_docstring(LookbackOption, "simulate", BaseDerivative.simulate)
+_set_attr_and_docstring(LookbackOption, "to", BaseDerivative.to)
+_set_attr_and_docstring(LookbackOption, "ul", BaseDerivative.ul)
+_set_attr_and_docstring(LookbackOption, "list", BaseDerivative.list)
+_set_docstring(LookbackOption, "payoff", BaseDerivative.payoff)
 _set_attr_and_docstring(LookbackOption, "moneyness", BaseOption.moneyness)
 _set_attr_and_docstring(LookbackOption, "log_moneyness", BaseOption.log_moneyness)
 _set_attr_and_docstring(LookbackOption, "time_to_maturity", BaseOption.time_to_maturity)
