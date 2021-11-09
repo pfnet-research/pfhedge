@@ -67,8 +67,8 @@ class AmericanBinaryOption(BaseOption):
         >>> from pfhedge.instruments import AmericanBinaryOption
         >>>
         >>> _ = torch.manual_seed(42)
-        >>> derivative = AmericanBinaryOption(BrownianStock(), \
-maturity=5/250, strike=1.01)
+        >>> derivative = AmericanBinaryOption(
+        ...     BrownianStock(), maturity=5/250, strike=1.01)
         >>> derivative.simulate(n_paths=2)
         >>> derivative.underlier.spot
         tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930, 0.9906],
