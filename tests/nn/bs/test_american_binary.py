@@ -1,4 +1,3 @@
-from math import pi
 from math import sqrt
 
 import pytest
