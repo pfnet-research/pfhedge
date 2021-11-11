@@ -1,3 +1,6 @@
+from math import pi
+from math import sqrt
+
 import pytest
 import torch
 from torch import Tensor
@@ -118,6 +121,24 @@ class TestBSAmericanBinaryOption(_TestBSModule):
         result = compute_price(m, input)
         expect = d.payoff().mean(0, keepdim=True)
         assert_close(result, expect, rtol=1e-2, atol=0.0)
+
+        # Continuity correction according to:
+        # Broadie, M., Glasserman, P. and Kou, S., 1997.
+        # A continuity correction for discrete barrier options.
+        # Mathematical Finance, 7(4), pp.325-349.
+        beta = 0.5825971579  # -zeta(1/2) / sqrt(2 pi)
+        k = 1.01
+        d = AmericanBinaryOption(BrownianStock(), strike=k)
+        m = BSAmericanBinaryOption.from_derivative(d)
+        d.simulate(n_paths=int(1e6), init_state=(1.0,))
+
+        k_shift = k * torch.tensor(beta * d.ul().sigma * sqrt(d.ul().dt)).exp()
+
+        s = torch.tensor([1.0 / k_shift]).log()
+        input = torch.tensor([[s, s, d.maturity, d.ul().sigma]])
+        result = compute_price(m, input)
+        expect = d.payoff().mean(0, keepdim=True)
+        assert_close(result, expect, rtol=1e-3, atol=0.0)
 
     def test_features(self):
         m = BSAmericanBinaryOption()
