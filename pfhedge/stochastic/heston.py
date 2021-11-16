@@ -65,7 +65,7 @@ def generate_heston(
         init_state (tuple[torch.Tensor | float], optional): The initial state of
             the time series.
             This is specified by a tuple :math:`(S(0), V(0))`.
-            If ``None`` (default), it uses :math:`(1.0, \\theta)`
+            If ``None`` (default), it uses :math:`(1.0, \\theta)`.
         kappa (float, default=1.0): The parameter :math:`\\kappa`.
         theta (float, default=0.04): The parameter :math:`\\theta`.
         sigma (float, default=2.0): The parameter :math:`\\sigma`.
