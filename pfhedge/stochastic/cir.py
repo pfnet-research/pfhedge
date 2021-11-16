@@ -41,7 +41,7 @@ def generate_cir(
             the time series.
             This is specified by a tuple :math:`(X(0),)`.
             It also accepts a :class:`torch.Tensor` or a :class:`float`.
-            If ``None`` (default), it uses :math:`(\theta, )`
+            If ``None`` (default), it uses :math:`(\theta, )`.
         kappa (torch.Tensor or float, default=1.0): The parameter :math:`\kappa`.
         theta (torch.Tensor or float, default=0.04): The parameter :math:`\theta`.
         sigma (torch.Tensor or float, default=2.0): The parameter :math:`\sigma`.
