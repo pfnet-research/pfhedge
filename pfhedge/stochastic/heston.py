@@ -32,7 +32,7 @@ class HestonTuple(namedtuple("HestonTuple", ["spot", "variance"])):
 def generate_heston(
     n_paths: int,
     n_steps: int,
-    init_state: Tuple[TensorOrScalar, ...] = (1.0, 0.04),
+    init_state: Optional[Tuple[TensorOrScalar, ...]] = None,
     kappa: float = 1.0,
     theta: float = 0.04,
     sigma: float = 0.2,
@@ -62,9 +62,10 @@ def generate_heston(
     Args:
         n_paths (int): The number of simulated paths.
         n_steps (int): The number of time steps.
-        init_state (tuple[torch.Tensor | float], default=(1.0,)): The initial state of
+        init_state (tuple[torch.Tensor | float], optional): The initial state of
             the time series.
             This is specified by a tuple :math:`(S(0), V(0))`.
+            If ``None`` (default), it uses :math:`(1.0, \\theta)`
         kappa (float, default=1.0): The parameter :math:`\\kappa`.
         theta (float, default=0.04): The parameter :math:`\\theta`.
         sigma (float, default=2.0): The parameter :math:`\\sigma`.
@@ -101,6 +102,8 @@ def generate_heston(
         tensor([[0.0400, 0.0408, 0.0411, 0.0417, 0.0422],
                 [0.0400, 0.0395, 0.0452, 0.0434, 0.0446]])
     """
+    if init_state is None:
+        init_state = (1.0, theta)
     # Cast to init_state: Tuple[Tensor, ...] with desired dtype and device
     init_state = cast(Tuple[Tensor, ...], tuple(map(torch.as_tensor, init_state)))
     init_state = tuple(map(lambda t: t.to(dtype=dtype, device=device), init_state))
