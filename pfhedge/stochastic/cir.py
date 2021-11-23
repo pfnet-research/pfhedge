@@ -11,7 +11,7 @@ from pfhedge._utils.typing import TensorOrScalar
 def generate_cir(
     n_paths: int,
     n_steps: int,
-    init_state: Tuple[TensorOrScalar, ...] = (0.04,),
+    init_state: Optional[Tuple[TensorOrScalar, ...]] = None,
     kappa: TensorOrScalar = 1.0,
     theta: TensorOrScalar = 0.04,
     sigma: TensorOrScalar = 0.2,
@@ -37,10 +37,11 @@ def generate_cir(
     Args:
         n_paths (int): The number of simulated paths.
         n_steps (int): The number of time steps.
-        init_state (tuple[torch.Tensor | float], default=(0.04,)): The initial state of
+        init_state (tuple[torch.Tensor | float], optional): The initial state of
             the time series.
             This is specified by a tuple :math:`(X(0),)`.
             It also accepts a :class:`torch.Tensor` or a :class:`float`.
+            If ``None`` (default), it uses :math:`(\theta, )`.
         kappa (torch.Tensor or float, default=1.0): The parameter :math:`\kappa`.
         theta (torch.Tensor or float, default=0.04): The parameter :math:`\theta`.
         sigma (torch.Tensor or float, default=2.0): The parameter :math:`\sigma`.
@@ -71,6 +72,9 @@ def generate_cir(
         tensor([[0.0400, 0.0408, 0.0411, 0.0417, 0.0422],
                 [0.0400, 0.0395, 0.0452, 0.0434, 0.0446]])
     """
+    if init_state is None:
+        init_state = (theta,)
+
     # Accept Union[float, Tensor] as well because making a tuple with a single element
     # is troublesome
     if isinstance(init_state, (float, Tensor)):

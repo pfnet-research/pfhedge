@@ -11,7 +11,7 @@ from .lookback import BSLookbackOption
 
 
 class BlackScholes(Module):
-    """Initialize Black-Scholes formula module from a derivative.
+    """Creates Black-Scholes formula module from a derivative.
 
     The ``forward`` method returns the Black-Scholes delta.
 
@@ -28,7 +28,6 @@ class BlackScholes(Module):
           all but the last dimension are the same shape as the input.
 
     Examples:
-
         One can instantiate Black-Scholes module by using a derivative.
         For example, one can instantiate :class:`BSEuropeanOption` using
         a :class:`pfhedge.instruments.EuropeanOption`.

@@ -13,7 +13,7 @@ from .base import BaseDerivative
 
 
 class VarianceSwap(BaseDerivative):
-    """A variance swap.
+    r"""Variance swap.
 
     A variance swap pays cash in the amount of the realized variance
     until the maturity and levies the cash of the strike variance.
@@ -22,9 +22,9 @@ class VarianceSwap(BaseDerivative):
 
     .. math::
 
-        \\mathrm{payoff} = \\sigma^2 - K
+        \mathrm{payoff} = \sigma^2 - K
 
-    where :math:`\\sigma^2` is the realized variance of the underlying asset
+    where :math:`\sigma^2` is the realized variance of the underlying asset
     until maturity and :math:`K` is the strike variance (``strike``).
     See :func:`pfhedge.nn.functional.realized_variance` for the definition of
     the realized variance.
@@ -40,7 +40,6 @@ class VarianceSwap(BaseDerivative):
         device (torch.device): The device where the simulated time-series are.
 
     Examples:
-
         >>> import torch
         >>> from pfhedge.nn.functional import realized_variance
         >>> from pfhedge.instruments import BrownianStock

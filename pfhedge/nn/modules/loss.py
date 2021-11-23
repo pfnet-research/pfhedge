@@ -64,13 +64,13 @@ class HedgeLoss(Module, ABC):
 
 
 class EntropicRiskMeasure(HedgeLoss):
-    r"""Creates a loss given by the entropic risk measure.
+    r"""Creates a criterion that measures
+    the entropic risk measure.
 
     The entropic risk measure of the profit-loss distribution
     :math:`\text{pnl}` is given by:
 
     .. math::
-
         \text{loss}(\text{pnl}) = \frac{1}{a}
         \log(- \mathbf{E}[u(\text{pnl})]) \,,
         \quad
@@ -91,7 +91,6 @@ class EntropicRiskMeasure(HedgeLoss):
         - Output: :math:`(*)`
 
     Examples:
-
         >>> from pfhedge.nn import EntropicRiskMeasure
         >>>
         >>> loss = EntropicRiskMeasure()
@@ -120,12 +119,11 @@ class EntropicRiskMeasure(HedgeLoss):
 
 
 class EntropicLoss(HedgeLoss):
-    r"""Creates a loss given by the negative of expected exponential utility.
+    r"""Creates a criterion that measures the expected exponential utility.
 
     The loss of the profit-loss :math:`\text{pnl}` is given by:
 
     .. math::
-
         \text{loss}(\text{pnl}) = -\mathbf{E}[u(\text{pnl})] \,,
         \quad
         u(x) = -\exp(-a x) \,.
@@ -144,7 +142,6 @@ class EntropicLoss(HedgeLoss):
         - Output: :math:`(*)`
 
     Examples:
-
         >>> from pfhedge.nn import EntropicLoss
         >>>
         >>> loss = EntropicLoss()
@@ -173,12 +170,11 @@ class EntropicLoss(HedgeLoss):
 
 
 class IsoelasticLoss(HedgeLoss):
-    r"""Creates a loss function that measures the isoelastic utility.
+    r"""Creates a criterion that measures the expected isoelastic utility.
 
     The loss of the profit-loss :math:`\text{pnl}` is given by:
 
     .. math::
-
         \text{loss}(\text{pnl}) = -\mathbf{E}[u(\text{pnl})] \,,
         \quad
         u(x) = \begin{cases}
@@ -200,7 +196,6 @@ class IsoelasticLoss(HedgeLoss):
         - Output: :math:`(*)`
 
     Examples:
-
         >>> from pfhedge.nn import IsoelasticLoss
         >>>
         >>> loss = IsoelasticLoss(0.5)
@@ -250,7 +245,6 @@ class ExpectedShortfall(HedgeLoss):
         - Output: :math:`(*)`
 
     Examples:
-
         >>> from pfhedge.nn import ExpectedShortfall
         >>>
         >>> loss = ExpectedShortfall(0.5)
@@ -279,18 +273,16 @@ class ExpectedShortfall(HedgeLoss):
 
 
 class OCE(HedgeLoss):
-    """Creates a criterion that measures the optimized certainty equivalent.
+    r"""Creates a criterion that measures the optimized certainty equivalent.
 
     The certainty equivalent is given by:
 
     .. math::
-
         \\text{loss}(X, w) = w - \\mathrm{E}[u(X + w)]
 
     Minimization of loss gives the optimized certainty equivalent.
 
     .. math::
-
         \\rho_u(X) = \\inf_w \\text{loss}(X, w)
 
     Args:
@@ -300,7 +292,6 @@ class OCE(HedgeLoss):
         w (torch.nn.Parameter): Represents wealth.
 
     Examples:
-
         >>> from pfhedge.nn.modules.loss import OCE
         >>>
         >>> _ = torch.manual_seed(42)
