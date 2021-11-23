@@ -14,7 +14,7 @@ from .base import BaseOption
 
 
 class AmericanBinaryOption(BaseOption):
-    """An American binary Option.
+    r"""American binary Option.
 
     An American binary call option pays an unit amount of cash if and only if
     the maximum of the underlying asset's price until maturity is equal or greater
@@ -27,27 +27,25 @@ class AmericanBinaryOption(BaseOption):
     The payoff of an American binary call option is given by:
 
     .. math::
+        \mathrm{payoff} =
+        \begin{cases}
+            1 & (\mathrm{Max} \geq K) \\
+            0 & (\text{otherwise})
+        \end{cases}
 
-        \\mathrm{payoff} =
-        \\begin{cases}
-            1 & (\\mathrm{Max} \\geq K) \\\\
-            0 & (\\text{otherwise})
-        \\end{cases}
-
-    Here, :math:`\\mathrm{Max}` is the maximum of the underlying asset's price
+    Here, :math:`\mathrm{Max}` is the maximum of the underlying asset's price
     until maturity and :math:`K` is the strike price (`strike`) of the option.
 
     The payoff of an American binary put option is given by:
 
     .. math::
+        \mathrm{payoff} =
+        \begin{cases}
+            1 & (\mathrm{Min} \leq K) \\
+            0 & (\text{otherwise})
+        \end{cases}
 
-        \\mathrm{payoff} =
-        \\begin{cases}
-            1 & (\\mathrm{Min} \\leq K) \\\\
-            0 & (\\text{otherwise})
-        \\end{cases}
-
-    Here, :math:`\\mathrm{Min}` is the minimum of the underlying asset's price.
+    Here, :math:`\mathrm{Min}` is the minimum of the underlying asset's price.
 
     .. seealso::
         :func:`pfhedge.nn.functional.american_binary_payoff`: Payoff function.
@@ -64,14 +62,13 @@ class AmericanBinaryOption(BaseOption):
         device (torch.device): The device where the simulated time-series are.
 
     Examples:
-
         >>> import torch
         >>> from pfhedge.instruments import BrownianStock
         >>> from pfhedge.instruments import AmericanBinaryOption
         >>>
         >>> _ = torch.manual_seed(42)
-        >>> derivative = AmericanBinaryOption(BrownianStock(), \
-maturity=5/250, strike=1.01)
+        >>> derivative = AmericanBinaryOption(
+        ...     BrownianStock(), maturity=5/250, strike=1.01)
         >>> derivative.simulate(n_paths=2)
         >>> derivative.underlier.spot
         tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930, 0.9906],

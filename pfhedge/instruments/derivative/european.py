@@ -14,7 +14,7 @@ from .base import BaseOption
 
 
 class EuropeanOption(BaseOption):
-    r"""A European option.
+    r"""European option.
 
     A European option provides its holder the right to buy (for call option)
     or sell (for put option) an underlying asset with the strike price
@@ -23,7 +23,6 @@ class EuropeanOption(BaseOption):
     The payoff of a European call option is given by:
 
     .. math::
-
         \mathrm{payoff} = \max(S - K, 0)
 
     Here, :math:`S` is the underlying asset's price at maturity and
@@ -32,7 +31,6 @@ class EuropeanOption(BaseOption):
     The payoff of a European put option is given by:
 
     .. math::
-
         \mathrm{payoff} = \max(K - S, 0)
 
     .. seealso::
@@ -50,7 +48,6 @@ class EuropeanOption(BaseOption):
         device (torch.device): The device where the simulated time-series are.
 
     Examples:
-
         >>> import torch
         >>> from pfhedge.instruments import BrownianStock
         >>> from pfhedge.instruments import EuropeanOption

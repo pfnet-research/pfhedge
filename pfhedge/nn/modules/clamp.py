@@ -10,7 +10,7 @@ from ..functional import leaky_clamp
 
 
 class LeakyClamp(Module):
-    r"""Leakily Clamp all elements in ``input`` into the range :math:`[\min, \max]`.
+    r"""Leakily clamp all elements in ``input`` into the range :math:`[\min, \max]`.
 
     The bounds :math:`\min` and :math:`\max` can be tensors.
 
