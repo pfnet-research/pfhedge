@@ -1,11 +1,12 @@
-import torch
-import matplotlib.pyplot as plt
 import sys
 from math import exp
 
+import matplotlib.pyplot as plt
+import torch
+
 sys.path.append("..")
-from pfhedge.instruments import HestonStock
 from pfhedge.instruments import EuropeanOption
+from pfhedge.instruments import HestonStock
 from pfhedge.nn import BlackScholes
 
 LOG_MONEYNESS_MIN = -0.1
@@ -36,7 +37,6 @@ def main():
     plt.ylabel("Implied volatility")
     plt.legend()
     plt.savefig("output/heston-iv.png")
-
 
 
 if __name__ == "__main__":
