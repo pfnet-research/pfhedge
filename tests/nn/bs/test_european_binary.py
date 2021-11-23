@@ -157,7 +157,6 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
         input = torch.tensor([[0.0, d.maturity, d.ul().sigma]])
         result = compute_price(m, input)
         expect = d.payoff().mean(0, keepdim=True)
-        print(result, expect)
         assert_close(result, expect, rtol=1e-2, atol=0.0)
 
     def test_forward(self):
