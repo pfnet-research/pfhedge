@@ -1,0 +1,6 @@
+﻿pfhedge.nn.functional.expected\_shortfall
+=========================================
+
+.. currentmodule:: pfhedge.nn.functional
+
+.. autofunction:: expected_shortfall

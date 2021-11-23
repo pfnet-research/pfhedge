@@ -1,0 +1,6 @@
+﻿pfhedge.nn.functional.terminal\_value
+=====================================
+
+.. currentmodule:: pfhedge.nn.functional
+
+.. autofunction:: terminal_value

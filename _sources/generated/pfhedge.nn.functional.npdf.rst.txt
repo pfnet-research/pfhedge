@@ -1,0 +1,6 @@
+﻿pfhedge.nn.functional.npdf
+==========================
+
+.. currentmodule:: pfhedge.nn.functional
+
+.. autofunction:: npdf

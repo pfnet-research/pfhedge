@@ -1,0 +1,6 @@
+﻿pfhedge.nn.functional.isoelastic\_utility
+=========================================
+
+.. currentmodule:: pfhedge.nn.functional
+
+.. autofunction:: isoelastic_utility

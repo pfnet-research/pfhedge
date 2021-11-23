@@ -1,0 +1,6 @@
+﻿pfhedge.nn.functional.topp
+==========================
+
+.. currentmodule:: pfhedge.nn.functional
+
+.. autofunction:: topp

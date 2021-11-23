@@ -1,0 +1,6 @@
+﻿pfhedge.nn.functional.value\_at\_risk
+=====================================
+
+.. currentmodule:: pfhedge.nn.functional
+
+.. autofunction:: value_at_risk

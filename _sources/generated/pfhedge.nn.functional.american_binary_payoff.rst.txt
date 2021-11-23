@@ -1,0 +1,6 @@
+﻿pfhedge.nn.functional.american\_binary\_payoff
+==============================================
+
+.. currentmodule:: pfhedge.nn.functional
+
+.. autofunction:: american_binary_payoff

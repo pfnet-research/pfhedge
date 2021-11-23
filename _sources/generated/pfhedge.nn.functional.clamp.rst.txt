@@ -1,0 +1,6 @@
+﻿pfhedge.nn.functional.clamp
+===========================
+
+.. currentmodule:: pfhedge.nn.functional
+
+.. autofunction:: clamp

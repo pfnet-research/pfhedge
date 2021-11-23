@@ -3,14 +3,14 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="pfhedge.autogreek" href="autogreek.html" /><link rel="prev" title="VarianceSwap" href="generated/pfhedge.instruments.VarianceSwap.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="pfhedge.stochastic.generate_brownian" href="generated/pfhedge.stochastic.generate_brownian.html" /><link rel="prev" title="VarianceSwap" href="generated/pfhedge.instruments.VarianceSwap.html" />
 
-    <meta name="generator" content="sphinx-4.2.0, furo 2021.10.09"/>
+    <meta name="generator" content="sphinx-4.3.0, furo 2021.11.16"/>
         <title>pfhedge.stochastic - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=0254c309f5cadf746f1a613e7677379ac9c8cdcd" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=916d6ed8f59335acffa15474ff504849343d4c76" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=0af69da206d614734f649b27d4cdc2dd6c31f41d" />
     
     
 
@@ -182,8 +182,29 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.Naked.html">Naked</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="nn.functional.html">pfhedge.nn.functional</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="instruments.html">pfhedge.instruments</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="nn.functional.html">pfhedge.nn.functional</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.european_payoff.html">pfhedge.nn.functional.european_payoff</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.lookback_payoff.html">pfhedge.nn.functional.lookback_payoff</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.american_binary_payoff.html">pfhedge.nn.functional.american_binary_payoff</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.european_binary_payoff.html">pfhedge.nn.functional.european_binary_payoff</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.exp_utility.html">pfhedge.nn.functional.exp_utility</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.isoelastic_utility.html">pfhedge.nn.functional.isoelastic_utility</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.entropic_risk_measure.html">pfhedge.nn.functional.entropic_risk_measure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.expected_shortfall.html">pfhedge.nn.functional.expected_shortfall</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.value_at_risk.html">pfhedge.nn.functional.value_at_risk</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.leaky_clamp.html">pfhedge.nn.functional.leaky_clamp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.clamp.html">pfhedge.nn.functional.clamp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.topp.html">pfhedge.nn.functional.topp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.realized_variance.html">pfhedge.nn.functional.realized_variance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.realized_volatility.html">pfhedge.nn.functional.realized_volatility</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.terminal_value.html">pfhedge.nn.functional.terminal_value</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.ncdf.html">pfhedge.nn.functional.ncdf</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.npdf.html">pfhedge.nn.functional.npdf</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.d1.html">pfhedge.nn.functional.d1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.d2.html">pfhedge.nn.functional.d2</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="instruments.html">pfhedge.instruments</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.BaseInstrument.html">BaseInstrument</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.BasePrimary.html">BasePrimary</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.BaseDerivative.html">BaseDerivative</a></li>
@@ -198,7 +219,13 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.VarianceSwap.html">VarianceSwap</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">pfhedge.stochastic</a></li>
+<li class="toctree-l1 current has-children current-page"><a class="current reference internal" href="#">pfhedge.stochastic</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.stochastic.generate_brownian.html">pfhedge.stochastic.generate_brownian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.stochastic.generate_geometric_brownian.html">pfhedge.stochastic.generate_geometric_brownian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.stochastic.generate_cir.html">pfhedge.stochastic.generate_cir</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.stochastic.generate_heston.html">pfhedge.stochastic.generate_heston</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="autogreek.html">pfhedge.autogreek</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Examples</span></p>
@@ -243,254 +270,48 @@
 <h1>pfhedge.stochastic<a class="headerlink" href="#pfhedge-stochastic" title="Permalink to this headline">¶</a></h1>
 <section id="brownian-motion">
 <h2>Brownian Motion<a class="headerlink" href="#brownian-motion" title="Permalink to this headline">¶</a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="pfhedge.stochastic.generate_brownian">
-<span class="sig-prename descclassname"><span class="pre">pfhedge.stochastic.</span></span><span class="sig-name descname"><span class="pre">generate_brownian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_steps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0.0,)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.004</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfhedge/stochastic/brownian.html#generate_brownian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.stochastic.generate_brownian" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns time series following the Brownian motion.</p>
-<p>The time evolution of the process is given by:</p>
-<div class="math-wrapper"><div class="math notranslate nohighlight">
-\[dS(t) = \sigma dW(t) \,.\]</div></div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>n_paths</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The number of simulated paths.</p></li>
-<li><p><strong>n_steps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The number of time steps.</p></li>
-<li><p><strong>init_state</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.10)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.10.0)"><em>torch.Tensor</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>]</em><em>, </em><em>default=</em><em>(</em><em>0.0</em><em>,</em><em>)</em>) – The initial state of
-the time series.
-This is specified by a tuple <span class="math notranslate nohighlight">\((S(0),)\)</span>.
-It also accepts a <a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.10.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.Tensor</span></code></a> or a <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>.</p></li>
-<li><p><strong>sigma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>default=0.2</em>) – The parameter <span class="math notranslate nohighlight">\(\sigma\)</span>,
-which stands for the volatility of the time series.</p></li>
-<li><p><strong>dt</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>default=1/250</em>) – The intervals of the time steps.</p></li>
-<li><p><strong>dtype</strong> (<em>torch.dtype</em><em>, </em><em>optional</em>) – The desired data type of returned tensor.
-Default: If <code class="docutils literal notranslate"><span class="pre">None</span></code>, uses a global default
-(see <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.set_default_tensor_type.html#torch.set_default_tensor_type" title="(in PyTorch v1.10.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.set_default_tensor_type()</span></code></a>).</p></li>
-<li><p><strong>device</strong> (<em>torch.device</em><em>, </em><em>optional</em>) – The desired device of returned tensor.
-Default: If <code class="docutils literal notranslate"><span class="pre">None</span></code>, uses the current device for the default tensor type
-(see <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.set_default_tensor_type.html#torch.set_default_tensor_type" title="(in PyTorch v1.10.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.set_default_tensor_type()</span></code></a>).
-<code class="docutils literal notranslate"><span class="pre">device</span></code> will be the CPU for CPU tensor types and the current CUDA device
-for CUDA tensor types.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="simple">
-<dt>Shape:</dt><dd><ul class="simple">
-<li><p>Output: <span class="math notranslate nohighlight">\((N, T)\)</span> where
-<span class="math notranslate nohighlight">\(N\)</span> is the number of paths and
-<span class="math notranslate nohighlight">\(T\)</span> is the number of time steps.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>torch.Tensor</p>
-</dd>
-</dl>
-<p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.stochastic</span> <span class="kn">import</span> <span class="n">generate_brownian</span>
-<span class="go">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">generate_brownian</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
-<span class="go">tensor([[ 0.0000,  0.0016,  0.0046,  0.0075, -0.0067],</span>
-<span class="go">        [ 0.0000,  0.0279,  0.0199,  0.0257,  0.0291]])</span>
-</pre></div>
-</div>
-</dd></dl>
-<dl class="py function">
-<dt class="sig sig-object py" id="pfhedge.stochastic.generate_geometric_brownian">
-<span class="sig-prename descclassname"><span class="pre">pfhedge.stochastic.</span></span><span class="sig-name descname"><span class="pre">generate_geometric_brownian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_steps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1.0,)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.004</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfhedge/stochastic/brownian.html#generate_geometric_brownian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.stochastic.generate_geometric_brownian" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns time series following the geometric Brownian motion.</p>
-<p>The time evolution of the process is given by:</p>
-<div class="math-wrapper"><div class="math notranslate nohighlight">
-\[dS(t) = \sigma S(t) dW(t) \,.\]</div></div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>n_paths</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The number of simulated paths.</p></li>
-<li><p><strong>n_steps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The number of time steps.</p></li>
-<li><p><strong>init_state</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.10)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.10.0)"><em>torch.Tensor</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>]</em><em>, </em><em>default=</em><em>(</em><em>0.0</em><em>,</em><em>)</em>) – The initial state of
-the time series.
-This is specified by a tuple <span class="math notranslate nohighlight">\((S(0),)\)</span>.
-It also accepts a <a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.10.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.Tensor</span></code></a> or a <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>.</p></li>
-<li><p><strong>sigma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>default=0.2</em>) – The parameter <span class="math notranslate nohighlight">\(sigma\)</span>,
-which stands for the volatility of the time series.</p></li>
-<li><p><strong>dt</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>default=1/250</em>) – The intervals of the time steps.</p></li>
-<li><p><strong>dtype</strong> (<em>torch.dtype</em><em>, </em><em>optional</em>) – The desired data type of returned tensor.
-Default: If <code class="docutils literal notranslate"><span class="pre">None</span></code>, uses a global default
-(see <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.set_default_tensor_type.html#torch.set_default_tensor_type" title="(in PyTorch v1.10.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.set_default_tensor_type()</span></code></a>).</p></li>
-<li><p><strong>device</strong> (<em>torch.device</em><em>, </em><em>optional</em>) – The desired device of returned tensor.
-Default: If <code class="docutils literal notranslate"><span class="pre">None</span></code>, uses the current device for the default tensor type
-(see <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.set_default_tensor_type.html#torch.set_default_tensor_type" title="(in PyTorch v1.10.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.set_default_tensor_type()</span></code></a>).
-<code class="docutils literal notranslate"><span class="pre">device</span></code> will be the CPU for CPU tensor types and the current CUDA device
-for CUDA tensor types.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="simple">
-<dt>Shape:</dt><dd><ul class="simple">
-<li><p>Output: <span class="math notranslate nohighlight">\((N, T)\)</span> where
-<span class="math notranslate nohighlight">\(N\)</span> is the number of paths and
-<span class="math notranslate nohighlight">\(T\)</span> is the number of time steps.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>torch.Tensor</p>
-</dd>
-</dl>
-<p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.stochastic</span> <span class="kn">import</span> <span class="n">generate_brownian</span>
-<span class="go">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">generate_geometric_brownian</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
-<span class="go">tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930],</span>
-<span class="go">        [1.0000, 1.0282, 1.0199, 1.0258, 1.0292]])</span>
-</pre></div>
-</div>
-</dd></dl>
+<div class="table-wrapper"><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pfhedge.stochastic.generate_brownian.html#pfhedge.stochastic.generate_brownian" title="pfhedge.stochastic.generate_brownian"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_brownian</span></code></a></p></td>
+<td><p>Returns time series following the Brownian motion.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pfhedge.stochastic.generate_geometric_brownian.html#pfhedge.stochastic.generate_geometric_brownian" title="pfhedge.stochastic.generate_geometric_brownian"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_geometric_brownian</span></code></a></p></td>
+<td><p>Returns time series following the geometric Brownian motion.</p></td>
+</tr>
+</tbody>
+</table></div>
 </section>
 <section id="cox-ingersoll-ross-process">
 <h2>Cox-Ingersoll-Ross Process<a class="headerlink" href="#cox-ingersoll-ross-process" title="Permalink to this headline">¶</a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="pfhedge.stochastic.generate_cir">
-<span class="sig-prename descclassname"><span class="pre">pfhedge.stochastic.</span></span><span class="sig-name descname"><span class="pre">generate_cir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_steps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0.04,)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kappa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.04</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.004</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfhedge/stochastic/cir.html#generate_cir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.stochastic.generate_cir" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns time series following Cox-Ingersoll-Ross process.</p>
-<p>The time evolution of the process is given by:</p>
-<div class="math-wrapper"><div class="math notranslate nohighlight">
-\[dX(t) = \kappa (\theta - X(t)) dt + \sigma \sqrt{X(t)} dW(t) \,.\]</div></div>
-<p>Time series is generated by Andersen’s QE-M method (See Reference for details).</p>
-<div class="admonition-references admonition">
-<p class="admonition-title">References</p>
-<ul class="simple">
-<li><p>Andersen, Leif B.G., Efficient Simulation of the Heston Stochastic
-Volatility Model (January 23, 2007). Available at SSRN:
-<a class="reference external" href="https://ssrn.com/abstract=946405">https://ssrn.com/abstract=946405</a> or <a class="reference external" href="http://dx.doi.org/10.2139/ssrn.946404">http://dx.doi.org/10.2139/ssrn.946404</a></p></li>
-</ul>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>n_paths</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The number of simulated paths.</p></li>
-<li><p><strong>n_steps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The number of time steps.</p></li>
-<li><p><strong>init_state</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.10)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.10.0)"><em>torch.Tensor</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>]</em><em>, </em><em>default=</em><em>(</em><em>0.04</em><em>,</em><em>)</em>) – The initial state of
-the time series.
-This is specified by a tuple <span class="math notranslate nohighlight">\((X(0),)\)</span>.
-It also accepts a <a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.10.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.Tensor</span></code></a> or a <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>.</p></li>
-<li><p><strong>kappa</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.10.0)"><em>torch.Tensor</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>default=1.0</em>) – The parameter <span class="math notranslate nohighlight">\(\kappa\)</span>.</p></li>
-<li><p><strong>theta</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.10.0)"><em>torch.Tensor</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>default=0.04</em>) – The parameter <span class="math notranslate nohighlight">\(\theta\)</span>.</p></li>
-<li><p><strong>sigma</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.10.0)"><em>torch.Tensor</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>default=2.0</em>) – The parameter <span class="math notranslate nohighlight">\(\sigma\)</span>.</p></li>
-<li><p><strong>dt</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.10.0)"><em>torch.Tensor</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>default=1/250</em>) – The intervals of the time steps.</p></li>
-<li><p><strong>dtype</strong> (<em>torch.dtype</em><em>, </em><em>optional</em>) – The desired data type of returned tensor.
-Default: If <code class="docutils literal notranslate"><span class="pre">None</span></code>, uses a global default
-(see <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.set_default_tensor_type.html#torch.set_default_tensor_type" title="(in PyTorch v1.10.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.set_default_tensor_type()</span></code></a>).</p></li>
-<li><p><strong>device</strong> (<em>torch.device</em><em>, </em><em>optional</em>) – The desired device of returned tensor.
-Default: if None, uses the current device for the default tensor type
-(see <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.set_default_tensor_type.html#torch.set_default_tensor_type" title="(in PyTorch v1.10.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.set_default_tensor_type()</span></code></a>).
-<code class="docutils literal notranslate"><span class="pre">device</span></code> will be the CPU for CPU tensor types and the current CUDA device
-for CUDA tensor types.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="simple">
-<dt>Shape:</dt><dd><ul class="simple">
-<li><p>Output: <span class="math notranslate nohighlight">\((N, T)\)</span> where
-<span class="math notranslate nohighlight">\(N\)</span> is the number of paths and
-<span class="math notranslate nohighlight">\(T\)</span> is the number of time steps.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>torch.Tensor</p>
-</dd>
-</dl>
-<p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.stochastic</span> <span class="kn">import</span> <span class="n">generate_cir</span>
-<span class="go">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">generate_cir</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
-<span class="go">tensor([[0.0400, 0.0408, 0.0411, 0.0417, 0.0422],</span>
-<span class="go">        [0.0400, 0.0395, 0.0452, 0.0434, 0.0446]])</span>
-</pre></div>
-</div>
-</dd></dl>
+<div class="table-wrapper"><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pfhedge.stochastic.generate_cir.html#pfhedge.stochastic.generate_cir" title="pfhedge.stochastic.generate_cir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_cir</span></code></a></p></td>
+<td><p>Returns time series following Cox-Ingersoll-Ross process.</p></td>
+</tr>
+</tbody>
+</table></div>
 </section>
 <section id="heston-process">
 <h2>Heston Process<a class="headerlink" href="#heston-process" title="Permalink to this headline">¶</a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="pfhedge.stochastic.generate_heston">
-<span class="sig-prename descclassname"><span class="pre">pfhedge.stochastic.</span></span><span class="sig-name descname"><span class="pre">generate_heston</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_steps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1.0,</span> <span class="pre">0.04)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kappa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.04</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">0.7</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.004</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfhedge/stochastic/heston.html#generate_heston"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.stochastic.generate_heston" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns time series following Heston model.</p>
-<p>The time evolution of the process is given by:</p>
-<div class="math-wrapper"><div class="math notranslate nohighlight">
-\[\begin{split}dS(t) = S(t) \sqrt{V(t)} dW_1(t) \,, \\
-dV(t) = \kappa (\theta - V(t)) dt + \sigma \sqrt{V(t)} dW_2(t) \,.\end{split}\]</div></div>
-<p>The correlation between <span class="math notranslate nohighlight">\(dW_1\)</span> and <span class="math notranslate nohighlight">\(dW_2\)</span> is <span class="math notranslate nohighlight">\(\rho\)</span>.</p>
-<p>Time-series is generated by Andersen’s QE-M method (See Reference for details).</p>
-<div class="admonition-references admonition">
-<p class="admonition-title">References</p>
-<ul class="simple">
-<li><p>Andersen, Leif B.G., Efficient Simulation of the Heston Stochastic
-Volatility Model (January 23, 2007). Available at SSRN:
-<a class="reference external" href="https://ssrn.com/abstract=946405">https://ssrn.com/abstract=946405</a> or <a class="reference external" href="http://dx.doi.org/10.2139/ssrn.946404">http://dx.doi.org/10.2139/ssrn.946404</a></p></li>
-</ul>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>n_paths</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The number of simulated paths.</p></li>
-<li><p><strong>n_steps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The number of time steps.</p></li>
-<li><p><strong>init_state</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.10)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.10.0)"><em>torch.Tensor</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>]</em><em>, </em><em>default=</em><em>(</em><em>1.0</em><em>,</em><em>)</em>) – The initial state of
-the time series.
-This is specified by a tuple <span class="math notranslate nohighlight">\((S(0), V(0))\)</span>.</p></li>
-<li><p><strong>kappa</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>default=1.0</em>) – The parameter <span class="math notranslate nohighlight">\(\kappa\)</span>.</p></li>
-<li><p><strong>theta</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>default=0.04</em>) – The parameter <span class="math notranslate nohighlight">\(\theta\)</span>.</p></li>
-<li><p><strong>sigma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>default=2.0</em>) – The parameter <span class="math notranslate nohighlight">\(\sigma\)</span>.</p></li>
-<li><p><strong>rho</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>default=-0.7</em>) – The parameter <span class="math notranslate nohighlight">\(\rho\)</span>.</p></li>
-<li><p><strong>dt</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>default=1/250</em>) – The intervals of the time steps.</p></li>
-<li><p><strong>dtype</strong> (<em>torch.dtype</em><em>, </em><em>optional</em>) – The desired data type of returned tensor.
-Default: If <code class="docutils literal notranslate"><span class="pre">None</span></code>, uses a global default
-(see <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.set_default_tensor_type.html#torch.set_default_tensor_type" title="(in PyTorch v1.10.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.set_default_tensor_type()</span></code></a>).</p></li>
-<li><p><strong>device</strong> (<em>torch.device</em><em>, </em><em>optional</em>) – The desired device of returned tensor.
-Default: If <code class="docutils literal notranslate"><span class="pre">None</span></code>, uses the current device for the default tensor type
-(see <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.set_default_tensor_type.html#torch.set_default_tensor_type" title="(in PyTorch v1.10.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.set_default_tensor_type()</span></code></a>).
-<code class="docutils literal notranslate"><span class="pre">device</span></code> will be the CPU for CPU tensor types and the current CUDA device
-for CUDA tensor types.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="simple">
-<dt>Shape:</dt><dd><ul class="simple">
-<li><p>spot: <span class="math notranslate nohighlight">\((N, T)\)</span> where
-<span class="math notranslate nohighlight">\(N\)</span> is the number of paths and
-<span class="math notranslate nohighlight">\(T\)</span> is the number of time steps.</p></li>
-<li><p>variance: <span class="math notranslate nohighlight">\((N, T)\)</span>.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>A namedtuple <code class="docutils literal notranslate"><span class="pre">(spot,</span> <span class="pre">variance)</span></code>.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.10.0)">torch.Tensor</a>, <a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.10.0)">torch.Tensor</a>)</p>
-</dd>
-</dl>
-<p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.stochastic</span> <span class="kn">import</span> <span class="n">generate_heston</span>
-<span class="go">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">spot</span><span class="p">,</span> <span class="n">variance</span> <span class="o">=</span> <span class="n">generate_heston</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">spot</span>
-<span class="go">tensor([[1.0000, 0.9941, 0.9905, 0.9846, 0.9706],</span>
-<span class="go">        [1.0000, 1.0031, 0.9800, 0.9785, 0.9735]])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">variance</span>
-<span class="go">tensor([[0.0400, 0.0408, 0.0411, 0.0417, 0.0422],</span>
-<span class="go">        [0.0400, 0.0395, 0.0452, 0.0434, 0.0446]])</span>
-</pre></div>
-</div>
-</dd></dl>
+<div class="table-wrapper"><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pfhedge.stochastic.generate_heston.html#pfhedge.stochastic.generate_heston" title="pfhedge.stochastic.generate_heston"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_heston</span></code></a></p></td>
+<td><p>Returns time series following Heston model.</p></td>
+</tr>
+</tbody>
+</table></div>
 </section>
 </section>
 
@@ -499,12 +320,12 @@ for CUDA tensor types.</p></li>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="autogreek.html">
+          <a class="next-page" href="generated/pfhedge.stochastic.generate_brownian.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">pfhedge.autogreek</div>
+                <div class="title">pfhedge.stochastic.generate_brownian</div>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -523,11 +344,9 @@ for CUDA tensor types.</p></li>
 
         <div class="related-information">
               Copyright &#169; 2021, pfnet-research |
-            Built with <a href="https://www.sphinx-doc.org/">Sphinx</a>
-              and
-              <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
-              <a href="https://github.com/pradyunsg/furo">Furo theme</a>. |
-            <a class="muted-link" href="_sources/stochastic.rst.txt"
+          Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+          <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
+            | <a class="muted-link" href="_sources/stochastic.rst.txt"
                rel="nofollow">
               Show Source
             </a>
@@ -566,9 +385,8 @@ for CUDA tensor types.</p></li>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/scripts/main.js"></script>
+    <script src="_static/scripts/furo.js"></script>
     <script src="_static/clipboard.min.js"></script>
     <script src="_static/copybutton.js"></script>
-    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     </body>
 </html>

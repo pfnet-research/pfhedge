@@ -1,0 +1,6 @@
+﻿pfhedge.nn.functional.d2
+========================
+
+.. currentmodule:: pfhedge.nn.functional
+
+.. autofunction:: d2

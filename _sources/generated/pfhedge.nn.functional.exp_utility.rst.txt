@@ -1,0 +1,6 @@
+﻿pfhedge.nn.functional.exp\_utility
+==================================
+
+.. currentmodule:: pfhedge.nn.functional
+
+.. autofunction:: exp_utility

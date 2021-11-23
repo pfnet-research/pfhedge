@@ -1,0 +1,6 @@
+﻿pfhedge.stochastic.generate\_cir
+================================
+
+.. currentmodule:: pfhedge.stochastic
+
+.. autofunction:: generate_cir

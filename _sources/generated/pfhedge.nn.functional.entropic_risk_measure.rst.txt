@@ -1,0 +1,6 @@
+﻿pfhedge.nn.functional.entropic\_risk\_measure
+=============================================
+
+.. currentmodule:: pfhedge.nn.functional
+
+.. autofunction:: entropic_risk_measure

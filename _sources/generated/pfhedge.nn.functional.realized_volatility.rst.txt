@@ -1,0 +1,6 @@
+﻿pfhedge.nn.functional.realized\_volatility
+==========================================
+
+.. currentmodule:: pfhedge.nn.functional
+
+.. autofunction:: realized_volatility

@@ -4,10 +4,10 @@
 pfhedge.nn
 ==========
 
-`pfhedge.nn` provides `torch.nn.Module` that are useful for Deep Hedging.
+`pfhedge.nn` provides :class:`torch.nn.Module` that are useful for Deep Hedging.
 
 See `PyTorch Documentation <https://pytorch.org/docs/stable/generated/torch.nn.Module.html>`_
-for general usage of `torch.nn.Module`.
+for general usage of :class:`torch.nn.Module`.
 
 .. currentmodule:: pfhedge
 

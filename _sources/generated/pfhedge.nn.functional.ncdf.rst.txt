@@ -1,0 +1,6 @@
+﻿pfhedge.nn.functional.ncdf
+==========================
+
+.. currentmodule:: pfhedge.nn.functional
+
+.. autofunction:: ncdf

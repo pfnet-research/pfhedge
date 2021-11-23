@@ -1,0 +1,6 @@
+﻿pfhedge.nn.functional.european\_binary\_payoff
+==============================================
+
+.. currentmodule:: pfhedge.nn.functional
+
+.. autofunction:: european_binary_payoff
