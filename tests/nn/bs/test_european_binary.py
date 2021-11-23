@@ -9,18 +9,9 @@ from pfhedge.instruments import EuropeanBinaryOption
 from pfhedge.nn import BSEuropeanBinaryOption
 
 from ._base import _TestBSModule
-
-
-def compute_delta(module, input: Tensor) -> Tensor:
-    return module.delta(*(input[..., i] for i in range(3)))
-
-
-def compute_gamma(module, input: Tensor) -> Tensor:
-    return module.gamma(*(input[..., i] for i in range(3)))
-
-
-def compute_price(module, input: Tensor) -> Tensor:
-    return module.price(*(input[..., i] for i in range(3)))
+from ._utils import compute_delta
+from ._utils import compute_gamma
+from ._utils import compute_price
 
 
 class TestBSEuropeanBinaryOption(_TestBSModule):
