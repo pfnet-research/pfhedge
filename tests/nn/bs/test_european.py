@@ -1,5 +1,6 @@
 import pytest
 import torch
+from torch import Tensor
 from torch.testing import assert_close
 
 from pfhedge.features._getter import get_feature
@@ -8,17 +9,16 @@ from pfhedge.instruments import EuropeanOption
 from pfhedge.nn import BSEuropeanOption
 
 from ._base import _TestBSModule
+from ._utils import compute_delta
+from ._utils import compute_gamma
+from ._utils import compute_price
 
 
 class TestBSEuropeanOption(_TestBSModule):
-    def setup_class(self):
-        torch.manual_seed(42)
-
-    def test_repr_1(self):
+    def test_repr(self):
         m = BSEuropeanOption()
         assert repr(m) == "BSEuropeanOption(strike=1.)"
 
-    def test_repr_2(self):
         derivative = EuropeanOption(BrownianStock(), strike=1.1, call=False)
         m = BSEuropeanOption.from_derivative(derivative)
         assert repr(m) == "BSEuropeanOption(call=False, strike=1.1000)"
@@ -28,12 +28,123 @@ class TestBSEuropeanOption(_TestBSModule):
         assert m.inputs() == ["log_moneyness", "time_to_maturity", "volatility"]
         _ = [get_feature(f) for f in m.inputs()]
 
-    def test_forward_1(self):
+    def test_check_delta(self):
+        # TODO(simaki): Check for put option
+
         m = BSEuropeanOption()
-        input = torch.tensor([[0.0, 1.0, 0.2]])
-        result = m(input)
-        expect = torch.full_like(result, 0.5398278962)
+
+        # delta = 0 for spot --> +0
+        result = compute_delta(m, torch.tensor([[-10.0, 1.0, 0.2]]))
+        expect = torch.tensor([0.0])
         assert_close(result, expect)
+
+        # delta = 1 for spot --> +inf
+        result = compute_delta(m, torch.tensor([[10.0, 1.0, 0.2]]))
+        expect = torch.tensor([1.0])
+        assert_close(result, expect)
+
+        # delta = 0 for spot / k < 1 and time --> +0
+        result = compute_delta(m, torch.tensor([[-0.01, 1e-10, 0.2]]))
+        expect = torch.tensor([0.0])
+        assert_close(result, expect)
+
+        # delta = 1 for spot / k > 1 and time --> +0
+        result = compute_delta(m, torch.tensor([[0.01, 1e-10, 0.2]]))
+        expect = torch.tensor([1.0])
+        assert_close(result, expect)
+
+        # delta = 0 for spot / k < 1 and volatility --> +0
+        result = compute_delta(m, torch.tensor([[-0.01, 1.0, 1e-10]]))
+        expect = torch.tensor([0.0])
+        assert_close(result, expect)
+
+        # delta = 0 for spot / k > 1 and volatility --> +0
+        result = compute_delta(m, torch.tensor([[0.01, 1.0, 1e-10]]))
+        expect = torch.tensor([1.0])
+        assert_close(result, expect)
+
+    def test_check_gamma(self):
+        # TODO(simaki): Check for put option
+
+        m = BSEuropeanOption()
+
+        # gamma = 0 for spot --> +0
+        result = compute_gamma(m, torch.tensor([[-10.0, 1.0, 0.2]]))
+        expect = torch.tensor([0.0])
+        assert_close(result, expect)
+
+        # gamma = 1 for spot --> +inf
+        result = compute_gamma(m, torch.tensor([[10.0, 1.0, 0.2]]))
+        expect = torch.tensor([0.0])
+        assert_close(result, expect)
+
+        # gamma = 0 for spot / k < 1 and time --> +0
+        result = compute_gamma(m, torch.tensor([[-0.01, 1e-10, 0.2]]))
+        expect = torch.tensor([0.0])
+        assert_close(result, expect)
+
+        # gamma = 0 for spot / k > 1 and time --> +0
+        result = compute_gamma(m, torch.tensor([[0.01, 1e-10, 0.2]]))
+        expect = torch.tensor([0.0])
+        assert_close(result, expect)
+
+        # gamma = 0 for spot / k < 1 and volatility --> +0
+        result = compute_gamma(m, torch.tensor([[-0.01, 1.0, 1e-10]]))
+        expect = torch.tensor([0.0])
+        assert_close(result, expect)
+
+        # gamma = 0 for spot / k > 1 and volatility --> +0
+        result = compute_gamma(m, torch.tensor([[0.01, 1.0, 1e-10]]))
+        expect = torch.tensor([0.0])
+        assert_close(result, expect)
+
+    def test_check_price(self):
+        # TODO(simaki): Check for put option
+
+        m = BSEuropeanOption()
+
+        # price = 0 for spot --> +0
+        result = compute_price(m, torch.tensor([[-10.0, 1.0, 0.2]]))
+        expect = torch.tensor([0.0])
+        assert_close(result, expect)
+
+        # price = spot - k for spot --> +inf
+        result = compute_price(m, torch.tensor([[10.0, 1.0, 0.2]]))
+        expect = torch.tensor([torch.tensor([10.0]).exp() - 1.0])
+        assert_close(result, expect)
+
+        # price = 0 for spot / k < 1 and time --> +0
+        result = compute_price(m, torch.tensor([[-0.01, 1e-10, 0.2]]))
+        expect = torch.tensor([0.0])
+        assert_close(result, expect)
+
+        # price = spot - k for spot / k > 1 and time --> +0
+        result = compute_price(m, torch.tensor([[0.01, 1e-10, 0.2]]))
+        expect = torch.tensor([torch.tensor(0.01).exp() - 1.0])
+        assert_close(result, expect)
+
+        # price = 0 for spot / k < 1 and volatility --> +0
+        result = compute_price(m, torch.tensor([[-0.01, 1.0, 1e-10]]))
+        expect = torch.tensor([0.0])
+        assert_close(result, expect)
+
+        # price = spot - k for spot / k > 1 and volatility --> +0
+        result = compute_price(m, torch.tensor([[0.01, 1.0, 1e-10]]))
+        expect = torch.tensor([torch.tensor(0.01).exp() - 1.0])
+        assert_close(result, expect)
+
+    def test_check_price_monte_carlo(self):
+        torch.manual_seed(42)
+
+        d = EuropeanOption(BrownianStock())
+        m = BSEuropeanOption.from_derivative(d)
+        d.simulate(n_paths=int(1e6))
+
+        input = torch.tensor([[0.0, d.maturity, d.ul().sigma]])
+        result = compute_price(m, input)
+        expect = d.payoff().mean(0, keepdim=True)
+        print(result, expect)
+        assert_close(result, expect, rtol=1e-2, atol=0.0)
 
     def test_forward_2(self):
         m = BSEuropeanOption(call=False)
@@ -72,7 +183,7 @@ class TestBSEuropeanOption(_TestBSModule):
         m = BSEuropeanOption(call=False)
         with pytest.raises(ValueError):
             # not yet supported
-            result = m.gamma(0.0, 1.0, 0.2)
+            _ = m.gamma(torch.tensor(0.0), torch.tensor(1.0), torch.tensor(0.2))
 
     def test_price_1(self):
         m = BSEuropeanOption()

@@ -8,13 +8,13 @@ from pfhedge._utils.doc import _set_docstring
 from pfhedge._utils.str import _format_float
 from pfhedge.nn.functional import american_binary_payoff
 
-from ..primary.base import Primary
+from ..primary.base import BasePrimary
+from .base import BaseDerivative
 from .base import BaseOption
-from .base import Derivative
 
 
 class AmericanBinaryOption(BaseOption):
-    """An American binary Option.
+    r"""American binary Option.
 
     An American binary call option pays an unit amount of cash if and only if
     the maximum of the underlying asset's price until maturity is equal or greater
@@ -27,33 +27,31 @@ class AmericanBinaryOption(BaseOption):
     The payoff of an American binary call option is given by:
 
     .. math::
+        \mathrm{payoff} =
+        \begin{cases}
+            1 & (\mathrm{Max} \geq K) \\
+            0 & (\text{otherwise})
+        \end{cases}
 
-        \\mathrm{payoff} =
-        \\begin{cases}
-            1 & (\\mathrm{Max} \\geq K) \\\\
-            0 & (\\text{otherwise})
-        \\end{cases}
-
-    Here, :math:`\\mathrm{Max}` is the maximum of the underlying asset's price
+    Here, :math:`\mathrm{Max}` is the maximum of the underlying asset's price
     until maturity and :math:`K` is the strike price (`strike`) of the option.
 
     The payoff of an American binary put option is given by:
 
     .. math::
+        \mathrm{payoff} =
+        \begin{cases}
+            1 & (\mathrm{Min} \leq K) \\
+            0 & (\text{otherwise})
+        \end{cases}
 
-        \\mathrm{payoff} =
-        \\begin{cases}
-            1 & (\\mathrm{Min} \\leq K) \\\\
-            0 & (\\text{otherwise})
-        \\end{cases}
-
-    Here, :math:`\\mathrm{Min}` is the minimum of the underlying asset's price.
+    Here, :math:`\mathrm{Min}` is the minimum of the underlying asset's price.
 
     .. seealso::
         :func:`pfhedge.nn.functional.american_binary_payoff`: Payoff function.
 
     Args:
-        underlier (:class:`Primary`): The underlying instrument of the option.
+        underlier (:class:`BasePrimary`): The underlying instrument of the option.
         call (bool, default=True): Specifies whether the option is call or put.
         strike (float, default=1.0): The strike price of the option.
         maturity (float, default=20/250): The maturity of the option.
@@ -64,14 +62,13 @@ class AmericanBinaryOption(BaseOption):
         device (torch.device): The device where the simulated time-series are.
 
     Examples:
-
         >>> import torch
         >>> from pfhedge.instruments import BrownianStock
         >>> from pfhedge.instruments import AmericanBinaryOption
         >>>
         >>> _ = torch.manual_seed(42)
-        >>> derivative = AmericanBinaryOption(BrownianStock(), \
-maturity=5/250, strike=1.01)
+        >>> derivative = AmericanBinaryOption(
+        ...     BrownianStock(), maturity=5/250, strike=1.01)
         >>> derivative.simulate(n_paths=2)
         >>> derivative.underlier.spot
         tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930, 0.9906],
@@ -82,7 +79,7 @@ maturity=5/250, strike=1.01)
 
     def __init__(
         self,
-        underlier: Primary,
+        underlier: BasePrimary,
         call: bool = True,
         strike: float = 1.0,
         maturity: float = 20 / 250,
@@ -103,7 +100,7 @@ maturity=5/250, strike=1.01)
                 "Specify them in the constructor of the underlier instead."
             )
 
-    def extra_repr(self):
+    def extra_repr(self) -> str:
         params = []
         if not self.call:
             params.append("call=" + str(self.call))
@@ -118,11 +115,11 @@ maturity=5/250, strike=1.01)
 
 
 # Assign docstrings so they appear in Sphinx documentation
-_set_attr_and_docstring(AmericanBinaryOption, "simulate", Derivative.simulate)
-_set_attr_and_docstring(AmericanBinaryOption, "to", Derivative.to)
-_set_attr_and_docstring(AmericanBinaryOption, "ul", Derivative.ul)
-_set_attr_and_docstring(AmericanBinaryOption, "list", Derivative.list)
-_set_docstring(AmericanBinaryOption, "payoff", Derivative.payoff)
+_set_attr_and_docstring(AmericanBinaryOption, "simulate", BaseDerivative.simulate)
+_set_attr_and_docstring(AmericanBinaryOption, "to", BaseDerivative.to)
+_set_attr_and_docstring(AmericanBinaryOption, "ul", BaseDerivative.ul)
+_set_attr_and_docstring(AmericanBinaryOption, "list", BaseDerivative.list)
+_set_docstring(AmericanBinaryOption, "payoff", BaseDerivative.payoff)
 _set_attr_and_docstring(AmericanBinaryOption, "moneyness", BaseOption.moneyness)
 _set_attr_and_docstring(AmericanBinaryOption, "log_moneyness", BaseOption.log_moneyness)
 _set_attr_and_docstring(

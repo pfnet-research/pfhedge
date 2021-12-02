@@ -7,7 +7,7 @@ from typing import TypeVar
 from torch import Tensor
 from torch.nn import Module
 
-from pfhedge.instruments import Derivative
+from pfhedge.instruments import BaseDerivative
 
 T = TypeVar("T", bound="Feature")
 
@@ -18,10 +18,10 @@ class Feature(ABC):
     All features should subclass this class.
     """
 
-    derivative: Derivative
+    derivative: BaseDerivative
     hedger: Optional[Module]
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.register_hedger(None)
 
     @abstractmethod
@@ -45,11 +45,11 @@ class Feature(ABC):
             torch.Tensor
         """
 
-    def of(self: T, derivative: Derivative, hedger: Optional[Module] = None) -> T:
+    def of(self: T, derivative: BaseDerivative, hedger: Optional[Module] = None) -> T:
         """Set ``derivative`` and ``hedger`` to the attributes of ``self``.
 
         Args:
-            derivative (Derivative, optional): The derivative to compute features.
+            derivative (BaseDerivative, optional): The derivative to compute features.
             hedger (Hedger, optional): The hedger to compute features.
 
         Returns:
@@ -60,7 +60,7 @@ class Feature(ABC):
         output.register_hedger(hedger)
         return output
 
-    def register_derivative(self, derivative: Derivative) -> None:
+    def register_derivative(self, derivative: BaseDerivative) -> None:
         setattr(self, "derivative", derivative)
 
     def register_hedger(self, hedger: Optional[Module]) -> None:
@@ -82,12 +82,12 @@ class Feature(ABC):
 class StateIndependentFeature(Feature):
     # Features that does not use the state of the hedger.
 
-    derivative: Derivative
+    derivative: BaseDerivative
     hedger: None
 
     def of(
         self: "StateIndependentFeature",
-        derivative: Derivative,
+        derivative: BaseDerivative,
         hedger: Optional[Module] = None,
     ) -> "StateIndependentFeature":
         return super().of(derivative=derivative, hedger=None)

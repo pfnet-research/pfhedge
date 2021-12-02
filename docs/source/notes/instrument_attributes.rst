@@ -5,9 +5,9 @@
 Instrument dtype and device
 ===========================
 
-The attributes :attr:`Primary.dtype` and :attr:`Primary.device` specify
+The attributes ``dtype`` and ``device`` of a primary instrument specify
 the dtype and devices with which the buffers of the instrument are represented.
-The attributes :attr:`Derivative.dtype` and :attr:`Derivative.device`
+The attributes ``dtype`` and ``device`` of a derivative instrument
 are aliased to the dtype/device of its underlier.
 
 A instrument of specific dtype/device can be constructed by
@@ -28,7 +28,7 @@ passing a ``torch.dtype`` and/or a ``torch.device`` to a constructor.
     tensor([[..., ..., ...],
             [..., ..., ...]], device='cuda:0')
 
-The methods :meth:`Primary.to()` and :meth:`Derivative.to()` work as
+The methods :meth:`BasePrimary.to()` and :meth:`BaseDerivative.to()` work as
 :meth:`torch.nn.Module.to` and cast/move the dtype and device of the instrument
 to the desired ones.
 
@@ -41,13 +41,13 @@ Instrument.dtype
 Primary
 ^^^^^^^
 
-One can simulate the movement of a ``Primary`` instrument (e.g., :class:`EuropeanOption`)
+One can simulate the movement of a primary instrument (e.g., :class:`EuropeanOption`)
 to get the associated buffers (e.g., ``spot``).
 
 The simulation will be performed with a :class:`torch.dtype`
-specified by :attr:`Primary.dtype`.
+specified by :attr:`BasePrimary.dtype`.
 The default dtype is the global default (see :func:`torch.set_default_tensor_type()`).
-The :meth:`Primary.to()` method modifies the instrument so that
+The :meth:`BasePrimary.to()` method modifies the instrument so that
 subsequent simulations will be performed with the desired dtype.
 
 .. code:: python
@@ -74,7 +74,7 @@ to the desired dtype.
 Derivative
 ^^^^^^^^^^
 
-If one calls :meth:`Derivative.to()`, its underlier gets the desired dtype.
+If one calls :meth:`BaseDerivative.to()`, its underlier gets the desired dtype.
 As a result, the ``payoff`` also has the same dtype.
 
 .. code:: python
@@ -102,10 +102,10 @@ Primary
 ^^^^^^^
 
 The simulation will be performed with a :class:`torch.device`
-specified by :attr:`Primary.device`.
+specified by :attr:`BasePrimary.device`.
 The default device is the current device for the default tensor type
 (see :func:`torch.set_default_tensor_type()`).
-The :meth:`Primary.to()` method modifies the instument so that
+The :meth:`BasePrimary.to()` method modifies the instument so that
 subsequent simulations will be performed on the desired device.
 
 .. code:: python
@@ -127,7 +127,7 @@ to the desired device.
 Derivative
 ^^^^^^^^^^
 
-If one calls :meth:`Derivative.to()`, its underlier gets the desired device.
+If one calls :meth:`BaseDerivative.to()`, its underlier gets the desired device.
 As a result, the ``payoff`` is also on the same device.
 
 .. code:: python

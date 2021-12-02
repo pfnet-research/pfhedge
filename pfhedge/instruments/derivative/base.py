@@ -15,13 +15,13 @@ from pfhedge._utils.doc import _set_docstring
 from pfhedge._utils.str import _addindent
 from pfhedge._utils.typing import TensorOrScalar
 
-from ..base import Instrument
-from ..primary.base import Primary
+from ..base import BaseInstrument
+from ..primary.base import BasePrimary
 
-T = TypeVar("T", bound="Derivative")
+T = TypeVar("T", bound="BaseDerivative")
 
 
-class Derivative(Instrument):
+class BaseDerivative(BaseInstrument):
     """Base class for all derivatives.
 
     A derivative is a financial instrument whose payoff is contingent on
@@ -30,24 +30,24 @@ class Derivative(Instrument):
     is not directly accessible.
     Examples include options and swaps.
 
-    A derivative relies on primary assets (See :class:`Primary` for details), such as
+    A derivative relies on primary assets (See :class:`BasePrimary` for details), such as
     stocks, bonds, commodities, and currencies.
 
     Attributes:
-        underlier (:class:`Primary`): The underlying asset on which the derivative's
+        underlier (:class:`BasePrimary`): The underlying asset on which the derivative's
             payoff relies.
         dtype (torch.dtype): The dtype with which the simulated time-series are
             represented.
         device (torch.device): The device where the simulated time-series are.
     """
 
-    underlier: Primary
+    underlier: BasePrimary
     cost: float
     maturity: float
     pricer: Optional[Callable[[Any], Tensor]]
-    _clauses: Dict[str, Callable[["Derivative", Tensor], Tensor]]
+    _clauses: Dict[str, Callable[["BaseDerivative", Tensor], Tensor]]
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.pricer = None
         self.cost = 0.0
@@ -76,7 +76,7 @@ class Derivative(Instrument):
             n_paths=n_paths, time_horizon=self.maturity, init_state=init_state
         )
 
-    def ul(self) -> Primary:
+    def ul(self) -> BasePrimary:
         """Alias for ``self.underlier``."""
         return self.underlier
 
@@ -129,7 +129,7 @@ class Derivative(Instrument):
         See an example in :class:`EuropeanOption` for a usage.
 
         Args:
-            pricer (Callable[[Derivative], Tensor]]): A function that takes self
+            pricer (Callable[[BaseDerivative], Tensor]]): A function that takes self
                 and returns the spot price tensor of self.
             cost (float, optional): The transaction cost rate.
         """
@@ -137,7 +137,7 @@ class Derivative(Instrument):
         self.cost = cost
 
     def add_clause(
-        self, name: str, clause: Callable[["Derivative", Tensor], Tensor]
+        self, name: str, clause: Callable[["BaseDerivative", Tensor], Tensor]
     ) -> None:
         """Adds a clause to the derivative.
 
@@ -149,7 +149,7 @@ class Derivative(Instrument):
 
         Args:
             name (str): The name of the clause.
-            clause (callable[[Derivative, torch.Tensor], torch.Tensor]):
+            clause (callable[[BaseDerivative, torch.Tensor], torch.Tensor]):
                 The clause to add.
         """
         if not isinstance(name, torch._six.string_classes):
@@ -186,10 +186,18 @@ class Derivative(Instrument):
         return self._get_name() + "(" + params_str + ")"
 
 
-class BaseOption(Derivative):
+class Derivative(BaseDerivative):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        raise DeprecationWarning(
+            "Derivative is deprecated. Use BaseDerivative instead."
+        )
+
+
+class BaseOption(BaseDerivative):
     """Base class of options."""
 
-    underlier: Primary
+    underlier: BasePrimary
     strike: float
     maturity: float
 
@@ -252,7 +260,9 @@ class BaseOption(Derivative):
             t = torch.tensor([[time]]).to(self.underlier.spot) * self.underlier.dt
             return t.expand(n_paths, -1)
 
-    def max_moneyness(self, time_step: Optional[int] = None, log=False) -> Tensor:
+    def max_moneyness(
+        self, time_step: Optional[int] = None, log: bool = False
+    ) -> Tensor:
         """Returns the cumulative maximum of the moneyness.
 
         Args:
@@ -287,9 +297,9 @@ class BaseOption(Derivative):
 
 
 # Assign docstrings so they appear in Sphinx documentation
-_set_docstring(Derivative, "to", Instrument.to)
-_set_attr_and_docstring(Derivative, "cpu", Instrument.cpu)
-_set_attr_and_docstring(Derivative, "cuda", Instrument.cuda)
-_set_attr_and_docstring(Derivative, "double", Instrument.double)
-_set_attr_and_docstring(Derivative, "float", Instrument.float)
-_set_attr_and_docstring(Derivative, "half", Instrument.half)
+_set_docstring(BaseDerivative, "to", BaseInstrument.to)
+_set_attr_and_docstring(BaseDerivative, "cpu", BaseInstrument.cpu)
+_set_attr_and_docstring(BaseDerivative, "cuda", BaseInstrument.cuda)
+_set_attr_and_docstring(BaseDerivative, "double", BaseInstrument.double)
+_set_attr_and_docstring(BaseDerivative, "float", BaseInstrument.float)
+_set_attr_and_docstring(BaseDerivative, "half", BaseInstrument.half)

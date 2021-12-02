@@ -9,28 +9,42 @@ pfhedge.nn.functional
 Payoff Functions
 ----------------
 
-.. autofunction:: european_payoff
-.. autofunction:: lookback_payoff
-.. autofunction:: american_binary_payoff
-.. autofunction:: european_binary_payoff
+.. autosummary::
+    :nosignatures:
+    :toctree: generated
 
-Utility Functions
------------------
+    european_payoff
+    lookback_payoff
+    american_binary_payoff
+    european_binary_payoff
 
-.. autofunction:: exp_utility
-.. autofunction:: isoelastic_utility
-.. autofunction:: expected_shortfall
+Criterion Functions
+-------------------
+
+.. autosummary::
+    :nosignatures:
+    :toctree: generated
+
+    exp_utility
+    isoelastic_utility
+    entropic_risk_measure
+    expected_shortfall
+    value_at_risk
 
 Other Functions
 -----------------
 
-.. autofunction:: leaky_clamp
-.. autofunction:: clamp
-.. autofunction:: topp
-.. autofunction:: realized_variance
-.. autofunction:: realized_volatility
-.. autofunction:: terminal_value
-.. autofunction:: ncdf
-.. autofunction:: npdf
-.. autofunction:: d1
-.. autofunction:: d2
+.. autosummary::
+    :nosignatures:
+    :toctree: generated
+
+    leaky_clamp
+    clamp
+    topp
+    realized_variance
+    realized_volatility
+    terminal_value
+    ncdf
+    npdf
+    d1
+    d2

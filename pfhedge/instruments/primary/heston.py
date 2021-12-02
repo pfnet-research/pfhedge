@@ -12,10 +12,10 @@ from pfhedge._utils.str import _format_float
 from pfhedge._utils.typing import TensorOrScalar
 from pfhedge.stochastic import generate_heston
 
-from .base import Primary
+from .base import BasePrimary
 
 
-class HestonStock(Primary):
+class HestonStock(BasePrimary):
     r"""A stock of which spot price and variance follow Heston process.
 
     .. seealso::
@@ -159,5 +159,5 @@ class HestonStock(Primary):
 
 
 # Assign docstrings so they appear in Sphinx documentation
-_set_docstring(HestonStock, "default_init_state", Primary.default_init_state)
-_set_attr_and_docstring(HestonStock, "to", Primary.to)
+_set_docstring(HestonStock, "default_init_state", BasePrimary.default_init_state)
+_set_attr_and_docstring(HestonStock, "to", BasePrimary.to)
