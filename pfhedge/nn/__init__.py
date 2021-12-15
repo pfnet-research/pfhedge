@@ -13,4 +13,5 @@ from .modules.loss import HedgeLoss
 from .modules.loss import IsoelasticLoss
 from .modules.mlp import MultiLayerPerceptron
 from .modules.naked import Naked
+from .modules.svi import SVISigma
 from .modules.ww import WhalleyWilmott
