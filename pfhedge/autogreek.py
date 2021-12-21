@@ -284,7 +284,7 @@ def theta(
             del params[parameter]
 
     price = pricer(**params)
-    # Note: usually theta is calculated reversely (\partial{S}/\partial{-T})
+    # Note: usually theta is calculated reversely (\partial{S}/\partial{T} = \partial{S}/\partial{-time_to_maturity})
     return -torch.autograd.grad(
         price,
         inputs=time_to_maturity,
