@@ -42,3 +42,12 @@ def parse_volatility(
         return variance.clamp(min=0.0).sqrt()
     else:
         raise ValueError("Insufficient parameters to parse volatility")
+
+
+def parse_time_to_maturity(
+    *, time_to_maturity: Optional[Tensor] = None, **kwargs
+) -> Tensor:
+    if time_to_maturity is not None:
+        return time_to_maturity
+    else:
+        raise ValueError("Insufficient parameters to parse time_to_maturity")

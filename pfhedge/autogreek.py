@@ -5,6 +5,7 @@ import torch
 from torch import Tensor
 
 from ._utils.parse import parse_spot
+from ._utils.parse import parse_time_to_maturity
 from ._utils.parse import parse_volatility
 
 
@@ -228,6 +229,65 @@ def vega(
     return torch.autograd.grad(
         price,
         inputs=volatility,
+        grad_outputs=torch.ones_like(price),
+        create_graph=create_graph,
+    )[0]
+
+
+def theta(
+    pricer: Callable[..., Tensor], *, create_graph: bool = False, **params
+) -> Tensor:
+    """Computes and returns theta of a derivative using automatic differentiation.
+
+    Theta is a differentiation of a derivative price with respect to
+    a variance of underlying instrument.
+
+    Note:
+        The keyword argument ``**params`` should contain at least one of the
+        following parameters:
+
+        - ``time_to_maturity``
+
+    Args:
+        pricer (callable): Pricing formula of a derivative.
+        create_graph (bool, default=False): If ``True``,
+            graph of the derivative will be constructed,
+            allowing to compute higher order derivative products.
+        **params: Parameters passed to ``pricer``.
+
+    Returns:
+        torch.Tensor
+
+    Examples:
+
+        Theta of a European option can be evaluated as follows.
+
+        >>> import pfhedge.autogreek as autogreek
+        >>> from pfhedge.nn import BSEuropeanOption
+        >>>
+        >>> pricer = BSEuropeanOption().price
+        >>> autogreek.theta(
+        ...     pricer,
+        ...     log_moneyness=torch.zeros(3),
+        ...     time_to_maturity=torch.tensor([0.1, 0.2, 0.3]),
+        ...     volatility=torch.tensor([0.20, 0.20, 0.20]),
+        ... )
+        tensor([-0.1261, -0.0891, -0.0727])
+    """
+    time_to_maturity = parse_time_to_maturity(**params).requires_grad_()
+    params["time_to_maturity"] = time_to_maturity
+
+    # Delete parameters that are not in the signature of pricer to avoid
+    # TypeError: <pricer> got an unexpected keyword argument '<parameter>'
+    for parameter in list(params.keys()):
+        if parameter not in signature(pricer).parameters.keys():
+            del params[parameter]
+
+    price = pricer(**params)
+    # Note: usually theta is calculated reversely (\partial{S}/\partial{-T})
+    return -torch.autograd.grad(
+        price,
+        inputs=time_to_maturity,
         grad_outputs=torch.ones_like(price),
         create_graph=create_graph,
     )[0]
