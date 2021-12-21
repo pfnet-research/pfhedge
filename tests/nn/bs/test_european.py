@@ -1,3 +1,5 @@
+import math
+
 import pytest
 import torch
 from torch import Tensor
@@ -215,6 +217,17 @@ class TestBSEuropeanOption(_TestBSModule):
             volatility=input[..., 2],
         )
         expect = torch.tensor([0.1261, 0.1782, 0.2182])
+        assert_close(result, expect, atol=1e-3, rtol=0)
+
+    def test_theta(self):
+        input = torch.tensor([[0.0, 0.1, 0.2], [0.0, 0.2, 0.2], [0.0, 0.3, 0.2]])
+        m = BSEuropeanOption(strike=100)
+        result = m.theta(
+            log_moneyness=input[..., 0],
+            time_to_maturity=input[..., 1],
+            volatility=input[..., 2],
+        )
+        expect = torch.tensor([-12.6094, -8.9117, -7.2727])
         assert_close(result, expect, atol=1e-3, rtol=0)
 
     def test_example(self):
