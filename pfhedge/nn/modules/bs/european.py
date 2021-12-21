@@ -177,7 +177,7 @@ class BSEuropeanOption(BSModuleMixin):
     def theta(
         self, log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor
     ) -> Tensor:
-        """Returns theta (yearly) of the derivative.
+        """Returns theta of the derivative.
 
         Args:
             log_moneyness: (torch.Tensor): Log moneyness of the underlying asset.
@@ -193,7 +193,6 @@ class BSEuropeanOption(BSModuleMixin):
 
         Note:
             Risk-free rate is set to zero.
-            This is calculated as yearly. If you want daily theta, please divide by yearly business days.
 
         Returns:
             torch.Tensor

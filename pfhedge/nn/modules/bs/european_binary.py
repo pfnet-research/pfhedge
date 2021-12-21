@@ -222,7 +222,6 @@ class BSEuropeanBinaryOption(BSModuleMixin):
 
         Note:
             Risk-free rate is set to zero.
-            This is calculated as yearly. If you want daily theta, please divide by yearly business days.
 
         Returns:
             torch.Tensor

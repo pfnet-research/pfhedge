@@ -246,7 +246,7 @@ class BSAmericanBinaryOption(BSModuleMixin):
         time_to_maturity: Tensor,
         volatility: Tensor,
     ) -> Tensor:
-        """Returns gamma of the derivative.
+        """Returns theta of the derivative.
 
         Args:
             log_moneyness (torch.Tensor): Log moneyness of the underlying asset.
@@ -264,7 +264,6 @@ class BSAmericanBinaryOption(BSModuleMixin):
 
         Note:
             Risk-free rate is set to zero.
-            This is calculated as yearly. If you want daily theta, please divide by yearly business days.
 
         Returns:
             torch.Tensor
