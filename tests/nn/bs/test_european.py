@@ -246,5 +246,7 @@ class TestBSEuropeanOption(_TestBSModule):
         m = BSEuropeanOption()
         self.assert_shape_delta(m)
         self.assert_shape_gamma(m)
+        self.assert_shape_vega(m)
+        self.assert_shape_theta(m)
         self.assert_shape_price(m)
         self.assert_shape_forward(m)
