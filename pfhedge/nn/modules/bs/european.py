@@ -183,7 +183,6 @@ class BSEuropeanOption(BSModuleMixin):
             log_moneyness: (torch.Tensor): Log moneyness of the underlying asset.
             time_to_maturity (torch.Tensor): Time to expiry of the option.
             volatility (torch.Tensor): Volatility of the underlying asset.
-            risk_free_rate (float; default=0.0): risk free rate
 
         Shape:
             - log_moneyness: :math:`(N, *)` where
