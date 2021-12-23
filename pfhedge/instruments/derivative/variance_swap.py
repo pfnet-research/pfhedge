@@ -8,12 +8,12 @@ from pfhedge._utils.doc import _set_docstring
 from pfhedge._utils.str import _format_float
 from pfhedge.nn.functional import realized_variance
 
-from ..primary.base import Primary
-from .base import Derivative
+from ..primary.base import BasePrimary
+from .base import BaseDerivative
 
 
-class VarianceSwap(Derivative):
-    """A variance swap.
+class VarianceSwap(BaseDerivative):
+    r"""Variance swap.
 
     A variance swap pays cash in the amount of the realized variance
     until the maturity and levies the cash of the strike variance.
@@ -22,15 +22,15 @@ class VarianceSwap(Derivative):
 
     .. math::
 
-        \\mathrm{payoff} = \\sigma^2 - K
+        \mathrm{payoff} = \sigma^2 - K
 
-    where :math:`\\sigma^2` is the realized variance of the underlying asset
+    where :math:`\sigma^2` is the realized variance of the underlying asset
     until maturity and :math:`K` is the strike variance (``strike``).
     See :func:`pfhedge.nn.functional.realized_variance` for the definition of
     the realized variance.
 
     Args:
-        underlier (:class:`Primary`): The underlying instrument.
+        underlier (:class:`BasePrimary`): The underlying instrument.
         strike (float, default=0.04): The strike variance of the swap.
         maturity (float, default=20/250): The maturity of the derivative.
 
@@ -40,7 +40,6 @@ class VarianceSwap(Derivative):
         device (torch.device): The device where the simulated time-series are.
 
     Examples:
-
         >>> import torch
         >>> from pfhedge.nn.functional import realized_variance
         >>> from pfhedge.instruments import BrownianStock
@@ -60,7 +59,7 @@ class VarianceSwap(Derivative):
 
     def __init__(
         self,
-        underlier: Primary,
+        underlier: BasePrimary,
         strike: float = 0.04,
         maturity: float = 20 / 250,
         dtype: Optional[torch.dtype] = None,
@@ -79,7 +78,7 @@ class VarianceSwap(Derivative):
                 "Specify them in the constructor of the underlier instead."
             )
 
-    def extra_repr(self):
+    def extra_repr(self) -> str:
         return ", ".join(
             (
                 "strike=" + _format_float(self.strike),
@@ -92,8 +91,8 @@ class VarianceSwap(Derivative):
 
 
 # Assign docstrings so they appear in Sphinx documentation
-_set_attr_and_docstring(VarianceSwap, "simulate", Derivative.simulate)
-_set_attr_and_docstring(VarianceSwap, "to", Derivative.to)
-_set_attr_and_docstring(VarianceSwap, "ul", Derivative.ul)
-_set_attr_and_docstring(VarianceSwap, "list", Derivative.list)
-_set_docstring(VarianceSwap, "payoff", Derivative.payoff)
+_set_attr_and_docstring(VarianceSwap, "simulate", BaseDerivative.simulate)
+_set_attr_and_docstring(VarianceSwap, "to", BaseDerivative.to)
+_set_attr_and_docstring(VarianceSwap, "ul", BaseDerivative.ul)
+_set_attr_and_docstring(VarianceSwap, "list", BaseDerivative.list)
+_set_docstring(VarianceSwap, "payoff", BaseDerivative.payoff)

@@ -19,7 +19,6 @@ def ensemble_mean(
         torch.Tensor
 
     Examples:
-
         >>> function = lambda: torch.tensor([1.0, 2.0])
         >>> ensemble_mean(function, 5)
         tensor([1., 2.])

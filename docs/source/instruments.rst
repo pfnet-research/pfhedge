@@ -14,7 +14,10 @@ Base Class
     :nosignatures:
     :template: classtemplate.rst
 
-    instruments.Instrument
+    instruments.BaseInstrument
+    instruments.BasePrimary
+    instruments.BaseDerivative
+    instruments.BaseOption
 
 Primary Instruments
 -------------------
@@ -24,7 +27,6 @@ Primary Instruments
     :nosignatures:
     :template: classtemplate.rst
 
-    instruments.Primary
     instruments.BrownianStock
     instruments.HestonStock
     instruments.CIRRate
@@ -37,8 +39,6 @@ Derivative Instruments
     :nosignatures:
     :template: classtemplate.rst
 
-    instruments.Derivative
-    instruments.BaseOption
     instruments.EuropeanOption
     instruments.LookbackOption
     instruments.EuropeanBinaryOption

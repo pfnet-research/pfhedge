@@ -1,5 +1,6 @@
 import pytest
 import torch
+from torch import Tensor
 from torch.testing import assert_close
 
 from pfhedge.features._getter import get_feature
@@ -8,13 +9,12 @@ from pfhedge.instruments import EuropeanBinaryOption
 from pfhedge.nn import BSEuropeanBinaryOption
 
 from ._base import _TestBSModule
+from ._utils import compute_delta
+from ._utils import compute_gamma
+from ._utils import compute_price
 
 
 class TestBSEuropeanBinaryOption(_TestBSModule):
-    """
-    pfhedge.nn.bs.BSEuropeanBinaryOption
-    """
-
     def setup_class(self):
         torch.manual_seed(42)
 
@@ -42,6 +42,113 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
         m = BSEuropeanBinaryOption()
         assert m.inputs() == ["log_moneyness", "time_to_maturity", "volatility"]
         _ = [get_feature(f) for f in m.inputs()]
+
+    def test_check_delta(self):
+        m = BSEuropeanBinaryOption()
+
+        # delta = 0 for spot --> +0
+        result = compute_delta(m, torch.tensor([[-10.0, 1.0, 0.2]]))
+        expect = torch.tensor([0.0])
+        assert_close(result, expect)
+
+        # delta = 0 for spot --> +inf
+        result = compute_delta(m, torch.tensor([[10.0, 1.0, 0.2]]))
+        expect = torch.tensor([0.0])
+        assert_close(result, expect)
+
+        # delta = 0 for time --> +0
+        result = compute_delta(m, torch.tensor([[-0.01, 1e-10, 0.2]]))
+        expect = torch.tensor([0.0])
+        assert_close(result, expect)
+
+        result = compute_delta(m, torch.tensor([[0.01, 1e-10, 0.2]]))
+        expect = torch.tensor([0.0])
+        assert_close(result, expect)
+
+        # delta = 0 for volatility --> +0
+        result = compute_delta(m, torch.tensor([[-0.01, 1.0, 1e-10]]))
+        expect = torch.tensor([0.0])
+        assert_close(result, expect)
+
+        result = compute_delta(m, torch.tensor([[0.01, 1.0, 1e-10]]))
+        expect = torch.tensor([0.0])
+        assert_close(result, expect)
+
+    def test_check_gamma(self):
+        m = BSEuropeanBinaryOption()
+
+        # gamma = 0 for spot --> +0
+        result = compute_gamma(m, torch.tensor([[-10.0, 1.0, 0.2]]))
+        expect = torch.tensor([0.0])
+        assert_close(result, expect)
+
+        # gamma = 0 for spot --> +inf
+        result = compute_gamma(m, torch.tensor([[10.0, 1.0, 0.2]]))
+        expect = torch.tensor([0.0])
+        assert_close(result, expect)
+
+        # gamma = 0 for time --> +0
+        result = compute_gamma(m, torch.tensor([[-0.01, 1e-10, 0.2]]))
+        expect = torch.tensor([0.0])
+        assert_close(result, expect)
+
+        result = compute_gamma(m, torch.tensor([[0.01, 1e-10, 0.2]]))
+        expect = torch.tensor([0.0])
+        assert_close(result, expect)
+
+        # gamma = 0 for volatility --> +0
+        result = compute_gamma(m, torch.tensor([[-0.01, 1.0, 1e-10]]))
+        expect = torch.tensor([0.0])
+        assert_close(result, expect)
+
+        result = compute_gamma(m, torch.tensor([[0.01, 1.0, 1e-10]]))
+        expect = torch.tensor([0.0])
+        assert_close(result, expect)
+
+    def test_check_price(self):
+        m = BSEuropeanBinaryOption()
+
+        # price = 0 for spot --> +0
+        result = compute_price(m, torch.tensor([[-10.0, 1.0, 0.2]]))
+        expect = torch.tensor([0.0])
+        assert_close(result, expect)
+
+        # price = 1 for spot --> +inf
+        result = compute_price(m, torch.tensor([[10.0, 1.0, 0.2]]))
+        expect = torch.tensor([1.0])
+        assert_close(result, expect)
+
+        # price = 0 for spot < strike and time --> +0
+        result = compute_price(m, torch.tensor([[-0.01, 1e-10, 0.2]]))
+        expect = torch.tensor([0.0])
+        assert_close(result, expect)
+
+        # price = 1 for spot > strike and time --> +0
+        result = compute_price(m, torch.tensor([[0.01, 1e-10, 0.2]]))
+        expect = torch.tensor([1.0])
+        assert_close(result, expect)
+
+        # price = 0 for spot < strike and volatility --> +0
+        result = compute_price(m, torch.tensor([[-0.01, 1.0, 1e-10]]))
+        expect = torch.tensor([0.0])
+        assert_close(result, expect)
+
+        # price = 0 for spot > strike and volatility --> +0
+        result = compute_price(m, torch.tensor([[0.01, 1.0, 1e-10]]))
+        expect = torch.tensor([1.0])
+        assert_close(result, expect)
+
+    def test_check_price_monte_carlo(self):
+        torch.manual_seed(42)
+
+        d = EuropeanBinaryOption(BrownianStock())
+        m = BSEuropeanBinaryOption.from_derivative(d)
+        d.simulate(n_paths=int(1e6))
+
+        input = torch.tensor([[0.0, d.maturity, d.ul().sigma]])
+        result = compute_price(m, input)
+        expect = d.payoff().mean(0, keepdim=True)
+        assert_close(result, expect, rtol=1e-2, atol=0.0)
 
     def test_forward(self):
         m = BSEuropeanBinaryOption()

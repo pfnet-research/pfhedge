@@ -4,13 +4,13 @@ from torch import Tensor
 from torch.nn import Module
 
 from pfhedge._utils.str import _format_float
+from pfhedge.nn.functional import ww_width
 
 from .bs.black_scholes import BlackScholes
-from .clamp import Clamp
 
 
 class WhalleyWilmott(Module):
-    """Initialize Whalley-Wilmott's hedging strategy of a derivative.
+    r"""Creates a module for Whalley-Wilmott's hedging strategy.
 
     The ``forward`` method returns the next hedge ratio.
 
@@ -20,19 +20,18 @@ class WhalleyWilmott(Module):
     The half-width of the no-transaction band is given by
 
     .. math::
-
-        w = \\left( \\frac{3 c \\Gamma^2 S}{2 a} \\right)^{1 / 3} \,,
+        w = \left( \frac{3 c \Gamma^2 S}{2 a} \right)^{1 / 3} \,,
 
     where :math:`c` is the transaction cost rate,
-    :math:`\\Gamma` is the gamma of the derivative,
+    :math:`\Gamma` is the gamma of the derivative,
     :math:`S` is the spot price of the underlying instrument, and
     :math:`a` is the risk-aversion coefficient of the exponential utility.
 
     Note:
         A backward computation for this module generates ``nan``
-        if the :math:`\\Gamma` of the derivative is too small.
-        This is because the output is proportional to :math:`\\Gamma^{2 / 3}`
-        of which gradient diverges for :math:`\\Gamma \\to 0`.
+        if the :math:`\Gamma` of the derivative is too small.
+        This is because the output is proportional to :math:`\Gamma^{2 / 3}`
+        of which gradient diverges for :math:`\Gamma \to 0`.
         A ``dtype`` with higher precision may alleviate this problem.
 
     References:
@@ -44,18 +43,17 @@ class WhalleyWilmott(Module):
           1997, 7, 307–324.
 
     Args:
-        derivative (:class:`pfhedge.instruments.Derivative`): Derivative to hedge.
+        derivative (:class:`pfhedge.instruments.BaseDerivative`): Derivative to hedge.
         a (float, default=1.0): Risk aversion parameter in exponential utility.
 
     Shape:
-        - Input: :math:`(N, *, H_{\\text{in}})` where
+        - Input: :math:`(N, *, H_{\text{in}})` where
           :math:`*` means any number of additional dimensions and
-          :math:`H_{\\text{in}}` is the number of input features.
+          :math:`H_{\text{in}}` is the number of input features.
           See :meth:`inputs()` for the names of input features.
         - Output: :math:`(N, *, 1)`.
 
     Examples:
-
         An example for :class:`pfhedge.instruments.EuropeanOption`.
 
         >>> import torch
@@ -106,7 +104,6 @@ class WhalleyWilmott(Module):
         self.a = a
 
         self.bs = BlackScholes(derivative)
-        self.clamp = Clamp()
 
     def inputs(self) -> List[str]:
         """Returns the names of input features.
@@ -127,18 +124,18 @@ class WhalleyWilmott(Module):
         min = delta - width
         max = delta + width
 
-        return self.clamp(prev_hedge, min=min, max=max)
+        return prev_hedge.clamp(min=min, max=max)
 
     def width(self, input: Tensor) -> Tensor:
-        """Returns half-width of the no-transaction band.
+        r"""Returns half-width of the no-transaction band.
 
         Args:
-            input (Tensor): The input tensor.
+            input (torch.Tensor): The input tensor.
 
         Shape:
-            - Input: :math:`(N, *, H_{\\text{in}} - 1)` where
+            - Input: :math:`(N, *, H_{\text{in}} - 1)` where
               :math:`*` means any number of additional dimensions and
-              :math:`H_{\\text{in}}` is the number of input features.
+              :math:`H_{\text{in}}` is the number of input features.
               See :meth:`inputs()` for the names of input features.
             - Output: :math:`(N, *, 1)`
 
@@ -146,9 +143,8 @@ class WhalleyWilmott(Module):
             torch.Tensor
         """
         cost = self.derivative.underlier.cost
-
         spot = self.derivative.strike * input[..., [0]].exp()
         gamma = self.bs.gamma(*(input[..., [i]] for i in range(input.size(-1))))
         width = (cost * (3 / 2) * gamma.square() * spot / self.a).pow(1 / 3)
 
-        return width
+        return ww_width(gamma=gamma, spot=spot, cost=cost, a=self.a)

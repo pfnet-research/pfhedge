@@ -1,7 +1,6 @@
 from math import ceil
 from typing import Optional
 from typing import Tuple
-from typing import Union
 from typing import cast
 
 import torch
@@ -13,10 +12,10 @@ from pfhedge._utils.str import _format_float
 from pfhedge._utils.typing import TensorOrScalar
 from pfhedge.stochastic import generate_geometric_brownian
 
-from .base import Primary
+from .base import BasePrimary
 
 
-class BrownianStock(Primary):
+class BrownianStock(BasePrimary):
     r"""A stock of which spot prices follow the geometric Brownian motion.
 
     .. seealso::
@@ -116,7 +115,7 @@ class BrownianStock(Primary):
             init_state (tuple[torch.Tensor | float], optional): The initial state of
                 the instrument.
                 This is specified by a tuple :math:`(S(0),)` where
-                :math:`spot` is the initial value of the spot price.
+                :math:`S(0)` is the initial value of the spot price.
                 If ``None`` (default), it uses the default value
                 (See :attr:`default_init_state`).
                 It also accepts a :class:`float` or a :class:`torch.Tensor`.
@@ -154,5 +153,5 @@ class BrownianStock(Primary):
 
 
 # Assign docstrings so they appear in Sphinx documentation
-_set_docstring(BrownianStock, "default_init_state", Primary.default_init_state)
-_set_attr_and_docstring(BrownianStock, "to", Primary.to)
+_set_docstring(BrownianStock, "default_init_state", BasePrimary.default_init_state)
+_set_attr_and_docstring(BrownianStock, "to", BasePrimary.to)

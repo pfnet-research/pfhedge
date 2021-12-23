@@ -8,13 +8,13 @@ from pfhedge._utils.doc import _set_docstring
 from pfhedge._utils.str import _format_float
 from pfhedge.nn.functional import lookback_payoff
 
-from ..primary.base import Primary
+from ..primary.base import BasePrimary
+from .base import BaseDerivative
 from .base import BaseOption
-from .base import Derivative
 
 
 class LookbackOption(BaseOption):
-    """A lookback option with fixed strike.
+    r"""Lookback option with fixed strike.
 
     A lookback call option provides its holder the right to buy an underlying with
     the strike price and to sell with the highest price until the date of maturity.
@@ -25,25 +25,23 @@ class LookbackOption(BaseOption):
     The payoff of a lookback call option is given by:
 
     .. math::
+        \mathrm{payoff} = \max(\mathrm{Max} - K, 0)
 
-        \\mathrm{payoff} = \\max(\\mathrm{Max} - K, 0)
-
-    Here, :math:`\\mathrm{Max}` is the maximum of the underlying asset's price
+    Here, :math:`\mathrm{Max}` is the maximum of the underlying asset's price
     until maturity and :math:`K` is the strike price (`strike`) of the option.
 
     The payoff of a lookback put option is given by:
 
     .. math::
+        \mathrm{payoff} = \max(K - \mathrm{Min}, 0)
 
-        \\mathrm{payoff} = \\max(K - \\mathrm{Min}, 0)
-
-    Here, :math:`\\mathrm{Min}` is the minimum of the underlying asset's price.
+    Here, :math:`\mathrm{Min}` is the minimum of the underlying asset's price.
 
     .. seealso::
         :func:`pfhedge.nn.functional.lookback_payoff`: Payoff function.
 
     Args:
-        underlier (:class:`Primary`): The underlying instrument of the option.
+        underlier (:class:`BasePrimary`): The underlying instrument of the option.
         call (bool, default=True): Specifies whether the option is call or put.
         strike (float, default=1.0): The strike price of the option.
         maturity (float, default=20/250): The maturity of the option.
@@ -54,7 +52,6 @@ class LookbackOption(BaseOption):
         device (torch.device): The device where the simulated time-series are.
 
     Examples:
-
         >>> import torch
         >>> from pfhedge.instruments import BrownianStock
         >>> from pfhedge.instruments import LookbackOption
@@ -71,7 +68,7 @@ class LookbackOption(BaseOption):
 
     def __init__(
         self,
-        underlier: Primary,
+        underlier: BasePrimary,
         call: bool = True,
         strike: float = 1.0,
         maturity: float = 20 / 250,
@@ -105,11 +102,11 @@ class LookbackOption(BaseOption):
 
 
 # Assign docstrings so they appear in Sphinx documentation
-_set_attr_and_docstring(LookbackOption, "simulate", Derivative.simulate)
-_set_attr_and_docstring(LookbackOption, "to", Derivative.to)
-_set_attr_and_docstring(LookbackOption, "ul", Derivative.ul)
-_set_attr_and_docstring(LookbackOption, "list", Derivative.list)
-_set_docstring(LookbackOption, "payoff", Derivative.payoff)
+_set_attr_and_docstring(LookbackOption, "simulate", BaseDerivative.simulate)
+_set_attr_and_docstring(LookbackOption, "to", BaseDerivative.to)
+_set_attr_and_docstring(LookbackOption, "ul", BaseDerivative.ul)
+_set_attr_and_docstring(LookbackOption, "list", BaseDerivative.list)
+_set_docstring(LookbackOption, "payoff", BaseDerivative.payoff)
 _set_attr_and_docstring(LookbackOption, "moneyness", BaseOption.moneyness)
 _set_attr_and_docstring(LookbackOption, "log_moneyness", BaseOption.log_moneyness)
 _set_attr_and_docstring(LookbackOption, "time_to_maturity", BaseOption.time_to_maturity)

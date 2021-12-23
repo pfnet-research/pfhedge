@@ -24,7 +24,7 @@ class NoTransactionBandNet(Module):
     The `forward` method returns the next hedge ratio.
 
     Args:
-        derivative (pfhedge.instruments.Derivative): The derivative to hedge.
+        derivative (pfhedge.instruments.BaseDerivative): The derivative to hedge.
 
     Shape:
         - Input: :math:`(N, H_{\\text{in}})`, where :math:`(N, H_{\\text{in}})` is the

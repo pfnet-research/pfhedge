@@ -4,7 +4,6 @@ import torch
 from torch import Tensor
 from torch.distributions.utils import broadcast_all
 
-import pfhedge.autogreek as autogreek
 from pfhedge._utils.bisect import find_implied_volatility
 from pfhedge._utils.doc import _set_attr_and_docstring
 from pfhedge._utils.str import _format_float
@@ -17,7 +16,10 @@ from ._base import BSModuleMixin
 
 
 class BSAmericanBinaryOption(BSModuleMixin):
-    """Black-Scholes formula for an American Binary Option.
+    """Black-Scholes formula for an american binary option.
+
+    Note:
+        Risk-free rate is set to zero.
 
     Args:
         call (bool, default=True): Specifies whether the option is call or put.
@@ -33,10 +35,12 @@ class BSAmericanBinaryOption(BSModuleMixin):
     .. seealso::
         - :class:`pfhedge.nn.BlackScholes`:
           Initialize Black-Scholes formula module from a derivative.
+        - :class:`pfhedge.instruments.AmericanBinaryOption`:
+          Corresponding derivative.
 
     References:
-        - Dai, M., 2000. A closed-form solution for perpetual American floating strike
-          lookback options. Journal of Computational Finance, 4(2), pp.63-68.
+        - Shreve, S.E., 2004. Stochastic calculus for finance II:
+          Continuous-time models (Vol. 11). Springer Science & Business Media.
 
     Examples:
 
@@ -50,9 +54,9 @@ class BSAmericanBinaryOption(BSModuleMixin):
         ...     [ 0.00,  0.00, 0.1, 0.2],
         ...     [ 0.01,  0.01, 0.1, 0.2]])
         >>> m(input)
-        tensor([[1.1285],
-                [0.0000],
-                [0.0000]])
+        tensor([[...],
+                [...],
+                [...]])
     """
 
     def __init__(self, call: bool = True, strike: float = 1.0):
@@ -119,15 +123,14 @@ class BSAmericanBinaryOption(BSModuleMixin):
         Returns:
             torch.Tensor
         """
-        s, m, t, v = broadcast_all(
-            log_moneyness, max_log_moneyness, time_to_maturity, volatility
-        )
+        # This formula is derived using the results in Section 7.3.3 of Shreve's book.
+        # Price is I_2 - I_4 where the interval of integration is [k --> -inf, b].
+        # By this substitution we get N([log(S(0) / K) + ...] / sigma T) --> 1.
 
-        n1 = ncdf(d1(s, t, v) / sqrt(2))
-        n2 = ncdf(d2(s, t, v) / sqrt(2))
-        p = (1 / 2) * (s.exp() * (1 + n1) + n2)
+        s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
+        p = ncdf(d2(s, t, v)) + s.exp() * (1 - ncdf(d2(-s, t, v)))
 
-        return p.where(m < 0, torch.ones_like(p))
+        return p.where(max_log_moneyness < 0, torch.ones_like(p))
 
     def delta(
         self,
@@ -155,16 +158,15 @@ class BSAmericanBinaryOption(BSModuleMixin):
         Returns:
             torch.Tensor
         """
-        s, m, t, v = broadcast_all(
-            log_moneyness, max_log_moneyness, time_to_maturity, volatility
+        s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
+        spor = s.exp() * self.strike
+        p = (
+            npdf(d2(s, t, v)) / (spor * v * t.sqrt())
+            - (1 - ncdf(d2(-s, t, v))) / self.strike
+            + npdf(d2(-s, t, v)) / (self.strike * v * t.sqrt())
         )
 
-        c1 = ncdf(d1(s, t, v) / sqrt(2))
-        p1 = npdf(d1(s, t, v) / sqrt(2))
-        p2 = npdf(d2(s, t, v) / sqrt(2))
-        d = (1 + c1 + (p1 + p2)) / (2 * self.strike)
-
-        return d.where(m < 0, torch.zeros_like(d))
+        return p.where(max_log_moneyness < 0, torch.zeros_like(p))
 
     @torch.enable_grad()
     def gamma(

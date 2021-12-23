@@ -19,6 +19,18 @@ from ._base import BSModuleMixin
 class BSEuropeanBinaryOption(BSModuleMixin):
     """Black-Scholes formula for a European binary option.
 
+    Note:
+        Risk-free rate is set to zero.
+
+    .. seealso::
+        - :class:`pfhedge.nn.BlackScholes`:
+          Initialize Black-Scholes formula module from a derivative.
+        - :class:`pfhedge.instruments.EuropeanBinaryOption`:
+          Corresponding derivative.
+
+    References:
+        - John C. Hull, 2003. Options futures and other derivatives. Pearson.
+
     Args:
         call (bool, default=True): Specifies whether the option is call or put.
         strike (float, default=1.0): The strike price of the option.
@@ -30,15 +42,7 @@ class BSEuropeanBinaryOption(BSModuleMixin):
         - Output: :math:`(N, *, 1)`.
           All but the last dimension are the same shape as the input.
 
-    .. seealso::
-        - :class:`pfhedge.nn.BlackScholes`:
-          Initialize Black-Scholes formula module from a derivative.
-
-    References:
-        - John C. Hull, 2003. Options futures and other derivatives. Pearson.
-
     Examples:
-
         >>> from pfhedge.nn import BSEuropeanBinaryOption
         >>>
         >>> m = BSEuropeanBinaryOption(strike=1.0)
@@ -76,7 +80,6 @@ class BSEuropeanBinaryOption(BSModuleMixin):
             BSEuropeanBinaryOption
 
         Examples:
-
             >>> from pfhedge.instruments import BrownianStock
             >>> from pfhedge.instruments import EuropeanBinaryOption
             >>>
@@ -143,7 +146,8 @@ class BSEuropeanBinaryOption(BSModuleMixin):
         """
         s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
 
-        delta = npdf(d2(s, t, v)) / (self.strike * s.exp() * v * t.sqrt())
+        spot = s.exp() * self.strike
+        delta = npdf(d2(s, t, v)) / (spot * v * t.sqrt())
         return delta
 
     def gamma(
@@ -165,6 +169,7 @@ class BSEuropeanBinaryOption(BSModuleMixin):
         Returns:
             torch.Tensor
         """
+        # TODO(simaki): Directly compute gamma.
         return super().gamma(
             strike=self.strike,
             log_moneyness=log_moneyness,
