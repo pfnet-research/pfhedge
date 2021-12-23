@@ -181,9 +181,9 @@ class TestBSEuropeanOption(_TestBSModule):
 
     def test_gamma_2(self):
         m = BSEuropeanOption(call=False)
-        with pytest.raises(ValueError):
-            # not yet supported
-            _ = m.gamma(torch.tensor(0.0), torch.tensor(1.0), torch.tensor(0.2))
+        result = m.gamma(torch.tensor(0.0), torch.tensor(1.0), torch.tensor(0.2))
+        expect = torch.full_like(result, 1.9847627374)
+        assert_close(result, expect)
 
     def test_price_1(self):
         m = BSEuropeanOption()

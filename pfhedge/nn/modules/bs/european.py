@@ -137,10 +137,6 @@ class BSEuropeanOption(BSModuleMixin):
         Returns:
             torch.Tensor
         """
-        if not self.call:
-            raise ValueError(
-                f"{self.__class__.__name__} for a put option is not yet supported."
-            )
 
         s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
         price = self.strike * s.exp()
