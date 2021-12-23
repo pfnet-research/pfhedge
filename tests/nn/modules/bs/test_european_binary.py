@@ -159,9 +159,16 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
 
     def test_delta(self):
         m = BSEuropeanBinaryOption()
-        result = m.delta(0.0, 0.1, 0.2)
+        result = m.delta(torch.tensor(0.0), torch.tensor(0.1), torch.tensor(0.2))
         expect = torch.tensor(6.3047)
         assert_close(result, expect, atol=1e-4, rtol=1e-4)
+
+        with pytest.raises(ValueError):
+            # not yet supported
+            m = BSEuropeanBinaryOption(call=False)
+            result = m.gamma(torch.tensor(0.0), torch.tensor(0.1), torch.tensor(0.2))
+            # expect = torch.tensor(-6.30468)
+            # assert_close(result, expect, atol=1e-4, rtol=1e-4)
 
     def test_gamma(self):
         m = BSEuropeanBinaryOption()
@@ -173,6 +180,34 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
             # not yet supported
             m = BSEuropeanBinaryOption(call=False)
             result = m.gamma(torch.tensor(0.0), torch.tensor(1.0), torch.tensor(0.2))
+            # expect = torch.tensor(-6.30468)
+            # assert_close(result, expect, atol=1e-4, rtol=1e-4)
+
+    def test_vega(self):
+        m = BSEuropeanBinaryOption()
+        result = m.vega(torch.tensor(0.0), torch.tensor(0.1), torch.tensor(0.2))
+        expect = torch.tensor(-0.06305)
+        assert_close(result, expect, atol=1e-4, rtol=1e-4)
+
+        with pytest.raises(ValueError):
+            # not yet supported
+            m = BSEuropeanBinaryOption(call=False)
+            result = m.vega(torch.tensor(0.0), torch.tensor(0.1), torch.tensor(0.2))
+            # expect = torch.tensor(0.06305)
+            # assert_close(result, expect, atol=1e-4, rtol=1e-4)
+
+    def test_theta(self):
+        m = BSEuropeanBinaryOption()
+        result = m.theta(torch.tensor(0.0), torch.tensor(0.1), torch.tensor(0.2))
+        expect = torch.tensor(0.0630)
+        assert_close(result, expect, atol=1e-4, rtol=1e-4)
+
+        with pytest.raises(ValueError):
+            # not yet supported
+            m = BSEuropeanBinaryOption(call=False)
+            result = m.theta(torch.tensor(0.0), torch.tensor(0.1), torch.tensor(0.2))
+            # expect = torch.tensor(-0.0630)
+            # assert_close(result, expect, atol=1e-4, rtol=1e-4)
 
     def test_price(self):
         m = BSEuropeanBinaryOption()
@@ -216,6 +251,8 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
 
         m = BSEuropeanBinaryOption()
         self.assert_shape_delta(m)
-        # self.assert_shape_gamma(m)
+        self.assert_shape_gamma(m)
+        self.assert_shape_vega(m)
+        self.assert_shape_theta(m)
         self.assert_shape_price(m)
         self.assert_shape_forward(m)
