@@ -4,10 +4,10 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../../genindex.html" /><link rel="search" title="Search" href="../../../../../search.html" />
 
-    <meta name="generator" content="sphinx-4.3.0, furo 2021.11.16"/>
+    <meta name="generator" content="sphinx-4.3.2, furo 2021.11.23"/>
         <title>pfhedge.nn.modules.bs.european_binary - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../../../_static/styles/furo.css?digest=916d6ed8f59335acffa15474ff504849343d4c76" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/styles/furo.css?digest=7f0192ddeb2adecfbaa87ffbcf67d16358b30bc1" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/styles/furo-extensions.css?digest=0af69da206d614734f649b27d4cdc2dd6c31f41d" />
     
@@ -439,6 +439,63 @@
 <span class="sd">        """</span>
         <span class="c1"># TODO(simaki): Directly compute gamma.</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">gamma</span><span class="p">(</span>
+            <span class="n">strike</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">strike</span><span class="p">,</span>
+            <span class="n">log_moneyness</span><span class="o">=</span><span class="n">log_moneyness</span><span class="p">,</span>
+            <span class="n">time_to_maturity</span><span class="o">=</span><span class="n">time_to_maturity</span><span class="p">,</span>
+            <span class="n">volatility</span><span class="o">=</span><span class="n">volatility</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="BSEuropeanBinaryOption.vega"><a class="viewcode-back" href="../../../../../generated/pfhedge.nn.BSEuropeanBinaryOption.html#pfhedge.nn.BSEuropeanBinaryOption.vega">[docs]</a>    <span class="k">def</span> <span class="nf">vega</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">log_moneyness</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">time_to_maturity</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">volatility</span><span class="p">:</span> <span class="n">Tensor</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+        <span class="sd">"""Returns vega of the derivative.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            log_moneyness (torch.Tensor): Log moneyness of the underlying asset.</span>
+<span class="sd">            time_to_maturity (torch.Tensor): Time to expiry of the option.</span>
+<span class="sd">            volatility (torch.Tensor): Volatility of the underlying asset.</span>
+
+<span class="sd">        Shape:</span>
+<span class="sd">            - log_moneyness: :math:`(N, *)`</span>
+<span class="sd">            - time_to_maturity: :math:`(N, *)`</span>
+<span class="sd">            - volatility: :math:`(N, *)`</span>
+<span class="sd">            - output: :math:`(N, *)`</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            torch.Tensor</span>
+<span class="sd">        """</span>
+        <span class="c1"># TODO: Directly compute theta.</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">vega</span><span class="p">(</span>
+            <span class="n">strike</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">strike</span><span class="p">,</span>
+            <span class="n">log_moneyness</span><span class="o">=</span><span class="n">log_moneyness</span><span class="p">,</span>
+            <span class="n">time_to_maturity</span><span class="o">=</span><span class="n">time_to_maturity</span><span class="p">,</span>
+            <span class="n">volatility</span><span class="o">=</span><span class="n">volatility</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="BSEuropeanBinaryOption.theta"><a class="viewcode-back" href="../../../../../generated/pfhedge.nn.BSEuropeanBinaryOption.html#pfhedge.nn.BSEuropeanBinaryOption.theta">[docs]</a>    <span class="k">def</span> <span class="nf">theta</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">log_moneyness</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">time_to_maturity</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">volatility</span><span class="p">:</span> <span class="n">Tensor</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+        <span class="sd">"""Returns theta of the derivative.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            log_moneyness (torch.Tensor): Log moneyness of the underlying asset.</span>
+<span class="sd">            time_to_maturity (torch.Tensor): Time to expiry of the option.</span>
+<span class="sd">            volatility (torch.Tensor): Volatility of the underlying asset.</span>
+
+<span class="sd">        Shape:</span>
+<span class="sd">            - log_moneyness: :math:`(N, *)`</span>
+<span class="sd">            - time_to_maturity: :math:`(N, *)`</span>
+<span class="sd">            - volatility: :math:`(N, *)`</span>
+<span class="sd">            - output: :math:`(N, *)`</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Risk-free rate is set to zero.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            torch.Tensor</span>
+<span class="sd">        """</span>
+        <span class="c1"># TODO: Directly compute theta.</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">theta</span><span class="p">(</span>
             <span class="n">strike</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">strike</span><span class="p">,</span>
             <span class="n">log_moneyness</span><span class="o">=</span><span class="n">log_moneyness</span><span class="p">,</span>
             <span class="n">time_to_maturity</span><span class="o">=</span><span class="n">time_to_maturity</span><span class="p">,</span>

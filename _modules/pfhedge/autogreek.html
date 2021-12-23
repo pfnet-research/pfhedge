@@ -4,10 +4,10 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
-    <meta name="generator" content="sphinx-4.3.0, furo 2021.11.16"/>
+    <meta name="generator" content="sphinx-4.3.2, furo 2021.11.23"/>
         <title>pfhedge.autogreek - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=916d6ed8f59335acffa15474ff504849343d4c76" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=7f0192ddeb2adecfbaa87ffbcf67d16358b30bc1" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?digest=0af69da206d614734f649b27d4cdc2dd6c31f41d" />
     
@@ -273,6 +273,7 @@
 <span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
 
 <span class="kn">from</span> <span class="nn">._utils.parse</span> <span class="kn">import</span> <span class="n">parse_spot</span>
+<span class="kn">from</span> <span class="nn">._utils.parse</span> <span class="kn">import</span> <span class="n">parse_time_to_maturity</span>
 <span class="kn">from</span> <span class="nn">._utils.parse</span> <span class="kn">import</span> <span class="n">parse_volatility</span>
 
 
@@ -499,6 +500,65 @@
         <span class="n">grad_outputs</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">price</span><span class="p">),</span>
         <span class="n">create_graph</span><span class="o">=</span><span class="n">create_graph</span><span class="p">,</span>
     <span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<span class="k">def</span> <span class="nf">theta</span><span class="p">(</span>
+    <span class="n">pricer</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">create_graph</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+    <span class="sd">"""Computes and returns theta of a derivative using automatic differentiation.</span>
+
+<span class="sd">    Theta is a differentiation of a derivative price with respect to</span>
+<span class="sd">    a variance of underlying instrument.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        The keyword argument ``**params`` should contain at least one of the</span>
+<span class="sd">        following parameters:</span>
+
+<span class="sd">        - ``time_to_maturity``</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        pricer (callable): Pricing formula of a derivative.</span>
+<span class="sd">        create_graph (bool, default=False): If ``True``,</span>
+<span class="sd">            graph of the derivative will be constructed,</span>
+<span class="sd">            allowing to compute higher order derivative products.</span>
+<span class="sd">        **params: Parameters passed to ``pricer``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        torch.Tensor</span>
+
+<span class="sd">    Examples:</span>
+
+<span class="sd">        Theta of a European option can be evaluated as follows.</span>
+
+<span class="sd">        &gt;&gt;&gt; import pfhedge.autogreek as autogreek</span>
+<span class="sd">        &gt;&gt;&gt; from pfhedge.nn import BSEuropeanOption</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; pricer = BSEuropeanOption().price</span>
+<span class="sd">        &gt;&gt;&gt; autogreek.theta(</span>
+<span class="sd">        ...     pricer,</span>
+<span class="sd">        ...     log_moneyness=torch.zeros(3),</span>
+<span class="sd">        ...     time_to_maturity=torch.tensor([0.1, 0.2, 0.3]),</span>
+<span class="sd">        ...     volatility=torch.tensor([0.20, 0.20, 0.20]),</span>
+<span class="sd">        ... )</span>
+<span class="sd">        tensor([-0.1261, -0.0891, -0.0727])</span>
+<span class="sd">    """</span>
+    <span class="n">time_to_maturity</span> <span class="o">=</span> <span class="n">parse_time_to_maturity</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">requires_grad_</span><span class="p">()</span>
+    <span class="n">params</span><span class="p">[</span><span class="s2">"time_to_maturity"</span><span class="p">]</span> <span class="o">=</span> <span class="n">time_to_maturity</span>
+
+    <span class="c1"># Delete parameters that are not in the signature of pricer to avoid</span>
+    <span class="c1"># TypeError: &lt;pricer&gt; got an unexpected keyword argument '&lt;parameter&gt;'</span>
+    <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+        <span class="k">if</span> <span class="n">parameter</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">signature</span><span class="p">(</span><span class="n">pricer</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">del</span> <span class="n">params</span><span class="p">[</span><span class="n">parameter</span><span class="p">]</span>
+
+    <span class="n">price</span> <span class="o">=</span> <span class="n">pricer</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span>
+    <span class="c1"># Note: usually theta is calculated reversely (\partial{S}/\partial{T} = \partial{S}/\partial{-time_to_maturity})</span>
+    <span class="k">return</span> <span class="o">-</span><span class="n">torch</span><span class="o">.</span><span class="n">autograd</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span>
+        <span class="n">price</span><span class="p">,</span>
+        <span class="n">inputs</span><span class="o">=</span><span class="n">time_to_maturity</span><span class="p">,</span>
+        <span class="n">grad_outputs</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">price</span><span class="p">),</span>
+        <span class="n">create_graph</span><span class="o">=</span><span class="n">create_graph</span><span class="p">,</span>
+    <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 </pre></div>
         </article>
       </div>
