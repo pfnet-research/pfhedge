@@ -144,6 +144,60 @@ class BSEuropeanOption(BSModuleMixin):
 
         return gamma
 
+    def vega(
+        self, log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor
+    ) -> Tensor:
+        """Returns vega of the derivative.
+
+        Args:
+            log_moneyness: (torch.Tensor): Log moneyness of the underlying asset.
+            time_to_maturity (torch.Tensor): Time to expiry of the option.
+            volatility (torch.Tensor): Volatility of the underlying asset.
+
+        Shape:
+            - log_moneyness: :math:`(N, *)` where
+              :math:`*` means any number of additional dimensions.
+            - time_to_maturity: :math:`(N, *)`
+            - volatility: :math:`(N, *)`
+            - output: :math:`(N, *)`
+
+        Returns:
+            torch.Tensor
+        """
+        s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
+        price = self.strike * s.exp()
+        vega = npdf(d1(s, t, v)) * price * t.sqrt()
+
+        return vega
+
+    def theta(
+        self, log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor
+    ) -> Tensor:
+        """Returns theta of the derivative.
+
+        Args:
+            log_moneyness: (torch.Tensor): Log moneyness of the underlying asset.
+            time_to_maturity (torch.Tensor): Time to expiry of the option.
+            volatility (torch.Tensor): Volatility of the underlying asset.
+
+        Shape:
+            - log_moneyness: :math:`(N, *)` where
+              :math:`*` means any number of additional dimensions.
+            - time_to_maturity: :math:`(N, *)`
+            - volatility: :math:`(N, *)`
+            - output: :math:`(N, *)`
+
+        Note:
+            Risk-free rate is set to zero.
+
+        Returns:
+            torch.Tensor
+        """
+        s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
+        price = self.strike * s.exp()
+        theta = -npdf(d1(s, t, v)) * price * v / (2 * t.sqrt())
+        return theta
+
     def price(
         self, log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor
     ) -> Tensor:

@@ -203,6 +203,79 @@ class BSAmericanBinaryOption(BSModuleMixin):
             volatility=volatility,
         )
 
+    @torch.enable_grad()
+    def vega(
+        self,
+        log_moneyness: Tensor,
+        max_log_moneyness: Tensor,
+        time_to_maturity: Tensor,
+        volatility: Tensor,
+    ) -> Tensor:
+        """Returns vega of the derivative.
+
+        Args:
+            log_moneyness (torch.Tensor): Log moneyness of the underlying asset.
+            max_log_moneyness (torch.Tensor): Cumulative maximum of the log moneyness.
+            time_to_maturity (torch.Tensor): Time to expiry of the option.
+            volatility (torch.Tensor): Volatility of the underlying asset.
+
+        Shape:
+            - log_moneyness: :math:`(N, *)` where
+              :math:`*` means any number of additional dimensions.
+            - max_log_moneyness: :math:`(N, *)`
+            - time_to_maturity: :math:`(N, *)`
+            - volatility: :math:`(N, *)`
+            - output: :math:`(N, *)`
+
+        Returns:
+            torch.Tensor
+        """
+        return super().vega(
+            strike=self.strike,
+            log_moneyness=log_moneyness,
+            max_log_moneyness=max_log_moneyness,
+            time_to_maturity=time_to_maturity,
+            volatility=volatility,
+        )
+
+    @torch.enable_grad()
+    def theta(
+        self,
+        log_moneyness: Tensor,
+        max_log_moneyness: Tensor,
+        time_to_maturity: Tensor,
+        volatility: Tensor,
+    ) -> Tensor:
+        """Returns theta of the derivative.
+
+        Args:
+            log_moneyness (torch.Tensor): Log moneyness of the underlying asset.
+            max_log_moneyness (torch.Tensor): Cumulative maximum of the log moneyness.
+            time_to_maturity (torch.Tensor): Time to expiry of the option.
+            volatility (torch.Tensor): Volatility of the underlying asset.
+
+        Shape:
+            - log_moneyness: :math:`(N, *)` where
+              :math:`*` means any number of additional dimensions.
+            - max_log_moneyness: :math:`(N, *)`
+            - time_to_maturity: :math:`(N, *)`
+            - volatility: :math:`(N, *)`
+            - output: :math:`(N, *)`
+
+        Note:
+            Risk-free rate is set to zero.
+
+        Returns:
+            torch.Tensor
+        """
+        return super().theta(
+            strike=self.strike,
+            log_moneyness=log_moneyness,
+            max_log_moneyness=max_log_moneyness,
+            time_to_maturity=time_to_maturity,
+            volatility=volatility,
+        )
+
     def implied_volatility(
         self,
         log_moneyness: Tensor,
