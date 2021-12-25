@@ -48,8 +48,9 @@ def generate_brownian(
             for CUDA tensor types.
         engine (callable, default=torch.randn): The desired generator of random numbers
             from a standard normal distribution.
-            It is a callable that ``engine(size, dtype, device)`` returns a tensor
-            filled with random numbers from a standard normal distribution.
+            A function call ``engine(size, dtype=None, device=None)``
+            should return a tensor filled with random numbers
+            from a standard normal distribution.
 
     Shape:
         - Output: :math:`(N, T)` where
@@ -68,9 +69,11 @@ def generate_brownian(
                 [ 0.0000,  0.0279,  0.0199,  0.0257,  0.0291]])
 
         Using quasi-random numbers:
+
         >>> from pfhedge.stochastic import RandnSobolBoxMuller
         >>>
-        >>> generate_brownian(2, 5, engine=RandnSobolBoxMuller(scramble=True, seed=42))
+        >>> engine = RandnSobolBoxMuller(scramble=True, seed=42)
+        >>> generate_brownian(2, 5, engine=engine)
         tensor([[ 0.0000,  0.0063, -0.0046, -0.0141, -0.0272],
                 [ 0.0000,  0.0005, -0.0252, -0.0109, -0.0132]])
     """
@@ -126,6 +129,11 @@ def generate_geometric_brownian(
             (see :func:`torch.set_default_tensor_type()`).
             ``device`` will be the CPU for CPU tensor types and the current CUDA device
             for CUDA tensor types.
+        engine (callable, default=torch.randn): The desired generator of random numbers
+            from a standard normal distribution.
+            A function call ``engine(size, dtype=None, device=None)``
+            should return a tensor filled with random numbers
+            from a standard normal distribution.
 
     Shape:
         - Output: :math:`(N, T)` where
@@ -143,6 +151,15 @@ def generate_geometric_brownian(
         >>> generate_geometric_brownian(2, 5)
         tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930],
                 [1.0000, 1.0282, 1.0199, 1.0258, 1.0292]])
+
+        Using quasi-random numbers:
+
+        >>> from pfhedge.stochastic import RandnSobolBoxMuller
+        >>>
+        >>> engine = RandnSobolBoxMuller(scramble=True, seed=42)
+        >>> generate_geometric_brownian(2, 5, engine=engine)
+        tensor([[1.0000, 1.0062, 0.9953, 0.9858, 0.9729],
+                [1.0000, 1.0005, 0.9749, 0.9889, 0.9866]])
     """
     # Accept Union[float, Tensor] as well because making a tuple with a single element
     # is troublesome
