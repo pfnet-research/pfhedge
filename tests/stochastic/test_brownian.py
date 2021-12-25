@@ -3,6 +3,7 @@ from math import sqrt
 import torch
 from torch.testing import assert_close
 
+from pfhedge.stochastic import RandnSobolBoxMuller
 from pfhedge.stochastic import generate_brownian
 from pfhedge.stochastic import generate_geometric_brownian
 
@@ -52,6 +53,19 @@ def test_generate_brownian_mean():
     assert_close(result, expect, atol=3 * std, rtol=0)
 
 
+def test_generate_brownian_sobol_mean():
+    n_paths = 10000
+    n_steps = 250
+
+    engine = RandnSobolBoxMuller(seed=42, scramble=True)
+    output = generate_brownian(n_paths, n_steps, engine=engine)
+    assert output.size() == torch.Size((n_paths, n_steps))
+    result = output[:, -1].mean()
+    expect = torch.zeros_like(result)
+    std = 0.2 * sqrt(1 / n_paths)
+    assert_close(result, expect, atol=3 * std, rtol=0)
+
+
 def test_generate_brownian_dtype():
     torch.manual_seed(42)
 
@@ -90,7 +104,3 @@ def test_generate_geometric_brownian_dtype():
 
     output = generate_geometric_brownian(1, 1, dtype=torch.float64)
     assert output.dtype == torch.float64
-
-
-def test_generate_geometric_brownian_init_state():
-    torch.manual_seed(42)

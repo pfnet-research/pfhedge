@@ -1,3 +1,5 @@
+from typing import Any
+from typing import Callable
 from typing import Optional
 from typing import Tuple
 from typing import Union
@@ -17,14 +19,14 @@ def generate_brownian(
     dt: float = 1 / 250,
     dtype: Optional[torch.dtype] = None,
     device: Optional[torch.device] = None,
+    engine: Callable[..., Tensor] = torch.randn,
 ) -> Tensor:
-    """Returns time series following the Brownian motion.
+    r"""Returns time series following the Brownian motion.
 
     The time evolution of the process is given by:
 
     .. math::
-
-        dS(t) = \\sigma dW(t) \\,.
+        dS(t) = \sigma dW(t) \,.
 
     Args:
         n_paths (int): The number of simulated paths.
@@ -33,7 +35,7 @@ def generate_brownian(
             the time series.
             This is specified by a tuple :math:`(S(0),)`.
             It also accepts a :class:`torch.Tensor` or a :class:`float`.
-        sigma (float, default=0.2): The parameter :math:`\\sigma`,
+        sigma (float, default=0.2): The parameter :math:`\sigma`,
             which stands for the volatility of the time series.
         dt (float, default=1/250): The intervals of the time steps.
         dtype (torch.dtype, optional): The desired data type of returned tensor.
@@ -44,6 +46,10 @@ def generate_brownian(
             (see :func:`torch.set_default_tensor_type()`).
             ``device`` will be the CPU for CPU tensor types and the current CUDA device
             for CUDA tensor types.
+        engine (callable, default=torch.randn): The desired generator of random numbers
+            from a standard normal distribution.
+            It is a callable that ``engine(size, dtype, device)`` returns a tensor
+            filled with random numbers from a standard normal distribution.
 
     Shape:
         - Output: :math:`(N, T)` where
@@ -54,13 +60,19 @@ def generate_brownian(
         torch.Tensor
 
     Examples:
-
         >>> from pfhedge.stochastic import generate_brownian
         >>>
         >>> _ = torch.manual_seed(42)
         >>> generate_brownian(2, 5)
         tensor([[ 0.0000,  0.0016,  0.0046,  0.0075, -0.0067],
                 [ 0.0000,  0.0279,  0.0199,  0.0257,  0.0291]])
+
+        Using quasi-random numbers:
+        >>> from pfhedge.stochastic import RandnSobolBoxMuller
+        >>>
+        >>> generate_brownian(2, 5, engine=RandnSobolBoxMuller(scramble=True, seed=42))
+        tensor([[ 0.0000,  0.0063, -0.0046, -0.0141, -0.0272],
+                [ 0.0000,  0.0005, -0.0252, -0.0109, -0.0132]])
     """
     # Accept Union[float, Tensor] as well because making a tuple with a single element
     # is troublesome
@@ -72,7 +84,8 @@ def generate_brownian(
     init_state = tuple(map(lambda t: t.to(dtype=dtype, device=device), init_state))
 
     init_value = init_state[0]
-    randn = torch.randn((n_paths, n_steps), dtype=dtype, device=device)
+    # randn = torch.randn((n_paths, n_steps), dtype=dtype, device=device)
+    randn = engine((n_paths, n_steps), dtype=dtype, device=device)
     randn[:, 0] = 0.0
     return sigma * randn.new_tensor(dt).sqrt() * randn.cumsum(1) + init_value
 
@@ -85,14 +98,15 @@ def generate_geometric_brownian(
     dt: float = 1 / 250,
     dtype: Optional[torch.dtype] = None,
     device: Optional[torch.device] = None,
+    engine: Callable[..., Tensor] = torch.randn,
 ) -> Tensor:
-    """Returns time series following the geometric Brownian motion.
+    r"""Returns time series following the geometric Brownian motion.
 
     The time evolution of the process is given by:
 
     .. math::
 
-        dS(t) = \\sigma S(t) dW(t) \\,.
+        dS(t) = \sigma S(t) dW(t) \,.
 
     Args:
         n_paths (int): The number of simulated paths.
@@ -147,6 +161,7 @@ def generate_geometric_brownian(
         dt=dt,
         dtype=dtype,
         device=device,
+        engine=engine,
     )
     t = dt * torch.arange(n_steps).to(brownian).unsqueeze(0)
     return init_state[0] * (brownian - (sigma ** 2) * t / 2).exp()
