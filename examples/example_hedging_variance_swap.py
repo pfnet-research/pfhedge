@@ -1,12 +1,13 @@
 import sys
-import torch
+
 import matplotlib.pyplot as plt
+import torch
 
 sys.path.append("..")
 
-from pfhedge.nn import BlackScholes
 from pfhedge.instruments import BrownianStock
 from pfhedge.instruments import EuropeanOption
+from pfhedge.nn import BlackScholes
 
 if __name__ == "__main__":
     options_list = []
