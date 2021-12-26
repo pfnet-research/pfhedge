@@ -72,7 +72,6 @@ class BSEuropeanOption(BSModuleMixin):
             BSEuropeanOption
 
         Examples:
-
             >>> from pfhedge.instruments import BrownianStock
             >>> from pfhedge.instruments import EuropeanOption
             >>>

@@ -59,11 +59,6 @@ class BSEuropeanBinaryOption(BSModuleMixin):
     """
 
     def __init__(self, call: bool = True, strike: float = 1.0):
-        if not call:
-            raise ValueError(
-                f"{self.__class__.__name__} for a put option is not yet supported."
-            )
-
         super().__init__()
         self.call = call
         self.strike = strike
@@ -148,6 +143,8 @@ class BSEuropeanBinaryOption(BSModuleMixin):
 
         spot = s.exp() * self.strike
         delta = npdf(d2(s, t, v)) / (spot * v * t.sqrt())
+        delta = -delta if not self.call else delta  # put-call parity
+
         return delta
 
     def gamma(
