@@ -27,6 +27,8 @@ if __name__ == "__main__":
         lm = (spot / strike).log()
         vega = BlackScholes(option).vega(lm, t, v) / (strike ** 2)
         total_vega += vega
-        plt.plot(spot.numpy(), vega.numpy())
+        if option.call:
+            # 2 is for call and put
+            plt.plot(spot.numpy(), 2 * vega.numpy())
     plt.plot(spot.numpy(), total_vega.numpy(), color="k", lw=2)
     plt.savefig("./output/options-vega.png")
