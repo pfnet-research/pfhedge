@@ -129,27 +129,27 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
 
         # price = 0 (call), 1 (put) for spot < strike and time --> +0
         result = compute_price(c, torch.tensor([[-0.01, 1e-10, 0.2]]))
-        assert_close(result,torch.tensor([0.0]))
+        assert_close(result, torch.tensor([0.0]))
         result = compute_price(p, torch.tensor([[-0.01, 1e-10, 0.2]]))
-        assert_close(result,torch.tensor([1.0]))
+        assert_close(result, torch.tensor([1.0]))
 
         # price = 1 (call), 0 (put) for spot > strike and time --> +0
         result = compute_price(c, torch.tensor([[0.01, 1e-10, 0.2]]))
-        assert_close(result,torch.tensor([1.0]))
+        assert_close(result, torch.tensor([1.0]))
         result = compute_price(p, torch.tensor([[0.01, 1e-10, 0.2]]))
-        assert_close(result,torch.tensor([0.0]))
+        assert_close(result, torch.tensor([0.0]))
 
         # price = 0 (call), 1 (put) for spot < strike and volatility --> +0
         result = compute_price(c, torch.tensor([[-0.01, 1.0, 1e-10]]))
-        assert_close(result,torch.tensor([0.0]))
+        assert_close(result, torch.tensor([0.0]))
         result = compute_price(p, torch.tensor([[-0.01, 1.0, 1e-10]]))
-        assert_close(result,torch.tensor([1.0]))
+        assert_close(result, torch.tensor([1.0]))
 
         # price = 0 (call), 1 (put) for spot > strike and volatility --> +0
         result = compute_price(c, torch.tensor([[0.01, 1.0, 1e-10]]))
-        assert_close(result,torch.tensor([1.0]))
+        assert_close(result, torch.tensor([1.0]))
         result = compute_price(p, torch.tensor([[0.01, 1.0, 1e-10]]))
-        assert_close(result,torch.tensor([0.0]))
+        assert_close(result, torch.tensor([0.0]))
 
     def test_price_monte_carlo(self):
         d = EuropeanBinaryOption(BrownianStock())
