@@ -87,6 +87,8 @@ class BSEuropeanBinaryOption(BSModuleMixin):
 
     def extra_repr(self) -> str:
         params = []
+        if not self.call:
+            params.append("call=" + str(self.call))
         params.append("strike=" + _format_float(self.strike))
         return ", ".join(params)
 
