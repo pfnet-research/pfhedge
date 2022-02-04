@@ -55,7 +55,7 @@ class RandnSobolBoxMuller:
         size: Tuple[int, ...],
         dtype: Optional[torch.dtype] = None,
         device: Optional[torch.device] = None,
-    ):
+    ) -> Tensor:
         numel = _get_numel(size)
         output = self._generate_1d(numel, dtype=dtype, device=device)
         output.resize_(*size)
