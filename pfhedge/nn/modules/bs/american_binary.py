@@ -43,7 +43,6 @@ class BSAmericanBinaryOption(BSModuleMixin):
           Continuous-time models (Vol. 11). Springer Science & Business Media.
 
     Examples:
-
         >>> from pfhedge.nn import BSAmericanBinaryOption
         >>>
         >>> m = BSAmericanBinaryOption(strike=1.0)
@@ -81,7 +80,6 @@ class BSAmericanBinaryOption(BSModuleMixin):
             BSAmericanBinaryOption
 
         Examples:
-
             >>> from pfhedge.instruments import BrownianStock
             >>> from pfhedge.instruments import AmericanBinaryOption
             >>>

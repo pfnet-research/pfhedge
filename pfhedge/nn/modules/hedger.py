@@ -461,6 +461,7 @@ class Hedger(Module):
         init_state: Optional[Tuple[TensorOrScalar, ...]] = None,
         verbose: bool = True,
         validation: bool = True,
+        tqdm_kwargs: dict = {},
     ) -> Optional[List[float]]:
         """Fit the hedging model to hedge a given derivative.
 
@@ -489,6 +490,8 @@ class Hedger(Module):
                 standard output.
             validation (bool, default=True): If ``False``, skip the computation of the
                 validation loss and returns ``None``.
+            tqdm_kwargs (dict, default={}): Keyword argument passed to ``tqdm.__init__``
+                to customize the progress bar.
 
         Returns:
             list[float]
@@ -546,7 +549,7 @@ class Hedger(Module):
             )
 
         history = []
-        progress = tqdm(range(n_epochs), disable=not verbose)
+        progress = tqdm(range(n_epochs), disable=not verbose, **tqdm_kwargs)
         for _ in progress:
             # Compute training loss and backpropagate
             self.train()
