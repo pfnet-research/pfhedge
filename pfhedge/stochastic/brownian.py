@@ -67,15 +67,6 @@ def generate_brownian(
         >>> generate_brownian(2, 5)
         tensor([[ 0.0000,  0.0016,  0.0046,  0.0075, -0.0067],
                 [ 0.0000,  0.0279,  0.0199,  0.0257,  0.0291]])
-
-        Using quasi-random numbers:
-
-        >>> from pfhedge.stochastic import RandnSobolBoxMuller
-        >>>
-        >>> engine = RandnSobolBoxMuller(scramble=True, seed=42)
-        >>> generate_brownian(2, 5, engine=engine)
-        tensor([[ 0.0000,  0.0063, -0.0046, -0.0141, -0.0272],
-                [ 0.0000,  0.0005, -0.0252, -0.0109, -0.0132]])
     """
     # Accept Union[float, Tensor] as well because making a tuple with a single element
     # is troublesome
