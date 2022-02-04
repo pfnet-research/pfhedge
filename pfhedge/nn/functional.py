@@ -591,5 +591,5 @@ def svi_sigma(
         torch.Tensor
     """
     x = torch.as_tensor(input)  # log moneyness
-    var = a + b * (rho * (x - m) + ((x - m).square() + s ** 2))
+    var = a + b * (rho * (x - m) + ((x - m).square() + s**2))
     return var.sqrt()
