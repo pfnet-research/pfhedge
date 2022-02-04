@@ -1,3 +1,4 @@
+import pytest
 import torch
 from torch.testing import assert_close
 
@@ -8,3 +9,7 @@ def test_randn_antithetic():
     torch.manual_seed(42)
     output = randn_antithetic((200, 100))
     assert_close(output.mean(0), torch.zeros_like(output[0]))
+
+    with pytest.raises(ValueError):
+        # not supported
+        output = randn_antithetic((200, 100), dim=1)
