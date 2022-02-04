@@ -69,15 +69,6 @@ class BSModuleMixin(Module):
         """
         return autogreek.vega(self.price, **kwargs)
 
-    @no_type_check
-    def theta(self, **kwargs) -> Tensor:
-        """Returns delta of the derivative.
-
-        Returns:
-            torch.Tensor
-        """
-        return autogreek.theta(self.price, **kwargs)
-
     def inputs(self) -> List[str]:
         """Returns the names of input features.
 

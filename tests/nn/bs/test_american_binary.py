@@ -14,8 +14,6 @@ from ._base import _TestBSModule
 from ._utils import compute_delta
 from ._utils import compute_gamma
 from ._utils import compute_price
-from ._utils import compute_theta
-from ._utils import compute_vega
 
 
 class TestBSAmericanBinaryOption(_TestBSModule):
@@ -82,52 +80,6 @@ class TestBSAmericanBinaryOption(_TestBSModule):
 
         # gamma = 0 for volatility --> +0
         result = compute_gamma(m, torch.tensor([[-0.01, -0.01, 0.1, 1e-10]]))
-        expect = torch.tensor([0.0])
-        assert_close(result, expect)
-
-    def test_check_vega(self):
-        m = BSAmericanBinaryOption()
-
-        # vega = 0 for max --> +0
-        result = compute_vega(m, torch.tensor([[-10.0, -10.0, 0.1, 0.2]]))
-        expect = torch.tensor([0.0])
-        assert_close(result, expect)
-
-        # vega = 0 for max > 0
-        result = compute_vega(m, torch.tensor([[0.0, 0.01, 0.1, 0.2]]))
-        expect = torch.tensor([0.0])
-        assert_close(result, expect)
-
-        # vega = 0 for time --> +0
-        result = compute_vega(m, torch.tensor([[-0.01, -0.01, 1e-10, 0.2]]))
-        expect = torch.tensor([0.0])
-        assert_close(result, expect)
-
-        # vega = 0 for volatility --> +0
-        result = compute_vega(m, torch.tensor([[-0.01, -0.01, 0.1, 1e-10]]))
-        expect = torch.tensor([0.0])
-        assert_close(result, expect)
-
-    def test_check_theta(self):
-        m = BSAmericanBinaryOption()
-
-        # vega = 0 for max --> +0
-        result = compute_theta(m, torch.tensor([[-10.0, -10.0, 0.1, 0.2]]))
-        expect = torch.tensor([0.0])
-        assert_close(result, expect)
-
-        # vega = 0 for max > 0
-        result = compute_theta(m, torch.tensor([[0.0, 0.01, 0.1, 0.2]]))
-        expect = torch.tensor([0.0])
-        assert_close(result, expect)
-
-        # vega = 0 for time --> +0
-        result = compute_theta(m, torch.tensor([[-0.01, -0.01, 1e-10, 0.2]]))
-        expect = torch.tensor([0.0])
-        assert_close(result, expect)
-
-        # vega = 0 for volatility --> +0
-        result = compute_theta(m, torch.tensor([[-0.01, -0.01, 0.1, 1e-10]]))
         expect = torch.tensor([0.0])
         assert_close(result, expect)
 
@@ -221,7 +173,5 @@ class TestBSAmericanBinaryOption(_TestBSModule):
         m = BSAmericanBinaryOption()
         self.assert_shape_delta(m)
         self.assert_shape_gamma(m)
-        self.assert_shape_vega(m)
-        self.assert_shape_theta(m)
         self.assert_shape_price(m)
         self.assert_shape_forward(m)

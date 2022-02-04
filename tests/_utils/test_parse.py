@@ -3,7 +3,6 @@ import torch
 from torch.testing import assert_close
 
 from pfhedge._utils.parse import parse_spot
-from pfhedge._utils.parse import parse_time_to_maturity
 from pfhedge._utils.parse import parse_volatility
 
 
@@ -47,17 +46,3 @@ def test_parse_volatility():
         _ = parse_volatility()
     with pytest.raises(ValueError):
         _ = parse_volatility(spot=volatility)
-
-
-def test_parse_time_to_maturity():
-    torch.manual_seed(42)
-
-    time_to_maturity = torch.randn(10).exp()
-
-    result = parse_time_to_maturity(time_to_maturity=time_to_maturity)
-    assert_close(result, time_to_maturity)
-
-    with pytest.raises(ValueError):
-        _ = parse_time_to_maturity()
-    with pytest.raises(ValueError):
-        _ = parse_time_to_maturity(spot=time_to_maturity)

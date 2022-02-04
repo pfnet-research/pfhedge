@@ -12,8 +12,6 @@ from ._base import _TestBSModule
 from ._utils import compute_delta
 from ._utils import compute_gamma
 from ._utils import compute_price
-from ._utils import compute_theta
-from ._utils import compute_vega
 
 
 class TestBSLookbackOption(_TestBSModule):
@@ -94,68 +92,6 @@ class TestBSLookbackOption(_TestBSModule):
         assert_close(result, expect)
 
         result = compute_gamma(m, torch.tensor([[0.0, 0.01, 0.1, 1e-10]]))
-        expect = torch.tensor([0.0])
-        assert_close(result, expect)
-
-    def test_check_vega(self):
-        m = BSLookbackOption()
-
-        # gamma = 0 for max --> +0
-        result = compute_vega(m, torch.tensor([[-10.0, -10.0, 0.1, 0.2]]))
-        expect = torch.tensor([0.0])
-        assert_close(result, expect)
-
-        # gamma = 0 for max / spot --> +inf
-        result = compute_vega(m, torch.tensor([[0.0, 10.0, 0.1, 0.2]]))
-        expect = torch.tensor([0.0])
-        assert_close(result, expect)
-
-        # delta = 0 for time --> +0
-        result = compute_vega(m, torch.tensor([[-0.01, -0.01, 1e-10, 0.2]]))
-        expect = torch.tensor([0.0])
-        assert_close(result, expect)
-
-        result = compute_vega(m, torch.tensor([[0.0, 0.01, 1e-10, 0.2]]))
-        expect = torch.tensor([0.0])
-        assert_close(result, expect)
-
-        # delta = 0 for spot / k < 1 and volatility --> +0
-        result = compute_vega(m, torch.tensor([[-0.01, -0.01, 0.1, 1e-10]]))
-        expect = torch.tensor([0.0])
-        assert_close(result, expect)
-
-        result = compute_vega(m, torch.tensor([[0.0, 0.01, 0.1, 1e-10]]))
-        expect = torch.tensor([0.0])
-        assert_close(result, expect)
-
-    def test_check_theta(self):
-        m = BSLookbackOption()
-
-        # gamma = 0 for max --> +0
-        result = compute_theta(m, torch.tensor([[-10.0, -10.0, 0.1, 0.2]]))
-        expect = torch.tensor([0.0])
-        assert_close(result, expect)
-
-        # gamma = 0 for max / spot --> +inf
-        result = compute_theta(m, torch.tensor([[0.0, 10.0, 0.1, 0.2]]))
-        expect = torch.tensor([0.0])
-        assert_close(result, expect)
-
-        # delta = 0 for time --> +0
-        result = compute_theta(m, torch.tensor([[-0.01, -0.01, 1e-10, 0.2]]))
-        expect = torch.tensor([0.0])
-        assert_close(result, expect)
-
-        result = compute_theta(m, torch.tensor([[0.0, 0.01, 1e-10, 0.2]]))
-        expect = torch.tensor([0.0])
-        assert_close(result, expect)
-
-        # delta = 0 for spot / k < 1 and volatility --> +0
-        result = compute_theta(m, torch.tensor([[-0.01, -0.01, 0.1, 1e-10]]))
-        expect = torch.tensor([0.0])
-        assert_close(result, expect)
-
-        result = compute_theta(m, torch.tensor([[0.0, 0.01, 0.1, 1e-10]]))
         expect = torch.tensor([0.0])
         assert_close(result, expect)
 
@@ -262,8 +198,6 @@ class TestBSLookbackOption(_TestBSModule):
         m = BSLookbackOption()
         self.assert_shape_delta(m)
         self.assert_shape_gamma(m)
-        self.assert_shape_vega(m)
-        self.assert_shape_theta(m)
         self.assert_shape_price(m)
         self.assert_shape_forward(m)
 

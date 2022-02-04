@@ -565,3 +565,31 @@ def ww_width(
         torch.Tensor
     """
     return (cost * (3 / 2) * gamma.square() * spot / a).pow(1 / 3)
+
+
+def svi_sigma(
+    input: TensorOrScalar,
+    a: TensorOrScalar,
+    b: TensorOrScalar,
+    rho: TensorOrScalar,
+    m: TensorOrScalar,
+    s: TensorOrScalar,
+) -> Tensor:
+    r"""Returns volatility in the SVI model.
+
+    See :class:`pfhedge.nn.SVISigma` for details.
+
+    Args:
+        input (torch.Tensor or float): Log moneyness of the underlying asset.
+        a (torch.Tensor or float): The parameter :math:`a`.
+        b (torch.Tensor or float): The parameter :math:`b`.
+        rho (torch.Tensor or float): The parameter :math:`\rho`.
+        m (torch.Tensor or float): The parameter :math:`m`.
+        s (torch.Tensor or float): The parameter :math:`s`.
+
+    Returns:
+        torch.Tensor
+    """
+    x = torch.as_tensor(input)  # log moneyness
+    var = a + b * (rho * (x - m) + ((x - m).square() + s ** 2))
+    return var.sqrt()

@@ -28,12 +28,6 @@ class _TestBSModule:
     def assert_shape_gamma(self, module):
         self._assert_shape(module, "gamma")
 
-    def assert_shape_vega(self, module):
-        self._assert_shape(module, "vega")
-
-    def assert_shape_theta(self, module):
-        self._assert_shape(module, "theta")
-
     def assert_shape_price(self, module):
         self._assert_shape(module, "price")
 

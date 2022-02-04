@@ -9,13 +9,5 @@ def compute_gamma(module, input: Tensor) -> Tensor:
     return module.gamma(*(input[..., i] for i in range(input.size(-1))))
 
 
-def compute_vega(module, input: Tensor) -> Tensor:
-    return module.vega(*(input[..., i] for i in range(input.size(-1))))
-
-
-def compute_theta(module, input: Tensor) -> Tensor:
-    return module.theta(*(input[..., i] for i in range(input.size(-1))))
-
-
 def compute_price(module, input: Tensor) -> Tensor:
     return module.price(*(input[..., i] for i in range(input.size(-1))))

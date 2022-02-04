@@ -181,9 +181,9 @@ class TestBSEuropeanOption(_TestBSModule):
 
     def test_gamma_2(self):
         m = BSEuropeanOption(call=False)
-        result = m.gamma(torch.tensor(0.0), torch.tensor(1.0), torch.tensor(0.2))
-        expect = torch.full_like(result, 1.9847627374)
-        assert_close(result, expect)
+        with pytest.raises(ValueError):
+            # not yet supported
+            _ = m.gamma(torch.tensor(0.0), torch.tensor(1.0), torch.tensor(0.2))
 
     def test_price_1(self):
         m = BSEuropeanOption()
@@ -217,17 +217,6 @@ class TestBSEuropeanOption(_TestBSModule):
         expect = torch.tensor([0.1261, 0.1782, 0.2182])
         assert_close(result, expect, atol=1e-3, rtol=0)
 
-    def test_theta(self):
-        input = torch.tensor([[0.0, 0.1, 0.2], [0.0, 0.2, 0.2], [0.0, 0.3, 0.2]])
-        m = BSEuropeanOption(strike=100)
-        result = m.theta(
-            log_moneyness=input[..., 0],
-            time_to_maturity=input[..., 1],
-            volatility=input[..., 2],
-        )
-        expect = torch.tensor([-12.6094, -8.9117, -7.2727])
-        assert_close(result, expect, atol=1e-3, rtol=0)
-
     def test_example(self):
         from pfhedge.instruments import BrownianStock
         from pfhedge.instruments import EuropeanOption
@@ -246,7 +235,5 @@ class TestBSEuropeanOption(_TestBSModule):
         m = BSEuropeanOption()
         self.assert_shape_delta(m)
         self.assert_shape_gamma(m)
-        self.assert_shape_vega(m)
-        self.assert_shape_theta(m)
         self.assert_shape_price(m)
         self.assert_shape_forward(m)
