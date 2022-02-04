@@ -66,7 +66,7 @@ class RandnSobolBoxMuller:
         n: int,
         dtype: Optional[torch.dtype] = None,
         device: Optional[torch.device] = None,
-    ):
+    ) -> Tensor:
         engine = SobolEngine(2, scramble=self.scramble, seed=self.seed)
         rand = engine.draw(n // 2 + 1).to(dtype=dtype, device=device)
         z0, z1 = _box_muller(rand[:, 0], rand[:, 1])
