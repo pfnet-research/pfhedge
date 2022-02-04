@@ -26,7 +26,7 @@ if __name__ == "__main__":
     total_vega = torch.zeros_like(spot)
     for option, strike in zip(options_list, strikes_list):
         lm = (spot / strike).log()
-        vega = BlackScholes(option).vega(lm, t, v) / (strike ** 2)
+        vega = BlackScholes(option).vega(lm, t, v) / (strike**2)
         total_vega += vega
         if option.call:
             # 2 is for call and put
