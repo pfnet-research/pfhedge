@@ -48,5 +48,5 @@ class SVISigma(Module):
         self.m = m
         self.s = s
 
-    def forward(self, input):
+    def forward(self, input) -> Tensor:
         return svi_sigma(input, a=self.a, b=self.b, rho=self.rho, m=self.m, s=self.s)
