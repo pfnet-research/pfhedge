@@ -21,7 +21,7 @@ pytest:
 
 .PHONY: test-cov
 test-cov:
-	$(RUN) pytest --cov=$(PROJECT_NAME) --cov-report=html
+	$(RUN) pytest --cov=$(PROJECT_NAME) --cov-report=xml
 
 .PHONY: lint
 lint: lint-black lint-isort
