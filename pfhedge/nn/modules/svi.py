@@ -6,13 +6,13 @@ from pfhedge.nn.functional import svi_variance
 
 
 class SVIVariance(Module):
-    r"""Returns volatility in the SVI model.
+    r"""Returns total variance in the SVI model.
 
     The total variance for log strike :math:`k = \log(K / S)`,
     where :math:`K` and :math:`S` are strike and spot, reads:
 
     .. math::
-        w = a + b \left[ \rho (k - m) + \sqrt{(k - m)^2 + \sigma^2} \right]
+        w = a + b \left[ \rho (k - m) + \sqrt{(k - m)^2 + \sigma^2} \right] .
 
     References:
         - Jim Gatheral and Antoine Jacquier,
