@@ -40,7 +40,7 @@ class SVISigma(Module):
         rho: TensorOrScalar,
         m: TensorOrScalar,
         s: TensorOrScalar,
-    ):
+    ) -> None:
         super().__init__()
         self.a = a
         self.b = b
