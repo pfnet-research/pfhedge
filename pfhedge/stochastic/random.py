@@ -1,7 +1,9 @@
+from copy import deepcopy
+
 import torch
 
 
-def randn_antithetic(*size, dtype=None, device=None, dim=-1, shuffle=True):
+def randn_antithetic(*size, dtype=None, device=None, dim=0, shuffle=True):
     """Returns a tensor filled with random numbers obtained by an antithetic
     sampling of a normal distribution with mean 0 and variance 1
     (also called the standard normal distribution).
@@ -25,26 +27,27 @@ def randn_antithetic(*size, dtype=None, device=None, dim=-1, shuffle=True):
         >>> from pfhedge.stochastic import randn_antithetic
         >>>
         >>> _ = torch.manual_seed(42)
-        >>> output = randn_antithetic((3, 4))
+        >>> output = randn_antithetic((4, 3))
         >>> output
-        tensor([[-0.3367,  0.1288, -0.1288,  0.3367],
-                [-0.2345,  0.2303, -0.2303,  0.2345],
-                [ 1.1229, -0.1863,  0.1863, -1.1229]])
-        >>> output.mean(dim=-1).allclose(torch.zeros(3))
+        tensor([[-0.3367, -0.1288, -0.2345],
+                [ 0.2303, -1.1229, -0.1863],
+                [-0.2303,  1.1229,  0.1863],
+                [ 0.3367,  0.1288,  0.2345]])
+        >>> output.mean(dim=0).allclose(torch.zeros(3), atol=1e-07, rtol=0.0)
         True
     """
-    if dim != -1:
-        raise ValueError("dim != -1 is not supported.")
+    if dim != 0:
+        raise ValueError("dim != 0 is not supported.")
 
-    size_half = list(*size)
-    size_half[-1] = -(-size_half[-1] // 2)
+    size = list(*size)
+    size_half = [-(-size[0] // 2)] + size[1:]
     randn = torch.randn(*size_half, dtype=dtype, device=device)
 
-    output = torch.cat((randn, -randn), dim=-1)
+    output = torch.cat((randn, -randn), dim=0)
 
     if shuffle:
-        output = output[..., torch.randperm(output.size(dim))]
+        output = output[torch.randperm(output.size(dim))]
 
-    output = output[..., : list(*size)[-1]]
+    output = output[: size[0]]
 
     return output
