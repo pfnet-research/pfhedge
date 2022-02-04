@@ -567,29 +567,29 @@ def ww_width(
     return (cost * (3 / 2) * gamma.square() * spot / a).pow(1 / 3)
 
 
-def svi_sigma(
+def svi_variance(
     input: TensorOrScalar,
     a: TensorOrScalar,
     b: TensorOrScalar,
     rho: TensorOrScalar,
     m: TensorOrScalar,
-    s: TensorOrScalar,
+    sigma: TensorOrScalar,
 ) -> Tensor:
-    r"""Returns volatility in the SVI model.
+    r"""Returns variance in the SVI model.
 
-    See :class:`pfhedge.nn.SVISigma` for details.
+    See :class:`pfhedge.nn.SVIVariance` for details.
 
     Args:
-        input (torch.Tensor or float): Log moneyness of the underlying asset.
+        input (torch.Tensor or float): Log strike of the underlying asset.
+            That is, :math:`k = \log(K / S)` for spot :math:`S` and strike :math:`K`.
         a (torch.Tensor or float): The parameter :math:`a`.
         b (torch.Tensor or float): The parameter :math:`b`.
         rho (torch.Tensor or float): The parameter :math:`\rho`.
         m (torch.Tensor or float): The parameter :math:`m`.
-        s (torch.Tensor or float): The parameter :math:`s`.
+        sigma (torch.Tensor or float): The parameter :math:`s`.
 
     Returns:
         torch.Tensor
     """
-    x = torch.as_tensor(input)  # log moneyness
-    var = a + b * (rho * (x - m) + ((x - m).square() + s ** 2))
-    return var.sqrt()
+    k_m = torch.as_tensor(input - m)  # k - m
+    return a + b * (rho * k_m + (k_m.square() + sigma ** 2).sqrt())

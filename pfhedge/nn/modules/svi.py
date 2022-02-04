@@ -1,16 +1,18 @@
+from torch import Tensor
 from torch.nn import Module
 
 from pfhedge._utils.typing import TensorOrScalar
-from pfhedge.nn.functional import svi_sigma
+from pfhedge.nn.functional import svi_variance
 
 
-class SVISigma(Module):
+class SVIVariance(Module):
     r"""Returns volatility in the SVI model.
 
-    The variance for log moneyness :math:`x` reads:
+    The total variance for log strike :math:`k = \log(K / S)`,
+    where :math:`K` and :math:`S` are strike and spot, reads:
 
     .. math::
-        \sigma^2 = a + b \left[ \rho (x - m) + \sqrt{(x - m)^2 + s^2} \right]
+        w = a + b \left[ \rho (k - m) + \sqrt{(k - m)^2 + \sigma^2} \right]
 
     References:
         - Jim Gatheral and Antoine Jacquier,
@@ -22,15 +24,16 @@ class SVISigma(Module):
         b (torch.Tensor or float): The parameter :math:`b`.
         rho (torch.Tensor or float): The parameter :math:`\rho`.
         m (torch.Tensor or float): The parameter :math:`m`.
-        s (torch.Tensor or float): The parameter :math:`s`.
+        sigma (torch.Tensor or float): The parameter :math:`\sigma`.
 
     Examples:
         >>> import torch
-        >>> a, b, rho, m, s = 0.04, 0.20, -0.10, 0.00, 0.00
-        >>> module = SVISigma(a, b, rho, m, s)
+        >>>
+        >>> a, b, rho, m, sigma = 0.03, 0.10, 0.10, 0.00, 0.10
+        >>> module = SVIVariance(a, b, rho, m, sigma)
         >>> input = torch.tensor([-0.10, -0.01, 0.00, 0.01, 0.10])
         >>> module(input)
-        tensor([0.2098, 0.2005, 0.2000, 0.1995, 0.2000])
+        tensor([0.0431, 0.0399, 0.0400, 0.0401, 0.0451])
     """
 
     def __init__(
@@ -39,14 +42,16 @@ class SVISigma(Module):
         b: TensorOrScalar,
         rho: TensorOrScalar,
         m: TensorOrScalar,
-        s: TensorOrScalar,
+        sigma: TensorOrScalar,
     ) -> None:
         super().__init__()
         self.a = a
         self.b = b
         self.rho = rho
         self.m = m
-        self.s = s
+        self.sigma = sigma
 
-    def forward(self, input) -> Tensor:
-        return svi_sigma(input, a=self.a, b=self.b, rho=self.rho, m=self.m, s=self.s)
+    def forward(self, input: Tensor) -> Tensor:
+        return svi_variance(
+            input, a=self.a, b=self.b, rho=self.rho, m=self.m, sigma=self.sigma
+        )
