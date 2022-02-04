@@ -197,6 +197,24 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
         expect = torch.tensor(-0.06305)
         assert_close(result, expect, atol=1e-4, rtol=1e-4)
 
+        with pytest.raises(ValueError):
+            # not yet supported
+            m = BSEuropeanBinaryOption(call=False)
+            result = m.vega(torch.tensor(0.0), torch.tensor(0.1), torch.tensor(0.2))
+            # expect = torch.tensor(0.06305)
+            # assert_close(result, expect, atol=1e-4, rtol=1e-4)
+
+    def test_vega_and_gamma(self):
+        m = BSEuropeanBinaryOption()
+        # vega = spot^2 * sigma * (T - t) * gamma
+        # See Chapter 5 Appendix A, Bergomi "Stochastic volatility modeling"
+        spot = torch.tensor([0.9, 1.0, 1.1])
+        t = torch.tensor([0.1, 0.2, 0.3])
+        v = torch.tensor([0.1, 0.2, 0.3])
+        vega = m.vega(spot.log(), t, v)
+        gamma = m.gamma(spot.log(), t, v)
+        assert_close(vega, spot.square() * v * t * gamma, atol=1e-3, rtol=0)
+
     def test_theta(self):
         m = BSEuropeanBinaryOption()
         result = m.theta(torch.tensor(0.0), torch.tensor(0.1), torch.tensor(0.2))

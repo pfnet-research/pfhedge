@@ -251,6 +251,17 @@ class TestBSLookbackOption(_TestBSModule):
         expect = input[:, -1]
         assert_close(result, expect, atol=1e-4, rtol=1e-4, check_stride=False)
 
+    def test_vega_and_gamma(self):
+        m = BSLookbackOption()
+        # vega = spot^2 * sigma * (T - t) * gamma
+        # See Chapter 5 Appendix A, Bergomi "Stochastic volatility modeling"
+        spot = torch.tensor([0.90, 0.94, 0.98])
+        t = torch.tensor([0.1, 0.2, 0.3])
+        v = torch.tensor([0.1, 0.2, 0.3])
+        vega = m.vega(spot.log(), spot.log(), t, v)
+        gamma = m.gamma(spot.log(), spot.log(), t, v)
+        assert_close(vega, spot.square() * v * t * gamma, atol=1e-3, rtol=0)
+
     def test_put_notimplemented(self):
         with pytest.raises(ValueError):
             # not yet supported

@@ -177,7 +177,7 @@ class TestBSAmericanBinaryOption(_TestBSModule):
         k = 1.01
         d = AmericanBinaryOption(BrownianStock(), strike=k)
         m = BSAmericanBinaryOption.from_derivative(d)
-        d.simulate(n_paths=int(1e6), init_state=(1.0,))
+        d.simulate(n_paths=int(1e5), init_state=(1.0,))
 
         k_shift = k * torch.tensor(beta * d.ul().sigma * sqrt(d.ul().dt)).exp()
 
@@ -186,6 +186,17 @@ class TestBSAmericanBinaryOption(_TestBSModule):
         result = compute_price(m, input)
         expect = d.payoff().mean(0, keepdim=True)
         assert_close(result, expect, rtol=1e-3, atol=0.0)
+
+    def test_vega_and_gamma(self):
+        m = BSAmericanBinaryOption()
+        # vega = spot^2 * sigma * (T - t) * gamma
+        # See Chapter 5 Appendix A, Bergomi "Stochastic volatility modeling"
+        spot = torch.tensor([0.90, 0.94, 0.98])
+        t = torch.tensor([0.1, 0.2, 0.3])
+        v = torch.tensor([0.1, 0.2, 0.3])
+        vega = m.vega(spot.log(), spot.log(), t, v)
+        gamma = m.gamma(spot.log(), spot.log(), t, v)
+        assert_close(vega, spot.square() * v * t * gamma, atol=1e-3, rtol=0)
 
     def test_features(self):
         m = BSAmericanBinaryOption()

@@ -251,6 +251,17 @@ class TestBSEuropeanOption(_TestBSModule):
         expect = torch.tensor([0.1261, 0.1782, 0.2182])
         assert_close(result, expect, atol=1e-3, rtol=0)
 
+    def test_vega_and_gamma(self):
+        m = BSEuropeanOption()
+        # vega = spot^2 * sigma * (T - t) * gamma
+        # See Chapter 5 Appendix A, Bergomi "Stochastic volatility modeling"
+        spot = torch.tensor([0.9, 1.0, 1.1])
+        t = torch.tensor([0.1, 0.2, 0.3])
+        v = torch.tensor([0.1, 0.2, 0.3])
+        vega = m.vega(spot.log(), t, v)
+        gamma = m.gamma(spot.log(), t, v)
+        assert_close(vega, spot.square() * v * t * gamma, atol=1e-3, rtol=0)
+
     def test_theta(self):
         input = torch.tensor([[0.0, 0.1, 0.2], [0.0, 0.2, 0.2], [0.0, 0.3, 0.2]])
         m = BSEuropeanOption(strike=100)
