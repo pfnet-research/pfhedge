@@ -135,22 +135,12 @@ def generate_geometric_brownian(
         torch.Tensor
 
     Examples:
-
         >>> from pfhedge.stochastic import generate_brownian
         >>>
         >>> _ = torch.manual_seed(42)
         >>> generate_geometric_brownian(2, 5)
         tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930],
                 [1.0000, 1.0282, 1.0199, 1.0258, 1.0292]])
-
-        Using quasi-random numbers:
-
-        >>> from pfhedge.stochastic import RandnSobolBoxMuller
-        >>>
-        >>> engine = RandnSobolBoxMuller(scramble=True, seed=42)
-        >>> generate_geometric_brownian(2, 5, engine=engine)
-        tensor([[1.0000, 1.0062, 0.9953, 0.9858, 0.9729],
-                [1.0000, 1.0005, 0.9749, 0.9889, 0.9866]])
     """
     # Accept Union[float, Tensor] as well because making a tuple with a single element
     # is troublesome
@@ -172,4 +162,4 @@ def generate_geometric_brownian(
         engine=engine,
     )
     t = dt * torch.arange(n_steps).to(brownian).unsqueeze(0)
-    return init_state[0] * (brownian - (sigma**2) * t / 2).exp()
+    return init_state[0] * (brownian - (sigma ** 2) * t / 2).exp()

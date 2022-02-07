@@ -3,7 +3,7 @@ from math import sqrt
 import torch
 from torch.testing import assert_close
 
-from pfhedge.stochastic import RandnSobolBoxMuller
+from pfhedge.stochastic.engine import RandnSobolBoxMuller
 from pfhedge.stochastic import generate_brownian
 from pfhedge.stochastic import generate_geometric_brownian
 

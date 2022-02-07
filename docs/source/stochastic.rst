@@ -34,12 +34,12 @@ Heston Process
 
     generate_heston
 
-Engines
--------
+Generators
+----------
 
 .. autosummary::
-    :toctree: generated
     :nosignatures:
-    :template: classtemplate.rst
+    :toctree: generated
 
-    RandnSobolBoxMuller
+    randn_antithetic
+    randn_sobol_boxmuller
