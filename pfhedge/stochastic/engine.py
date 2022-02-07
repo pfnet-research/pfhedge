@@ -34,16 +34,6 @@ class RandnSobolBoxMuller:
             The seed of the random number generator is set to this,
             if specified. Otherwise, it uses a random seed.
             Default: ``None``.
-
-    Examples:
-        >>> import torch
-        >>> from pfhedge.stochastic import RandnSobolBoxMuller
-        >>>
-        >>> engine = RandnSobolBoxMuller(seed=42)
-        >>> engine((3, 4))
-        tensor([[ 6.7861e+00, -1.1774e+00, -3.3156e-08,  1.9856e-08],
-                [-9.9037e-01,  3.6542e-01,  6.8557e-01,  0.0000e+00],
-                [-1.0293e-07,  7.5853e-01, -1.6651e+00,  9.9037e-01]])
     """
 
     def __init__(self, scramble: bool = False, seed: Optional[int] = None):
@@ -52,11 +42,11 @@ class RandnSobolBoxMuller:
 
     def __call__(
         self,
-        size: Tuple[int, ...],
+        *size: Tuple[int, ...],
         dtype: Optional[torch.dtype] = None,
         device: Optional[torch.device] = None,
     ) -> Tensor:
-        numel = _get_numel(size)
+        numel = _get_numel(*size)
         output = self._generate_1d(numel, dtype=dtype, device=device)
         output.resize_(*size)
         return output
