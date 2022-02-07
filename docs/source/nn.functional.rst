@@ -48,4 +48,4 @@ Other Functions
     npdf
     d1
     d2
-    svi_sigma
+    svi_variance
