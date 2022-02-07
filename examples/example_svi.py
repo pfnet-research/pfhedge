@@ -5,9 +5,9 @@ import torch
 
 sys.path.append("..")
 
-from pfhedge.nn.functional import svi_variance
-from pfhedge.nn import BSEuropeanOption
 import pfhedge.autogreek as autogreek
+from pfhedge.nn import BSEuropeanOption
+from pfhedge.nn.functional import svi_variance
 
 if __name__ == "__main__":
     a, b, rho, m, sigma = 0.02, 0.10, -0.40, 0.00, 0.20
@@ -30,7 +30,9 @@ if __name__ == "__main__":
         return bs.price(log_moneyness, t, v.sqrt())
 
     log_moneyness = -k.requires_grad_()
-    delta_sticky_delta = autogreek.delta(price_sticky_delta, log_moneyness=log_moneyness)
+    delta_sticky_delta = autogreek.delta(
+        price_sticky_delta, log_moneyness=log_moneyness
+    )
     k.detach_()
 
     plt.figure()
