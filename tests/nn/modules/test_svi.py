@@ -1,8 +1,8 @@
 import torch
 from torch.nn.functional import relu
 from torch.testing import assert_allclose
-from pfhedge.nn import SVIVariance
 
+from pfhedge.nn import SVIVariance
 
 
 def test_svi():
