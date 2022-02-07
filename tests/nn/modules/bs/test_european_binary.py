@@ -197,13 +197,6 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
         expect = torch.tensor(-0.06305)
         assert_close(result, expect, atol=1e-4, rtol=1e-4)
 
-        with pytest.raises(ValueError):
-            # not yet supported
-            m = BSEuropeanBinaryOption(call=False)
-            result = m.vega(torch.tensor(0.0), torch.tensor(0.1), torch.tensor(0.2))
-            # expect = torch.tensor(0.06305)
-            # assert_close(result, expect, atol=1e-4, rtol=1e-4)
-
     def test_vega_and_gamma(self):
         m = BSEuropeanBinaryOption()
         # vega = spot^2 * sigma * (T - t) * gamma
