@@ -15,6 +15,10 @@ def test_net():
     _ = hedger.fit(derivative, n_paths=100, n_epochs=10)
     _ = hedger.price(derivative)
 
+    _ = hedger.fit(
+        derivative, n_paths=100, n_epochs=10, tqdm_kwargs={"desc": "description"}
+    )
+
 
 def test_bs():
     derivative = EuropeanOption(BrownianStock(cost=1e-4))

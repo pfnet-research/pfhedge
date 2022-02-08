@@ -89,3 +89,4 @@ Other Modules
     :template: classtemplate.rst
 
     nn.Naked
+    nn.SVIVariance

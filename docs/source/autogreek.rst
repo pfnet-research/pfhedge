@@ -22,3 +22,8 @@ Vega
 ----
 
 .. autofunction:: vega
+
+Theta
+-----
+
+.. autofunction:: theta

@@ -28,116 +28,150 @@ class TestBSEuropeanOption(_TestBSModule):
         assert m.inputs() == ["log_moneyness", "time_to_maturity", "volatility"]
         _ = [get_feature(f) for f in m.inputs()]
 
-    def test_check_delta(self):
-        # TODO(simaki): Check for put option
+    def test_delta_limit(self):
+        EPSILON = 1e-10
+        c = BSEuropeanOption()
+        p = BSEuropeanOption(call=False)
 
-        m = BSEuropeanOption()
+        # delta = 0 (call), -1 (put) for spot --> +0
+        result = compute_delta(c, torch.tensor([[-10.0, 1.0, 0.2]]))
+        assert_close(result, torch.tensor([0.0]))
+        result = compute_delta(p, torch.tensor([[-10.0, 1.0, 0.2]]))
+        assert_close(result, torch.tensor([-1.0]))
 
-        # delta = 0 for spot --> +0
-        result = compute_delta(m, torch.tensor([[-10.0, 1.0, 0.2]]))
-        expect = torch.tensor([0.0])
-        assert_close(result, expect)
+        # delta = 1 (call), 0 (put) for spot --> +inf
+        result = compute_delta(c, torch.tensor([[10.0, 1.0, 0.2]]))
+        assert_close(result, torch.tensor([1.0]))
+        result = compute_delta(p, torch.tensor([[10.0, 1.0, 0.2]]))
+        assert_close(result, torch.tensor([0.0]))
 
-        # delta = 1 for spot --> +inf
-        result = compute_delta(m, torch.tensor([[10.0, 1.0, 0.2]]))
-        expect = torch.tensor([1.0])
-        assert_close(result, expect)
+        # delta = 0 (call), -1 (put) for spot < k and time --> +0
+        result = compute_delta(c, torch.tensor([[-0.01, EPSILON, 0.2]]))
+        assert_close(result, torch.tensor([0.0]))
+        result = compute_delta(p, torch.tensor([[-0.01, EPSILON, 0.2]]))
+        assert_close(result, torch.tensor([-1.0]))
 
-        # delta = 0 for spot / k < 1 and time --> +0
-        result = compute_delta(m, torch.tensor([[-0.01, 1e-10, 0.2]]))
-        expect = torch.tensor([0.0])
-        assert_close(result, expect)
+        # delta = 1 (call), 0 (put) for spot > k and time --> +0
+        result = compute_delta(c, torch.tensor([[0.01, EPSILON, 0.2]]))
+        assert_close(result, torch.tensor([1.0]))
+        result = compute_delta(p, torch.tensor([[0.01, EPSILON, 0.2]]))
+        assert_close(result, torch.tensor([0.0]))
 
-        # delta = 1 for spot / k > 1 and time --> +0
-        result = compute_delta(m, torch.tensor([[0.01, 1e-10, 0.2]]))
-        expect = torch.tensor([1.0])
-        assert_close(result, expect)
+        # delta = 0 (call), -1 (put) for spot < k and volatility --> +0
+        result = compute_delta(c, torch.tensor([[-0.01, 1.0, EPSILON]]))
+        assert_close(result, torch.tensor([0.0]))
+        result = compute_delta(p, torch.tensor([[-0.01, 1.0, EPSILON]]))
+        assert_close(result, torch.tensor([-1.0]))
 
-        # delta = 0 for spot / k < 1 and volatility --> +0
-        result = compute_delta(m, torch.tensor([[-0.01, 1.0, 1e-10]]))
-        expect = torch.tensor([0.0])
-        assert_close(result, expect)
+        # delta = 1 (call), 0 (put) for spot > k and volatility --> +0
+        result = compute_delta(c, torch.tensor([[0.01, 1.0, EPSILON]]))
+        assert_close(result, torch.tensor([1.0]))
+        result = compute_delta(p, torch.tensor([[0.01, 1.0, EPSILON]]))
+        assert_close(result, torch.tensor([0.0]))
 
-        # delta = 0 for spot / k > 1 and volatility --> +0
-        result = compute_delta(m, torch.tensor([[0.01, 1.0, 1e-10]]))
-        expect = torch.tensor([1.0])
-        assert_close(result, expect)
-
-    def test_check_gamma(self):
-        # TODO(simaki): Check for put option
-
-        m = BSEuropeanOption()
+    def test_gamma_limit(self):
+        EPSILON = 1e-10
+        c = BSEuropeanOption()
+        p = BSEuropeanOption(call=False)
 
         # gamma = 0 for spot --> +0
-        result = compute_gamma(m, torch.tensor([[-10.0, 1.0, 0.2]]))
-        expect = torch.tensor([0.0])
-        assert_close(result, expect)
+        result = compute_gamma(c, torch.tensor([[-10.0, 1.0, 0.2]]))
+        assert_close(result, torch.tensor([0.0]))
+        result = compute_gamma(p, torch.tensor([[-10.0, 1.0, 0.2]]))
+        assert_close(result, torch.tensor([0.0]))
 
-        # gamma = 1 for spot --> +inf
-        result = compute_gamma(m, torch.tensor([[10.0, 1.0, 0.2]]))
-        expect = torch.tensor([0.0])
-        assert_close(result, expect)
+        # gamma = 0 for spot --> +inf
+        result = compute_gamma(c, torch.tensor([[10.0, 1.0, 0.2]]))
+        assert_close(result, torch.tensor([0.0]))
+        result = compute_gamma(p, torch.tensor([[10.0, 1.0, 0.2]]))
+        assert_close(result, torch.tensor([0.0]))
 
         # gamma = 0 for spot / k < 1 and time --> +0
-        result = compute_gamma(m, torch.tensor([[-0.01, 1e-10, 0.2]]))
-        expect = torch.tensor([0.0])
-        assert_close(result, expect)
+        result = compute_gamma(c, torch.tensor([[-0.01, EPSILON, 0.2]]))
+        assert_close(result, torch.tensor([0.0]))
+        result = compute_gamma(p, torch.tensor([[-0.01, EPSILON, 0.2]]))
+        assert_close(result, torch.tensor([0.0]))
 
         # gamma = 0 for spot / k > 1 and time --> +0
-        result = compute_gamma(m, torch.tensor([[0.01, 1e-10, 0.2]]))
-        expect = torch.tensor([0.0])
-        assert_close(result, expect)
+        result = compute_gamma(c, torch.tensor([[0.01, EPSILON, 0.2]]))
+        assert_close(result, torch.tensor([0.0]))
+        result = compute_gamma(p, torch.tensor([[0.01, EPSILON, 0.2]]))
+        assert_close(result, torch.tensor([0.0]))
 
         # gamma = 0 for spot / k < 1 and volatility --> +0
-        result = compute_gamma(m, torch.tensor([[-0.01, 1.0, 1e-10]]))
-        expect = torch.tensor([0.0])
-        assert_close(result, expect)
+        result = compute_gamma(c, torch.tensor([[-0.01, 1.0, EPSILON]]))
+        assert_close(result, torch.tensor([0.0]))
+        result = compute_gamma(p, torch.tensor([[-0.01, 1.0, EPSILON]]))
+        assert_close(result, torch.tensor([0.0]))
 
         # gamma = 0 for spot / k > 1 and volatility --> +0
-        result = compute_gamma(m, torch.tensor([[0.01, 1.0, 1e-10]]))
-        expect = torch.tensor([0.0])
-        assert_close(result, expect)
+        result = compute_gamma(c, torch.tensor([[0.01, 1.0, EPSILON]]))
+        assert_close(result, torch.tensor([0.0]))
+        result = compute_gamma(p, torch.tensor([[0.01, 1.0, EPSILON]]))
+        assert_close(result, torch.tensor([0.0]))
 
-    def test_check_price(self):
-        # TODO(simaki): Check for put option
+    def test_price_limit(self):
+        EPSILON = 1e-10
+        c = BSEuropeanOption()
+        p = BSEuropeanOption(call=False)
 
-        m = BSEuropeanOption()
+        # price = 0 (call), k - spot (put) for spot --> +0
+        s = torch.tensor([-10.0]).exp()
+        result = compute_price(c, torch.tensor([[s.log(), 1.0, 0.2]]))
+        assert_close(result, torch.tensor([0.0]))
+        result = compute_price(p, torch.tensor([[s.log(), 1.0, 0.2]]))
+        assert_close(result, torch.tensor([1.0 - s]))
 
-        # price = 0 for spot --> +0
-        result = compute_price(m, torch.tensor([[-10.0, 1.0, 0.2]]))
-        expect = torch.tensor([0.0])
-        assert_close(result, expect)
+        # price = spot - k (call), 0 (put) for spot --> +inf
+        s = torch.tensor([10.0]).exp()
+        result = compute_price(c, torch.tensor([[s.log(), 1.0, 0.2]]))
+        assert_close(result, torch.tensor([s - 1.0]))
+        result = compute_price(p, torch.tensor([[s.log(), 1.0, 0.2]]))
+        assert_close(result, torch.tensor([0.0]))
 
-        # price = spot - k for spot --> +inf
-        result = compute_price(m, torch.tensor([[10.0, 1.0, 0.2]]))
-        expect = torch.tensor([torch.tensor([10.0]).exp() - 1.0])
-        assert_close(result, expect)
+        # price = 0 (call), k - s (put) for spot < k and time --> +0
+        s = torch.tensor([-0.01]).exp()
+        result = compute_price(c, torch.tensor([[s.log(), EPSILON, 0.2]]))
+        assert_close(result, torch.tensor([0.0]))
+        result = compute_price(p, torch.tensor([[s.log(), EPSILON, 0.2]]))
+        assert_close(result, torch.tensor([1.0 - s]))
 
-        # price = 0 for spot / k < 1 and time --> +0
-        result = compute_price(m, torch.tensor([[-0.01, 1e-10, 0.2]]))
-        expect = torch.tensor([0.0])
-        assert_close(result, expect)
+        # price = spot - k (call), 0 (put) for spot > k and time --> +0
+        s = torch.tensor([0.01]).exp()
+        result = compute_price(c, torch.tensor([[s.log(), EPSILON, 0.2]]))
+        assert_close(result, torch.tensor([s - 1.0]))
+        result = compute_price(p, torch.tensor([[s.log(), EPSILON, 0.2]]))
+        assert_close(result, torch.tensor([0.0]))
 
-        # price = spot - k for spot / k > 1 and time --> +0
-        result = compute_price(m, torch.tensor([[0.01, 1e-10, 0.2]]))
-        expect = torch.tensor([torch.tensor(0.01).exp() - 1.0])
-        assert_close(result, expect)
+        # price = 0 (call), k - spot (put) for spot < k and volatility --> +0
+        s = torch.tensor([-0.01]).exp()
+        result = compute_price(c, torch.tensor([[s.log(), 1.0, EPSILON]]))
+        assert_close(result, torch.tensor([0.0]))
+        result = compute_price(p, torch.tensor([[s.log(), 1.0, EPSILON]]))
+        assert_close(result, torch.tensor([1.0 - s]))
 
-        # price = 0 for spot / k < 1 and volatility --> +0
-        result = compute_price(m, torch.tensor([[-0.01, 1.0, 1e-10]]))
-        expect = torch.tensor([0.0])
-        assert_close(result, expect)
+        # price = spot - k (call), 0 (put) for spot > k and volatility --> +0
+        s = torch.tensor([0.01]).exp()
+        result = compute_price(c, torch.tensor([[s.log(), 1.0, EPSILON]]))
+        assert_close(result, torch.tensor([s - 1.0]))
+        result = compute_price(p, torch.tensor([[s.log(), 1.0, EPSILON]]))
+        assert_close(result, torch.tensor([0.0]))
 
-        # price = spot - k for spot / k > 1 and volatility --> +0
-        result = compute_price(m, torch.tensor([[0.01, 1.0, 1e-10]]))
-        expect = torch.tensor([torch.tensor(0.01).exp() - 1.0])
-        assert_close(result, expect)
-
-    def test_check_price_monte_carlo(self):
-        torch.manual_seed(42)
-
+    def test_price_monte_carlo(self):
         d = EuropeanOption(BrownianStock())
         m = BSEuropeanOption.from_derivative(d)
+        torch.manual_seed(42)
+        d.simulate(n_paths=int(1e6))
+
+        input = torch.tensor([[0.0, d.maturity, d.ul().sigma]])
+        result = compute_price(m, input)
+        expect = d.payoff().mean(0, keepdim=True)
+        print(result, expect)
+        assert_close(result, expect, rtol=1e-2, atol=0.0)
+
+        d = EuropeanOption(BrownianStock(), call=False)
+        m = BSEuropeanOption.from_derivative(d)
+        torch.manual_seed(42)
         d.simulate(n_paths=int(1e6))
 
         input = torch.tensor([[0.0, d.maturity, d.ul().sigma]])
@@ -216,6 +250,17 @@ class TestBSEuropeanOption(_TestBSModule):
         )
         expect = torch.tensor([0.1261, 0.1782, 0.2182])
         assert_close(result, expect, atol=1e-3, rtol=0)
+
+    def test_vega_and_gamma(self):
+        m = BSEuropeanOption()
+        # vega = spot^2 * sigma * (T - t) * gamma
+        # See Chapter 5 Appendix A, Bergomi "Stochastic volatility modeling"
+        spot = torch.tensor([0.9, 1.0, 1.1])
+        t = torch.tensor([0.1, 0.2, 0.3])
+        v = torch.tensor([0.1, 0.2, 0.3])
+        vega = m.vega(spot.log(), t, v)
+        gamma = m.gamma(spot.log(), t, v)
+        assert_close(vega, spot.square() * v * t * gamma, atol=1e-3, rtol=0)
 
     def test_theta(self):
         input = torch.tensor([[0.0, 0.1, 0.2], [0.0, 0.2, 0.2], [0.0, 0.3, 0.2]])

@@ -565,3 +565,31 @@ def ww_width(
         torch.Tensor
     """
     return (cost * (3 / 2) * gamma.square() * spot / a).pow(1 / 3)
+
+
+def svi_variance(
+    input: TensorOrScalar,
+    a: TensorOrScalar,
+    b: TensorOrScalar,
+    rho: TensorOrScalar,
+    m: TensorOrScalar,
+    sigma: TensorOrScalar,
+) -> Tensor:
+    r"""Returns variance in the SVI model.
+
+    See :class:`pfhedge.nn.SVIVariance` for details.
+
+    Args:
+        input (torch.Tensor or float): Log strike of the underlying asset.
+            That is, :math:`k = \log(K / S)` for spot :math:`S` and strike :math:`K`.
+        a (torch.Tensor or float): The parameter :math:`a`.
+        b (torch.Tensor or float): The parameter :math:`b`.
+        rho (torch.Tensor or float): The parameter :math:`\rho`.
+        m (torch.Tensor or float): The parameter :math:`m`.
+        sigma (torch.Tensor or float): The parameter :math:`s`.
+
+    Returns:
+        torch.Tensor
+    """
+    k_m = torch.as_tensor(input - m)  # k - m
+    return a + b * (rho * k_m + (k_m.square() + sigma**2).sqrt())
