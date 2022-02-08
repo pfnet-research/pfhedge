@@ -8,6 +8,10 @@ from torch import Tensor
 from pfhedge._utils.typing import TensorOrScalar
 
 
+def _get_epsilon(dtype: Optional[torch.dtype]):
+    return torch.finfo(dtype).tiny if dtype else torch.finfo().tiny
+
+
 def generate_cir(
     n_paths: int,
     n_steps: int,
@@ -64,7 +68,6 @@ def generate_cir(
         torch.Tensor
 
     Examples:
-
         >>> from pfhedge.stochastic import generate_cir
         >>>
         >>> _ = torch.manual_seed(42)
@@ -87,7 +90,7 @@ def generate_cir(
     # PSI_CRIT in [1.0, 2.0]. See section 3.2.3
     PSI_CRIT = 1.5
     # Prevent zero division
-    EPSILON = 1e-8
+    EPSILON = _get_epsilon(dtype)
 
     output = torch.empty((n_paths, n_steps), dtype=dtype, device=device)
     output[:, 0] = init_state[0]
@@ -105,7 +108,7 @@ def generate_cir(
         # Compute m, s, psi: Eq(17,18)
         exp = (-kappa * dt).exp()
         m = theta + (v - theta) * exp
-        s2 = v * (sigma**2) * exp * (1 - exp) / kappa + theta * (sigma**2) * (
+        s2 = v * (sigma ** 2) * exp * (1 - exp) / kappa + theta * (sigma ** 2) * (
             (1 - exp).square()
         ) / (2 * kappa)
         psi = s2 / m.square().clamp(min=EPSILON)
