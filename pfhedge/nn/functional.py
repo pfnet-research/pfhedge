@@ -495,7 +495,11 @@ def npdf(input: Tensor) -> Tensor:
     return Normal(0.0, 1.0).log_prob(input).exp()
 
 
-def d1(log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor) -> Tensor:
+def d1(
+    log_moneyness: TensorOrScalar,
+    time_to_maturity: TensorOrScalar,
+    volatility: TensorOrScalar,
+) -> Tensor:
     r"""Returns :math:`d_1` in the Black-Scholes formula.
 
     .. math::
@@ -517,11 +521,15 @@ def d1(log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor) -> T
     Returns:
         torch.Tensor
     """
-    s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
-    return (s + (v.square() / 2) * t).div(v * t.sqrt())
+    variance = torch.as_tensor(volatility).square().mul(time_to_maturity)
+    return (log_moneyness + variance / 2).div(variance.sqrt())
 
 
-def d2(log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor) -> Tensor:
+def d2(
+    log_moneyness: TensorOrScalar,
+    time_to_maturity: TensorOrScalar,
+    volatility: TensorOrScalar,
+) -> Tensor:
     r"""Returns :math:`d_2` in the Black-Scholes formula.
 
     .. math::
@@ -543,8 +551,8 @@ def d2(log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor) -> T
     Returns:
         torch.Tensor
     """
-    s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
-    return (s - (v.square() / 2) * t).div(v * t.sqrt())
+    variance = torch.as_tensor(volatility).square().mul(time_to_maturity)
+    return (log_moneyness - variance / 2).div(variance.sqrt())
 
 
 def ww_width(
@@ -592,4 +600,4 @@ def svi_variance(
         torch.Tensor
     """
     k_m = torch.as_tensor(input - m)  # k - m
-    return a + b * (rho * k_m + (k_m.square() + sigma**2).sqrt())
+    return a + b * (rho * k_m + (k_m.square() + sigma ** 2).sqrt())
