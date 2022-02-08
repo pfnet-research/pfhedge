@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <meta name="generator" content="sphinx-4.4.0, furo 2021.11.23"/>
-        <title>pfhedge.stochastic.brownian - PFHedge documentation</title>
+        <title>pfhedge.stochastic.random - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=7f0192ddeb2adecfbaa87ffbcf67d16358b30bc1" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
@@ -269,47 +269,21 @@
           </label>
         </div>
         <article role="main">
-          <h1>Source code for pfhedge.stochastic.brownian</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">cast</span>
+          <h1>Source code for pfhedge.stochastic.random</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">torch</span>
 
-<span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
-
-<span class="kn">from</span> <span class="nn">pfhedge._utils.typing</span> <span class="kn">import</span> <span class="n">TensorOrScalar</span>
+<span class="kn">from</span> <span class="nn">.engine</span> <span class="kn">import</span> <span class="n">RandnSobolBoxMuller</span>
 
 
-<div class="viewcode-block" id="generate_brownian"><a class="viewcode-back" href="../../../generated/pfhedge.stochastic.generate_brownian.html#pfhedge.stochastic.generate_brownian">[docs]</a><span class="k">def</span> <span class="nf">generate_brownian</span><span class="p">(</span>
-    <span class="n">n_paths</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">n_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">init_state</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">TensorOrScalar</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">TensorOrScalar</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,),</span>
-    <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
-    <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">250</span><span class="p">,</span>
-    <span class="n">dtype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">device</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">engine</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-    <span class="sa">r</span><span class="sd">"""Returns time series following the Brownian motion.</span>
+<div class="viewcode-block" id="randn_antithetic"><a class="viewcode-back" href="../../../generated/pfhedge.stochastic.randn_antithetic.html#pfhedge.stochastic.randn_antithetic">[docs]</a><span class="k">def</span> <span class="nf">randn_antithetic</span><span class="p">(</span><span class="o">*</span><span class="n">size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">"""Returns a tensor filled with random numbers obtained by an antithetic sampling.</span>
 
-<span class="sd">    The time evolution of the process is given by:</span>
+<span class="sd">    The output should be a normal distribution with mean 0 and variance 1</span>
+<span class="sd">    (also called the standard normal distribution).</span>
 
-<span class="sd">    .. math::</span>
-<span class="sd">        dS(t) = \sigma dW(t) \,.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        n_paths (int): The number of simulated paths.</span>
-<span class="sd">        n_steps (int): The number of time steps.</span>
-<span class="sd">        init_state (tuple[torch.Tensor | float], default=(0.0,)): The initial state of</span>
-<span class="sd">            the time series.</span>
-<span class="sd">            This is specified by a tuple :math:`(S(0),)`.</span>
-<span class="sd">            It also accepts a :class:`torch.Tensor` or a :class:`float`.</span>
-<span class="sd">        sigma (float, default=0.2): The parameter :math:`\sigma`,</span>
-<span class="sd">            which stands for the volatility of the time series.</span>
-<span class="sd">        dt (float, default=1/250): The intervals of the time steps.</span>
+<span class="sd">    Parameters:</span>
+<span class="sd">        size (``int``...): a sequence of integers defining the shape of the output tensor.</span>
+<span class="sd">            Can be a variable number of arguments or a collection like a list or tuple.</span>
 <span class="sd">        dtype (torch.dtype, optional): The desired data type of returned tensor.</span>
 <span class="sd">            Default: If ``None``, uses a global default</span>
 <span class="sd">            (see :func:`torch.set_default_tensor_type()`).</span>
@@ -318,72 +292,50 @@
 <span class="sd">            (see :func:`torch.set_default_tensor_type()`).</span>
 <span class="sd">            ``device`` will be the CPU for CPU tensor types and the current CUDA device</span>
 <span class="sd">            for CUDA tensor types.</span>
-<span class="sd">        engine (callable, default=torch.randn): The desired generator of random numbers</span>
-<span class="sd">            from a standard normal distribution.</span>
-<span class="sd">            A function call ``engine(size, dtype=None, device=None)``</span>
-<span class="sd">            should return a tensor filled with random numbers</span>
-<span class="sd">            from a standard normal distribution.</span>
-
-<span class="sd">    Shape:</span>
-<span class="sd">        - Output: :math:`(N, T)` where</span>
-<span class="sd">          :math:`N` is the number of paths and</span>
-<span class="sd">          :math:`T` is the number of time steps.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        torch.Tensor</span>
 
 <span class="sd">    Examples:</span>
-<span class="sd">        &gt;&gt;&gt; from pfhedge.stochastic import generate_brownian</span>
+<span class="sd">        &gt;&gt;&gt; from pfhedge.stochastic import randn_antithetic</span>
 <span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt; _ = torch.manual_seed(42)</span>
-<span class="sd">        &gt;&gt;&gt; generate_brownian(2, 5)</span>
-<span class="sd">        tensor([[ 0.0000,  0.0016,  0.0046,  0.0075, -0.0067],</span>
-<span class="sd">                [ 0.0000,  0.0279,  0.0199,  0.0257,  0.0291]])</span>
+<span class="sd">        &gt;&gt;&gt; output = randn_antithetic(4, 3)</span>
+<span class="sd">        &gt;&gt;&gt; output</span>
+<span class="sd">        tensor([[-0.3367, -0.1288, -0.2345],</span>
+<span class="sd">                [ 0.2303, -1.1229, -0.1863],</span>
+<span class="sd">                [-0.2303,  1.1229,  0.1863],</span>
+<span class="sd">                [ 0.3367,  0.1288,  0.2345]])</span>
+<span class="sd">        &gt;&gt;&gt; output.mean(dim=0).allclose(torch.zeros(3), atol=1e-07, rtol=0.0)</span>
+<span class="sd">        True</span>
 <span class="sd">    """</span>
-    <span class="c1"># Accept Union[float, Tensor] as well because making a tuple with a single element</span>
-    <span class="c1"># is troublesome</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">init_state</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">)):</span>
-        <span class="n">init_state</span> <span class="o">=</span> <span class="p">(</span><span class="n">init_state</span><span class="p">,)</span>
+    <span class="k">if</span> <span class="n">dim</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"dim != 0 is not supported."</span><span class="p">)</span>
 
-    <span class="c1"># Cast to init_state: Tuple[Tensor, ...] with desired dtype and device</span>
-    <span class="n">init_state</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Tensor</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">,</span> <span class="n">init_state</span><span class="p">)))</span>
-    <span class="n">init_state</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">),</span> <span class="n">init_state</span><span class="p">))</span>
+    <span class="n">size</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+    <span class="n">size_half</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="p">(</span><span class="o">-</span><span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)]</span> <span class="o">+</span> <span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="n">randn</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="o">*</span><span class="n">size_half</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
 
-    <span class="n">init_value</span> <span class="o">=</span> <span class="n">init_state</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="c1"># randn = torch.randn((n_paths, n_steps), dtype=dtype, device=device)</span>
-    <span class="n">randn</span> <span class="o">=</span> <span class="n">engine</span><span class="p">((</span><span class="n">n_paths</span><span class="p">,</span> <span class="n">n_steps</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
-    <span class="n">randn</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
-    <span class="k">return</span> <span class="n">sigma</span> <span class="o">*</span> <span class="n">randn</span><span class="o">.</span><span class="n">new_tensor</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span><span class="o">.</span><span class="n">sqrt</span><span class="p">()</span> <span class="o">*</span> <span class="n">randn</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">init_value</span></div>
+    <span class="n">output</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">randn</span><span class="p">,</span> <span class="o">-</span><span class="n">randn</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">shuffle</span><span class="p">:</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">output</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">randperm</span><span class="p">(</span><span class="n">output</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">dim</span><span class="p">))]</span>
+
+    <span class="n">output</span> <span class="o">=</span> <span class="n">output</span><span class="p">[:</span> <span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+
+    <span class="k">return</span> <span class="n">output</span></div>
 
 
-<div class="viewcode-block" id="generate_geometric_brownian"><a class="viewcode-back" href="../../../generated/pfhedge.stochastic.generate_geometric_brownian.html#pfhedge.stochastic.generate_geometric_brownian">[docs]</a><span class="k">def</span> <span class="nf">generate_geometric_brownian</span><span class="p">(</span>
-    <span class="n">n_paths</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">n_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">init_state</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">TensorOrScalar</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">TensorOrScalar</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,),</span>
-    <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
-    <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">250</span><span class="p">,</span>
-    <span class="n">dtype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">device</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">engine</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-    <span class="sa">r</span><span class="sd">"""Returns time series following the geometric Brownian motion.</span>
+<div class="viewcode-block" id="randn_sobol_boxmuller"><a class="viewcode-back" href="../../../generated/pfhedge.stochastic.randn_sobol_boxmuller.html#pfhedge.stochastic.randn_sobol_boxmuller">[docs]</a><span class="k">def</span> <span class="nf">randn_sobol_boxmuller</span><span class="p">(</span><span class="o">*</span><span class="n">size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">scramble</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">"""Returns a tensor filled with random numbers obtained by a Sobol sequence</span>
+<span class="sd">    applied with the Box-Muller transformation.</span>
 
-<span class="sd">    The time evolution of the process is given by:</span>
+<span class="sd">    The outputs should be normal distribution with mean 0 and variance 1</span>
+<span class="sd">    (also called the standard normal distribution).</span>
 
-<span class="sd">    .. math::</span>
-
-<span class="sd">        dS(t) = \sigma S(t) dW(t) \,.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        n_paths (int): The number of simulated paths.</span>
-<span class="sd">        n_steps (int): The number of time steps.</span>
-<span class="sd">        init_state (tuple[torch.Tensor | float], default=(0.0,)): The initial state of</span>
-<span class="sd">            the time series.</span>
-<span class="sd">            This is specified by a tuple :math:`(S(0),)`.</span>
-<span class="sd">            It also accepts a :class:`torch.Tensor` or a :class:`float`.</span>
-<span class="sd">        sigma (float, default=0.2): The parameter :math:`sigma`,</span>
-<span class="sd">            which stands for the volatility of the time series.</span>
-<span class="sd">        dt (float, default=1/250): The intervals of the time steps.</span>
+<span class="sd">    Parameters:</span>
+<span class="sd">        size (``int``...): a sequence of integers defining the shape of the output tensor.</span>
+<span class="sd">            Can be a variable number of arguments or a collection like a list or tuple.</span>
 <span class="sd">        dtype (torch.dtype, optional): The desired data type of returned tensor.</span>
 <span class="sd">            Default: If ``None``, uses a global default</span>
 <span class="sd">            (see :func:`torch.set_default_tensor_type()`).</span>
@@ -392,49 +344,23 @@
 <span class="sd">            (see :func:`torch.set_default_tensor_type()`).</span>
 <span class="sd">            ``device`` will be the CPU for CPU tensor types and the current CUDA device</span>
 <span class="sd">            for CUDA tensor types.</span>
-<span class="sd">        engine (callable, default=torch.randn): The desired generator of random numbers</span>
-<span class="sd">            from a standard normal distribution.</span>
-<span class="sd">            A function call ``engine(size, dtype=None, device=None)``</span>
-<span class="sd">            should return a tensor filled with random numbers</span>
-<span class="sd">            from a standard normal distribution.</span>
-
-<span class="sd">    Shape:</span>
-<span class="sd">        - Output: :math:`(N, T)` where</span>
-<span class="sd">          :math:`N` is the number of paths and</span>
-<span class="sd">          :math:`T` is the number of time steps.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        torch.Tensor</span>
 
 <span class="sd">    Examples:</span>
-<span class="sd">        &gt;&gt;&gt; from pfhedge.stochastic import generate_brownian</span>
+<span class="sd">        &gt;&gt;&gt; from pfhedge.stochastic import randn_sobol_boxmuller</span>
 <span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt; _ = torch.manual_seed(42)</span>
-<span class="sd">        &gt;&gt;&gt; generate_geometric_brownian(2, 5)</span>
-<span class="sd">        tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930],</span>
-<span class="sd">                [1.0000, 1.0282, 1.0199, 1.0258, 1.0292]])</span>
+<span class="sd">        &gt;&gt;&gt; output = randn_sobol_boxmuller((4, 3))</span>
+<span class="sd">        &gt;&gt;&gt; output</span>
+<span class="sd">        tensor([[ 0.0559,  0.4954, -0.8578],</span>
+<span class="sd">                [-0.7492, -1.0370, -0.4778],</span>
+<span class="sd">                [ 0.1651,  0.0430, -2.0368],</span>
+<span class="sd">                [ 1.1309, -0.1779,  0.0796]])</span>
 <span class="sd">    """</span>
-    <span class="c1"># Accept Union[float, Tensor] as well because making a tuple with a single element</span>
-    <span class="c1"># is troublesome</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">init_state</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">)):</span>
-        <span class="n">init_state</span> <span class="o">=</span> <span class="p">(</span><span class="n">init_state</span><span class="p">,)</span>
-
-    <span class="c1"># Cast to init_state: Tuple[Tensor, ...] with desired dtype and device</span>
-    <span class="n">init_state</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Tensor</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">,</span> <span class="n">init_state</span><span class="p">)))</span>
-    <span class="n">init_state</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">),</span> <span class="n">init_state</span><span class="p">))</span>
-
-    <span class="n">brownian</span> <span class="o">=</span> <span class="n">generate_brownian</span><span class="p">(</span>
-        <span class="n">n_paths</span><span class="o">=</span><span class="n">n_paths</span><span class="p">,</span>
-        <span class="n">n_steps</span><span class="o">=</span><span class="n">n_steps</span><span class="p">,</span>
-        <span class="n">init_state</span><span class="o">=</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,),</span>
-        <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span>
-        <span class="n">dt</span><span class="o">=</span><span class="n">dt</span><span class="p">,</span>
-        <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span>
-        <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">,</span>
-        <span class="n">engine</span><span class="o">=</span><span class="n">engine</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">t</span> <span class="o">=</span> <span class="n">dt</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_steps</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">brownian</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">init_state</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">brownian</span> <span class="o">-</span> <span class="p">(</span><span class="n">sigma</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">t</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">exp</span><span class="p">()</span></div>
+    <span class="n">engine</span> <span class="o">=</span> <span class="n">RandnSobolBoxMuller</span><span class="p">(</span><span class="n">scramble</span><span class="o">=</span><span class="n">scramble</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">engine</span><span class="p">(</span><span class="o">*</span><span class="n">size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span></div>
 </pre></div>
         </article>
       </div>

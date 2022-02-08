@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
-    <meta name="generator" content="sphinx-4.3.2, furo 2021.11.23"/>
+    <meta name="generator" content="sphinx-4.4.0, furo 2021.11.23"/>
         <title>pfhedge.nn.functional - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=7f0192ddeb2adecfbaa87ffbcf67d16358b30bc1" />
@@ -179,6 +179,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.nn.IsoelasticLoss.html">IsoelasticLoss</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.nn.MultiLayerPerceptron.html">MultiLayerPerceptron</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.nn.Naked.html">Naked</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.nn.SVIVariance.html">SVIVariance</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../nn.functional.html">pfhedge.nn.functional</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -201,6 +202,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.nn.functional.npdf.html">pfhedge.nn.functional.npdf</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.nn.functional.d1.html">pfhedge.nn.functional.d1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.nn.functional.d2.html">pfhedge.nn.functional.d2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.nn.functional.svi_variance.html">pfhedge.nn.functional.svi_variance</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../instruments.html">pfhedge.instruments</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -223,6 +225,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.stochastic.generate_geometric_brownian.html">pfhedge.stochastic.generate_geometric_brownian</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.stochastic.generate_cir.html">pfhedge.stochastic.generate_cir</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.stochastic.generate_heston.html">pfhedge.stochastic.generate_heston</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.stochastic.randn_antithetic.html">pfhedge.stochastic.randn_antithetic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.stochastic.randn_sobol_boxmuller.html">pfhedge.stochastic.randn_sobol_boxmuller</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../autogreek.html">pfhedge.autogreek</a></li>
@@ -833,6 +837,34 @@
 <span class="sd">        torch.Tensor</span>
 <span class="sd">    """</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">cost</span> <span class="o">*</span> <span class="p">(</span><span class="mi">3</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">gamma</span><span class="o">.</span><span class="n">square</span><span class="p">()</span> <span class="o">*</span> <span class="n">spot</span> <span class="o">/</span> <span class="n">a</span><span class="p">)</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="svi_variance"><a class="viewcode-back" href="../../../generated/pfhedge.nn.functional.svi_variance.html#pfhedge.nn.functional.svi_variance">[docs]</a><span class="k">def</span> <span class="nf">svi_variance</span><span class="p">(</span>
+    <span class="nb">input</span><span class="p">:</span> <span class="n">TensorOrScalar</span><span class="p">,</span>
+    <span class="n">a</span><span class="p">:</span> <span class="n">TensorOrScalar</span><span class="p">,</span>
+    <span class="n">b</span><span class="p">:</span> <span class="n">TensorOrScalar</span><span class="p">,</span>
+    <span class="n">rho</span><span class="p">:</span> <span class="n">TensorOrScalar</span><span class="p">,</span>
+    <span class="n">m</span><span class="p">:</span> <span class="n">TensorOrScalar</span><span class="p">,</span>
+    <span class="n">sigma</span><span class="p">:</span> <span class="n">TensorOrScalar</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+    <span class="sa">r</span><span class="sd">"""Returns variance in the SVI model.</span>
+
+<span class="sd">    See :class:`pfhedge.nn.SVIVariance` for details.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        input (torch.Tensor or float): Log strike of the underlying asset.</span>
+<span class="sd">            That is, :math:`k = \log(K / S)` for spot :math:`S` and strike :math:`K`.</span>
+<span class="sd">        a (torch.Tensor or float): The parameter :math:`a`.</span>
+<span class="sd">        b (torch.Tensor or float): The parameter :math:`b`.</span>
+<span class="sd">        rho (torch.Tensor or float): The parameter :math:`\rho`.</span>
+<span class="sd">        m (torch.Tensor or float): The parameter :math:`m`.</span>
+<span class="sd">        sigma (torch.Tensor or float): The parameter :math:`s`.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        torch.Tensor</span>
+<span class="sd">    """</span>
+    <span class="n">k_m</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="nb">input</span> <span class="o">-</span> <span class="n">m</span><span class="p">)</span>  <span class="c1"># k - m</span>
+    <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span> <span class="o">*</span> <span class="p">(</span><span class="n">rho</span> <span class="o">*</span> <span class="n">k_m</span> <span class="o">+</span> <span class="p">(</span><span class="n">k_m</span><span class="o">.</span><span class="n">square</span><span class="p">()</span> <span class="o">+</span> <span class="n">sigma</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sqrt</span><span class="p">())</span></div>
 </pre></div>
         </article>
       </div>

@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="prev" title="Getting Started" href="../examples/getting_started.html" />
 
-    <meta name="generator" content="sphinx-4.3.2, furo 2021.11.23"/>
+    <meta name="generator" content="sphinx-4.4.0, furo 2021.11.23"/>
         <title>Instrument dtype and device - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=7f0192ddeb2adecfbaa87ffbcf67d16358b30bc1" />
@@ -180,6 +180,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.nn.IsoelasticLoss.html">IsoelasticLoss</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.nn.MultiLayerPerceptron.html">MultiLayerPerceptron</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.nn.Naked.html">Naked</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.nn.SVIVariance.html">SVIVariance</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../nn.functional.html">pfhedge.nn.functional</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -202,6 +203,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.nn.functional.npdf.html">pfhedge.nn.functional.npdf</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.nn.functional.d1.html">pfhedge.nn.functional.d1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.nn.functional.d2.html">pfhedge.nn.functional.d2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.nn.functional.svi_variance.html">pfhedge.nn.functional.svi_variance</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../instruments.html">pfhedge.instruments</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -224,6 +226,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.stochastic.generate_geometric_brownian.html">pfhedge.stochastic.generate_geometric_brownian</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.stochastic.generate_cir.html">pfhedge.stochastic.generate_cir</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.stochastic.generate_heston.html">pfhedge.stochastic.generate_heston</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.stochastic.randn_antithetic.html">pfhedge.stochastic.randn_antithetic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/pfhedge.stochastic.randn_sobol_boxmuller.html">pfhedge.stochastic.randn_sobol_boxmuller</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../autogreek.html">pfhedge.autogreek</a></li>
@@ -289,7 +293,7 @@ passing a <code class="docutils literal notranslate"><span class="pre">torch.dty
 </pre></div>
 </div>
 <p>The methods <a class="reference internal" href="../generated/pfhedge.instruments.BasePrimary.html#id2" title="pfhedge.instruments.BasePrimary.to"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BasePrimary.to()</span></code></a> and <a class="reference internal" href="../generated/pfhedge.instruments.BaseDerivative.html#id2" title="pfhedge.instruments.BaseDerivative.to"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseDerivative.to()</span></code></a> work as
-<a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module.to" title="(in PyTorch v1.10.1)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">torch.nn.Module.to()</span></code></a> and cast/move the dtype and device of the instrument
+<a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module.to" title="(in PyTorch v1.10.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">torch.nn.Module.to()</span></code></a> and cast/move the dtype and device of the instrument
 to the desired ones.</p>
 <p>In the rest of this note we will describe these attributes in detail
 and show how to use <code class="docutils literal notranslate"><span class="pre">to</span></code> method.</p>
@@ -301,7 +305,7 @@ and show how to use <code class="docutils literal notranslate"><span class="pre"
 to get the associated buffers (e.g., <code class="docutils literal notranslate"><span class="pre">spot</span></code>).</p>
 <p>The simulation will be performed with a <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.dtype</span></code>
 specified by <a class="reference internal" href="../generated/pfhedge.instruments.BasePrimary.html#pfhedge.instruments.BasePrimary.dtype" title="pfhedge.instruments.BasePrimary.dtype"><code class="xref py py-attr docutils literal notranslate"><span class="pre">BasePrimary.dtype</span></code></a>.
-The default dtype is the global default (see <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.set_default_tensor_type.html#torch.set_default_tensor_type" title="(in PyTorch v1.10.1)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.set_default_tensor_type()</span></code></a>).
+The default dtype is the global default (see <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.set_default_tensor_type.html#torch.set_default_tensor_type" title="(in PyTorch v1.10.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.set_default_tensor_type()</span></code></a>).
 The <a class="reference internal" href="../generated/pfhedge.instruments.BasePrimary.html#id2" title="pfhedge.instruments.BasePrimary.to"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BasePrimary.to()</span></code></a> method modifies the instrument so that
 subsequent simulations will be performed with the desired dtype.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">BrownianStock</span>
@@ -353,7 +357,7 @@ As a result, the <code class="docutils literal notranslate"><span class="pre">pa
 <p>The simulation will be performed with a <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.device</span></code>
 specified by <a class="reference internal" href="../generated/pfhedge.instruments.BasePrimary.html#pfhedge.instruments.BasePrimary.device" title="pfhedge.instruments.BasePrimary.device"><code class="xref py py-attr docutils literal notranslate"><span class="pre">BasePrimary.device</span></code></a>.
 The default device is the current device for the default tensor type
-(see <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.set_default_tensor_type.html#torch.set_default_tensor_type" title="(in PyTorch v1.10.1)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.set_default_tensor_type()</span></code></a>).
+(see <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.set_default_tensor_type.html#torch.set_default_tensor_type" title="(in PyTorch v1.10.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.set_default_tensor_type()</span></code></a>).
 The <a class="reference internal" href="../generated/pfhedge.instruments.BasePrimary.html#id2" title="pfhedge.instruments.BasePrimary.to"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BasePrimary.to()</span></code></a> method modifies the instument so that
 subsequent simulations will be performed on the desired device.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">BrownianStock</span>

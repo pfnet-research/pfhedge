@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="IsoelasticLoss" href="pfhedge.nn.IsoelasticLoss.html" /><link rel="prev" title="EntropicRiskMeasure" href="pfhedge.nn.EntropicRiskMeasure.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="pfhedge.instruments" href="../instruments.html" /><link rel="prev" title="pfhedge.nn.functional.d2" href="pfhedge.nn.functional.d2.html" />
 
     <meta name="generator" content="sphinx-4.4.0, furo 2021.11.23"/>
-        <title>ExpectedShortfall - PFHedge documentation</title>
+        <title>pfhedge.nn.functional.svi_variance - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=7f0192ddeb2adecfbaa87ffbcf67d16358b30bc1" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
@@ -163,7 +163,7 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <p class="caption" role="heading"><span class="caption-text">API</span></p>
 <ul class="current">
-<li class="toctree-l1 current has-children"><a class="reference internal" href="../nn.html">pfhedge.nn</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../nn.html">pfhedge.nn</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.Hedger.html">Hedger</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.BlackScholes.html">BlackScholes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.BSAmericanBinaryOption.html">BSAmericanBinaryOption</a></li>
@@ -176,14 +176,14 @@
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.HedgeLoss.html">HedgeLoss</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.EntropicLoss.html">EntropicLoss</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.EntropicRiskMeasure.html">EntropicRiskMeasure</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">ExpectedShortfall</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.ExpectedShortfall.html">ExpectedShortfall</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.IsoelasticLoss.html">IsoelasticLoss</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.MultiLayerPerceptron.html">MultiLayerPerceptron</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.Naked.html">Naked</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.SVIVariance.html">SVIVariance</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../nn.functional.html">pfhedge.nn.functional</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../nn.functional.html">pfhedge.nn.functional</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.european_payoff.html">pfhedge.nn.functional.european_payoff</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.lookback_payoff.html">pfhedge.nn.functional.lookback_payoff</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.american_binary_payoff.html">pfhedge.nn.functional.american_binary_payoff</a></li>
@@ -203,7 +203,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.npdf.html">pfhedge.nn.functional.npdf</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.d1.html">pfhedge.nn.functional.d1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.d2.html">pfhedge.nn.functional.d2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.svi_variance.html">pfhedge.nn.functional.svi_variance</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">pfhedge.nn.functional.svi_variance</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../instruments.html">pfhedge.instruments</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -270,44 +270,29 @@
           </label>
         </div>
         <article role="main">
-          <section id="expectedshortfall">
-<h1>ExpectedShortfall<a class="headerlink" href="#expectedshortfall" title="Permalink to this headline">¶</a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="pfhedge.nn.ExpectedShortfall">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pfhedge.nn.</span></span><span class="sig-name descname"><span class="pre">ExpectedShortfall</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/loss.html#ExpectedShortfall"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.ExpectedShortfall" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="pfhedge.nn.HedgeLoss.html#pfhedge.nn.HedgeLoss" title="pfhedge.nn.modules.loss.HedgeLoss"><code class="xref py py-class docutils literal notranslate"><span class="pre">pfhedge.nn.modules.loss.HedgeLoss</span></code></a></p>
-<p>Creates a criterion that measures the expected shortfall.</p>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<ul class="simple">
-<li><p><a class="reference internal" href="pfhedge.nn.functional.expected_shortfall.html#pfhedge.nn.functional.expected_shortfall" title="pfhedge.nn.functional.expected_shortfall"><code class="xref py py-func docutils literal notranslate"><span class="pre">pfhedge.nn.functional.expected_shortfall()</span></code></a></p></li>
-</ul>
-</div>
+          <section id="pfhedge-nn-functional-svi-variance">
+<h1>pfhedge.nn.functional.svi_variance<a class="headerlink" href="#pfhedge-nn-functional-svi-variance" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="pfhedge.nn.functional.svi_variance">
+<span class="sig-prename descclassname"><span class="pre">pfhedge.nn.functional.</span></span><span class="sig-name descname"><span class="pre">svi_variance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/functional.html#svi_variance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.functional.svi_variance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns variance in the SVI model.</p>
+<p>See <a class="reference internal" href="pfhedge.nn.SVIVariance.html#pfhedge.nn.SVIVariance" title="pfhedge.nn.SVIVariance"><code class="xref py py-class docutils literal notranslate"><span class="pre">pfhedge.nn.SVIVariance</span></code></a> for details.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>p</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>default=0.1</em>) – Quantile level.
-This parameter should satisfy <span class="math notranslate nohighlight">\(0 &lt; p \leq 1\)</span>.</p>
-</dd>
-</dl>
-<dl class="simple">
-<dt>Shape:</dt><dd><ul class="simple">
-<li><p>Input: <span class="math notranslate nohighlight">\((N, *)\)</span> where
-<span class="math notranslate nohighlight">\(*\)</span> means any number of additional dimensions.</p></li>
-<li><p>Output: <span class="math notranslate nohighlight">\((*)\)</span></p></li>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.10.0)"><em>torch.Tensor</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Log strike of the underlying asset.
+That is, <span class="math notranslate nohighlight">\(k = \log(K / S)\)</span> for spot <span class="math notranslate nohighlight">\(S\)</span> and strike <span class="math notranslate nohighlight">\(K\)</span>.</p></li>
+<li><p><strong>a</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.10.0)"><em>torch.Tensor</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – The parameter <span class="math notranslate nohighlight">\(a\)</span>.</p></li>
+<li><p><strong>b</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.10.0)"><em>torch.Tensor</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – The parameter <span class="math notranslate nohighlight">\(b\)</span>.</p></li>
+<li><p><strong>rho</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.10.0)"><em>torch.Tensor</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – The parameter <span class="math notranslate nohighlight">\(\rho\)</span>.</p></li>
+<li><p><strong>m</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.10.0)"><em>torch.Tensor</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – The parameter <span class="math notranslate nohighlight">\(m\)</span>.</p></li>
+<li><p><strong>sigma</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.10.0)"><em>torch.Tensor</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – The parameter <span class="math notranslate nohighlight">\(s\)</span>.</p></li>
 </ul>
 </dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>torch.Tensor</p>
+</dd>
 </dl>
-<p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">ExpectedShortfall</span>
-<span class="go">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">loss</span> <span class="o">=</span> <span class="n">ExpectedShortfall</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">input</span> <span class="o">=</span> <span class="o">-</span><span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">4.0</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">loss</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
-<span class="go">tensor(2.5000)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">loss</span><span class="o">.</span><span class="n">cash</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
-<span class="go">tensor(-2.5000)</span>
-</pre></div>
-</div>
 </dd></dl>
 </section>
 
@@ -316,23 +301,23 @@ This parameter should satisfy <span class="math notranslate nohighlight">\(0 &lt
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="pfhedge.nn.IsoelasticLoss.html">
+          <a class="next-page" href="../instruments.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">IsoelasticLoss</div>
+                <div class="title">pfhedge.instruments</div>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="pfhedge.nn.EntropicRiskMeasure.html">
+          <a class="prev-page" href="pfhedge.nn.functional.d2.html">
               <svg><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">EntropicRiskMeasure</div>
+                <div class="title">pfhedge.nn.functional.d2</div>
                 
               </div>
             </a>
@@ -342,7 +327,7 @@ This parameter should satisfy <span class="math notranslate nohighlight">\(0 &lt
               Copyright &#169; 2021, pfnet-research |
           Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
           <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
-            | <a class="muted-link" href="../_sources/generated/pfhedge.nn.ExpectedShortfall.rst.txt"
+            | <a class="muted-link" href="../_sources/generated/pfhedge.nn.functional.svi_variance.rst.txt"
                rel="nofollow">
               Show Source
             </a>

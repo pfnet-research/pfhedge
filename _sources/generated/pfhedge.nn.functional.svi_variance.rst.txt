@@ -1,0 +1,6 @@
+﻿pfhedge.nn.functional.svi\_variance
+===================================
+
+.. currentmodule:: pfhedge.nn.functional
+
+.. autofunction:: svi_variance

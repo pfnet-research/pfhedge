@@ -33,3 +33,13 @@ Heston Process
     :toctree: generated
 
     generate_heston
+
+Generators
+----------
+
+.. autosummary::
+    :nosignatures:
+    :toctree: generated
+
+    randn_antithetic
+    randn_sobol_boxmuller

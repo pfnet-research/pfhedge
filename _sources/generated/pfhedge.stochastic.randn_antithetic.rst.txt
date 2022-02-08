@@ -1,0 +1,6 @@
+﻿pfhedge.stochastic.randn\_antithetic
+====================================
+
+.. currentmodule:: pfhedge.stochastic
+
+.. autofunction:: randn_antithetic

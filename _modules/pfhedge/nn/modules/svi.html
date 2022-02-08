@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
     <meta name="generator" content="sphinx-4.4.0, furo 2021.11.23"/>
-        <title>pfhedge.instruments.primary.cir - PFHedge documentation</title>
+        <title>pfhedge.nn.modules.svi - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?digest=7f0192ddeb2adecfbaa87ffbcf67d16358b30bc1" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
@@ -269,143 +269,64 @@
           </label>
         </div>
         <article role="main">
-          <h1>Source code for pfhedge.instruments.primary.cir</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">ceil</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
+          <h1>Source code for pfhedge.nn.modules.svi</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
+<span class="kn">from</span> <span class="nn">torch.nn</span> <span class="kn">import</span> <span class="n">Module</span>
 
-<span class="kn">import</span> <span class="nn">torch</span>
-
-<span class="kn">from</span> <span class="nn">pfhedge._utils.doc</span> <span class="kn">import</span> <span class="n">_set_attr_and_docstring</span>
-<span class="kn">from</span> <span class="nn">pfhedge._utils.doc</span> <span class="kn">import</span> <span class="n">_set_docstring</span>
-<span class="kn">from</span> <span class="nn">pfhedge._utils.str</span> <span class="kn">import</span> <span class="n">_format_float</span>
 <span class="kn">from</span> <span class="nn">pfhedge._utils.typing</span> <span class="kn">import</span> <span class="n">TensorOrScalar</span>
-<span class="kn">from</span> <span class="nn">pfhedge.stochastic</span> <span class="kn">import</span> <span class="n">generate_cir</span>
-
-<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">BasePrimary</span>
+<span class="kn">from</span> <span class="nn">pfhedge.nn.functional</span> <span class="kn">import</span> <span class="n">svi_variance</span>
 
 
-<div class="viewcode-block" id="CIRRate"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.CIRRate.html#pfhedge.instruments.CIRRate">[docs]</a><span class="k">class</span> <span class="nc">CIRRate</span><span class="p">(</span><span class="n">BasePrimary</span><span class="p">):</span>
-    <span class="sd">"""A rate which follow the CIR process.</span>
+<div class="viewcode-block" id="SVIVariance"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.SVIVariance.html#pfhedge.nn.SVIVariance">[docs]</a><span class="k">class</span> <span class="nc">SVIVariance</span><span class="p">(</span><span class="n">Module</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">"""Returns total variance in the SVI model.</span>
 
-<span class="sd">    .. seealso::</span>
-<span class="sd">        - :func:`pfhedge.stochastic.generate_cir`:</span>
-<span class="sd">          The stochastic process.</span>
+<span class="sd">    The total variance for log strike :math:`k = \log(K / S)`,</span>
+<span class="sd">    where :math:`K` and :math:`S` are strike and spot, reads:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        w = a + b \left[ \rho (k - m) + \sqrt{(k - m)^2 + \sigma^2} \right] .</span>
+
+<span class="sd">    References:</span>
+<span class="sd">        - Jim Gatheral and Antoine Jacquier,</span>
+<span class="sd">          Arbitrage-free SVI volatility surfaces.</span>
+<span class="sd">          [arXiv:`1204.0646 &lt;https://arxiv.org/abs/1204.0646&gt;`_ [q-fin.PR]]</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        kappa (float, default=1.0): The parameter :math:`\\kappa`.</span>
-<span class="sd">        theta (float, default=0.04): The parameter :math:`\\theta`.</span>
-<span class="sd">        sigma (float, default=2.0): The parameter :math:`\\sigma`.</span>
-<span class="sd">        cost (float, default=0.0): The transaction cost rate.</span>
-<span class="sd">        dt (float, default=1/250): The intervals of the time steps.</span>
-<span class="sd">        dtype (torch.device, optional): Desired device of returned tensor.</span>
-<span class="sd">            Default: If None, uses a global default</span>
-<span class="sd">            (see :func:`torch.set_default_tensor_type()`).</span>
-<span class="sd">        device (torch.device, optional): Desired device of returned tensor.</span>
-<span class="sd">            Default: if None, uses the current device for the default tensor type</span>
-<span class="sd">            (see :func:`torch.set_default_tensor_type()`).</span>
-<span class="sd">            ``device`` will be the CPU for CPU tensor types and</span>
-<span class="sd">            the current CUDA device for CUDA tensor types.</span>
-
-<span class="sd">    Buffers:</span>
-<span class="sd">        - spot (:class:`torch.Tensor`): The spot rate of the instrument.</span>
-<span class="sd">          This attribute is set by a method :meth:`simulate()`.</span>
-<span class="sd">          The shape is :math:`(N, T)` where</span>
-<span class="sd">          :math:`N` is the number of simulated paths and</span>
-<span class="sd">          :math:`T` is the number of time steps.</span>
+<span class="sd">        a (torch.Tensor or float): The parameter :math:`a`.</span>
+<span class="sd">        b (torch.Tensor or float): The parameter :math:`b`.</span>
+<span class="sd">        rho (torch.Tensor or float): The parameter :math:`\rho`.</span>
+<span class="sd">        m (torch.Tensor or float): The parameter :math:`m`.</span>
+<span class="sd">        sigma (torch.Tensor or float): The parameter :math:`\sigma`.</span>
 
 <span class="sd">    Examples:</span>
-
-<span class="sd">        &gt;&gt;&gt; from pfhedge.instruments import HestonStock</span>
+<span class="sd">        &gt;&gt;&gt; import torch</span>
 <span class="sd">        &gt;&gt;&gt;</span>
-<span class="sd">        &gt;&gt;&gt; _ = torch.manual_seed(42)</span>
-<span class="sd">        &gt;&gt;&gt; rate = CIRRate()</span>
-<span class="sd">        &gt;&gt;&gt; rate.simulate(n_paths=2, time_horizon=5/250)</span>
-<span class="sd">        &gt;&gt;&gt; rate.spot</span>
-<span class="sd">        tensor([[0.0400, 0.0408, 0.0411, 0.0417, 0.0422, 0.0393],</span>
-<span class="sd">                [0.0400, 0.0457, 0.0440, 0.0451, 0.0458, 0.0472]])</span>
+<span class="sd">        &gt;&gt;&gt; a, b, rho, m, sigma = 0.03, 0.10, 0.10, 0.00, 0.10</span>
+<span class="sd">        &gt;&gt;&gt; module = SVIVariance(a, b, rho, m, sigma)</span>
+<span class="sd">        &gt;&gt;&gt; input = torch.tensor([-0.10, -0.01, 0.00, 0.01, 0.10])</span>
+<span class="sd">        &gt;&gt;&gt; module(input)</span>
+<span class="sd">        tensor([0.0431, 0.0399, 0.0400, 0.0401, 0.0451])</span>
 <span class="sd">    """</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">kappa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
-        <span class="n">theta</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.04</span><span class="p">,</span>
-        <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
-        <span class="n">cost</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
-        <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">250</span><span class="p">,</span>
-        <span class="n">dtype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">device</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">kappa</span> <span class="o">=</span> <span class="n">kappa</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="o">=</span> <span class="n">theta</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span> <span class="o">=</span> <span class="n">sigma</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cost</span> <span class="o">=</span> <span class="n">cost</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">=</span> <span class="n">dt</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">default_init_state</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">,)</span>
-
-<div class="viewcode-block" id="CIRRate.simulate"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.CIRRate.html#pfhedge.instruments.CIRRate.simulate">[docs]</a>    <span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">n_paths</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-        <span class="n">time_horizon</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">20</span> <span class="o">/</span> <span class="mi">250</span><span class="p">,</span>
-        <span class="n">init_state</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">TensorOrScalar</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">a</span><span class="p">:</span> <span class="n">TensorOrScalar</span><span class="p">,</span>
+        <span class="n">b</span><span class="p">:</span> <span class="n">TensorOrScalar</span><span class="p">,</span>
+        <span class="n">rho</span><span class="p">:</span> <span class="n">TensorOrScalar</span><span class="p">,</span>
+        <span class="n">m</span><span class="p">:</span> <span class="n">TensorOrScalar</span><span class="p">,</span>
+        <span class="n">sigma</span><span class="p">:</span> <span class="n">TensorOrScalar</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">"""Simulate the spot rate and add it as a buffer named ``spot``.</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="n">a</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">b</span> <span class="o">=</span> <span class="n">b</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rho</span> <span class="o">=</span> <span class="n">rho</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">m</span> <span class="o">=</span> <span class="n">m</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span> <span class="o">=</span> <span class="n">sigma</span>
 
-<span class="sd">        The shape of the spot is :math:`(N, T)`, where</span>
-<span class="sd">        :math:`N` is the number of simulated paths and</span>
-<span class="sd">        :math:`T` is the number of time steps.</span>
-<span class="sd">        The number of time steps is determinded from ``dt`` and ``time_horizon``.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            n_paths (int, default=1): The number of paths to simulate.</span>
-<span class="sd">            time_horizon (float, default=20/250): The period of time to simulate</span>
-<span class="sd">                the price.</span>
-<span class="sd">            init_state (tuple[torch.Tensor | float], optional):</span>
-<span class="sd">                The initial state of the instrument.</span>
-<span class="sd">                This is specified by a tuple :math:`(S(0),)` where</span>
-<span class="sd">                :math:`S(0)` is the initial values of of spot.</span>
-<span class="sd">                If ``None`` (default), it uses the default value</span>
-<span class="sd">                (See :attr:`default_init_state`).</span>
-<span class="sd">        """</span>
-        <span class="k">if</span> <span class="n">init_state</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">init_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_init_state</span>
-
-        <span class="n">spot</span> <span class="o">=</span> <span class="n">generate_cir</span><span class="p">(</span>
-            <span class="n">n_paths</span><span class="o">=</span><span class="n">n_paths</span><span class="p">,</span>
-            <span class="n">n_steps</span><span class="o">=</span><span class="n">ceil</span><span class="p">(</span><span class="n">time_horizon</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span>
-            <span class="n">init_state</span><span class="o">=</span><span class="n">init_state</span><span class="p">,</span>
-            <span class="n">kappa</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kappa</span><span class="p">,</span>
-            <span class="n">theta</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">,</span>
-            <span class="n">sigma</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sigma</span><span class="p">,</span>
-            <span class="n">dt</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span>
-            <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span>
-            <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">,</span>
-        <span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">register_buffer</span><span class="p">(</span><span class="s2">"spot"</span><span class="p">,</span> <span class="n">spot</span><span class="p">)</span></div>
-
-    <span class="k">def</span> <span class="nf">extra_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="n">params</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="s2">"kappa="</span> <span class="o">+</span> <span class="n">_format_float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kappa</span><span class="p">),</span>
-            <span class="s2">"theta="</span> <span class="o">+</span> <span class="n">_format_float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">),</span>
-            <span class="s2">"sigma="</span> <span class="o">+</span> <span class="n">_format_float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sigma</span><span class="p">),</span>
-        <span class="p">]</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cost</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">:</span>
-            <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"cost="</span> <span class="o">+</span> <span class="n">_format_float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cost</span><span class="p">))</span>
-        <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"dt="</span> <span class="o">+</span> <span class="n">_format_float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">))</span>
-        <span class="k">return</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">params</span><span class="p">)</span></div>
-
-
-<span class="c1"># Assign docstrings so they appear in Sphinx documentation</span>
-<span class="n">_set_docstring</span><span class="p">(</span><span class="n">CIRRate</span><span class="p">,</span> <span class="s2">"default_init_state"</span><span class="p">,</span> <span class="n">BasePrimary</span><span class="o">.</span><span class="n">default_init_state</span><span class="p">)</span>
-<span class="n">_set_attr_and_docstring</span><span class="p">(</span><span class="n">CIRRate</span><span class="p">,</span> <span class="s2">"to"</span><span class="p">,</span> <span class="n">BasePrimary</span><span class="o">.</span><span class="n">to</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">svi_variance</span><span class="p">(</span>
+            <span class="nb">input</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">,</span> <span class="n">rho</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">rho</span><span class="p">,</span> <span class="n">m</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sigma</span>
+        <span class="p">)</span></div>
 </pre></div>
         </article>
       </div>

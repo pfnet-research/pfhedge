@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="#" /><link rel="search" title="Search" href="search.html" />
 
-    <meta name="generator" content="sphinx-4.3.2, furo 2021.11.23"/><title>Index - PFHedge documentation</title>
+    <meta name="generator" content="sphinx-4.4.0, furo 2021.11.23"/><title>Index - PFHedge documentation</title>
 <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=7f0192ddeb2adecfbaa87ffbcf67d16358b30bc1" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -178,6 +178,7 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.IsoelasticLoss.html">IsoelasticLoss</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.MultiLayerPerceptron.html">MultiLayerPerceptron</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.Naked.html">Naked</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.SVIVariance.html">SVIVariance</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="nn.functional.html">pfhedge.nn.functional</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -200,6 +201,7 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.npdf.html">pfhedge.nn.functional.npdf</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.d1.html">pfhedge.nn.functional.d1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.d2.html">pfhedge.nn.functional.d2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.svi_variance.html">pfhedge.nn.functional.svi_variance</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="instruments.html">pfhedge.instruments</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -222,6 +224,8 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.stochastic.generate_geometric_brownian.html">pfhedge.stochastic.generate_geometric_brownian</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.stochastic.generate_cir.html">pfhedge.stochastic.generate_cir</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.stochastic.generate_heston.html">pfhedge.stochastic.generate_heston</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.stochastic.randn_antithetic.html">pfhedge.stochastic.randn_antithetic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.stochastic.randn_sobol_boxmuller.html">pfhedge.stochastic.randn_sobol_boxmuller</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="autogreek.html">pfhedge.autogreek</a></li>
@@ -745,10 +749,14 @@
   <h2>R</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="generated/pfhedge.nn.functional.realized_variance.html#pfhedge.nn.functional.realized_variance">realized_variance() (in module pfhedge.nn.functional)</a>
+        <li><a href="generated/pfhedge.stochastic.randn_antithetic.html#pfhedge.stochastic.randn_antithetic">randn_antithetic() (in module pfhedge.stochastic)</a>
+</li>
+        <li><a href="generated/pfhedge.stochastic.randn_sobol_boxmuller.html#pfhedge.stochastic.randn_sobol_boxmuller">randn_sobol_boxmuller() (in module pfhedge.stochastic)</a>
 </li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="generated/pfhedge.nn.functional.realized_variance.html#pfhedge.nn.functional.realized_variance">realized_variance() (in module pfhedge.nn.functional)</a>
+</li>
         <li><a href="generated/pfhedge.nn.functional.realized_volatility.html#pfhedge.nn.functional.realized_volatility">realized_volatility() (in module pfhedge.nn.functional)</a>
 </li>
         <li><a href="generated/pfhedge.instruments.BasePrimary.html#pfhedge.instruments.BasePrimary.register_buffer">register_buffer() (pfhedge.instruments.BasePrimary method)</a>
@@ -793,6 +801,10 @@
           <li><a href="generated/pfhedge.instruments.BaseInstrument.html#pfhedge.instruments.BaseInstrument.spot">(pfhedge.instruments.BaseInstrument property)</a>
 </li>
         </ul></li>
+        <li><a href="generated/pfhedge.nn.functional.svi_variance.html#pfhedge.nn.functional.svi_variance">svi_variance() (in module pfhedge.nn.functional)</a>
+</li>
+        <li><a href="generated/pfhedge.nn.SVIVariance.html#pfhedge.nn.SVIVariance">SVIVariance (class in pfhedge.nn)</a>
+</li>
     </ul></td>
   </tr></table>
 </section>
@@ -803,9 +815,11 @@
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="generated/pfhedge.nn.functional.terminal_value.html#pfhedge.nn.functional.terminal_value">terminal_value() (in module pfhedge.nn.functional)</a>
 </li>
-        <li><a href="generated/pfhedge.nn.BSAmericanBinaryOption.html#pfhedge.nn.BSAmericanBinaryOption.theta">theta() (pfhedge.nn.BSAmericanBinaryOption method)</a>
+        <li><a href="autogreek.html#pfhedge.autogreek.theta">theta() (in module pfhedge.autogreek)</a>
 
         <ul>
+          <li><a href="generated/pfhedge.nn.BSAmericanBinaryOption.html#pfhedge.nn.BSAmericanBinaryOption.theta">(pfhedge.nn.BSAmericanBinaryOption method)</a>
+</li>
           <li><a href="generated/pfhedge.nn.BSEuropeanBinaryOption.html#pfhedge.nn.BSEuropeanBinaryOption.theta">(pfhedge.nn.BSEuropeanBinaryOption method)</a>
 </li>
           <li><a href="generated/pfhedge.nn.BSEuropeanOption.html#pfhedge.nn.BSEuropeanOption.theta">(pfhedge.nn.BSEuropeanOption method)</a>
@@ -825,6 +839,8 @@
           <li><a href="generated/pfhedge.instruments.LookbackOption.html#pfhedge.instruments.LookbackOption.time_to_maturity">(pfhedge.instruments.LookbackOption method)</a>
 </li>
         </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="generated/pfhedge.instruments.AmericanBinaryOption.html#pfhedge.instruments.AmericanBinaryOption.to">to() (pfhedge.instruments.AmericanBinaryOption method)</a>
 
         <ul>
@@ -849,8 +865,6 @@
           <li><a href="generated/pfhedge.instruments.VarianceSwap.html#pfhedge.instruments.VarianceSwap.to">(pfhedge.instruments.VarianceSwap method)</a>
 </li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="generated/pfhedge.nn.functional.topp.html#pfhedge.nn.functional.topp">topp() (in module pfhedge.nn.functional)</a>
 </li>
     </ul></td>

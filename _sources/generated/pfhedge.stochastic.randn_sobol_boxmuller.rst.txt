@@ -1,0 +1,6 @@
+﻿pfhedge.stochastic.randn\_sobol\_boxmuller
+==========================================
+
+.. currentmodule:: pfhedge.stochastic
+
+.. autofunction:: randn_sobol_boxmuller
