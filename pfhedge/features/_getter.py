@@ -9,7 +9,6 @@ from ._base import Feature
 
 
 class FeatureFactory:
-    """ """
 
     _features: Dict[str, Type[Feature]]
 
