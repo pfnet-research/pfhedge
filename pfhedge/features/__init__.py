@@ -1,5 +1,5 @@
-from ._getter import FEATURES
 from ._getter import get_feature
+from ._getter import list_features
 from .container import FeatureList
 from .container import ModuleOutput
 from .features import Barrier

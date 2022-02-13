@@ -1,4 +1,6 @@
+from typing import List
 from typing import Optional
+from typing import Type
 
 import torch
 from torch import Tensor
@@ -9,6 +11,7 @@ from pfhedge.instruments.derivative.base import BaseOption
 
 from ._base import Feature
 from ._base import StateIndependentFeature
+from ._getter import FeatureFactory
 
 
 class Moneyness(StateIndependentFeature):
@@ -220,3 +223,23 @@ class MaxLogMoneyness(MaxMoneyness):
 
     def __init__(self) -> None:
         super().__init__(log=True)
+
+
+FEATURES: List[Type[Feature]] = [
+    Empty,
+    ExpiryTime,
+    TimeToMaturity,
+    LogMoneyness,
+    MaxLogMoneyness,
+    MaxMoneyness,
+    Moneyness,
+    PrevHedge,
+    Variance,
+    Volatility,
+    Zeros,
+    Spot,
+    UnderlierSpot,
+]
+
+for cls in FEATURES:
+    FeatureFactory().register_feature(str(cls()), cls)
