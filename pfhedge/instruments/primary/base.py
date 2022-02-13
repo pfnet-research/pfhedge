@@ -85,8 +85,8 @@ class BasePrimary(BaseInstrument):
         Buffers can be accessed as attributes using given names.
 
         Args:
-            name (string): name of the buffer. The buffer can be accessed
-                from this module using the given name
+            name (str): name of the buffer. The buffer can be accessed
+                from this module using the given name.
             tensor (Tensor or None): buffer to be registered. If ``None``, then
                 operations that run on buffers, such as :attr:`cuda`, are ignored.
         """
@@ -125,7 +125,7 @@ class BasePrimary(BaseInstrument):
                 yield name, buffer
 
     def buffers(self) -> Iterator[Tensor]:
-        r"""Returns an iterator over module buffers.
+        """Returns an iterator over module buffers.
 
         Yields:
             torch.Tensor: module buffer

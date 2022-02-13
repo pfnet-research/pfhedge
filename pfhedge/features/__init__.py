@@ -1,5 +1,7 @@
-from ._getter import FEATURES
+# To register features to FeatureFactory
+from . import _register_features
 from ._getter import get_feature
+from ._getter import list_features
 from .container import FeatureList
 from .container import ModuleOutput
 from .features import Barrier
