@@ -280,6 +280,10 @@
 <span class="kn">from</span> <span class="nn">pfhedge._utils.typing</span> <span class="kn">import</span> <span class="n">TensorOrScalar</span>
 
 
+<span class="k">def</span> <span class="nf">_get_epsilon</span><span class="p">(</span><span class="n">dtype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">dtype</span><span class="p">]):</span>
+    <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">tiny</span> <span class="k">if</span> <span class="n">dtype</span> <span class="k">else</span> <span class="n">torch</span><span class="o">.</span><span class="n">finfo</span><span class="p">()</span><span class="o">.</span><span class="n">tiny</span>
+
+
 <div class="viewcode-block" id="generate_cir"><a class="viewcode-back" href="../../../generated/pfhedge.stochastic.generate_cir.html#pfhedge.stochastic.generate_cir">[docs]</a><span class="k">def</span> <span class="nf">generate_cir</span><span class="p">(</span>
     <span class="n">n_paths</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">n_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -336,7 +340,6 @@
 <span class="sd">        torch.Tensor</span>
 
 <span class="sd">    Examples:</span>
-
 <span class="sd">        &gt;&gt;&gt; from pfhedge.stochastic import generate_cir</span>
 <span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt; _ = torch.manual_seed(42)</span>
@@ -359,7 +362,7 @@
     <span class="c1"># PSI_CRIT in [1.0, 2.0]. See section 3.2.3</span>
     <span class="n">PSI_CRIT</span> <span class="o">=</span> <span class="mf">1.5</span>
     <span class="c1"># Prevent zero division</span>
-    <span class="n">EPSILON</span> <span class="o">=</span> <span class="mf">1e-8</span>
+    <span class="n">EPSILON</span> <span class="o">=</span> <span class="n">_get_epsilon</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
 
     <span class="n">output</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">n_paths</span><span class="p">,</span> <span class="n">n_steps</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
     <span class="n">output</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">init_state</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -377,7 +380,7 @@
         <span class="c1"># Compute m, s, psi: Eq(17,18)</span>
         <span class="n">exp</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">kappa</span> <span class="o">*</span> <span class="n">dt</span><span class="p">)</span><span class="o">.</span><span class="n">exp</span><span class="p">()</span>
         <span class="n">m</span> <span class="o">=</span> <span class="n">theta</span> <span class="o">+</span> <span class="p">(</span><span class="n">v</span> <span class="o">-</span> <span class="n">theta</span><span class="p">)</span> <span class="o">*</span> <span class="n">exp</span>
-        <span class="n">s2</span> <span class="o">=</span> <span class="n">v</span> <span class="o">*</span> <span class="p">(</span><span class="n">sigma</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">exp</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">exp</span><span class="p">)</span> <span class="o">/</span> <span class="n">kappa</span> <span class="o">+</span> <span class="n">theta</span> <span class="o">*</span> <span class="p">(</span><span class="n">sigma</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span>
+        <span class="n">s2</span> <span class="o">=</span> <span class="n">v</span> <span class="o">*</span> <span class="p">(</span><span class="n">sigma</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">exp</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">exp</span><span class="p">)</span> <span class="o">/</span> <span class="n">kappa</span> <span class="o">+</span> <span class="n">theta</span> <span class="o">*</span> <span class="p">(</span><span class="n">sigma</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span>
             <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">exp</span><span class="p">)</span><span class="o">.</span><span class="n">square</span><span class="p">()</span>
         <span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">kappa</span><span class="p">)</span>
         <span class="n">psi</span> <span class="o">=</span> <span class="n">s2</span> <span class="o">/</span> <span class="n">m</span><span class="o">.</span><span class="n">square</span><span class="p">()</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="n">EPSILON</span><span class="p">)</span>

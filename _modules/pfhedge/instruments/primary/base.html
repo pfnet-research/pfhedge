@@ -357,8 +357,8 @@
 <span class="sd">        Buffers can be accessed as attributes using given names.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            name (string): name of the buffer. The buffer can be accessed</span>
-<span class="sd">                from this module using the given name</span>
+<span class="sd">            name (str): name of the buffer. The buffer can be accessed</span>
+<span class="sd">                from this module using the given name.</span>
 <span class="sd">            tensor (Tensor or None): buffer to be registered. If ``None``, then</span>
 <span class="sd">                operations that run on buffers, such as :attr:`cuda`, are ignored.</span>
 <span class="sd">        """</span>
@@ -397,7 +397,7 @@
                 <span class="k">yield</span> <span class="n">name</span><span class="p">,</span> <span class="n">buffer</span></div>
 
 <div class="viewcode-block" id="BasePrimary.buffers"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.BasePrimary.html#pfhedge.instruments.BasePrimary.buffers">[docs]</a>    <span class="k">def</span> <span class="nf">buffers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tensor</span><span class="p">]:</span>
-        <span class="sa">r</span><span class="sd">"""Returns an iterator over module buffers.</span>
+        <span class="sd">"""Returns an iterator over module buffers.</span>
 
 <span class="sd">        Yields:</span>
 <span class="sd">            torch.Tensor: module buffer</span>
