@@ -89,13 +89,9 @@ jobs:
       with:
         python-version: ${{ env.PYTHON_VERSION }}
 
-    - uses: psf/black@21.5b1
-      with:
-        options: --check --diff --skip-magic-trailing-comma
+    - run: pip install poetry && poetry install
 
-    - uses: jamescurtin/isort-action@master
-      with:
-        configuration: --check-only --diff --force-single-line
+    - run: make lint
 
   format:
 
@@ -115,13 +111,9 @@ jobs:
       with:
         python-version: ${{ env.PYTHON_VERSION }}
 
-    - uses: psf/black@21.5b1
-      with:
-        options: --skip-magic-trailing-comma
+    - run: pip install poetry && poetry install
 
-    - uses: jamescurtin/isort-action@master
-      with:
-        configuration: --force-single-line
+    - run: make format
 
     - name: Create pull request
       uses: peter-evans/create-pull-request@v3

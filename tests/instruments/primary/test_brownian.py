@@ -182,7 +182,7 @@ class TestBrownianStock:
         assert_close(result, expect)
 
         result = s.variance
-        expect = torch.full_like(s.spot, sigma**2)
+        expect = torch.full_like(s.spot, sigma ** 2)
         assert_close(result, expect)
 
     def test_init_device(self):
