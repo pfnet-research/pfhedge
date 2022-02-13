@@ -1,75 +1,116 @@
-from typing import Callable
-from typing import List
-from typing import Mapping
+from collections import OrderedDict
+from typing import Dict
+from typing import Iterator
+from typing import Tuple
 from typing import Type
 from typing import Union
 
 from ._base import Feature
-from .features import Empty
-from .features import ExpiryTime
-from .features import LogMoneyness
-from .features import MaxLogMoneyness
-from .features import MaxMoneyness
-from .features import Moneyness
-from .features import PrevHedge
-from .features import Spot
-from .features import TimeToMaturity
-from .features import UnderlierSpot
-from .features import Variance
-from .features import Volatility
-from .features import Zeros
-
-FEATURES: List[Type[Feature]] = [
-    Empty,
-    ExpiryTime,
-    TimeToMaturity,
-    LogMoneyness,
-    MaxLogMoneyness,
-    MaxMoneyness,
-    Moneyness,
-    PrevHedge,
-    Variance,
-    Volatility,
-    Zeros,
-    Spot,
-    UnderlierSpot,
-]
-
-DICT_FEATURES: Mapping[str, Type[Feature]] = {str(f()): f for f in FEATURES}
 
 
-def get_feature_class(feature_class: Union[str, Type[Feature]]) -> Type[Feature]:
-    """Get feature class from name.
+class FeatureFactory:
 
-    Args:
-        name (str): Name of feature.
+    _features: Dict[str, Type[Feature]]
 
-    Returns:
-        Feature class
-    """
-    if isinstance(feature_class, str):
-        if feature_class not in DICT_FEATURES:
-            raise ValueError(
-                f"{feature_class} is not a valid value. "
-                "Use sorted(pfhedge.features.FEATURES) to get valid options."
+    # singleton
+    def __new__(cls, *args, **kwargs):
+        if not hasattr(cls, "_instance"):
+            cls._instance = super().__new__(cls)
+            cls._instance._features = OrderedDict()
+        return cls._instance
+
+    def register_feature(self, name: str, cls: Type[Feature]) -> None:
+        """Adds a feature to the factory.
+
+        Args:
+            name (str): name of the feature.
+            cls (type(Feature)): feature class to be registered.
+        """
+        self._features[name] = cls
+
+    def named_features(self) -> Iterator[Tuple[str, Type[Feature]]]:
+        """Returns an iterator over feature classes, yielding both the
+        name of the feature class as well as the feature class itself.
+
+        Yields:
+            (string, type(Feature)): Tuple containing
+                the name and feature class.
+        """
+        for name, feature in self._features.items():
+            if feature is not None:
+                yield name, feature
+
+    def names(self) -> Iterator[str]:
+        """Returns an iterator over the names of the feature classes.
+
+        Yields:
+            str: name of the feature class.
+        """
+        for name, _ in self.named_features():
+            yield name
+
+    def features(self) -> Iterator[Type[Feature]]:
+        """Returns an iterator over feature classes.
+
+        Yields:
+            type(Feature): Feature class.
+        """
+        for _, feature in self.named_features():
+            yield feature
+
+    def get_class(self, name: str) -> Type[Feature]:
+        """Returns the feature class with the given name.
+
+        Parameters:
+            name (str): name of the feature class.
+
+        Returns:
+            type(Feature): feature class.
+        """
+        if name not in self.names():
+            raise KeyError(
+                f"{name} is not a valid name. "
+                "Use pfhedge.features.list_feature_names() to see available names."
             )
-        feature_class = DICT_FEATURES[feature_class]
-    elif not issubclass(feature_class, Feature):
-        raise TypeError(f"{feature_class} is not Feature.")
-    return feature_class
+        return self._features[name]
+
+    def get_instance(self, name: str, *args, **kwargs) -> Feature:
+        """Returns the feature with the given name.
+
+        Parameters:
+            name (str): name of the feature class.
+
+        Returns:
+            Feature: feature.
+        """
+        return self.get_class(name)(*args, **kwargs)  # type: ignore
 
 
-def get_feature(feature: Union[str, Feature]) -> Feature:
+def get_feature(feature: Union[str, Feature], *args, **kwargs) -> Feature:
     """Get feature from name.
 
     Args:
         name (str): Name of feature.
+        *args: Arguments to pass to feature constructor.
+        *kwargs: Keyword arguments to pass to feature constructor.
 
     Returns:
         Feature
     """
     if isinstance(feature, str):
-        feature = get_feature_class(feature)()
+        feature = FeatureFactory().get_instance(feature, *args, **kwargs)
     elif not isinstance(feature, Feature):
         raise TypeError(f"{feature} is not an instance of Feature.")
     return feature
+
+
+def list_feature_dict() -> dict:
+    return dict(FeatureFactory().named_features())
+
+
+def list_feature_names() -> list:
+    return list(FeatureFactory().names())
+
+
+def list_features() -> list:
+    return list(FeatureFactory().features())
