@@ -1,8 +1,12 @@
+import contextlib
+
 import pytest
 import torch
 from torch.testing import assert_close
 
 from pfhedge.nn.functional import clamp
+from pfhedge.nn.functional import d1
+from pfhedge.nn.functional import d2
 from pfhedge.nn.functional import exp_utility
 from pfhedge.nn.functional import expected_shortfall
 from pfhedge.nn.functional import leaky_clamp
@@ -215,3 +219,77 @@ def test_terminal_value_additional_dim():
     result = terminal_value(spot, unit, payoff=payoff)
     expect = -payoff
     assert_close(result, expect)
+
+
+@pytest.mark.parametrize("log_moneyness", [-1.0, 0, 1.0])
+@pytest.mark.parametrize("time_to_maturity", [1.0, 0, -1])
+@pytest.mark.parametrize("volatility", [0.2, 0.0, -1])
+def test_d1(log_moneyness: float, time_to_maturity: float, volatility: float):
+    with pytest.raises(
+        ValueError
+    ) if time_to_maturity < 0 or volatility < 0 else contextlib.nullcontext():
+        result = d1(
+            log_moneyness=torch.as_tensor([log_moneyness]),
+            time_to_maturity=torch.as_tensor(time_to_maturity),
+            volatility=torch.as_tensor(volatility),
+        )
+        assert not result.isnan()
+
+
+def test_d1_2():
+    results = d1(
+        log_moneyness=torch.as_tensor([-1.0, 0, 1.0]),
+        time_to_maturity=torch.as_tensor([1.0, 0, 0]),
+        volatility=torch.as_tensor([0.2, 0.2, 0.2]),
+    )
+    expected = torch.as_tensor([-4.9, 0, float("inf")])
+    assert_close(results, expected)
+    with pytest.raises(ValueError):
+        d1(
+            log_moneyness=torch.as_tensor([-1.0, 0, 1.0]),
+            time_to_maturity=torch.as_tensor([1.0, 0, -1]),
+            volatility=torch.as_tensor([0.2, 0.2, 0.2]),
+        )
+    with pytest.raises(ValueError):
+        d1(
+            log_moneyness=torch.as_tensor([-1.0, 0, 1.0]),
+            time_to_maturity=torch.as_tensor([1.0, 0, 0]),
+            volatility=torch.as_tensor([0.2, 0.2, -1.0]),
+        )
+
+
+@pytest.mark.parametrize("log_moneyness", [-1.0, 0, 1.0])
+@pytest.mark.parametrize("time_to_maturity", [1.0, 0, -1])
+@pytest.mark.parametrize("volatility", [0.2, 0.0, -1])
+def test_d2(log_moneyness: float, time_to_maturity: float, volatility: float):
+    with pytest.raises(
+        ValueError
+    ) if time_to_maturity < 0 or volatility < 0 else contextlib.nullcontext():
+        result = d2(
+            log_moneyness=torch.as_tensor([log_moneyness]),
+            time_to_maturity=torch.as_tensor(time_to_maturity),
+            volatility=torch.as_tensor(volatility),
+        )
+        assert not result.isnan()
+
+
+def test_d2_2():
+    results = d2(
+        log_moneyness=torch.as_tensor([-1.0, 0, 1.0]),
+        time_to_maturity=torch.as_tensor([1.0, 0, 0]),
+        volatility=torch.as_tensor([0.2, 0.2, 0.2]),
+    )
+    expected = torch.as_tensor([-5.1, 0, float("inf")])
+    assert_close(results, expected)
+    with pytest.raises(ValueError):
+        d2(
+            log_moneyness=torch.as_tensor([-1.0, 0, 1.0]),
+            time_to_maturity=torch.as_tensor([1.0, 0, -1]),
+            volatility=torch.as_tensor([0.2, 0.2, 0.2]),
+        )
+    with pytest.raises(ValueError):
+        d2(
+            log_moneyness=torch.as_tensor([-1.0, 0, 1.0]),
+            time_to_maturity=torch.as_tensor([1.0, 0, 0]),
+            volatility=torch.as_tensor([0.2, 0.2, -1.0]),
+        )
