@@ -213,3 +213,7 @@ class TestBrownianStock:
 
         s = BrownianStock()
         assert s.cuda(1).device == torch.device("cuda:1")
+
+    def test_is_listed(self):
+        s = BrownianStock()
+        assert s.is_listed

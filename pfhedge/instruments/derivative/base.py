@@ -136,6 +136,10 @@ class BaseDerivative(BaseInstrument):
         self.pricer = pricer
         self.cost = cost
 
+    @property
+    def is_listed(self) -> bool:
+        return self.pricer is not None
+
     def add_clause(
         self, name: str, clause: Callable[["BaseDerivative", Tensor], Tensor]
     ) -> None:

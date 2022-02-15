@@ -21,6 +21,11 @@ class BaseInstrument(ABC):
     def spot(self) -> Tensor:
         """Returns the spot price of self."""
 
+    @property
+    @abstractmethod
+    def is_listed(self) -> bool:
+        """Returns whether it is listed or not."""
+
     @abstractmethod
     @no_type_check
     def simulate(self, n_paths: int, time_horizon: float, **kwargs) -> None:
