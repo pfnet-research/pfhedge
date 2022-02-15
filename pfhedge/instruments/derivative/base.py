@@ -136,6 +136,13 @@ class BaseDerivative(BaseInstrument):
         self.pricer = pricer
         self.cost = cost
 
+    def delist(self: T) -> None:
+        """Make self a delisted derivative.
+
+        After this method self will be a private derivative.
+        """
+        self.pricer = None
+
     def add_clause(
         self, name: str, clause: Callable[["BaseDerivative", Tensor], Tensor]
     ) -> None:
