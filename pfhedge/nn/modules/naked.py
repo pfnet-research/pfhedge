@@ -22,7 +22,7 @@ class Naked(Module):
         >>> from pfhedge.nn import Naked
         >>>
         >>> m = Naked()
-        >>> input = torch.empty((2, 3))
+        >>> input = torch.zeros((2, 3))
         >>> m(input)
         tensor([[0.],
                 [0.]])

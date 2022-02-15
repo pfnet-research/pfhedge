@@ -52,9 +52,9 @@ def test_topp(p, largest):
 
 def test_topp_error():
     with pytest.raises(RuntimeError):
-        topp(torch.empty(100), 1.1)
+        topp(torch.zeros(100), 1.1)
     with pytest.raises(RuntimeError):
-        topp(torch.empty(100), -0.1)
+        topp(torch.zeros(100), -0.1)
 
 
 def test_expected_shortfall():
@@ -109,9 +109,9 @@ def test_leaky_clamp():
 
 
 def test_clamp_error_invalid_inverted_output():
-    input = torch.empty(10)
-    min = torch.empty(10)
-    max = torch.empty(10)
+    input = torch.zeros(10)
+    min = torch.zeros(10)
+    max = torch.zeros(10)
     with pytest.raises(ValueError):
         _ = leaky_clamp(input, min, max, inverted_output="min")
     with pytest.raises(ValueError):
@@ -197,9 +197,9 @@ def test_terminal_value():
 
 
 def test_terminal_value_unmatched_shape():
-    spot = torch.empty((10, 20))
-    unit = torch.empty((10, 20))
-    payoff = torch.empty(10)
+    spot = torch.zeros((10, 20))
+    unit = torch.zeros((10, 20))
+    payoff = torch.zeros(10)
     with pytest.raises(RuntimeError):
         _ = terminal_value(spot, unit[:-1])
     with pytest.raises(RuntimeError):
