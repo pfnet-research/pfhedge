@@ -158,6 +158,7 @@ class BSAmericanBinaryOption(BSModuleMixin):
         """
         s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
         spor = s.exp() * self.strike
+        # ToDo: fix 0/0 issue
         p = (
             npdf(d2(s, t, v)) / (spor * v * t.sqrt())
             - (1 - ncdf(d2(-s, t, v))) / self.strike
