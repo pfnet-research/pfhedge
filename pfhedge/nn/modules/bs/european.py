@@ -148,8 +148,6 @@ class BSEuropeanOption(BSModuleMixin):
             output,
         )
 
-        return gamma
-
     def vega(
         self, log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor
     ) -> Tensor:
