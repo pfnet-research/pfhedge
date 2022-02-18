@@ -1,5 +1,4 @@
 from math import floor
-from typing import Optional
 
 import torch
 from torch import Tensor
@@ -7,16 +6,16 @@ from torch import Tensor
 from pfhedge._utils.doc import _set_attr_and_docstring
 from pfhedge._utils.doc import _set_docstring
 from pfhedge._utils.str import _format_float
-from pfhedge.nn.functional import cliquet_payoff
+from pfhedge.nn.functional import european_forward_start_payoff
 
 from ..primary.base import BasePrimary
 from .base import BaseDerivative
 
 
-class CliquetOption(BaseDerivative):
-    r"""Cliquet option.
+class EuropeanForwardStartOption(BaseDerivative):
+    r"""European forward start option.
 
-    The payoff of a cliquet option is given by
+    The payoff is given by
 
     .. math ::
         \mathrm{payoff} = \max(S_T / S_{T'} - K, 0) ,
@@ -45,10 +44,10 @@ class CliquetOption(BaseDerivative):
     Examples:
         >>> import torch
         >>> from pfhedge.instruments import BrownianStock
-        >>> from pfhedge.instruments import CliquetOption
+        >>> from pfhedge.instruments import EuropeanForwardStartOption
         >>>
         >>> _ = torch.manual_seed(42)
-        >>> derivative = CliquetOption(BrownianStock(), maturity=5/250, start=2/250)
+        >>> derivative = EuropeanForwardStartOption(BrownianStock(), maturity=5/250, start=2/250)
         >>> derivative.simulate(n_paths=2)
         >>> derivative.underlier.spot
         tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930, 0.9906],
@@ -84,14 +83,14 @@ class CliquetOption(BaseDerivative):
         return floor(self.start / self.ul().dt)
 
     def payoff_fn(self) -> Tensor:
-        return cliquet_payoff(
+        return european_forward_start_payoff(
             self.ul().spot, strike=self.strike, start_index=self._start_index()
         )
 
 
 # Assign docstrings so they appear in Sphinx documentation
-_set_attr_and_docstring(CliquetOption, "simulate", BaseDerivative.simulate)
-_set_attr_and_docstring(CliquetOption, "to", BaseDerivative.to)
-_set_attr_and_docstring(CliquetOption, "ul", BaseDerivative.ul)
-_set_attr_and_docstring(CliquetOption, "list", BaseDerivative.list)
-_set_docstring(CliquetOption, "payoff", BaseDerivative.payoff)
+_set_attr_and_docstring(EuropeanForwardStartOption, "simulate", BaseDerivative.simulate)
+_set_attr_and_docstring(EuropeanForwardStartOption, "to", BaseDerivative.to)
+_set_attr_and_docstring(EuropeanForwardStartOption, "ul", BaseDerivative.ul)
+_set_attr_and_docstring(EuropeanForwardStartOption, "list", BaseDerivative.list)
+_set_docstring(EuropeanForwardStartOption, "payoff", BaseDerivative.payoff)

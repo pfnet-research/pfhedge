@@ -107,8 +107,10 @@ def european_binary_payoff(
         return (input[..., -1] <= strike).to(input)
 
 
-def cliquet_payoff(input: Tensor, strike: float = 1.0, start_index: int = 0) -> Tensor:
-    """Returns the payoff of a cliquet option.
+def european_forward_start_payoff(
+    input: Tensor, strike: float = 1.0, start_index: int = 0
+) -> Tensor:
+    """Returns the payoff of a European forward start option.
 
     Args:
         input (torch.Tensor): The input tensor representing the price trajectory.
