@@ -147,13 +147,12 @@ class BSEuropeanBinaryOption(BSModuleMixin):
 
         numerator = npdf(d2(s, t, v))
         denominator = spot * v * t.sqrt()
-        zero_div_zero_mask = (numerator == 0).logical_and(denominator == 0)
-        denominator = torch.where(
-            zero_div_zero_mask,
-            torch.zeros_like(denominator) + torch.finfo().tiny,
-            denominator,
+        delta = numerator / denominator
+        delta = torch.where(
+            (numerator == 0).logical_and(denominator == 0),
+            torch.zeros_like(delta),
+            delta,
         )
-        delta = numerator.div(denominator)
         delta = -delta if not self.call else delta  # put-call parity
 
         return delta

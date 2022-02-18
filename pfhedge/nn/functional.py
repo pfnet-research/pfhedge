@@ -524,13 +524,10 @@ def d1(log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor) -> T
         raise ValueError("all elements in volatility have to be non-negative")
     numerator = s + (v.square() / 2) * t
     denominator = v * t.sqrt()
-    zero_div_zero_mask = (numerator == 0).logical_and(denominator == 0)
-    denominator = torch.where(
-        zero_div_zero_mask,
-        torch.zeros_like(denominator) + torch.finfo().tiny,
-        denominator,
+    output = numerator / denominator
+    return torch.where(
+        (numerator == 0).logical_and(denominator == 0), torch.zeros_like(output), output
     )
-    return numerator.div(denominator)
 
 
 def d2(log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor) -> Tensor:
@@ -562,13 +559,10 @@ def d2(log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor) -> T
         raise ValueError("all elements in volatility have to be non-negative")
     numerator = s - (v.square() / 2) * t
     denominator = v * t.sqrt()
-    zero_div_zero_mask = (numerator == 0).logical_and(denominator == 0)
-    denominator = torch.where(
-        zero_div_zero_mask,
-        torch.zeros_like(denominator) + torch.finfo().tiny,
-        denominator,
+    output = numerator / denominator
+    return torch.where(
+        (numerator == 0).logical_and(denominator == 0), torch.zeros_like(output), output
     )
-    return numerator.div(denominator)
 
 
 def ww_width(
