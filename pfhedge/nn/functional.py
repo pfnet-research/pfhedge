@@ -107,6 +107,26 @@ def european_binary_payoff(
         return (input[..., -1] <= strike).to(input)
 
 
+def cliquet_payoff(input: Tensor, strike: float = 1.0, start_index: int = 0) -> Tensor:
+    """Returns the payoff of a cliquet option.
+
+    Args:
+        input (torch.Tensor): The input tensor representing the price trajectory.
+        start_index (torch.Tensor): The time index at which the option starts.
+        strike (float, default=1.0): The strike price of the option.
+
+    Shape:
+        - input: :math:`(*, T)` where
+          :math:`T` is the number of time steps and
+          :math:`*` means any number of additional dimensions.
+        - output: :math:`(*)`
+
+    Returns:
+        torch.Tensor
+    """
+    return fn.relu(input[..., -1] / input[..., start_index] - strike)
+
+
 def exp_utility(input: Tensor, a: float = 1.0) -> Tensor:
     r"""Applies an exponential utility function.
 

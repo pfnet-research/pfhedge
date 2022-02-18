@@ -43,4 +43,5 @@ Derivative Instruments
     instruments.LookbackOption
     instruments.EuropeanBinaryOption
     instruments.AmericanBinaryOption
+    instruments.CliquetOption
     instruments.VarianceSwap

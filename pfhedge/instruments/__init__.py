@@ -4,6 +4,7 @@ from .derivative.american_binary import AmericanBinaryOption
 from .derivative.base import BaseDerivative
 from .derivative.base import BaseOption
 from .derivative.base import Derivative
+from .derivative.cliquet import CliquetOption
 from .derivative.european import EuropeanOption
 from .derivative.european_binary import EuropeanBinaryOption
 from .derivative.lookback import LookbackOption
