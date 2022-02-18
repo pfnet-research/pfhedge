@@ -80,10 +80,12 @@ class CliquetOption(BaseDerivative):
         ]
         return ", ".join(params)
 
+    def _start_index(self) -> int:
+        return floor(self.start / self.ul().dt)
+
     def payoff_fn(self) -> Tensor:
-        start_index = floor(self.start / self.ul().dt)
         return cliquet_payoff(
-            self.ul().spot, strike=self.strike, start_index=start_index
+            self.ul().spot, strike=self.strike, start_index=self._start_index()
         )
 
 
