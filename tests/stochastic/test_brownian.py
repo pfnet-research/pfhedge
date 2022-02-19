@@ -21,6 +21,21 @@ def test_generate_brownian_mean():
     assert_close(result, expect, atol=3 * std, rtol=0)
 
 
+def test_generate_brownian_nosigma():
+    torch.manual_seed(42)
+    n_steps = 250
+
+    result = generate_brownian(1, n_steps, sigma=0)
+    expect = torch.zeros(1, n_steps)
+    assert_close(result, expect)
+
+    mu = 0.1
+    dt = 0.01
+    result = generate_brownian(1, n_steps, mu=mu, sigma=0, dt=dt)
+    expect = torch.linspace(0, mu * dt * (n_steps - 1), n_steps).unsqueeze(0)
+    assert_close(result, expect)
+
+
 def test_generate_brownian_std():
     torch.manual_seed(42)
     n_paths = 10000
