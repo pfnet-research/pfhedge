@@ -187,6 +187,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.nn.functional.lookback_payoff.html">pfhedge.nn.functional.lookback_payoff</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.nn.functional.american_binary_payoff.html">pfhedge.nn.functional.american_binary_payoff</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.nn.functional.european_binary_payoff.html">pfhedge.nn.functional.european_binary_payoff</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.nn.functional.european_forward_start_payoff.html">pfhedge.nn.functional.european_forward_start_payoff</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.nn.functional.exp_utility.html">pfhedge.nn.functional.exp_utility</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.nn.functional.isoelastic_utility.html">pfhedge.nn.functional.isoelastic_utility</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.nn.functional.entropic_risk_measure.html">pfhedge.nn.functional.entropic_risk_measure</a></li>
@@ -213,10 +214,11 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.HestonStock.html">HestonStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.CIRRate.html">CIRRate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.EuropeanForwardStartOption.html">EuropeanForwardStartOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.VarianceSwap.html">VarianceSwap</a></li>
 </ul>
 </li>
@@ -288,6 +290,7 @@
     <span class="n">n_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">init_state</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">TensorOrScalar</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">TensorOrScalar</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,),</span>
     <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
+    <span class="n">mu</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
     <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">250</span><span class="p">,</span>
     <span class="n">dtype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">device</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -298,7 +301,7 @@
 <span class="sd">    The time evolution of the process is given by:</span>
 
 <span class="sd">    .. math::</span>
-<span class="sd">        dS(t) = \sigma dW(t) \,.</span>
+<span class="sd">        dS(t) = \mu dt + \sigma dW(t) \,.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        n_paths (int): The number of simulated paths.</span>
@@ -309,6 +312,8 @@
 <span class="sd">            It also accepts a :class:`torch.Tensor` or a :class:`float`.</span>
 <span class="sd">        sigma (float, default=0.2): The parameter :math:`\sigma`,</span>
 <span class="sd">            which stands for the volatility of the time series.</span>
+<span class="sd">        mu (float, default=0.0): The parameter :math:`\mu`,</span>
+<span class="sd">            which stands for the drift of the time series.</span>
 <span class="sd">        dt (float, default=1/250): The intervals of the time steps.</span>
 <span class="sd">        dtype (torch.dtype, optional): The desired data type of returned tensor.</span>
 <span class="sd">            Default: If ``None``, uses a global default</span>
@@ -353,7 +358,9 @@
     <span class="c1"># randn = torch.randn((n_paths, n_steps), dtype=dtype, device=device)</span>
     <span class="n">randn</span> <span class="o">=</span> <span class="n">engine</span><span class="p">((</span><span class="n">n_paths</span><span class="p">,</span> <span class="n">n_steps</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
     <span class="n">randn</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
-    <span class="k">return</span> <span class="n">sigma</span> <span class="o">*</span> <span class="n">randn</span><span class="o">.</span><span class="n">new_tensor</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span><span class="o">.</span><span class="n">sqrt</span><span class="p">()</span> <span class="o">*</span> <span class="n">randn</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">init_value</span></div>
+    <span class="n">drift</span> <span class="o">=</span> <span class="n">mu</span> <span class="o">*</span> <span class="n">dt</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_steps</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">randn</span><span class="p">)</span>
+    <span class="n">brown</span> <span class="o">=</span> <span class="n">randn</span><span class="o">.</span><span class="n">new_tensor</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span><span class="o">.</span><span class="n">sqrt</span><span class="p">()</span> <span class="o">*</span> <span class="n">randn</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">drift</span> <span class="o">+</span> <span class="n">sigma</span> <span class="o">*</span> <span class="n">brown</span> <span class="o">+</span> <span class="n">init_value</span></div>
 
 
 <div class="viewcode-block" id="generate_geometric_brownian"><a class="viewcode-back" href="../../../generated/pfhedge.stochastic.generate_geometric_brownian.html#pfhedge.stochastic.generate_geometric_brownian">[docs]</a><span class="k">def</span> <span class="nf">generate_geometric_brownian</span><span class="p">(</span>
@@ -361,6 +368,7 @@
     <span class="n">n_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">init_state</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">TensorOrScalar</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">TensorOrScalar</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,),</span>
     <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
+    <span class="n">mu</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
     <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">250</span><span class="p">,</span>
     <span class="n">dtype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">device</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -372,7 +380,7 @@
 
 <span class="sd">    .. math::</span>
 
-<span class="sd">        dS(t) = \sigma S(t) dW(t) \,.</span>
+<span class="sd">        dS(t) = \mu S(t) dt + \sigma S(t) dW(t) \,.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        n_paths (int): The number of simulated paths.</span>
@@ -381,7 +389,9 @@
 <span class="sd">            the time series.</span>
 <span class="sd">            This is specified by a tuple :math:`(S(0),)`.</span>
 <span class="sd">            It also accepts a :class:`torch.Tensor` or a :class:`float`.</span>
-<span class="sd">        sigma (float, default=0.2): The parameter :math:`sigma`,</span>
+<span class="sd">        sigma (float, default=0.2): The parameter :math:`\sigma`,</span>
+<span class="sd">            which stands for the volatility of the time series.</span>
+<span class="sd">        mu (float, default=0.2): The parameter :math:`\mu`,</span>
 <span class="sd">            which stands for the volatility of the time series.</span>
 <span class="sd">        dt (float, default=1/250): The intervals of the time steps.</span>
 <span class="sd">        dtype (torch.dtype, optional): The desired data type of returned tensor.</span>
@@ -428,6 +438,7 @@
         <span class="n">n_steps</span><span class="o">=</span><span class="n">n_steps</span><span class="p">,</span>
         <span class="n">init_state</span><span class="o">=</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,),</span>
         <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span>
+        <span class="n">mu</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span>
         <span class="n">dt</span><span class="o">=</span><span class="n">dt</span><span class="p">,</span>
         <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span>
         <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">,</span>

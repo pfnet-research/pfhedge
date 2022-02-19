@@ -188,6 +188,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.lookback_payoff.html">pfhedge.nn.functional.lookback_payoff</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.american_binary_payoff.html">pfhedge.nn.functional.american_binary_payoff</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.european_binary_payoff.html">pfhedge.nn.functional.european_binary_payoff</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.european_forward_start_payoff.html">pfhedge.nn.functional.european_forward_start_payoff</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.exp_utility.html">pfhedge.nn.functional.exp_utility</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.isoelastic_utility.html">pfhedge.nn.functional.isoelastic_utility</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.entropic_risk_measure.html">pfhedge.nn.functional.entropic_risk_measure</a></li>
@@ -214,10 +215,11 @@
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.HestonStock.html">HestonStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.CIRRate.html">CIRRate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.EuropeanForwardStartOption.html">EuropeanForwardStartOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.VarianceSwap.html">VarianceSwap</a></li>
 </ul>
 </li>
@@ -376,6 +378,11 @@ Both single-line and multi-line strings are acceptable.</p>
 <dd class="field-odd"><p>self</p>
 </dd>
 </dl>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="pfhedge.instruments.BaseInstrument.is_listed">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_listed</span></span><a class="headerlink" href="#pfhedge.instruments.BaseInstrument.is_listed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns whether it is listed or not.</p>
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pfhedge.instruments.BaseInstrument.simulate">

@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="VarianceSwap" href="pfhedge.instruments.VarianceSwap.html" /><link rel="prev" title="EuropeanOption" href="pfhedge.instruments.EuropeanOption.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="EuropeanOption" href="pfhedge.instruments.EuropeanOption.html" /><link rel="prev" title="EuropeanBinaryOption" href="pfhedge.instruments.EuropeanBinaryOption.html" />
 
     <meta name="generator" content="sphinx-4.4.0, furo 2021.11.23"/>
-        <title>LookbackOption - PFHedge documentation</title>
+        <title>EuropeanForwardStartOption - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=7f0192ddeb2adecfbaa87ffbcf67d16358b30bc1" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
@@ -217,9 +217,9 @@
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.CIRRate.html">CIRRate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.EuropeanForwardStartOption.html">EuropeanForwardStartOption</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">EuropeanForwardStartOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">LookbackOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.VarianceSwap.html">VarianceSwap</a></li>
 </ul>
 </li>
@@ -272,43 +272,39 @@
           </label>
         </div>
         <article role="main">
-          <section id="lookbackoption">
-<h1>LookbackOption<a class="headerlink" href="#lookbackoption" title="Permalink to this headline">¶</a></h1>
+          <section id="europeanforwardstartoption">
+<h1>EuropeanForwardStartOption<a class="headerlink" href="#europeanforwardstartoption" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="pfhedge.instruments.LookbackOption">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pfhedge.instruments.</span></span><span class="sig-name descname"><span class="pre">LookbackOption</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">underlier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">call</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strike</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maturity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/derivative/lookback.html#LookbackOption"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.LookbackOption" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="pfhedge.instruments.BaseOption.html#pfhedge.instruments.BaseOption" title="pfhedge.instruments.derivative.base.BaseOption"><code class="xref py py-class docutils literal notranslate"><span class="pre">pfhedge.instruments.derivative.base.BaseOption</span></code></a></p>
-<p>Lookback option with fixed strike.</p>
-<p>A lookback call option provides its holder the right to buy an underlying with
-the strike price and to sell with the highest price until the date of maturity.</p>
-<p>A lookback put option provides its holder the right to sell an underlying with
-the strike price and to buy with the lowest price until the date of maturity.</p>
-<p>The payoff of a lookback call option is given by:</p>
+<dt class="sig sig-object py" id="pfhedge.instruments.EuropeanForwardStartOption">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pfhedge.instruments.</span></span><span class="sig-name descname"><span class="pre">EuropeanForwardStartOption</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">underlier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strike</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maturity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.04</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/derivative/cliquet.html#EuropeanForwardStartOption"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.EuropeanForwardStartOption" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pfhedge.instruments.BaseDerivative.html#pfhedge.instruments.BaseDerivative" title="pfhedge.instruments.derivative.base.BaseDerivative"><code class="xref py py-class docutils literal notranslate"><span class="pre">pfhedge.instruments.derivative.base.BaseDerivative</span></code></a></p>
+<p>European forward start option.</p>
+<p>The payoff is given by</p>
 <div class="math-wrapper"><div class="math notranslate nohighlight">
-\[\mathrm{payoff} = \max(\mathrm{Max} - K, 0)\]</div></div>
-<p>Here, <span class="math notranslate nohighlight">\(\mathrm{Max}\)</span> is the maximum of the underlying asset’s price
-until maturity and <span class="math notranslate nohighlight">\(K\)</span> is the strike price (<cite>strike</cite>) of the option.</p>
-<p>The payoff of a lookback put option is given by:</p>
-<div class="math-wrapper"><div class="math notranslate nohighlight">
-\[\mathrm{payoff} = \max(K - \mathrm{Min}, 0)\]</div></div>
-<p>Here, <span class="math notranslate nohighlight">\(\mathrm{Min}\)</span> is the minimum of the underlying asset’s price.</p>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><a class="reference internal" href="pfhedge.nn.functional.lookback_payoff.html#pfhedge.nn.functional.lookback_payoff" title="pfhedge.nn.functional.lookback_payoff"><code class="xref py py-func docutils literal notranslate"><span class="pre">pfhedge.nn.functional.lookback_payoff()</span></code></a>: Payoff function.</p>
+\[\mathrm{payoff} = \max(S_T / S_{T'} - K, 0) ,\]</div></div>
+<p>where
+<span class="math notranslate nohighlight">\(S_T\)</span> is the underlying asset’s price at maturity,
+<span class="math notranslate nohighlight">\(S_{T'}\)</span> is the underlying asset’s price at start, and
+<span class="math notranslate nohighlight">\(K\)</span> is the strike value of the option.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">start</span></code> is not divisible by the interval of the time step,
+it is rounded off so that the start time is the largest value
+that is divisible by the interval and less than <code class="docutils literal notranslate"><span class="pre">start</span></code>.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>underlier</strong> (<a class="reference internal" href="pfhedge.instruments.BasePrimary.html#pfhedge.instruments.BasePrimary" title="pfhedge.instruments.BasePrimary"><code class="xref py py-class docutils literal notranslate"><span class="pre">BasePrimary</span></code></a>) – The underlying instrument of the option.</p></li>
-<li><p><strong>call</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>default=True</em>) – Specifies whether the option is call or put.</p></li>
-<li><p><strong>strike</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>default=1.0</em>) – The strike price of the option.</p></li>
+<li><p><strong>strike</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>default=1.0</em>) – The strike value of the option.</p></li>
 <li><p><strong>maturity</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>default=20/250</em>) – The maturity of the option.</p></li>
+<li><p><strong>start</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>default=10/250</em>) – The start of the option.</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="pfhedge.instruments.LookbackOption.dtype">
-<span class="sig-name descname"><span class="pre">dtype</span></span><a class="headerlink" href="#pfhedge.instruments.LookbackOption.dtype" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pfhedge.instruments.EuropeanForwardStartOption.dtype">
+<span class="sig-name descname"><span class="pre">dtype</span></span><a class="headerlink" href="#pfhedge.instruments.EuropeanForwardStartOption.dtype" title="Permalink to this definition">¶</a></dt>
 <dd><p>The dtype with which the simulated time-series are
 represented.</p>
 <dl class="field-list simple">
@@ -318,8 +314,8 @@ represented.</p>
 </dl>
 </dd></dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="pfhedge.instruments.LookbackOption.device">
-<span class="sig-name descname"><span class="pre">device</span></span><a class="headerlink" href="#pfhedge.instruments.LookbackOption.device" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pfhedge.instruments.EuropeanForwardStartOption.device">
+<span class="sig-name descname"><span class="pre">device</span></span><a class="headerlink" href="#pfhedge.instruments.EuropeanForwardStartOption.device" title="Permalink to this definition">¶</a></dt>
 <dd><p>The device where the simulated time-series are.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -330,21 +326,23 @@ represented.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">BrownianStock</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">LookbackOption</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">EuropeanForwardStartOption</span>
 <span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span> <span class="o">=</span> <span class="n">LookbackOption</span><span class="p">(</span><span class="n">BrownianStock</span><span class="p">(),</span> <span class="n">maturity</span><span class="o">=</span><span class="mi">5</span><span class="o">/</span><span class="mi">250</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span> <span class="o">=</span> <span class="n">EuropeanForwardStartOption</span><span class="p">(</span><span class="n">BrownianStock</span><span class="p">(),</span> <span class="n">maturity</span><span class="o">=</span><span class="mi">5</span><span class="o">/</span><span class="mi">250</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">2</span><span class="o">/</span><span class="mi">250</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">n_paths</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span><span class="o">.</span><span class="n">underlier</span><span class="o">.</span><span class="n">spot</span>
 <span class="go">tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930, 0.9906],</span>
 <span class="go">        [1.0000, 0.9919, 0.9976, 1.0009, 1.0076, 1.0179]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span><span class="o">.</span><span class="n">underlier</span><span class="o">.</span><span class="n">spot</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">derivative</span><span class="o">.</span><span class="n">underlier</span><span class="o">.</span><span class="n">spot</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span>
+<span class="go">tensor([0.9862, 1.0203])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span><span class="o">.</span><span class="n">payoff</span><span class="p">()</span>
-<span class="go">tensor([0.0073, 0.0179])</span>
+<span class="go">tensor([0.0000, 0.0203])</span>
 </pre></div>
 </div>
 <dl class="py method">
-<dt class="sig sig-object py" id="pfhedge.instruments.LookbackOption.list">
-<span class="sig-name descname"><span class="pre">list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pricer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.LookbackOption.list" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pfhedge.instruments.EuropeanForwardStartOption.list">
+<span class="sig-name descname"><span class="pre">list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pricer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.EuropeanForwardStartOption.list" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make self a listed derivative.</p>
 <p>After this method self will be a exchange-traded derivative which can be transacted
 at any time with the spot price given by <code class="docutils literal notranslate"><span class="pre">self.spot</span></code>.</p>
@@ -360,47 +358,8 @@ and returns the spot price tensor of self.</p></li>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="pfhedge.instruments.LookbackOption.log_moneyness">
-<span class="sig-name descname"><span class="pre">log_moneyness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.LookbackOption.log_moneyness" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns <code class="docutils literal notranslate"><span class="pre">self.moneyness(time_step).log()</span></code>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>torch.Tensor</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="pfhedge.instruments.LookbackOption.moneyness">
-<span class="sig-name descname"><span class="pre">moneyness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.LookbackOption.moneyness" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the moneyness of self.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>time_step</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>optional</em>) – The time step to calculate
-the moneyness. If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), the moneyness is calculated
-at all time steps.</p></li>
-<li><p><strong>log</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>default=False</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, returns log moneyness.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="simple">
-<dt>Shape:</dt><dd><ul class="simple">
-<li><p>Output: <span class="math notranslate nohighlight">\((N, T)\)</span> where
-<span class="math notranslate nohighlight">\(N\)</span> is the number of paths and
-<span class="math notranslate nohighlight">\(T\)</span> is the number of time steps.
-If <code class="docutils literal notranslate"><span class="pre">time_step</span></code> is given, the shape is <span class="math notranslate nohighlight">\((N, 1)\)</span>.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>torch.Tensor</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="pfhedge.instruments.LookbackOption.simulate">
-<span class="sig-name descname"><span class="pre">simulate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.LookbackOption.simulate" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pfhedge.instruments.EuropeanForwardStartOption.simulate">
+<span class="sig-name descname"><span class="pre">simulate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.EuropeanForwardStartOption.simulate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Simulate time series associated with the underlier.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -414,34 +373,8 @@ the underlier.</p></li>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="pfhedge.instruments.LookbackOption.time_to_maturity">
-<span class="sig-name descname"><span class="pre">time_to_maturity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.LookbackOption.time_to_maturity" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the time to maturity of self.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>time_step</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>optional</em>) – The time step to calculate
-the time to maturity. If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), the time to
-maturity is calculated at all time steps.</p>
-</dd>
-</dl>
-<dl class="simple">
-<dt>Shape:</dt><dd><ul class="simple">
-<li><p>Output: <span class="math notranslate nohighlight">\((N, T)\)</span> where
-<span class="math notranslate nohighlight">\(N\)</span> is the number of paths and
-<span class="math notranslate nohighlight">\(T\)</span> is the number of time steps.
-If <code class="docutils literal notranslate"><span class="pre">time_step</span></code> is given, the shape is <span class="math notranslate nohighlight">\((N, 1)\)</span>.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>torch.Tensor</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="pfhedge.instruments.LookbackOption.to">
-<span class="sig-name descname"><span class="pre">to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.LookbackOption.to" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pfhedge.instruments.EuropeanForwardStartOption.to">
+<span class="sig-name descname"><span class="pre">to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.EuropeanForwardStartOption.to" title="Permalink to this definition">¶</a></dt>
 <dd><p>Moves and/or casts the buffers of the instrument.</p>
 <p>This can be called as</p>
 <dl class="py function">
@@ -495,8 +428,8 @@ the buffers in this instrument.</p></li>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="pfhedge.instruments.LookbackOption.ul">
-<span class="sig-name descname"><span class="pre">ul</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.LookbackOption.ul" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pfhedge.instruments.EuropeanForwardStartOption.ul">
+<span class="sig-name descname"><span class="pre">ul</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.EuropeanForwardStartOption.ul" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for <code class="docutils literal notranslate"><span class="pre">self.underlier</span></code>.</p>
 </dd></dl>
 </dd></dl>
@@ -507,23 +440,23 @@ the buffers in this instrument.</p></li>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="pfhedge.instruments.VarianceSwap.html">
+          <a class="next-page" href="pfhedge.instruments.EuropeanOption.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">VarianceSwap</div>
+                <div class="title">EuropeanOption</div>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="pfhedge.instruments.EuropeanOption.html">
+          <a class="prev-page" href="pfhedge.instruments.EuropeanBinaryOption.html">
               <svg><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">EuropeanOption</div>
+                <div class="title">EuropeanBinaryOption</div>
                 
               </div>
             </a>
@@ -533,7 +466,7 @@ the buffers in this instrument.</p></li>
               Copyright &#169; 2021, pfnet-research |
           Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
           <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
-            | <a class="muted-link" href="../_sources/generated/pfhedge.instruments.LookbackOption.rst.txt"
+            | <a class="muted-link" href="../_sources/generated/pfhedge.instruments.EuropeanForwardStartOption.rst.txt"
                rel="nofollow">
               Show Source
             </a>

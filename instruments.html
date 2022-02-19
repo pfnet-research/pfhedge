@@ -188,6 +188,7 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.lookback_payoff.html">pfhedge.nn.functional.lookback_payoff</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.american_binary_payoff.html">pfhedge.nn.functional.american_binary_payoff</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.european_binary_payoff.html">pfhedge.nn.functional.european_binary_payoff</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.european_forward_start_payoff.html">pfhedge.nn.functional.european_forward_start_payoff</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.exp_utility.html">pfhedge.nn.functional.exp_utility</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.isoelastic_utility.html">pfhedge.nn.functional.isoelastic_utility</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.entropic_risk_measure.html">pfhedge.nn.functional.entropic_risk_measure</a></li>
@@ -214,10 +215,11 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.HestonStock.html">HestonStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.CIRRate.html">CIRRate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.EuropeanForwardStartOption.html">EuropeanForwardStartOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.VarianceSwap.html">VarianceSwap</a></li>
 </ul>
 </li>
@@ -323,19 +325,22 @@
 <col style="width: 90%"/>
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/pfhedge.instruments.EuropeanOption.html#pfhedge.instruments.EuropeanOption" title="pfhedge.instruments.EuropeanOption"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instruments.EuropeanOption</span></code></a></p></td>
-<td><p>European option.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/pfhedge.instruments.LookbackOption.html#pfhedge.instruments.LookbackOption" title="pfhedge.instruments.LookbackOption"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instruments.LookbackOption</span></code></a></p></td>
-<td><p>Lookback option with fixed strike.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/pfhedge.instruments.EuropeanBinaryOption.html#pfhedge.instruments.EuropeanBinaryOption" title="pfhedge.instruments.EuropeanBinaryOption"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instruments.EuropeanBinaryOption</span></code></a></p></td>
-<td><p>European binary option.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/pfhedge.instruments.AmericanBinaryOption.html#pfhedge.instruments.AmericanBinaryOption" title="pfhedge.instruments.AmericanBinaryOption"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instruments.AmericanBinaryOption</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pfhedge.instruments.AmericanBinaryOption.html#pfhedge.instruments.AmericanBinaryOption" title="pfhedge.instruments.AmericanBinaryOption"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instruments.AmericanBinaryOption</span></code></a></p></td>
 <td><p>American binary Option.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/pfhedge.instruments.VarianceSwap.html#pfhedge.instruments.VarianceSwap" title="pfhedge.instruments.VarianceSwap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instruments.VarianceSwap</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pfhedge.instruments.EuropeanBinaryOption.html#pfhedge.instruments.EuropeanBinaryOption" title="pfhedge.instruments.EuropeanBinaryOption"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instruments.EuropeanBinaryOption</span></code></a></p></td>
+<td><p>European binary option.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pfhedge.instruments.EuropeanForwardStartOption.html#pfhedge.instruments.EuropeanForwardStartOption" title="pfhedge.instruments.EuropeanForwardStartOption"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instruments.EuropeanForwardStartOption</span></code></a></p></td>
+<td><p>European forward start option.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pfhedge.instruments.EuropeanOption.html#pfhedge.instruments.EuropeanOption" title="pfhedge.instruments.EuropeanOption"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instruments.EuropeanOption</span></code></a></p></td>
+<td><p>European option.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pfhedge.instruments.LookbackOption.html#pfhedge.instruments.LookbackOption" title="pfhedge.instruments.LookbackOption"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instruments.LookbackOption</span></code></a></p></td>
+<td><p>Lookback option with fixed strike.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pfhedge.instruments.VarianceSwap.html#pfhedge.instruments.VarianceSwap" title="pfhedge.instruments.VarianceSwap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instruments.VarianceSwap</span></code></a></p></td>
 <td><p>Variance swap.</p></td>
 </tr>
 </tbody>

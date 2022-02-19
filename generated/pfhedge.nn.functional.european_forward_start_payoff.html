@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="pfhedge.nn.functional.expected_shortfall" href="pfhedge.nn.functional.expected_shortfall.html" /><link rel="prev" title="pfhedge.nn.functional.isoelastic_utility" href="pfhedge.nn.functional.isoelastic_utility.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="pfhedge.nn.functional.exp_utility" href="pfhedge.nn.functional.exp_utility.html" /><link rel="prev" title="pfhedge.nn.functional.european_binary_payoff" href="pfhedge.nn.functional.european_binary_payoff.html" />
 
     <meta name="generator" content="sphinx-4.4.0, furo 2021.11.23"/>
-        <title>pfhedge.nn.functional.entropic_risk_measure - PFHedge documentation</title>
+        <title>pfhedge.nn.functional.european_forward_start_payoff - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=7f0192ddeb2adecfbaa87ffbcf67d16358b30bc1" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
@@ -188,10 +188,10 @@
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.lookback_payoff.html">pfhedge.nn.functional.lookback_payoff</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.american_binary_payoff.html">pfhedge.nn.functional.american_binary_payoff</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.european_binary_payoff.html">pfhedge.nn.functional.european_binary_payoff</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.european_forward_start_payoff.html">pfhedge.nn.functional.european_forward_start_payoff</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">pfhedge.nn.functional.european_forward_start_payoff</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.exp_utility.html">pfhedge.nn.functional.exp_utility</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.isoelastic_utility.html">pfhedge.nn.functional.isoelastic_utility</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">pfhedge.nn.functional.entropic_risk_measure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.entropic_risk_measure.html">pfhedge.nn.functional.entropic_risk_measure</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.expected_shortfall.html">pfhedge.nn.functional.expected_shortfall</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.value_at_risk.html">pfhedge.nn.functional.value_at_risk</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.leaky_clamp.html">pfhedge.nn.functional.leaky_clamp</a></li>
@@ -272,13 +272,35 @@
           </label>
         </div>
         <article role="main">
-          <section id="pfhedge-nn-functional-entropic-risk-measure">
-<h1>pfhedge.nn.functional.entropic_risk_measure<a class="headerlink" href="#pfhedge-nn-functional-entropic-risk-measure" title="Permalink to this headline">¶</a></h1>
+          <section id="pfhedge-nn-functional-european-forward-start-payoff">
+<h1>pfhedge.nn.functional.european_forward_start_payoff<a class="headerlink" href="#pfhedge-nn-functional-european-forward-start-payoff" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="pfhedge.nn.functional.entropic_risk_measure">
-<span class="sig-prename descclassname"><span class="pre">pfhedge.nn.functional.</span></span><span class="sig-name descname"><span class="pre">entropic_risk_measure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/functional.html#entropic_risk_measure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.functional.entropic_risk_measure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the entropic risk measure.</p>
-<p>See <a class="reference internal" href="pfhedge.nn.EntropicRiskMeasure.html#pfhedge.nn.EntropicRiskMeasure" title="pfhedge.nn.EntropicRiskMeasure"><code class="xref py py-class docutils literal notranslate"><span class="pre">pfhedge.nn.EntropicRiskMeasure</span></code></a> for details.</p>
+<dt class="sig sig-object py" id="pfhedge.nn.functional.european_forward_start_payoff">
+<span class="sig-prename descclassname"><span class="pre">pfhedge.nn.functional.</span></span><span class="sig-name descname"><span class="pre">european_forward_start_payoff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strike</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/functional.html#european_forward_start_payoff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.functional.european_forward_start_payoff" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the payoff of a European forward start option.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.10.0)"><em>torch.Tensor</em></a>) – The input tensor representing the price trajectory.</p></li>
+<li><p><strong>start_index</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.10.0)"><em>torch.Tensor</em></a>) – The time index at which the option starts.</p></li>
+<li><p><strong>strike</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>default=1.0</em>) – The strike price of the option.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Shape:</dt><dd><ul class="simple">
+<li><p>input: <span class="math notranslate nohighlight">\((*, T)\)</span> where
+<span class="math notranslate nohighlight">\(T\)</span> is the number of time steps and
+<span class="math notranslate nohighlight">\(*\)</span> means any number of additional dimensions.</p></li>
+<li><p>output: <span class="math notranslate nohighlight">\((*)\)</span></p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
 </dd></dl>
 </section>
 
@@ -287,23 +309,23 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="pfhedge.nn.functional.expected_shortfall.html">
+          <a class="next-page" href="pfhedge.nn.functional.exp_utility.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">pfhedge.nn.functional.expected_shortfall</div>
+                <div class="title">pfhedge.nn.functional.exp_utility</div>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="pfhedge.nn.functional.isoelastic_utility.html">
+          <a class="prev-page" href="pfhedge.nn.functional.european_binary_payoff.html">
               <svg><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">pfhedge.nn.functional.isoelastic_utility</div>
+                <div class="title">pfhedge.nn.functional.european_binary_payoff</div>
                 
               </div>
             </a>
@@ -313,7 +335,7 @@
               Copyright &#169; 2021, pfnet-research |
           Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
           <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
-            | <a class="muted-link" href="../_sources/generated/pfhedge.nn.functional.entropic_risk_measure.rst.txt"
+            | <a class="muted-link" href="../_sources/generated/pfhedge.nn.functional.european_forward_start_payoff.rst.txt"
                rel="nofollow">
               Show Source
             </a>
@@ -334,5 +356,6 @@
     <script src="../_static/scripts/furo.js"></script>
     <script src="../_static/clipboard.min.js"></script>
     <script src="../_static/copybutton.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     </body>
 </html>

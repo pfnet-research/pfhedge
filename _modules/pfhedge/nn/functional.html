@@ -187,6 +187,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.nn.functional.lookback_payoff.html">pfhedge.nn.functional.lookback_payoff</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.nn.functional.american_binary_payoff.html">pfhedge.nn.functional.american_binary_payoff</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.nn.functional.european_binary_payoff.html">pfhedge.nn.functional.european_binary_payoff</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.nn.functional.european_forward_start_payoff.html">pfhedge.nn.functional.european_forward_start_payoff</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.nn.functional.exp_utility.html">pfhedge.nn.functional.exp_utility</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.nn.functional.isoelastic_utility.html">pfhedge.nn.functional.isoelastic_utility</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.nn.functional.entropic_risk_measure.html">pfhedge.nn.functional.entropic_risk_measure</a></li>
@@ -213,10 +214,11 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.HestonStock.html">HestonStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.CIRRate.html">CIRRate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.EuropeanForwardStartOption.html">EuropeanForwardStartOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.VarianceSwap.html">VarianceSwap</a></li>
 </ul>
 </li>
@@ -377,6 +379,28 @@
         <span class="k">return</span> <span class="p">(</span><span class="nb">input</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">strike</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">(</span><span class="nb">input</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">strike</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="european_forward_start_payoff"><a class="viewcode-back" href="../../../generated/pfhedge.nn.functional.european_forward_start_payoff.html#pfhedge.nn.functional.european_forward_start_payoff">[docs]</a><span class="k">def</span> <span class="nf">european_forward_start_payoff</span><span class="p">(</span>
+    <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">strike</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">start_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+    <span class="sd">"""Returns the payoff of a European forward start option.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        input (torch.Tensor): The input tensor representing the price trajectory.</span>
+<span class="sd">        start_index (torch.Tensor): The time index at which the option starts.</span>
+<span class="sd">        strike (float, default=1.0): The strike price of the option.</span>
+
+<span class="sd">    Shape:</span>
+<span class="sd">        - input: :math:`(*, T)` where</span>
+<span class="sd">          :math:`T` is the number of time steps and</span>
+<span class="sd">          :math:`*` means any number of additional dimensions.</span>
+<span class="sd">        - output: :math:`(*)`</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        torch.Tensor</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">fn</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="nb">input</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="nb">input</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">start_index</span><span class="p">]</span> <span class="o">-</span> <span class="n">strike</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="exp_utility"><a class="viewcode-back" href="../../../generated/pfhedge.nn.functional.exp_utility.html#pfhedge.nn.functional.exp_utility">[docs]</a><span class="k">def</span> <span class="nf">exp_utility</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
@@ -790,7 +814,16 @@
 <span class="sd">        torch.Tensor</span>
 <span class="sd">    """</span>
     <span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">broadcast_all</span><span class="p">(</span><span class="n">log_moneyness</span><span class="p">,</span> <span class="n">time_to_maturity</span><span class="p">,</span> <span class="n">volatility</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">s</span> <span class="o">+</span> <span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">square</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">t</span><span class="p">)</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">v</span> <span class="o">*</span> <span class="n">t</span><span class="o">.</span><span class="n">sqrt</span><span class="p">())</span></div>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">t</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"all elements in time_to_maturity have to be non-negative"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">v</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"all elements in volatility have to be non-negative"</span><span class="p">)</span>
+    <span class="n">numerator</span> <span class="o">=</span> <span class="n">s</span> <span class="o">+</span> <span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">square</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">t</span>
+    <span class="n">denominator</span> <span class="o">=</span> <span class="n">v</span> <span class="o">*</span> <span class="n">t</span><span class="o">.</span><span class="n">sqrt</span><span class="p">()</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="n">numerator</span> <span class="o">/</span> <span class="n">denominator</span>
+    <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">numerator</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">denominator</span> <span class="o">==</span> <span class="mi">0</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">output</span><span class="p">),</span> <span class="n">output</span>
+    <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="d2"><a class="viewcode-back" href="../../../generated/pfhedge.nn.functional.d2.html#pfhedge.nn.functional.d2">[docs]</a><span class="k">def</span> <span class="nf">d2</span><span class="p">(</span><span class="n">log_moneyness</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">time_to_maturity</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">volatility</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
@@ -816,7 +849,16 @@
 <span class="sd">        torch.Tensor</span>
 <span class="sd">    """</span>
     <span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">broadcast_all</span><span class="p">(</span><span class="n">log_moneyness</span><span class="p">,</span> <span class="n">time_to_maturity</span><span class="p">,</span> <span class="n">volatility</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">s</span> <span class="o">-</span> <span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">square</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">t</span><span class="p">)</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">v</span> <span class="o">*</span> <span class="n">t</span><span class="o">.</span><span class="n">sqrt</span><span class="p">())</span></div>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">t</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"all elements in time_to_maturity have to be non-negative"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">v</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"all elements in volatility have to be non-negative"</span><span class="p">)</span>
+    <span class="n">numerator</span> <span class="o">=</span> <span class="n">s</span> <span class="o">-</span> <span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">square</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">t</span>
+    <span class="n">denominator</span> <span class="o">=</span> <span class="n">v</span> <span class="o">*</span> <span class="n">t</span><span class="o">.</span><span class="n">sqrt</span><span class="p">()</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="n">numerator</span> <span class="o">/</span> <span class="n">denominator</span>
+    <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">numerator</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">denominator</span> <span class="o">==</span> <span class="mi">0</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">output</span><span class="p">),</span> <span class="n">output</span>
+    <span class="p">)</span></div>
 
 
 <span class="k">def</span> <span class="nf">ww_width</span><span class="p">(</span>

@@ -186,6 +186,7 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.lookback_payoff.html">pfhedge.nn.functional.lookback_payoff</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.american_binary_payoff.html">pfhedge.nn.functional.american_binary_payoff</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.european_binary_payoff.html">pfhedge.nn.functional.european_binary_payoff</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.european_forward_start_payoff.html">pfhedge.nn.functional.european_forward_start_payoff</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.exp_utility.html">pfhedge.nn.functional.exp_utility</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.isoelastic_utility.html">pfhedge.nn.functional.isoelastic_utility</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.entropic_risk_measure.html">pfhedge.nn.functional.entropic_risk_measure</a></li>
@@ -212,10 +213,11 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.HestonStock.html">HestonStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.CIRRate.html">CIRRate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.EuropeanForwardStartOption.html">EuropeanForwardStartOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.EuropeanOption.html">EuropeanOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.LookbackOption.html">LookbackOption</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.VarianceSwap.html">VarianceSwap</a></li>
 </ul>
 </li>
@@ -393,6 +395,8 @@
           <li><a href="generated/pfhedge.instruments.HestonStock.html#pfhedge.instruments.HestonStock.default_init_state">(pfhedge.instruments.HestonStock property)</a>
 </li>
         </ul></li>
+        <li><a href="generated/pfhedge.instruments.BaseDerivative.html#pfhedge.instruments.BaseDerivative.delist">delist() (pfhedge.instruments.BaseDerivative method)</a>
+</li>
         <li><a href="autogreek.html#pfhedge.autogreek.delta">delta() (in module pfhedge.autogreek)</a>
 
         <ul>
@@ -413,6 +417,8 @@
           <li><a href="generated/pfhedge.instruments.BasePrimary.html#pfhedge.instruments.BasePrimary.device">(pfhedge.instruments.BasePrimary attribute)</a>
 </li>
           <li><a href="generated/pfhedge.instruments.EuropeanBinaryOption.html#pfhedge.instruments.EuropeanBinaryOption.device">(pfhedge.instruments.EuropeanBinaryOption attribute)</a>
+</li>
+          <li><a href="generated/pfhedge.instruments.EuropeanForwardStartOption.html#pfhedge.instruments.EuropeanForwardStartOption.device">(pfhedge.instruments.EuropeanForwardStartOption attribute)</a>
 </li>
           <li><a href="generated/pfhedge.instruments.EuropeanOption.html#pfhedge.instruments.EuropeanOption.device">(pfhedge.instruments.EuropeanOption attribute)</a>
 </li>
@@ -440,6 +446,8 @@
 </li>
           <li><a href="generated/pfhedge.instruments.EuropeanBinaryOption.html#pfhedge.instruments.EuropeanBinaryOption.dtype">(pfhedge.instruments.EuropeanBinaryOption attribute)</a>
 </li>
+          <li><a href="generated/pfhedge.instruments.EuropeanForwardStartOption.html#pfhedge.instruments.EuropeanForwardStartOption.dtype">(pfhedge.instruments.EuropeanForwardStartOption attribute)</a>
+</li>
           <li><a href="generated/pfhedge.instruments.EuropeanOption.html#pfhedge.instruments.EuropeanOption.dtype">(pfhedge.instruments.EuropeanOption attribute)</a>
 </li>
           <li><a href="generated/pfhedge.instruments.LookbackOption.html#pfhedge.instruments.LookbackOption.dtype">(pfhedge.instruments.LookbackOption attribute)</a>
@@ -463,13 +471,19 @@
 </li>
         <li><a href="generated/pfhedge.nn.functional.european_binary_payoff.html#pfhedge.nn.functional.european_binary_payoff">european_binary_payoff() (in module pfhedge.nn.functional)</a>
 </li>
+        <li><a href="generated/pfhedge.nn.functional.european_forward_start_payoff.html#pfhedge.nn.functional.european_forward_start_payoff">european_forward_start_payoff() (in module pfhedge.nn.functional)</a>
+</li>
         <li><a href="generated/pfhedge.nn.functional.european_payoff.html#pfhedge.nn.functional.european_payoff">european_payoff() (in module pfhedge.nn.functional)</a>
 </li>
         <li><a href="generated/pfhedge.instruments.EuropeanBinaryOption.html#pfhedge.instruments.EuropeanBinaryOption">EuropeanBinaryOption (class in pfhedge.instruments)</a>
 </li>
+        <li><a href="generated/pfhedge.instruments.EuropeanBinaryOption.html#id0">EuropeanBinaryOption.to() (in module pfhedge.instruments)</a>, <a href="generated/pfhedge.instruments.EuropeanBinaryOption.html#id1">[1]</a>, <a href="generated/pfhedge.instruments.EuropeanBinaryOption.html#id2">[2]</a>
+</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="generated/pfhedge.instruments.EuropeanBinaryOption.html#id0">EuropeanBinaryOption.to() (in module pfhedge.instruments)</a>, <a href="generated/pfhedge.instruments.EuropeanBinaryOption.html#id1">[1]</a>, <a href="generated/pfhedge.instruments.EuropeanBinaryOption.html#id2">[2]</a>
+        <li><a href="generated/pfhedge.instruments.EuropeanForwardStartOption.html#pfhedge.instruments.EuropeanForwardStartOption">EuropeanForwardStartOption (class in pfhedge.instruments)</a>
+</li>
+        <li><a href="generated/pfhedge.instruments.EuropeanForwardStartOption.html#id0">EuropeanForwardStartOption.to() (in module pfhedge.instruments)</a>, <a href="generated/pfhedge.instruments.EuropeanForwardStartOption.html#id1">[1]</a>, <a href="generated/pfhedge.instruments.EuropeanForwardStartOption.html#id2">[2]</a>
 </li>
         <li><a href="generated/pfhedge.instruments.EuropeanOption.html#pfhedge.instruments.EuropeanOption">EuropeanOption (class in pfhedge.instruments)</a>
 </li>
@@ -621,6 +635,8 @@
         </ul></li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="generated/pfhedge.instruments.BaseInstrument.html#pfhedge.instruments.BaseInstrument.is_listed">is_listed (pfhedge.instruments.BaseInstrument property)</a>
+</li>
         <li><a href="generated/pfhedge.nn.functional.isoelastic_utility.html#pfhedge.nn.functional.isoelastic_utility">isoelastic_utility() (in module pfhedge.nn.functional)</a>
 </li>
         <li><a href="generated/pfhedge.nn.IsoelasticLoss.html#pfhedge.nn.IsoelasticLoss">IsoelasticLoss (class in pfhedge.nn)</a>
@@ -643,6 +659,8 @@
           <li><a href="generated/pfhedge.instruments.BaseDerivative.html#pfhedge.instruments.BaseDerivative.list">(pfhedge.instruments.BaseDerivative method)</a>
 </li>
           <li><a href="generated/pfhedge.instruments.EuropeanBinaryOption.html#pfhedge.instruments.EuropeanBinaryOption.list">(pfhedge.instruments.EuropeanBinaryOption method)</a>
+</li>
+          <li><a href="generated/pfhedge.instruments.EuropeanForwardStartOption.html#pfhedge.instruments.EuropeanForwardStartOption.list">(pfhedge.instruments.EuropeanForwardStartOption method)</a>
 </li>
           <li><a href="generated/pfhedge.instruments.EuropeanOption.html#pfhedge.instruments.EuropeanOption.list">(pfhedge.instruments.EuropeanOption method)</a>
 </li>
@@ -784,6 +802,8 @@
 </li>
           <li><a href="generated/pfhedge.instruments.EuropeanBinaryOption.html#pfhedge.instruments.EuropeanBinaryOption.simulate">(pfhedge.instruments.EuropeanBinaryOption method)</a>
 </li>
+          <li><a href="generated/pfhedge.instruments.EuropeanForwardStartOption.html#pfhedge.instruments.EuropeanForwardStartOption.simulate">(pfhedge.instruments.EuropeanForwardStartOption method)</a>
+</li>
           <li><a href="generated/pfhedge.instruments.EuropeanOption.html#pfhedge.instruments.EuropeanOption.simulate">(pfhedge.instruments.EuropeanOption method)</a>
 </li>
           <li><a href="generated/pfhedge.instruments.HestonStock.html#pfhedge.instruments.HestonStock.simulate">(pfhedge.instruments.HestonStock method)</a>
@@ -839,8 +859,6 @@
           <li><a href="generated/pfhedge.instruments.LookbackOption.html#pfhedge.instruments.LookbackOption.time_to_maturity">(pfhedge.instruments.LookbackOption method)</a>
 </li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="generated/pfhedge.instruments.AmericanBinaryOption.html#pfhedge.instruments.AmericanBinaryOption.to">to() (pfhedge.instruments.AmericanBinaryOption method)</a>
 
         <ul>
@@ -856,6 +874,8 @@
 </li>
           <li><a href="generated/pfhedge.instruments.EuropeanBinaryOption.html#pfhedge.instruments.EuropeanBinaryOption.to">(pfhedge.instruments.EuropeanBinaryOption method)</a>
 </li>
+          <li><a href="generated/pfhedge.instruments.EuropeanForwardStartOption.html#pfhedge.instruments.EuropeanForwardStartOption.to">(pfhedge.instruments.EuropeanForwardStartOption method)</a>
+</li>
           <li><a href="generated/pfhedge.instruments.EuropeanOption.html#pfhedge.instruments.EuropeanOption.to">(pfhedge.instruments.EuropeanOption method)</a>
 </li>
           <li><a href="generated/pfhedge.instruments.HestonStock.html#pfhedge.instruments.HestonStock.to">(pfhedge.instruments.HestonStock method)</a>
@@ -865,6 +885,8 @@
           <li><a href="generated/pfhedge.instruments.VarianceSwap.html#pfhedge.instruments.VarianceSwap.to">(pfhedge.instruments.VarianceSwap method)</a>
 </li>
         </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="generated/pfhedge.nn.functional.topp.html#pfhedge.nn.functional.topp">topp() (in module pfhedge.nn.functional)</a>
 </li>
     </ul></td>
@@ -881,6 +903,8 @@
           <li><a href="generated/pfhedge.instruments.BaseDerivative.html#pfhedge.instruments.BaseDerivative.ul">(pfhedge.instruments.BaseDerivative method)</a>
 </li>
           <li><a href="generated/pfhedge.instruments.EuropeanBinaryOption.html#pfhedge.instruments.EuropeanBinaryOption.ul">(pfhedge.instruments.EuropeanBinaryOption method)</a>
+</li>
+          <li><a href="generated/pfhedge.instruments.EuropeanForwardStartOption.html#pfhedge.instruments.EuropeanForwardStartOption.ul">(pfhedge.instruments.EuropeanForwardStartOption method)</a>
 </li>
           <li><a href="generated/pfhedge.instruments.EuropeanOption.html#pfhedge.instruments.EuropeanOption.ul">(pfhedge.instruments.EuropeanOption method)</a>
 </li>

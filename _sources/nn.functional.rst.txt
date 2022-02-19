@@ -17,6 +17,7 @@ Payoff Functions
     lookback_payoff
     american_binary_payoff
     european_binary_payoff
+    european_forward_start_payoff
 
 Criterion Functions
 -------------------

@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
     <meta name="generator" content="sphinx-4.4.0, furo 2021.11.23"/>
-        <title>pfhedge.nn.modules.mlp - PFHedge documentation</title>
+        <title>pfhedge.instruments.derivative.cliquet - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?digest=7f0192ddeb2adecfbaa87ffbcf67d16358b30bc1" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
@@ -271,127 +271,103 @@
           </label>
         </div>
         <article role="main">
-          <h1>Source code for pfhedge.nn.modules.mlp</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Sequence</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
+          <h1>Source code for pfhedge.instruments.derivative.cliquet</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">floor</span>
 
-<span class="kn">from</span> <span class="nn">torch.nn</span> <span class="kn">import</span> <span class="n">Identity</span>
-<span class="kn">from</span> <span class="nn">torch.nn</span> <span class="kn">import</span> <span class="n">LazyLinear</span>
-<span class="kn">from</span> <span class="nn">torch.nn</span> <span class="kn">import</span> <span class="n">Linear</span>
-<span class="kn">from</span> <span class="nn">torch.nn</span> <span class="kn">import</span> <span class="n">Module</span>
-<span class="kn">from</span> <span class="nn">torch.nn</span> <span class="kn">import</span> <span class="n">ReLU</span>
-<span class="kn">from</span> <span class="nn">torch.nn</span> <span class="kn">import</span> <span class="n">Sequential</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
+
+<span class="kn">from</span> <span class="nn">pfhedge._utils.doc</span> <span class="kn">import</span> <span class="n">_set_attr_and_docstring</span>
+<span class="kn">from</span> <span class="nn">pfhedge._utils.doc</span> <span class="kn">import</span> <span class="n">_set_docstring</span>
+<span class="kn">from</span> <span class="nn">pfhedge._utils.str</span> <span class="kn">import</span> <span class="n">_format_float</span>
+<span class="kn">from</span> <span class="nn">pfhedge.nn.functional</span> <span class="kn">import</span> <span class="n">european_forward_start_payoff</span>
+
+<span class="kn">from</span> <span class="nn">..primary.base</span> <span class="kn">import</span> <span class="n">BasePrimary</span>
+<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">BaseDerivative</span>
 
 
-<div class="viewcode-block" id="MultiLayerPerceptron"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.MultiLayerPerceptron.html#pfhedge.nn.MultiLayerPerceptron">[docs]</a><span class="k">class</span> <span class="nc">MultiLayerPerceptron</span><span class="p">(</span><span class="n">Sequential</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">"""Creates a multilayer perceptron.</span>
+<div class="viewcode-block" id="EuropeanForwardStartOption"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.EuropeanForwardStartOption.html#pfhedge.instruments.EuropeanForwardStartOption">[docs]</a><span class="k">class</span> <span class="nc">EuropeanForwardStartOption</span><span class="p">(</span><span class="n">BaseDerivative</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">"""European forward start option.</span>
 
-<span class="sd">    Number of input features is lazily determined.</span>
+<span class="sd">    The payoff is given by</span>
+
+<span class="sd">    .. math ::</span>
+<span class="sd">        \mathrm{payoff} = \max(S_T / S_{T'} - K, 0) ,</span>
+
+<span class="sd">    where</span>
+<span class="sd">    :math:`S_T` is the underlying asset's price at maturity,</span>
+<span class="sd">    :math:`S_{T'}` is the underlying asset's price at start, and</span>
+<span class="sd">    :math:`K` is the strike value of the option.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        If ``start`` is not divisible by the interval of the time step,</span>
+<span class="sd">        it is rounded off so that the start time is the largest value</span>
+<span class="sd">        that is divisible by the interval and less than ``start``.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        in_features (int, optional): Size of each input sample.</span>
-<span class="sd">            If ``None`` (default), the number of input features will be</span>
-<span class="sd">            will be inferred from the ``input.shape[-1]`` after the first call to</span>
-<span class="sd">            ``forward`` is done. Also, before the first ``forward`` parameters in the</span>
-<span class="sd">            module are of :class:`torch.nn.UninitializedParameter` class.</span>
-<span class="sd">        out_features (int, default=1): Size of each output sample.</span>
-<span class="sd">        n_layers (int, default=4): The number of hidden layers.</span>
-<span class="sd">        n_units (int or tuple[int], default=32): The number of units in</span>
-<span class="sd">            each hidden layer.</span>
-<span class="sd">            If ``tuple[int]``, it specifies different number of units for each layer.</span>
-<span class="sd">        activation (torch.nn.Module, default=torch.nn.ReLU()):</span>
-<span class="sd">            The activation module of the hidden layers.</span>
-<span class="sd">            Default is a :class:`torch.nn.ReLU` instance.</span>
-<span class="sd">        out_activation (torch.nn.Module, default=torch.nn.Identity()):</span>
-<span class="sd">            The activation module of the output layer.</span>
-<span class="sd">            Default is a :class:`torch.nn.Identity` instance.</span>
+<span class="sd">        underlier (:class:`BasePrimary`): The underlying instrument of the option.</span>
+<span class="sd">        strike (float, default=1.0): The strike value of the option.</span>
+<span class="sd">        maturity (float, default=20/250): The maturity of the option.</span>
+<span class="sd">        start (float, default=10/250): The start of the option.</span>
 
-<span class="sd">    Shape:</span>
-<span class="sd">        - Input: :math:`(N, *, H_{\text{in}})` where</span>
-<span class="sd">          :math:`*` means any number of additional dimensions and</span>
-<span class="sd">          :math:`H_{\text{in}}` is the number of input features.</span>
-<span class="sd">        - Output: :math:`(N, *, H_{\text{out}})` where</span>
-<span class="sd">          all but the last dimension are the same shape as the input and</span>
-<span class="sd">          :math:`H_{\text{out}}` is the number of output features.</span>
+<span class="sd">    Attributes:</span>
+<span class="sd">        dtype (torch.dtype): The dtype with which the simulated time-series are</span>
+<span class="sd">            represented.</span>
+<span class="sd">        device (torch.device): The device where the simulated time-series are.</span>
 
 <span class="sd">    Examples:</span>
-
-<span class="sd">        By default, ``in_features`` is lazily determined:</span>
-
 <span class="sd">        &gt;&gt;&gt; import torch</span>
-<span class="sd">        &gt;&gt;&gt; from pfhedge.nn import MultiLayerPerceptron</span>
+<span class="sd">        &gt;&gt;&gt; from pfhedge.instruments import BrownianStock</span>
+<span class="sd">        &gt;&gt;&gt; from pfhedge.instruments import EuropeanForwardStartOption</span>
 <span class="sd">        &gt;&gt;&gt;</span>
-<span class="sd">        &gt;&gt;&gt; m = MultiLayerPerceptron()</span>
-<span class="sd">        &gt;&gt;&gt; m</span>
-<span class="sd">        MultiLayerPerceptron(</span>
-<span class="sd">          (0): LazyLinear(in_features=0, out_features=32, bias=True)</span>
-<span class="sd">          (1): ReLU()</span>
-<span class="sd">          (2): Linear(in_features=32, out_features=32, bias=True)</span>
-<span class="sd">          (3): ReLU()</span>
-<span class="sd">          (4): Linear(in_features=32, out_features=32, bias=True)</span>
-<span class="sd">          (5): ReLU()</span>
-<span class="sd">          (6): Linear(in_features=32, out_features=32, bias=True)</span>
-<span class="sd">          (7): ReLU()</span>
-<span class="sd">          (8): Linear(in_features=32, out_features=1, bias=True)</span>
-<span class="sd">          (9): Identity()</span>
-<span class="sd">        )</span>
-<span class="sd">        &gt;&gt;&gt; _ = m(torch.zeros(3, 2))</span>
-<span class="sd">        &gt;&gt;&gt; m</span>
-<span class="sd">        MultiLayerPerceptron(</span>
-<span class="sd">          (0): Linear(in_features=2, out_features=32, bias=True)</span>
-<span class="sd">          (1): ReLU()</span>
-<span class="sd">          (2): Linear(in_features=32, out_features=32, bias=True)</span>
-<span class="sd">          (3): ReLU()</span>
-<span class="sd">          (4): Linear(in_features=32, out_features=32, bias=True)</span>
-<span class="sd">          (5): ReLU()</span>
-<span class="sd">          (6): Linear(in_features=32, out_features=32, bias=True)</span>
-<span class="sd">          (7): ReLU()</span>
-<span class="sd">          (8): Linear(in_features=32, out_features=1, bias=True)</span>
-<span class="sd">          (9): Identity()</span>
-<span class="sd">        )</span>
-
-<span class="sd">        Specify different number of layers for each layer:</span>
-
-<span class="sd">        &gt;&gt;&gt; m = MultiLayerPerceptron(1, 1, n_layers=2, n_units=(16, 32))</span>
-<span class="sd">        &gt;&gt;&gt; m</span>
-<span class="sd">        MultiLayerPerceptron(</span>
-<span class="sd">          (0): Linear(in_features=1, out_features=16, bias=True)</span>
-<span class="sd">          (1): ReLU()</span>
-<span class="sd">          (2): Linear(in_features=16, out_features=32, bias=True)</span>
-<span class="sd">          (3): ReLU()</span>
-<span class="sd">          (4): Linear(in_features=32, out_features=1, bias=True)</span>
-<span class="sd">          (5): Identity()</span>
-<span class="sd">        )</span>
+<span class="sd">        &gt;&gt;&gt; _ = torch.manual_seed(42)</span>
+<span class="sd">        &gt;&gt;&gt; derivative = EuropeanForwardStartOption(BrownianStock(), maturity=5/250, start=2/250)</span>
+<span class="sd">        &gt;&gt;&gt; derivative.simulate(n_paths=2)</span>
+<span class="sd">        &gt;&gt;&gt; derivative.underlier.spot</span>
+<span class="sd">        tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930, 0.9906],</span>
+<span class="sd">                [1.0000, 0.9919, 0.9976, 1.0009, 1.0076, 1.0179]])</span>
+<span class="sd">        &gt;&gt;&gt; derivative.underlier.spot[:, -1] / derivative.underlier.spot[:, 2]</span>
+<span class="sd">        tensor([0.9862, 1.0203])</span>
+<span class="sd">        &gt;&gt;&gt; derivative.payoff()</span>
+<span class="sd">        tensor([0.0000, 0.0203])</span>
 <span class="sd">    """</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">in_features</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">out_features</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-        <span class="n">n_layers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
-        <span class="n">n_units</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">32</span><span class="p">,</span>
-        <span class="n">activation</span><span class="p">:</span> <span class="n">Module</span> <span class="o">=</span> <span class="n">ReLU</span><span class="p">(),</span>
-        <span class="n">out_activation</span><span class="p">:</span> <span class="n">Module</span> <span class="o">=</span> <span class="n">Identity</span><span class="p">(),</span>
-    <span class="p">):</span>
-        <span class="n">n_units</span> <span class="o">=</span> <span class="p">(</span><span class="n">n_units</span><span class="p">,)</span> <span class="o">*</span> <span class="n">n_layers</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">n_units</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="k">else</span> <span class="n">n_units</span>
+        <span class="n">underlier</span><span class="p">:</span> <span class="n">BasePrimary</span><span class="p">,</span>
+        <span class="n">strike</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">maturity</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">20</span> <span class="o">/</span> <span class="mi">250</span><span class="p">,</span>
+        <span class="n">start</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">/</span> <span class="mi">250</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">underlier</span> <span class="o">=</span> <span class="n">underlier</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">strike</span> <span class="o">=</span> <span class="n">strike</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maturity</span> <span class="o">=</span> <span class="n">maturity</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="n">start</span>
 
-        <span class="n">layers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Module</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_layers</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">in_features</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">LazyLinear</span><span class="p">(</span><span class="n">n_units</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Linear</span><span class="p">(</span><span class="n">in_features</span><span class="p">,</span> <span class="n">n_units</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Linear</span><span class="p">(</span><span class="n">n_units</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span> <span class="n">n_units</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
-            <span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">activation</span><span class="p">))</span>
-        <span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Linear</span><span class="p">(</span><span class="n">n_units</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">out_features</span><span class="p">))</span>
-        <span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">out_activation</span><span class="p">))</span>
+    <span class="k">def</span> <span class="nf">extra_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">"strike="</span> <span class="o">+</span> <span class="n">_format_float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">strike</span><span class="p">),</span>
+            <span class="s2">"maturity="</span> <span class="o">+</span> <span class="n">_format_float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">maturity</span><span class="p">),</span>
+            <span class="s2">"start="</span> <span class="o">+</span> <span class="n">_format_float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">),</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
 
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">layers</span><span class="p">)</span></div>
+    <span class="k">def</span> <span class="nf">_start_index</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">floor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">ul</span><span class="p">()</span><span class="o">.</span><span class="n">dt</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">payoff_fn</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">european_forward_start_payoff</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ul</span><span class="p">()</span><span class="o">.</span><span class="n">spot</span><span class="p">,</span> <span class="n">strike</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">strike</span><span class="p">,</span> <span class="n">start_index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_start_index</span><span class="p">()</span>
+        <span class="p">)</span></div>
+
+
+<span class="c1"># Assign docstrings so they appear in Sphinx documentation</span>
+<span class="n">_set_attr_and_docstring</span><span class="p">(</span><span class="n">EuropeanForwardStartOption</span><span class="p">,</span> <span class="s2">"simulate"</span><span class="p">,</span> <span class="n">BaseDerivative</span><span class="o">.</span><span class="n">simulate</span><span class="p">)</span>
+<span class="n">_set_attr_and_docstring</span><span class="p">(</span><span class="n">EuropeanForwardStartOption</span><span class="p">,</span> <span class="s2">"to"</span><span class="p">,</span> <span class="n">BaseDerivative</span><span class="o">.</span><span class="n">to</span><span class="p">)</span>
+<span class="n">_set_attr_and_docstring</span><span class="p">(</span><span class="n">EuropeanForwardStartOption</span><span class="p">,</span> <span class="s2">"ul"</span><span class="p">,</span> <span class="n">BaseDerivative</span><span class="o">.</span><span class="n">ul</span><span class="p">)</span>
+<span class="n">_set_attr_and_docstring</span><span class="p">(</span><span class="n">EuropeanForwardStartOption</span><span class="p">,</span> <span class="s2">"list"</span><span class="p">,</span> <span class="n">BaseDerivative</span><span class="o">.</span><span class="n">list</span><span class="p">)</span>
+<span class="n">_set_docstring</span><span class="p">(</span><span class="n">EuropeanForwardStartOption</span><span class="p">,</span> <span class="s2">"payoff"</span><span class="p">,</span> <span class="n">BaseDerivative</span><span class="o">.</span><span class="n">payoff</span><span class="p">)</span>
 </pre></div>
         </article>
       </div>

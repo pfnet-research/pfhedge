@@ -1,0 +1,6 @@
+﻿pfhedge.nn.functional.european\_forward\_start\_payoff
+======================================================
+
+.. currentmodule:: pfhedge.nn.functional
+
+.. autofunction:: european_forward_start_payoff
