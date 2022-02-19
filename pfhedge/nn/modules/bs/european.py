@@ -139,9 +139,14 @@ class BSEuropeanOption(BSModuleMixin):
 
         s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
         price = self.strike * s.exp()
-        gamma = npdf(d1(s, t, v)) / (price * v * t.sqrt())
-
-        return gamma
+        numerator = npdf(d1(s, t, v))
+        denominator = price * v * t.sqrt()
+        output = numerator / denominator
+        return torch.where(
+            (numerator == 0).logical_and(denominator == 0),
+            torch.zeros_like(output),
+            output,
+        )
 
     def vega(
         self, log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor
@@ -194,8 +199,14 @@ class BSEuropeanOption(BSModuleMixin):
         """
         s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
         price = self.strike * s.exp()
-        theta = -npdf(d1(s, t, v)) * price * v / (2 * t.sqrt())
-        return theta
+        numerator = -npdf(d1(s, t, v)) * price * v
+        denominator = 2 * t.sqrt()
+        output = numerator / denominator
+        return torch.where(
+            (numerator == 0).logical_and(denominator == 0),
+            torch.zeros_like(output),
+            output,
+        )
 
     def price(
         self, log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor

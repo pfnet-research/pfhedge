@@ -518,7 +518,16 @@ def d1(log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor) -> T
         torch.Tensor
     """
     s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
-    return (s + (v.square() / 2) * t).div(v * t.sqrt())
+    if not (t >= 0).all():
+        raise ValueError("all elements in time_to_maturity have to be non-negative")
+    if not (v >= 0).all():
+        raise ValueError("all elements in volatility have to be non-negative")
+    numerator = s + (v.square() / 2) * t
+    denominator = v * t.sqrt()
+    output = numerator / denominator
+    return torch.where(
+        (numerator == 0).logical_and(denominator == 0), torch.zeros_like(output), output
+    )
 
 
 def d2(log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor) -> Tensor:
@@ -544,7 +553,16 @@ def d2(log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor) -> T
         torch.Tensor
     """
     s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
-    return (s - (v.square() / 2) * t).div(v * t.sqrt())
+    if not (t >= 0).all():
+        raise ValueError("all elements in time_to_maturity have to be non-negative")
+    if not (v >= 0).all():
+        raise ValueError("all elements in volatility have to be non-negative")
+    numerator = s - (v.square() / 2) * t
+    denominator = v * t.sqrt()
+    output = numerator / denominator
+    return torch.where(
+        (numerator == 0).logical_and(denominator == 0), torch.zeros_like(output), output
+    )
 
 
 def ww_width(

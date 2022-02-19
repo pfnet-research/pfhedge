@@ -13,7 +13,7 @@ class TestNaked:
     @pytest.mark.parametrize("n_features", [1, 10])
     def test(self, n_paths, n_features):
         m = Naked()
-        input = torch.empty((n_paths, n_features))
+        input = torch.zeros((n_paths, n_features))
         assert torch.equal(m(input), torch.zeros((n_paths, 1)))
 
     def test_shape(self):
@@ -23,14 +23,14 @@ class TestNaked:
         M_2 = 14
         H_out = 15
 
-        input = torch.empty((N, H_in))
+        input = torch.zeros((N, H_in))
         m = Naked(H_out)
         assert m(input).size() == torch.Size((N, H_out))
 
-        input = torch.empty((N, M_1, H_in))
+        input = torch.zeros((N, M_1, H_in))
         m = Naked(H_out)
         assert m(input).size() == torch.Size((N, M_1, H_out))
 
-        input = torch.empty((N, M_1, M_2, H_in))
+        input = torch.zeros((N, M_1, M_2, H_in))
         m = Naked(H_out)
         assert m(input).size() == torch.Size((N, M_1, M_2, H_out))
