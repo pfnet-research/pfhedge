@@ -222,6 +222,12 @@ EuropeanOption(
         with pytest.raises(ValueError):
             _ = derivative.spot
 
+    def test_us_listed(self):
+        derivative = EuropeanOption(BrownianStock())
+        assert not derivative.is_listed
+        derivative.list(pricer=lambda x: x)
+        assert derivative.is_listed
+
     def test_init_dtype_deprecated(self):
         with pytest.raises(DeprecationWarning):
             _ = EuropeanOption(BrownianStock(), dtype=torch.float64)

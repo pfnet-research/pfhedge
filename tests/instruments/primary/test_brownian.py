@@ -37,13 +37,13 @@ class TestBrownianStock:
     def test_register_buffer(self):
         s = BrownianStock()
         with pytest.raises(TypeError):
-            s.register_buffer(None, torch.empty(10))
+            s.register_buffer(None, torch.zeros(10))
         with pytest.raises(KeyError):
-            s.register_buffer("a.b", torch.empty(10))
+            s.register_buffer("a.b", torch.zeros(10))
         with pytest.raises(KeyError):
-            s.register_buffer("", torch.empty(10))
+            s.register_buffer("", torch.zeros(10))
         with pytest.raises(KeyError):
-            s.register_buffer("simulate", torch.empty(10))
+            s.register_buffer("simulate", torch.zeros(10))
         with pytest.raises(TypeError):
             s.register_buffer("a", torch.nn.ReLU())
 
@@ -73,7 +73,7 @@ class TestBrownianStock:
                 pass
 
             def simulate(self):
-                self.register_buffer("a", torch.empty(10))
+                self.register_buffer("a", torch.zeros(10))
 
         with pytest.raises(AttributeError):
             MyPrimary().simulate()
@@ -213,3 +213,7 @@ class TestBrownianStock:
 
         s = BrownianStock()
         assert s.cuda(1).device == torch.device("cuda:1")
+
+    def test_is_listed(self):
+        s = BrownianStock()
+        assert s.is_listed

@@ -27,7 +27,7 @@ class TestMultiLayerPerceptron:
         m = MultiLayerPerceptron(
             n_layers=n_layers, n_units=n_units, out_features=out_features
         )
-        _ = m(torch.empty((1, in_features)))
+        _ = m(torch.zeros((1, in_features)))
 
         for i in range(n_layers + 1):
             linear = m[2 * i]
@@ -56,15 +56,15 @@ class TestMultiLayerPerceptron:
         M_2 = 13
         H_out = 14
 
-        input = torch.empty((N, H_in))
+        input = torch.zeros((N, H_in))
         m = MultiLayerPerceptron(H_in, H_out)
         assert m(input).size() == torch.Size((N, H_out))
 
-        input = torch.empty((N, M_1, H_in))
+        input = torch.zeros((N, M_1, H_in))
         m = MultiLayerPerceptron(H_in, H_out)
         assert m(input).size() == torch.Size((N, M_1, H_out))
 
-        input = torch.empty((N, M_1, M_2, H_in))
+        input = torch.zeros((N, M_1, M_2, H_in))
         m = MultiLayerPerceptron(H_in, H_out)
         assert m(input).size() == torch.Size((N, M_1, M_2, H_out))
 
@@ -75,14 +75,14 @@ class TestMultiLayerPerceptron:
         M_2 = 13
         H_out = 14
 
-        input = torch.empty((N, H_in))
+        input = torch.zeros((N, H_in))
         m = MultiLayerPerceptron(out_features=H_out)
         assert m(input).size() == torch.Size((N, H_out))
 
-        input = torch.empty((N, M_1, H_in))
+        input = torch.zeros((N, M_1, H_in))
         m = MultiLayerPerceptron(out_features=H_out)
         assert m(input).size() == torch.Size((N, M_1, H_out))
 
-        input = torch.empty((N, M_1, M_2, H_in))
+        input = torch.zeros((N, M_1, M_2, H_in))
         m = MultiLayerPerceptron(out_features=H_out)
         assert m(input).size() == torch.Size((N, M_1, M_2, H_out))

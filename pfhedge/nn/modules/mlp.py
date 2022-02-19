@@ -64,7 +64,7 @@ class MultiLayerPerceptron(Sequential):
           (8): Linear(in_features=32, out_features=1, bias=True)
           (9): Identity()
         )
-        >>> _ = m(torch.empty(3, 2))
+        >>> _ = m(torch.zeros(3, 2))
         >>> m
         MultiLayerPerceptron(
           (0): Linear(in_features=2, out_features=32, bias=True)
