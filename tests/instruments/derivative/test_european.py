@@ -213,6 +213,14 @@ EuropeanOption(
         derivative = EuropeanOption(BrownianStock())
         with pytest.raises(ValueError):
             _ = derivative.spot
+        spot = torch.arange(1.0, 7.0).reshape(2, 3)
+        # tensor([[1., 2., 3.],
+        #         [4., 5., 6.]])
+        derivative.list(lambda _: spot)
+        assert_close(derivative.spot, spot)
+        derivative.delist()
+        with pytest.raises(ValueError):
+            _ = derivative.spot
 
     def test_us_listed(self):
         derivative = EuropeanOption(BrownianStock())
