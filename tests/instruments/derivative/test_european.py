@@ -17,12 +17,10 @@ class TestEuropeanOption:
 
     def test_payoff(self):
         derivative = EuropeanOption(BrownianStock(), strike=2.0)
-        derivative.underlier.register_buffer(
-            "spot",
-            torch.tensor(
-                [[1.0, 1.0, 1.9], [1.0, 1.0, 2.0], [1.0, 1.0, 2.1], [1.0, 1.0, 3.0]]
-            ),
+        spot = torch.tensor(
+            [[1.0, 1.0, 1.9], [1.0, 1.0, 2.0], [1.0, 1.0, 2.1], [1.0, 1.0, 3.0]]
         )
+        derivative.underlier.register_buffer("spot", spot)
         result = derivative.payoff()
         expect = torch.tensor([0.0, 0.0, 0.1, 1.0])
         assert_close(result, expect)
@@ -213,6 +211,20 @@ EuropeanOption(
         derivative = EuropeanOption(BrownianStock())
         with pytest.raises(ValueError):
             _ = derivative.spot
+        spot = torch.arange(1.0, 7.0).reshape(2, 3)
+        # tensor([[1., 2., 3.],
+        #         [4., 5., 6.]])
+        derivative.list(lambda _: spot)
+        assert_close(derivative.spot, spot)
+        derivative.delist()
+        with pytest.raises(ValueError):
+            _ = derivative.spot
+
+    def test_us_listed(self):
+        derivative = EuropeanOption(BrownianStock())
+        assert not derivative.is_listed
+        derivative.list(pricer=lambda x: x)
+        assert derivative.is_listed
 
     def test_init_dtype_deprecated(self):
         with pytest.raises(DeprecationWarning):

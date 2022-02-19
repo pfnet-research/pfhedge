@@ -85,7 +85,7 @@ class TestMoneyness(_TestFeature):
 
     # def test_getitem_deprecation_warning(self):
     #     derivative = EuropeanOption(BrownianStock())
-    #     spot = torch.empty(2, 3)
+    #     spot = torch.zeros(2, 3)
     #     derivative.underlier.register_buffer("spot", spot)
     #     f = Moneyness().of(derivative)
 
@@ -95,7 +95,7 @@ class TestMoneyness(_TestFeature):
     @pytest.mark.filterwarnings("ignore")
     def test_getitem_get(self):
         derivative = EuropeanOption(BrownianStock())
-        spot = torch.empty(2, 3)
+        spot = torch.zeros(2, 3)
         derivative.underlier.register_buffer("spot", spot)
         f = Moneyness().of(derivative)
         assert_close(f.get(0), f[0])
@@ -143,7 +143,7 @@ class TestLogMoneyness(_TestFeature):
 class TestTimeToMaturity(_TestFeature):
     def test(self):
         derivative = EuropeanOption(BrownianStock(dt=0.1), maturity=0.2)
-        derivative.ul().register_buffer("spot", torch.empty(2, 3))
+        derivative.ul().register_buffer("spot", torch.zeros(2, 3))
         f = TimeToMaturity().of(derivative)
 
         result = f.get(0)
@@ -168,7 +168,7 @@ class TestTimeToMaturity(_TestFeature):
 
     def test_2(self):
         derivative = EuropeanOption(BrownianStock(dt=0.1), maturity=0.15)
-        derivative.underlier.register_buffer("spot", torch.empty(2, 3))
+        derivative.underlier.register_buffer("spot", torch.zeros(2, 3))
         f = TimeToMaturity().of(derivative)
 
         result = f.get(0)
@@ -211,7 +211,7 @@ class TestVolatility(_TestFeature):
     @pytest.mark.parametrize("sigma", [0.2, 0.1])
     def test_constant_volatility(self, sigma):
         derivative = EuropeanOption(BrownianStock(sigma=sigma))
-        derivative.underlier.register_buffer("spot", torch.empty(2, 3))
+        derivative.underlier.register_buffer("spot", torch.zeros(2, 3))
 
         f = Volatility().of(derivative)
 
@@ -276,7 +276,7 @@ class TestVariance(_TestFeature):
     @pytest.mark.parametrize("sigma", [0.2, 0.1])
     def test_constant_volatility(self, sigma):
         derivative = EuropeanOption(BrownianStock(sigma=sigma))
-        derivative.underlier.register_buffer("spot", torch.empty(2, 3))
+        derivative.underlier.register_buffer("spot", torch.zeros(2, 3))
 
         f = Variance().of(derivative)
 
@@ -500,7 +500,7 @@ class TestZeros(_TestFeature):
     def test(self):
         torch.manual_seed(42)
         derivative = EuropeanOption(BrownianStock())
-        derivative.ul().register_buffer("spot", torch.empty(2, 3))
+        derivative.ul().register_buffer("spot", torch.zeros(2, 3))
 
         f = Zeros().of(derivative)
 
@@ -543,7 +543,7 @@ class TestEmpty(_TestFeature):
     def test(self):
         torch.manual_seed(42)
         derivative = EuropeanOption(BrownianStock())
-        derivative.underlier.register_buffer("spot", torch.empty(2, 3))
+        derivative.underlier.register_buffer("spot", torch.zeros(2, 3))
 
         f = Empty().of(derivative)
 

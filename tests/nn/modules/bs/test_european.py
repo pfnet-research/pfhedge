@@ -207,6 +207,29 @@ class TestBSEuropeanOption(_TestBSModule):
         expect = torch.full_like(result, -0.4601721)
         assert_close(result, expect)
 
+    @pytest.mark.parametrize("call", [True, False])
+    def test_delta_3(self, call: bool):
+        m = BSEuropeanOption(call=call)
+        with pytest.raises(ValueError):
+            m.delta(torch.tensor(0.0), torch.tensor(-1.0), torch.tensor(0.2))
+        with pytest.raises(ValueError):
+            m.delta(torch.tensor(0.0), torch.tensor(1.0), torch.tensor(-0.2))
+        result = m.delta(torch.tensor(1.0), torch.tensor(1.0), torch.tensor(0))
+        expect = torch.full_like(result, 1.0 if call else 0.0)
+        assert_close(result, expect)
+        result = m.delta(torch.tensor(1.0), torch.tensor(0.0), torch.tensor(0.1))
+        expect = torch.full_like(result, 1.0 if call else 0.0)
+        assert_close(result, expect)
+        result = m.delta(torch.tensor(1.0), torch.tensor(0.0), torch.tensor(0.0))
+        expect = torch.full_like(result, 1.0 if call else 0.0)
+        assert_close(result, expect)
+        result = m.delta(torch.tensor(0.0), torch.tensor(0.0), torch.tensor(0.1))
+        expect = torch.full_like(result, 0.5 if call else -0.5)
+        assert_close(result, expect)
+        result = m.delta(torch.tensor(0.0), torch.tensor(0.0), torch.tensor(0.0))
+        expect = torch.full_like(result, 0.5 if call else -0.5)
+        assert_close(result, expect)
+
     def test_gamma_1(self):
         m = BSEuropeanOption()
         result = m.gamma(torch.tensor(0.0), torch.tensor(1.0), torch.tensor(0.2))
@@ -219,6 +242,29 @@ class TestBSEuropeanOption(_TestBSModule):
         expect = torch.full_like(result, 1.9847627374)
         assert_close(result, expect)
 
+    @pytest.mark.parametrize("call", [True, False])
+    def test_gamma_3(self, call: bool):
+        m = BSEuropeanOption(call=call)
+        with pytest.raises(ValueError):
+            m.gamma(torch.tensor(0.0), torch.tensor(-1.0), torch.tensor(0.2))
+        with pytest.raises(ValueError):
+            m.gamma(torch.tensor(0.0), torch.tensor(1.0), torch.tensor(-0.2))
+        result = m.gamma(torch.tensor(1.0), torch.tensor(1.0), torch.tensor(0))
+        expect = torch.full_like(result, 0.0)
+        assert_close(result, expect)
+        result = m.gamma(torch.tensor(1.0), torch.tensor(0.0), torch.tensor(0.1))
+        expect = torch.full_like(result, 0.0)
+        assert_close(result, expect)
+        result = m.gamma(torch.tensor(1.0), torch.tensor(0.0), torch.tensor(0.0))
+        expect = torch.full_like(result, 0.0)
+        assert_close(result, expect)
+        result = m.gamma(torch.tensor(0.0), torch.tensor(0.0), torch.tensor(0.1))
+        expect = torch.full_like(result, float("inf"))
+        assert_close(result, expect)
+        result = m.gamma(torch.tensor(0.0), torch.tensor(0.0), torch.tensor(0.0))
+        expect = torch.full_like(result, float("inf"))
+        assert_close(result, expect)
+
     def test_price_1(self):
         m = BSEuropeanOption()
         result = m.price(0.0, 1.0, 0.2)
@@ -229,6 +275,35 @@ class TestBSEuropeanOption(_TestBSModule):
         m = BSEuropeanOption(call=False)
         result = m.price(0.0, 1.0, 0.2)
         expect = torch.full_like(result, 0.0796557924)
+        assert_close(result, expect)
+
+    @pytest.mark.parametrize("call", [True, False])
+    def test_price_3(self, call: bool):
+        m = BSEuropeanOption(call=call)
+        with pytest.raises(ValueError):
+            m.price(torch.tensor(0.0), torch.tensor(-1.0), torch.tensor(0.2))
+        with pytest.raises(ValueError):
+            m.price(torch.tensor(0.0), torch.tensor(1.0), torch.tensor(-0.2))
+        result = m.price(
+            torch.tensor(1.0 if call else -1.0), torch.tensor(1.0), torch.tensor(0)
+        )
+        expect = torch.full_like(result, 1.718282 if call else 0.632121)
+        assert_close(result, expect)
+        result = m.price(
+            torch.tensor(1.0 if call else -1.0), torch.tensor(0.0), torch.tensor(0.1)
+        )
+        expect = torch.full_like(result, 1.718282 if call else 0.632121)
+        assert_close(result, expect)
+        result = m.price(
+            torch.tensor(1.0 if call else -1.0), torch.tensor(0.0), torch.tensor(0.0)
+        )
+        expect = torch.full_like(result, 1.718282 if call else 0.632121)
+        assert_close(result, expect)
+        result = m.price(torch.tensor(0.0), torch.tensor(0.0), torch.tensor(0.1))
+        expect = torch.full_like(result, 0.0)
+        assert_close(result, expect)
+        result = m.price(torch.tensor(0.0), torch.tensor(0.0), torch.tensor(0.0))
+        expect = torch.full_like(result, 0.0)
         assert_close(result, expect)
 
     def test_implied_volatility(self):
@@ -251,13 +326,36 @@ class TestBSEuropeanOption(_TestBSModule):
         expect = torch.tensor([0.1261, 0.1782, 0.2182])
         assert_close(result, expect, atol=1e-3, rtol=0)
 
+    @pytest.mark.parametrize("call", [True, False])
+    def test_vega_2(self, call: bool):
+        m = BSEuropeanOption(call=call)
+        with pytest.raises(ValueError):
+            m.vega(torch.tensor(0.0), torch.tensor(-1.0), torch.tensor(0.2))
+        with pytest.raises(ValueError):
+            m.vega(torch.tensor(0.0), torch.tensor(1.0), torch.tensor(-0.2))
+        result = m.vega(torch.tensor(0.1), torch.tensor(1.0), torch.tensor(0))
+        expect = torch.full_like(result, 0.0)
+        assert_close(result, expect)
+        result = m.vega(torch.tensor(0.1), torch.tensor(0.0), torch.tensor(0.1))
+        expect = torch.full_like(result, 0.0)
+        assert_close(result, expect)
+        result = m.vega(torch.tensor(0.1), torch.tensor(0.0), torch.tensor(0.0))
+        expect = torch.full_like(result, 0.0)
+        assert_close(result, expect)
+        result = m.vega(torch.tensor(0.0), torch.tensor(0.0), torch.tensor(0.1))
+        expect = torch.full_like(result, 0.0)
+        assert_close(result, expect)
+        result = m.vega(torch.tensor(0.0), torch.tensor(0.0), torch.tensor(0.0))
+        expect = torch.full_like(result, 0.0)
+        assert_close(result, expect)
+
     def test_vega_and_gamma(self):
         m = BSEuropeanOption()
         # vega = spot^2 * sigma * (T - t) * gamma
         # See Chapter 5 Appendix A, Bergomi "Stochastic volatility modeling"
-        spot = torch.tensor([0.9, 1.0, 1.1])
-        t = torch.tensor([0.1, 0.2, 0.3])
-        v = torch.tensor([0.1, 0.2, 0.3])
+        spot = torch.tensor([0.9, 1.0, 1.1, 1.1, 1.1, 1.1])
+        t = torch.tensor([0.1, 0.2, 0.3, 0.0, 0.0, 0.1])
+        v = torch.tensor([0.1, 0.2, 0.3, 0.0, 0.2, 0.0])
         vega = m.vega(spot.log(), t, v)
         gamma = m.gamma(spot.log(), t, v)
         assert_close(vega, spot.square() * v * t * gamma, atol=1e-3, rtol=0)
@@ -272,6 +370,29 @@ class TestBSEuropeanOption(_TestBSModule):
         )
         expect = torch.tensor([-12.6094, -8.9117, -7.2727])
         assert_close(result, expect, atol=1e-3, rtol=0)
+
+    @pytest.mark.parametrize("call", [True, False])
+    def test_theta_2(self, call: bool):
+        m = BSEuropeanOption(call=call)
+        with pytest.raises(ValueError):
+            m.theta(torch.tensor(0.0), torch.tensor(-1.0), torch.tensor(0.2))
+        with pytest.raises(ValueError):
+            m.theta(torch.tensor(0.0), torch.tensor(1.0), torch.tensor(-0.2))
+        result = m.theta(torch.tensor(0.1), torch.tensor(1.0), torch.tensor(0))
+        expect = torch.full_like(result, -0.0)
+        assert_close(result, expect)
+        result = m.theta(torch.tensor(0.1), torch.tensor(0.0), torch.tensor(0.1))
+        expect = torch.full_like(result, -0.0)
+        assert_close(result, expect)
+        result = m.theta(torch.tensor(0.1), torch.tensor(0.0), torch.tensor(0.0))
+        expect = torch.full_like(result, -0.0)
+        assert_close(result, expect)
+        result = m.theta(torch.tensor(0.0), torch.tensor(0.0), torch.tensor(0.1))
+        expect = torch.full_like(result, -float("inf"))
+        assert_close(result, expect)
+        result = m.theta(torch.tensor(0.0), torch.tensor(0.0), torch.tensor(0.0))
+        expect = torch.full_like(result, -0.0)
+        assert_close(result, expect)
 
     def test_example(self):
         from pfhedge.instruments import BrownianStock

@@ -144,7 +144,15 @@ class BSEuropeanBinaryOption(BSModuleMixin):
         s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
 
         spot = s.exp() * self.strike
-        delta = npdf(d2(s, t, v)) / (spot * v * t.sqrt())
+
+        numerator = npdf(d2(s, t, v))
+        denominator = spot * v * t.sqrt()
+        delta = numerator / denominator
+        delta = torch.where(
+            (numerator == 0).logical_and(denominator == 0),
+            torch.zeros_like(delta),
+            delta,
+        )
         delta = -delta if not self.call else delta  # put-call parity
 
         return delta

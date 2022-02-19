@@ -107,6 +107,28 @@ def european_binary_payoff(
         return (input[..., -1] <= strike).to(input)
 
 
+def european_forward_start_payoff(
+    input: Tensor, strike: float = 1.0, start_index: int = 0
+) -> Tensor:
+    """Returns the payoff of a European forward start option.
+
+    Args:
+        input (torch.Tensor): The input tensor representing the price trajectory.
+        start_index (torch.Tensor): The time index at which the option starts.
+        strike (float, default=1.0): The strike price of the option.
+
+    Shape:
+        - input: :math:`(*, T)` where
+          :math:`T` is the number of time steps and
+          :math:`*` means any number of additional dimensions.
+        - output: :math:`(*)`
+
+    Returns:
+        torch.Tensor
+    """
+    return fn.relu(input[..., -1] / input[..., start_index] - strike)
+
+
 def exp_utility(input: Tensor, a: float = 1.0) -> Tensor:
     r"""Applies an exponential utility function.
 
@@ -518,7 +540,16 @@ def d1(log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor) -> T
         torch.Tensor
     """
     s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
-    return (s + (v.square() / 2) * t).div(v * t.sqrt())
+    if not (t >= 0).all():
+        raise ValueError("all elements in time_to_maturity have to be non-negative")
+    if not (v >= 0).all():
+        raise ValueError("all elements in volatility have to be non-negative")
+    numerator = s + (v.square() / 2) * t
+    denominator = v * t.sqrt()
+    output = numerator / denominator
+    return torch.where(
+        (numerator == 0).logical_and(denominator == 0), torch.zeros_like(output), output
+    )
 
 
 def d2(log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor) -> Tensor:
@@ -544,7 +575,16 @@ def d2(log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor) -> T
         torch.Tensor
     """
     s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
-    return (s - (v.square() / 2) * t).div(v * t.sqrt())
+    if not (t >= 0).all():
+        raise ValueError("all elements in time_to_maturity have to be non-negative")
+    if not (v >= 0).all():
+        raise ValueError("all elements in volatility have to be non-negative")
+    numerator = s - (v.square() / 2) * t
+    denominator = v * t.sqrt()
+    output = numerator / denominator
+    return torch.where(
+        (numerator == 0).logical_and(denominator == 0), torch.zeros_like(output), output
+    )
 
 
 def ww_width(

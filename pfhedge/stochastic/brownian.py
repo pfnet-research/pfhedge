@@ -16,6 +16,7 @@ def generate_brownian(
     n_steps: int,
     init_state: Union[Tuple[TensorOrScalar, ...], TensorOrScalar] = (0.0,),
     sigma: float = 0.2,
+    mu: float = 0.0,
     dt: float = 1 / 250,
     dtype: Optional[torch.dtype] = None,
     device: Optional[torch.device] = None,
@@ -26,7 +27,7 @@ def generate_brownian(
     The time evolution of the process is given by:
 
     .. math::
-        dS(t) = \sigma dW(t) \,.
+        dS(t) = \mu dt + \sigma dW(t) \,.
 
     Args:
         n_paths (int): The number of simulated paths.
@@ -37,6 +38,8 @@ def generate_brownian(
             It also accepts a :class:`torch.Tensor` or a :class:`float`.
         sigma (float, default=0.2): The parameter :math:`\sigma`,
             which stands for the volatility of the time series.
+        mu (float, default=0.0): The parameter :math:`\mu`,
+            which stands for the drift of the time series.
         dt (float, default=1/250): The intervals of the time steps.
         dtype (torch.dtype, optional): The desired data type of returned tensor.
             Default: If ``None``, uses a global default
@@ -81,7 +84,9 @@ def generate_brownian(
     # randn = torch.randn((n_paths, n_steps), dtype=dtype, device=device)
     randn = engine((n_paths, n_steps), dtype=dtype, device=device)
     randn[:, 0] = 0.0
-    return sigma * randn.new_tensor(dt).sqrt() * randn.cumsum(1) + init_value
+    drift = mu * dt * torch.arange(n_steps).to(randn)
+    brown = randn.new_tensor(dt).sqrt() * randn.cumsum(1)
+    return drift + sigma * brown + init_value
 
 
 def generate_geometric_brownian(
@@ -89,6 +94,7 @@ def generate_geometric_brownian(
     n_steps: int,
     init_state: Union[Tuple[TensorOrScalar, ...], TensorOrScalar] = (1.0,),
     sigma: float = 0.2,
+    mu: float = 0.0,
     dt: float = 1 / 250,
     dtype: Optional[torch.dtype] = None,
     device: Optional[torch.device] = None,
@@ -100,7 +106,7 @@ def generate_geometric_brownian(
 
     .. math::
 
-        dS(t) = \sigma S(t) dW(t) \,.
+        dS(t) = \mu S(t) dt + \sigma S(t) dW(t) \,.
 
     Args:
         n_paths (int): The number of simulated paths.
@@ -109,7 +115,9 @@ def generate_geometric_brownian(
             the time series.
             This is specified by a tuple :math:`(S(0),)`.
             It also accepts a :class:`torch.Tensor` or a :class:`float`.
-        sigma (float, default=0.2): The parameter :math:`sigma`,
+        sigma (float, default=0.2): The parameter :math:`\sigma`,
+            which stands for the volatility of the time series.
+        mu (float, default=0.2): The parameter :math:`\mu`,
             which stands for the volatility of the time series.
         dt (float, default=1/250): The intervals of the time steps.
         dtype (torch.dtype, optional): The desired data type of returned tensor.
@@ -156,6 +164,7 @@ def generate_geometric_brownian(
         n_steps=n_steps,
         init_state=(0.0,),
         sigma=sigma,
+        mu=mu,
         dt=dt,
         dtype=dtype,
         device=device,

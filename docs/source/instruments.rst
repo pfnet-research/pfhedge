@@ -39,8 +39,9 @@ Derivative Instruments
     :nosignatures:
     :template: classtemplate.rst
 
+    instruments.AmericanBinaryOption
+    instruments.EuropeanBinaryOption
+    instruments.EuropeanForwardStartOption
     instruments.EuropeanOption
     instruments.LookbackOption
-    instruments.EuropeanBinaryOption
-    instruments.AmericanBinaryOption
     instruments.VarianceSwap

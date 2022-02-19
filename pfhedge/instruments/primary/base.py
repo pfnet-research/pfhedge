@@ -154,6 +154,10 @@ class BasePrimary(BaseInstrument):
             "Asset may not be simulated."
         )
 
+    @property
+    def is_listed(self) -> bool:
+        return True
+
     def to(self: T, *args, **kwargs) -> T:
         device, dtype, *_ = self._parse_to(*args, **kwargs)
 

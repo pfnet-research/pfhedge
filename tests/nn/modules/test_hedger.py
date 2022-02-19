@@ -243,23 +243,23 @@ Hedger(
         M_2 = 6
         H_in = 3
 
-        input = torch.empty((N, M_1, M_2, H_in))
+        input = torch.zeros((N, M_1, M_2, H_in))
         m = Hedger(MultiLayerPerceptron(), ["empty"])
         assert m(input).size() == torch.Size((N, M_1, M_2, 1))
 
         model = BlackScholes(deriv)
         m = Hedger(model, model.inputs())
-        input = torch.empty((N, M_1, M_2, len(model.inputs())))
+        input = torch.zeros((N, M_1, M_2, len(model.inputs())))
         assert m(input).size() == torch.Size((N, M_1, M_2, 1))
 
         model = WhalleyWilmott(deriv)
         m = Hedger(model, model.inputs())
-        input = torch.empty((N, M_1, M_2, len(model.inputs())))
+        input = torch.zeros((N, M_1, M_2, len(model.inputs())))
         assert m(input).size() == torch.Size((N, M_1, M_2, 1))
 
         model = Naked()
         m = Hedger(model, ["empty"])
-        input = torch.empty((N, M_1, M_2, 10))
+        input = torch.zeros((N, M_1, M_2, 10))
         assert m(input).size() == torch.Size((N, M_1, M_2, 1))
 
     @pytest.mark.parametrize("h_in", [1, 2, 3])
