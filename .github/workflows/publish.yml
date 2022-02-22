@@ -1,8 +1,10 @@
 name: Publish
 
 on:
+  push:
+    branches: main
   release:
-      types: [published]
+    types: [published]
   workflow_dispatch:
 
 jobs:
