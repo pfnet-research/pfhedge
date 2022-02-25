@@ -683,12 +683,12 @@ def bs_european_gamma(
     See :func:`pfhedge.nn.BSEuropeanOption.gamma` for details.
     """
     s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
-    price = strike * s.exp()
+    spot = strike * s.exp()
     numerator = npdf(d1(s, t, v))
-    denominator = price * v * t.sqrt()
+    denominator = spot * v * t.sqrt()
     output = numerator / denominator
-    return output.where(
-        (numerator == 0).logical_and(denominator == 0), torch.zeros_like(output)
+    return torch.where(
+        (numerator == 0).logical_and(denominator == 0), torch.zeros_like(output), output
     )
 
 
