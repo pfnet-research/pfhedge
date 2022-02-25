@@ -44,6 +44,11 @@ Black-Scholes formulas
     bs_european_gamma
     bs_european_vega
     bs_european_theta
+    bs_european_binary_price
+    bs_european_binary_delta
+    bs_european_binary_gamma
+    bs_european_binary_vega
+    bs_european_binary_theta
 
 Other Functions
 ---------------
