@@ -633,3 +633,95 @@ def svi_variance(
     """
     k_m = torch.as_tensor(input - m)  # k - m
     return a + b * (rho * k_m + (k_m.square() + sigma ** 2).sqrt())
+
+
+def bs_european_price(
+    log_moneyness: Tensor,
+    time_to_maturity: Tensor,
+    volatility: Tensor,
+    strike: TensorOrScalar = 1.0,
+    call: bool = True,
+) -> Tensor:
+    """Returns Black-Scholes price of a European option.
+
+    See :func:`pfhedge.nn.BSEuropeanOption.price` for details.
+    """
+    s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
+
+    price = strike * (s.exp() * ncdf(d1(s, t, v)) - ncdf(d2(s, t, v)))
+    price = price + strike * (1 - s.exp()) if not call else price  # put-call parity
+
+    return price
+
+
+def bs_european_delta(
+    log_moneyness: Tensor,
+    time_to_maturity: Tensor,
+    volatility: Tensor,
+    call: bool = True,
+) -> Tensor:
+    """Returns Black-Scholes delta of a European option.
+
+    See :func:`pfhedge.nn.BSEuropeanOption.delta` for details.
+    """
+    s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
+
+    delta = ncdf(d1(s, t, v))
+    delta = delta - 1 if not call else delta  # put-call parity
+
+    return delta
+
+
+def bs_european_gamma(
+    log_moneyness: Tensor,
+    time_to_maturity: Tensor,
+    volatility: Tensor,
+    strike: TensorOrScalar = 1.0,
+) -> Tensor:
+    """Returns Black-Scholes gamma of a European option.
+
+    See :func:`pfhedge.nn.BSEuropeanOption.gamma` for details.
+    """
+    s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
+    price = strike * s.exp()
+    numerator = npdf(d1(s, t, v))
+    denominator = price * v * t.sqrt()
+    output = numerator / denominator
+    return output.where(
+        (numerator == 0).logical_and(denominator == 0), torch.zeros_like(output)
+    )
+
+
+def bs_european_vega(
+    log_moneyness: Tensor,
+    time_to_maturity: Tensor,
+    volatility: Tensor,
+    strike: TensorOrScalar,
+) -> Tensor:
+    """Returns Black-Scholes vega of a European option.
+
+    See :func:`pfhedge.nn.BSEuropeanOption.vega` for details.
+    """
+    s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
+    price = strike * s.exp()
+    return npdf(d1(s, t, v)) * price * t.sqrt()
+
+
+def bs_european_theta(
+    log_moneyness: Tensor,
+    time_to_maturity: Tensor,
+    volatility: Tensor,
+    strike: TensorOrScalar,
+) -> Tensor:
+    """Returns Black-Scholes theta of a European option.
+
+    See :func:`pfhedge.nn.BSEuropeanOption.theta` for details.
+    """
+    s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
+    price = strike * s.exp()
+    numerator = -npdf(d1(s, t, v)) * price * v
+    denominator = 2 * t.sqrt()
+    output = numerator / denominator
+    return torch.where(
+        (numerator == 0).logical_and(denominator == 0), torch.zeros_like(output), output
+    )

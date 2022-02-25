@@ -1,14 +1,14 @@
 import torch
 from torch import Tensor
-from torch.distributions.utils import broadcast_all
 
 from pfhedge._utils.bisect import find_implied_volatility
 from pfhedge._utils.doc import _set_attr_and_docstring
 from pfhedge._utils.str import _format_float
-from pfhedge.nn.functional import d1
-from pfhedge.nn.functional import d2
-from pfhedge.nn.functional import ncdf
-from pfhedge.nn.functional import npdf
+from pfhedge.nn.functional import bs_european_delta
+from pfhedge.nn.functional import bs_european_gamma
+from pfhedge.nn.functional import bs_european_price
+from pfhedge.nn.functional import bs_european_theta
+from pfhedge.nn.functional import bs_european_vega
 
 from ._base import BSModuleMixin
 
@@ -55,7 +55,7 @@ class BSEuropeanOption(BSModuleMixin):
                 [0.5752]])
     """
 
-    def __init__(self, call: bool = True, strike: float = 1.0):
+    def __init__(self, call: bool = True, strike: float = 1.0) -> None:
         super().__init__()
         self.call = call
         self.strike = strike
@@ -109,12 +109,12 @@ class BSEuropeanOption(BSModuleMixin):
         Returns:
             torch.Tensor
         """
-        s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
-
-        delta = ncdf(d1(s, t, v))
-        delta = delta - 1 if not self.call else delta  # put-call parity
-
-        return delta
+        return bs_european_delta(
+            log_moneyness=log_moneyness,
+            time_to_maturity=time_to_maturity,
+            volatility=volatility,
+            call=self.call,
+        )
 
     def gamma(
         self, log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor
@@ -136,16 +136,11 @@ class BSEuropeanOption(BSModuleMixin):
         Returns:
             torch.Tensor
         """
-
-        s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
-        price = self.strike * s.exp()
-        numerator = npdf(d1(s, t, v))
-        denominator = price * v * t.sqrt()
-        output = numerator / denominator
-        return torch.where(
-            (numerator == 0).logical_and(denominator == 0),
-            torch.zeros_like(output),
-            output,
+        return bs_european_gamma(
+            log_moneyness=log_moneyness,
+            time_to_maturity=time_to_maturity,
+            volatility=volatility,
+            strike=self.strike,
         )
 
     def vega(
@@ -168,11 +163,12 @@ class BSEuropeanOption(BSModuleMixin):
         Returns:
             torch.Tensor
         """
-        s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
-        price = self.strike * s.exp()
-        vega = npdf(d1(s, t, v)) * price * t.sqrt()
-
-        return vega
+        return bs_european_vega(
+            log_moneyness=log_moneyness,
+            time_to_maturity=time_to_maturity,
+            volatility=volatility,
+            strike=self.strike,
+        )
 
     def theta(
         self, log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor
@@ -197,15 +193,11 @@ class BSEuropeanOption(BSModuleMixin):
         Returns:
             torch.Tensor
         """
-        s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
-        price = self.strike * s.exp()
-        numerator = -npdf(d1(s, t, v)) * price * v
-        denominator = 2 * t.sqrt()
-        output = numerator / denominator
-        return torch.where(
-            (numerator == 0).logical_and(denominator == 0),
-            torch.zeros_like(output),
-            output,
+        return bs_european_theta(
+            log_moneyness=log_moneyness,
+            time_to_maturity=time_to_maturity,
+            volatility=volatility,
+            strike=self.strike,
         )
 
     def price(
@@ -228,17 +220,13 @@ class BSEuropeanOption(BSModuleMixin):
         Returns:
             torch.Tensor
         """
-        s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
-
-        n1 = ncdf(d1(s, t, v))
-        n2 = ncdf(d2(s, t, v))
-
-        price = self.strike * (s.exp() * n1 - n2)
-
-        if not self.call:
-            price += self.strike * (1 - s.exp())  # put-call parity
-
-        return price
+        return bs_european_price(
+            log_moneyness=log_moneyness,
+            time_to_maturity=time_to_maturity,
+            volatility=volatility,
+            strike=self.strike,
+            call=self.call,
+        )
 
     def implied_volatility(
         self,

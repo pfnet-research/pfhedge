@@ -32,8 +32,21 @@ Criterion Functions
     expected_shortfall
     value_at_risk
 
+Black-Scholes formulas
+----------------------
+
+.. autosummary::
+    :nosignatures:
+    :toctree: generated
+
+    bs_european_price
+    bs_european_delta
+    bs_european_gamma
+    bs_european_vega
+    bs_european_theta
+
 Other Functions
------------------
+---------------
 
 .. autosummary::
     :nosignatures:
