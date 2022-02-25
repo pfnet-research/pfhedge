@@ -2,16 +2,16 @@ from typing import List
 
 import torch
 from torch import Tensor
-from torch.distributions.utils import broadcast_all
 
 from pfhedge._utils.bisect import find_implied_volatility
 from pfhedge._utils.doc import _set_attr_and_docstring
 from pfhedge._utils.doc import _set_docstring
 from pfhedge._utils.str import _format_float
-from pfhedge.nn.functional import d1
-from pfhedge.nn.functional import d2
-from pfhedge.nn.functional import ncdf
-from pfhedge.nn.functional import npdf
+from pfhedge.nn.functional import bs_european_binary_delta
+from pfhedge.nn.functional import bs_european_binary_gamma
+from pfhedge.nn.functional import bs_european_binary_price
+from pfhedge.nn.functional import bs_european_binary_theta
+from pfhedge.nn.functional import bs_european_binary_vega
 
 from ._base import BSModuleMixin
 
@@ -114,12 +114,12 @@ class BSEuropeanBinaryOption(BSModuleMixin):
         Returns:
             torch.Tensor
         """
-        s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
-
-        price = ncdf(d2(s, t, v))
-        price = 1.0 - price if not self.call else price  # put-call parity
-
-        return price
+        return bs_european_binary_price(
+            log_moneyness=log_moneyness,
+            time_to_maturity=time_to_maturity,
+            volatility=volatility,
+            call=self.call,
+        )
 
     @torch.enable_grad()
     def delta(
@@ -141,21 +141,13 @@ class BSEuropeanBinaryOption(BSModuleMixin):
         Returns:
             torch.Tensor
         """
-        s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
-
-        spot = s.exp() * self.strike
-
-        numerator = npdf(d2(s, t, v))
-        denominator = spot * v * t.sqrt()
-        delta = numerator / denominator
-        delta = torch.where(
-            (numerator == 0).logical_and(denominator == 0),
-            torch.zeros_like(delta),
-            delta,
+        return bs_european_binary_delta(
+            log_moneyness=log_moneyness,
+            time_to_maturity=time_to_maturity,
+            volatility=volatility,
+            call=self.call,
+            strike=self.strike,
         )
-        delta = -delta if not self.call else delta  # put-call parity
-
-        return delta
 
     def gamma(
         self, log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor
@@ -176,12 +168,11 @@ class BSEuropeanBinaryOption(BSModuleMixin):
         Returns:
             torch.Tensor
         """
-        # TODO(simaki): Directly compute gamma.
-        return super().gamma(
-            strike=self.strike,
+        return bs_european_binary_gamma(
             log_moneyness=log_moneyness,
             time_to_maturity=time_to_maturity,
             volatility=volatility,
+            strike=self.strike,
         )
 
     def vega(
@@ -203,12 +194,11 @@ class BSEuropeanBinaryOption(BSModuleMixin):
         Returns:
             torch.Tensor
         """
-        # TODO: Directly compute theta.
-        return super().vega(
-            strike=self.strike,
+        return bs_european_binary_vega(
             log_moneyness=log_moneyness,
             time_to_maturity=time_to_maturity,
             volatility=volatility,
+            strike=self.strike,
         )
 
     def theta(
@@ -233,12 +223,11 @@ class BSEuropeanBinaryOption(BSModuleMixin):
         Returns:
             torch.Tensor
         """
-        # TODO: Directly compute theta.
-        return super().theta(
-            strike=self.strike,
+        return bs_european_binary_theta(
             log_moneyness=log_moneyness,
             time_to_maturity=time_to_maturity,
             volatility=volatility,
+            strike=self.strike,
         )
 
     def implied_volatility(

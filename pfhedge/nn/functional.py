@@ -8,6 +8,7 @@ from torch import Tensor
 from torch.distributions.normal import Normal
 from torch.distributions.utils import broadcast_all
 
+import pfhedge.autogreek as autogreek
 from pfhedge._utils.typing import TensorOrScalar
 
 
@@ -724,4 +725,108 @@ def bs_european_theta(
     output = numerator / denominator
     return torch.where(
         (numerator == 0).logical_and(denominator == 0), torch.zeros_like(output), output
+    )
+
+
+def bs_european_binary_price(
+    log_moneyness: Tensor,
+    time_to_maturity: Tensor,
+    volatility: Tensor,
+    call: bool = True,
+) -> Tensor:
+    """Returns Black-Scholes price of a European binary option.
+
+    See :func:`pfhedge.nn.BSEuropeanBinaryOption.price` for details.
+    """
+    s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
+
+    price = ncdf(d2(s, t, v))
+    price = 1.0 - price if not call else price  # put-call parity
+
+    return price
+
+
+def bs_european_binary_delta(
+    log_moneyness: Tensor,
+    time_to_maturity: Tensor,
+    volatility: Tensor,
+    call: bool = True,
+    strike: TensorOrScalar = 1.0,
+) -> Tensor:
+    """Returns Black-Scholes delta of a European binary option.
+
+    See :func:`pfhedge.nn.BSEuropeanBinaryOption.delta` for details.
+    """
+    s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
+
+    spot = s.exp() * strike
+
+    numerator = npdf(d2(s, t, v))
+    denominator = spot * v * t.sqrt()
+    delta = numerator / denominator
+    delta = torch.where(
+        (numerator == 0).logical_and(denominator == 0), torch.zeros_like(delta), delta
+    )
+    delta = -delta if not call else delta  # put-call parity
+
+    return delta
+
+
+def bs_european_binary_gamma(
+    log_moneyness: Tensor,
+    time_to_maturity: Tensor,
+    volatility: Tensor,
+    strike: TensorOrScalar = 1.0,
+) -> Tensor:
+    """Returns Black-Scholes gamma of a European binary option.
+
+    See :func:`pfhedge.nn.BSEuropeanBinaryOption.gamma` for details.
+    """
+    # TODO(simaki): Directly compute gamma.
+    return autogreek.gamma(
+        bs_european_binary_price,
+        log_moneyness=log_moneyness,
+        time_to_maturity=time_to_maturity,
+        volatility=volatility,
+        strike=strike,
+    )
+
+
+def bs_european_binary_vega(
+    log_moneyness: Tensor,
+    time_to_maturity: Tensor,
+    volatility: Tensor,
+    strike: TensorOrScalar = 1.0,
+) -> Tensor:
+    """Returns Black-Scholes vega of a European binary option.
+
+    See :func:`pfhedge.nn.BSEuropeanBinaryOption.vega` for details.
+    """
+    # TODO(simaki): Directly compute gamma.
+    return autogreek.vega(
+        bs_european_binary_price,
+        log_moneyness=log_moneyness,
+        time_to_maturity=time_to_maturity,
+        volatility=volatility,
+        strike=strike,
+    )
+
+
+def bs_european_binary_theta(
+    log_moneyness: Tensor,
+    time_to_maturity: Tensor,
+    volatility: Tensor,
+    strike: TensorOrScalar = 1.0,
+) -> Tensor:
+    """Returns Black-Scholes theta of a European binary option.
+
+    See :func:`pfhedge.nn.BSEuropeanBinaryOption.theta` for details.
+    """
+    # TODO(simaki): Directly compute theta.
+    return autogreek.theta(
+        bs_european_binary_price,
+        log_moneyness=log_moneyness,
+        time_to_maturity=time_to_maturity,
+        volatility=volatility,
+        strike=strike,
     )
