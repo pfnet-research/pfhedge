@@ -80,7 +80,7 @@ class BaseDerivative(BaseInstrument):
         """Alias for ``self.underlier``."""
         return self.underlier
 
-    def to(self: T, *args, **kwargs) -> T:
+    def to(self: T, *args: Any, **kwargs: Any) -> T:
         self.underlier.to(*args, **kwargs)
         return self
 

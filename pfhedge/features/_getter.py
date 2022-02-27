@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from typing import Any
 from typing import Dict
 from typing import Iterator
 from typing import Tuple
@@ -74,7 +75,7 @@ class FeatureFactory:
             )
         return self._features[name]
 
-    def get_instance(self, name: str, *args, **kwargs) -> Feature:
+    def get_instance(self, name: str, **kwargs: Any) -> Feature:
         """Returns the feature with the given name.
 
         Parameters:
@@ -83,22 +84,21 @@ class FeatureFactory:
         Returns:
             Feature: feature.
         """
-        return self.get_class(name)(*args, **kwargs)  # type: ignore
+        return self.get_class(name)(**kwargs)  # type: ignore
 
 
-def get_feature(feature: Union[str, Feature], *args, **kwargs) -> Feature:
+def get_feature(feature: Union[str, Feature], **kwargs: Any) -> Feature:
     """Get feature from name.
 
     Args:
         name (str): Name of feature.
-        *args: Arguments to pass to feature constructor.
-        *kwargs: Keyword arguments to pass to feature constructor.
+        **kwargs: Keyword arguments to pass to feature constructor.
 
     Returns:
         Feature
     """
     if isinstance(feature, str):
-        feature = FeatureFactory().get_instance(feature, *args, **kwargs)
+        feature = FeatureFactory().get_instance(feature, **kwargs)
     elif not isinstance(feature, Feature):
         raise TypeError(f"{feature} is not an instance of Feature.")
     return feature

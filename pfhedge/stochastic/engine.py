@@ -15,7 +15,7 @@ def _box_muller(input0: Tensor, input1: Tensor) -> Tuple[Tensor, Tensor]:
     return z0, z1
 
 
-def _get_numel(size: Tuple[int, ...]):
+def _get_numel(size: Tuple[int, ...]) -> int:
     out = 1
     for dim in size:
         out *= dim

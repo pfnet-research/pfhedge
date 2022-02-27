@@ -1,5 +1,6 @@
 from abc import ABC
 from abc import abstractmethod
+from typing import Any
 from typing import List
 from typing import Optional
 from typing import TypeVar
@@ -42,7 +43,7 @@ class BaseInstrument(ABC):
         """
 
     @abstractmethod
-    def to(self: T, *args, **kwargs) -> T:
+    def to(self: T, *args: Any, **kwargs: Any) -> T:
         """Moves and/or casts the buffers of the instrument.
 
         This can be called as

@@ -1,3 +1,4 @@
+from typing import Any
 from typing import Callable
 
 import torch
@@ -5,7 +6,7 @@ from torch import Tensor
 
 
 def ensemble_mean(
-    function: Callable[..., Tensor], n_times: int = 1, *args, **kwargs
+    function: Callable[..., Tensor], n_times: int = 1, *args: Any, **kwargs: Any
 ) -> Tensor:
     """Compute ensemble mean from function.
 
