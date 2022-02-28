@@ -19,7 +19,10 @@ class BSLookbackOption(BSModuleMixin):
     """Black-Scholes formula for a lookback option with a fixed strike.
 
     Note:
-        Risk-free rate is set to zero.
+        - The formulas are for continuous monitoring while
+          :class:`pfhedge.instruments.LookbackOption` monitors spot prices discretely.
+          To get adjustment for discrete monitoring, see, for instance,
+          Broadie, Glasserman, and Kou (1999).
 
     .. seealso::
         - :class:`pfhedge.nn.BlackScholes`:
@@ -30,6 +33,9 @@ class BSLookbackOption(BSModuleMixin):
     References:
         - Conze, A., 1991. Path dependent options: The case of lookback options.
           The Journal of Finance, 46(5), pp.1893-1907.
+        - Broadie, M., Glasserman, P. and Kou, S.G., 1999.
+          Connecting discrete and continuous path-dependent options.
+          Finance and Stochastics, 3(1), pp.55-82.
 
     Args:
         call (bool, default=True): Specifies whether the option is call or put.
