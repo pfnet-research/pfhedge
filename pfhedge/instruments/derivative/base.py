@@ -198,8 +198,8 @@ class BaseDerivative(BaseInstrument):
 
 
 class Derivative(BaseDerivative):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)  # type: ignore
         raise DeprecationWarning(
             "Derivative is deprecated. Use BaseDerivative instead."
         )

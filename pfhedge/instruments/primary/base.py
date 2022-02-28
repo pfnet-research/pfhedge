@@ -179,7 +179,7 @@ class BasePrimary(BaseInstrument):
         return self
 
     @staticmethod
-    def _parse_to(*args, **kwargs):
+    def _parse_to(*args: Any, **kwargs: Any):
         # Can be called as:
         #   to(device=None, dtype=None)
         #   to(tensor)
