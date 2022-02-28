@@ -830,3 +830,112 @@ def bs_european_binary_theta(
         volatility=volatility,
         strike=strike,
     )
+
+
+def bs_american_binary_price(
+    log_moneyness: Tensor,
+    max_log_moneyness: Tensor,
+    time_to_maturity: Tensor,
+    volatility: Tensor,
+) -> Tensor:
+    """Returns Black-Scholes price of an American binary option.
+
+    See :func:`pfhedge.nn.BSAmericanBinaryOption.price` for details.
+    """
+    # This formula is derived using the results in Section 7.3.3 of Shreve's book.
+    # Price is I_2 - I_4 where the interval of integration is [k --> -inf, b].
+    # By this substitution we get N([log(S(0) / K) + ...] / sigma T) --> 1.
+
+    s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
+    p = ncdf(d2(s, t, v)) + s.exp() * (1 - ncdf(d2(-s, t, v)))
+
+    return p.where(max_log_moneyness < 0, torch.ones_like(p))
+
+
+def bs_american_binary_delta(
+    log_moneyness: Tensor,
+    max_log_moneyness: Tensor,
+    time_to_maturity: Tensor,
+    volatility: Tensor,
+    strike: TensorOrScalar,
+) -> Tensor:
+    """Returns Black-Scholes delta of an American binary option.
+
+    See :func:`pfhedge.nn.BSAmericanBinaryOption.delta` for details.
+    """
+    s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
+    spot = s.exp() * strike
+    # ToDo: fix 0/0 issue
+    p = (
+        npdf(d2(s, t, v)) / (spot * v * t.sqrt())
+        - (1 - ncdf(d2(-s, t, v))) / strike
+        + npdf(d2(-s, t, v)) / (strike * v * t.sqrt())
+    )
+
+    return p.where(max_log_moneyness < 0, torch.zeros_like(p))
+
+
+def bs_american_binary_gamma(
+    log_moneyness: Tensor,
+    max_log_moneyness: Tensor,
+    time_to_maturity: Tensor,
+    volatility: Tensor,
+    strike: TensorOrScalar,
+) -> Tensor:
+    """Returns Black-Scholes gamma of an American binary option.
+
+    See :func:`pfhedge.nn.BSAmericanBinaryOption.gamma` for details.
+    """
+    # TODO(simaki): Compute analytically
+    return autogreek.gamma(
+        bs_american_binary_price,
+        log_moneyness=log_moneyness,
+        max_log_moneyness=max_log_moneyness,
+        time_to_maturity=time_to_maturity,
+        volatility=volatility,
+        strike=strike,
+    )
+
+
+def bs_american_binary_vega(
+    log_moneyness: Tensor,
+    max_log_moneyness: Tensor,
+    time_to_maturity: Tensor,
+    volatility: Tensor,
+    strike: TensorOrScalar,
+) -> Tensor:
+    """Returns Black-Scholes vega of an American binary option.
+
+    See :func:`pfhedge.nn.BSAmericanBinaryOption.vega` for details.
+    """
+    # TODO(simaki): Compute analytically
+    return autogreek.vega(
+        bs_american_binary_price,
+        log_moneyness=log_moneyness,
+        max_log_moneyness=max_log_moneyness,
+        time_to_maturity=time_to_maturity,
+        volatility=volatility,
+        strike=strike,
+    )
+
+
+def bs_american_binary_theta(
+    log_moneyness: Tensor,
+    max_log_moneyness: Tensor,
+    time_to_maturity: Tensor,
+    volatility: Tensor,
+    strike: TensorOrScalar,
+) -> Tensor:
+    """Returns Black-Scholes theta of an American binary option.
+
+    See :func:`pfhedge.nn.BSAmericanBinaryOption.theta` for details.
+    """
+    # TODO(simaki): Compute analytically
+    return autogreek.theta(
+        bs_american_binary_price,
+        log_moneyness=log_moneyness,
+        max_log_moneyness=max_log_moneyness,
+        time_to_maturity=time_to_maturity,
+        volatility=volatility,
+        strike=strike,
+    )
