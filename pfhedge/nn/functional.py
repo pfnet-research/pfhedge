@@ -948,6 +948,10 @@ def bs_lookback_price(
     volatility: Tensor,
     strike: TensorOrScalar,
 ) -> Tensor:
+    """Returns Black-Scholes price of a lookback option.
+
+    See :func:`pfhedge.nn.BSLookbackOption.price` for details.
+    """
     s, m, t, v = map(
         torch.as_tensor,
         (log_moneyness, max_log_moneyness, time_to_maturity, volatility),
@@ -981,6 +985,11 @@ def bs_lookback_delta(
     volatility: Tensor,
     strike: TensorOrScalar,
 ) -> Tensor:
+    """Returns Black-Scholes delta of a lookback option.
+
+    See :func:`pfhedge.nn.BSLookbackOption.delta` for details.
+    """
+    # TODO(simaki): Calculate analytically
     return autogreek.delta(
         bs_lookback_price,
         log_moneyness=log_moneyness,
@@ -998,6 +1007,11 @@ def bs_lookback_gamma(
     volatility: Tensor,
     strike: TensorOrScalar,
 ) -> Tensor:
+    """Returns Black-Scholes gamma of a lookback option.
+
+    See :func:`pfhedge.nn.BSLookbackOption.gamma` for details.
+    """
+    # TODO(simaki): Calculate analytically
     return autogreek.gamma(
         bs_lookback_price,
         log_moneyness=log_moneyness,
@@ -1015,6 +1029,11 @@ def bs_lookback_vega(
     volatility: Tensor,
     strike: TensorOrScalar,
 ) -> Tensor:
+    """Returns Black-Scholes vega of a lookback option.
+
+    See :func:`pfhedge.nn.BSLookbackOption.vega` for details.
+    """
+    # TODO(simaki): Calculate analytically
     return autogreek.vega(
         bs_lookback_price,
         log_moneyness=log_moneyness,
@@ -1032,6 +1051,11 @@ def bs_lookback_theta(
     volatility: Tensor,
     strike: TensorOrScalar,
 ) -> Tensor:
+    """Returns Black-Scholes theta of a lookback option.
+
+    See :func:`pfhedge.nn.BSLookbackOption.theta` for details.
+    """
+    # TODO(simaki): Calculate analytically
     return autogreek.theta(
         bs_lookback_price,
         log_moneyness=log_moneyness,
