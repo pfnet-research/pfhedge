@@ -9,11 +9,6 @@ from typing import Type
 from torch import Tensor
 from torch.nn import Module
 
-# from .american_binary import BSAmericanBinaryOption
-# from .european import BSEuropeanOption
-# from .european_binary import BSEuropeanBinaryOption
-# from .lookback import BSLookbackOption
-
 
 class BlackScholesModuleFactory:
 
@@ -117,6 +112,8 @@ class BlackScholes(Module):
     price: Callable[..., Tensor]  # price(self, ...) -> Tensor
     delta: Callable[..., Tensor]  # delta(self, ...) -> Tensor
     gamma: Callable[..., Tensor]  # gamma(self, ...) -> Tensor
+    vega: Callable[..., Tensor]  # vega(self, ...) -> Tensor
+    theta: Callable[..., Tensor]  # theta(self, ...) -> Tensor
 
     def __new__(cls, derivative):
         return BlackScholesModuleFactory().get_class_from_derivative(derivative)
