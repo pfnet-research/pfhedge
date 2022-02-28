@@ -14,6 +14,7 @@ from pfhedge.nn.functional import ncdf
 from pfhedge.nn.functional import npdf
 
 from ._base import BSModuleMixin
+from .black_scholes import BlackScholesModuleFactory
 
 
 class BSEuropeanBinaryOption(BSModuleMixin):
@@ -271,6 +272,9 @@ class BSEuropeanBinaryOption(BSModuleMixin):
             precision=precision,
         )
 
+
+factory = BlackScholesModuleFactory()
+factory.register_module("EuropeanBinaryOption", BSEuropeanBinaryOption)
 
 # Assign docstrings so they appear in Sphinx documentation
 _set_docstring(BSEuropeanBinaryOption, "inputs", BSModuleMixin.inputs)
