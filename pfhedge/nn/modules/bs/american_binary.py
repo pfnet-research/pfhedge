@@ -5,10 +5,7 @@ from pfhedge._utils.bisect import find_implied_volatility
 from pfhedge._utils.doc import _set_attr_and_docstring
 from pfhedge._utils.str import _format_float
 from pfhedge.nn.functional import bs_american_binary_delta
-from pfhedge.nn.functional import bs_american_binary_gamma
 from pfhedge.nn.functional import bs_american_binary_price
-from pfhedge.nn.functional import bs_american_binary_theta
-from pfhedge.nn.functional import bs_american_binary_vega
 
 from ._base import BSModuleMixin
 
@@ -187,7 +184,7 @@ class BSAmericanBinaryOption(BSModuleMixin):
         Returns:
             torch.Tensor
         """
-        return bs_american_binary_gamma(
+        return super().gamma(
             log_moneyness=log_moneyness,
             max_log_moneyness=max_log_moneyness,
             time_to_maturity=time_to_maturity,
@@ -222,7 +219,7 @@ class BSAmericanBinaryOption(BSModuleMixin):
         Returns:
             torch.Tensor
         """
-        return bs_american_binary_vega(
+        return super().vega(
             log_moneyness=log_moneyness,
             max_log_moneyness=max_log_moneyness,
             time_to_maturity=time_to_maturity,
@@ -260,7 +257,7 @@ class BSAmericanBinaryOption(BSModuleMixin):
         Returns:
             torch.Tensor
         """
-        return bs_american_binary_theta(
+        return super().theta(
             log_moneyness=log_moneyness,
             max_log_moneyness=max_log_moneyness,
             time_to_maturity=time_to_maturity,

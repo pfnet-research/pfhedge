@@ -939,3 +939,104 @@ def bs_american_binary_theta(
         volatility=volatility,
         strike=strike,
     )
+
+
+def bs_lookback_price(
+    log_moneyness: Tensor,
+    max_log_moneyness: Tensor,
+    time_to_maturity: Tensor,
+    volatility: Tensor,
+    strike: TensorOrScalar,
+) -> Tensor:
+    s, m, t, v = map(
+        torch.as_tensor,
+        (log_moneyness, max_log_moneyness, time_to_maturity, volatility),
+    )
+
+    spot = s.exp() * strike
+    max = m.exp() * strike
+    d1_value = d1(s, t, v)
+    d2_value = d2(s, t, v)
+    m1 = d1(s - m, t, v)  # d' in the paper
+    m2 = d2(s - m, t, v)
+
+    # when max < strike
+    price_0 = spot * (
+        ncdf(d1_value) + v * t.sqrt() * (d1_value * ncdf(d1_value) + npdf(d1_value))
+    ) - strike * ncdf(d2_value)
+    # when max >= strike
+    price_1 = (
+        spot * (ncdf(m1) + v * t.sqrt() * (m1 * ncdf(m1) + npdf(m1)))
+        - strike
+        + max * (1 - ncdf(m2))
+    )
+
+    return torch.where(max < strike, price_0, price_1)
+
+
+def bs_lookback_delta(
+    log_moneyness: Tensor,
+    max_log_moneyness: Tensor,
+    time_to_maturity: Tensor,
+    volatility: Tensor,
+    strike: TensorOrScalar,
+) -> Tensor:
+    return autogreek.delta(
+        bs_lookback_price,
+        log_moneyness=log_moneyness,
+        max_log_moneyness=max_log_moneyness,
+        time_to_maturity=time_to_maturity,
+        volatility=volatility,
+        strike=strike,
+    )
+
+
+def bs_lookback_gamma(
+    log_moneyness: Tensor,
+    max_log_moneyness: Tensor,
+    time_to_maturity: Tensor,
+    volatility: Tensor,
+    strike: TensorOrScalar,
+) -> Tensor:
+    return autogreek.gamma(
+        bs_lookback_price,
+        log_moneyness=log_moneyness,
+        max_log_moneyness=max_log_moneyness,
+        time_to_maturity=time_to_maturity,
+        volatility=volatility,
+        strike=strike,
+    )
+
+
+def bs_lookback_vega(
+    log_moneyness: Tensor,
+    max_log_moneyness: Tensor,
+    time_to_maturity: Tensor,
+    volatility: Tensor,
+    strike: TensorOrScalar,
+) -> Tensor:
+    return autogreek.vega(
+        bs_lookback_price,
+        log_moneyness=log_moneyness,
+        max_log_moneyness=max_log_moneyness,
+        time_to_maturity=time_to_maturity,
+        volatility=volatility,
+        strike=strike,
+    )
+
+
+def bs_lookback_theta(
+    log_moneyness: Tensor,
+    max_log_moneyness: Tensor,
+    time_to_maturity: Tensor,
+    volatility: Tensor,
+    strike: TensorOrScalar,
+) -> Tensor:
+    return autogreek.theta(
+        bs_lookback_price,
+        log_moneyness=log_moneyness,
+        max_log_moneyness=max_log_moneyness,
+        time_to_maturity=time_to_maturity,
+        volatility=volatility,
+        strike=strike,
+    )

@@ -7,6 +7,11 @@ from pfhedge._utils.bisect import find_implied_volatility
 from pfhedge._utils.doc import _set_attr_and_docstring
 from pfhedge._utils.doc import _set_docstring
 from pfhedge._utils.str import _format_float
+from pfhedge.nn.functional import bs_lookback_delta
+from pfhedge.nn.functional import bs_lookback_gamma
+from pfhedge.nn.functional import bs_lookback_price
+from pfhedge.nn.functional import bs_lookback_theta
+from pfhedge.nn.functional import bs_lookback_vega
 from pfhedge.nn.functional import d1 as compute_d1
 from pfhedge.nn.functional import d2 as compute_d2
 from pfhedge.nn.functional import ncdf
@@ -142,30 +147,13 @@ class BSLookbackOption(BSModuleMixin):
         Returns:
             torch.Tensor
         """
-        s, m, t, v = map(
-            torch.as_tensor,
-            (log_moneyness, max_log_moneyness, time_to_maturity, volatility),
+        return bs_lookback_price(
+            log_moneyness=log_moneyness,
+            max_log_moneyness=max_log_moneyness,
+            time_to_maturity=time_to_maturity,
+            volatility=volatility,
+            strike=self.strike,
         )
-
-        spot = s.exp() * self.strike
-        max = m.exp() * self.strike
-        d1 = compute_d1(s, t, v)
-        d2 = compute_d2(s, t, v)
-        m1 = compute_d1(s - m, t, v)  # d' in the paper
-        m2 = compute_d2(s - m, t, v)
-
-        # when max < strike
-        price_0 = spot * (
-            ncdf(d1) + v * t.sqrt() * (d1 * ncdf(d1) + npdf(d1))
-        ) - self.strike * ncdf(d2)
-        # when max >= strike
-        price_1 = (
-            spot * (ncdf(m1) + v * t.sqrt() * (m1 * ncdf(m1) + npdf(m1)))
-            - self.strike
-            + max * (1 - ncdf(m2))
-        )
-
-        return torch.where(max < self.strike, price_0, price_1)
 
     @torch.enable_grad()
     def delta(
