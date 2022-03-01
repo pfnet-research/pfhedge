@@ -157,7 +157,7 @@ class BSEuropeanOption(BSModuleMixin):
             torch.Tensor
 
         Note:
-            args are not optional if it doesn't accept derivative in this initialization.
+            Parameters are not optional if the module has not accepted a derivative in its initialization.
         """
         (
             log_moneyness,
