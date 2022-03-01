@@ -28,9 +28,9 @@ This clause can be registered to a derivative as follows:
 
     >>> def cap_clause(derivative, payoff):
     ...     barrier = 1.4
-    ...     max = derivative.ul().spot.max(-1).values
+    ...     max_spot = derivative.ul().spot.max(-1).values
     ...     capped_payoff = torch.full_like(payoff, barrier - strike)
-    ...     return torch.where(max < barrier, payoff, capped_payoff)
+    ...     return torch.where(max_spot < barrier, payoff, capped_payoff)
     ...
     >>> capped_european = EuropeanOption(stock, strike=strike, maturity=maturity)
     >>> capped_european.add_clause("cap_clause", cap_clause)
@@ -45,7 +45,6 @@ The payoff would be capped as intended:
 
     >>> n_paths = 100000
     >>> capped_european.simulate(n_paths=n_paths)
-    ...
     >>> european.payoff().max()
     >>> # 1.2...
     >>> capped_european.payoff().max()
