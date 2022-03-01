@@ -42,16 +42,6 @@ class BlackScholes(Module):
         >>> m = BlackScholes(derivative)
         >>> m
         BSEuropeanOption(strike=1.1000)
-        >>> m.inputs()
-        ['log_moneyness', 'time_to_maturity', 'volatility']
-        >>> input = torch.tensor([
-        ...     [-0.01, 0.1, 0.2],
-        ...     [ 0.00, 0.1, 0.2],
-        ...     [ 0.01, 0.1, 0.2]])
-        >>> m(input)
-        tensor([[0.4497],
-                [0.5126],
-                [0.5752]])
 
         Instantiating :class:`BSLookbackOption` using a
         :class:`pfhedge.instruments.LookbackOption`.
@@ -62,16 +52,6 @@ class BlackScholes(Module):
         >>> m = BlackScholes(derivative)
         >>> m
         BSLookbackOption(strike=1.0300)
-        >>> m.inputs()
-        ['log_moneyness', 'max_log_moneyness', 'time_to_maturity', 'volatility']
-        >>> input = torch.tensor([
-        ...     [-0.01, -0.01, 0.1, 0.2],
-        ...     [ 0.00,  0.00, 0.1, 0.2],
-        ...     [ 0.01,  0.01, 0.1, 0.2]])
-        >>> m(input)
-        tensor([[...],
-                [...],
-                [...]])
     """
 
     inputs: Callable[..., List[str]]  # inputs(self) -> List[str]
