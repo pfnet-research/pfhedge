@@ -2,17 +2,17 @@ import sys
 
 sys.path.append("..")
 
+from math import sqrt
+
+import torch
+
+from pfhedge.instruments import BrownianStock
+from pfhedge.instruments import EuropeanOption
+from pfhedge.nn import BlackScholes
+
 
 def main():
-    import torch
-
     torch.manual_seed(42)
-
-    from math import sqrt
-
-    from pfhedge.instruments import BrownianStock
-    from pfhedge.instruments import EuropeanOption
-    from pfhedge.nn import BlackScholes
 
     strike = 1.0
     maturity = 1.0
@@ -21,9 +21,9 @@ def main():
 
     def cap_clause(derivative, payoff):
         barrier = 1.4
-        max = derivative.ul().spot.max(-1).values
+        max_spot = derivative.ul().spot.max(-1).values
         capped_payoff = torch.full_like(payoff, barrier - strike)
-        return torch.where(max < barrier, payoff, capped_payoff)
+        return torch.where(max_spot < barrier, payoff, capped_payoff)
 
     capped_european = EuropeanOption(stock, strike=strike, maturity=maturity)
     capped_european.add_clause("cap_clause", cap_clause)
@@ -34,10 +34,10 @@ def main():
     payoff_european = european.payoff()
     payoff_capped_european = capped_european.payoff()
 
-    max = payoff_european.max().item()
-    capped_max = payoff_capped_european.max().item()
-    print("Max payoff of vanilla European:", max)
-    print("Max payoff of capped  European:", capped_max)
+    max_spot = payoff_european.max().item()
+    capped_max_spot = payoff_capped_european.max().item()
+    print("Max payoff of vanilla European:", max_spot)
+    print("Max payoff of capped  European:", capped_max_spot)
 
     # Price using control variates
     bs_price = BlackScholes(european).price(0.0, european.maturity, stock.sigma).item()
