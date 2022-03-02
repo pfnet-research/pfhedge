@@ -14,15 +14,7 @@ from .base import BaseOption
 
 
 class AmericanBinaryOption(BaseOption):
-    r"""American binary Option.
-
-    An American binary call option pays an unit amount of cash if and only if
-    the maximum of the underlying asset's price until maturity is equal or greater
-    than the strike price.
-
-    An American binary put option pays an unit amount of cash if and only if
-    the minimum of the underlying asset's price until maturity is equal or smaller
-    than the strike price.
+    r"""American binary option.
 
     The payoff of an American binary call option is given by:
 
@@ -31,10 +23,11 @@ class AmericanBinaryOption(BaseOption):
         \begin{cases}
             1 & (\mathrm{Max} \geq K) \\
             0 & (\text{otherwise})
-        \end{cases}
+        \end{cases} ,
 
-    Here, :math:`\mathrm{Max}` is the maximum of the underlying asset's price
-    until maturity and :math:`K` is the strike price (`strike`) of the option.
+    where
+    :math:`\mathrm{Max}` is the maximum of the underlier's spot price until maturity and
+    :math:`K` is the strike.
 
     The payoff of an American binary put option is given by:
 
@@ -43,12 +36,13 @@ class AmericanBinaryOption(BaseOption):
         \begin{cases}
             1 & (\mathrm{Min} \leq K) \\
             0 & (\text{otherwise})
-        \end{cases}
+        \end{cases} ,
 
-    Here, :math:`\mathrm{Min}` is the minimum of the underlying asset's price.
+    where
+    :math:`\mathrm{Min}` is the minimum of the underlier's spot price until maturity.
 
     .. seealso::
-        :func:`pfhedge.nn.functional.american_binary_payoff`: Payoff function.
+        - :func:`pfhedge.nn.functional.american_binary_payoff`
 
     Args:
         underlier (:class:`BasePrimary`): The underlying instrument of the option.

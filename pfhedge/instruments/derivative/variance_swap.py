@@ -15,19 +15,21 @@ from .base import BaseDerivative
 class VarianceSwap(BaseDerivative):
     r"""Variance swap.
 
-    A variance swap pays cash in the amount of the realized variance
-    until the maturity and levies the cash of the strike variance.
-
     The payoff of a variance swap is given by
 
     .. math::
 
-        \mathrm{payoff} = \sigma^2 - K
+        \mathrm{payoff} = \sigma^2 - K ,
 
-    where :math:`\sigma^2` is the realized variance of the underlying asset
-    until maturity and :math:`K` is the strike variance (``strike``).
-    See :func:`pfhedge.nn.functional.realized_variance` for the definition of
-    the realized variance.
+    where
+    :math:`\sigma^2` is the realized variance of the underlying asset until maturity and
+    :math:`K` is the strike.
+
+    See :func:`pfhedge.nn.functional.realized_variance`
+    for the definition of the realized variance.
+
+    .. seealso::
+        :func:`pfhedge.nn.functional.realized_variance`
 
     Args:
         underlier (:class:`BasePrimary`): The underlying instrument.

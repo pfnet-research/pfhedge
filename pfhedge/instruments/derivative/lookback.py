@@ -16,29 +16,25 @@ from .base import BaseOption
 class LookbackOption(BaseOption):
     r"""Lookback option with fixed strike.
 
-    A lookback call option provides its holder the right to buy an underlying with
-    the strike price and to sell with the highest price until the date of maturity.
-
-    A lookback put option provides its holder the right to sell an underlying with
-    the strike price and to buy with the lowest price until the date of maturity.
-
-    The payoff of a lookback call option is given by:
+    The payoff of a lookback call option is given by
 
     .. math::
-        \mathrm{payoff} = \max(\mathrm{Max} - K, 0)
+        \mathrm{payoff} = \max(\mathrm{Max} - K, 0) ,
 
-    Here, :math:`\mathrm{Max}` is the maximum of the underlying asset's price
-    until maturity and :math:`K` is the strike price (`strike`) of the option.
+    where
+    :math:`\mathrm{Max}` is the maximum of the underlier's spot price until maturity and
+    :math:`K` is the strike.
 
-    The payoff of a lookback put option is given by:
+    The payoff of a lookback put option is given by
 
     .. math::
-        \mathrm{payoff} = \max(K - \mathrm{Min}, 0)
+        \mathrm{payoff} = \max(K - \mathrm{Min}, 0) ,
 
-    Here, :math:`\mathrm{Min}` is the minimum of the underlying asset's price.
+    where
+    :math:`\mathrm{Max}` is the minimum of the underlier's spot price until maturity.
 
     .. seealso::
-        :func:`pfhedge.nn.functional.lookback_payoff`: Payoff function.
+        - :func:`pfhedge.nn.functional.lookback_payoff`
 
     Args:
         underlier (:class:`BasePrimary`): The underlying instrument of the option.
