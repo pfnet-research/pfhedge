@@ -130,8 +130,8 @@ def european_forward_start_payoff(
     Args:
         input (torch.Tensor): The input tensor representing the price trajectory.
         strike (float, default=1.0): The strike price of the option.
-        start_index (torch.Tensor): The time index at which the option starts.
-        end_index (torch.Tensor): The time index at which the option ends.
+        start_index (int, default=0): The time index at which the option starts.
+        end_index (int, default=-1): The time index at which the option ends.
 
     Shape:
         - input: :math:`(*, T)` where
