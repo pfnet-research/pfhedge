@@ -44,7 +44,7 @@ class BaseDerivative(BaseInstrument):
     """
 
     underlier: BasePrimary
-    cost: Optional[float]
+    cost: float
     maturity: float
     pricer: Optional[Callable[[Any], Tensor]]
     _clauses: Dict[str, Callable[["BaseDerivative", Tensor], Tensor]]
@@ -52,7 +52,7 @@ class BaseDerivative(BaseInstrument):
     def __init__(self) -> None:
         super().__init__()
         self.pricer = None
-        self.cost = None
+        self.cost = 0.0
         self._clauses = OrderedDict()
 
     @property
@@ -144,7 +144,7 @@ class BaseDerivative(BaseInstrument):
         After this method self will be a private derivative.
         """
         self.pricer = None
-        self.cost = None
+        self.cost = 0.0
 
     @property
     def is_listed(self) -> bool:
