@@ -3,6 +3,7 @@ from collections import OrderedDict
 from typing import Any
 from typing import Callable
 from typing import Dict
+from typing import Iterator
 from typing import Optional
 from typing import Tuple
 from typing import TypeVar
@@ -19,6 +20,7 @@ from ..base import BaseInstrument
 from ..primary.base import BasePrimary
 
 T = TypeVar("T", bound="BaseDerivative")
+Clause = Callable[[T, Tensor], Tensor]
 
 
 class BaseDerivative(BaseInstrument):
@@ -42,7 +44,7 @@ class BaseDerivative(BaseInstrument):
     """
 
     underlier: BasePrimary
-    cost: float
+    cost: Optional[float]
     maturity: float
     pricer: Optional[Callable[[Any], Tensor]]
     _clauses: Dict[str, Callable[["BaseDerivative", Tensor], Tensor]]
@@ -50,7 +52,7 @@ class BaseDerivative(BaseInstrument):
     def __init__(self) -> None:
         super().__init__()
         self.pricer = None
-        self.cost = 0.0
+        self.cost = None
         self._clauses = OrderedDict()
 
     @property
@@ -116,7 +118,7 @@ class BaseDerivative(BaseInstrument):
             torch.Tensor
         """
         payoff = self.payoff_fn()
-        for clause in self._clauses.values():
+        for clause in self.clauses():
             payoff = clause(self, payoff)
         return payoff
 
@@ -142,14 +144,13 @@ class BaseDerivative(BaseInstrument):
         After this method self will be a private derivative.
         """
         self.pricer = None
+        self.cost = None
 
     @property
     def is_listed(self) -> bool:
         return self.pricer is not None
 
-    def add_clause(
-        self, name: str, clause: Callable[["BaseDerivative", Tensor], Tensor]
-    ) -> None:
+    def add_clause(self, name: str, clause: Clause) -> None:
         """Adds a clause to the derivative.
 
         The clause will be called after :meth:`payoff_fn` method
@@ -173,7 +174,22 @@ class BaseDerivative(BaseInstrument):
             raise KeyError('clause name can\'t contain ".", got: {}'.format(name))
         elif name == "":
             raise KeyError('clause name can\'t be empty string ""')
+
+        if not hasattr(self, "_clauses"):
+            raise AttributeError(
+                "cannot assign clause before BaseDerivative.__init__() call"
+            )
+
         self._clauses[name] = clause
+
+    def named_clauses(self) -> Iterator[Tuple[str, Clause]]:
+        if hasattr(self, "_clauses"):
+            for name, clause in self._clauses.items():
+                yield name, clause
+
+    def clauses(self) -> Iterator[Clause]:
+        for _, clause in self.named_clauses():
+            yield clause
 
     @property
     def spot(self) -> Tensor:
