@@ -517,7 +517,11 @@ def npdf(input: Tensor) -> Tensor:
     return Normal(0.0, 1.0).log_prob(input).exp()
 
 
-def d1(log_moneyness: TensorOrScalar, time_to_maturity: TensorOrScalar, volatility: TensorOrScalar) -> Tensor:
+def d1(
+    log_moneyness: TensorOrScalar,
+    time_to_maturity: TensorOrScalar,
+    volatility: TensorOrScalar,
+) -> Tensor:
     r"""Returns :math:`d_1` in the Black-Scholes formula.
 
     .. math::
@@ -549,8 +553,11 @@ def d1(log_moneyness: TensorOrScalar, time_to_maturity: TensorOrScalar, volatili
     return output.where((s != 0).logical_or(variance != 0), torch.zeros_like(output))
 
 
-
-def d2(log_moneyness: TensorOrScalar, time_to_maturity: TensorOrScalar, volatility: TensorOrScalar) -> Tensor:
+def d2(
+    log_moneyness: TensorOrScalar,
+    time_to_maturity: TensorOrScalar,
+    volatility: TensorOrScalar,
+) -> Tensor:
     r"""Returns :math:`d_2` in the Black-Scholes formula.
 
     .. math::
