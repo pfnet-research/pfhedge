@@ -550,6 +550,7 @@ def d1(
         raise ValueError("all elements in volatility have to be non-negative")
     variance = v * t.sqrt()
     output = s / variance + variance / 2
+    # TODO(simaki): Replace zeros_like with 0.0 once https://github.com/pytorch/pytorch/pull/62084 is merged
     return output.where((s != 0).logical_or(variance != 0), torch.zeros_like(output))
 
 
@@ -586,6 +587,7 @@ def d2(
         raise ValueError("all elements in volatility have to be non-negative")
     variance = v * t.sqrt()
     output = s / variance - variance / 2
+    # TODO(simaki): Replace zeros_like with 0.0 once https://github.com/pytorch/pytorch/pull/62084 is merged
     return output.where((s != 0).logical_or(variance != 0), torch.zeros_like(output))
 
 
