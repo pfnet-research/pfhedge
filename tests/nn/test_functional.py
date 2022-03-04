@@ -304,6 +304,7 @@ def test_bilerp():
     i3 = torch.randn(2, 3)
     i4 = torch.randn(2, 3)
 
+    # edge cases
     result = bilerp(i1, i2, i3, i4, 0.0, 0.0)
     assert_close(result, i1)
     result = bilerp(i1, i2, i3, i4, 1.0, 0.0)
@@ -312,6 +313,12 @@ def test_bilerp():
     assert_close(result, i3)
     result = bilerp(i1, i2, i3, i4, 1.0, 1.0)
     assert_close(result, i4)
+
+    # w1 or w2 = 0 reduces to lerp
+    result = bilerp(i1, i2, i3, i4, 0.1, 0.0)
+    assert_close(result, torch.lerp(i1, i2, 0.1))
+    result = bilerp(i1, i2, i3, i4, 0.0, 0.1)
+    assert_close(result, torch.lerp(i1, i3, 0.1))
+
     result = bilerp(i1, i2, i3, i4, 0.5, 0.5)
-    expect = (i1 + i2 + i3 + i4) / 4
-    assert_close(result, expect)
+    assert_close(result, (i1 + i2 + i3 + i4) / 4)
