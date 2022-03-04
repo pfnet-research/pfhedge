@@ -39,14 +39,15 @@ Other Functions
     :nosignatures:
     :toctree: generated
 
-    leaky_clamp
+    bilerp
     clamp
-    topp
-    realized_variance
-    realized_volatility
-    terminal_value
-    ncdf
-    npdf
     d1
     d2
+    leaky_clamp
+    ncdf
+    npdf
+    realized_variance
+    realized_volatility
     svi_variance
+    terminal_value
+    topp

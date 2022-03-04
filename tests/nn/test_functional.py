@@ -4,6 +4,7 @@ import pytest
 import torch
 from torch.testing import assert_close
 
+from pfhedge.nn.functional import bilerp
 from pfhedge.nn.functional import clamp
 from pfhedge.nn.functional import d1
 from pfhedge.nn.functional import d2
@@ -293,3 +294,24 @@ def test_d2_2():
             time_to_maturity=torch.as_tensor([1.0, 0, 0]),
             volatility=torch.as_tensor([0.2, 0.2, -1.0]),
         )
+
+
+def test_bilerp():
+    torch.manual_seed(42)
+
+    i1 = torch.randn(2, 3)
+    i2 = torch.randn(2, 3)
+    i3 = torch.randn(2, 3)
+    i4 = torch.randn(2, 3)
+
+    result = bilerp(i1, i2, i3, i4, 0.0, 0.0)
+    assert_close(result, i1)
+    result = bilerp(i1, i2, i3, i4, 1.0, 0.0)
+    assert_close(result, i2)
+    result = bilerp(i1, i2, i3, i4, 0.0, 1.0)
+    assert_close(result, i3)
+    result = bilerp(i1, i2, i3, i4, 1.0, 1.0)
+    assert_close(result, i4)
+    result = bilerp(i1, i2, i3, i4, 0.5, 0.5)
+    expect = (i1 + i2 + i3 + i4) / 4
+    assert_close(result, expect)
