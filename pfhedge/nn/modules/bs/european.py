@@ -1,5 +1,4 @@
 from typing import Optional
-from typing import Tuple
 
 import torch
 from torch import Tensor
@@ -15,6 +14,8 @@ from pfhedge.nn.functional import ncdf
 from pfhedge.nn.functional import npdf
 
 from ._base import BSModuleMixin
+from ._base import acquire_params_from_derivative_0
+from ._base import acquire_params_from_derivative_1
 
 
 class BSEuropeanOption(BSModuleMixin):
@@ -101,38 +102,6 @@ class BSEuropeanOption(BSModuleMixin):
         params.append("strike=" + _format_float(self.strike))
         return ", ".join(params)
 
-    def _acquire_params_from_derivative(
-        self,
-        log_moneyness: Optional[Tensor] = None,
-        time_to_maturity: Optional[Tensor] = None,
-        volatility: Optional[Tensor] = None,
-    ) -> Tuple[Tensor, Tensor, Tensor]:
-        if log_moneyness is None:
-            if self.derivative is None:
-                raise ValueError(
-                    "log_moneyness is required if derivative is not set at this initialization."
-                )
-            if self.derivative.ul().spot is None:
-                raise AttributeError("please simulate first")
-            log_moneyness = self.derivative.log_moneyness()
-        if time_to_maturity is None:
-            if self.derivative is None:
-                raise ValueError(
-                    "time_to_maturity is required if derivative is not set at this initialization."
-                )
-            time_to_maturity = self.derivative.time_to_maturity()
-        if volatility is None:
-            if self.derivative is None:
-                raise ValueError(
-                    "time_to_maturity is required if derivative is not set at this initialization."
-                )
-            if self.derivative.ul().volatility is None:
-                raise AttributeError(
-                    "please simulate first and check if volatility exists in the derivative's underlier."
-                )
-            volatility = self.derivative.ul().volatility
-        return log_moneyness, time_to_maturity, volatility
-
     def delta(
         self,
         log_moneyness: Optional[Tensor] = None,
@@ -163,8 +132,8 @@ class BSEuropeanOption(BSModuleMixin):
             log_moneyness,
             time_to_maturity,
             volatility,
-        ) = self._acquire_params_from_derivative(
-            log_moneyness, time_to_maturity, volatility
+        ) = acquire_params_from_derivative_1(
+            self.derivative, log_moneyness, time_to_maturity, volatility
         )
         s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
 
@@ -203,8 +172,8 @@ class BSEuropeanOption(BSModuleMixin):
             log_moneyness,
             time_to_maturity,
             volatility,
-        ) = self._acquire_params_from_derivative(
-            log_moneyness, time_to_maturity, volatility
+        ) = acquire_params_from_derivative_1(
+            self.derivative, log_moneyness, time_to_maturity, volatility
         )
         s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
         price = self.strike * s.exp()
@@ -247,8 +216,8 @@ class BSEuropeanOption(BSModuleMixin):
             log_moneyness,
             time_to_maturity,
             volatility,
-        ) = self._acquire_params_from_derivative(
-            log_moneyness, time_to_maturity, volatility
+        ) = acquire_params_from_derivative_1(
+            self.derivative, log_moneyness, time_to_maturity, volatility
         )
         s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
         price = self.strike * s.exp()
@@ -289,8 +258,8 @@ class BSEuropeanOption(BSModuleMixin):
             log_moneyness,
             time_to_maturity,
             volatility,
-        ) = self._acquire_params_from_derivative(
-            log_moneyness, time_to_maturity, volatility
+        ) = acquire_params_from_derivative_1(
+            self.derivative, log_moneyness, time_to_maturity, volatility
         )
         s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
         price = self.strike * s.exp()
@@ -333,8 +302,8 @@ class BSEuropeanOption(BSModuleMixin):
             log_moneyness,
             time_to_maturity,
             volatility,
-        ) = self._acquire_params_from_derivative(
-            log_moneyness, time_to_maturity, volatility
+        ) = acquire_params_from_derivative_1(
+            self.derivative, log_moneyness, time_to_maturity, volatility
         )
         s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
 
@@ -378,20 +347,9 @@ class BSEuropeanOption(BSModuleMixin):
             args are not optional if it doesn't accept derivative in this initialization.
             price seems optional in typing, but it isn't. It is set for the compatibility to the previous versions.
         """
-        if log_moneyness is None:
-            if self.derivative is None:
-                raise ValueError(
-                    "log_moneyness is required if derivative is not set at this initialization."
-                )
-            if self.derivative.ul().spot is None:
-                raise AttributeError("please simulate first")
-            log_moneyness = self.derivative.log_moneyness()
-        if time_to_maturity is None:
-            if self.derivative is None:
-                raise ValueError(
-                    "time_to_maturity is required if derivative is not set at this initialization."
-                )
-            time_to_maturity = self.derivative.time_to_maturity()
+        (log_moneyness, time_to_maturity) = acquire_params_from_derivative_0(
+            self.derivative, log_moneyness, time_to_maturity
+        )
         if price is None:
             raise ValueError(
                 "price is required in this method. None is set only for compatibility to the previous versions."
