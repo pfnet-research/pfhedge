@@ -113,7 +113,7 @@ class BSEuropeanOption(BSModuleMixin):
                     "log_moneyness is required if derivative is not set at this initialization."
                 )
             if self.derivative.ul().spot is None:
-                raise AssertionError("please simulate first")
+                raise AttributeError("please simulate first")
             log_moneyness = self.derivative.log_moneyness()
         if time_to_maturity is None:
             if self.derivative is None:
@@ -127,7 +127,7 @@ class BSEuropeanOption(BSModuleMixin):
                     "time_to_maturity is required if derivative is not set at this initialization."
                 )
             if self.derivative.ul().volatility is None:
-                raise AssertionError(
+                raise AttributeError(
                     "please simulate first and check if volatility exists in the derivative's underlier."
                 )
             volatility = self.derivative.ul().volatility
@@ -384,7 +384,7 @@ class BSEuropeanOption(BSModuleMixin):
                     "log_moneyness is required if derivative is not set at this initialization."
                 )
             if self.derivative.ul().spot is None:
-                raise AssertionError("please simulate first")
+                raise AttributeError("please simulate first")
             log_moneyness = self.derivative.log_moneyness()
         if time_to_maturity is None:
             if self.derivative is None:

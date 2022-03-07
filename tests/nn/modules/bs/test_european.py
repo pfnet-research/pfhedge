@@ -235,7 +235,7 @@ class TestBSEuropeanOption(_TestBSModule):
         derivative = EuropeanOption(BrownianStock(), call=call)
         m = BSEuropeanOption.from_derivative(derivative)
         m2 = BSEuropeanOption(call=call)
-        with pytest.raises(AssertionError):
+        with pytest.raises(AttributeError):
             m.delta()
         torch.manual_seed(42)
         derivative.simulate(n_paths=1)
@@ -307,7 +307,7 @@ class TestBSEuropeanOption(_TestBSModule):
         derivative = EuropeanOption(BrownianStock(), call=call)
         m = BSEuropeanOption.from_derivative(derivative)
         m2 = BSEuropeanOption(call=call)
-        with pytest.raises(AssertionError):
+        with pytest.raises(AttributeError):
             m.gamma()
         torch.manual_seed(42)
         derivative.simulate(n_paths=1)
@@ -385,7 +385,7 @@ class TestBSEuropeanOption(_TestBSModule):
         derivative = EuropeanOption(BrownianStock(), call=call)
         m = BSEuropeanOption.from_derivative(derivative)
         m2 = BSEuropeanOption(call=call)
-        with pytest.raises(AssertionError):
+        with pytest.raises(AttributeError):
             m.price()
         torch.manual_seed(42)
         derivative.simulate(n_paths=1)
@@ -431,7 +431,7 @@ class TestBSEuropeanOption(_TestBSModule):
         derivative = EuropeanOption(BrownianStock(), call=call)
         m = BSEuropeanOption.from_derivative(derivative)
         m2 = BSEuropeanOption(call=call)
-        with pytest.raises(AssertionError):
+        with pytest.raises(AttributeError):
             m.implied_volatility()
         torch.manual_seed(42)
         derivative.simulate(n_paths=1)
@@ -496,7 +496,7 @@ class TestBSEuropeanOption(_TestBSModule):
         derivative = EuropeanOption(BrownianStock(), call=call)
         m = BSEuropeanOption.from_derivative(derivative)
         m2 = BSEuropeanOption(call=call)
-        with pytest.raises(AssertionError):
+        with pytest.raises(AttributeError):
             m.vega()
         torch.manual_seed(42)
         derivative.simulate(n_paths=1)
@@ -594,7 +594,7 @@ class TestBSEuropeanOption(_TestBSModule):
         derivative = EuropeanOption(BrownianStock(), call=call)
         m = BSEuropeanOption.from_derivative(derivative)
         m2 = BSEuropeanOption(call=call)
-        with pytest.raises(AssertionError):
+        with pytest.raises(AttributeError):
             m.theta()
         torch.manual_seed(42)
         derivative.simulate(n_paths=1)
