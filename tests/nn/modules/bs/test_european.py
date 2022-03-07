@@ -453,9 +453,13 @@ class TestBSEuropeanOption(_TestBSModule):
         )
         assert_close(result, expect)
         with pytest.raises(ValueError):
-            m2.price(None, derivative.time_to_maturity(), derivative.underlier.spot)
+            m2.implied_volatility(
+                None, derivative.time_to_maturity(), derivative.underlier.spot
+            )
         with pytest.raises(ValueError):
-            m2.price(derivative.log_moneyness(), None, derivative.underlier.spot)
+            m2.implied_volatility(
+                derivative.log_moneyness(), None, derivative.underlier.spot
+            )
 
     def test_vega(self):
         input = torch.tensor([[0.0, 0.1, 0.2], [0.0, 0.2, 0.2], [0.0, 0.3, 0.2]])
