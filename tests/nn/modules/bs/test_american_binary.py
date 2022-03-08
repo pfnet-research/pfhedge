@@ -409,17 +409,17 @@ class TestBSAmericanBinaryOption(_TestBSModule):
         assert_close(result, expect)
 
     @pytest.mark.parametrize("call", [True])
-    def test_vega_2(self, call: bool):
+    def test_theta_2(self, call: bool):
         m = BSAmericanBinaryOption(call=call)
         with pytest.raises(ValueError):
-            m.vega(
+            m.theta(
                 torch.tensor(0.0),
                 torch.tensor(0.0),
                 torch.tensor(-1.0),
                 torch.tensor(0.2),
             )
         with pytest.raises(ValueError):
-            m.vega(
+            m.theta(
                 torch.tensor(0.0),
                 torch.tensor(0.0),
                 torch.tensor(1.0),
@@ -427,16 +427,16 @@ class TestBSAmericanBinaryOption(_TestBSModule):
             )
 
     @pytest.mark.parametrize("call", [True])
-    def test_vega_3(self, call: bool):
+    def test_theta_3(self, call: bool):
         derivative = AmericanBinaryOption(BrownianStock(), call=call)
         m = BSAmericanBinaryOption.from_derivative(derivative)
         m2 = BSAmericanBinaryOption(call=call)
         with pytest.raises(AttributeError):
-            m.vega()
+            m.theta()
         torch.manual_seed(42)
         derivative.simulate(n_paths=1)
-        result = m.vega()
-        expect = m2.vega(
+        result = m.theta()
+        expect = m2.theta(
             derivative.log_moneyness(),
             derivative.max_log_moneyness(),
             derivative.time_to_maturity(),
@@ -444,28 +444,28 @@ class TestBSAmericanBinaryOption(_TestBSModule):
         )
         # ToDo: [..., :-1] should be removed
         assert_close(result[..., :-1], expect[..., :-1])
-        result = m.vega(
+        result = m.theta(
             None,
             derivative.max_log_moneyness(),
             derivative.time_to_maturity(),
             derivative.underlier.volatility,
         )
         assert_close(result[..., :-1], expect[..., :-1])
-        result = m.vega(
+        result = m.theta(
             derivative.log_moneyness(),
             None,
             derivative.time_to_maturity(),
             derivative.underlier.volatility,
         )
         assert_close(result[..., :-1], expect[..., :-1])
-        result = m.vega(
+        result = m.theta(
             derivative.log_moneyness(),
             derivative.max_log_moneyness(),
             None,
             derivative.underlier.volatility,
         )
         assert_close(result[..., :-1], expect[..., :-1])
-        result = m.vega(
+        result = m.theta(
             derivative.log_moneyness(),
             derivative.max_log_moneyness(),
             derivative.time_to_maturity(),
@@ -473,28 +473,28 @@ class TestBSAmericanBinaryOption(_TestBSModule):
         )
         assert_close(result[..., :-1], expect[..., :-1])
         with pytest.raises(ValueError):
-            m2.vega(
+            m2.theta(
                 None,
                 derivative.max_log_moneyness(),
                 derivative.time_to_maturity(),
                 derivative.underlier.volatility,
             )
         with pytest.raises(ValueError):
-            m2.vega(
+            m2.theta(
                 derivative.log_moneyness(),
                 None,
                 derivative.time_to_maturity(),
                 derivative.underlier.volatility,
             )
         with pytest.raises(ValueError):
-            m2.vega(
+            m2.theta(
                 derivative.log_moneyness(),
                 derivative.max_log_moneyness(),
                 None,
                 derivative.underlier.volatility,
             )
         with pytest.raises(ValueError):
-            m2.vega(
+            m2.theta(
                 derivative.log_moneyness(),
                 derivative.max_log_moneyness(),
                 derivative.time_to_maturity(),

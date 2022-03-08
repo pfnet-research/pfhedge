@@ -377,9 +377,8 @@ class BSAmericanBinaryOption(BSModuleMixin):
             max_log_moneyness (torch.Tensor, optional): Cumulative maximum of the log moneyness.
             time_to_maturity (torch.Tensor, optional): Time to expiry of the option.
             volatility (torch.Tensor, optional): Volatility of the underlying asset.
-            precision (float): Computational precision of the implied volatility.
-            precision (float, default=1e-6): Computational precision of the implied
-                volatility.
+            price (torch.Tensor): Price of the derivative.
+            precision (float, default=1e-6): Computational precision of the implied volatility.
 
         Shape:
             - log_moneyness: :math:`(N, *)` where
