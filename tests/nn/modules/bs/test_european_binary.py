@@ -559,6 +559,8 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
         #     m.implied_volatility(torch.tensor(0), torch.tensor(0), None)
         torch.manual_seed(42)
         derivative.simulate(n_paths=1)
+        with pytest.raises(ValueError):
+            m.implied_volatility()
         result = m.implied_volatility(price=derivative.underlier.spot)
         expect = m2.implied_volatility(
             derivative.log_moneyness(),
