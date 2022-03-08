@@ -86,6 +86,15 @@ class TestBSAmericanBinaryOption(_TestBSModule):
         m2 = BSAmericanBinaryOption(call=call)
         with pytest.raises(AttributeError):
             m.delta()
+        with pytest.raises(AttributeError):
+            m.delta(None, torch.tensor(1), torch.tensor(2), torch.tensor(3))
+        with pytest.raises(AttributeError):
+            m.delta(torch.tensor(1), None, torch.tensor(2), torch.tensor(3))
+        with pytest.raises(AttributeError):
+            m.delta(torch.tensor(1), torch.tensor(2), None, torch.tensor(3))
+        # ToDo: #530
+        # with pytest.raises(AttributeError):
+        #     m.delta(torch.tensor(1), torch.tensor(2), torch.tensor(3), None)
         torch.manual_seed(42)
         derivative.simulate(n_paths=1)
         result = m.delta()
@@ -200,7 +209,14 @@ class TestBSAmericanBinaryOption(_TestBSModule):
         m = BSAmericanBinaryOption.from_derivative(derivative)
         m2 = BSAmericanBinaryOption(call=call)
         with pytest.raises(AttributeError):
-            m.gamma()
+            m.gamma(None, torch.tensor(1), torch.tensor(2), torch.tensor(3))
+        with pytest.raises(AttributeError):
+            m.gamma(torch.tensor(1), None, torch.tensor(2), torch.tensor(3))
+        with pytest.raises(AttributeError):
+            m.gamma(torch.tensor(1), torch.tensor(2), None, torch.tensor(3))
+        # ToDo: #530
+        # with pytest.raises(AttributeError):
+        #     m.gamma(torch.tensor(1), torch.tensor(2), torch.tensor(3), None)
         torch.manual_seed(42)
         derivative.simulate(n_paths=1)
         result = m.gamma()
@@ -316,7 +332,14 @@ class TestBSAmericanBinaryOption(_TestBSModule):
         m = BSAmericanBinaryOption.from_derivative(derivative)
         m2 = BSAmericanBinaryOption(call=call)
         with pytest.raises(AttributeError):
-            m.vega()
+            m.vega(None, torch.tensor(1), torch.tensor(2), torch.tensor(3))
+        with pytest.raises(AttributeError):
+            m.vega(torch.tensor(1), None, torch.tensor(2), torch.tensor(3))
+        with pytest.raises(AttributeError):
+            m.vega(torch.tensor(1), torch.tensor(2), None, torch.tensor(3))
+        # ToDo: #530
+        # with pytest.raises(AttributeError):
+        #     m.vega(torch.tensor(1), torch.tensor(2), torch.tensor(3), None)
         torch.manual_seed(42)
         derivative.simulate(n_paths=1)
         result = m.vega()
@@ -432,7 +455,14 @@ class TestBSAmericanBinaryOption(_TestBSModule):
         m = BSAmericanBinaryOption.from_derivative(derivative)
         m2 = BSAmericanBinaryOption(call=call)
         with pytest.raises(AttributeError):
-            m.theta()
+            m.theta(None, torch.tensor(1), torch.tensor(2), torch.tensor(3))
+        with pytest.raises(AttributeError):
+            m.theta(torch.tensor(1), None, torch.tensor(2), torch.tensor(3))
+        with pytest.raises(AttributeError):
+            m.theta(torch.tensor(1), torch.tensor(2), None, torch.tensor(3))
+        # ToDo: #530
+        # with pytest.raises(AttributeError):
+        #     m.theta(torch.tensor(1), torch.tensor(2), torch.tensor(3), None)
         torch.manual_seed(42)
         derivative.simulate(n_paths=1)
         result = m.theta()
@@ -548,7 +578,14 @@ class TestBSAmericanBinaryOption(_TestBSModule):
         m = BSAmericanBinaryOption.from_derivative(derivative)
         m2 = BSAmericanBinaryOption(call=call)
         with pytest.raises(AttributeError):
-            m.price()
+            m.price(None, torch.tensor(1), torch.tensor(2), torch.tensor(3))
+        with pytest.raises(AttributeError):
+            m.price(torch.tensor(1), None, torch.tensor(2), torch.tensor(3))
+        with pytest.raises(AttributeError):
+            m.price(torch.tensor(1), torch.tensor(2), None, torch.tensor(3))
+        # ToDo: #530
+        # with pytest.raises(AttributeError):
+        #     m.price(torch.tensor(1), torch.tensor(2), torch.tensor(3), None)
         torch.manual_seed(42)
         derivative.simulate(n_paths=1)
         result = m.price()
@@ -715,7 +752,20 @@ class TestBSAmericanBinaryOption(_TestBSModule):
         m = BSAmericanBinaryOption.from_derivative(derivative)
         m2 = BSAmericanBinaryOption(call=call)
         with pytest.raises(AttributeError):
-            m.implied_volatility()
+            m.implied_volatility(
+                None, torch.tensor(1), torch.tensor(2), torch.tensor(3)
+            )
+        with pytest.raises(AttributeError):
+            m.implied_volatility(
+                torch.tensor(1), None, torch.tensor(2), torch.tensor(3)
+            )
+        with pytest.raises(AttributeError):
+            m.implied_volatility(
+                torch.tensor(1), torch.tensor(2), None, torch.tensor(3)
+            )
+        # ToDo: #530
+        # with pytest.raises(AttributeError):
+        #     m.implied_volatility(torch.tensor(1), torch.tensor(2), torch.tensor(3), None)
         torch.manual_seed(42)
         derivative.simulate(n_paths=1)
         with pytest.raises(ValueError):
