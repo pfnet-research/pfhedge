@@ -1,6 +1,5 @@
 import pytest
 import torch
-from torch import Tensor
 from torch.testing import assert_close
 
 from pfhedge.features._getter import get_feature
@@ -185,17 +184,169 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
         expect = torch.tensor(6.3047)
         assert_close(result, expect, atol=1e-4, rtol=1e-4)
 
+    @pytest.mark.parametrize("call", [True, False])
+    def test_delta_2(self, call: bool):
+        m = BSEuropeanBinaryOption(call=call)
+        with pytest.raises(ValueError):
+            m.delta(torch.tensor(0.0), torch.tensor(-1.0), torch.tensor(0.2))
+        with pytest.raises(ValueError):
+            m.delta(torch.tensor(0.0), torch.tensor(1.0), torch.tensor(-0.2))
+        result = m.delta(torch.tensor(1.0), torch.tensor(1.0), torch.tensor(0))
+        expect = torch.full_like(result, 0.0)
+        assert_close(result, expect)
+        result = m.delta(torch.tensor(1.0), torch.tensor(0.0), torch.tensor(0.1))
+        expect = torch.full_like(result, 0.0)
+        assert_close(result, expect)
+        result = m.delta(torch.tensor(1.0), torch.tensor(0.0), torch.tensor(0.0))
+        expect = torch.full_like(result, 0.0)
+        assert_close(result, expect)
+        result = m.delta(torch.tensor(0.0), torch.tensor(0.0), torch.tensor(0.1))
+        expect = torch.full_like(result, float("inf") if call else -float("inf"))
+        assert_close(result, expect)
+        result = m.delta(torch.tensor(0.0), torch.tensor(0.0), torch.tensor(0.0))
+        expect = torch.full_like(result, float("inf") if call else -float("inf"))
+        assert_close(result, expect)
+
+    @pytest.mark.parametrize("call", [True, False])
+    def test_delta_3(self, call: bool):
+        derivative = EuropeanBinaryOption(BrownianStock(), call=call)
+        m = BSEuropeanBinaryOption.from_derivative(derivative)
+        m2 = BSEuropeanBinaryOption(call=call)
+        with pytest.raises(AttributeError):
+            m.delta()
+        torch.manual_seed(42)
+        derivative.simulate(n_paths=1)
+        result = m.delta()
+        expect = m2.delta(
+            derivative.log_moneyness(),
+            derivative.time_to_maturity(),
+            derivative.underlier.volatility,
+        )
+        assert_close(result, expect)
+        result = m.delta(
+            None, derivative.time_to_maturity(), derivative.underlier.volatility
+        )
+        assert_close(result, expect)
+        result = m.delta(
+            derivative.log_moneyness(), None, derivative.underlier.volatility
+        )
+        assert_close(result, expect)
+        result = m.delta(
+            derivative.log_moneyness(), derivative.time_to_maturity(), None
+        )
+        assert_close(result, expect)
+        with pytest.raises(ValueError):
+            m2.delta(
+                None, derivative.time_to_maturity(), derivative.underlier.volatility
+            )
+        with pytest.raises(ValueError):
+            m2.delta(derivative.log_moneyness(), None, derivative.underlier.volatility)
+        with pytest.raises(ValueError):
+            m2.delta(derivative.log_moneyness(), derivative.time_to_maturity(), None)
+
     def test_gamma(self):
         m = BSEuropeanBinaryOption()
         result = m.gamma(torch.tensor(0.01), torch.tensor(1.0), torch.tensor(0.2))
         expect = torch.tensor(-1.4645787477493286)
         assert_close(result, expect)
 
+    @pytest.mark.parametrize("call", [True, False])
+    def test_gamma_2(self, call: bool):
+        m = BSEuropeanBinaryOption(call=call)
+        with pytest.raises(ValueError):
+            m.gamma(torch.tensor(0.0), torch.tensor(-1.0), torch.tensor(0.2))
+        with pytest.raises(ValueError):
+            m.gamma(torch.tensor(0.0), torch.tensor(1.0), torch.tensor(-0.2))
+        # ToDo
+
+    @pytest.mark.parametrize("call", [True, False])
+    def test_gamma_3(self, call: bool):
+        derivative = EuropeanBinaryOption(BrownianStock(), call=call)
+        m = BSEuropeanBinaryOption.from_derivative(derivative)
+        m2 = BSEuropeanBinaryOption(call=call)
+        with pytest.raises(AttributeError):
+            m.gamma()
+        torch.manual_seed(42)
+        derivative.simulate(n_paths=1)
+        result = m.gamma()
+        expect = m2.gamma(
+            derivative.log_moneyness(),
+            derivative.time_to_maturity(),
+            derivative.underlier.volatility,
+        )
+        # ToDo: [..., :-1] should be removed
+        assert_close(result[..., :-1], expect[..., :-1])
+        result = m.gamma(
+            None, derivative.time_to_maturity(), derivative.underlier.volatility
+        )
+        assert_close(result[..., :-1], expect[..., :-1])
+        result = m.gamma(
+            derivative.log_moneyness(), None, derivative.underlier.volatility
+        )
+        assert_close(result[..., :-1], expect[..., :-1])
+        result = m.gamma(
+            derivative.log_moneyness(), derivative.time_to_maturity(), None
+        )
+        assert_close(result[..., :-1], expect[..., :-1])
+        with pytest.raises(ValueError):
+            m2.gamma(
+                None, derivative.time_to_maturity(), derivative.underlier.volatility
+            )
+        with pytest.raises(ValueError):
+            m2.gamma(derivative.log_moneyness(), None, derivative.underlier.volatility)
+        with pytest.raises(ValueError):
+            m2.gamma(derivative.log_moneyness(), derivative.time_to_maturity(), None)
+
     def test_vega(self):
         m = BSEuropeanBinaryOption()
         result = m.vega(torch.tensor(0.0), torch.tensor(0.1), torch.tensor(0.2))
         expect = torch.tensor(-0.06305)
         assert_close(result, expect, atol=1e-4, rtol=1e-4)
+
+    @pytest.mark.parametrize("call", [True, False])
+    def test_vega_2(self, call: bool):
+        m = BSEuropeanBinaryOption(call=call)
+        with pytest.raises(ValueError):
+            m.vega(torch.tensor(0.0), torch.tensor(-1.0), torch.tensor(0.2))
+        with pytest.raises(ValueError):
+            m.vega(torch.tensor(0.0), torch.tensor(1.0), torch.tensor(-0.2))
+        # ToDo:
+
+    @pytest.mark.parametrize("call", [True, False])
+    def test_vega_3(self, call: bool):
+        derivative = EuropeanBinaryOption(BrownianStock(), call=call)
+        m = BSEuropeanBinaryOption.from_derivative(derivative)
+        m2 = BSEuropeanBinaryOption(call=call)
+        with pytest.raises(AttributeError):
+            m.vega()
+        torch.manual_seed(42)
+        derivative.simulate(n_paths=1)
+        result = m.vega()
+        expect = m2.vega(
+            derivative.log_moneyness(),
+            derivative.time_to_maturity(),
+            derivative.underlier.volatility,
+        )
+        # ToDo: [..., :-1] should be removed
+        assert_close(result[..., :-1], expect[..., :-1])
+        result = m.vega(
+            None, derivative.time_to_maturity(), derivative.underlier.volatility
+        )
+        assert_close(result[..., :-1], expect[..., :-1])
+        result = m.vega(
+            derivative.log_moneyness(), None, derivative.underlier.volatility
+        )
+        assert_close(result[..., :-1], expect[..., :-1])
+        result = m.vega(derivative.log_moneyness(), derivative.time_to_maturity(), None)
+        assert_close(result[..., :-1], expect[..., :-1])
+        with pytest.raises(ValueError):
+            m2.vega(
+                None, derivative.time_to_maturity(), derivative.underlier.volatility
+            )
+        with pytest.raises(ValueError):
+            m2.vega(derivative.log_moneyness(), None, derivative.underlier.volatility)
+        with pytest.raises(ValueError):
+            m2.vega(derivative.log_moneyness(), derivative.time_to_maturity(), None)
 
     def test_vega_and_gamma(self):
         m = BSEuropeanBinaryOption()
@@ -208,11 +359,79 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
         gamma = m.gamma(spot.log(), t, v)
         assert_close(vega, spot.square() * v * t * gamma, atol=1e-3, rtol=0)
 
+    @pytest.mark.parametrize("call", [True, False])
+    def test_vega_and_gamma_2(self, call: bool):
+        derivative = EuropeanBinaryOption(BrownianStock(), call=call)
+        m = BSEuropeanBinaryOption.from_derivative(derivative)
+        torch.manual_seed(42)
+        derivative.simulate(n_paths=1)
+        vega = m.vega()
+        gamma = m.gamma()
+        # ToDo: [..., :-1] should be removed
+        assert_close(
+            vega[..., :-1],
+            (
+                derivative.underlier.spot.square()
+                * derivative.underlier.volatility
+                * derivative.time_to_maturity()
+                * gamma
+            )[..., :-1],
+            atol=1e-3,
+            rtol=0,
+        )
+
     def test_theta(self):
         m = BSEuropeanBinaryOption()
         result = m.theta(torch.tensor(0.0), torch.tensor(0.1), torch.tensor(0.2))
         expect = torch.tensor(0.0630)
         assert_close(result, expect, atol=1e-4, rtol=1e-4)
+
+    @pytest.mark.parametrize("call", [True, False])
+    def test_theta_2(self, call: bool):
+        m = BSEuropeanBinaryOption(call=call)
+        with pytest.raises(ValueError):
+            m.theta(torch.tensor(0.0), torch.tensor(-1.0), torch.tensor(0.2))
+        with pytest.raises(ValueError):
+            m.theta(torch.tensor(0.0), torch.tensor(1.0), torch.tensor(-0.2))
+        # ToDo
+
+    @pytest.mark.parametrize("call", [True, False])
+    def test_theta_3(self, call: bool):
+        derivative = EuropeanBinaryOption(BrownianStock(), call=call)
+        m = BSEuropeanBinaryOption.from_derivative(derivative)
+        m2 = BSEuropeanBinaryOption(call=call)
+        with pytest.raises(AttributeError):
+            m.theta()
+        torch.manual_seed(42)
+        derivative.simulate(n_paths=1)
+        result = m.theta()
+        expect = m2.theta(
+            derivative.log_moneyness(),
+            derivative.time_to_maturity(),
+            derivative.underlier.volatility,
+        )
+        # ToDo: [..., :-1] should be removed
+        assert_close(result[..., :-1], expect[..., :-1])
+        result = m.theta(
+            None, derivative.time_to_maturity(), derivative.underlier.volatility
+        )
+        assert_close(result[..., :-1], expect[..., :-1])
+        result = m.theta(
+            derivative.log_moneyness(), None, derivative.underlier.volatility
+        )
+        assert_close(result[..., :-1], expect[..., :-1])
+        result = m.theta(
+            derivative.log_moneyness(), derivative.time_to_maturity(), None
+        )
+        assert_close(result[..., :-1], expect[..., :-1])
+        with pytest.raises(ValueError):
+            m2.theta(
+                None, derivative.time_to_maturity(), derivative.underlier.volatility
+            )
+        with pytest.raises(ValueError):
+            m2.theta(derivative.log_moneyness(), None, derivative.underlier.volatility)
+        with pytest.raises(ValueError):
+            m2.theta(derivative.log_moneyness(), derivative.time_to_maturity(), None)
 
     def test_price(self):
         m = BSEuropeanBinaryOption()
@@ -225,6 +444,72 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
         expect = torch.tensor(0.4880)
         assert_close(result, expect, atol=1e-4, rtol=1e-4)
 
+    @pytest.mark.parametrize("call", [True, False])
+    def test_price_2(self, call: bool):
+        m = BSEuropeanBinaryOption(call=call)
+        with pytest.raises(ValueError):
+            m.price(torch.tensor(0.0), torch.tensor(-1.0), torch.tensor(0.2))
+        with pytest.raises(ValueError):
+            m.price(torch.tensor(0.0), torch.tensor(1.0), torch.tensor(-0.2))
+        result = m.price(
+            torch.tensor(1.0 if call else -1.0), torch.tensor(1.0), torch.tensor(0)
+        )
+        expect = torch.full_like(result, 1)
+        assert_close(result, expect)
+        result = m.price(
+            torch.tensor(1.0 if call else -1.0), torch.tensor(0.0), torch.tensor(0.1)
+        )
+        expect = torch.full_like(result, 1)
+        assert_close(result, expect)
+        result = m.price(
+            torch.tensor(1.0 if call else -1.0), torch.tensor(0.0), torch.tensor(0.0)
+        )
+        expect = torch.full_like(result, 1)
+        assert_close(result, expect)
+        result = m.price(torch.tensor(0.0), torch.tensor(0.0), torch.tensor(0.1))
+        expect = torch.full_like(result, 0.5)
+        assert_close(result, expect)
+        result = m.price(torch.tensor(0.0), torch.tensor(0.0), torch.tensor(0.0))
+        expect = torch.full_like(result, 0.5)
+        assert_close(result, expect)
+
+    @pytest.mark.parametrize("call", [True, False])
+    def test_price_3(self, call: bool):
+        derivative = EuropeanBinaryOption(BrownianStock(), call=call)
+        m = BSEuropeanBinaryOption.from_derivative(derivative)
+        m2 = BSEuropeanBinaryOption(call=call)
+        with pytest.raises(AttributeError):
+            m.price()
+        torch.manual_seed(42)
+        derivative.simulate(n_paths=1)
+        result = m.price()
+        expect = m2.price(
+            derivative.log_moneyness(),
+            derivative.time_to_maturity(),
+            derivative.underlier.volatility,
+        )
+        assert_close(result, expect)
+        result = m.price(
+            None, derivative.time_to_maturity(), derivative.underlier.volatility
+        )
+        assert_close(result, expect)
+        result = m.price(
+            derivative.log_moneyness(), None, derivative.underlier.volatility
+        )
+        assert_close(result, expect)
+        result = m.price(
+            derivative.log_moneyness(), derivative.time_to_maturity(), None
+        )
+        assert_close(result, expect)
+        with pytest.raises(ValueError):
+            m2.price(
+                None, derivative.time_to_maturity(), derivative.underlier.volatility
+            )
+        with pytest.raises(ValueError):
+            m2.price(derivative.log_moneyness(), None, derivative.underlier.volatility)
+        with pytest.raises(ValueError):
+            m2.price(derivative.log_moneyness(), derivative.time_to_maturity(), None)
+
     def test_implied_volatility(self):
         lm = torch.full((3,), -0.01)
         t = torch.full((3,), 0.1)
@@ -235,6 +520,41 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
 
         result = BSEuropeanBinaryOption().price(lm, t, iv)
         assert_close(result, price, check_stride=False)
+
+    @pytest.mark.parametrize("call", [True, False])
+    def test_implied_volatility_2(self, call: bool):
+        derivative = EuropeanBinaryOption(BrownianStock(), call=call)
+        m = BSEuropeanBinaryOption.from_derivative(derivative)
+        m2 = BSEuropeanBinaryOption(call=call)
+        with pytest.raises(AttributeError):
+            m.implied_volatility()
+        torch.manual_seed(42)
+        derivative.simulate(n_paths=1)
+        with pytest.raises(ValueError):
+            m.implied_volatility()
+        result = m.implied_volatility(price=derivative.underlier.spot)
+        expect = m2.implied_volatility(
+            derivative.log_moneyness(),
+            derivative.time_to_maturity(),
+            derivative.underlier.spot,
+        )
+        assert_close(result, expect)
+        result = m.implied_volatility(
+            None, derivative.time_to_maturity(), derivative.underlier.spot
+        )
+        assert_close(result, expect)
+        result = m.implied_volatility(
+            derivative.log_moneyness(), None, derivative.underlier.spot
+        )
+        assert_close(result, expect)
+        with pytest.raises(ValueError):
+            m2.implied_volatility(
+                None, derivative.time_to_maturity(), derivative.underlier.spot
+            )
+        with pytest.raises(ValueError):
+            m2.implied_volatility(
+                derivative.log_moneyness(), None, derivative.underlier.spot
+            )
 
     def test_example(self):
         from pfhedge.instruments import BrownianStock
