@@ -10,6 +10,7 @@ from torch import Tensor
 from torch.nn import Module
 
 import pfhedge.autogreek as autogreek
+from pfhedge.instruments import AmericanBinaryOption
 from pfhedge.instruments import EuropeanBinaryOption
 from pfhedge.instruments import EuropeanOption
 
@@ -93,7 +94,9 @@ class BSModuleMixin(Module):
 
 
 def acquire_params_from_derivative_0(
-    derivative: Optional[Union[EuropeanOption, EuropeanBinaryOption]],
+    derivative: Optional[
+        Union[EuropeanOption, EuropeanBinaryOption, AmericanBinaryOption]
+    ],
     log_moneyness: Optional[Tensor] = None,
     time_to_maturity: Optional[Tensor] = None,
 ) -> Tuple[Tensor, Tensor]:
@@ -115,7 +118,9 @@ def acquire_params_from_derivative_0(
 
 
 def acquire_params_from_derivative_1(
-    derivative: Optional[Union[EuropeanOption, EuropeanBinaryOption]],
+    derivative: Optional[
+        Union[EuropeanOption, EuropeanBinaryOption, AmericanBinaryOption]
+    ],
     log_moneyness: Optional[Tensor] = None,
     time_to_maturity: Optional[Tensor] = None,
     volatility: Optional[Tensor] = None,
@@ -136,3 +141,28 @@ def acquire_params_from_derivative_1(
             )
         volatility = derivative.ul().volatility
     return log_moneyness, time_to_maturity, volatility
+
+
+def acquire_params_from_derivative_2(
+    derivative: Optional[Union[AmericanBinaryOption]],
+    log_moneyness: Optional[Tensor] = None,
+    max_log_moneyness: Optional[Tensor] = None,
+    time_to_maturity: Optional[Tensor] = None,
+    volatility: Optional[Tensor] = None,
+) -> Tuple[Tensor, Tensor, Tensor, Tensor]:
+    log_moneyness, time_to_maturity, volatility = acquire_params_from_derivative_1(
+        derivative=derivative,
+        log_moneyness=log_moneyness,
+        time_to_maturity=time_to_maturity,
+        volatility=volatility,
+    )
+    if max_log_moneyness is None:
+        if derivative is None:
+            raise ValueError(
+                "max_log_moneyness is required if derivative is not set at this initialization."
+            )
+        if derivative.ul().spot is None:
+            raise AttributeError("please simulate first")
+        max_log_moneyness = derivative.max_log_moneyness()
+
+    return log_moneyness, max_log_moneyness, time_to_maturity, volatility
