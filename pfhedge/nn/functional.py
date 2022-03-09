@@ -15,6 +15,9 @@ from pfhedge._utils.typing import TensorOrScalar
 def european_payoff(input: Tensor, call: bool = True, strike: float = 1.0) -> Tensor:
     """Returns the payoff of a European option.
 
+    .. seealso::
+        - :class:`pfhedge.instruments.EuropeanOption`
+
     Args:
         input (torch.Tensor): The input tensor representing the price trajectory.
         call (bool, default=True): Specifies whether the option is call or put.
@@ -37,6 +40,9 @@ def european_payoff(input: Tensor, call: bool = True, strike: float = 1.0) -> Te
 
 def lookback_payoff(input: Tensor, call: bool = True, strike: float = 1.0) -> Tensor:
     """Returns the payoff of a lookback option with a fixed strike.
+
+    .. seealso::
+        - :class:`pfhedge.instruments.LookbackOption`
 
     Args:
         input (torch.Tensor): The input tensor representing the price trajectory.
@@ -63,6 +69,9 @@ def american_binary_payoff(
 ) -> Tensor:
     """Returns the payoff of an American binary option.
 
+    .. seealso::
+        - :class:`pfhedge.instruments.AmericanBinaryOption`
+
     Args:
         input (torch.Tensor): The input tensor representing the price trajectory.
         call (bool, default=True): Specifies whether the option is call or put.
@@ -88,6 +97,9 @@ def european_binary_payoff(
 ) -> Tensor:
     """Returns the payoff of a European binary option.
 
+    .. seealso::
+        - :class:`pfhedge.instruments.EuropeanBinaryOption`
+
     Args:
         input (torch.Tensor): The input tensor representing the price trajectory.
         call (bool, default=True): Specifies whether the option is call or put.
@@ -109,14 +121,18 @@ def european_binary_payoff(
 
 
 def european_forward_start_payoff(
-    input: Tensor, strike: float = 1.0, start_index: int = 0
+    input: Tensor, strike: float = 1.0, start_index: int = 0, end_index: int = -1
 ) -> Tensor:
     """Returns the payoff of a European forward start option.
 
+    .. seealso::
+        - :class:`pfhedge.instruments.EuropeanForwardStartOption`
+
     Args:
         input (torch.Tensor): The input tensor representing the price trajectory.
-        start_index (torch.Tensor): The time index at which the option starts.
         strike (float, default=1.0): The strike price of the option.
+        start_index (int, default=0): The time index at which the option starts.
+        end_index (int, default=-1): The time index at which the option ends.
 
     Shape:
         - input: :math:`(*, T)` where
@@ -127,7 +143,7 @@ def european_forward_start_payoff(
     Returns:
         torch.Tensor
     """
-    return fn.relu(input[..., -1] / input[..., start_index] - strike)
+    return fn.relu(input[..., end_index] / input[..., start_index] - strike)
 
 
 def exp_utility(input: Tensor, a: float = 1.0) -> Tensor:
