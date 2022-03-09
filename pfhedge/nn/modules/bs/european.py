@@ -2,7 +2,6 @@ from typing import Optional
 
 import torch
 from torch import Tensor
-from torch.distributions.utils import broadcast_all
 
 from pfhedge._utils.bisect import find_implied_volatility
 from pfhedge._utils.doc import _set_attr_and_docstring
@@ -16,6 +15,14 @@ from pfhedge.nn.functional import npdf
 from ._base import BSModuleMixin
 from ._base import acquire_params_from_derivative_0
 from ._base import acquire_params_from_derivative_1
+from pfhedge.nn.functional import bs_european_delta
+from pfhedge.nn.functional import bs_european_gamma
+from pfhedge.nn.functional import bs_european_price
+from pfhedge.nn.functional import bs_european_theta
+from pfhedge.nn.functional import bs_european_vega
+
+from ._base import BSModuleMixin
+from .black_scholes import BlackScholesModuleFactory
 
 
 class BSEuropeanOption(BSModuleMixin):
@@ -65,7 +72,7 @@ class BSEuropeanOption(BSModuleMixin):
         call: bool = True,
         strike: float = 1.0,
         derivative: Optional[EuropeanOption] = None,
-    ):
+    ) -> None:
         super().__init__()
         self.call = call
         self.strike = strike
@@ -135,12 +142,12 @@ class BSEuropeanOption(BSModuleMixin):
         ) = acquire_params_from_derivative_1(
             self.derivative, log_moneyness, time_to_maturity, volatility
         )
-        s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
-
-        delta = ncdf(d1(s, t, v))
-        delta = delta - 1 if not self.call else delta  # put-call parity
-
-        return delta
+        return bs_european_delta(
+            log_moneyness=log_moneyness,
+            time_to_maturity=time_to_maturity,
+            volatility=volatility,
+            call=self.call,
+        )
 
     def gamma(
         self,
@@ -175,15 +182,11 @@ class BSEuropeanOption(BSModuleMixin):
         ) = acquire_params_from_derivative_1(
             self.derivative, log_moneyness, time_to_maturity, volatility
         )
-        s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
-        price = self.strike * s.exp()
-        numerator = npdf(d1(s, t, v))
-        denominator = price * v * t.sqrt()
-        output = numerator / denominator
-        return torch.where(
-            (numerator == 0).logical_and(denominator == 0),
-            torch.zeros_like(output),
-            output,
+        return bs_european_gamma(
+            log_moneyness=log_moneyness,
+            time_to_maturity=time_to_maturity,
+            volatility=volatility,
+            strike=self.strike,
         )
 
     def vega(
@@ -219,11 +222,12 @@ class BSEuropeanOption(BSModuleMixin):
         ) = acquire_params_from_derivative_1(
             self.derivative, log_moneyness, time_to_maturity, volatility
         )
-        s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
-        price = self.strike * s.exp()
-        vega = npdf(d1(s, t, v)) * price * t.sqrt()
-
-        return vega
+        return bs_european_vega(
+            log_moneyness=log_moneyness,
+            time_to_maturity=time_to_maturity,
+            volatility=volatility,
+            strike=self.strike,
+        )
 
     def theta(
         self,
@@ -261,15 +265,11 @@ class BSEuropeanOption(BSModuleMixin):
         ) = acquire_params_from_derivative_1(
             self.derivative, log_moneyness, time_to_maturity, volatility
         )
-        s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
-        price = self.strike * s.exp()
-        numerator = -npdf(d1(s, t, v)) * price * v
-        denominator = 2 * t.sqrt()
-        output = numerator / denominator
-        return torch.where(
-            (numerator == 0).logical_and(denominator == 0),
-            torch.zeros_like(output),
-            output,
+        return bs_european_theta(
+            log_moneyness=log_moneyness,
+            time_to_maturity=time_to_maturity,
+            volatility=volatility,
+            strike=self.strike,
         )
 
     def price(
@@ -305,17 +305,13 @@ class BSEuropeanOption(BSModuleMixin):
         ) = acquire_params_from_derivative_1(
             self.derivative, log_moneyness, time_to_maturity, volatility
         )
-        s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
-
-        n1 = ncdf(d1(s, t, v))
-        n2 = ncdf(d2(s, t, v))
-
-        price = self.strike * (s.exp() * n1 - n2)
-
-        if not self.call:
-            price += self.strike * (1 - s.exp())  # put-call parity
-
-        return price
+        return bs_european_price(
+            log_moneyness=log_moneyness,
+            time_to_maturity=time_to_maturity,
+            volatility=volatility,
+            strike=self.strike,
+            call=self.call,
+        )
 
     def implied_volatility(
         self,
@@ -363,6 +359,9 @@ class BSEuropeanOption(BSModuleMixin):
             precision=precision,
         )
 
+
+factory = BlackScholesModuleFactory()
+factory.register_module("EuropeanOption", BSEuropeanOption)
 
 # Assign docstrings so they appear in Sphinx documentation
 _set_attr_and_docstring(BSEuropeanOption, "inputs", BSModuleMixin.inputs)

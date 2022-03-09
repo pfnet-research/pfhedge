@@ -3,7 +3,6 @@ from typing import Optional
 
 import torch
 from torch import Tensor
-from torch.distributions.utils import broadcast_all
 
 from pfhedge._utils.bisect import find_implied_volatility
 from pfhedge._utils.doc import _set_attr_and_docstring
@@ -17,13 +16,21 @@ from pfhedge.nn.functional import npdf
 from ._base import BSModuleMixin
 from ._base import acquire_params_from_derivative_0
 from ._base import acquire_params_from_derivative_2
+from pfhedge.nn.functional import bs_american_binary_delta
+from pfhedge.nn.functional import bs_american_binary_price
+
+from ._base import BSModuleMixin
+from .black_scholes import BlackScholesModuleFactory
 
 
 class BSAmericanBinaryOption(BSModuleMixin):
-    """Black-Scholes formula for an american binary option.
+    """Black-Scholes formula for an American binary option.
 
     Note:
-        Risk-free rate is set to zero.
+        - The formulas are for continuous monitoring while
+          :class:`pfhedge.instruments.AmericanBinaryOption` monitors spot prices discretely.
+          To get adjustment for discrete monitoring, see, for instance,
+          Broadie, Glasserman, and Kou (1999).
 
     Args:
         call (bool, default=True): Specifies whether the option is call or put.
@@ -45,6 +52,9 @@ class BSAmericanBinaryOption(BSModuleMixin):
     References:
         - Shreve, S.E., 2004. Stochastic calculus for finance II:
           Continuous-time models (Vol. 11). Springer Science & Business Media.
+        - Broadie, M., Glasserman, P. and Kou, S.G., 1999.
+          Connecting discrete and continuous path-dependent options.
+          Finance and Stochastics, 3(1), pp.55-82.
 
     Examples:
         >>> from pfhedge.nn import BSAmericanBinaryOption
@@ -151,11 +161,12 @@ class BSAmericanBinaryOption(BSModuleMixin):
             time_to_maturity,
             volatility,
         )
-
-        s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
-        p = ncdf(d2(s, t, v)) + s.exp() * (1 - ncdf(d2(-s, t, v)))
-
-        return p.where(max_log_moneyness < 0, torch.ones_like(p))
+        return bs_american_binary_price(
+            log_moneyness=log_moneyness,
+            max_log_moneyness=max_log_moneyness,
+            time_to_maturity=time_to_maturity,
+            volatility=volatility,
+        )
 
     def delta(
         self,
@@ -198,16 +209,13 @@ class BSAmericanBinaryOption(BSModuleMixin):
             time_to_maturity,
             volatility,
         )
-        s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
-        spor = s.exp() * self.strike
-        # ToDo: fix 0/0 issue
-        p = (
-            npdf(d2(s, t, v)) / (spor * v * t.sqrt())
-            - (1 - ncdf(d2(-s, t, v))) / self.strike
-            + npdf(d2(-s, t, v)) / (self.strike * v * t.sqrt())
+        return bs_american_binary_delta(
+            log_moneyness=log_moneyness,
+            max_log_moneyness=max_log_moneyness,
+            time_to_maturity=time_to_maturity,
+            volatility=volatility,
+            strike=self.strike,
         )
-
-        return p.where(max_log_moneyness < 0, torch.zeros_like(p))
 
     @torch.enable_grad()
     def gamma(
@@ -252,11 +260,11 @@ class BSAmericanBinaryOption(BSModuleMixin):
             volatility,
         )
         return super().gamma(
-            strike=self.strike,
             log_moneyness=log_moneyness,
             max_log_moneyness=max_log_moneyness,
             time_to_maturity=time_to_maturity,
             volatility=volatility,
+            strike=self.strike,
         )
 
     @torch.enable_grad()
@@ -302,11 +310,11 @@ class BSAmericanBinaryOption(BSModuleMixin):
             volatility,
         )
         return super().vega(
-            strike=self.strike,
             log_moneyness=log_moneyness,
             max_log_moneyness=max_log_moneyness,
             time_to_maturity=time_to_maturity,
             volatility=volatility,
+            strike=self.strike,
         )
 
     @torch.enable_grad()
@@ -355,11 +363,11 @@ class BSAmericanBinaryOption(BSModuleMixin):
             volatility,
         )
         return super().theta(
-            strike=self.strike,
             log_moneyness=log_moneyness,
             max_log_moneyness=max_log_moneyness,
             time_to_maturity=time_to_maturity,
             volatility=volatility,
+            strike=self.strike,
         )
 
     def implied_volatility(
@@ -410,6 +418,9 @@ class BSAmericanBinaryOption(BSModuleMixin):
             precision=precision,
         )
 
+
+factory = BlackScholesModuleFactory()
+factory.register_module("AmericanBinaryOption", BSAmericanBinaryOption)
 
 # Assign docstrings so they appear in Sphinx documentation
 _set_attr_and_docstring(BSAmericanBinaryOption, "inputs", BSModuleMixin.inputs)

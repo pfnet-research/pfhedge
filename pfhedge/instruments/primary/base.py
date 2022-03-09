@@ -1,5 +1,6 @@
 from abc import abstractmethod
 from collections import OrderedDict
+from typing import Any
 from typing import Dict
 from typing import Iterator
 from typing import Optional
@@ -158,7 +159,7 @@ class BasePrimary(BaseInstrument):
     def is_listed(self) -> bool:
         return True
 
-    def to(self: T, *args, **kwargs) -> T:
+    def to(self: T, *args: Any, **kwargs: Any) -> T:
         device, dtype, *_ = self._parse_to(*args, **kwargs)
 
         if dtype is not None and not dtype.is_floating_point:
@@ -178,7 +179,7 @@ class BasePrimary(BaseInstrument):
         return self
 
     @staticmethod
-    def _parse_to(*args, **kwargs):
+    def _parse_to(*args: Any, **kwargs: Any):
         # Can be called as:
         #   to(device=None, dtype=None)
         #   to(tensor)

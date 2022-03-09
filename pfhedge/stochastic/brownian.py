@@ -82,7 +82,7 @@ def generate_brownian(
 
     init_value = init_state[0]
     # randn = torch.randn((n_paths, n_steps), dtype=dtype, device=device)
-    randn = engine((n_paths, n_steps), dtype=dtype, device=device)
+    randn = engine(*(n_paths, n_steps), dtype=dtype, device=device)
     randn[:, 0] = 0.0
     drift = mu * dt * torch.arange(n_steps).to(randn)
     brown = randn.new_tensor(dt).sqrt() * randn.cumsum(1)

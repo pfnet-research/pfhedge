@@ -3,7 +3,6 @@ from typing import Optional
 
 import torch
 from torch import Tensor
-from torch.distributions.utils import broadcast_all
 
 from pfhedge._utils.bisect import find_implied_volatility
 from pfhedge._utils.doc import _set_attr_and_docstring
@@ -18,6 +17,11 @@ from pfhedge.nn.functional import npdf
 from ._base import BSModuleMixin
 from ._base import acquire_params_from_derivative_0
 from ._base import acquire_params_from_derivative_1
+from pfhedge.nn.functional import bs_european_binary_delta
+from pfhedge.nn.functional import bs_european_binary_price
+
+from ._base import BSModuleMixin
+from .black_scholes import BlackScholesModuleFactory
 
 
 class BSEuropeanBinaryOption(BSModuleMixin):
@@ -139,12 +143,12 @@ class BSEuropeanBinaryOption(BSModuleMixin):
         ) = acquire_params_from_derivative_1(
             self.derivative, log_moneyness, time_to_maturity, volatility
         )
-        s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
-
-        price = ncdf(d2(s, t, v))
-        price = 1.0 - price if not self.call else price  # put-call parity
-
-        return price
+        return bs_european_binary_price(
+            log_moneyness=log_moneyness,
+            time_to_maturity=time_to_maturity,
+            volatility=volatility,
+            call=self.call,
+        )
 
     @torch.enable_grad()
     def delta(
@@ -179,21 +183,13 @@ class BSEuropeanBinaryOption(BSModuleMixin):
         ) = acquire_params_from_derivative_1(
             self.derivative, log_moneyness, time_to_maturity, volatility
         )
-        s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
-
-        spot = s.exp() * self.strike
-
-        numerator = npdf(d2(s, t, v))
-        denominator = spot * v * t.sqrt()
-        delta = numerator / denominator
-        delta = torch.where(
-            (numerator == 0).logical_and(denominator == 0),
-            torch.zeros_like(delta),
-            delta,
+        return bs_european_binary_delta(
+            log_moneyness=log_moneyness,
+            time_to_maturity=time_to_maturity,
+            volatility=volatility,
+            call=self.call,
+            strike=self.strike,
         )
-        delta = -delta if not self.call else delta  # put-call parity
-
-        return delta
 
     def gamma(
         self,
@@ -229,10 +225,10 @@ class BSEuropeanBinaryOption(BSModuleMixin):
         )
         # TODO(simaki): Directly compute gamma.
         return super().gamma(
-            strike=self.strike,
             log_moneyness=log_moneyness,
             time_to_maturity=time_to_maturity,
             volatility=volatility,
+            strike=self.strike,
         )
 
     def vega(
@@ -269,10 +265,10 @@ class BSEuropeanBinaryOption(BSModuleMixin):
         )
         # TODO: Directly compute theta.
         return super().vega(
-            strike=self.strike,
             log_moneyness=log_moneyness,
             time_to_maturity=time_to_maturity,
             volatility=volatility,
+            strike=self.strike,
         )
 
     def theta(
@@ -312,10 +308,10 @@ class BSEuropeanBinaryOption(BSModuleMixin):
         )
         # TODO: Directly compute theta.
         return super().theta(
-            strike=self.strike,
             log_moneyness=log_moneyness,
             time_to_maturity=time_to_maturity,
             volatility=volatility,
+            strike=self.strike,
         )
 
     def implied_volatility(
@@ -361,6 +357,9 @@ class BSEuropeanBinaryOption(BSModuleMixin):
             precision=precision,
         )
 
+
+factory = BlackScholesModuleFactory()
+factory.register_module("EuropeanBinaryOption", BSEuropeanBinaryOption)
 
 # Assign docstrings so they appear in Sphinx documentation
 _set_docstring(BSEuropeanBinaryOption, "inputs", BSModuleMixin.inputs)

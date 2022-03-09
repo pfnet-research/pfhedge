@@ -1,3 +1,4 @@
+from typing import Any
 from typing import Callable
 from typing import List
 from typing import Optional
@@ -539,7 +540,7 @@ class Hedger(Module):
         """
         optimizer = self._configure_optimizer(derivative, optimizer)
 
-        def compute_loss(**kwargs) -> Tensor:
+        def compute_loss(**kwargs: Any) -> Tensor:
             return self.compute_loss(
                 derivative,
                 hedge=hedge,
