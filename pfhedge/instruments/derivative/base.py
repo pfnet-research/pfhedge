@@ -80,7 +80,7 @@ class BaseDerivative(BaseInstrument):
         """Alias for ``self.underlier``."""
         return self.underlier
 
-    def to(self: T, *args, **kwargs) -> T:
+    def to(self: T, *args: Any, **kwargs: Any) -> T:
         self.underlier.to(*args, **kwargs)
         return self
 
@@ -198,8 +198,8 @@ class BaseDerivative(BaseInstrument):
 
 
 class Derivative(BaseDerivative):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)  # type: ignore
         raise DeprecationWarning(
             "Derivative is deprecated. Use BaseDerivative instead."
         )
