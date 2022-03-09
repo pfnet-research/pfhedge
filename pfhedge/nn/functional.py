@@ -534,11 +534,15 @@ def npdf(input: Tensor) -> Tensor:
     return Normal(0.0, 1.0).log_prob(input).exp()
 
 
-def d1(log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor) -> Tensor:
+def d1(
+    log_moneyness: TensorOrScalar,
+    time_to_maturity: TensorOrScalar,
+    volatility: TensorOrScalar,
+) -> Tensor:
     r"""Returns :math:`d_1` in the Black-Scholes formula.
 
     .. math::
-        d_1 = \frac{s + \frac12 \sigma^2 t}{\sigma \sqrt{t}}
+        d_1 = \frac{s}{\sigma \sqrt{t}} + \frac{\sigma \sqrt{t}}{2}
 
     where
     :math:`s` is the log moneyness,
@@ -561,19 +565,21 @@ def d1(log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor) -> T
         raise ValueError("all elements in time_to_maturity have to be non-negative")
     if not (v >= 0).all():
         raise ValueError("all elements in volatility have to be non-negative")
-    numerator = s + (v.square() / 2) * t
-    denominator = v * t.sqrt()
-    output = numerator / denominator
-    return torch.where(
-        (numerator == 0).logical_and(denominator == 0), torch.zeros_like(output), output
-    )
+    variance = v * t.sqrt()
+    output = s / variance + variance / 2
+    # TODO(simaki): Replace zeros_like with 0.0 once https://github.com/pytorch/pytorch/pull/62084 is merged
+    return output.where((s != 0).logical_or(variance != 0), torch.zeros_like(output))
 
 
-def d2(log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor) -> Tensor:
+def d2(
+    log_moneyness: TensorOrScalar,
+    time_to_maturity: TensorOrScalar,
+    volatility: TensorOrScalar,
+) -> Tensor:
     r"""Returns :math:`d_2` in the Black-Scholes formula.
 
     .. math::
-        d_2 = \frac{s - \frac12 \sigma^2 t}{\sigma \sqrt{t}}
+        d_2 = \frac{s}{\sigma \sqrt{t}} - \frac{\sigma \sqrt{t}}{2}
 
     where
     :math:`s` is the log moneyness,
@@ -596,12 +602,10 @@ def d2(log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor) -> T
         raise ValueError("all elements in time_to_maturity have to be non-negative")
     if not (v >= 0).all():
         raise ValueError("all elements in volatility have to be non-negative")
-    numerator = s - (v.square() / 2) * t
-    denominator = v * t.sqrt()
-    output = numerator / denominator
-    return torch.where(
-        (numerator == 0).logical_and(denominator == 0), torch.zeros_like(output), output
-    )
+    variance = v * t.sqrt()
+    output = s / variance - variance / 2
+    # TODO(simaki): Replace zeros_like with 0.0 once https://github.com/pytorch/pytorch/pull/62084 is merged
+    return output.where((s != 0).logical_or(variance != 0), torch.zeros_like(output))
 
 
 def ww_width(
