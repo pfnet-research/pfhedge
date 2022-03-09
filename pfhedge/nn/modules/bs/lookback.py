@@ -18,6 +18,7 @@ from pfhedge.nn.functional import ncdf
 from pfhedge.nn.functional import npdf
 
 from ._base import BSModuleMixin
+from .black_scholes import BlackScholesModuleFactory
 
 
 class BSLookbackOption(BSModuleMixin):
@@ -341,6 +342,9 @@ class BSLookbackOption(BSModuleMixin):
             precision=precision,
         )
 
+
+factory = BlackScholesModuleFactory()
+factory.register_module("LookbackOption", BSLookbackOption)
 
 # Assign docstrings so they appear in Sphinx documentation
 _set_docstring(BSLookbackOption, "inputs", BSModuleMixin.inputs)

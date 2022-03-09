@@ -11,6 +11,7 @@ from pfhedge.nn.functional import bs_european_binary_delta
 from pfhedge.nn.functional import bs_european_binary_price
 
 from ._base import BSModuleMixin
+from .black_scholes import BlackScholesModuleFactory
 
 
 class BSEuropeanBinaryOption(BSModuleMixin):
@@ -257,6 +258,9 @@ class BSEuropeanBinaryOption(BSModuleMixin):
             precision=precision,
         )
 
+
+factory = BlackScholesModuleFactory()
+factory.register_module("EuropeanBinaryOption", BSEuropeanBinaryOption)
 
 # Assign docstrings so they appear in Sphinx documentation
 _set_docstring(BSEuropeanBinaryOption, "inputs", BSModuleMixin.inputs)

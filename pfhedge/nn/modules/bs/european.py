@@ -11,6 +11,7 @@ from pfhedge.nn.functional import bs_european_theta
 from pfhedge.nn.functional import bs_european_vega
 
 from ._base import BSModuleMixin
+from .black_scholes import BlackScholesModuleFactory
 
 
 class BSEuropeanOption(BSModuleMixin):
@@ -262,6 +263,9 @@ class BSEuropeanOption(BSModuleMixin):
             precision=precision,
         )
 
+
+factory = BlackScholesModuleFactory()
+factory.register_module("EuropeanOption", BSEuropeanOption)
 
 # Assign docstrings so they appear in Sphinx documentation
 _set_attr_and_docstring(BSEuropeanOption, "inputs", BSModuleMixin.inputs)
