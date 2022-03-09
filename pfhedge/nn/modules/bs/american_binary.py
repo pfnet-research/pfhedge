@@ -1,16 +1,11 @@
-from math import sqrt
-
 import torch
 from torch import Tensor
-from torch.distributions.utils import broadcast_all
 
 from pfhedge._utils.bisect import find_implied_volatility
 from pfhedge._utils.doc import _set_attr_and_docstring
 from pfhedge._utils.str import _format_float
-from pfhedge.nn.functional import d1
-from pfhedge.nn.functional import d2
-from pfhedge.nn.functional import ncdf
-from pfhedge.nn.functional import npdf
+from pfhedge.nn.functional import bs_american_binary_delta
+from pfhedge.nn.functional import bs_american_binary_price
 
 from ._base import BSModuleMixin
 
@@ -121,14 +116,12 @@ class BSAmericanBinaryOption(BSModuleMixin):
         Returns:
             torch.Tensor
         """
-        # This formula is derived using the results in Section 7.3.3 of Shreve's book.
-        # Price is I_2 - I_4 where the interval of integration is [k --> -inf, b].
-        # By this substitution we get N([log(S(0) / K) + ...] / sigma T) --> 1.
-
-        s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
-        p = ncdf(d2(s, t, v)) + s.exp() * (1 - ncdf(d2(-s, t, v)))
-
-        return p.where(max_log_moneyness < 0, torch.ones_like(p))
+        return bs_american_binary_price(
+            log_moneyness=log_moneyness,
+            max_log_moneyness=max_log_moneyness,
+            time_to_maturity=time_to_maturity,
+            volatility=volatility,
+        )
 
     def delta(
         self,
@@ -156,16 +149,13 @@ class BSAmericanBinaryOption(BSModuleMixin):
         Returns:
             torch.Tensor
         """
-        s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
-        spor = s.exp() * self.strike
-        # ToDo: fix 0/0 issue
-        p = (
-            npdf(d2(s, t, v)) / (spor * v * t.sqrt())
-            - (1 - ncdf(d2(-s, t, v))) / self.strike
-            + npdf(d2(-s, t, v)) / (self.strike * v * t.sqrt())
+        return bs_american_binary_delta(
+            log_moneyness=log_moneyness,
+            max_log_moneyness=max_log_moneyness,
+            time_to_maturity=time_to_maturity,
+            volatility=volatility,
+            strike=self.strike,
         )
-
-        return p.where(max_log_moneyness < 0, torch.zeros_like(p))
 
     @torch.enable_grad()
     def gamma(
@@ -195,11 +185,11 @@ class BSAmericanBinaryOption(BSModuleMixin):
             torch.Tensor
         """
         return super().gamma(
-            strike=self.strike,
             log_moneyness=log_moneyness,
             max_log_moneyness=max_log_moneyness,
             time_to_maturity=time_to_maturity,
             volatility=volatility,
+            strike=self.strike,
         )
 
     @torch.enable_grad()
@@ -230,11 +220,11 @@ class BSAmericanBinaryOption(BSModuleMixin):
             torch.Tensor
         """
         return super().vega(
-            strike=self.strike,
             log_moneyness=log_moneyness,
             max_log_moneyness=max_log_moneyness,
             time_to_maturity=time_to_maturity,
             volatility=volatility,
+            strike=self.strike,
         )
 
     @torch.enable_grad()
@@ -268,11 +258,11 @@ class BSAmericanBinaryOption(BSModuleMixin):
             torch.Tensor
         """
         return super().theta(
-            strike=self.strike,
             log_moneyness=log_moneyness,
             max_log_moneyness=max_log_moneyness,
             time_to_maturity=time_to_maturity,
             volatility=volatility,
+            strike=self.strike,
         )
 
     def implied_volatility(
