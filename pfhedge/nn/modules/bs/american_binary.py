@@ -12,10 +12,13 @@ from .black_scholes import BlackScholesModuleFactory
 
 
 class BSAmericanBinaryOption(BSModuleMixin):
-    """Black-Scholes formula for an american binary option.
+    """Black-Scholes formula for an American binary option.
 
     Note:
-        Risk-free rate is set to zero.
+        - The formulas are for continuous monitoring while
+          :class:`pfhedge.instruments.AmericanBinaryOption` monitors spot prices discretely.
+          To get adjustment for discrete monitoring, see, for instance,
+          Broadie, Glasserman, and Kou (1999).
 
     Args:
         call (bool, default=True): Specifies whether the option is call or put.
@@ -37,6 +40,9 @@ class BSAmericanBinaryOption(BSModuleMixin):
     References:
         - Shreve, S.E., 2004. Stochastic calculus for finance II:
           Continuous-time models (Vol. 11). Springer Science & Business Media.
+        - Broadie, M., Glasserman, P. and Kou, S.G., 1999.
+          Connecting discrete and continuous path-dependent options.
+          Finance and Stochastics, 3(1), pp.55-82.
 
     Examples:
         >>> from pfhedge.nn import BSAmericanBinaryOption
