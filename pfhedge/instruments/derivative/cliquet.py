@@ -21,14 +21,17 @@ class EuropeanForwardStartOption(BaseDerivative):
         \mathrm{payoff} = \max(S_T / S_{T'} - K, 0) ,
 
     where
-    :math:`S_T` is the underlying asset's price at maturity,
-    :math:`S_{T'}` is the underlying asset's price at start, and
-    :math:`K` is the strike value of the option.
+    :math:`S_T` is the underlier's spot price at maturity,
+    :math:`S_{T'}` is the underlier's spot price at ``start``, and
+    :math:`K` is the strike.
 
     Note:
         If ``start`` is not divisible by the interval of the time step,
         it is rounded off so that the start time is the largest value
         that is divisible by the interval and less than ``start``.
+
+    .. seealso::
+        - :func:`pfhedge.nn.functional.european_forward_start_payoff`
 
     Args:
         underlier (:class:`BasePrimary`): The underlying instrument of the option.

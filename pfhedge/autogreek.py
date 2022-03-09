@@ -1,4 +1,5 @@
 from inspect import signature
+from typing import Any
 from typing import Callable
 
 import torch
@@ -10,7 +11,7 @@ from ._utils.parse import parse_volatility
 
 
 def delta(
-    pricer: Callable[..., Tensor], *, create_graph: bool = False, **params
+    pricer: Callable[..., Tensor], *, create_graph: bool = False, **params: Any
 ) -> Tensor:
     """Computes and returns delta of a derivative using automatic differentiation.
 
@@ -42,12 +43,14 @@ def delta(
         >>> import pfhedge.autogreek as autogreek
         >>> from pfhedge.nn import BSEuropeanOption
         >>>
+        >>> # TODO(simaki): Rewrite using functional
         >>> pricer = BSEuropeanOption().price
         >>> autogreek.delta(
         ...     pricer,
         ...     log_moneyness=torch.zeros(3),
         ...     time_to_maturity=torch.ones(3),
         ...     volatility=torch.tensor([0.18, 0.20, 0.22]),
+        ...     strike=1.0,
         ... )
         tensor([0.5359, 0.5398, 0.5438])
 
@@ -81,11 +84,6 @@ def delta(
         >>> autogreek.delta(pricer, spot=torch.tensor(1.0))
         tensor(0.5...)
     """
-    if params.get("strike") is None and params.get("spot") is None:
-        # Since delta does not depend on strike,
-        # assign an arbitrary value (1.0) to strike if not given.
-        params["strike"] = torch.tensor(1.0)
-
     spot = parse_spot(**params).requires_grad_()
     params["spot"] = spot
     if "strike" in params:
@@ -108,7 +106,7 @@ def delta(
 
 
 def gamma(
-    pricer: Callable[..., Tensor], *, create_graph: bool = False, **params
+    pricer: Callable[..., Tensor], *, create_graph: bool = False, **params: Any
 ) -> Tensor:
     """Computes and returns gamma of a derivative.
 
@@ -134,7 +132,6 @@ def gamma(
         torch.Tensor
 
     Examples:
-
         Gamma of a European option can be evaluated as follows.
 
         >>> import pfhedge.autogreek as autogreek
@@ -175,7 +172,7 @@ def gamma(
 
 
 def vega(
-    pricer: Callable[..., Tensor], *, create_graph: bool = False, **params
+    pricer: Callable[..., Tensor], *, create_graph: bool = False, **params: Any
 ) -> Tensor:
     """Computes and returns vega of a derivative using automatic differentiation.
 
@@ -200,7 +197,6 @@ def vega(
         torch.Tensor
 
     Examples:
-
         Vega of a European option can be evaluated as follows.
 
         >>> import pfhedge.autogreek as autogreek
@@ -235,7 +231,7 @@ def vega(
 
 
 def theta(
-    pricer: Callable[..., Tensor], *, create_graph: bool = False, **params
+    pricer: Callable[..., Tensor], *, create_graph: bool = False, **params: Any
 ) -> Tensor:
     """Computes and returns theta of a derivative using automatic differentiation.
 
@@ -259,7 +255,6 @@ def theta(
         torch.Tensor
 
     Examples:
-
         Theta of a European option can be evaluated as follows.
 
         >>> import pfhedge.autogreek as autogreek

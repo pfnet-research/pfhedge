@@ -1,3 +1,4 @@
+from typing import Any
 from typing import Callable
 from typing import Union
 
@@ -86,7 +87,7 @@ def find_implied_volatility(
     upper: float = 1.000,
     precision: float = 1e-6,
     max_iter: int = 100,
-    **params,
+    **params: Any,
 ) -> Tensor:
     """Find implied volatility by binary search.
 

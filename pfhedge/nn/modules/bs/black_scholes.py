@@ -1,13 +1,47 @@
+from collections import OrderedDict
 from typing import Callable
+from typing import Dict
+from typing import Iterator
 from typing import List
+from typing import Tuple
+from typing import Type
 
 from torch import Tensor
 from torch.nn import Module
 
-from .american_binary import BSAmericanBinaryOption
-from .european import BSEuropeanOption
-from .european_binary import BSEuropeanBinaryOption
-from .lookback import BSLookbackOption
+
+class BlackScholesModuleFactory:
+
+    _modules: Dict[str, Type[Module]]
+
+    # singleton
+    def __new__(cls, *args, **kwargs):
+        if not hasattr(cls, "_instance"):
+            cls._instance = super().__new__(cls)
+            cls._instance._modules = OrderedDict()
+        return cls._instance
+
+    def register_module(self, name: str, cls: Type[Module]) -> None:
+        self._modules[name] = cls
+
+    def named_modules(self) -> Iterator[Tuple[str, Type[Module]]]:
+        for name, module in self._modules.items():
+            if module is not None:
+                yield name, module
+
+    def names(self) -> Iterator[str]:
+        for name, _ in self.named_modules():
+            yield name
+
+    def features(self) -> Iterator[Type[Module]]:
+        for _, module in self.named_modules():
+            yield module
+
+    def get_class(self, name: str) -> Type[Module]:
+        return self._modules[name]
+
+    def get_class_from_derivative(self, derivative) -> Type[Module]:
+        return self.get_class(derivative.__class__.__name__).from_derivative(derivative)  # type: ignore
 
 
 class BlackScholes(Module):
@@ -42,16 +76,6 @@ class BlackScholes(Module):
         >>> m = BlackScholes(derivative)
         >>> m
         BSEuropeanOption(strike=1.1000)
-        >>> m.inputs()
-        ['log_moneyness', 'time_to_maturity', 'volatility']
-        >>> input = torch.tensor([
-        ...     [-0.01, 0.1, 0.2],
-        ...     [ 0.00, 0.1, 0.2],
-        ...     [ 0.01, 0.1, 0.2]])
-        >>> m(input)
-        tensor([[0.4497],
-                [0.5126],
-                [0.5752]])
 
         Instantiating :class:`BSLookbackOption` using a
         :class:`pfhedge.instruments.LookbackOption`.
@@ -62,27 +86,14 @@ class BlackScholes(Module):
         >>> m = BlackScholes(derivative)
         >>> m
         BSLookbackOption(strike=1.0300)
-        >>> m.inputs()
-        ['log_moneyness', 'max_log_moneyness', 'time_to_maturity', 'volatility']
-        >>> input = torch.tensor([
-        ...     [-0.01, -0.01, 0.1, 0.2],
-        ...     [ 0.00,  0.00, 0.1, 0.2],
-        ...     [ 0.01,  0.01, 0.1, 0.2]])
-        >>> m(input)
-        tensor([[...],
-                [...],
-                [...]])
     """
 
     inputs: Callable[..., List[str]]  # inputs(self) -> List[str]
     price: Callable[..., Tensor]  # price(self, ...) -> Tensor
     delta: Callable[..., Tensor]  # delta(self, ...) -> Tensor
     gamma: Callable[..., Tensor]  # gamma(self, ...) -> Tensor
+    vega: Callable[..., Tensor]  # vega(self, ...) -> Tensor
+    theta: Callable[..., Tensor]  # theta(self, ...) -> Tensor
 
     def __new__(cls, derivative):
-        return {
-            "EuropeanOption": BSEuropeanOption,
-            "LookbackOption": BSLookbackOption,
-            "AmericanBinaryOption": BSAmericanBinaryOption,
-            "EuropeanBinaryOption": BSEuropeanBinaryOption,
-        }[derivative.__class__.__name__].from_derivative(derivative)
+        return BlackScholesModuleFactory().get_class_from_derivative(derivative)

@@ -27,6 +27,9 @@ jobs:
     - name: Bump version
       run: git branch --show-current | sed 's|release/||' | xargs poetry version | { printf '::set-output name=PR_TITLE::'; cat; }
       id: bump
+    
+    - name: Bump pfhedge.__version__
+      run:  git branch --show-current | sed 's|release/||' | xargs -I {} echo '__version__ = "{}"' > pfhedge/version.py
 
     - name: Create pull request
       uses: peter-evans/create-pull-request@v3

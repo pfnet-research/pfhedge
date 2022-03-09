@@ -8,7 +8,7 @@ from torch import Tensor
 from pfhedge._utils.typing import TensorOrScalar
 
 
-def _get_epsilon(dtype: Optional[torch.dtype]):
+def _get_epsilon(dtype: Optional[torch.dtype]) -> float:
     return torch.finfo(dtype).tiny if dtype else torch.finfo().tiny
 
 

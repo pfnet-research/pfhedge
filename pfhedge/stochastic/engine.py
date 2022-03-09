@@ -15,7 +15,7 @@ def _box_muller(input0: Tensor, input1: Tensor) -> Tuple[Tensor, Tensor]:
     return z0, z1
 
 
-def _get_numel(size: Tuple[int, ...]):
+def _get_numel(size: Tuple[int, ...]) -> int:
     out = 1
     for dim in size:
         out *= dim
@@ -42,11 +42,11 @@ class RandnSobolBoxMuller:
 
     def __call__(
         self,
-        *size: Tuple[int, ...],
+        *size: int,
         dtype: Optional[torch.dtype] = None,
         device: Optional[torch.device] = None,
     ) -> Tensor:
-        numel = _get_numel(*size)
+        numel = _get_numel(tuple(size))
         output = self._generate_1d(numel, dtype=dtype, device=device)
         output.resize_(*size)
         return output

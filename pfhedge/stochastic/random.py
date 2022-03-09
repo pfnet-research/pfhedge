@@ -1,9 +1,18 @@
+from typing import Optional
+
 import torch
+from torch import Tensor
 
 from .engine import RandnSobolBoxMuller
 
 
-def randn_antithetic(*size, dtype=None, device=None, dim=0, shuffle=True):
+def randn_antithetic(
+    *size: int,
+    dtype: Optional[torch.dtype] = None,
+    device: Optional[torch.device] = None,
+    dim: int = 0,
+    shuffle: bool = True
+) -> Tensor:
     """Returns a tensor filled with random numbers obtained by an antithetic sampling.
 
     The output should be a normal distribution with mean 0 and variance 1
@@ -40,8 +49,8 @@ def randn_antithetic(*size, dtype=None, device=None, dim=0, shuffle=True):
     if dim != 0:
         raise ValueError("dim != 0 is not supported.")
 
-    size = list(size)
-    size_half = [-(-size[0] // 2)] + size[1:]
+    size_list = list(size)
+    size_half = [-(-size_list[0] // 2)] + size_list[1:]
     randn = torch.randn(*size_half, dtype=dtype, device=device)
 
     output = torch.cat((randn, -randn), dim=0)
@@ -49,12 +58,18 @@ def randn_antithetic(*size, dtype=None, device=None, dim=0, shuffle=True):
     if shuffle:
         output = output[torch.randperm(output.size(dim))]
 
-    output = output[: size[0]]
+    output = output[: size_list[0]]
 
     return output
 
 
-def randn_sobol_boxmuller(*size, dtype=None, device=None, scramble=True, seed=None):
+def randn_sobol_boxmuller(
+    *size: int,
+    dtype: Optional[torch.dtype] = None,
+    device: Optional[torch.device] = None,
+    scramble: bool = True,
+    seed: Optional[int] = None
+) -> Tensor:
     """Returns a tensor filled with random numbers obtained by a Sobol sequence
     applied with the Box-Muller transformation.
 
@@ -80,7 +95,7 @@ def randn_sobol_boxmuller(*size, dtype=None, device=None, scramble=True, seed=No
         >>> from pfhedge.stochastic import randn_sobol_boxmuller
         >>>
         >>> _ = torch.manual_seed(42)
-        >>> output = randn_sobol_boxmuller((4, 3))
+        >>> output = randn_sobol_boxmuller(4, 3)
         >>> output
         tensor([[ 0.0559,  0.4954, -0.8578],
                 [-0.7492, -1.0370, -0.4778],
