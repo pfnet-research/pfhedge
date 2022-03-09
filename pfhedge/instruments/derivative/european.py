@@ -16,25 +16,22 @@ from .base import BaseOption
 class EuropeanOption(BaseOption):
     r"""European option.
 
-    A European option provides its holder the right to buy (for call option)
-    or sell (for put option) an underlying asset with the strike price
-    on the date of maturity.
-
     The payoff of a European call option is given by:
 
     .. math::
-        \mathrm{payoff} = \max(S - K, 0)
+        \mathrm{payoff} = \max(S - K, 0) ,
 
-    Here, :math:`S` is the underlying asset's price at maturity and
-    :math:`K` is the strike price (`strike`) of the option.
+    where
+    :math:`S` is the underlier's spot price at maturity and
+    :math:`K` is the strike.
 
     The payoff of a European put option is given by:
 
     .. math::
-        \mathrm{payoff} = \max(K - S, 0)
+        \mathrm{payoff} = \max(K - S, 0) .
 
     .. seealso::
-        :func:`pfhedge.nn.functional.european_payoff`: Payoff function.
+        - :func:`pfhedge.nn.functional.european_payoff`
 
     Args:
         underlier (:class:`BasePrimary`): The underlying instrument of the option.

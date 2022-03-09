@@ -8,11 +8,15 @@ from torch import Tensor
 from torch.distributions.normal import Normal
 from torch.distributions.utils import broadcast_all
 
+import pfhedge.autogreek as autogreek
 from pfhedge._utils.typing import TensorOrScalar
 
 
 def european_payoff(input: Tensor, call: bool = True, strike: float = 1.0) -> Tensor:
     """Returns the payoff of a European option.
+
+    .. seealso::
+        - :class:`pfhedge.instruments.EuropeanOption`
 
     Args:
         input (torch.Tensor): The input tensor representing the price trajectory.
@@ -36,6 +40,9 @@ def european_payoff(input: Tensor, call: bool = True, strike: float = 1.0) -> Te
 
 def lookback_payoff(input: Tensor, call: bool = True, strike: float = 1.0) -> Tensor:
     """Returns the payoff of a lookback option with a fixed strike.
+
+    .. seealso::
+        - :class:`pfhedge.instruments.LookbackOption`
 
     Args:
         input (torch.Tensor): The input tensor representing the price trajectory.
@@ -62,6 +69,9 @@ def american_binary_payoff(
 ) -> Tensor:
     """Returns the payoff of an American binary option.
 
+    .. seealso::
+        - :class:`pfhedge.instruments.AmericanBinaryOption`
+
     Args:
         input (torch.Tensor): The input tensor representing the price trajectory.
         call (bool, default=True): Specifies whether the option is call or put.
@@ -87,6 +97,9 @@ def european_binary_payoff(
 ) -> Tensor:
     """Returns the payoff of a European binary option.
 
+    .. seealso::
+        - :class:`pfhedge.instruments.EuropeanBinaryOption`
+
     Args:
         input (torch.Tensor): The input tensor representing the price trajectory.
         call (bool, default=True): Specifies whether the option is call or put.
@@ -108,14 +121,18 @@ def european_binary_payoff(
 
 
 def european_forward_start_payoff(
-    input: Tensor, strike: float = 1.0, start_index: int = 0
+    input: Tensor, strike: float = 1.0, start_index: int = 0, end_index: int = -1
 ) -> Tensor:
     """Returns the payoff of a European forward start option.
 
+    .. seealso::
+        - :class:`pfhedge.instruments.EuropeanForwardStartOption`
+
     Args:
         input (torch.Tensor): The input tensor representing the price trajectory.
-        start_index (torch.Tensor): The time index at which the option starts.
         strike (float, default=1.0): The strike price of the option.
+        start_index (int, default=0): The time index at which the option starts.
+        end_index (int, default=-1): The time index at which the option ends.
 
     Shape:
         - input: :math:`(*, T)` where
@@ -126,7 +143,7 @@ def european_forward_start_payoff(
     Returns:
         torch.Tensor
     """
-    return fn.relu(input[..., -1] / input[..., start_index] - strike)
+    return fn.relu(input[..., end_index] / input[..., start_index] - strike)
 
 
 def exp_utility(input: Tensor, a: float = 1.0) -> Tensor:
@@ -517,11 +534,15 @@ def npdf(input: Tensor) -> Tensor:
     return Normal(0.0, 1.0).log_prob(input).exp()
 
 
-def d1(log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor) -> Tensor:
+def d1(
+    log_moneyness: TensorOrScalar,
+    time_to_maturity: TensorOrScalar,
+    volatility: TensorOrScalar,
+) -> Tensor:
     r"""Returns :math:`d_1` in the Black-Scholes formula.
 
     .. math::
-        d_1 = \frac{s + \frac12 \sigma^2 t}{\sigma \sqrt{t}}
+        d_1 = \frac{s}{\sigma \sqrt{t}} + \frac{\sigma \sqrt{t}}{2}
 
     where
     :math:`s` is the log moneyness,
@@ -544,19 +565,21 @@ def d1(log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor) -> T
         raise ValueError("all elements in time_to_maturity have to be non-negative")
     if not (v >= 0).all():
         raise ValueError("all elements in volatility have to be non-negative")
-    numerator = s + (v.square() / 2) * t
-    denominator = v * t.sqrt()
-    output = numerator / denominator
-    return torch.where(
-        (numerator == 0).logical_and(denominator == 0), torch.zeros_like(output), output
-    )
+    variance = v * t.sqrt()
+    output = s / variance + variance / 2
+    # TODO(simaki): Replace zeros_like with 0.0 once https://github.com/pytorch/pytorch/pull/62084 is merged
+    return output.where((s != 0).logical_or(variance != 0), torch.zeros_like(output))
 
 
-def d2(log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor) -> Tensor:
+def d2(
+    log_moneyness: TensorOrScalar,
+    time_to_maturity: TensorOrScalar,
+    volatility: TensorOrScalar,
+) -> Tensor:
     r"""Returns :math:`d_2` in the Black-Scholes formula.
 
     .. math::
-        d_2 = \frac{s - \frac12 \sigma^2 t}{\sigma \sqrt{t}}
+        d_2 = \frac{s}{\sigma \sqrt{t}} - \frac{\sigma \sqrt{t}}{2}
 
     where
     :math:`s` is the log moneyness,
@@ -579,12 +602,10 @@ def d2(log_moneyness: Tensor, time_to_maturity: Tensor, volatility: Tensor) -> T
         raise ValueError("all elements in time_to_maturity have to be non-negative")
     if not (v >= 0).all():
         raise ValueError("all elements in volatility have to be non-negative")
-    numerator = s - (v.square() / 2) * t
-    denominator = v * t.sqrt()
-    output = numerator / denominator
-    return torch.where(
-        (numerator == 0).logical_and(denominator == 0), torch.zeros_like(output), output
-    )
+    variance = v * t.sqrt()
+    output = s / variance - variance / 2
+    # TODO(simaki): Replace zeros_like with 0.0 once https://github.com/pytorch/pytorch/pull/62084 is merged
+    return output.where((s != 0).logical_or(variance != 0), torch.zeros_like(output))
 
 
 def ww_width(
@@ -633,3 +654,474 @@ def svi_variance(
     """
     k_m = torch.as_tensor(input - m)  # k - m
     return a + b * (rho * k_m + (k_m.square() + sigma ** 2).sqrt())
+
+
+def bilerp(
+    input1: Tensor,
+    input2: Tensor,
+    input3: Tensor,
+    input4: Tensor,
+    weight1: TensorOrScalar,
+    weight2: TensorOrScalar,
+) -> Tensor:
+    r"""Does a bilinear interpolation of four tensors based on a scalar or tensor weights and
+    returns the resulting tensor.
+
+    The output is given by
+
+    .. math::
+        \text{output}_i
+        & = (1 - w_1) (1 - w_2) \cdot \text{input1}_i
+        + w_1 (1 - w_2) \cdot \text{input2}_i \\
+        & \quad + (1 - w_1) w_2 \cdot \text{input3}_i
+        + w_1 w_2 \cdot \text{input4}_i ,
+
+    where :math:`w_1` and :math:`w_2` are the weights.
+
+    The shapes of inputs must be broadcastable.
+    If ``weight`` is a tensor, then the shapes of ``weight`` must also be broadcastable.
+
+    Args:
+        input1 (torch.Tensor): The input tensor.
+        input2 (torch.Tensor): The input tensor.
+        input3 (torch.Tensor): The input tensor.
+        input4 (torch.Tensor): The input tensor.
+        weight1 (float or torch.Tensor): The weight tensor.
+        weight2 (float or torch.Tensor): The weight tensor.
+
+    Returns:
+        torch.Tensor
+    """
+    lerp1 = torch.lerp(input1, input2, weight1)
+    lerp2 = torch.lerp(input3, input4, weight1)
+    return torch.lerp(lerp1, lerp2, weight2)
+
+
+def bs_european_price(
+    log_moneyness: Tensor,
+    time_to_maturity: Tensor,
+    volatility: Tensor,
+    strike: TensorOrScalar = 1.0,
+    call: bool = True,
+) -> Tensor:
+    """Returns Black-Scholes price of a European option.
+
+    See :func:`pfhedge.nn.BSEuropeanOption.price` for details.
+    """
+    s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
+
+    price = strike * (s.exp() * ncdf(d1(s, t, v)) - ncdf(d2(s, t, v)))
+    price = price + strike * (1 - s.exp()) if not call else price  # put-call parity
+
+    return price
+
+
+def bs_european_delta(
+    log_moneyness: Tensor,
+    time_to_maturity: Tensor,
+    volatility: Tensor,
+    call: bool = True,
+) -> Tensor:
+    """Returns Black-Scholes delta of a European option.
+
+    See :func:`pfhedge.nn.BSEuropeanOption.delta` for details.
+    """
+    s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
+
+    delta = ncdf(d1(s, t, v))
+    delta = delta - 1 if not call else delta  # put-call parity
+
+    return delta
+
+
+def bs_european_gamma(
+    log_moneyness: Tensor,
+    time_to_maturity: Tensor,
+    volatility: Tensor,
+    strike: TensorOrScalar = 1.0,
+) -> Tensor:
+    """Returns Black-Scholes gamma of a European option.
+
+    See :func:`pfhedge.nn.BSEuropeanOption.gamma` for details.
+    """
+    s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
+    spot = strike * s.exp()
+    numerator = npdf(d1(s, t, v))
+    denominator = spot * v * t.sqrt()
+    output = numerator / denominator
+    return torch.where(
+        (numerator == 0).logical_and(denominator == 0), torch.zeros_like(output), output
+    )
+
+
+def bs_european_vega(
+    log_moneyness: Tensor,
+    time_to_maturity: Tensor,
+    volatility: Tensor,
+    strike: TensorOrScalar,
+) -> Tensor:
+    """Returns Black-Scholes vega of a European option.
+
+    See :func:`pfhedge.nn.BSEuropeanOption.vega` for details.
+    """
+    s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
+    price = strike * s.exp()
+    return npdf(d1(s, t, v)) * price * t.sqrt()
+
+
+def bs_european_theta(
+    log_moneyness: Tensor,
+    time_to_maturity: Tensor,
+    volatility: Tensor,
+    strike: TensorOrScalar,
+) -> Tensor:
+    """Returns Black-Scholes theta of a European option.
+
+    See :func:`pfhedge.nn.BSEuropeanOption.theta` for details.
+    """
+    s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
+    price = strike * s.exp()
+    numerator = -npdf(d1(s, t, v)) * price * v
+    denominator = 2 * t.sqrt()
+    output = numerator / denominator
+    return torch.where(
+        (numerator == 0).logical_and(denominator == 0), torch.zeros_like(output), output
+    )
+
+
+def bs_european_binary_price(
+    log_moneyness: Tensor,
+    time_to_maturity: Tensor,
+    volatility: Tensor,
+    call: bool = True,
+) -> Tensor:
+    """Returns Black-Scholes price of a European binary option.
+
+    See :func:`pfhedge.nn.BSEuropeanBinaryOption.price` for details.
+    """
+    s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
+
+    price = ncdf(d2(s, t, v))
+    price = 1.0 - price if not call else price  # put-call parity
+
+    return price
+
+
+def bs_european_binary_delta(
+    log_moneyness: Tensor,
+    time_to_maturity: Tensor,
+    volatility: Tensor,
+    call: bool = True,
+    strike: TensorOrScalar = 1.0,
+) -> Tensor:
+    """Returns Black-Scholes delta of a European binary option.
+
+    See :func:`pfhedge.nn.BSEuropeanBinaryOption.delta` for details.
+    """
+    s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
+
+    spot = s.exp() * strike
+
+    numerator = npdf(d2(s, t, v))
+    denominator = spot * v * t.sqrt()
+    delta = numerator / denominator
+    delta = torch.where(
+        (numerator == 0).logical_and(denominator == 0), torch.zeros_like(delta), delta
+    )
+    delta = -delta if not call else delta  # put-call parity
+
+    return delta
+
+
+def bs_european_binary_gamma(
+    log_moneyness: Tensor,
+    time_to_maturity: Tensor,
+    volatility: Tensor,
+    strike: TensorOrScalar = 1.0,
+) -> Tensor:
+    """Returns Black-Scholes gamma of a European binary option.
+
+    See :func:`pfhedge.nn.BSEuropeanBinaryOption.gamma` for details.
+    """
+    # TODO(simaki): Directly compute gamma.
+    return autogreek.gamma(
+        bs_european_binary_price,
+        log_moneyness=log_moneyness,
+        time_to_maturity=time_to_maturity,
+        volatility=volatility,
+        strike=strike,
+    )
+
+
+def bs_european_binary_vega(
+    log_moneyness: Tensor,
+    time_to_maturity: Tensor,
+    volatility: Tensor,
+    strike: TensorOrScalar = 1.0,
+) -> Tensor:
+    """Returns Black-Scholes vega of a European binary option.
+
+    See :func:`pfhedge.nn.BSEuropeanBinaryOption.vega` for details.
+    """
+    # TODO(simaki): Directly compute gamma.
+    return autogreek.vega(
+        bs_european_binary_price,
+        log_moneyness=log_moneyness,
+        time_to_maturity=time_to_maturity,
+        volatility=volatility,
+        strike=strike,
+    )
+
+
+def bs_european_binary_theta(
+    log_moneyness: Tensor,
+    time_to_maturity: Tensor,
+    volatility: Tensor,
+    strike: TensorOrScalar = 1.0,
+) -> Tensor:
+    """Returns Black-Scholes theta of a European binary option.
+
+    See :func:`pfhedge.nn.BSEuropeanBinaryOption.theta` for details.
+    """
+    # TODO(simaki): Directly compute theta.
+    return autogreek.theta(
+        bs_european_binary_price,
+        log_moneyness=log_moneyness,
+        time_to_maturity=time_to_maturity,
+        volatility=volatility,
+        strike=strike,
+    )
+
+
+def bs_american_binary_price(
+    log_moneyness: Tensor,
+    max_log_moneyness: Tensor,
+    time_to_maturity: Tensor,
+    volatility: Tensor,
+) -> Tensor:
+    """Returns Black-Scholes price of an American binary option.
+
+    See :func:`pfhedge.nn.BSAmericanBinaryOption.price` for details.
+    """
+    # This formula is derived using the results in Section 7.3.3 of Shreve's book.
+    # Price is I_2 - I_4 where the interval of integration is [k --> -inf, b].
+    # By this substitution we get N([log(S(0) / K) + ...] / sigma T) --> 1.
+
+    s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
+    p = ncdf(d2(s, t, v)) + s.exp() * (1 - ncdf(d2(-s, t, v)))
+
+    return p.where(max_log_moneyness < 0, torch.ones_like(p))
+
+
+def bs_american_binary_delta(
+    log_moneyness: Tensor,
+    max_log_moneyness: Tensor,
+    time_to_maturity: Tensor,
+    volatility: Tensor,
+    strike: TensorOrScalar,
+) -> Tensor:
+    """Returns Black-Scholes delta of an American binary option.
+
+    See :func:`pfhedge.nn.BSAmericanBinaryOption.delta` for details.
+    """
+    s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
+    spot = s.exp() * strike
+    # ToDo: fix 0/0 issue
+    p = (
+        npdf(d2(s, t, v)) / (spot * v * t.sqrt())
+        - (1 - ncdf(d2(-s, t, v))) / strike
+        + npdf(d2(-s, t, v)) / (strike * v * t.sqrt())
+    )
+
+    return p.where(max_log_moneyness < 0, torch.zeros_like(p))
+
+
+def bs_american_binary_gamma(
+    log_moneyness: Tensor,
+    max_log_moneyness: Tensor,
+    time_to_maturity: Tensor,
+    volatility: Tensor,
+    strike: TensorOrScalar,
+) -> Tensor:
+    """Returns Black-Scholes gamma of an American binary option.
+
+    See :func:`pfhedge.nn.BSAmericanBinaryOption.gamma` for details.
+    """
+    # TODO(simaki): Compute analytically
+    return autogreek.gamma(
+        bs_american_binary_price,
+        log_moneyness=log_moneyness,
+        max_log_moneyness=max_log_moneyness,
+        time_to_maturity=time_to_maturity,
+        volatility=volatility,
+        strike=strike,
+    )
+
+
+def bs_american_binary_vega(
+    log_moneyness: Tensor,
+    max_log_moneyness: Tensor,
+    time_to_maturity: Tensor,
+    volatility: Tensor,
+    strike: TensorOrScalar,
+) -> Tensor:
+    """Returns Black-Scholes vega of an American binary option.
+
+    See :func:`pfhedge.nn.BSAmericanBinaryOption.vega` for details.
+    """
+    # TODO(simaki): Compute analytically
+    return autogreek.vega(
+        bs_american_binary_price,
+        log_moneyness=log_moneyness,
+        max_log_moneyness=max_log_moneyness,
+        time_to_maturity=time_to_maturity,
+        volatility=volatility,
+        strike=strike,
+    )
+
+
+def bs_american_binary_theta(
+    log_moneyness: Tensor,
+    max_log_moneyness: Tensor,
+    time_to_maturity: Tensor,
+    volatility: Tensor,
+    strike: TensorOrScalar,
+) -> Tensor:
+    """Returns Black-Scholes theta of an American binary option.
+
+    See :func:`pfhedge.nn.BSAmericanBinaryOption.theta` for details.
+    """
+    # TODO(simaki): Compute analytically
+    return autogreek.theta(
+        bs_american_binary_price,
+        log_moneyness=log_moneyness,
+        max_log_moneyness=max_log_moneyness,
+        time_to_maturity=time_to_maturity,
+        volatility=volatility,
+        strike=strike,
+    )
+
+
+def bs_lookback_price(
+    log_moneyness: Tensor,
+    max_log_moneyness: Tensor,
+    time_to_maturity: Tensor,
+    volatility: Tensor,
+    strike: TensorOrScalar,
+) -> Tensor:
+    """Returns Black-Scholes price of a lookback option.
+
+    See :func:`pfhedge.nn.BSLookbackOption.price` for details.
+    """
+    s, m, t, v = map(
+        torch.as_tensor,
+        (log_moneyness, max_log_moneyness, time_to_maturity, volatility),
+    )
+
+    spot = s.exp() * strike
+    max = m.exp() * strike
+    d1_value = d1(s, t, v)
+    d2_value = d2(s, t, v)
+    m1 = d1(s - m, t, v)  # d' in the paper
+    m2 = d2(s - m, t, v)
+
+    # when max < strike
+    price_0 = spot * (
+        ncdf(d1_value) + v * t.sqrt() * (d1_value * ncdf(d1_value) + npdf(d1_value))
+    ) - strike * ncdf(d2_value)
+    # when max >= strike
+    price_1 = (
+        spot * (ncdf(m1) + v * t.sqrt() * (m1 * ncdf(m1) + npdf(m1)))
+        - strike
+        + max * (1 - ncdf(m2))
+    )
+
+    return torch.where(max < strike, price_0, price_1)
+
+
+def bs_lookback_delta(
+    log_moneyness: Tensor,
+    max_log_moneyness: Tensor,
+    time_to_maturity: Tensor,
+    volatility: Tensor,
+    strike: TensorOrScalar,
+) -> Tensor:
+    """Returns Black-Scholes delta of a lookback option.
+
+    See :func:`pfhedge.nn.BSLookbackOption.delta` for details.
+    """
+    # TODO(simaki): Calculate analytically
+    return autogreek.delta(
+        bs_lookback_price,
+        log_moneyness=log_moneyness,
+        max_log_moneyness=max_log_moneyness,
+        time_to_maturity=time_to_maturity,
+        volatility=volatility,
+        strike=strike,
+    )
+
+
+def bs_lookback_gamma(
+    log_moneyness: Tensor,
+    max_log_moneyness: Tensor,
+    time_to_maturity: Tensor,
+    volatility: Tensor,
+    strike: TensorOrScalar,
+) -> Tensor:
+    """Returns Black-Scholes gamma of a lookback option.
+
+    See :func:`pfhedge.nn.BSLookbackOption.gamma` for details.
+    """
+    # TODO(simaki): Calculate analytically
+    return autogreek.gamma(
+        bs_lookback_price,
+        log_moneyness=log_moneyness,
+        max_log_moneyness=max_log_moneyness,
+        time_to_maturity=time_to_maturity,
+        volatility=volatility,
+        strike=strike,
+    )
+
+
+def bs_lookback_vega(
+    log_moneyness: Tensor,
+    max_log_moneyness: Tensor,
+    time_to_maturity: Tensor,
+    volatility: Tensor,
+    strike: TensorOrScalar,
+) -> Tensor:
+    """Returns Black-Scholes vega of a lookback option.
+
+    See :func:`pfhedge.nn.BSLookbackOption.vega` for details.
+    """
+    # TODO(simaki): Calculate analytically
+    return autogreek.vega(
+        bs_lookback_price,
+        log_moneyness=log_moneyness,
+        max_log_moneyness=max_log_moneyness,
+        time_to_maturity=time_to_maturity,
+        volatility=volatility,
+        strike=strike,
+    )
+
+
+def bs_lookback_theta(
+    log_moneyness: Tensor,
+    max_log_moneyness: Tensor,
+    time_to_maturity: Tensor,
+    volatility: Tensor,
+    strike: TensorOrScalar,
+) -> Tensor:
+    """Returns Black-Scholes theta of a lookback option.
+
+    See :func:`pfhedge.nn.BSLookbackOption.theta` for details.
+    """
+    # TODO(simaki): Calculate analytically
+    return autogreek.theta(
+        bs_lookback_price,
+        log_moneyness=log_moneyness,
+        max_log_moneyness=max_log_moneyness,
+        time_to_maturity=time_to_maturity,
+        volatility=volatility,
+        strike=strike,
+    )

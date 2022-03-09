@@ -16,41 +16,36 @@ from .base import BaseOption
 class EuropeanBinaryOption(BaseOption):
     r"""European binary option.
 
-    An American binary call option pays an unit amount of cash if and only if
-    the underlying asset's price at maturity is equal or greater than the strike price.
-
-    An American binary put option pays an unit amount of cash if and only if
-    the underlying asset's price at maturity is equal or smaller than the strike price.
-
-    The payoff of an American binary call option is given by:
+    The payoff of a European binary call option is given by
 
     .. math::
         \mathrm{payoff} =
         \begin{cases}
             1 & (S \geq K) \\
             0 & (\text{otherwise})
-        \end{cases}
+        \end{cases} ,
 
-    with :math:`S` being the underlying asset's price at maturity and
-    :math:`K` being the strike price (`strike`) of the option
+    where
+    :math:`S` is the underlier's spot price at maturity and
+    :math:`K` is the strike.
 
-    The payoff of an American binary put option is given by:
+    The payoff of a European binary put option is given by
 
     .. math::
         \mathrm{payoff} =
         \begin{cases}
             1 & (S \leq K) \\
             0 & (\text{otherwise})
-        \end{cases}
+        \end{cases} .
 
     .. seealso::
-        :func:`pfhedge.nn.functional.european_binary_payoff`: Payoff function.
+        - :func:`pfhedge.nn.functional.european_binary_payoff`
 
     Args:
         underlier (:class:`BasePrimary`): The underlying instrument of the option.
         call (bool, default=True): Specifies whether the option is call or put.
         strike (float, default=1): The strike price of the option.
-        maturity (float, default=20/250) The maturity of the option.
+        maturity (float, default=20/250): The maturity of the option.
 
     Attributes:
         dtype (torch.dtype): The dtype with which the simulated time-series are

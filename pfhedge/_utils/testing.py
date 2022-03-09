@@ -1,3 +1,4 @@
+from typing import Any
 from typing import Callable
 
 import torch
@@ -62,7 +63,7 @@ def assert_convex(
 
 
 def assert_cash_invariant(
-    fn: Callable[[Tensor], Tensor], x: Tensor, c: float, **kwargs
+    fn: Callable[[Tensor], Tensor], x: Tensor, c: float, **kwargs: Any
 ) -> None:
     """Assert cash invariance.
 
@@ -78,7 +79,7 @@ def assert_cash_invariant(
 
 
 def assert_cash_equivalent(
-    fn: Callable[[Tensor], Tensor], x: Tensor, c: float, **kwargs
+    fn: Callable[[Tensor], Tensor], x: Tensor, c: float, **kwargs: Any
 ) -> None:
     """Assert ``c`` is the cash equivalent of ``x``.
     ``fn(x) = fn(torch.full_like(x, c))``

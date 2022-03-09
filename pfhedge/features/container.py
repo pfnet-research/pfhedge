@@ -14,6 +14,7 @@ from ._base import Feature
 from ._getter import get_feature
 
 T = TypeVar("T", bound="FeatureList")
+TM = TypeVar("TM", bound="ModuleOutput")
 
 
 class FeatureList(Feature):
@@ -73,7 +74,6 @@ class ModuleOutput(Feature, Module):
         inputs (list[Feature]): The input features to the module.
 
     Examples:
-
         >>> from torch.nn import Linear
         >>> from pfhedge.instruments import BrownianStock
         >>> from pfhedge.instruments import EuropeanOption
@@ -121,7 +121,7 @@ class ModuleOutput(Feature, Module):
     def get(self, time_step: Optional[int]) -> Tensor:
         return self(self.inputs.get(time_step))
 
-    def of(self, derivative=None, hedger=None):
+    def of(self: TM, derivative=None, hedger=None) -> TM:
         self.inputs = self.inputs.of(derivative, hedger)
         return self
 
