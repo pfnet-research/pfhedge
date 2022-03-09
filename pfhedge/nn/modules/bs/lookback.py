@@ -14,10 +14,6 @@ from pfhedge.nn.functional import bs_lookback_gamma
 from pfhedge.nn.functional import bs_lookback_price
 from pfhedge.nn.functional import bs_lookback_theta
 from pfhedge.nn.functional import bs_lookback_vega
-from pfhedge.nn.functional import d1 as compute_d1
-from pfhedge.nn.functional import d2 as compute_d2
-from pfhedge.nn.functional import ncdf
-from pfhedge.nn.functional import npdf
 
 from ._base import BSModuleMixin
 from ._base import acquire_params_from_derivative_0

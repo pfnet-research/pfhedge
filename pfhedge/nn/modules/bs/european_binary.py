@@ -9,18 +9,12 @@ from pfhedge._utils.doc import _set_attr_and_docstring
 from pfhedge._utils.doc import _set_docstring
 from pfhedge._utils.str import _format_float
 from pfhedge.instruments import EuropeanBinaryOption
-from pfhedge.nn.functional import d1
-from pfhedge.nn.functional import d2
-from pfhedge.nn.functional import ncdf
-from pfhedge.nn.functional import npdf
-
-from ._base import BSModuleMixin
-from ._base import acquire_params_from_derivative_0
-from ._base import acquire_params_from_derivative_1
 from pfhedge.nn.functional import bs_european_binary_delta
 from pfhedge.nn.functional import bs_european_binary_price
 
 from ._base import BSModuleMixin
+from ._base import acquire_params_from_derivative_0
+from ._base import acquire_params_from_derivative_1
 from .black_scholes import BlackScholesModuleFactory
 
 
