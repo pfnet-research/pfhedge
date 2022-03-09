@@ -1,0 +1,6 @@
+﻿pfhedge.nn.functional.bs\_european\_binary\_delta
+=================================================
+
+.. currentmodule:: pfhedge.nn.functional
+
+.. autofunction:: bs_european_binary_delta

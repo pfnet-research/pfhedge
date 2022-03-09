@@ -1,0 +1,6 @@
+﻿pfhedge.nn.functional.bs\_lookback\_theta
+=========================================
+
+.. currentmodule:: pfhedge.nn.functional
+
+.. autofunction:: bs_lookback_theta

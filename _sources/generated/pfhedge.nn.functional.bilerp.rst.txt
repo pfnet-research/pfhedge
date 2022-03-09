@@ -1,0 +1,6 @@
+﻿pfhedge.nn.functional.bilerp
+============================
+
+.. currentmodule:: pfhedge.nn.functional
+
+.. autofunction:: bilerp

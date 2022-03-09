@@ -1,0 +1,6 @@
+﻿pfhedge.nn.functional.bs\_american\_binary\_vega
+================================================
+
+.. currentmodule:: pfhedge.nn.functional
+
+.. autofunction:: bs_american_binary_vega

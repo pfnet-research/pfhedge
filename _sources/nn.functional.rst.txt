@@ -19,6 +19,16 @@ Payoff Functions
     european_binary_payoff
     european_forward_start_payoff
 
+Nonlinear activation functions
+------------------------------
+
+.. autosummary::
+    :nosignatures:
+    :toctree: generated
+
+    leaky_clamp
+    clamp
+
 Criterion Functions
 -------------------
 
@@ -32,21 +42,48 @@ Criterion Functions
     expected_shortfall
     value_at_risk
 
-Other Functions
------------------
+Black-Scholes formulas
+----------------------
 
 .. autosummary::
     :nosignatures:
     :toctree: generated
 
-    leaky_clamp
-    clamp
-    topp
-    realized_variance
-    realized_volatility
-    terminal_value
-    ncdf
-    npdf
+    bs_european_price
+    bs_european_delta
+    bs_european_gamma
+    bs_european_vega
+    bs_european_theta
+    bs_american_binary_price
+    bs_american_binary_delta
+    bs_american_binary_gamma
+    bs_american_binary_vega
+    bs_american_binary_theta
+    bs_european_binary_price
+    bs_european_binary_delta
+    bs_european_binary_gamma
+    bs_european_binary_vega
+    bs_european_binary_theta
+    bs_lookback_price
+    bs_lookback_delta
+    bs_lookback_gamma
+    bs_lookback_vega
+    bs_lookback_theta
+
+Other Functions
+---------------
+
+.. autosummary::
+    :nosignatures:
+    :toctree: generated
+
+    bilerp
     d1
     d2
+    ncdf
+    npdf
+    realized_variance
+    realized_volatility
     svi_variance
+    terminal_value
+    topp
