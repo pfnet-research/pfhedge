@@ -696,7 +696,7 @@ def bilerp(
     lerp2 = torch.lerp(input3, input4, weight1)
     return torch.lerp(lerp1, lerp2, weight2)
 
-  
+
 def bs_european_price(
     log_moneyness: Tensor,
     time_to_maturity: Tensor,
