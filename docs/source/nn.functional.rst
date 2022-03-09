@@ -19,6 +19,16 @@ Payoff Functions
     european_binary_payoff
     european_forward_start_payoff
 
+Nonlinear activation functions
+------------------------------
+
+.. autosummary::
+    :nosignatures:
+    :toctree: generated
+
+    leaky_clamp
+    clamp
+
 Criterion Functions
 -------------------
 
@@ -67,8 +77,6 @@ Other Functions
     :nosignatures:
     :toctree: generated
 
-    leaky_clamp
-    clamp
     topp
     realized_variance
     realized_volatility
