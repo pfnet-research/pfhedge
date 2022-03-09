@@ -77,12 +77,13 @@ Other Functions
     :nosignatures:
     :toctree: generated
 
-    topp
-    realized_variance
-    realized_volatility
-    terminal_value
-    ncdf
-    npdf
+    bilerp
     d1
     d2
+    ncdf
+    npdf
+    realized_variance
+    realized_volatility
     svi_variance
+    terminal_value
+    topp

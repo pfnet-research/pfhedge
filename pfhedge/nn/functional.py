@@ -656,6 +656,47 @@ def svi_variance(
     return a + b * (rho * k_m + (k_m.square() + sigma ** 2).sqrt())
 
 
+def bilerp(
+    input1: Tensor,
+    input2: Tensor,
+    input3: Tensor,
+    input4: Tensor,
+    weight1: TensorOrScalar,
+    weight2: TensorOrScalar,
+) -> Tensor:
+    r"""Does a bilinear interpolation of four tensors based on a scalar or tensor weights and
+    returns the resulting tensor.
+
+    The output is given by
+
+    .. math::
+        \text{output}_i
+        & = (1 - w_1) (1 - w_2) \cdot \text{input1}_i
+        + w_1 (1 - w_2) \cdot \text{input2}_i \\
+        & \quad + (1 - w_1) w_2 \cdot \text{input3}_i
+        + w_1 w_2 \cdot \text{input4}_i ,
+
+    where :math:`w_1` and :math:`w_2` are the weights.
+
+    The shapes of inputs must be broadcastable.
+    If ``weight`` is a tensor, then the shapes of ``weight`` must also be broadcastable.
+
+    Args:
+        input1 (torch.Tensor): The input tensor.
+        input2 (torch.Tensor): The input tensor.
+        input3 (torch.Tensor): The input tensor.
+        input4 (torch.Tensor): The input tensor.
+        weight1 (float or torch.Tensor): The weight tensor.
+        weight2 (float or torch.Tensor): The weight tensor.
+
+    Returns:
+        torch.Tensor
+    """
+    lerp1 = torch.lerp(input1, input2, weight1)
+    lerp2 = torch.lerp(input3, input4, weight1)
+    return torch.lerp(lerp1, lerp2, weight2)
+
+
 def bs_european_price(
     log_moneyness: Tensor,
     time_to_maturity: Tensor,
