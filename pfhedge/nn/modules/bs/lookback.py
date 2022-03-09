@@ -198,6 +198,7 @@ class BSLookbackOption(BSModuleMixin):
             time_to_maturity=time_to_maturity,
             volatility=volatility,
             create_graph=create_graph,
+            strike=self.strike,
         )
 
     @torch.enable_grad()

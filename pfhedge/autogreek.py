@@ -43,12 +43,14 @@ def delta(
         >>> import pfhedge.autogreek as autogreek
         >>> from pfhedge.nn import BSEuropeanOption
         >>>
+        >>> # TODO(simaki): Rewrite using functional
         >>> pricer = BSEuropeanOption().price
         >>> autogreek.delta(
         ...     pricer,
         ...     log_moneyness=torch.zeros(3),
         ...     time_to_maturity=torch.ones(3),
         ...     volatility=torch.tensor([0.18, 0.20, 0.22]),
+        ...     strike=1.0,
         ... )
         tensor([0.5359, 0.5398, 0.5438])
 
@@ -82,11 +84,6 @@ def delta(
         >>> autogreek.delta(pricer, spot=torch.tensor(1.0))
         tensor(0.5...)
     """
-    if params.get("strike") is None and params.get("spot") is None:
-        # Since delta does not depend on strike,
-        # assign an arbitrary value (1.0) to strike if not given.
-        params["strike"] = torch.tensor(1.0)
-
     spot = parse_spot(**params).requires_grad_()
     params["spot"] = spot
     if "strike" in params:
