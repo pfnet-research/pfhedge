@@ -70,7 +70,7 @@ class BrownianStock(BasePrimary):
         dt: float = 1 / 250,
         dtype: Optional[torch.dtype] = None,
         device: Optional[torch.device] = None,
-    ):
+    ) -> None:
         super().__init__()
 
         self.sigma = sigma
@@ -90,7 +90,7 @@ class BrownianStock(BasePrimary):
 
         It is a tensor filled with ``self.sigma``.
         """
-        return torch.full_like(self.spot, self.sigma)
+        return torch.full_like(self.get_buffer("spot"), self.sigma)
 
     @property
     def variance(self) -> Tensor:
@@ -98,7 +98,7 @@ class BrownianStock(BasePrimary):
 
         It is a tensor filled with the square of ``self.sigma``.
         """
-        return torch.full_like(self.spot, self.sigma ** 2)
+        return torch.full_like(self.get_buffer("spot"), self.sigma ** 2)
 
     def simulate(
         self,

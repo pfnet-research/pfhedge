@@ -63,7 +63,7 @@ class CIRRate(BasePrimary):
         dt: float = 1 / 250,
         dtype: Optional[torch.dtype] = None,
         device: Optional[torch.device] = None,
-    ):
+    ) -> None:
         super().__init__()
 
         self.kappa = kappa
