@@ -145,6 +145,18 @@ class BaseInstrument(ABC):
         """
         return self.to(torch.float16)
 
+    def float64(self: T) -> T:
+        """Alias for :meth:`double()`."""
+        return self.double()
+
+    def float32(self: T) -> T:
+        """Alias for :meth:`float()`."""
+        return self.float()
+
+    def float16(self: T) -> T:
+        """Alias for :meth:`half()`."""
+        return self.half()
+
     def bfloat16(self: T) -> T:
         """Casts all floating point parameters and buffers to
         ``torch.bfloat16`` datatype.
