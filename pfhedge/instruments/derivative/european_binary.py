@@ -77,7 +77,7 @@ class EuropeanBinaryOption(BaseOption):
         device: Optional[torch.device] = None,
     ) -> None:
         super().__init__()
-        self.underlier = underlier
+        self.register_underlier("underlier", underlier)
         self.call = call
         self.strike = strike
         self.maturity = maturity
