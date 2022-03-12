@@ -14,3 +14,4 @@ from .primary.base import Primary
 from .primary.brownian import BrownianStock
 from .primary.cir import CIRRate
 from .primary.heston import HestonStock
+from .primary.local_volatility import LocalVolatilityStock

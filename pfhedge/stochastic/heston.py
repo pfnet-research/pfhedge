@@ -95,7 +95,7 @@ def generate_heston(
     Examples:
 
         >>> from pfhedge.stochastic import generate_heston
-        >>>
+        ...
         >>> _ = torch.manual_seed(42)
         >>> spot, variance = generate_heston(2, 5)
         >>> spot
