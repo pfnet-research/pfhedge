@@ -17,13 +17,13 @@ def cast_state(
     """Cast ``init_state`` to a tuple of tensors.
 
     Args:
-        init_state (torch.Tensor | float | tuple[torch.Tensor | float]):
+        init_state (torch.Tensor | float | tuple[(torch.Tensor | float), ...]):
             The initial state.
         dtype (torch.dtype, optional): The desired dtype.
         device (torch.device, optional): The desired device.
 
     Returns:
-        tuple[torch.Tensor]
+        tuple[torch.Tensor, ...]
     """
     if isinstance(state, (Tensor, float, int)):
         state_tuple: Tuple[TensorOrScalar, ...] = (state,)
