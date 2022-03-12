@@ -25,6 +25,15 @@ Cox-Ingersoll-Ross Process
 
     generate_cir
 
+Vasicek Process
+---------------
+
+.. autosummary::
+    :nosignatures:
+    :toctree: generated
+
+    generate_vasicek
+
 Heston Process
 --------------
 
