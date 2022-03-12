@@ -9,6 +9,8 @@ from torch import Tensor
 
 from pfhedge._utils.typing import TensorOrScalar
 
+from ._utils import cast_state
+
 
 def generate_brownian(
     n_paths: int,
@@ -70,14 +72,7 @@ def generate_brownian(
         tensor([[ 0.0000,  0.0016,  0.0046,  0.0075, -0.0067],
                 [ 0.0000,  0.0279,  0.0199,  0.0257,  0.0291]])
     """
-    # Accept Union[float, Tensor] as well because making a tuple with a single element
-    # is troublesome
-    if isinstance(init_state, (float, Tensor)):
-        init_state = (init_state,)
-
-    # Cast to init_state: Tuple[Tensor, ...] with desired dtype and device
-    init_state = cast(Tuple[Tensor, ...], tuple(map(torch.as_tensor, init_state)))
-    init_state = tuple(map(lambda t: t.to(dtype=dtype, device=device), init_state))
+    init_state = cast_state(init_state, dtype=dtype, device=device)
 
     init_value = init_state[0]
     # randn = torch.randn((n_paths, n_steps), dtype=dtype, device=device)
@@ -149,14 +144,7 @@ def generate_geometric_brownian(
         tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930],
                 [1.0000, 1.0282, 1.0199, 1.0258, 1.0292]])
     """
-    # Accept Union[float, Tensor] as well because making a tuple with a single element
-    # is troublesome
-    if isinstance(init_state, (float, Tensor)):
-        init_state = (init_state,)
-
-    # Cast to init_state: Tuple[Tensor, ...] with desired dtype and device
-    init_state = cast(Tuple[Tensor, ...], tuple(map(torch.as_tensor, init_state)))
-    init_state = tuple(map(lambda t: t.to(dtype=dtype, device=device), init_state))
+    init_state = cast_state(init_state, dtype=dtype, device=device)
 
     brownian = generate_brownian(
         n_paths=n_paths,

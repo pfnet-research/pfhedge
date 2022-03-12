@@ -10,6 +10,7 @@ from torch import Tensor
 from pfhedge._utils.str import _addindent
 from pfhedge._utils.typing import TensorOrScalar
 
+from ._utils import cast_state
 from .cir import generate_cir
 
 
@@ -93,7 +94,6 @@ def generate_heston(
         (torch.Tensor, torch.Tensor): A namedtuple ``(spot, variance)``.
 
     Examples:
-
         >>> from pfhedge.stochastic import generate_heston
         ...
         >>> _ = torch.manual_seed(42)
@@ -107,9 +107,8 @@ def generate_heston(
     """
     if init_state is None:
         init_state = (1.0, theta)
-    # Cast to init_state: Tuple[Tensor, ...] with desired dtype and device
-    init_state = cast(Tuple[Tensor, ...], tuple(map(torch.as_tensor, init_state)))
-    init_state = tuple(map(lambda t: t.to(dtype=dtype, device=device), init_state))
+
+    init_state = cast_state(init_state, dtype=dtype, device=device)
 
     GAMMA1 = 0.5
     GAMMA2 = 0.5

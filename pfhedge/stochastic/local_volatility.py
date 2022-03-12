@@ -1,5 +1,4 @@
 from collections import namedtuple
-from typing import Callable
 from typing import Optional
 from typing import Tuple
 from typing import Union
@@ -11,6 +10,8 @@ from torch import Tensor
 from pfhedge._utils.str import _addindent
 from pfhedge._utils.typing import LocalVolatilityFunction
 from pfhedge._utils.typing import TensorOrScalar
+
+from ._utils import cast_state
 
 
 class LocalVolatilityTuple(namedtuple("LocalVolatilityTuple", ["spot", "volatility"])):
@@ -92,14 +93,7 @@ def generate_local_volatility_process(
         tensor([[0.1871, 0.1871, 0.1323, 0.1081, 0.0936],
                 [0.1871, 0.1871, 0.1328, 0.1083, 0.0938]])
     """
-    # Accept Union[float, Tensor] as well because making a tuple with a single element
-    # is troublesome
-    if isinstance(init_state, (float, Tensor)):
-        init_state = (init_state,)
-
-    # Cast to init_state: Tuple[Tensor, ...] with desired dtype and device
-    init_state = cast(Tuple[Tensor, ...], tuple(map(torch.as_tensor, init_state)))
-    init_state = tuple(map(lambda t: t.to(dtype=dtype, device=device), init_state))
+    init_state = cast_state(init_state, dtype=dtype, device=device)
 
     spot = torch.empty(*(n_paths, n_steps), dtype=dtype, device=device)
     spot[:, 0] = init_state[0]

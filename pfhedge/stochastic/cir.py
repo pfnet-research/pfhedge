@@ -7,6 +7,8 @@ from torch import Tensor
 
 from pfhedge._utils.typing import TensorOrScalar
 
+from ._utils import cast_state
+
 
 def _get_epsilon(dtype: Optional[torch.dtype]) -> float:
     return torch.finfo(dtype).tiny if dtype else torch.finfo().tiny
@@ -78,14 +80,7 @@ def generate_cir(
     if init_state is None:
         init_state = (theta,)
 
-    # Accept Union[float, Tensor] as well because making a tuple with a single element
-    # is troublesome
-    if isinstance(init_state, (float, Tensor)):
-        init_state = (init_state,)
-
-    # Cast to init_state: Tuple[Tensor, ...] with desired dtype and device
-    init_state = cast(Tuple[Tensor, ...], tuple(map(torch.as_tensor, init_state)))
-    init_state = tuple(map(lambda t: t.to(dtype=dtype, device=device), init_state))
+    init_state = cast_state(init_state, dtype=dtype, device=device)
 
     # PSI_CRIT in [1.0, 2.0]. See section 3.2.3
     PSI_CRIT = 1.5
