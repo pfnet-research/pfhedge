@@ -208,7 +208,7 @@ class BaseDerivative(BaseInstrument):
     def register_underlier(self, name: str, underlier: BasePrimary) -> None:
         if not isinstance(name, torch._six.string_classes):
             raise TypeError(f"name should be a string. Got {torch.typename(name)}")
-        elif hasattr(self, name) and name not in self._clauses:
+        elif hasattr(self, name) and name not in self._underliers:
             raise KeyError(f"attribute '{name}' already exists")
         elif "." in name:
             raise KeyError(f'name cannot contain ".", got: {name}')
