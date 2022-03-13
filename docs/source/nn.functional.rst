@@ -78,6 +78,7 @@ Other Functions
     :toctree: generated
 
     bilerp
+    box_muller
     d1
     d2
     ncdf
