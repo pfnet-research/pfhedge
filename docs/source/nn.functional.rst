@@ -11,7 +11,6 @@ Payoff Functions
 
 .. autosummary::
     :nosignatures:
-    :toctree: generated
 
     european_payoff
     lookback_payoff
@@ -24,7 +23,6 @@ Nonlinear activation functions
 
 .. autosummary::
     :nosignatures:
-    :toctree: generated
 
     leaky_clamp
     clamp
@@ -34,7 +32,6 @@ Criterion Functions
 
 .. autosummary::
     :nosignatures:
-    :toctree: generated
 
     exp_utility
     isoelastic_utility
@@ -50,7 +47,6 @@ European option
 
 .. autosummary::
     :nosignatures:
-    :toctree: generated
 
     bs_european_price
     bs_european_delta
@@ -102,7 +98,6 @@ Other Functions
 
 .. autosummary::
     :nosignatures:
-    :toctree: generated
 
     bilerp
     box_muller

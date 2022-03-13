@@ -10,7 +10,6 @@ Base Class
 ----------
 
 .. autosummary::
-    :toctree: generated
     :nosignatures:
     :template: classtemplate.rst
 
@@ -23,7 +22,6 @@ Primary Instruments
 -------------------
 
 .. autosummary::
-    :toctree: generated
     :nosignatures:
     :template: classtemplate.rst
 
@@ -36,7 +34,6 @@ Derivative Instruments
 ----------------------
 
 .. autosummary::
-    :toctree: generated
     :nosignatures:
     :template: classtemplate.rst
 
