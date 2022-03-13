@@ -18,6 +18,7 @@ class Feature(ABC):
     All features should subclass this class.
     """
 
+    name: str
     derivative: BaseDerivative
     hedger: Optional[Module]
 
@@ -72,6 +73,9 @@ class Feature(ABC):
     def is_state_dependent(self) -> bool:
         # If a feature uses the state of a hedger, it is state dependent.
         return getattr(self, "hedger") is not None
+
+    def __str__(self):
+        return self.name
 
     # TODO(simaki) Remove later
     def __getitem__(self, time_step: Optional[int]) -> Tensor:

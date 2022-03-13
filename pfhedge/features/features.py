@@ -15,10 +15,33 @@ from ._getter import FeatureFactory
 
 
 class Moneyness(StateIndependentFeature):
-    """Moneyness of the underlying instrument of the derivative.
+    """Moneyness of the derivative.
 
-    Args:
-        log (bool, default=False): If ``True``, represents log moneyness.
+    Moneyness reads :math:`S / K` where
+    :math:`S` is the spot price of the underlying instrument and
+    :math:`K` is the strike of the derivative.
+
+    Name:
+        ``'moneyness'``
+
+    Examples:
+        >>> from pfhedge.features import Moneyness
+        >>> from pfhedge.instruments import BrownianStock
+        >>> from pfhedge.instruments import EuropeanOption
+        ...
+        >>> _ = torch.manual_seed(42)
+        >>> derivative = EuropeanOption(BrownianStock(), maturity=5/250, strike=2.0)
+        >>> derivative.simulate()
+        >>> derivative.underlier.spot
+        tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930, 0.9906]])
+        >>> f = Moneyness().of(derivative)
+        >>> f.get()
+        tensor([[[0.5000],
+                 [0.5008],
+                 [0.5022],
+                 [0.5036],
+                 [0.4965],
+                 [0.4953]]])
     """
 
     derivative: BaseOption
@@ -35,7 +58,15 @@ class Moneyness(StateIndependentFeature):
 
 
 class LogMoneyness(Moneyness):
-    """Log moneyness of the underlying instrument of the derivative."""
+    r"""Log-moneyness of the derivative.
+
+    Log-moneyness reads :math:`\log(S / K)` where
+    :math:`S` is the spot price of the underlying instrument and
+    :math:`K` is the strike of the derivative.
+
+    Name:
+        ``'log_moneyness'``
+    """
 
     derivative: BaseOption
 
@@ -44,12 +75,31 @@ class LogMoneyness(Moneyness):
 
 
 class TimeToMaturity(StateIndependentFeature):
-    """Remaining time to the maturity of the derivative."""
+    """Remaining time to the maturity of the derivative.
+
+    Name:
+        ``'time_to_maturity'``
+
+    Examples:
+        >>> from pfhedge.features import Moneyness
+        >>> from pfhedge.instruments import BrownianStock
+        >>> from pfhedge.instruments import EuropeanOption
+        ...
+        >>> _ = torch.manual_seed(42)
+        >>> derivative = EuropeanOption(BrownianStock(), maturity=5/250, strike=2.0)
+        >>> derivative.simulate()
+        >>> f = TimeToMaturity().of(derivative)
+        >>> f.get()
+        tensor([[[0.0200],
+                 [0.0160],
+                 [0.0120],
+                 [0.0080],
+                 [0.0040],
+                 [0.0000]]])
+    """
 
     derivative: BaseOption
-
-    def __str__(self) -> str:
-        return "time_to_maturity"
+    name = "time_to_maturity"
 
     def get(self, time_step: Optional[int] = None) -> Tensor:
         return self.derivative.time_to_maturity(time_step).unsqueeze(-1)
@@ -63,7 +113,11 @@ class ExpiryTime(TimeToMaturity):
 
 
 class UnderlierSpot(StateIndependentFeature):
-    """Spot of the underlier of the derivative."""
+    """Spot price of the underlier of the derivative.
+
+    Name:
+        ``'underlier_spot'``
+    """
 
     def __init__(self, log: bool = False) -> None:
         super().__init__()
@@ -80,8 +134,23 @@ class UnderlierSpot(StateIndependentFeature):
         return output
 
 
+class UnderlierLogSpot(UnderlierSpot):
+    """Logarithm of the spot price of the underlier of the derivative.
+
+    Name:
+        ``'underlier_log_spot'``
+    """
+
+    def __init__(self):
+        super().__init__(log=True)
+
+
 class Spot(StateIndependentFeature):
-    """Spot of the derivative."""
+    """Spot price of the derivative.
+
+    Name:
+        ``'spot'``
+    """
 
     def __init__(self, log: bool = False) -> None:
         super().__init__()
@@ -99,10 +168,15 @@ class Spot(StateIndependentFeature):
 
 
 class Volatility(StateIndependentFeature):
-    """Volatility of the underlier of the derivative."""
+    """Volatility of the underlier of the derivative.
 
-    def __str__(self) -> str:
-        return "volatility"
+    Name:
+        ``'volatility'``
+
+    Examples:
+    """
+
+    name = "volatility"
 
     def get(self, time_step: Optional[int] = None) -> Tensor:
         index = [time_step] if isinstance(time_step, int) else ...
@@ -110,10 +184,13 @@ class Volatility(StateIndependentFeature):
 
 
 class Variance(StateIndependentFeature):
-    """Variance of the underlier of the derivative."""
+    """Variance of the underlier of the derivative.
 
-    def __str__(self) -> str:
-        return "variance"
+    Name:
+        ``'volatility'``
+    """
+
+    name = "variance"
 
     def get(self, time_step: Optional[int]) -> Tensor:
         index = [time_step] if isinstance(time_step, int) else ...
@@ -121,12 +198,14 @@ class Variance(StateIndependentFeature):
 
 
 class PrevHedge(Feature):
-    """Previous holding of underlier."""
+    """Previous holding of underlier.
+
+    Name:
+        ``'prev_hedge'``
+    """
 
     hedger: Module
-
-    def __str__(self) -> str:
-        return "prev_hedge"
+    name = "prev_hedge"
 
     def get(self, time_step: Optional[int] = None) -> Tensor:
         if time_step is None:
@@ -144,6 +223,25 @@ class Barrier(StateIndependentFeature):
         up (bool, default True): If ``True``, signifies whether the price has exceeded
             the barrier upward.
             If ``False``, signifies whether the price has exceeded the barrier downward.
+
+    Examples:
+        >>> from pfhedge.features import Barrier
+        >>> from pfhedge.instruments import BrownianStock
+        >>> from pfhedge.instruments import EuropeanOption
+        ...
+        >>> _ = torch.manual_seed(42)
+        >>> derivative = EuropeanOption(BrownianStock(), maturity=5/250, strike=2.0)
+        >>> derivative.simulate()
+        >>> derivative.underlier.spot
+        tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930, 0.9906]])
+        >>> f = Barrier(threshold=1.004, up=True).of(derivative)
+        >>> f.get()
+        tensor([[[0.],
+                 [0.],
+                 [1.],
+                 [1.],
+                 [1.],
+                 [1.]]])
     """
 
     def __init__(self, threshold: float, up: bool = True) -> None:
@@ -175,21 +273,41 @@ class Barrier(StateIndependentFeature):
 
 
 class Zeros(StateIndependentFeature):
-    """A feature of which value is always zero."""
+    """A feature filled with the scalar value 0.
 
-    def __str__(self) -> str:
-        return "zeros"
+    Name:
+        ``'zeros'``
+    """
+
+    name = "zeros"
 
     def get(self, time_step: Optional[int] = None) -> Tensor:
         index = [time_step] if time_step is not None else ...
         return torch.zeros_like(self.derivative.ul().spot[..., index]).unsqueeze(-1)
 
 
-class Empty(StateIndependentFeature):
-    """A feature of which value is always empty."""
+class Ones(StateIndependentFeature):
+    """A feature filled with the scalar value 1.
 
-    def __str__(self) -> str:
-        return "empty"
+    Name:
+        ``'ones'``
+    """
+
+    name = "ones"
+
+    def get(self, time_step: Optional[int] = None) -> Tensor:
+        index = [time_step] if time_step is not None else ...
+        return torch.ones_like(self.derivative.ul().spot[..., index]).unsqueeze(-1)
+
+
+class Empty(StateIndependentFeature):
+    """A feature filled with uninitialized data.
+
+    Name:
+        ``'empty'``
+    """
+
+    name = "empty"
 
     def get(self, time_step: Optional[int] = None) -> Tensor:
         index = [time_step] if time_step is not None else ...
@@ -199,8 +317,8 @@ class Empty(StateIndependentFeature):
 class MaxMoneyness(StateIndependentFeature):
     """Cumulative maximum of moneyness.
 
-    Args:
-        log (bool, default=False): If ``True``, represents log moneyness.
+    Name:
+        ``'max_moneyness'``
     """
 
     derivative: BaseOption
@@ -217,7 +335,11 @@ class MaxMoneyness(StateIndependentFeature):
 
 
 class MaxLogMoneyness(MaxMoneyness):
-    """Cumulative maximum of log Moneyness."""
+    """Cumulative maximum of log Moneyness.
+
+    Name:
+        ``'max_log_moneyness'``
+    """
 
     derivative: BaseOption
 

@@ -48,7 +48,8 @@ class Hedger(Module):
             :math:`H` is the number of hedging instruments.
         inputs (list[str|Feature]): List of the names of the input features that
             will be fed to the model.
-            See ``list(map(str, pfhedge.features.FEATURES))`` for valid options.
+            See :func:`pfhedge.features.list_feature_names` for available feature names
+            and see :ref:`features` for the details of features.
         criterion (HedgeLoss, default=EntropicRiskMeasure()):
             Loss function to minimize by hedging.
             Default: :class:`pfhedge.nn.EntropicRiskMeasure()` .
