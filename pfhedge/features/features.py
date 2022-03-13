@@ -7,11 +7,17 @@ from torch import Tensor
 from torch.nn import Module
 
 from pfhedge._utils.str import _format_float
-from pfhedge.instruments.derivative.base import BaseOption
+from pfhedge.instruments.derivative.base import BaseDerivative
+from pfhedge.instruments.derivative.base import OptionMixin
 
 from ._base import Feature
 from ._base import StateIndependentFeature
 from ._getter import FeatureFactory
+
+
+# for mypy only
+class OptionType(BaseDerivative, OptionMixin):
+    pass
 
 
 class Moneyness(StateIndependentFeature):
@@ -44,7 +50,7 @@ class Moneyness(StateIndependentFeature):
                  [0.4953]]])
     """
 
-    derivative: BaseOption
+    derivative: OptionType
 
     def __init__(self, log: bool = False) -> None:
         super().__init__()
@@ -68,7 +74,7 @@ class LogMoneyness(Moneyness):
         ``'log_moneyness'``
     """
 
-    derivative: BaseOption
+    derivative: OptionType
 
     def __init__(self) -> None:
         super().__init__(log=True)
@@ -98,7 +104,7 @@ class TimeToMaturity(StateIndependentFeature):
                  [0.0000]]])
     """
 
-    derivative: BaseOption
+    derivative: OptionType
     name = "time_to_maturity"
 
     def get(self, time_step: Optional[int] = None) -> Tensor:
@@ -340,7 +346,7 @@ class MaxMoneyness(StateIndependentFeature):
                  [0.5036]]])
     """
 
-    derivative: BaseOption
+    derivative: OptionType
 
     def __init__(self, log: bool = False) -> None:
         super().__init__()
@@ -360,7 +366,7 @@ class MaxLogMoneyness(MaxMoneyness):
         ``'max_log_moneyness'``
     """
 
-    derivative: BaseOption
+    derivative: OptionType
 
     def __init__(self) -> None:
         super().__init__(log=True)

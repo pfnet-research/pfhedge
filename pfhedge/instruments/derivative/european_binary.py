@@ -10,10 +10,10 @@ from pfhedge.nn.functional import european_binary_payoff
 
 from ..primary.base import BasePrimary
 from .base import BaseDerivative
-from .base import BaseOption
+from .base import OptionMixin
 
 
-class EuropeanBinaryOption(BaseOption):
+class EuropeanBinaryOption(BaseDerivative, OptionMixin):
     r"""European binary option.
 
     The payoff of a European binary call option is given by
@@ -110,8 +110,10 @@ _set_attr_and_docstring(EuropeanBinaryOption, "to", BaseDerivative.to)
 _set_attr_and_docstring(EuropeanBinaryOption, "ul", BaseDerivative.ul)
 _set_attr_and_docstring(EuropeanBinaryOption, "list", BaseDerivative.list)
 _set_docstring(EuropeanBinaryOption, "payoff", BaseDerivative.payoff)
-_set_attr_and_docstring(EuropeanBinaryOption, "moneyness", BaseOption.moneyness)
-_set_attr_and_docstring(EuropeanBinaryOption, "log_moneyness", BaseOption.log_moneyness)
+_set_attr_and_docstring(EuropeanBinaryOption, "moneyness", OptionMixin.moneyness)
 _set_attr_and_docstring(
-    EuropeanBinaryOption, "time_to_maturity", BaseOption.time_to_maturity
+    EuropeanBinaryOption, "log_moneyness", OptionMixin.log_moneyness
+)
+_set_attr_and_docstring(
+    EuropeanBinaryOption, "time_to_maturity", OptionMixin.time_to_maturity
 )

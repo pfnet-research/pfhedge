@@ -10,10 +10,10 @@ from pfhedge.nn.functional import american_binary_payoff
 
 from ..primary.base import BasePrimary
 from .base import BaseDerivative
-from .base import BaseOption
+from .base import OptionMixin
 
 
-class AmericanBinaryOption(BaseOption):
+class AmericanBinaryOption(BaseDerivative, OptionMixin):
     r"""American binary option.
 
     The payoff of an American binary call option is given by:
@@ -114,8 +114,10 @@ _set_attr_and_docstring(AmericanBinaryOption, "to", BaseDerivative.to)
 _set_attr_and_docstring(AmericanBinaryOption, "ul", BaseDerivative.ul)
 _set_attr_and_docstring(AmericanBinaryOption, "list", BaseDerivative.list)
 _set_docstring(AmericanBinaryOption, "payoff", BaseDerivative.payoff)
-_set_attr_and_docstring(AmericanBinaryOption, "moneyness", BaseOption.moneyness)
-_set_attr_and_docstring(AmericanBinaryOption, "log_moneyness", BaseOption.log_moneyness)
+_set_attr_and_docstring(AmericanBinaryOption, "moneyness", OptionMixin.moneyness)
 _set_attr_and_docstring(
-    AmericanBinaryOption, "time_to_maturity", BaseOption.time_to_maturity
+    AmericanBinaryOption, "log_moneyness", OptionMixin.log_moneyness
+)
+_set_attr_and_docstring(
+    AmericanBinaryOption, "time_to_maturity", OptionMixin.time_to_maturity
 )
