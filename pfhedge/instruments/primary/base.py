@@ -172,8 +172,7 @@ class BasePrimary(BaseInstrument):
 
         if dtype is not None and not dtype.is_floating_point:
             raise TypeError(
-                "to() only accepts floating point "
-                "dtypes, but got desired dtype=" + str(dtype)
+                f"to() only accepts floating point dtypes, but got desired dtype={dtype}"
             )
 
         if not hasattr(self, "dtype") or dtype is not None:

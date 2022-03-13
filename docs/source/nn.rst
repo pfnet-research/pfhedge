@@ -15,7 +15,6 @@ Hedger Module
 -------------
 
 .. autosummary::
-    :toctree: generated
     :nosignatures:
     :template: classtemplate.rst
 
@@ -25,7 +24,6 @@ Black-Scholes Layers
 --------------------
 
 .. autosummary::
-    :toctree: generated
     :nosignatures:
     :template: classtemplate.rst
 
@@ -39,7 +37,6 @@ Whalley-Wilmott Layers
 ----------------------
 
 .. autosummary::
-    :toctree: generated
     :nosignatures:
     :template: classtemplate.rst
 
@@ -49,7 +46,6 @@ Nonlinear Activations
 ---------------------
 
 .. autosummary::
-    :toctree: generated
     :nosignatures:
     :template: classtemplate.rst
 
@@ -60,7 +56,6 @@ Loss Functions
 --------------
 
 .. autosummary::
-    :toctree: generated
     :nosignatures:
     :template: classtemplate.rst
 
@@ -74,8 +69,6 @@ Multi Layer Perceptron
 ----------------------
 
 .. autosummary::
-    :toctree: generated
-    :nosignatures:
     :template: classtemplate.rst
 
     nn.MultiLayerPerceptron
@@ -84,7 +77,6 @@ Other Modules
 -------------
 
 .. autosummary::
-    :toctree: generated
     :nosignatures:
     :template: classtemplate.rst
 

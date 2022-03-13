@@ -108,8 +108,6 @@ def acquire_params_from_derivative_0(
             raise ValueError(
                 "log_moneyness is required if derivative is not set at this initialization."
             )
-        if derivative.ul().spot is None:
-            raise AttributeError("please simulate first")
         log_moneyness = derivative.log_moneyness()
     if time_to_maturity is None:
         if derivative is None:
@@ -166,8 +164,6 @@ def acquire_params_from_derivative_2(
             raise ValueError(
                 "max_log_moneyness is required if derivative is not set at this initialization."
             )
-        if derivative.ul().spot is None:
-            raise AttributeError("please simulate first")
         max_log_moneyness = derivative.max_log_moneyness()
 
     return log_moneyness, max_log_moneyness, time_to_maturity, volatility

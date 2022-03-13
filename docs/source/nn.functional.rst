@@ -11,7 +11,6 @@ Payoff Functions
 
 .. autosummary::
     :nosignatures:
-    :toctree: generated
 
     european_payoff
     lookback_payoff
@@ -24,7 +23,6 @@ Nonlinear activation functions
 
 .. autosummary::
     :nosignatures:
-    :toctree: generated
 
     leaky_clamp
     clamp
@@ -34,7 +32,6 @@ Criterion Functions
 
 .. autosummary::
     :nosignatures:
-    :toctree: generated
 
     exp_utility
     isoelastic_utility
@@ -45,25 +42,51 @@ Criterion Functions
 Black-Scholes formulas
 ----------------------
 
+European option
+~~~~~~~~~~~~~~~
+
 .. autosummary::
     :nosignatures:
-    :toctree: generated
 
     bs_european_price
     bs_european_delta
     bs_european_gamma
     bs_european_vega
     bs_european_theta
+
+American binary option
+~~~~~~~~~~~~~~~~~~~~~~
+
+.. autosummary::
+    :nosignatures:
+    :toctree: generated
+
     bs_american_binary_price
     bs_american_binary_delta
     bs_american_binary_gamma
     bs_american_binary_vega
     bs_american_binary_theta
+
+European binary option
+~~~~~~~~~~~~~~~~~~~~~~
+
+.. autosummary::
+    :nosignatures:
+    :toctree: generated
+
     bs_european_binary_price
     bs_european_binary_delta
     bs_european_binary_gamma
     bs_european_binary_vega
     bs_european_binary_theta
+
+Lookback option
+~~~~~~~~~~~~~~~
+
+.. autosummary::
+    :nosignatures:
+    :toctree: generated
+
     bs_lookback_price
     bs_lookback_delta
     bs_lookback_gamma
@@ -75,9 +98,9 @@ Other Functions
 
 .. autosummary::
     :nosignatures:
-    :toctree: generated
 
     bilerp
+    box_muller
     d1
     d2
     ncdf

@@ -47,21 +47,33 @@ class BaseDerivative(BaseInstrument):
     cost: float
     maturity: float
     pricer: Optional[Callable[[Any], Tensor]]
-    _clauses: Dict[str, Callable[["BaseDerivative", Tensor], Tensor]]
+    _clauses: Dict[str, Clause]
+    _underliers: Dict[str, BasePrimary]
 
     def __init__(self) -> None:
         super().__init__()
         self.pricer = None
         self.cost = 0.0
         self._clauses = OrderedDict()
+        self._underliers = OrderedDict()
 
     @property
     def dtype(self) -> Optional[torch.dtype]:
-        return self.underlier.dtype
+        if len(list(self.underliers())) == 1:
+            return self.ul(0).dtype
+        else:
+            raise AttributeError(
+                "dtype is not well-defined for a derivative with multiple underliers"
+            )
 
     @property
     def device(self) -> Optional[torch.device]:
-        return self.underlier.device
+        if len(list(self.underliers())) == 1:
+            return self.ul(0).device
+        else:
+            raise AttributeError(
+                "device is not well-defined for a derivative with multiple underliers"
+            )
 
     def simulate(
         self, n_paths: int = 1, init_state: Optional[Tuple[TensorOrScalar, ...]] = None
@@ -74,16 +86,18 @@ class BaseDerivative(BaseInstrument):
                 the underlier.
             **kwargs: Other parameters passed to ``self.underlier.simulate()``.
         """
-        self.underlier.simulate(
-            n_paths=n_paths, time_horizon=self.maturity, init_state=init_state
-        )
+        for underlier in self.underliers():
+            underlier.simulate(
+                n_paths=n_paths, time_horizon=self.maturity, init_state=init_state
+            )
 
-    def ul(self) -> BasePrimary:
+    def ul(self, index: int = 0) -> BasePrimary:
         """Alias for ``self.underlier``."""
-        return self.underlier
+        return list(self.underliers())[index]
 
     def to(self: T, *args: Any, **kwargs: Any) -> T:
-        self.underlier.to(*args, **kwargs)
+        for underlier in self.underliers():
+            underlier.to(*args, **kwargs)
         return self
 
     @abstractmethod
@@ -128,8 +142,7 @@ class BaseDerivative(BaseInstrument):
         After this method self will be a exchange-traded derivative which can be transacted
         at any time with the spot price given by ``self.spot``.
 
-        See an example in :class:`EuropeanOption` for a usage.
-
+        See an example in :class:`EuropeanOption` for a usage.derivative
         Args:
             pricer (Callable[[BaseDerivative], Tensor]]): A function that takes self
                 and returns the spot price tensor of self.
@@ -166,14 +179,14 @@ class BaseDerivative(BaseInstrument):
         """
         if not isinstance(name, torch._six.string_classes):
             raise TypeError(
-                "clause name should be a string. Got {}".format(torch.typename(name))
+                f"clause name should be a string. Got {torch.typename(name)}"
             )
         elif hasattr(self, name) and name not in self._clauses:
-            raise KeyError("attribute '{}' already exists".format(name))
+            raise KeyError(f"attribute '{name}' already exists")
         elif "." in name:
-            raise KeyError('clause name can\'t contain ".", got: {}'.format(name))
+            raise KeyError(f'clause name cannot contain ".", got: {name}')
         elif name == "":
-            raise KeyError('clause name can\'t be empty string ""')
+            raise KeyError('clause name cannot be empty string ""')
 
         if not hasattr(self, "_clauses"):
             raise AttributeError(
@@ -190,6 +203,46 @@ class BaseDerivative(BaseInstrument):
     def clauses(self) -> Iterator[Clause]:
         for _, clause in self.named_clauses():
             yield clause
+
+    def register_underlier(self, name: str, underlier: BasePrimary) -> None:
+        if not isinstance(name, torch._six.string_classes):
+            raise TypeError(f"name should be a string. Got {torch.typename(name)}")
+        elif hasattr(self, name) and name not in self._underliers:
+            raise KeyError(f"attribute '{name}' already exists")
+        elif "." in name:
+            raise KeyError(f'name cannot contain ".", got: {name}')
+        elif name == "":
+            raise KeyError('name cannot be empty string ""')
+
+        if not hasattr(self, "_underliers"):
+            raise AttributeError(
+                "cannot assign underlier before BaseDerivative.__init__() call"
+            )
+
+        self._underliers[name] = underlier
+
+    def named_underliers(self) -> Iterator[Tuple[str, BasePrimary]]:
+        if hasattr(self, "_underliers"):
+            for name, underlier in self._underliers.items():
+                yield name, underlier
+
+    def underliers(self) -> Iterator[BasePrimary]:
+        for _, underlier in self.named_underliers():
+            yield underlier
+
+    def get_underlier(self, name: str) -> BasePrimary:
+        if "_underliers" in self.__dict__:
+            if name in self._underliers:
+                return self._underliers[name]
+        raise AttributeError(self._get_name() + " has no attribute " + name)
+
+    def __getattr__(self, name: str) -> BasePrimary:
+        return self.get_underlier(name)
+
+    def __setattr__(self, name, value) -> None:
+        if isinstance(value, BasePrimary):
+            self.register_underlier(name, value)
+        super().__setattr__(name, value)
 
     @property
     def spot(self) -> Tensor:
@@ -221,8 +274,8 @@ class Derivative(BaseDerivative):
         )
 
 
-class BaseOption(BaseDerivative):
-    """Base class of options."""
+class OptionMixin:
+    """Mixin class for options."""
 
     underlier: BasePrimary
     strike: float
@@ -230,6 +283,10 @@ class BaseOption(BaseDerivative):
 
     def moneyness(self, time_step: Optional[int] = None, log: bool = False) -> Tensor:
         """Returns the moneyness of self.
+
+        Moneyness reads :math:`S / K` where
+        :math:`S` is the spot price of the underlying instrument and
+        :math:`K` is the strike of the derivative.
 
         Args:
             time_step (int, optional): The time step to calculate
@@ -253,7 +310,12 @@ class BaseOption(BaseDerivative):
         return output
 
     def log_moneyness(self, time_step: Optional[int] = None) -> Tensor:
-        """Returns ``self.moneyness(time_step).log()``.
+        r"""Returns log-moneyness of self.
+
+        Log-moneyness reads :math:`\log(S / K)` where
+        :math:`S` is the spot price of the underlying instrument and
+        :math:`K` is the strike of the derivative.
+
 
         Returns:
             torch.Tensor
@@ -321,6 +383,16 @@ class BaseOption(BaseDerivative):
             torch.Tensor
         """
         return self.max_moneyness(time_step, log=True)
+
+
+class BaseOption(BaseDerivative, OptionMixin):
+    """(deprecated) Base class for options."""
+
+    def __init__(self):
+        super().__init__()
+        raise DeprecationWarning(
+            "BaseOption is deprecated. Inherit `BaseDerivative` and `OptionMixin` instead."
+        )
 
 
 # Assign docstrings so they appear in Sphinx documentation
