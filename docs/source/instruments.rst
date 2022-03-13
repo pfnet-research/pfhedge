@@ -31,6 +31,7 @@ Primary Instruments
     instruments.HestonStock
     instruments.LocalVolatilityStock
     instruments.CIRRate
+    instruments.VasicekRate
 
 Derivative Instruments
 ----------------------

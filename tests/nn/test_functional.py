@@ -5,6 +5,7 @@ import torch
 from torch.testing import assert_close
 
 from pfhedge.nn.functional import bilerp
+from pfhedge.nn.functional import box_muller
 from pfhedge.nn.functional import clamp
 from pfhedge.nn.functional import d1
 from pfhedge.nn.functional import d2
@@ -322,3 +323,28 @@ def test_bilerp():
 
     result = bilerp(i1, i2, i3, i4, 0.5, 0.5)
     assert_close(result, (i1 + i2 + i3 + i4) / 4)
+
+
+def test_box_muller():
+    torch.manual_seed(42)
+
+    # correct radius
+    input1 = torch.rand(10)
+    input2 = torch.rand(10)
+    output1, output2 = box_muller(input1, input2)
+    result = output1.square() + output2.square()
+    expect = -2 * input1.clamp(min=1e-10).log()
+    assert_close(result, expect)
+
+    # correct angle
+    input1 = torch.rand(10)
+    input2 = torch.zeros(10)
+    output1, output2 = box_muller(input1, input2)
+    assert_close(output2, torch.zeros_like(output2))
+
+    # no nan even when input1 is zero
+    input1 = torch.zeros(10)
+    input2 = torch.rand(10)
+    output1, output2 = box_muller(input1, input2)
+    assert not output1.isnan().any()
+    assert not output2.isnan().any()

@@ -69,7 +69,7 @@ class EuropeanForwardStartOption(BaseDerivative):
         start: float = 10 / 250,
     ) -> None:
         super().__init__()
-        self.underlier = underlier
+        self.register_underlier("underlier", underlier)
         self.strike = strike
         self.maturity = maturity
         self.start = start
