@@ -48,8 +48,11 @@ class FeatureList(Feature):
         # Return size: (N, T, F)
         return torch.cat([f.get(time_step) for f in self.features], dim=-1)
 
-    def __repr__(self) -> str:
+    def __str__(self) -> str:
         return str(list(map(str, self.features)))
+
+    def __repr__(self) -> str:
+        return str(self)
 
     def of(self: T, derivative: BaseDerivative, hedger: Optional[Module] = None) -> T:
         output = copy.copy(self)

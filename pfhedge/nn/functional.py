@@ -1,5 +1,7 @@
 from math import ceil
+from math import pi as kPI
 from typing import Optional
+from typing import Tuple
 from typing import Union
 
 import torch
@@ -210,6 +212,10 @@ def topp(input: Tensor, p: float, dim: Optional[int] = None, largest: bool = Tru
 
     A namedtuple of ``(values, indices)`` is returned, where the ``indices``
     are the indices of the elements in the original ``input`` tensor.
+
+    .. seealso::
+        - :func:`torch.topk`: Returns the ``k`` largest elements of the given input tensor
+          along a given dimension.
 
     Args:
         input (torch.Tensor): The input tensor.
@@ -1125,3 +1131,30 @@ def bs_lookback_theta(
         volatility=volatility,
         strike=strike,
     )
+
+
+def box_muller(
+    input1: Tensor, input2: Tensor, epsilon: float = 1e-10
+) -> Tuple[Tensor, Tensor]:
+    r"""Returns two tensors obtained by applying Box-Muller transformation to two input tensors.
+
+    .. math::
+        & \mathrm{output1}_i
+            = \sqrt{- 2 \log (\mathrm{input1}_i)} \cos(2 \pi \cdot \mathrm{input2}_i) , \\
+        & \mathrm{output2}_i
+            = \sqrt{- 2 \log (\mathrm{input1}_i)} \sin(2 \pi \cdot \mathrm{input2}_i) .
+
+    Args:
+        input1 (torch.Tensor): The first input tensor.
+        input2 (torch.Tensor): The second input tensor.
+        epsilon (float, default=1e-10): A small constant to avoid evaluating :math:`\log(0)`.
+            The tensor ``input1`` will be clamped with this value being the minimum.
+
+    Returns:
+        (torch.Tensor, torch.Tensor)
+    """
+    radius = (-2 * input1.clamp(min=epsilon).log()).sqrt()
+    angle = 2 * kPI * input2
+    output1 = radius * angle.cos()
+    output2 = radius * angle.sin()
+    return output1, output2

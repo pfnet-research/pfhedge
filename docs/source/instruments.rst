@@ -10,7 +10,6 @@ Base Class
 ----------
 
 .. autosummary::
-    :toctree: generated
     :nosignatures:
     :template: classtemplate.rst
 
@@ -24,19 +23,19 @@ Primary Instruments
 -------------------
 
 .. autosummary::
-    :toctree: generated
     :nosignatures:
     :template: classtemplate.rst
 
     instruments.BrownianStock
     instruments.HestonStock
+    instruments.LocalVolatilityStock
     instruments.CIRRate
+    instruments.VasicekRate
 
 Derivative Instruments
 ----------------------
 
 .. autosummary::
-    :toctree: generated
     :nosignatures:
     :template: classtemplate.rst
 
