@@ -213,6 +213,10 @@ def topp(input: Tensor, p: float, dim: Optional[int] = None, largest: bool = Tru
     A namedtuple of ``(values, indices)`` is returned, where the ``indices``
     are the indices of the elements in the original ``input`` tensor.
 
+    .. seealso::
+        - :func:`torch.topk`: Returns the ``k`` largest elements of the given input tensor
+          along a given dimension.
+
     Args:
         input (torch.Tensor): The input tensor.
         p (float): The quantile level.
