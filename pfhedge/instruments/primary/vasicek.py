@@ -3,27 +3,28 @@ from typing import Optional
 from typing import Tuple
 
 import torch
+from torch import Tensor
 
 from pfhedge._utils.doc import _set_attr_and_docstring
 from pfhedge._utils.doc import _set_docstring
 from pfhedge._utils.str import _format_float
 from pfhedge._utils.typing import TensorOrScalar
-from pfhedge.stochastic import generate_cir
+from pfhedge.stochastic import generate_vasicek
 
 from .base import BasePrimary
 
 
-class CIRRate(BasePrimary):
-    r"""A rate which follow the CIR process.
+class VasicekRate(BasePrimary):
+    r"""A rate which follow the Vasicek model.
 
     .. seealso::
-        - :func:`pfhedge.stochastic.generate_cir`:
+        - :func:`pfhedge.stochastic.generate_vasicek`:
           The stochastic process.
 
     Args:
         kappa (float, default=1.0): The parameter :math:`\kappa`.
         theta (float, default=0.04): The parameter :math:`\theta`.
-        sigma (float, default=2.0): The parameter :math:`\sigma`.
+        sigma (float, default=0.04): The parameter :math:`\sigma`.
         cost (float, default=0.0): The transaction cost rate.
         dt (float, default=1/250): The intervals of the time steps.
         dtype (torch.device, optional): Desired device of returned tensor.
@@ -43,21 +44,21 @@ class CIRRate(BasePrimary):
           :math:`T` is the number of time steps.
 
     Examples:
-        >>> from pfhedge.instruments import CIRRate
+        >>> from pfhedge.instruments import VasicekRate
         ...
         >>> _ = torch.manual_seed(42)
-        >>> rate = CIRRate()
+        >>> rate = VasicekRate()
         >>> rate.simulate(n_paths=2, time_horizon=5/250)
         >>> rate.spot
-        tensor([[0.0400, 0.0408, 0.0411, 0.0417, 0.0422, 0.0393],
-                [0.0400, 0.0457, 0.0440, 0.0451, 0.0458, 0.0472]])
+        tensor([[0.0400, 0.0409, 0.0412, 0.0418, 0.0423, 0.0395],
+                [0.0400, 0.0456, 0.0439, 0.0451, 0.0457, 0.0471]])
     """
 
     def __init__(
         self,
         kappa: float = 1.0,
         theta: float = 0.04,
-        sigma: float = 0.2,
+        sigma: float = 0.04,
         cost: float = 0.0,
         dt: float = 1 / 250,
         dtype: Optional[torch.dtype] = None,
@@ -83,28 +84,10 @@ class CIRRate(BasePrimary):
         time_horizon: float = 20 / 250,
         init_state: Optional[Tuple[TensorOrScalar, ...]] = None,
     ) -> None:
-        """Simulate the spot rate and add it as a buffer named ``spot``.
-
-        The shape of the spot is :math:`(N, T)`, where
-        :math:`N` is the number of simulated paths and
-        :math:`T` is the number of time steps.
-        The number of time steps is determinded from ``dt`` and ``time_horizon``.
-
-        Args:
-            n_paths (int, default=1): The number of paths to simulate.
-            time_horizon (float, default=20/250): The period of time to simulate
-                the price.
-            init_state (tuple[torch.Tensor | float], optional):
-                The initial state of the instrument.
-                This is specified by a tuple :math:`(S(0),)` where
-                :math:`S(0)` is the initial values of of spot.
-                If ``None`` (default), it uses the default value
-                (See :attr:`default_init_state`).
-        """
         if init_state is None:
             init_state = self.default_init_state
 
-        spot = generate_cir(
+        spot = generate_vasicek(
             n_paths=n_paths,
             n_steps=ceil(time_horizon / self.dt + 1),
             init_state=init_state,
@@ -131,5 +114,5 @@ class CIRRate(BasePrimary):
 
 
 # Assign docstrings so they appear in Sphinx documentation
-_set_docstring(CIRRate, "default_init_state", BasePrimary.default_init_state)
-_set_attr_and_docstring(CIRRate, "to", BasePrimary.to)
+_set_docstring(VasicekRate, "default_init_state", BasePrimary.default_init_state)
+_set_attr_and_docstring(VasicekRate, "to", BasePrimary.to)

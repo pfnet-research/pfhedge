@@ -30,6 +30,7 @@ Primary Instruments
     instruments.BrownianStock
     instruments.HestonStock
     instruments.CIRRate
+    instruments.VasicekRate
 
 Derivative Instruments
 ----------------------

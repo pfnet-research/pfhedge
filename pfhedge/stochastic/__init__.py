@@ -4,3 +4,4 @@ from .cir import generate_cir
 from .heston import generate_heston
 from .random import randn_antithetic
 from .random import randn_sobol_boxmuller
+from .vasicek import generate_vasicek
