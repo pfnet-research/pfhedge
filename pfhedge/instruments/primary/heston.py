@@ -50,7 +50,6 @@ class HestonStock(BasePrimary):
           The shape is :math:`(N, T)`.
 
     Examples:
-
         >>> from pfhedge.instruments import HestonStock
         >>>
         >>> _ = torch.manual_seed(42)
@@ -80,7 +79,7 @@ class HestonStock(BasePrimary):
         dt: float = 1 / 250,
         dtype: Optional[torch.dtype] = None,
         device: Optional[torch.device] = None,
-    ):
+    ) -> None:
         super().__init__()
 
         self.kappa = kappa
@@ -99,7 +98,7 @@ class HestonStock(BasePrimary):
     @property
     def volatility(self) -> Tensor:
         """An alias for ``self.variance.sqrt()``."""
-        return self.variance.clamp(min=0.0).sqrt()
+        return self.get_buffer("variance").clamp(min=0.0).sqrt()
 
     def simulate(
         self,

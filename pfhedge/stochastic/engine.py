@@ -1,4 +1,3 @@
-import math
 from typing import Optional
 from typing import Tuple
 
@@ -6,13 +5,7 @@ import torch
 from torch import Tensor
 from torch.quasirandom import SobolEngine
 
-
-def _box_muller(input0: Tensor, input1: Tensor) -> Tuple[Tensor, Tensor]:
-    EPSILON = 1e-10
-    radius = (-2 * input0.clamp(min=EPSILON).log()).sqrt()
-    z0 = radius * (2 * math.pi * input1).cos()
-    z1 = radius * (2 * math.pi * input1).sin()
-    return z0, z1
+from pfhedge.nn.functional import box_muller
 
 
 def _get_numel(size: Tuple[int, ...]) -> int:
@@ -59,5 +52,5 @@ class RandnSobolBoxMuller:
     ) -> Tensor:
         engine = SobolEngine(2, scramble=self.scramble, seed=self.seed)
         rand = engine.draw(n // 2 + 1).to(dtype=dtype, device=device)
-        z0, z1 = _box_muller(rand[:, 0], rand[:, 1])
+        z0, z1 = box_muller(rand[:, 0], rand[:, 1])
         return torch.cat((z0, z1), dim=0)[:n]

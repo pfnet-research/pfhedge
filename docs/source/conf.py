@@ -69,7 +69,7 @@ autodoc_inherit_docstrings = False
 # Disable displaying type annotations, these can be very verbose
 autodoc_typehints = "none"
 
-autodoc_default_options = {"show-inheritance": True}
+# autodoc_default_options = {"show-inheritance": True}
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),

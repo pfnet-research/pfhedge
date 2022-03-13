@@ -1,4 +1,5 @@
 from math import ceil
+from typing import Callable
 from typing import Optional
 from typing import Tuple
 from typing import cast
@@ -9,24 +10,23 @@ from torch import Tensor
 from pfhedge._utils.doc import _set_attr_and_docstring
 from pfhedge._utils.doc import _set_docstring
 from pfhedge._utils.str import _format_float
+from pfhedge._utils.typing import LocalVolatilityFunction
 from pfhedge._utils.typing import TensorOrScalar
-from pfhedge.stochastic import generate_geometric_brownian
+from pfhedge.stochastic import generate_local_volatility_process
 
 from .base import BasePrimary
 
 
-class BrownianStock(BasePrimary):
-    r"""A stock of which spot prices follow the geometric Brownian motion.
+class LocalVolatilityStock(BasePrimary):
+    r"""A stock of which spot prices follow the local volatility model.
 
     .. seealso::
-        - :func:`pfhedge.stochastic.generate_geometric_brownian`:
+        - :func:`pfhedge.stochastic.generate_local_volatility_process`:
           The stochastic process.
 
     Args:
-        sigma (float, default=0.2): The parameter :math:`\sigma`,
-            which stands for the volatility of the spot price.
-        mu (float, default=0.0): The parameter :math:`\mu`,
-            which stands for the drift of the spot price.
+        sigma_fn (callable): The local volatility function.
+            Its signature is ``sigma_fn(time: Tensor, spot: Tensor) -> Tensor``.
         cost (float, default=0.0): The transaction cost rate.
         dt (float, default=1/250): The intervals of the time steps.
         dtype (torch.device, optional): Desired device of returned tensor.
@@ -44,28 +44,14 @@ class BrownianStock(BasePrimary):
           The shape is :math:`(N, T)` where
           :math:`N` is the number of simulated paths and
           :math:`T` is the number of time steps.
-
-    Examples:
-        >>> from pfhedge.instruments import BrownianStock
-        >>>
-        >>> _ = torch.manual_seed(42)
-        >>> stock = BrownianStock()
-        >>> stock.simulate(n_paths=2, time_horizon=5 / 250)
-        >>> stock.spot
-        tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930, 0.9906],
-                [1.0000, 0.9919, 0.9976, 1.0009, 1.0076, 1.0179]])
-
-        Using custom ``dtype`` and ``device``.
-
-        >>> stock = BrownianStock()
-        >>> stock.to(dtype=torch.float64, device="cuda:0")
-        BrownianStock(..., dtype=torch.float64, device='cuda:0')
     """
+
+    spot: Tensor
+    volatility: Tensor
 
     def __init__(
         self,
-        sigma: float = 0.2,
-        mu: float = 0.0,
+        sigma_fn: LocalVolatilityFunction,
         cost: float = 0.0,
         dt: float = 1 / 250,
         dtype: Optional[torch.dtype] = None,
@@ -73,8 +59,7 @@ class BrownianStock(BasePrimary):
     ) -> None:
         super().__init__()
 
-        self.sigma = sigma
-        self.mu = mu
+        self.sigma_fn = sigma_fn
         self.cost = cost
         self.dt = dt
 
@@ -85,20 +70,12 @@ class BrownianStock(BasePrimary):
         return (1.0,)
 
     @property
-    def volatility(self) -> Tensor:
-        """Returns the volatility of self.
-
-        It is a tensor filled with ``self.sigma``.
-        """
-        return torch.full_like(self.get_buffer("spot"), self.sigma)
-
-    @property
     def variance(self) -> Tensor:
         """Returns the volatility of self.
 
         It is a tensor filled with the square of ``self.sigma``.
         """
-        return torch.full_like(self.get_buffer("spot"), self.sigma ** 2)
+        return self.volatility.square()
 
     def simulate(
         self,
@@ -125,33 +102,41 @@ class BrownianStock(BasePrimary):
                 It also accepts a :class:`float` or a :class:`torch.Tensor`.
 
         Examples:
+            >>> from pfhedge.instruments import LocalVolatilityStock
+            ...
+            >>> def sigma_fn(time: Tensor, spot: Tensor) -> Tensor:
+            ...     a, b, sigma = 0.0001, 0.0004, 0.10
+            ...     sqrt_term = (spot.log().square() + sigma ** 2).sqrt()
+            ...     return ((a + b * sqrt_term) / time.clamp(min=1/250)).sqrt()
+            ...
             >>> _ = torch.manual_seed(42)
-            >>> stock = BrownianStock()
-            >>> stock.simulate(n_paths=2, time_horizon=5 / 250, init_state=(2.0,))
+            >>> stock = LocalVolatilityStock(sigma_fn)
+            >>> stock.simulate(n_paths=2, time_horizon=5 / 250)
             >>> stock.spot
-            tensor([[2.0000, 2.0031, 2.0089, 2.0146, 1.9860, 1.9812],
-                    [2.0000, 1.9838, 1.9952, 2.0018, 2.0153, 2.0358]])
+            tensor([[1.0000, 1.0040, 1.0055, 1.0075, 1.0091, 1.0024],
+                    [1.0000, 1.0261, 1.0183, 1.0223, 1.0242, 1.0274]])
+            >>> stock.volatility
+            tensor([[0.1871, 0.1871, 0.1323, 0.1081, 0.0936, 0.0837],
+                    [0.1871, 0.1880, 0.1326, 0.1084, 0.0939, 0.0841]])
         """
         if init_state is None:
             init_state = cast(Tuple[float], self.default_init_state)
 
-        spot = generate_geometric_brownian(
+        output = generate_local_volatility_process(
             n_paths=n_paths,
             n_steps=ceil(time_horizon / self.dt + 1),
+            sigma_fn=self.sigma_fn,
             init_state=init_state,
-            sigma=self.sigma,
-            mu=self.mu,
             dt=self.dt,
             dtype=self.dtype,
             device=self.device,
         )
 
-        self.register_buffer("spot", spot)
+        self.register_buffer("spot", output.spot)
+        self.register_buffer("volatility", output.volatility)
 
     def extra_repr(self) -> str:
-        params = ["sigma=" + _format_float(self.sigma)]
-        if self.mu != 0.0:
-            params.append("mu=" + _format_float(self.mu))
+        params = []
         if self.cost != 0.0:
             params.append("cost=" + _format_float(self.cost))
         params.append("dt=" + _format_float(self.dt))
@@ -159,5 +144,7 @@ class BrownianStock(BasePrimary):
 
 
 # Assign docstrings so they appear in Sphinx documentation
-_set_docstring(BrownianStock, "default_init_state", BasePrimary.default_init_state)
-_set_attr_and_docstring(BrownianStock, "to", BasePrimary.to)
+_set_docstring(
+    LocalVolatilityStock, "default_init_state", BasePrimary.default_init_state
+)
+_set_attr_and_docstring(LocalVolatilityStock, "to", BasePrimary.to)

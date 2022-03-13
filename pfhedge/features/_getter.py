@@ -96,6 +96,12 @@ def get_feature(feature: Union[str, Feature], **kwargs: Any) -> Feature:
 
     Returns:
         Feature
+
+    Examples:
+        >>> from pfhedge.features import get_feature
+        ...
+        >>> get_feature("moneyness")
+        <pfhedge.features.features.Moneyness object at ...>
     """
     if isinstance(feature, str):
         feature = FeatureFactory().get_instance(feature, **kwargs)
@@ -109,7 +115,12 @@ def list_feature_dict() -> dict:
 
 
 def list_feature_names() -> list:
-    return list(FeatureFactory().names())
+    """Returns the list of the names of available features.
+
+    Returns:
+        list[str]
+    """
+    return sorted(list(FeatureFactory().names()))
 
 
 def list_features() -> list:
