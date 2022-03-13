@@ -17,6 +17,7 @@ Base Class
     instruments.BaseInstrument
     instruments.BasePrimary
     instruments.BaseDerivative
+    instruments.OptionMixin
     instruments.BaseOption
 
 Primary Instruments

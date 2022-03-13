@@ -128,8 +128,7 @@ class BaseDerivative(BaseInstrument):
         After this method self will be a exchange-traded derivative which can be transacted
         at any time with the spot price given by ``self.spot``.
 
-        See an example in :class:`EuropeanOption` for a usage.
-
+        See an example in :class:`EuropeanOption` for a usage.derivative
         Args:
             pricer (Callable[[BaseDerivative], Tensor]]): A function that takes self
                 and returns the spot price tensor of self.
@@ -221,8 +220,8 @@ class Derivative(BaseDerivative):
         )
 
 
-class BaseOption(BaseDerivative):
-    """Base class of options."""
+class OptionMixin:
+    """Mixin class for options."""
 
     underlier: BasePrimary
     strike: float
@@ -230,6 +229,10 @@ class BaseOption(BaseDerivative):
 
     def moneyness(self, time_step: Optional[int] = None, log: bool = False) -> Tensor:
         """Returns the moneyness of self.
+
+        Moneyness reads :math:`S / K` where
+        :math:`S` is the spot price of the underlying instrument and
+        :math:`K` is the strike of the derivative.
 
         Args:
             time_step (int, optional): The time step to calculate
@@ -253,7 +256,12 @@ class BaseOption(BaseDerivative):
         return output
 
     def log_moneyness(self, time_step: Optional[int] = None) -> Tensor:
-        """Returns ``self.moneyness(time_step).log()``.
+        r"""Returns log-moneyness of self.
+
+        Log-moneyness reads :math:`\log(S / K)` where
+        :math:`S` is the spot price of the underlying instrument and
+        :math:`K` is the strike of the derivative.
+
 
         Returns:
             torch.Tensor
@@ -321,6 +329,16 @@ class BaseOption(BaseDerivative):
             torch.Tensor
         """
         return self.max_moneyness(time_step, log=True)
+
+
+class BaseOption(BaseDerivative, OptionMixin):
+    """(deprecated) Base class for options."""
+
+    def __init__(self):
+        super().__init__()
+        raise DeprecationWarning(
+            "BaseOption is deprecated. Inherit `BaseDerivative` and `OptionMixin` instead."
+        )
 
 
 # Assign docstrings so they appear in Sphinx documentation

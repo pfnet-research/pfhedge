@@ -10,10 +10,10 @@ from pfhedge.nn.functional import lookback_payoff
 
 from ..primary.base import BasePrimary
 from .base import BaseDerivative
-from .base import BaseOption
+from .base import OptionMixin
 
 
-class LookbackOption(BaseOption):
+class LookbackOption(BaseDerivative, OptionMixin):
     r"""Lookback option with fixed strike.
 
     The payoff of a lookback call option is given by
@@ -103,6 +103,8 @@ _set_attr_and_docstring(LookbackOption, "to", BaseDerivative.to)
 _set_attr_and_docstring(LookbackOption, "ul", BaseDerivative.ul)
 _set_attr_and_docstring(LookbackOption, "list", BaseDerivative.list)
 _set_docstring(LookbackOption, "payoff", BaseDerivative.payoff)
-_set_attr_and_docstring(LookbackOption, "moneyness", BaseOption.moneyness)
-_set_attr_and_docstring(LookbackOption, "log_moneyness", BaseOption.log_moneyness)
-_set_attr_and_docstring(LookbackOption, "time_to_maturity", BaseOption.time_to_maturity)
+_set_attr_and_docstring(LookbackOption, "moneyness", OptionMixin.moneyness)
+_set_attr_and_docstring(LookbackOption, "log_moneyness", OptionMixin.log_moneyness)
+_set_attr_and_docstring(
+    LookbackOption, "time_to_maturity", OptionMixin.time_to_maturity
+)

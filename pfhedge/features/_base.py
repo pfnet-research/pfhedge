@@ -12,6 +12,7 @@ from pfhedge.instruments import BaseDerivative
 T = TypeVar("T", bound="Feature")
 
 
+
 class Feature(ABC):
     """Base class for all features.
 
