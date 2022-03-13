@@ -40,6 +40,15 @@ Heston Process
 
     generate_heston
 
+Local Volatility Model
+----------------------
+
+.. autosummary::
+    :nosignatures:
+    :toctree: generated
+
+    generate_local_volatility_process
+
 Generators
 ----------
 
