@@ -48,8 +48,11 @@ class FeatureList(Feature):
         # Return size: (N, T, F)
         return torch.cat([f.get(time_step) for f in self.features], dim=-1)
 
-    def __repr__(self) -> str:
+    def __str__(self) -> str:
         return str(list(map(str, self.features)))
+
+    def __repr__(self) -> str:
+        return str(self)
 
     def of(self: T, derivative: BaseDerivative, hedger: Optional[Module] = None) -> T:
         output = copy.copy(self)
@@ -61,15 +64,15 @@ class FeatureList(Feature):
 
 
 class ModuleOutput(Feature, Module):
-    """The feature computed as an output of a :class:`torch.nn.Module`.
+    r"""The feature computed as an output of a :class:`torch.nn.Module`.
 
     Args:
         module (torch.nn.Module): Module to compute the value of the feature.
             The input and output shapes should be
-            :math:`(N, *, H_{\\math{in}}) -> (N, *, H_{\\math{out}})` where
+            :math:`(N, *, H_{\mathrm{in}}) \to (N, *, H_{\mathrm{out}})` where
             :math:`N` is the number of simulated paths of the underlying instrument,
-            :math:`H_{\\math{in}}` is the number of input features,
-            :math:`H_{\\math{out}}` is the number of output features, and
+            :math:`H_{\mathrm{in}}` is the number of input features,
+            :math:`H_{\mathrm{out}}` is the number of output features, and
             :math:`*` means any number of additional dimensions.
         inputs (list[Feature]): The input features to the module.
 

@@ -1,5 +1,5 @@
 poetry.lock
-docs/source/generated
+docs/source/generated/
 examples/output/*
 !examples/output/.gitkeep
 

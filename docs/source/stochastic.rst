@@ -6,33 +6,19 @@ pfhedge.stochastic
 
 .. currentmodule:: pfhedge.stochastic
 
-Brownian Motion
----------------
+Stochastic Processes
+--------------------
 
 .. autosummary::
     :nosignatures:
     :toctree: generated
 
     generate_brownian
-    generate_geometric_brownian
-
-Cox-Ingersoll-Ross Process
---------------------------
-
-.. autosummary::
-    :nosignatures:
-    :toctree: generated
-
     generate_cir
-
-Heston Process
---------------
-
-.. autosummary::
-    :nosignatures:
-    :toctree: generated
-
+    generate_geometric_brownian
     generate_heston
+    generate_local_volatility_process
+    generate_vasicek
 
 Generators
 ----------

@@ -10,33 +10,36 @@ Base Class
 ----------
 
 .. autosummary::
-    :toctree: generated
     :nosignatures:
+    :toctree: generated
     :template: classtemplate.rst
 
     instruments.BaseInstrument
     instruments.BasePrimary
     instruments.BaseDerivative
+    instruments.OptionMixin
     instruments.BaseOption
 
 Primary Instruments
 -------------------
 
 .. autosummary::
-    :toctree: generated
     :nosignatures:
+    :toctree: generated
     :template: classtemplate.rst
 
     instruments.BrownianStock
     instruments.HestonStock
+    instruments.LocalVolatilityStock
     instruments.CIRRate
+    instruments.VasicekRate
 
 Derivative Instruments
 ----------------------
 
 .. autosummary::
-    :toctree: generated
     :nosignatures:
+    :toctree: generated
     :template: classtemplate.rst
 
     instruments.AmericanBinaryOption

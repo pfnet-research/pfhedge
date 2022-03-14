@@ -29,6 +29,7 @@ Install:
    instruments
    stochastic
    autogreek
+   features
 
 |
 

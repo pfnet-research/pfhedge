@@ -26,3 +26,8 @@ def test_svi():
     result = m0(input)
     expect = m1(input + m1.m)
     assert_allclose(result, expect)
+
+
+def test_svi_repr():
+    m = SVIVariance(a=1.0, b=0, rho=0.1, m=0.2, sigma=0.3)
+    assert repr(m) == "SVIVariance(a=1.0, b=0, rho=0.1, m=0.2, sigma=0.3)"

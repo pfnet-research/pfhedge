@@ -55,3 +55,13 @@ class SVIVariance(Module):
         return svi_variance(
             input, a=self.a, b=self.b, rho=self.rho, m=self.m, sigma=self.sigma
         )
+
+    def extra_repr(self) -> str:
+        params = (
+            f"a={self.a}",
+            f"b={self.b}",
+            f"rho={self.rho}",
+            f"m={self.m}",
+            f"sigma={self.sigma}",
+        )
+        return ", ".join(params)
