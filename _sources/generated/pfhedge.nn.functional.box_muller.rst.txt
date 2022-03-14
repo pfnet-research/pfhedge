@@ -1,0 +1,6 @@
+﻿pfhedge.nn.functional.box\_muller
+=================================
+
+.. currentmodule:: pfhedge.nn.functional
+
+.. autofunction:: box_muller

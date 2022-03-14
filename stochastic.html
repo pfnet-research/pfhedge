@@ -217,6 +217,7 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.bs_lookback_vega.html">pfhedge.nn.functional.bs_lookback_vega</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.bs_lookback_theta.html">pfhedge.nn.functional.bs_lookback_theta</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.bilerp.html">pfhedge.nn.functional.bilerp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.box_muller.html">pfhedge.nn.functional.box_muller</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.d1.html">pfhedge.nn.functional.d1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.d2.html">pfhedge.nn.functional.d2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.ncdf.html">pfhedge.nn.functional.ncdf</a></li>
@@ -232,10 +233,13 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.BaseInstrument.html">BaseInstrument</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.BasePrimary.html">BasePrimary</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.BaseDerivative.html">BaseDerivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.OptionMixin.html">OptionMixin</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.HestonStock.html">HestonStock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.LocalVolatilityStock.html">LocalVolatilityStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.CIRRate.html">CIRRate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.VasicekRate.html">VasicekRate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.EuropeanForwardStartOption.html">EuropeanForwardStartOption</a></li>
@@ -246,14 +250,36 @@
 </li>
 <li class="toctree-l1 current has-children current-page"><a class="current reference internal" href="#">pfhedge.stochastic</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.stochastic.generate_brownian.html">pfhedge.stochastic.generate_brownian</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.stochastic.generate_geometric_brownian.html">pfhedge.stochastic.generate_geometric_brownian</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.stochastic.generate_cir.html">pfhedge.stochastic.generate_cir</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.stochastic.generate_geometric_brownian.html">pfhedge.stochastic.generate_geometric_brownian</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.stochastic.generate_heston.html">pfhedge.stochastic.generate_heston</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.stochastic.generate_local_volatility_process.html">pfhedge.stochastic.generate_local_volatility_process</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.stochastic.generate_vasicek.html">pfhedge.stochastic.generate_vasicek</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.stochastic.randn_antithetic.html">pfhedge.stochastic.randn_antithetic</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.stochastic.randn_sobol_boxmuller.html">pfhedge.stochastic.randn_sobol_boxmuller</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="autogreek.html">pfhedge.autogreek</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="features.html">pfhedge.features</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.features.get_feature.html">pfhedge.features.get_feature</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.features.list_feature_names.html">pfhedge.features.list_feature_names</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.features.Moneyness.html">Moneyness</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.features.LogMoneyness.html">LogMoneyness</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.features.MaxMoneyness.html">MaxMoneyness</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.features.MaxLogMoneyness.html">MaxLogMoneyness</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.features.Barrier.html">Barrier</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.features.PrevHedge.html">PrevHedge</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.features.TimeToMaturity.html">TimeToMaturity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.features.UnderlierSpot.html">UnderlierSpot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.features.Variance.html">Variance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.features.Volatility.html">Volatility</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.features.Empty.html">Empty</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.features.Ones.html">Ones</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.features.Zeros.html">Zeros</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.features.ModuleOutput.html">ModuleOutput</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.features.FeatureList.html">FeatureList</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Examples</span></p>
 <ul>
@@ -296,8 +322,8 @@
         <article role="main">
           <section id="pfhedge-stochastic">
 <h1>pfhedge.stochastic<a class="headerlink" href="#pfhedge-stochastic" title="Permalink to this headline">¶</a></h1>
-<section id="brownian-motion">
-<h2>Brownian Motion<a class="headerlink" href="#brownian-motion" title="Permalink to this headline">¶</a></h2>
+<section id="stochastic-processes">
+<h2>Stochastic Processes<a class="headerlink" href="#stochastic-processes" title="Permalink to this headline">¶</a></h2>
 <div class="table-wrapper"><table class="longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
@@ -307,36 +333,20 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/pfhedge.stochastic.generate_brownian.html#pfhedge.stochastic.generate_brownian" title="pfhedge.stochastic.generate_brownian"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_brownian</span></code></a></p></td>
 <td><p>Returns time series following the Brownian motion.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/pfhedge.stochastic.generate_geometric_brownian.html#pfhedge.stochastic.generate_geometric_brownian" title="pfhedge.stochastic.generate_geometric_brownian"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_geometric_brownian</span></code></a></p></td>
-<td><p>Returns time series following the geometric Brownian motion.</p></td>
-</tr>
-</tbody>
-</table></div>
-</section>
-<section id="cox-ingersoll-ross-process">
-<h2>Cox-Ingersoll-Ross Process<a class="headerlink" href="#cox-ingersoll-ross-process" title="Permalink to this headline">¶</a></h2>
-<div class="table-wrapper"><table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%"/>
-<col style="width: 90%"/>
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/pfhedge.stochastic.generate_cir.html#pfhedge.stochastic.generate_cir" title="pfhedge.stochastic.generate_cir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_cir</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pfhedge.stochastic.generate_cir.html#pfhedge.stochastic.generate_cir" title="pfhedge.stochastic.generate_cir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_cir</span></code></a></p></td>
 <td><p>Returns time series following Cox-Ingersoll-Ross process.</p></td>
 </tr>
-</tbody>
-</table></div>
-</section>
-<section id="heston-process">
-<h2>Heston Process<a class="headerlink" href="#heston-process" title="Permalink to this headline">¶</a></h2>
-<div class="table-wrapper"><table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%"/>
-<col style="width: 90%"/>
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/pfhedge.stochastic.generate_heston.html#pfhedge.stochastic.generate_heston" title="pfhedge.stochastic.generate_heston"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_heston</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pfhedge.stochastic.generate_geometric_brownian.html#pfhedge.stochastic.generate_geometric_brownian" title="pfhedge.stochastic.generate_geometric_brownian"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_geometric_brownian</span></code></a></p></td>
+<td><p>Returns time series following the geometric Brownian motion.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pfhedge.stochastic.generate_heston.html#pfhedge.stochastic.generate_heston" title="pfhedge.stochastic.generate_heston"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_heston</span></code></a></p></td>
 <td><p>Returns time series following Heston model.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pfhedge.stochastic.generate_local_volatility_process.html#pfhedge.stochastic.generate_local_volatility_process" title="pfhedge.stochastic.generate_local_volatility_process"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_local_volatility_process</span></code></a></p></td>
+<td><p>Returns time series following the local volatility model.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pfhedge.stochastic.generate_vasicek.html#pfhedge.stochastic.generate_vasicek" title="pfhedge.stochastic.generate_vasicek"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_vasicek</span></code></a></p></td>
+<td><p>Returns time series following Vasicek model.</p></td>
 </tr>
 </tbody>
 </table></div>
@@ -412,9 +422,7 @@
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">pfhedge.stochastic</a><ul>
-<li><a class="reference internal" href="#brownian-motion">Brownian Motion</a></li>
-<li><a class="reference internal" href="#cox-ingersoll-ross-process">Cox-Ingersoll-Ross Process</a></li>
-<li><a class="reference internal" href="#heston-process">Heston Process</a></li>
+<li><a class="reference internal" href="#stochastic-processes">Stochastic Processes</a></li>
 <li><a class="reference internal" href="#generators">Generators</a></li>
 </ul>
 </li>

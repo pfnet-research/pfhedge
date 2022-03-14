@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="pfhedge.nn.functional.d1" href="pfhedge.nn.functional.d1.html" /><link rel="prev" title="pfhedge.nn.functional.bs_lookback_theta" href="pfhedge.nn.functional.bs_lookback_theta.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="pfhedge.nn.functional.box_muller" href="pfhedge.nn.functional.box_muller.html" /><link rel="prev" title="pfhedge.nn.functional.bs_lookback_theta" href="pfhedge.nn.functional.bs_lookback_theta.html" />
 
     <meta name="generator" content="sphinx-4.4.0, furo 2021.11.23"/>
         <title>pfhedge.nn.functional.bilerp - PFHedge documentation</title>
@@ -217,6 +217,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.bs_lookback_vega.html">pfhedge.nn.functional.bs_lookback_vega</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.bs_lookback_theta.html">pfhedge.nn.functional.bs_lookback_theta</a></li>
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">pfhedge.nn.functional.bilerp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.box_muller.html">pfhedge.nn.functional.box_muller</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.d1.html">pfhedge.nn.functional.d1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.d2.html">pfhedge.nn.functional.d2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.ncdf.html">pfhedge.nn.functional.ncdf</a></li>
@@ -232,10 +233,13 @@
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BaseInstrument.html">BaseInstrument</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BasePrimary.html">BasePrimary</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BaseDerivative.html">BaseDerivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.OptionMixin.html">OptionMixin</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.HestonStock.html">HestonStock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.LocalVolatilityStock.html">LocalVolatilityStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.CIRRate.html">CIRRate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.VasicekRate.html">VasicekRate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.EuropeanForwardStartOption.html">EuropeanForwardStartOption</a></li>
@@ -246,14 +250,36 @@
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../stochastic.html">pfhedge.stochastic</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.generate_brownian.html">pfhedge.stochastic.generate_brownian</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.generate_geometric_brownian.html">pfhedge.stochastic.generate_geometric_brownian</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.generate_cir.html">pfhedge.stochastic.generate_cir</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.generate_geometric_brownian.html">pfhedge.stochastic.generate_geometric_brownian</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.generate_heston.html">pfhedge.stochastic.generate_heston</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.generate_local_volatility_process.html">pfhedge.stochastic.generate_local_volatility_process</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.generate_vasicek.html">pfhedge.stochastic.generate_vasicek</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.randn_antithetic.html">pfhedge.stochastic.randn_antithetic</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.randn_sobol_boxmuller.html">pfhedge.stochastic.randn_sobol_boxmuller</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../autogreek.html">pfhedge.autogreek</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../features.html">pfhedge.features</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.features.get_feature.html">pfhedge.features.get_feature</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.features.list_feature_names.html">pfhedge.features.list_feature_names</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.features.Moneyness.html">Moneyness</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.features.LogMoneyness.html">LogMoneyness</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.features.MaxMoneyness.html">MaxMoneyness</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.features.MaxLogMoneyness.html">MaxLogMoneyness</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.features.Barrier.html">Barrier</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.features.PrevHedge.html">PrevHedge</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.features.TimeToMaturity.html">TimeToMaturity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.features.UnderlierSpot.html">UnderlierSpot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.features.Variance.html">Variance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.features.Volatility.html">Volatility</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.features.Empty.html">Empty</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.features.Ones.html">Ones</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.features.Zeros.html">Zeros</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.features.ModuleOutput.html">ModuleOutput</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.features.FeatureList.html">FeatureList</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Examples</span></p>
 <ul>
@@ -314,12 +340,12 @@ If <code class="docutils literal notranslate"><span class="pre">weight</span></c
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>input1</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.10.0)"><em>torch.Tensor</em></a>) – The input tensor.</p></li>
-<li><p><strong>input2</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.10.0)"><em>torch.Tensor</em></a>) – The input tensor.</p></li>
-<li><p><strong>input3</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.10.0)"><em>torch.Tensor</em></a>) – The input tensor.</p></li>
-<li><p><strong>input4</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.10.0)"><em>torch.Tensor</em></a>) – The input tensor.</p></li>
-<li><p><strong>weight1</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em> or </em><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.10.0)"><em>torch.Tensor</em></a>) – The weight tensor.</p></li>
-<li><p><strong>weight2</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em> or </em><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.10.0)"><em>torch.Tensor</em></a>) – The weight tensor.</p></li>
+<li><p><strong>input1</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><em>torch.Tensor</em></a>) – The input tensor.</p></li>
+<li><p><strong>input2</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><em>torch.Tensor</em></a>) – The input tensor.</p></li>
+<li><p><strong>input3</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><em>torch.Tensor</em></a>) – The input tensor.</p></li>
+<li><p><strong>input4</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><em>torch.Tensor</em></a>) – The input tensor.</p></li>
+<li><p><strong>weight1</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em> or </em><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><em>torch.Tensor</em></a>) – The weight tensor.</p></li>
+<li><p><strong>weight2</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em> or </em><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><em>torch.Tensor</em></a>) – The weight tensor.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -334,12 +360,12 @@ If <code class="docutils literal notranslate"><span class="pre">weight</span></c
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="pfhedge.nn.functional.d1.html">
+          <a class="next-page" href="pfhedge.nn.functional.box_muller.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">pfhedge.nn.functional.d1</div>
+                <div class="title">pfhedge.nn.functional.box_muller</div>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>

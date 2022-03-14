@@ -4,7 +4,7 @@
 pfhedge.nn
 ==========
 
-`pfhedge.nn` provides :class:`torch.nn.Module` that are useful for Deep Hedging.
+``pfhedge.nn`` provides :class:`torch.nn.Module` that are useful for Deep Hedging.
 
 See `PyTorch Documentation <https://pytorch.org/docs/stable/generated/torch.nn.Module.html>`_
 for general usage of :class:`torch.nn.Module`.
@@ -15,8 +15,8 @@ Hedger Module
 -------------
 
 .. autosummary::
-    :toctree: generated
     :nosignatures:
+    :toctree: generated
     :template: classtemplate.rst
 
     nn.Hedger
@@ -25,8 +25,8 @@ Black-Scholes Layers
 --------------------
 
 .. autosummary::
-    :toctree: generated
     :nosignatures:
+    :toctree: generated
     :template: classtemplate.rst
 
     nn.BlackScholes
@@ -39,8 +39,8 @@ Whalley-Wilmott Layers
 ----------------------
 
 .. autosummary::
-    :toctree: generated
     :nosignatures:
+    :toctree: generated
     :template: classtemplate.rst
 
     nn.WhalleyWilmott
@@ -49,8 +49,8 @@ Nonlinear Activations
 ---------------------
 
 .. autosummary::
-    :toctree: generated
     :nosignatures:
+    :toctree: generated
     :template: classtemplate.rst
 
     nn.Clamp
@@ -60,8 +60,8 @@ Loss Functions
 --------------
 
 .. autosummary::
-    :toctree: generated
     :nosignatures:
+    :toctree: generated
     :template: classtemplate.rst
 
     nn.HedgeLoss
@@ -74,8 +74,8 @@ Multi Layer Perceptron
 ----------------------
 
 .. autosummary::
-    :toctree: generated
     :nosignatures:
+    :toctree: generated
     :template: classtemplate.rst
 
     nn.MultiLayerPerceptron
@@ -84,8 +84,8 @@ Other Modules
 -------------
 
 .. autosummary::
-    :toctree: generated
     :nosignatures:
+    :toctree: generated
     :template: classtemplate.rst
 
     nn.Naked

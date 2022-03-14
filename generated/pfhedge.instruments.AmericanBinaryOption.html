@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="EuropeanBinaryOption" href="pfhedge.instruments.EuropeanBinaryOption.html" /><link rel="prev" title="CIRRate" href="pfhedge.instruments.CIRRate.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="EuropeanBinaryOption" href="pfhedge.instruments.EuropeanBinaryOption.html" /><link rel="prev" title="VasicekRate" href="pfhedge.instruments.VasicekRate.html" />
 
     <meta name="generator" content="sphinx-4.4.0, furo 2021.11.23"/>
         <title>AmericanBinaryOption - PFHedge documentation</title>
@@ -217,6 +217,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.bs_lookback_vega.html">pfhedge.nn.functional.bs_lookback_vega</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.bs_lookback_theta.html">pfhedge.nn.functional.bs_lookback_theta</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.bilerp.html">pfhedge.nn.functional.bilerp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.box_muller.html">pfhedge.nn.functional.box_muller</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.d1.html">pfhedge.nn.functional.d1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.d2.html">pfhedge.nn.functional.d2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.ncdf.html">pfhedge.nn.functional.ncdf</a></li>
@@ -232,10 +233,13 @@
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BaseInstrument.html">BaseInstrument</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BasePrimary.html">BasePrimary</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BaseDerivative.html">BaseDerivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.OptionMixin.html">OptionMixin</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.HestonStock.html">HestonStock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.LocalVolatilityStock.html">LocalVolatilityStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.CIRRate.html">CIRRate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.VasicekRate.html">VasicekRate</a></li>
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">AmericanBinaryOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.EuropeanForwardStartOption.html">EuropeanForwardStartOption</a></li>
@@ -246,14 +250,36 @@
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../stochastic.html">pfhedge.stochastic</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.generate_brownian.html">pfhedge.stochastic.generate_brownian</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.generate_geometric_brownian.html">pfhedge.stochastic.generate_geometric_brownian</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.generate_cir.html">pfhedge.stochastic.generate_cir</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.generate_geometric_brownian.html">pfhedge.stochastic.generate_geometric_brownian</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.generate_heston.html">pfhedge.stochastic.generate_heston</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.generate_local_volatility_process.html">pfhedge.stochastic.generate_local_volatility_process</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.generate_vasicek.html">pfhedge.stochastic.generate_vasicek</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.randn_antithetic.html">pfhedge.stochastic.randn_antithetic</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.randn_sobol_boxmuller.html">pfhedge.stochastic.randn_sobol_boxmuller</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../autogreek.html">pfhedge.autogreek</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../features.html">pfhedge.features</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.features.get_feature.html">pfhedge.features.get_feature</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.features.list_feature_names.html">pfhedge.features.list_feature_names</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.features.Moneyness.html">Moneyness</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.features.LogMoneyness.html">LogMoneyness</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.features.MaxMoneyness.html">MaxMoneyness</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.features.MaxLogMoneyness.html">MaxLogMoneyness</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.features.Barrier.html">Barrier</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.features.PrevHedge.html">PrevHedge</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.features.TimeToMaturity.html">TimeToMaturity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.features.UnderlierSpot.html">UnderlierSpot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.features.Variance.html">Variance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.features.Volatility.html">Volatility</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.features.Empty.html">Empty</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.features.Ones.html">Ones</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.features.Zeros.html">Zeros</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.features.ModuleOutput.html">ModuleOutput</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.features.FeatureList.html">FeatureList</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Examples</span></p>
 <ul>
@@ -299,8 +325,7 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="pfhedge.instruments.AmericanBinaryOption">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pfhedge.instruments.</span></span><span class="sig-name descname"><span class="pre">AmericanBinaryOption</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">underlier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">call</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strike</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maturity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/derivative/american_binary.html#AmericanBinaryOption"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.AmericanBinaryOption" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="pfhedge.instruments.BaseOption.html#pfhedge.instruments.BaseOption" title="pfhedge.instruments.derivative.base.BaseOption"><code class="xref py py-class docutils literal notranslate"><span class="pre">pfhedge.instruments.derivative.base.BaseOption</span></code></a></p>
-<p>American binary option.</p>
+<dd><p>American binary option.</p>
 <p>The payoff of an American binary call option is given by:</p>
 <div class="math-wrapper"><div class="math notranslate nohighlight">
 \[\begin{split}\mathrm{payoff} =
@@ -379,21 +404,24 @@ represented.</p>
 <dd><p>Make self a listed derivative.</p>
 <p>After this method self will be a exchange-traded derivative which can be transacted
 at any time with the spot price given by <code class="docutils literal notranslate"><span class="pre">self.spot</span></code>.</p>
-<p>See an example in <a class="reference internal" href="pfhedge.instruments.EuropeanOption.html#pfhedge.instruments.EuropeanOption" title="pfhedge.instruments.EuropeanOption"><code class="xref py py-class docutils literal notranslate"><span class="pre">EuropeanOption</span></code></a> for a usage.</p>
+<p>See an example in <a class="reference internal" href="pfhedge.instruments.EuropeanOption.html#pfhedge.instruments.EuropeanOption" title="pfhedge.instruments.EuropeanOption"><code class="xref py py-class docutils literal notranslate"><span class="pre">EuropeanOption</span></code></a> for a usage.derivative
+:param pricer: A function that takes self</p>
+<blockquote>
+<div><p>and returns the spot price tensor of self.</p>
+</div></blockquote>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>pricer</strong> (<em>Callable</em><em>[</em><em>[</em><a class="reference internal" href="pfhedge.instruments.BaseDerivative.html#pfhedge.instruments.BaseDerivative" title="pfhedge.instruments.BaseDerivative"><em>BaseDerivative</em></a><em>]</em><em>, </em><em>Tensor</em><em>]</em><em>]</em>) – A function that takes self
-and returns the spot price tensor of self.</p></li>
-<li><p><strong>cost</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – The transaction cost rate.</p></li>
-</ul>
+<dd class="field-odd"><p><strong>cost</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – The transaction cost rate.</p>
 </dd>
 </dl>
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pfhedge.instruments.AmericanBinaryOption.log_moneyness">
 <span class="sig-name descname"><span class="pre">log_moneyness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.AmericanBinaryOption.log_moneyness" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns <code class="docutils literal notranslate"><span class="pre">self.moneyness(time_step).log()</span></code>.</p>
+<dd><p>Returns log-moneyness of self.</p>
+<p>Log-moneyness reads <span class="math notranslate nohighlight">\(\log(S / K)\)</span> where
+<span class="math notranslate nohighlight">\(S\)</span> is the spot price of the underlying instrument and
+<span class="math notranslate nohighlight">\(K\)</span> is the strike of the derivative.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>torch.Tensor</p>
@@ -404,6 +432,9 @@ and returns the spot price tensor of self.</p></li>
 <dt class="sig sig-object py" id="pfhedge.instruments.AmericanBinaryOption.moneyness">
 <span class="sig-name descname"><span class="pre">moneyness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.AmericanBinaryOption.moneyness" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the moneyness of self.</p>
+<p>Moneyness reads <span class="math notranslate nohighlight">\(S / K\)</span> where
+<span class="math notranslate nohighlight">\(S\)</span> is the spot price of the underlying instrument and
+<span class="math notranslate nohighlight">\(K\)</span> is the strike of the derivative.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -437,7 +468,7 @@ If <code class="docutils literal notranslate"><span class="pre">time_step</span>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>n_paths</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The number of paths to simulate.</p></li>
-<li><p><strong>init_state</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.10)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.10.0)"><em>torch.Tensor</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>]</em><em>, </em><em>optional</em>) – The initial state of
+<li><p><strong>init_state</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.10)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><em>torch.Tensor</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>]</em><em>, </em><em>optional</em>) – The initial state of
 the underlier.</p></li>
 <li><p><strong>**kwargs</strong> – Other parameters passed to <code class="docutils literal notranslate"><span class="pre">self.underlier.simulate()</span></code>.</p></li>
 </ul>
@@ -487,7 +518,7 @@ If <code class="docutils literal notranslate"><span class="pre">time_step</span>
 <dt class="sig sig-object py" id="id2">
 <span class="sig-name descname"><span class="pre">to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id2" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-<p>Its signature is similar to <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module.to" title="(in PyTorch v1.10.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">torch.nn.Module.to()</span></code></a>.
+<p>Its signature is similar to <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module.to" title="(in PyTorch v1.11.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">torch.nn.Module.to()</span></code></a>.
 It only accepts floating point dtypes.
 See <a class="reference internal" href="../notes/instrument_attributes.html#instrument-attributes-doc"><span class="std std-ref">Instrument dtype and device</span></a> for details.</p>
 <div class="admonition note">
@@ -512,7 +543,7 @@ See <a class="reference internal" href="../notes/instrument_attributes.html#inst
 the buffers in this instrument.</p></li>
 <li><p><strong>device</strong> (<em>torch.device</em>) – The desired device of
 the buffers in this instrument.</p></li>
-<li><p><strong>tensor</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.10.0)"><em>torch.Tensor</em></a>) – Tensor whose dtype and device are
+<li><p><strong>tensor</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><em>torch.Tensor</em></a>) – Tensor whose dtype and device are
 the desired dtype and device of
 the buffers in this instrument.</p></li>
 <li><p><strong>instrument</strong> (<a class="reference internal" href="pfhedge.instruments.BaseInstrument.html#pfhedge.instruments.BaseInstrument" title="pfhedge.instruments.BaseInstrument"><em>BaseInstrument</em></a>) – Instrument whose dtype and device are
@@ -527,7 +558,7 @@ the buffers in this instrument.</p></li>
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pfhedge.instruments.AmericanBinaryOption.ul">
-<span class="sig-name descname"><span class="pre">ul</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.AmericanBinaryOption.ul" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">ul</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.AmericanBinaryOption.ul" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for <code class="docutils literal notranslate"><span class="pre">self.underlier</span></code>.</p>
 </dd></dl>
 </dd></dl>
@@ -547,14 +578,14 @@ the buffers in this instrument.</p></li>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="pfhedge.instruments.CIRRate.html">
+          <a class="prev-page" href="pfhedge.instruments.VasicekRate.html">
               <svg><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">CIRRate</div>
+                <div class="title">VasicekRate</div>
                 
               </div>
             </a>

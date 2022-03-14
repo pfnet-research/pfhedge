@@ -215,6 +215,7 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.bs_lookback_vega.html">pfhedge.nn.functional.bs_lookback_vega</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.bs_lookback_theta.html">pfhedge.nn.functional.bs_lookback_theta</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.bilerp.html">pfhedge.nn.functional.bilerp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.box_muller.html">pfhedge.nn.functional.box_muller</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.d1.html">pfhedge.nn.functional.d1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.d2.html">pfhedge.nn.functional.d2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.nn.functional.ncdf.html">pfhedge.nn.functional.ncdf</a></li>
@@ -230,10 +231,13 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.BaseInstrument.html">BaseInstrument</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.BasePrimary.html">BasePrimary</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.BaseDerivative.html">BaseDerivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.OptionMixin.html">OptionMixin</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.BaseOption.html">BaseOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.HestonStock.html">HestonStock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.LocalVolatilityStock.html">LocalVolatilityStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.CIRRate.html">CIRRate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.VasicekRate.html">VasicekRate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.EuropeanBinaryOption.html">EuropeanBinaryOption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.EuropeanForwardStartOption.html">EuropeanForwardStartOption</a></li>
@@ -244,14 +248,36 @@
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="stochastic.html">pfhedge.stochastic</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.stochastic.generate_brownian.html">pfhedge.stochastic.generate_brownian</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.stochastic.generate_geometric_brownian.html">pfhedge.stochastic.generate_geometric_brownian</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.stochastic.generate_cir.html">pfhedge.stochastic.generate_cir</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.stochastic.generate_geometric_brownian.html">pfhedge.stochastic.generate_geometric_brownian</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.stochastic.generate_heston.html">pfhedge.stochastic.generate_heston</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.stochastic.generate_local_volatility_process.html">pfhedge.stochastic.generate_local_volatility_process</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.stochastic.generate_vasicek.html">pfhedge.stochastic.generate_vasicek</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.stochastic.randn_antithetic.html">pfhedge.stochastic.randn_antithetic</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.stochastic.randn_sobol_boxmuller.html">pfhedge.stochastic.randn_sobol_boxmuller</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="autogreek.html">pfhedge.autogreek</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="features.html">pfhedge.features</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.features.get_feature.html">pfhedge.features.get_feature</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.features.list_feature_names.html">pfhedge.features.list_feature_names</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.features.Moneyness.html">Moneyness</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.features.LogMoneyness.html">LogMoneyness</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.features.MaxMoneyness.html">MaxMoneyness</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.features.MaxLogMoneyness.html">MaxLogMoneyness</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.features.Barrier.html">Barrier</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.features.PrevHedge.html">PrevHedge</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.features.TimeToMaturity.html">TimeToMaturity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.features.UnderlierSpot.html">UnderlierSpot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.features.Variance.html">Variance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.features.Volatility.html">Volatility</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.features.Empty.html">Empty</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.features.Ones.html">Ones</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.features.Zeros.html">Zeros</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.features.ModuleOutput.html">ModuleOutput</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.features.FeatureList.html">FeatureList</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Examples</span></p>
 <ul>
@@ -295,7 +321,7 @@
           
 <section class="genindex-section">
   <h1 id="index">Index</h1>
-  <div class="genindex-jumpbox"><a href="#A"><strong>A</strong></a> | <a href="#B"><strong>B</strong></a> | <a href="#C"><strong>C</strong></a> | <a href="#D"><strong>D</strong></a> | <a href="#E"><strong>E</strong></a> | <a href="#F"><strong>F</strong></a> | <a href="#G"><strong>G</strong></a> | <a href="#H"><strong>H</strong></a> | <a href="#I"><strong>I</strong></a> | <a href="#L"><strong>L</strong></a> | <a href="#M"><strong>M</strong></a> | <a href="#N"><strong>N</strong></a> | <a href="#P"><strong>P</strong></a> | <a href="#R"><strong>R</strong></a> | <a href="#S"><strong>S</strong></a> | <a href="#T"><strong>T</strong></a> | <a href="#U"><strong>U</strong></a> | <a href="#V"><strong>V</strong></a> | <a href="#W"><strong>W</strong></a></div>
+  <div class="genindex-jumpbox"><a href="#A"><strong>A</strong></a> | <a href="#B"><strong>B</strong></a> | <a href="#C"><strong>C</strong></a> | <a href="#D"><strong>D</strong></a> | <a href="#E"><strong>E</strong></a> | <a href="#F"><strong>F</strong></a> | <a href="#G"><strong>G</strong></a> | <a href="#H"><strong>H</strong></a> | <a href="#I"><strong>I</strong></a> | <a href="#L"><strong>L</strong></a> | <a href="#M"><strong>M</strong></a> | <a href="#N"><strong>N</strong></a> | <a href="#O"><strong>O</strong></a> | <a href="#P"><strong>P</strong></a> | <a href="#R"><strong>R</strong></a> | <a href="#S"><strong>S</strong></a> | <a href="#T"><strong>T</strong></a> | <a href="#U"><strong>U</strong></a> | <a href="#V"><strong>V</strong></a> | <a href="#W"><strong>W</strong></a> | <a href="#Z"><strong>Z</strong></a></div>
 </section>
 <section id="A" class="genindex-section">
   <h2>A</h2>
@@ -319,6 +345,8 @@
   <h2>B</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="generated/pfhedge.features.Barrier.html#pfhedge.features.Barrier">Barrier (class in pfhedge.features)</a>
+</li>
         <li><a href="generated/pfhedge.instruments.BaseDerivative.html#pfhedge.instruments.BaseDerivative">BaseDerivative (class in pfhedge.instruments)</a>
 </li>
         <li><a href="generated/pfhedge.instruments.BaseDerivative.html#id0">BaseDerivative.to() (in module pfhedge.instruments)</a>, <a href="generated/pfhedge.instruments.BaseDerivative.html#id1">[1]</a>, <a href="generated/pfhedge.instruments.BaseDerivative.html#id2">[2]</a>
@@ -339,6 +367,8 @@
 </li>
         <li><a href="generated/pfhedge.nn.BlackScholes.html#pfhedge.nn.BlackScholes">BlackScholes (class in pfhedge.nn)</a>
 </li>
+        <li><a href="generated/pfhedge.nn.functional.box_muller.html#pfhedge.nn.functional.box_muller">box_muller() (in module pfhedge.nn.functional)</a>
+</li>
         <li><a href="generated/pfhedge.instruments.BrownianStock.html#pfhedge.instruments.BrownianStock">BrownianStock (class in pfhedge.instruments)</a>
 </li>
         <li><a href="generated/pfhedge.instruments.BrownianStock.html#id0">BrownianStock.to() (in module pfhedge.instruments)</a>, <a href="generated/pfhedge.instruments.BrownianStock.html#id1">[1]</a>, <a href="generated/pfhedge.instruments.BrownianStock.html#id2">[2]</a>
@@ -353,10 +383,10 @@
 </li>
         <li><a href="generated/pfhedge.nn.functional.bs_american_binary_vega.html#pfhedge.nn.functional.bs_american_binary_vega">bs_american_binary_vega() (in module pfhedge.nn.functional)</a>
 </li>
-        <li><a href="generated/pfhedge.nn.functional.bs_european_binary_delta.html#pfhedge.nn.functional.bs_european_binary_delta">bs_european_binary_delta() (in module pfhedge.nn.functional)</a>
-</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="generated/pfhedge.nn.functional.bs_european_binary_delta.html#pfhedge.nn.functional.bs_european_binary_delta">bs_european_binary_delta() (in module pfhedge.nn.functional)</a>
+</li>
         <li><a href="generated/pfhedge.nn.functional.bs_european_binary_gamma.html#pfhedge.nn.functional.bs_european_binary_gamma">bs_european_binary_gamma() (in module pfhedge.nn.functional)</a>
 </li>
         <li><a href="generated/pfhedge.nn.functional.bs_european_binary_price.html#pfhedge.nn.functional.bs_european_binary_price">bs_european_binary_price() (in module pfhedge.nn.functional)</a>
@@ -458,6 +488,10 @@
 </li>
           <li><a href="generated/pfhedge.instruments.HestonStock.html#pfhedge.instruments.HestonStock.default_init_state">(pfhedge.instruments.HestonStock property)</a>
 </li>
+          <li><a href="generated/pfhedge.instruments.LocalVolatilityStock.html#pfhedge.instruments.LocalVolatilityStock.default_init_state">(pfhedge.instruments.LocalVolatilityStock property)</a>
+</li>
+          <li><a href="generated/pfhedge.instruments.VasicekRate.html#pfhedge.instruments.VasicekRate.default_init_state">(pfhedge.instruments.VasicekRate property)</a>
+</li>
         </ul></li>
         <li><a href="generated/pfhedge.instruments.BaseDerivative.html#pfhedge.instruments.BaseDerivative.delist">delist() (pfhedge.instruments.BaseDerivative method)</a>
 </li>
@@ -527,6 +561,8 @@
   <h2>E</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="generated/pfhedge.features.Empty.html#pfhedge.features.Empty">Empty (class in pfhedge.features)</a>
+</li>
         <li><a href="generated/pfhedge.nn.functional.entropic_risk_measure.html#pfhedge.nn.functional.entropic_risk_measure">entropic_risk_measure() (in module pfhedge.nn.functional)</a>
 </li>
         <li><a href="generated/pfhedge.nn.EntropicLoss.html#pfhedge.nn.EntropicLoss">EntropicLoss (class in pfhedge.nn)</a>
@@ -541,10 +577,10 @@
 </li>
         <li><a href="generated/pfhedge.instruments.EuropeanBinaryOption.html#pfhedge.instruments.EuropeanBinaryOption">EuropeanBinaryOption (class in pfhedge.instruments)</a>
 </li>
-        <li><a href="generated/pfhedge.instruments.EuropeanBinaryOption.html#id0">EuropeanBinaryOption.to() (in module pfhedge.instruments)</a>, <a href="generated/pfhedge.instruments.EuropeanBinaryOption.html#id1">[1]</a>, <a href="generated/pfhedge.instruments.EuropeanBinaryOption.html#id2">[2]</a>
-</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="generated/pfhedge.instruments.EuropeanBinaryOption.html#id0">EuropeanBinaryOption.to() (in module pfhedge.instruments)</a>, <a href="generated/pfhedge.instruments.EuropeanBinaryOption.html#id1">[1]</a>, <a href="generated/pfhedge.instruments.EuropeanBinaryOption.html#id2">[2]</a>
+</li>
         <li><a href="generated/pfhedge.instruments.EuropeanForwardStartOption.html#pfhedge.instruments.EuropeanForwardStartOption">EuropeanForwardStartOption (class in pfhedge.instruments)</a>
 </li>
         <li><a href="generated/pfhedge.instruments.EuropeanForwardStartOption.html#id0">EuropeanForwardStartOption.to() (in module pfhedge.instruments)</a>, <a href="generated/pfhedge.instruments.EuropeanForwardStartOption.html#id1">[1]</a>, <a href="generated/pfhedge.instruments.EuropeanForwardStartOption.html#id2">[2]</a>
@@ -569,6 +605,8 @@
   <h2>F</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="generated/pfhedge.features.FeatureList.html#pfhedge.features.FeatureList">FeatureList (class in pfhedge.features)</a>
+</li>
         <li><a href="generated/pfhedge.nn.Hedger.html#pfhedge.nn.Hedger.fit">fit() (pfhedge.nn.Hedger method)</a>
 </li>
         <li><a href="generated/pfhedge.instruments.BaseDerivative.html#pfhedge.instruments.BaseDerivative.float">float() (pfhedge.instruments.BaseDerivative method)</a>
@@ -635,17 +673,23 @@
           <li><a href="generated/pfhedge.nn.BSLookbackOption.html#pfhedge.nn.BSLookbackOption.gamma">(pfhedge.nn.BSLookbackOption method)</a>
 </li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="generated/pfhedge.stochastic.generate_brownian.html#pfhedge.stochastic.generate_brownian">generate_brownian() (in module pfhedge.stochastic)</a>
 </li>
         <li><a href="generated/pfhedge.stochastic.generate_cir.html#pfhedge.stochastic.generate_cir">generate_cir() (in module pfhedge.stochastic)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="generated/pfhedge.stochastic.generate_geometric_brownian.html#pfhedge.stochastic.generate_geometric_brownian">generate_geometric_brownian() (in module pfhedge.stochastic)</a>
 </li>
         <li><a href="generated/pfhedge.stochastic.generate_heston.html#pfhedge.stochastic.generate_heston">generate_heston() (in module pfhedge.stochastic)</a>
 </li>
+        <li><a href="generated/pfhedge.stochastic.generate_local_volatility_process.html#pfhedge.stochastic.generate_local_volatility_process">generate_local_volatility_process() (in module pfhedge.stochastic)</a>
+</li>
+        <li><a href="generated/pfhedge.stochastic.generate_vasicek.html#pfhedge.stochastic.generate_vasicek">generate_vasicek() (in module pfhedge.stochastic)</a>
+</li>
         <li><a href="generated/pfhedge.instruments.BasePrimary.html#pfhedge.instruments.BasePrimary.get_buffer">get_buffer() (pfhedge.instruments.BasePrimary method)</a>
+</li>
+        <li><a href="generated/pfhedge.features.get_feature.html#pfhedge.features.get_feature">get_feature() (in module pfhedge.features)</a>
 </li>
         <li><a href="generated/pfhedge.nn.Hedger.html#pfhedge.nn.Hedger.get_input">get_input() (pfhedge.nn.Hedger method)</a>
 </li>
@@ -741,20 +785,28 @@
           <li><a href="generated/pfhedge.instruments.VarianceSwap.html#pfhedge.instruments.VarianceSwap.list">(pfhedge.instruments.VarianceSwap method)</a>
 </li>
         </ul></li>
+        <li><a href="generated/pfhedge.features.list_feature_names.html#pfhedge.features.list_feature_names">list_feature_names() (in module pfhedge.features)</a>
+</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="generated/pfhedge.instruments.LocalVolatilityStock.html#pfhedge.instruments.LocalVolatilityStock">LocalVolatilityStock (class in pfhedge.instruments)</a>
+</li>
+        <li><a href="generated/pfhedge.instruments.LocalVolatilityStock.html#id0">LocalVolatilityStock.to() (in module pfhedge.instruments)</a>, <a href="generated/pfhedge.instruments.LocalVolatilityStock.html#id1">[1]</a>, <a href="generated/pfhedge.instruments.LocalVolatilityStock.html#id2">[2]</a>
+</li>
         <li><a href="generated/pfhedge.instruments.AmericanBinaryOption.html#pfhedge.instruments.AmericanBinaryOption.log_moneyness">log_moneyness() (pfhedge.instruments.AmericanBinaryOption method)</a>
 
         <ul>
-          <li><a href="generated/pfhedge.instruments.BaseOption.html#pfhedge.instruments.BaseOption.log_moneyness">(pfhedge.instruments.BaseOption method)</a>
-</li>
           <li><a href="generated/pfhedge.instruments.EuropeanBinaryOption.html#pfhedge.instruments.EuropeanBinaryOption.log_moneyness">(pfhedge.instruments.EuropeanBinaryOption method)</a>
 </li>
           <li><a href="generated/pfhedge.instruments.EuropeanOption.html#pfhedge.instruments.EuropeanOption.log_moneyness">(pfhedge.instruments.EuropeanOption method)</a>
 </li>
           <li><a href="generated/pfhedge.instruments.LookbackOption.html#pfhedge.instruments.LookbackOption.log_moneyness">(pfhedge.instruments.LookbackOption method)</a>
 </li>
+          <li><a href="generated/pfhedge.instruments.OptionMixin.html#pfhedge.instruments.OptionMixin.log_moneyness">(pfhedge.instruments.OptionMixin method)</a>
+</li>
         </ul></li>
+        <li><a href="generated/pfhedge.features.LogMoneyness.html#pfhedge.features.LogMoneyness">LogMoneyness (class in pfhedge.features)</a>
+</li>
         <li><a href="generated/pfhedge.nn.functional.lookback_payoff.html#pfhedge.nn.functional.lookback_payoff">lookback_payoff() (in module pfhedge.nn.functional)</a>
 </li>
         <li><a href="generated/pfhedge.instruments.LookbackOption.html#pfhedge.instruments.LookbackOption">LookbackOption (class in pfhedge.instruments)</a>
@@ -769,24 +821,32 @@
   <h2>M</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="generated/pfhedge.instruments.BaseOption.html#pfhedge.instruments.BaseOption.max_log_moneyness">max_log_moneyness() (pfhedge.instruments.BaseOption method)</a>
+        <li><a href="generated/pfhedge.instruments.OptionMixin.html#pfhedge.instruments.OptionMixin.max_log_moneyness">max_log_moneyness() (pfhedge.instruments.OptionMixin method)</a>
 </li>
-        <li><a href="generated/pfhedge.instruments.BaseOption.html#pfhedge.instruments.BaseOption.max_moneyness">max_moneyness() (pfhedge.instruments.BaseOption method)</a>
+        <li><a href="generated/pfhedge.instruments.OptionMixin.html#pfhedge.instruments.OptionMixin.max_moneyness">max_moneyness() (pfhedge.instruments.OptionMixin method)</a>
 </li>
+        <li><a href="generated/pfhedge.features.MaxLogMoneyness.html#pfhedge.features.MaxLogMoneyness">MaxLogMoneyness (class in pfhedge.features)</a>
+</li>
+        <li><a href="generated/pfhedge.features.MaxMoneyness.html#pfhedge.features.MaxMoneyness">MaxMoneyness (class in pfhedge.features)</a>
+</li>
+        <li><a href="generated/pfhedge.features.ModuleOutput.html#pfhedge.features.ModuleOutput">ModuleOutput (class in pfhedge.features)</a>
+</li>
+        <li><a href="generated/pfhedge.features.Moneyness.html#pfhedge.features.Moneyness">Moneyness (class in pfhedge.features)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="generated/pfhedge.instruments.AmericanBinaryOption.html#pfhedge.instruments.AmericanBinaryOption.moneyness">moneyness() (pfhedge.instruments.AmericanBinaryOption method)</a>
 
         <ul>
-          <li><a href="generated/pfhedge.instruments.BaseOption.html#pfhedge.instruments.BaseOption.moneyness">(pfhedge.instruments.BaseOption method)</a>
-</li>
           <li><a href="generated/pfhedge.instruments.EuropeanBinaryOption.html#pfhedge.instruments.EuropeanBinaryOption.moneyness">(pfhedge.instruments.EuropeanBinaryOption method)</a>
 </li>
           <li><a href="generated/pfhedge.instruments.EuropeanOption.html#pfhedge.instruments.EuropeanOption.moneyness">(pfhedge.instruments.EuropeanOption method)</a>
 </li>
           <li><a href="generated/pfhedge.instruments.LookbackOption.html#pfhedge.instruments.LookbackOption.moneyness">(pfhedge.instruments.LookbackOption method)</a>
 </li>
+          <li><a href="generated/pfhedge.instruments.OptionMixin.html#pfhedge.instruments.OptionMixin.moneyness">(pfhedge.instruments.OptionMixin method)</a>
+</li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="generated/pfhedge.nn.MultiLayerPerceptron.html#pfhedge.nn.MultiLayerPerceptron">MultiLayerPerceptron (class in pfhedge.nn)</a>
 </li>
     </ul></td>
@@ -811,6 +871,20 @@
   </tr></table>
 </section>
 
+<section id="O" class="genindex-section">
+  <h2>O</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="generated/pfhedge.features.Ones.html#pfhedge.features.Ones">Ones (class in pfhedge.features)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="generated/pfhedge.instruments.OptionMixin.html#pfhedge.instruments.OptionMixin">OptionMixin (class in pfhedge.instruments)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
 <section id="P" class="genindex-section">
   <h2>P</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
@@ -818,6 +892,8 @@
         <li><a href="generated/pfhedge.instruments.BaseDerivative.html#pfhedge.instruments.BaseDerivative.payoff">payoff() (pfhedge.instruments.BaseDerivative method)</a>
 </li>
         <li><a href="generated/pfhedge.instruments.BaseDerivative.html#pfhedge.instruments.BaseDerivative.payoff_fn">payoff_fn() (pfhedge.instruments.BaseDerivative method)</a>
+</li>
+        <li><a href="generated/pfhedge.features.PrevHedge.html#pfhedge.features.PrevHedge">PrevHedge (class in pfhedge.features)</a>
 </li>
         <li><a href="generated/pfhedge.nn.BSAmericanBinaryOption.html#pfhedge.nn.BSAmericanBinaryOption.price">price() (pfhedge.nn.BSAmericanBinaryOption method)</a>
 
@@ -880,6 +956,8 @@
 </li>
           <li><a href="generated/pfhedge.instruments.HestonStock.html#pfhedge.instruments.HestonStock.simulate">(pfhedge.instruments.HestonStock method)</a>
 </li>
+          <li><a href="generated/pfhedge.instruments.LocalVolatilityStock.html#pfhedge.instruments.LocalVolatilityStock.simulate">(pfhedge.instruments.LocalVolatilityStock method)</a>
+</li>
           <li><a href="generated/pfhedge.instruments.LookbackOption.html#pfhedge.instruments.LookbackOption.simulate">(pfhedge.instruments.LookbackOption method)</a>
 </li>
           <li><a href="generated/pfhedge.instruments.VarianceSwap.html#pfhedge.instruments.VarianceSwap.simulate">(pfhedge.instruments.VarianceSwap method)</a>
@@ -922,15 +1000,17 @@
         <li><a href="generated/pfhedge.instruments.AmericanBinaryOption.html#pfhedge.instruments.AmericanBinaryOption.time_to_maturity">time_to_maturity() (pfhedge.instruments.AmericanBinaryOption method)</a>
 
         <ul>
-          <li><a href="generated/pfhedge.instruments.BaseOption.html#pfhedge.instruments.BaseOption.time_to_maturity">(pfhedge.instruments.BaseOption method)</a>
-</li>
           <li><a href="generated/pfhedge.instruments.EuropeanBinaryOption.html#pfhedge.instruments.EuropeanBinaryOption.time_to_maturity">(pfhedge.instruments.EuropeanBinaryOption method)</a>
 </li>
           <li><a href="generated/pfhedge.instruments.EuropeanOption.html#pfhedge.instruments.EuropeanOption.time_to_maturity">(pfhedge.instruments.EuropeanOption method)</a>
 </li>
           <li><a href="generated/pfhedge.instruments.LookbackOption.html#pfhedge.instruments.LookbackOption.time_to_maturity">(pfhedge.instruments.LookbackOption method)</a>
 </li>
+          <li><a href="generated/pfhedge.instruments.OptionMixin.html#pfhedge.instruments.OptionMixin.time_to_maturity">(pfhedge.instruments.OptionMixin method)</a>
+</li>
         </ul></li>
+        <li><a href="generated/pfhedge.features.TimeToMaturity.html#pfhedge.features.TimeToMaturity">TimeToMaturity (class in pfhedge.features)</a>
+</li>
         <li><a href="generated/pfhedge.instruments.AmericanBinaryOption.html#pfhedge.instruments.AmericanBinaryOption.to">to() (pfhedge.instruments.AmericanBinaryOption method)</a>
 
         <ul>
@@ -952,9 +1032,13 @@
 </li>
           <li><a href="generated/pfhedge.instruments.HestonStock.html#pfhedge.instruments.HestonStock.to">(pfhedge.instruments.HestonStock method)</a>
 </li>
+          <li><a href="generated/pfhedge.instruments.LocalVolatilityStock.html#pfhedge.instruments.LocalVolatilityStock.to">(pfhedge.instruments.LocalVolatilityStock method)</a>
+</li>
           <li><a href="generated/pfhedge.instruments.LookbackOption.html#pfhedge.instruments.LookbackOption.to">(pfhedge.instruments.LookbackOption method)</a>
 </li>
           <li><a href="generated/pfhedge.instruments.VarianceSwap.html#pfhedge.instruments.VarianceSwap.to">(pfhedge.instruments.VarianceSwap method)</a>
+</li>
+          <li><a href="generated/pfhedge.instruments.VasicekRate.html#pfhedge.instruments.VasicekRate.to">(pfhedge.instruments.VasicekRate method)</a>
 </li>
         </ul></li>
     </ul></td>
@@ -989,6 +1073,8 @@
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="generated/pfhedge.instruments.BaseDerivative.html#pfhedge.instruments.BaseDerivative.underlier">underlier (pfhedge.instruments.BaseDerivative attribute)</a>
 </li>
+        <li><a href="generated/pfhedge.features.UnderlierSpot.html#pfhedge.features.UnderlierSpot">UnderlierSpot (class in pfhedge.features)</a>
+</li>
     </ul></td>
   </tr></table>
 </section>
@@ -999,12 +1085,24 @@
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="generated/pfhedge.nn.functional.value_at_risk.html#pfhedge.nn.functional.value_at_risk">value_at_risk() (in module pfhedge.nn.functional)</a>
 </li>
-        <li><a href="generated/pfhedge.instruments.BrownianStock.html#pfhedge.instruments.BrownianStock.variance">variance (pfhedge.instruments.BrownianStock property)</a>
+        <li><a href="generated/pfhedge.features.Variance.html#pfhedge.features.Variance">Variance (class in pfhedge.features)</a>
 </li>
+        <li><a href="generated/pfhedge.instruments.BrownianStock.html#pfhedge.instruments.BrownianStock.variance">variance (pfhedge.instruments.BrownianStock property)</a>
+
+        <ul>
+          <li><a href="generated/pfhedge.instruments.LocalVolatilityStock.html#pfhedge.instruments.LocalVolatilityStock.variance">(pfhedge.instruments.LocalVolatilityStock property)</a>
+</li>
+        </ul></li>
         <li><a href="generated/pfhedge.instruments.VarianceSwap.html#pfhedge.instruments.VarianceSwap">VarianceSwap (class in pfhedge.instruments)</a>
 </li>
         <li><a href="generated/pfhedge.instruments.VarianceSwap.html#id0">VarianceSwap.to() (in module pfhedge.instruments)</a>, <a href="generated/pfhedge.instruments.VarianceSwap.html#id1">[1]</a>, <a href="generated/pfhedge.instruments.VarianceSwap.html#id2">[2]</a>
 </li>
+        <li><a href="generated/pfhedge.instruments.VasicekRate.html#pfhedge.instruments.VasicekRate">VasicekRate (class in pfhedge.instruments)</a>
+</li>
+        <li><a href="generated/pfhedge.instruments.VasicekRate.html#id0">VasicekRate.to() (in module pfhedge.instruments)</a>, <a href="generated/pfhedge.instruments.VasicekRate.html#id1">[1]</a>, <a href="generated/pfhedge.instruments.VasicekRate.html#id2">[2]</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="autogreek.html#pfhedge.autogreek.vega">vega() (in module pfhedge.autogreek)</a>
 
         <ul>
@@ -1017,8 +1115,8 @@
           <li><a href="generated/pfhedge.nn.BSLookbackOption.html#pfhedge.nn.BSLookbackOption.vega">(pfhedge.nn.BSLookbackOption method)</a>
 </li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="generated/pfhedge.features.Volatility.html#pfhedge.features.Volatility">Volatility (class in pfhedge.features)</a>
+</li>
         <li><a href="generated/pfhedge.instruments.BrownianStock.html#pfhedge.instruments.BrownianStock.volatility">volatility (pfhedge.instruments.BrownianStock property)</a>
 
         <ul>
@@ -1038,6 +1136,16 @@
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="generated/pfhedge.nn.WhalleyWilmott.html#pfhedge.nn.WhalleyWilmott.width">width() (pfhedge.nn.WhalleyWilmott method)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="Z" class="genindex-section">
+  <h2>Z</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="generated/pfhedge.features.Zeros.html#pfhedge.features.Zeros">Zeros (class in pfhedge.features)</a>
 </li>
     </ul></td>
   </tr></table>
