@@ -64,15 +64,15 @@ class FeatureList(Feature):
 
 
 class ModuleOutput(Feature, Module):
-    """The feature computed as an output of a :class:`torch.nn.Module`.
+    r"""The feature computed as an output of a :class:`torch.nn.Module`.
 
     Args:
         module (torch.nn.Module): Module to compute the value of the feature.
             The input and output shapes should be
-            :math:`(N, *, H_{\\math{in}}) -> (N, *, H_{\\math{out}})` where
+            :math:`(N, *, H_{\mathrm{in}}) \to (N, *, H_{\mathrm{out}})` where
             :math:`N` is the number of simulated paths of the underlying instrument,
-            :math:`H_{\\math{in}}` is the number of input features,
-            :math:`H_{\\math{out}}` is the number of output features, and
+            :math:`H_{\mathrm{in}}` is the number of input features,
+            :math:`H_{\mathrm{out}}` is the number of output features, and
             :math:`*` means any number of additional dimensions.
         inputs (list[Feature]): The input features to the module.
 

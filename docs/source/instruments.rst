@@ -11,6 +11,7 @@ Base Class
 
 .. autosummary::
     :nosignatures:
+    :toctree: generated
     :template: classtemplate.rst
 
     instruments.BaseInstrument
@@ -24,6 +25,7 @@ Primary Instruments
 
 .. autosummary::
     :nosignatures:
+    :toctree: generated
     :template: classtemplate.rst
 
     instruments.BrownianStock
@@ -37,6 +39,7 @@ Derivative Instruments
 
 .. autosummary::
     :nosignatures:
+    :toctree: generated
     :template: classtemplate.rst
 
     instruments.AmericanBinaryOption
