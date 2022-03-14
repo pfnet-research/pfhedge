@@ -283,6 +283,22 @@ class Zeros(StateIndependentFeature):
 
     Name:
         ``'zeros'``
+
+    Examples:
+        >>> from pfhedge.features import Zeros
+        >>> from pfhedge.instruments import BrownianStock
+        >>> from pfhedge.instruments import EuropeanOption
+        ...
+        >>> derivative = EuropeanOption(BrownianStock(), maturity=5/250, strike=2.0)
+        >>> derivative.simulate()
+        >>> f = Zeros().of(derivative)
+        >>> f.get()
+        tensor([[[0.],
+                 [0.],
+                 [0.],
+                 [0.],
+                 [0.],
+                 [0.]]])
     """
 
     name = "zeros"
@@ -297,6 +313,22 @@ class Ones(StateIndependentFeature):
 
     Name:
         ``'ones'``
+
+    Examples:
+        >>> from pfhedge.features import Ones
+        >>> from pfhedge.instruments import BrownianStock
+        >>> from pfhedge.instruments import EuropeanOption
+        ...
+        >>> derivative = EuropeanOption(BrownianStock(), maturity=5/250, strike=2.0)
+        >>> derivative.simulate()
+        >>> f = Ones().of(derivative)
+        >>> f.get()
+        tensor([[[1.],
+                 [1.],
+                 [1.],
+                 [1.],
+                 [1.],
+                 [1.]]])
     """
 
     name = "ones"
@@ -311,6 +343,22 @@ class Empty(StateIndependentFeature):
 
     Name:
         ``'empty'``
+
+    Examples:
+        >>> from pfhedge.features import Empty
+        >>> from pfhedge.instruments import BrownianStock
+        >>> from pfhedge.instruments import EuropeanOption
+        ...
+        >>> derivative = EuropeanOption(BrownianStock(), maturity=5/250, strike=2.0)
+        >>> derivative.simulate()
+        >>> f = Empty().of(derivative)
+        >>> f.get()
+        tensor([[[...],
+                 [...],
+                 [...],
+                 [...],
+                 [...],
+                 [...]]])
     """
 
     name = "empty"
