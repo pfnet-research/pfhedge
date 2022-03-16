@@ -5,7 +5,6 @@ from torch.testing import assert_close
 import pfhedge.autogreek as autogreek
 
 
-
 def test_gamma_from_delta():
     torch.manual_seed(42)
 
