@@ -716,7 +716,8 @@ def bs_european_price(
     """
     s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
 
-    price = strike * (s.exp() * ncdf(d1(s, t, v)) - ncdf(d2(s, t, v)))
+    spot = s.exp() * strike
+    price = spot * ncdf(d1(s, t, v)) - strike * ncdf(d2(s, t, v))
     price = price + strike * (1 - s.exp()) if not call else price  # put-call parity
 
     return price
@@ -914,7 +915,7 @@ def bs_american_binary_price(
     # By this substitution we get N([log(S(0) / K) + ...] / sigma T) --> 1.
 
     s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
-    p = ncdf(d2(s, t, v)) + s.exp() * (1 - ncdf(d2(-s, t, v)))
+    p = ncdf(d2(s, t, v)) + s.exp() * ncdf(d1(s, t, v))
 
     return p.where(max_log_moneyness < 0, torch.ones_like(p))
 
@@ -932,13 +933,17 @@ def bs_american_binary_delta(
     """
     s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
     spot = s.exp() * strike
+
+    d1_tensor = d1(s, t, v)
+    d2_tensor = d2(s, t, v)
+    w = v * t.sqrt()
+
     # ToDo: fix 0/0 issue
     p = (
-        npdf(d2(s, t, v)) / (spot * v * t.sqrt())
-        - (1 - ncdf(d2(-s, t, v))) / strike
-        + npdf(d2(-s, t, v)) / (strike * v * t.sqrt())
+        npdf(d2_tensor).div(spot * w)
+        + ncdf(d1_tensor).div(strike)
+        + npdf(d1_tensor).div(strike * w)
     )
-
     return p.where(max_log_moneyness < 0, torch.zeros_like(p))
 
 
@@ -953,15 +958,20 @@ def bs_american_binary_gamma(
 
     See :func:`pfhedge.nn.BSAmericanBinaryOption.gamma` for details.
     """
-    # TODO(simaki): Compute analytically
-    return autogreek.gamma(
-        bs_american_binary_price,
-        log_moneyness=log_moneyness,
-        max_log_moneyness=max_log_moneyness,
-        time_to_maturity=time_to_maturity,
-        volatility=volatility,
-        strike=strike,
+    s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
+    spot = s.exp() * strike
+
+    d1_tensor = d1(s, t, v)
+    d2_tensor = d2(s, t, v)
+    w = v * t.sqrt()
+
+    p = (
+        -npdf(d2_tensor).div(spot.square() * w)
+        - d2_tensor * npdf(d2_tensor).div(spot.square() * w.square())
+        + npdf(d1_tensor).div(spot * strike * w)
+        - d1_tensor * npdf(d1_tensor).div(spot * strike * w.square())
     )
+    return p.where(max_log_moneyness < 0, torch.zeros_like(p))
 
 
 def bs_american_binary_vega(
