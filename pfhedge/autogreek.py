@@ -189,7 +189,7 @@ def gamma_from_delta(
         create_graph (bool, default=False): If ``True``,
             graph of the derivative will be constructed,
             allowing to compute higher order derivative products.
-        **params: Parameters passed to ``pricer``.
+        **params: Parameters passed to ``fn``.
 
     Returns:
         torch.Tensor
