@@ -28,33 +28,33 @@ Consider an asset with spot price $S = \{S_t; 0 \leq t \leq T\}$ following geome
 An American binary call option with strike $K$ and maturity $T$ pays off
 \begin{align}
     \text{Payoff}
-        = 1_{\max\{S_u; 0 \leq u \leq t\} \geq K} ,
+        = 1_{\max\{S_t; 0 \leq t \leq T\} \geq K} ,
 \end{align}
 where
-$1_{M_T \geq K}$ is an indicator function.
+$1_{\max\{S_t; 0 \leq t \leq T\} \geq K}$ is an indicator function.
 
 
 \section*{Price}
 
 
-Let $\{W_t; 0 \leq t \leq T\}$ be Brownian motion driving $S$.
-Let $M_t = \max\{W_t; 0 \leq t \leq T\}$.
-Let $\hat M_t = M_t - \frac12 \sigma t$.
-According to Corollary 7.2.2 of Ref.~\cite{shreve},
+Let $W = \{W_t; 0 \leq t \leq T\}$ be Brownian motion driving $S$.
+We define the cumulative maximum of $W$ by $M_t = \max\{W_u; 0 \leq u \leq t\}$ and
+consider $\hat M_t = M_t - \frac12 \sigma t$.
+According to Corollary 7.2.2 of Ref.~\cite{shreve}, if $S_0 < K$,
 \begin{align}
     \Pr[\hat M_t \geq m]
-        = 1 - N\br{\frac{m}{\sqrt{T}} + \frac12 \sigma \sqrt{T}}
-            + e^{-\sigma m} N\br{-\frac{m}{\sqrt{T}} + \frac12 \sigma \sqrt{T}}
+        = 1 - N\br{\frac{m}{\sqrt{t}} + \frac12 \sigma \sqrt{t}}
+            + e^{-\sigma m} N\br{-\frac{m}{\sqrt{t}} + \frac12 \sigma \sqrt{t}} ,
 \end{align}
 where
 $N$ is the cumulative distribution function of the normal distribution.
-The condition to get the payoff of unity, $\max\{S_u; 0 \leq u \leq t\} \geq K$, is equivalent to $\hat M_t \geq - \sigma^{-1} \log(S_0 / K)$.
+A condition to get the payoff of unity, $\max\{S_t; 0 \leq t \leq T\} \geq K$, is equivalent to $\hat M_T \geq - \sigma^{-1} \log(S_0 / K)$.
 Therefore, the price of the American binary call option is given by
 $1$ if $S_0 \geq K$ and otherwise
 \begin{align}
     \text{Price}
-        & = \Ex[1_{\max\{S_u; 0 \leq u \leq t\} \geq K}] \notag \\
-        & = \Pr\bbr{\hat M_t \geq - \frac{1}{\sigma}\log\br{\frac{S_0}{K}}} \notag \\
+        & = \Ex[1_{\max\{S_t; 0 \leq t \leq T\} \geq K}] \notag \\
+        & = \Pr\bbr{\hat M_T \geq - \frac{1}{\sigma}\log\br{\frac{S_0}{K}}} \notag \\
         & = 1 - N\br{- \frac{\log(S_0 / K)}{\sigma \sqrt{T}} + \frac12 \sigma \sqrt{T}}
             + N\br{\frac{\log(S_0 / K)}{\sigma \sqrt{T}} + \frac12 \sigma \sqrt{T}}
             \notag \\

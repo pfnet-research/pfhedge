@@ -23,15 +23,21 @@
 \maketitle
 
 
-Consider an asset with spot price $\{S_t; 0 \leq t \leq T\}$ following geometric Brownian motion of volatility $\sigma$.
+Consider an asset with spot price $S = \{S_t; 0 \leq t \leq T\}$ following geometric Brownian motion of volatility $\sigma$.
 
-A European binary call option with strike $K$ and maturity $T$ pays
+A European binary call option with strike $K$ and maturity $T$ pays off
 \begin{align}
-    \text{Payoff}
+    \text{Payoff}_\text{Call}
         = 1_{S_T \geq K} ,
 \end{align}
 where
 $1_{S_T \geq K}$ is an indicator function.
+A European binary put option with the same strike and maturity pays off
+\begin{align}
+    \text{Payoff}_\text{Put}
+        = 1_{S_T \leq K} .
+\end{align}
+
 
 
 \section*{Price}
@@ -39,7 +45,7 @@ $1_{S_T \geq K}$ is an indicator function.
 
 The price of the European binary call option is given by
 \begin{align}
-    \text{Price}
+    \text{Price}_\text{Call}
         = \Ex[1_{S_T \geq K}] = N(d_2) ,
 \end{align}
 where
@@ -49,22 +55,22 @@ $N$ is the cumulative distribution function of the normal distribution and
         = \frac{\log (S_0 / K)}{\sigma \sqrt{T}} - \frac12 \sigma \sqrt{T} .
 \end{align}
 
-The price of a European binary put option is given by $1 - P$
-because its payoff $1_{S_T \leq K}$ is almost surely equal to $1 - 1_{S_T \geq K}$.
+The price of a European binary put option is given by $1 - \text{Price}_\text{Call}$
+because a relation $\text{Payoff}_\text{Call} + \text{Payoff}_\text{Put} = 1$ holds almost surely.
 
 
 \section*{Delta}
 
 
-Delta of the European binary call option is given by
+Delta is given by
 \begin{align}
-    \text{Delta}
+    \text{Delta}_\text{Call}
         = \frac{N^\prime(d_2)}{S_0 \sigma \sqrt{T}} ,
 \end{align}
 where
 we used a derivative $\partial d_2 / \partial S_0 = 1 / (S_0 \sigma \sqrt{T})$.
 
-Delta of a European binary put option is $- \Delta$.
+Delta of a European binary put option is $\text{Delta}_\text{Put} = - \text{Delta}_\text{Call}$.
 
 
 \section*{Gamma}
@@ -81,7 +87,7 @@ Gamma of the European binary option is given by
 \end{align}
 where we used a relation $N^{\prime\prime}(x) = - x N^\prime(x)$ to show the second equality.
 
-Gamma of a European binary put option is $- \Gamma$.
+Gamma of a European binary put option is $\text{Gamma}_\text{Put} = - \text{Gamma}_\text{Call}$.
 
 
 \end{document}
