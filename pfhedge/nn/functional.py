@@ -703,6 +703,21 @@ def bilerp(
     return torch.lerp(lerp1, lerp2, weight2)
 
 
+def _bs_theta_gamma_relation(gamma: Tensor, spot: Tensor, volatility: Tensor) -> Tensor:
+    # theta = (1/2) * vola^2 * spot^2 * gamma
+    # by Black-Scholes formula
+    return gamma * volatility.square() * spot.square() / 2
+
+
+def _bs_vega_gamma_relation(
+    gamma: Tensor, spot: Tensor, time_to_maturity: Tensor, volatility: Tensor
+) -> Tensor:
+    # vega = vola * spot^2 * time * gamma
+    # in Black-Scholes model
+    # See Chapter 5 Appendix A, Bergomi "Stochastic volatility modeling"
+    return gamma * volatility * spot.square() * time_to_maturity
+
+
 def bs_european_price(
     log_moneyness: Tensor,
     time_to_maturity: Tensor,
@@ -716,7 +731,8 @@ def bs_european_price(
     """
     s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
 
-    price = strike * (s.exp() * ncdf(d1(s, t, v)) - ncdf(d2(s, t, v)))
+    spot = s.exp() * strike
+    price = spot * ncdf(d1(s, t, v)) - strike * ncdf(d2(s, t, v))
     price = price + strike * (1 - s.exp()) if not call else price  # put-call parity
 
     return price
@@ -849,14 +865,13 @@ def bs_european_binary_gamma(
 
     See :func:`pfhedge.nn.BSEuropeanBinaryOption.gamma` for details.
     """
-    # TODO(simaki): Directly compute gamma.
-    return autogreek.gamma(
-        bs_european_binary_price,
-        log_moneyness=log_moneyness,
-        time_to_maturity=time_to_maturity,
-        volatility=volatility,
-        strike=strike,
-    )
+    s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
+    spot = s.exp() * strike
+
+    d2_tensor = d2(s, t, v)
+    w = volatility * time_to_maturity.square()
+
+    return -npdf(d2_tensor).div(w * spot.square()) * (1 + d2_tensor.div(w))
 
 
 def bs_european_binary_vega(
@@ -869,13 +884,15 @@ def bs_european_binary_vega(
 
     See :func:`pfhedge.nn.BSEuropeanBinaryOption.vega` for details.
     """
-    # TODO(simaki): Directly compute gamma.
-    return autogreek.vega(
-        bs_european_binary_price,
+    gamma = bs_european_binary_gamma(
         log_moneyness=log_moneyness,
         time_to_maturity=time_to_maturity,
         volatility=volatility,
         strike=strike,
+    )
+    spot = log_moneyness.exp() * strike
+    return _bs_vega_gamma_relation(
+        gamma, spot=spot, time_to_maturity=time_to_maturity, volatility=volatility
     )
 
 
@@ -889,14 +906,14 @@ def bs_european_binary_theta(
 
     See :func:`pfhedge.nn.BSEuropeanBinaryOption.theta` for details.
     """
-    # TODO(simaki): Directly compute theta.
-    return autogreek.theta(
-        bs_european_binary_price,
+    gamma = bs_european_binary_gamma(
         log_moneyness=log_moneyness,
         time_to_maturity=time_to_maturity,
         volatility=volatility,
         strike=strike,
     )
+    spot = log_moneyness.exp() * strike
+    return _bs_theta_gamma_relation(gamma, spot=spot, volatility=volatility)
 
 
 def bs_american_binary_price(
@@ -914,7 +931,7 @@ def bs_american_binary_price(
     # By this substitution we get N([log(S(0) / K) + ...] / sigma T) --> 1.
 
     s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
-    p = ncdf(d2(s, t, v)) + s.exp() * (1 - ncdf(d2(-s, t, v)))
+    p = ncdf(d2(s, t, v)) + s.exp() * ncdf(d1(s, t, v))
 
     return p.where(max_log_moneyness < 0, torch.ones_like(p))
 
@@ -932,13 +949,17 @@ def bs_american_binary_delta(
     """
     s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
     spot = s.exp() * strike
+
+    d1_tensor = d1(s, t, v)
+    d2_tensor = d2(s, t, v)
+    w = v * t.sqrt()
+
     # ToDo: fix 0/0 issue
     p = (
-        npdf(d2(s, t, v)) / (spot * v * t.sqrt())
-        - (1 - ncdf(d2(-s, t, v))) / strike
-        + npdf(d2(-s, t, v)) / (strike * v * t.sqrt())
+        npdf(d2_tensor).div(spot * w)
+        + ncdf(d1_tensor).div(strike)
+        + npdf(d1_tensor).div(strike * w)
     )
-
     return p.where(max_log_moneyness < 0, torch.zeros_like(p))
 
 
@@ -953,15 +974,20 @@ def bs_american_binary_gamma(
 
     See :func:`pfhedge.nn.BSAmericanBinaryOption.gamma` for details.
     """
-    # TODO(simaki): Compute analytically
-    return autogreek.gamma(
-        bs_american_binary_price,
-        log_moneyness=log_moneyness,
-        max_log_moneyness=max_log_moneyness,
-        time_to_maturity=time_to_maturity,
-        volatility=volatility,
-        strike=strike,
+    s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
+    spot = s.exp() * strike
+
+    d1_tensor = d1(s, t, v)
+    d2_tensor = d2(s, t, v)
+    w = v * t.sqrt()
+
+    p = (
+        -npdf(d2_tensor).div(spot.square() * w)
+        - d2_tensor * npdf(d2_tensor).div(spot.square() * w.square())
+        + npdf(d1_tensor).div(spot * strike * w)
+        - d1_tensor * npdf(d1_tensor).div(spot * strike * w.square())
     )
+    return p.where(max_log_moneyness < 0, torch.zeros_like(p))
 
 
 def bs_american_binary_vega(
@@ -975,14 +1001,16 @@ def bs_american_binary_vega(
 
     See :func:`pfhedge.nn.BSAmericanBinaryOption.vega` for details.
     """
-    # TODO(simaki): Compute analytically
-    return autogreek.vega(
-        bs_american_binary_price,
+    gamma = bs_american_binary_gamma(
         log_moneyness=log_moneyness,
         max_log_moneyness=max_log_moneyness,
         time_to_maturity=time_to_maturity,
         volatility=volatility,
         strike=strike,
+    )
+    spot = log_moneyness.exp() * strike
+    return _bs_vega_gamma_relation(
+        gamma, spot=spot, time_to_maturity=time_to_maturity, volatility=volatility
     )
 
 
@@ -997,15 +1025,15 @@ def bs_american_binary_theta(
 
     See :func:`pfhedge.nn.BSAmericanBinaryOption.theta` for details.
     """
-    # TODO(simaki): Compute analytically
-    return autogreek.theta(
-        bs_american_binary_price,
+    gamma = bs_american_binary_gamma(
         log_moneyness=log_moneyness,
         max_log_moneyness=max_log_moneyness,
         time_to_maturity=time_to_maturity,
         volatility=volatility,
         strike=strike,
     )
+    spot = log_moneyness.exp() * strike
+    return _bs_theta_gamma_relation(gamma, spot=spot, volatility=volatility)
 
 
 def bs_lookback_price(
@@ -1100,14 +1128,16 @@ def bs_lookback_vega(
 
     See :func:`pfhedge.nn.BSLookbackOption.vega` for details.
     """
-    # TODO(simaki): Calculate analytically
-    return autogreek.vega(
-        bs_lookback_price,
+    gamma = bs_lookback_gamma(
         log_moneyness=log_moneyness,
         max_log_moneyness=max_log_moneyness,
         time_to_maturity=time_to_maturity,
         volatility=volatility,
         strike=strike,
+    )
+    spot = log_moneyness.exp() * strike
+    return _bs_vega_gamma_relation(
+        gamma, spot=spot, time_to_maturity=time_to_maturity, volatility=volatility
     )
 
 
@@ -1122,15 +1152,15 @@ def bs_lookback_theta(
 
     See :func:`pfhedge.nn.BSLookbackOption.theta` for details.
     """
-    # TODO(simaki): Calculate analytically
-    return autogreek.theta(
-        bs_lookback_price,
+    gamma = bs_lookback_gamma(
         log_moneyness=log_moneyness,
         max_log_moneyness=max_log_moneyness,
         time_to_maturity=time_to_maturity,
         volatility=volatility,
         strike=strike,
     )
+    spot = log_moneyness.exp() * strike
+    return _bs_theta_gamma_relation(gamma, spot=spot, volatility=volatility)
 
 
 def box_muller(
