@@ -970,7 +970,7 @@ def bs_american_binary_gamma(
     See :func:`pfhedge.nn.BSAmericanBinaryOption.gamma` for details.
     """
     # TODO(simaki): Compute analytically
-    return autogreek.gamma(
+    return autogreek.gamma_from_delta(
         bs_american_binary_price,
         log_moneyness=log_moneyness,
         max_log_moneyness=max_log_moneyness,

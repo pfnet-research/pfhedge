@@ -171,6 +171,32 @@ def gamma(
     )[0]
 
 
+def gamma_from_delta(
+    fn: Callable[..., Tensor], *, create_graph: bool = False, **params: Any
+) -> Tensor:
+    """Computes and returns gamma of a derivative from the formula of delta.
+
+    Note:
+        The keyword argument ``**params`` should contain at least one of
+        the following combinations:
+
+        - ``spot``
+        - ``moneyness`` and ``strike``
+        - ``log_moneyness`` and ``strike``
+
+    Args:
+        fn (callable): Function to calculate delta.
+        create_graph (bool, default=False): If ``True``,
+            graph of the derivative will be constructed,
+            allowing to compute higher order derivative products.
+        **params: Parameters passed to ``fn``.
+
+    Returns:
+        torch.Tensor
+    """
+    return delta(pricer=fn, create_graph=create_graph, **params)
+
+
 def vega(
     pricer: Callable[..., Tensor], *, create_graph: bool = False, **params: Any
 ) -> Tensor:
