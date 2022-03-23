@@ -493,6 +493,32 @@
     <span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
 
 
+<span class="k">def</span> <span class="nf">gamma_from_delta</span><span class="p">(</span>
+    <span class="n">fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">create_graph</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="n">Any</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+    <span class="sd">"""Computes and returns gamma of a derivative from the formula of delta.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        The keyword argument ``**params`` should contain at least one of</span>
+<span class="sd">        the following combinations:</span>
+
+<span class="sd">        - ``spot``</span>
+<span class="sd">        - ``moneyness`` and ``strike``</span>
+<span class="sd">        - ``log_moneyness`` and ``strike``</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        fn (callable): Function to calculate delta.</span>
+<span class="sd">        create_graph (bool, default=False): If ``True``,</span>
+<span class="sd">            graph of the derivative will be constructed,</span>
+<span class="sd">            allowing to compute higher order derivative products.</span>
+<span class="sd">        **params: Parameters passed to ``fn``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        torch.Tensor</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">delta</span><span class="p">(</span><span class="n">pricer</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">create_graph</span><span class="o">=</span><span class="n">create_graph</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+
+
 <div class="viewcode-block" id="vega"><a class="viewcode-back" href="../../autogreek.html#pfhedge.autogreek.vega">[docs]</a><span class="k">def</span> <span class="nf">vega</span><span class="p">(</span>
     <span class="n">pricer</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">create_graph</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="n">Any</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>

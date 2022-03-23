@@ -1025,6 +1025,21 @@
     <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">lerp</span><span class="p">(</span><span class="n">lerp1</span><span class="p">,</span> <span class="n">lerp2</span><span class="p">,</span> <span class="n">weight2</span><span class="p">)</span></div>
 
 
+<span class="k">def</span> <span class="nf">_bs_theta_gamma_relation</span><span class="p">(</span><span class="n">gamma</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">spot</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">volatility</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+    <span class="c1"># theta = (1/2) * vola^2 * spot^2 * gamma</span>
+    <span class="c1"># by Black-Scholes formula</span>
+    <span class="k">return</span> <span class="n">gamma</span> <span class="o">*</span> <span class="n">volatility</span><span class="o">.</span><span class="n">square</span><span class="p">()</span> <span class="o">*</span> <span class="n">spot</span><span class="o">.</span><span class="n">square</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span>
+
+
+<span class="k">def</span> <span class="nf">_bs_vega_gamma_relation</span><span class="p">(</span>
+    <span class="n">gamma</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">spot</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">time_to_maturity</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">volatility</span><span class="p">:</span> <span class="n">Tensor</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+    <span class="c1"># vega = vola * spot^2 * time * gamma</span>
+    <span class="c1"># in Black-Scholes model</span>
+    <span class="c1"># See Chapter 5 Appendix A, Bergomi "Stochastic volatility modeling"</span>
+    <span class="k">return</span> <span class="n">gamma</span> <span class="o">*</span> <span class="n">volatility</span> <span class="o">*</span> <span class="n">spot</span><span class="o">.</span><span class="n">square</span><span class="p">()</span> <span class="o">*</span> <span class="n">time_to_maturity</span>
+
+
 <div class="viewcode-block" id="bs_european_price"><a class="viewcode-back" href="../../../generated/pfhedge.nn.functional.bs_european_price.html#pfhedge.nn.functional.bs_european_price">[docs]</a><span class="k">def</span> <span class="nf">bs_european_price</span><span class="p">(</span>
     <span class="n">log_moneyness</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
     <span class="n">time_to_maturity</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
@@ -1038,7 +1053,8 @@
 <span class="sd">    """</span>
     <span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">broadcast_all</span><span class="p">(</span><span class="n">log_moneyness</span><span class="p">,</span> <span class="n">time_to_maturity</span><span class="p">,</span> <span class="n">volatility</span><span class="p">)</span>
 
-    <span class="n">price</span> <span class="o">=</span> <span class="n">strike</span> <span class="o">*</span> <span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">exp</span><span class="p">()</span> <span class="o">*</span> <span class="n">ncdf</span><span class="p">(</span><span class="n">d1</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span> <span class="o">-</span> <span class="n">ncdf</span><span class="p">(</span><span class="n">d2</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span><span class="p">)))</span>
+    <span class="n">spot</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">exp</span><span class="p">()</span> <span class="o">*</span> <span class="n">strike</span>
+    <span class="n">price</span> <span class="o">=</span> <span class="n">spot</span> <span class="o">*</span> <span class="n">ncdf</span><span class="p">(</span><span class="n">d1</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span> <span class="o">-</span> <span class="n">strike</span> <span class="o">*</span> <span class="n">ncdf</span><span class="p">(</span><span class="n">d2</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
     <span class="n">price</span> <span class="o">=</span> <span class="n">price</span> <span class="o">+</span> <span class="n">strike</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">s</span><span class="o">.</span><span class="n">exp</span><span class="p">())</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">call</span> <span class="k">else</span> <span class="n">price</span>  <span class="c1"># put-call parity</span>
 
     <span class="k">return</span> <span class="n">price</span></div>
@@ -1171,14 +1187,13 @@
 
 <span class="sd">    See :func:`pfhedge.nn.BSEuropeanBinaryOption.gamma` for details.</span>
 <span class="sd">    """</span>
-    <span class="c1"># TODO(simaki): Directly compute gamma.</span>
-    <span class="k">return</span> <span class="n">autogreek</span><span class="o">.</span><span class="n">gamma</span><span class="p">(</span>
-        <span class="n">bs_european_binary_price</span><span class="p">,</span>
-        <span class="n">log_moneyness</span><span class="o">=</span><span class="n">log_moneyness</span><span class="p">,</span>
-        <span class="n">time_to_maturity</span><span class="o">=</span><span class="n">time_to_maturity</span><span class="p">,</span>
-        <span class="n">volatility</span><span class="o">=</span><span class="n">volatility</span><span class="p">,</span>
-        <span class="n">strike</span><span class="o">=</span><span class="n">strike</span><span class="p">,</span>
-    <span class="p">)</span></div>
+    <span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">broadcast_all</span><span class="p">(</span><span class="n">log_moneyness</span><span class="p">,</span> <span class="n">time_to_maturity</span><span class="p">,</span> <span class="n">volatility</span><span class="p">)</span>
+    <span class="n">spot</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">exp</span><span class="p">()</span> <span class="o">*</span> <span class="n">strike</span>
+
+    <span class="n">d2_tensor</span> <span class="o">=</span> <span class="n">d2</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+    <span class="n">w</span> <span class="o">=</span> <span class="n">volatility</span> <span class="o">*</span> <span class="n">time_to_maturity</span><span class="o">.</span><span class="n">square</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="o">-</span><span class="n">npdf</span><span class="p">(</span><span class="n">d2_tensor</span><span class="p">)</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">w</span> <span class="o">*</span> <span class="n">spot</span><span class="o">.</span><span class="n">square</span><span class="p">())</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">d2_tensor</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">w</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="bs_european_binary_vega"><a class="viewcode-back" href="../../../generated/pfhedge.nn.functional.bs_european_binary_vega.html#pfhedge.nn.functional.bs_european_binary_vega">[docs]</a><span class="k">def</span> <span class="nf">bs_european_binary_vega</span><span class="p">(</span>
@@ -1191,13 +1206,15 @@
 
 <span class="sd">    See :func:`pfhedge.nn.BSEuropeanBinaryOption.vega` for details.</span>
 <span class="sd">    """</span>
-    <span class="c1"># TODO(simaki): Directly compute gamma.</span>
-    <span class="k">return</span> <span class="n">autogreek</span><span class="o">.</span><span class="n">vega</span><span class="p">(</span>
-        <span class="n">bs_european_binary_price</span><span class="p">,</span>
+    <span class="n">gamma</span> <span class="o">=</span> <span class="n">bs_european_binary_gamma</span><span class="p">(</span>
         <span class="n">log_moneyness</span><span class="o">=</span><span class="n">log_moneyness</span><span class="p">,</span>
         <span class="n">time_to_maturity</span><span class="o">=</span><span class="n">time_to_maturity</span><span class="p">,</span>
         <span class="n">volatility</span><span class="o">=</span><span class="n">volatility</span><span class="p">,</span>
         <span class="n">strike</span><span class="o">=</span><span class="n">strike</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">spot</span> <span class="o">=</span> <span class="n">log_moneyness</span><span class="o">.</span><span class="n">exp</span><span class="p">()</span> <span class="o">*</span> <span class="n">strike</span>
+    <span class="k">return</span> <span class="n">_bs_vega_gamma_relation</span><span class="p">(</span>
+        <span class="n">gamma</span><span class="p">,</span> <span class="n">spot</span><span class="o">=</span><span class="n">spot</span><span class="p">,</span> <span class="n">time_to_maturity</span><span class="o">=</span><span class="n">time_to_maturity</span><span class="p">,</span> <span class="n">volatility</span><span class="o">=</span><span class="n">volatility</span>
     <span class="p">)</span></div>
 
 
@@ -1211,14 +1228,14 @@
 
 <span class="sd">    See :func:`pfhedge.nn.BSEuropeanBinaryOption.theta` for details.</span>
 <span class="sd">    """</span>
-    <span class="c1"># TODO(simaki): Directly compute theta.</span>
-    <span class="k">return</span> <span class="n">autogreek</span><span class="o">.</span><span class="n">theta</span><span class="p">(</span>
-        <span class="n">bs_european_binary_price</span><span class="p">,</span>
+    <span class="n">gamma</span> <span class="o">=</span> <span class="n">bs_european_binary_gamma</span><span class="p">(</span>
         <span class="n">log_moneyness</span><span class="o">=</span><span class="n">log_moneyness</span><span class="p">,</span>
         <span class="n">time_to_maturity</span><span class="o">=</span><span class="n">time_to_maturity</span><span class="p">,</span>
         <span class="n">volatility</span><span class="o">=</span><span class="n">volatility</span><span class="p">,</span>
         <span class="n">strike</span><span class="o">=</span><span class="n">strike</span><span class="p">,</span>
-    <span class="p">)</span></div>
+    <span class="p">)</span>
+    <span class="n">spot</span> <span class="o">=</span> <span class="n">log_moneyness</span><span class="o">.</span><span class="n">exp</span><span class="p">()</span> <span class="o">*</span> <span class="n">strike</span>
+    <span class="k">return</span> <span class="n">_bs_theta_gamma_relation</span><span class="p">(</span><span class="n">gamma</span><span class="p">,</span> <span class="n">spot</span><span class="o">=</span><span class="n">spot</span><span class="p">,</span> <span class="n">volatility</span><span class="o">=</span><span class="n">volatility</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="bs_american_binary_price"><a class="viewcode-back" href="../../../generated/pfhedge.nn.functional.bs_american_binary_price.html#pfhedge.nn.functional.bs_american_binary_price">[docs]</a><span class="k">def</span> <span class="nf">bs_american_binary_price</span><span class="p">(</span>
@@ -1236,7 +1253,7 @@
     <span class="c1"># By this substitution we get N([log(S(0) / K) + ...] / sigma T) --&gt; 1.</span>
 
     <span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">broadcast_all</span><span class="p">(</span><span class="n">log_moneyness</span><span class="p">,</span> <span class="n">time_to_maturity</span><span class="p">,</span> <span class="n">volatility</span><span class="p">)</span>
-    <span class="n">p</span> <span class="o">=</span> <span class="n">ncdf</span><span class="p">(</span><span class="n">d2</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span> <span class="o">+</span> <span class="n">s</span><span class="o">.</span><span class="n">exp</span><span class="p">()</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">ncdf</span><span class="p">(</span><span class="n">d2</span><span class="p">(</span><span class="o">-</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span><span class="p">)))</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">ncdf</span><span class="p">(</span><span class="n">d2</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span> <span class="o">+</span> <span class="n">s</span><span class="o">.</span><span class="n">exp</span><span class="p">()</span> <span class="o">*</span> <span class="n">ncdf</span><span class="p">(</span><span class="n">d1</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="n">p</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">max_log_moneyness</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">p</span><span class="p">))</span></div>
 
@@ -1254,13 +1271,17 @@
 <span class="sd">    """</span>
     <span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">broadcast_all</span><span class="p">(</span><span class="n">log_moneyness</span><span class="p">,</span> <span class="n">time_to_maturity</span><span class="p">,</span> <span class="n">volatility</span><span class="p">)</span>
     <span class="n">spot</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">exp</span><span class="p">()</span> <span class="o">*</span> <span class="n">strike</span>
+
+    <span class="n">d1_tensor</span> <span class="o">=</span> <span class="n">d1</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+    <span class="n">d2_tensor</span> <span class="o">=</span> <span class="n">d2</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+    <span class="n">w</span> <span class="o">=</span> <span class="n">v</span> <span class="o">*</span> <span class="n">t</span><span class="o">.</span><span class="n">sqrt</span><span class="p">()</span>
+
     <span class="c1"># ToDo: fix 0/0 issue</span>
     <span class="n">p</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">npdf</span><span class="p">(</span><span class="n">d2</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="n">spot</span> <span class="o">*</span> <span class="n">v</span> <span class="o">*</span> <span class="n">t</span><span class="o">.</span><span class="n">sqrt</span><span class="p">())</span>
-        <span class="o">-</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">ncdf</span><span class="p">(</span><span class="n">d2</span><span class="p">(</span><span class="o">-</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span><span class="p">)))</span> <span class="o">/</span> <span class="n">strike</span>
-        <span class="o">+</span> <span class="n">npdf</span><span class="p">(</span><span class="n">d2</span><span class="p">(</span><span class="o">-</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="n">strike</span> <span class="o">*</span> <span class="n">v</span> <span class="o">*</span> <span class="n">t</span><span class="o">.</span><span class="n">sqrt</span><span class="p">())</span>
+        <span class="n">npdf</span><span class="p">(</span><span class="n">d2_tensor</span><span class="p">)</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">spot</span> <span class="o">*</span> <span class="n">w</span><span class="p">)</span>
+        <span class="o">+</span> <span class="n">ncdf</span><span class="p">(</span><span class="n">d1_tensor</span><span class="p">)</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">strike</span><span class="p">)</span>
+        <span class="o">+</span> <span class="n">npdf</span><span class="p">(</span><span class="n">d1_tensor</span><span class="p">)</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">strike</span> <span class="o">*</span> <span class="n">w</span><span class="p">)</span>
     <span class="p">)</span>
-
     <span class="k">return</span> <span class="n">p</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">max_log_moneyness</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">p</span><span class="p">))</span></div>
 
 
@@ -1275,15 +1296,20 @@
 
 <span class="sd">    See :func:`pfhedge.nn.BSAmericanBinaryOption.gamma` for details.</span>
 <span class="sd">    """</span>
-    <span class="c1"># TODO(simaki): Compute analytically</span>
-    <span class="k">return</span> <span class="n">autogreek</span><span class="o">.</span><span class="n">gamma</span><span class="p">(</span>
-        <span class="n">bs_american_binary_price</span><span class="p">,</span>
-        <span class="n">log_moneyness</span><span class="o">=</span><span class="n">log_moneyness</span><span class="p">,</span>
-        <span class="n">max_log_moneyness</span><span class="o">=</span><span class="n">max_log_moneyness</span><span class="p">,</span>
-        <span class="n">time_to_maturity</span><span class="o">=</span><span class="n">time_to_maturity</span><span class="p">,</span>
-        <span class="n">volatility</span><span class="o">=</span><span class="n">volatility</span><span class="p">,</span>
-        <span class="n">strike</span><span class="o">=</span><span class="n">strike</span><span class="p">,</span>
-    <span class="p">)</span></div>
+    <span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">broadcast_all</span><span class="p">(</span><span class="n">log_moneyness</span><span class="p">,</span> <span class="n">time_to_maturity</span><span class="p">,</span> <span class="n">volatility</span><span class="p">)</span>
+    <span class="n">spot</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">exp</span><span class="p">()</span> <span class="o">*</span> <span class="n">strike</span>
+
+    <span class="n">d1_tensor</span> <span class="o">=</span> <span class="n">d1</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+    <span class="n">d2_tensor</span> <span class="o">=</span> <span class="n">d2</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+    <span class="n">w</span> <span class="o">=</span> <span class="n">v</span> <span class="o">*</span> <span class="n">t</span><span class="o">.</span><span class="n">sqrt</span><span class="p">()</span>
+
+    <span class="n">p</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="o">-</span><span class="n">npdf</span><span class="p">(</span><span class="n">d2_tensor</span><span class="p">)</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">spot</span><span class="o">.</span><span class="n">square</span><span class="p">()</span> <span class="o">*</span> <span class="n">w</span><span class="p">)</span>
+        <span class="o">-</span> <span class="n">d2_tensor</span> <span class="o">*</span> <span class="n">npdf</span><span class="p">(</span><span class="n">d2_tensor</span><span class="p">)</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">spot</span><span class="o">.</span><span class="n">square</span><span class="p">()</span> <span class="o">*</span> <span class="n">w</span><span class="o">.</span><span class="n">square</span><span class="p">())</span>
+        <span class="o">+</span> <span class="n">npdf</span><span class="p">(</span><span class="n">d1_tensor</span><span class="p">)</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">spot</span> <span class="o">*</span> <span class="n">strike</span> <span class="o">*</span> <span class="n">w</span><span class="p">)</span>
+        <span class="o">-</span> <span class="n">d1_tensor</span> <span class="o">*</span> <span class="n">npdf</span><span class="p">(</span><span class="n">d1_tensor</span><span class="p">)</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">spot</span> <span class="o">*</span> <span class="n">strike</span> <span class="o">*</span> <span class="n">w</span><span class="o">.</span><span class="n">square</span><span class="p">())</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">p</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">max_log_moneyness</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">p</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="bs_american_binary_vega"><a class="viewcode-back" href="../../../generated/pfhedge.nn.functional.bs_american_binary_vega.html#pfhedge.nn.functional.bs_american_binary_vega">[docs]</a><span class="k">def</span> <span class="nf">bs_american_binary_vega</span><span class="p">(</span>
@@ -1297,14 +1323,16 @@
 
 <span class="sd">    See :func:`pfhedge.nn.BSAmericanBinaryOption.vega` for details.</span>
 <span class="sd">    """</span>
-    <span class="c1"># TODO(simaki): Compute analytically</span>
-    <span class="k">return</span> <span class="n">autogreek</span><span class="o">.</span><span class="n">vega</span><span class="p">(</span>
-        <span class="n">bs_american_binary_price</span><span class="p">,</span>
+    <span class="n">gamma</span> <span class="o">=</span> <span class="n">bs_american_binary_gamma</span><span class="p">(</span>
         <span class="n">log_moneyness</span><span class="o">=</span><span class="n">log_moneyness</span><span class="p">,</span>
         <span class="n">max_log_moneyness</span><span class="o">=</span><span class="n">max_log_moneyness</span><span class="p">,</span>
         <span class="n">time_to_maturity</span><span class="o">=</span><span class="n">time_to_maturity</span><span class="p">,</span>
         <span class="n">volatility</span><span class="o">=</span><span class="n">volatility</span><span class="p">,</span>
         <span class="n">strike</span><span class="o">=</span><span class="n">strike</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">spot</span> <span class="o">=</span> <span class="n">log_moneyness</span><span class="o">.</span><span class="n">exp</span><span class="p">()</span> <span class="o">*</span> <span class="n">strike</span>
+    <span class="k">return</span> <span class="n">_bs_vega_gamma_relation</span><span class="p">(</span>
+        <span class="n">gamma</span><span class="p">,</span> <span class="n">spot</span><span class="o">=</span><span class="n">spot</span><span class="p">,</span> <span class="n">time_to_maturity</span><span class="o">=</span><span class="n">time_to_maturity</span><span class="p">,</span> <span class="n">volatility</span><span class="o">=</span><span class="n">volatility</span>
     <span class="p">)</span></div>
 
 
@@ -1319,15 +1347,15 @@
 
 <span class="sd">    See :func:`pfhedge.nn.BSAmericanBinaryOption.theta` for details.</span>
 <span class="sd">    """</span>
-    <span class="c1"># TODO(simaki): Compute analytically</span>
-    <span class="k">return</span> <span class="n">autogreek</span><span class="o">.</span><span class="n">theta</span><span class="p">(</span>
-        <span class="n">bs_american_binary_price</span><span class="p">,</span>
+    <span class="n">gamma</span> <span class="o">=</span> <span class="n">bs_american_binary_gamma</span><span class="p">(</span>
         <span class="n">log_moneyness</span><span class="o">=</span><span class="n">log_moneyness</span><span class="p">,</span>
         <span class="n">max_log_moneyness</span><span class="o">=</span><span class="n">max_log_moneyness</span><span class="p">,</span>
         <span class="n">time_to_maturity</span><span class="o">=</span><span class="n">time_to_maturity</span><span class="p">,</span>
         <span class="n">volatility</span><span class="o">=</span><span class="n">volatility</span><span class="p">,</span>
         <span class="n">strike</span><span class="o">=</span><span class="n">strike</span><span class="p">,</span>
-    <span class="p">)</span></div>
+    <span class="p">)</span>
+    <span class="n">spot</span> <span class="o">=</span> <span class="n">log_moneyness</span><span class="o">.</span><span class="n">exp</span><span class="p">()</span> <span class="o">*</span> <span class="n">strike</span>
+    <span class="k">return</span> <span class="n">_bs_theta_gamma_relation</span><span class="p">(</span><span class="n">gamma</span><span class="p">,</span> <span class="n">spot</span><span class="o">=</span><span class="n">spot</span><span class="p">,</span> <span class="n">volatility</span><span class="o">=</span><span class="n">volatility</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="bs_lookback_price"><a class="viewcode-back" href="../../../generated/pfhedge.nn.functional.bs_lookback_price.html#pfhedge.nn.functional.bs_lookback_price">[docs]</a><span class="k">def</span> <span class="nf">bs_lookback_price</span><span class="p">(</span>
@@ -1422,14 +1450,16 @@
 
 <span class="sd">    See :func:`pfhedge.nn.BSLookbackOption.vega` for details.</span>
 <span class="sd">    """</span>
-    <span class="c1"># TODO(simaki): Calculate analytically</span>
-    <span class="k">return</span> <span class="n">autogreek</span><span class="o">.</span><span class="n">vega</span><span class="p">(</span>
-        <span class="n">bs_lookback_price</span><span class="p">,</span>
+    <span class="n">gamma</span> <span class="o">=</span> <span class="n">bs_lookback_gamma</span><span class="p">(</span>
         <span class="n">log_moneyness</span><span class="o">=</span><span class="n">log_moneyness</span><span class="p">,</span>
         <span class="n">max_log_moneyness</span><span class="o">=</span><span class="n">max_log_moneyness</span><span class="p">,</span>
         <span class="n">time_to_maturity</span><span class="o">=</span><span class="n">time_to_maturity</span><span class="p">,</span>
         <span class="n">volatility</span><span class="o">=</span><span class="n">volatility</span><span class="p">,</span>
         <span class="n">strike</span><span class="o">=</span><span class="n">strike</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">spot</span> <span class="o">=</span> <span class="n">log_moneyness</span><span class="o">.</span><span class="n">exp</span><span class="p">()</span> <span class="o">*</span> <span class="n">strike</span>
+    <span class="k">return</span> <span class="n">_bs_vega_gamma_relation</span><span class="p">(</span>
+        <span class="n">gamma</span><span class="p">,</span> <span class="n">spot</span><span class="o">=</span><span class="n">spot</span><span class="p">,</span> <span class="n">time_to_maturity</span><span class="o">=</span><span class="n">time_to_maturity</span><span class="p">,</span> <span class="n">volatility</span><span class="o">=</span><span class="n">volatility</span>
     <span class="p">)</span></div>
 
 
@@ -1444,15 +1474,15 @@
 
 <span class="sd">    See :func:`pfhedge.nn.BSLookbackOption.theta` for details.</span>
 <span class="sd">    """</span>
-    <span class="c1"># TODO(simaki): Calculate analytically</span>
-    <span class="k">return</span> <span class="n">autogreek</span><span class="o">.</span><span class="n">theta</span><span class="p">(</span>
-        <span class="n">bs_lookback_price</span><span class="p">,</span>
+    <span class="n">gamma</span> <span class="o">=</span> <span class="n">bs_lookback_gamma</span><span class="p">(</span>
         <span class="n">log_moneyness</span><span class="o">=</span><span class="n">log_moneyness</span><span class="p">,</span>
         <span class="n">max_log_moneyness</span><span class="o">=</span><span class="n">max_log_moneyness</span><span class="p">,</span>
         <span class="n">time_to_maturity</span><span class="o">=</span><span class="n">time_to_maturity</span><span class="p">,</span>
         <span class="n">volatility</span><span class="o">=</span><span class="n">volatility</span><span class="p">,</span>
         <span class="n">strike</span><span class="o">=</span><span class="n">strike</span><span class="p">,</span>
-    <span class="p">)</span></div>
+    <span class="p">)</span>
+    <span class="n">spot</span> <span class="o">=</span> <span class="n">log_moneyness</span><span class="o">.</span><span class="n">exp</span><span class="p">()</span> <span class="o">*</span> <span class="n">strike</span>
+    <span class="k">return</span> <span class="n">_bs_theta_gamma_relation</span><span class="p">(</span><span class="n">gamma</span><span class="p">,</span> <span class="n">spot</span><span class="o">=</span><span class="n">spot</span><span class="p">,</span> <span class="n">volatility</span><span class="o">=</span><span class="n">volatility</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="box_muller"><a class="viewcode-back" href="../../../generated/pfhedge.nn.functional.box_muller.html#pfhedge.nn.functional.box_muller">[docs]</a><span class="k">def</span> <span class="nf">box_muller</span><span class="p">(</span>
