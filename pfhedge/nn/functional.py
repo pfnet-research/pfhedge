@@ -970,6 +970,7 @@ def bs_american_binary_gamma(
         - d2_tensor * npdf(d2_tensor).div(spot.square() * w.square())
         + npdf(d1_tensor).div(spot * strike * w)
         - d1_tensor * npdf(d1_tensor).div(spot * strike * w.square())
+    )
     return p.where(max_log_moneyness < 0, torch.zeros_like(p))
 
 
