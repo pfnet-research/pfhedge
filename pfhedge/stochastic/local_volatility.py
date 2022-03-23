@@ -45,7 +45,7 @@ def generate_local_volatility_process(
     The time evolution of the process is given by:
 
     .. math::
-        dS(t) = \sigma_{\mathrm{LV}}(t, S(t)) dW(t) ,
+        dS(t) = \sigma_{\mathrm{LV}}(t, S(t)) S(t) dW(t) ,
 
     where :math:`\sigma_{\mathrm{LV}}` is the local volatility function.
 
