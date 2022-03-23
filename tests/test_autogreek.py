@@ -1,7 +1,23 @@
 import torch
+from torch import Tensor
 from torch.testing import assert_close
 
 import pfhedge.autogreek as autogreek
+
+
+def test_gamma_from_delta():
+    torch.manual_seed(42)
+
+    def price(spot: Tensor):
+        return spot.square() + spot.sin()
+
+    def delta(spot: Tensor):
+        return 2 * spot + spot.cos()
+
+    spot = torch.randn(10)
+    result = autogreek.gamma_from_delta(delta, spot=spot)
+    expect = autogreek.gamma(price, spot=spot)
+    assert_close(result, expect)
 
 
 def test_vega():

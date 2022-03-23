@@ -850,8 +850,8 @@ def bs_european_binary_gamma(
     See :func:`pfhedge.nn.BSEuropeanBinaryOption.gamma` for details.
     """
     # TODO(simaki): Directly compute gamma.
-    return autogreek.gamma(
-        bs_european_binary_price,
+    return autogreek.gamma_from_delta(
+        bs_european_binary_delta,
         log_moneyness=log_moneyness,
         time_to_maturity=time_to_maturity,
         volatility=volatility,
@@ -954,7 +954,7 @@ def bs_american_binary_gamma(
     See :func:`pfhedge.nn.BSAmericanBinaryOption.gamma` for details.
     """
     # TODO(simaki): Compute analytically
-    return autogreek.gamma(
+    return autogreek.gamma_from_delta(
         bs_american_binary_price,
         log_moneyness=log_moneyness,
         max_log_moneyness=max_log_moneyness,
