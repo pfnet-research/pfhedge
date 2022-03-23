@@ -1,0 +1,113 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{color}
+\usepackage[breaklinks,colorlinks=true]{hyperref}
+
+\definecolor{Blue}{RGB}{0,122,255}
+\hypersetup{colorlinks,breaklinks,urlcolor=Blue,linkcolor=Blue,citecolor=Blue,urlcolor=Blue}
+
+\def\Pr{\mathop{\mathbb{P}}}
+\newcommand\Ex{\mathop{\mathbb{E}}}
+\newcommand\br[1]{\left(#1\right)}
+\newcommand\bbr[1]{\left[#1\right]}
+\newcommand\cbr[1]{\left\{#1\right\}}
+\newcommand\pd[2]{\frac{\partial #1}{\partial #2}}
+
+
+\begin{document}
+
+\title{Price and greeks of American binary option}
+\date{}
+
+\maketitle
+
+
+Consider an asset with spot price $S = \{S_t; 0 \leq t \leq T\}$ following geometric Brownian motion of volatility $\sigma$.
+
+An American binary call option with strike $K$ and maturity $T$ pays off
+\begin{align}
+    \text{Payoff}
+        = 1_{\max\{S_t; 0 \leq t \leq T\} \geq K} ,
+\end{align}
+where
+$1_{\max\{S_t; 0 \leq t \leq T\} \geq K}$ is an indicator function.
+
+
+\section*{Price}
+
+
+Let $W = \{W_t; 0 \leq t \leq T\}$ be Brownian motion driving $S$.
+We define the cumulative maximum of $W$ by $M_t = \max\{W_u; 0 \leq u \leq t\}$ and
+consider $\hat M_t = M_t - \frac12 \sigma t$.
+According to Corollary 7.2.2 of Ref.~\cite{shreve}, if $S_0 < K$,
+\begin{align}
+    \Pr[\hat M_t \geq m]
+        = 1 - N\br{\frac{m}{\sqrt{t}} + \frac12 \sigma \sqrt{t}}
+            + e^{-\sigma m} N\br{-\frac{m}{\sqrt{t}} + \frac12 \sigma \sqrt{t}} ,
+\end{align}
+where
+$N$ is the cumulative distribution function of the normal distribution.
+A condition to get the payoff of unity, $\max\{S_t; 0 \leq t \leq T\} \geq K$, is equivalent to $\hat M_T \geq - \sigma^{-1} \log(S_0 / K)$.
+Therefore, the price of the American binary call option is given by
+$1$ if $S_0 \geq K$ and otherwise
+\begin{align}
+    \text{Price}
+        & = \Ex[1_{\max\{S_t; 0 \leq t \leq T\} \geq K}] \notag \\
+        & = \Pr\bbr{\hat M_T \geq - \frac{1}{\sigma}\log\br{\frac{S_0}{K}}} \notag \\
+        & = 1 - N\br{- \frac{\log(S_0 / K)}{\sigma \sqrt{T}} + \frac12 \sigma \sqrt{T}}
+            + N\br{\frac{\log(S_0 / K)}{\sigma \sqrt{T}} + \frac12 \sigma \sqrt{T}}
+            \notag \\
+        & = N(d_2) + \frac{S_0}{K} N(d_1) ,
+\end{align}
+where
+\begin{align}
+    d_1
+        = \frac{\log (S_0 / K)}{\sigma \sqrt{T}} + \frac12 \sigma \sqrt{T} ,
+    \quad
+    d_2
+        = \frac{\log (S_0 / K)}{\sigma \sqrt{T}} - \frac12 \sigma \sqrt{T} .
+\end{align}
+
+
+\section*{Delta}
+
+
+Delta is given by
+$0$ if $S_0 \geq K$ and otherwise
+\begin{align}
+    \text{Delta}
+        = \frac{N^\prime(d_2)}{S_0 \sigma \sqrt{T}}
+            + \frac{N(d_1)}{K}
+            + \frac{N^\prime(d_1)}{K \sigma \sqrt{T}} ,
+\end{align}
+where
+we used a derivative $\partial d_1 / \partial S_0 = \partial d_2 / \partial S_0 = 1 / (S_0 \sigma \sqrt{T})$.
+
+
+\section*{Gamma}
+
+
+Gamma is given by
+$0$ if $S_0 \geq K$ and otherwise
+\begin{align}
+    \text{Gamma}
+        & = - \frac{N^\prime(d_2)}{S_0^2 \sigma \sqrt{T}}
+            + \frac{N^{\prime\prime}(d_2)}{S_0^2 \sigma^2 T}
+            + \frac{N^\prime(d_1)}{S_0 K \sigma \sqrt{T}}
+            + \frac{N^{\prime\prime}(d_1)}{S_0 K \sigma^2 T} \notag \\
+        & = - \frac{N^\prime(d_2)}{S_0^2 \sigma \sqrt{T}}
+            - \frac{d_2 N^\prime(d_2)}{S_0^2 \sigma^2 T}
+            + \frac{N^\prime(d_1)}{S_0 K \sigma \sqrt{T}}
+            - \frac{N^\prime(d_1)}{S_0 K \sigma^2 T} ,
+    \label{eq:gamma}
+\end{align}
+where we used a relation $N^{\prime\prime}(x) = - x N^\prime(x)$ to show the second equality.
+
+
+\begin{thebibliography}{1}
+\bibitem{shreve} Shreve, S.E., 2004. Stochastic calculus for finance II: Continuous-time models (Vol. 11). New York: springer.
+\end{thebibliography}
+
+
+\end{document}
