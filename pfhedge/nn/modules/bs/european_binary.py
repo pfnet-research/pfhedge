@@ -10,7 +10,10 @@ from pfhedge._utils.doc import _set_docstring
 from pfhedge._utils.str import _format_float
 from pfhedge.instruments import EuropeanBinaryOption
 from pfhedge.nn.functional import bs_european_binary_delta
+from pfhedge.nn.functional import bs_european_binary_gamma
 from pfhedge.nn.functional import bs_european_binary_price
+from pfhedge.nn.functional import bs_european_binary_theta
+from pfhedge.nn.functional import bs_european_binary_vega
 
 from ._base import BSModuleMixin
 from ._base import acquire_params_from_derivative_0
@@ -46,7 +49,7 @@ class BSEuropeanBinaryOption(BSModuleMixin):
 
     Examples:
         >>> from pfhedge.nn import BSEuropeanBinaryOption
-        >>>
+        ...
         >>> m = BSEuropeanBinaryOption(strike=1.0)
         >>> m.inputs()
         ['log_moneyness', 'time_to_maturity', 'volatility']
@@ -65,7 +68,7 @@ class BSEuropeanBinaryOption(BSModuleMixin):
         call: bool = True,
         strike: float = 1.0,
         derivative: Optional[EuropeanBinaryOption] = None,
-    ):
+    ) -> None:
         super().__init__()
         self.call = call
         self.strike = strike
@@ -217,11 +220,11 @@ class BSEuropeanBinaryOption(BSModuleMixin):
         ) = acquire_params_from_derivative_1(
             self.derivative, log_moneyness, time_to_maturity, volatility
         )
-        # TODO(simaki): Directly compute gamma.
-        return super().gamma(
+        return bs_european_binary_gamma(
             log_moneyness=log_moneyness,
             time_to_maturity=time_to_maturity,
             volatility=volatility,
+            call=self.call,
             strike=self.strike,
         )
 
@@ -257,11 +260,11 @@ class BSEuropeanBinaryOption(BSModuleMixin):
         ) = acquire_params_from_derivative_1(
             self.derivative, log_moneyness, time_to_maturity, volatility
         )
-        # TODO: Directly compute theta.
-        return super().vega(
+        return bs_european_binary_vega(
             log_moneyness=log_moneyness,
             time_to_maturity=time_to_maturity,
             volatility=volatility,
+            call=self.call,
             strike=self.strike,
         )
 
@@ -300,11 +303,11 @@ class BSEuropeanBinaryOption(BSModuleMixin):
         ) = acquire_params_from_derivative_1(
             self.derivative, log_moneyness, time_to_maturity, volatility
         )
-        # TODO: Directly compute theta.
-        return super().theta(
+        return bs_european_binary_theta(
             log_moneyness=log_moneyness,
             time_to_maturity=time_to_maturity,
             volatility=volatility,
+            call=self.call,
             strike=self.strike,
         )
 
