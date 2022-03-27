@@ -442,14 +442,14 @@ represented.</p>
 <dd><p>Make self a listed derivative.</p>
 <p>After this method self will be a exchange-traded derivative which can be transacted
 at any time with the spot price given by <code class="docutils literal notranslate"><span class="pre">self.spot</span></code>.</p>
-<p>See an example in <a class="reference internal" href="#pfhedge.instruments.EuropeanOption" title="pfhedge.instruments.EuropeanOption"><code class="xref py py-class docutils literal notranslate"><span class="pre">EuropeanOption</span></code></a> for a usage.derivative
-:param pricer: A function that takes self</p>
-<blockquote>
-<div><p>and returns the spot price tensor of self.</p>
-</div></blockquote>
+<p>See an example in <a class="reference internal" href="#pfhedge.instruments.EuropeanOption" title="pfhedge.instruments.EuropeanOption"><code class="xref py py-class docutils literal notranslate"><span class="pre">EuropeanOption</span></code></a> for a usage.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>cost</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – The transaction cost rate.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pricer</strong> (<em>Callable</em><em>[</em><em>[</em><a class="reference internal" href="pfhedge.instruments.BaseDerivative.html#pfhedge.instruments.BaseDerivative" title="pfhedge.instruments.BaseDerivative"><em>BaseDerivative</em></a><em>]</em><em>, </em><em>Tensor</em><em>]</em><em>]</em>) – A function that takes self
+and returns the spot price tensor of self.</p></li>
+<li><p><strong>cost</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – The transaction cost rate.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>

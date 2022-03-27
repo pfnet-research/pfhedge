@@ -583,8 +583,7 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
     <span class="sd">"""Computes and returns theta of a derivative using automatic differentiation.</span>
 
-<span class="sd">    Theta is a differentiation of a derivative price with respect to</span>
-<span class="sd">    a variance of underlying instrument.</span>
+<span class="sd">    Theta is a differentiation of a derivative price with respect to time.</span>
 
 <span class="sd">    Note:</span>
 <span class="sd">        The keyword argument ``**params`` should contain at least one of the</span>
@@ -607,7 +606,7 @@
 
 <span class="sd">        &gt;&gt;&gt; import pfhedge.autogreek as autogreek</span>
 <span class="sd">        &gt;&gt;&gt; from pfhedge.nn import BSEuropeanOption</span>
-<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        ...</span>
 <span class="sd">        &gt;&gt;&gt; pricer = BSEuropeanOption().price</span>
 <span class="sd">        &gt;&gt;&gt; autogreek.theta(</span>
 <span class="sd">        ...     pricer,</span>

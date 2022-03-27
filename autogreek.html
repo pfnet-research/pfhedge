@@ -517,8 +517,7 @@ allowing to compute higher order derivative products.</p></li>
 <dt class="sig sig-object py" id="pfhedge.autogreek.theta">
 <span class="sig-prename descclassname"><span class="pre">pfhedge.autogreek.</span></span><span class="sig-name descname"><span class="pre">theta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pricer</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">create_graph</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfhedge/autogreek.html#theta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.autogreek.theta" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes and returns theta of a derivative using automatic differentiation.</p>
-<p>Theta is a differentiation of a derivative price with respect to
-a variance of underlying instrument.</p>
+<p>Theta is a differentiation of a derivative price with respect to time.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The keyword argument <code class="docutils literal notranslate"><span class="pre">**params</span></code> should contain at least one of the
@@ -545,7 +544,7 @@ allowing to compute higher order derivative products.</p></li>
 <p>Theta of a European option can be evaluated as follows.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pfhedge.autogreek</span> <span class="k">as</span> <span class="nn">autogreek</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">BSEuropeanOption</span>
-<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">...</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">pricer</span> <span class="o">=</span> <span class="n">BSEuropeanOption</span><span class="p">()</span><span class="o">.</span><span class="n">price</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">autogreek</span><span class="o">.</span><span class="n">theta</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">pricer</span><span class="p">,</span>

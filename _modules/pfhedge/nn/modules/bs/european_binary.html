@@ -332,7 +332,10 @@
 <span class="kn">from</span> <span class="nn">pfhedge._utils.str</span> <span class="kn">import</span> <span class="n">_format_float</span>
 <span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">EuropeanBinaryOption</span>
 <span class="kn">from</span> <span class="nn">pfhedge.nn.functional</span> <span class="kn">import</span> <span class="n">bs_european_binary_delta</span>
+<span class="kn">from</span> <span class="nn">pfhedge.nn.functional</span> <span class="kn">import</span> <span class="n">bs_european_binary_gamma</span>
 <span class="kn">from</span> <span class="nn">pfhedge.nn.functional</span> <span class="kn">import</span> <span class="n">bs_european_binary_price</span>
+<span class="kn">from</span> <span class="nn">pfhedge.nn.functional</span> <span class="kn">import</span> <span class="n">bs_european_binary_theta</span>
+<span class="kn">from</span> <span class="nn">pfhedge.nn.functional</span> <span class="kn">import</span> <span class="n">bs_european_binary_vega</span>
 
 <span class="kn">from</span> <span class="nn">._base</span> <span class="kn">import</span> <span class="n">BSModuleMixin</span>
 <span class="kn">from</span> <span class="nn">._base</span> <span class="kn">import</span> <span class="n">acquire_params_from_derivative_0</span>
@@ -368,7 +371,7 @@
 
 <span class="sd">    Examples:</span>
 <span class="sd">        &gt;&gt;&gt; from pfhedge.nn import BSEuropeanBinaryOption</span>
-<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        ...</span>
 <span class="sd">        &gt;&gt;&gt; m = BSEuropeanBinaryOption(strike=1.0)</span>
 <span class="sd">        &gt;&gt;&gt; m.inputs()</span>
 <span class="sd">        ['log_moneyness', 'time_to_maturity', 'volatility']</span>
@@ -387,7 +390,7 @@
         <span class="n">call</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">strike</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
         <span class="n">derivative</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">EuropeanBinaryOption</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">):</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">call</span> <span class="o">=</span> <span class="n">call</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">strike</span> <span class="o">=</span> <span class="n">strike</span>
@@ -539,11 +542,11 @@
         <span class="p">)</span> <span class="o">=</span> <span class="n">acquire_params_from_derivative_1</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">derivative</span><span class="p">,</span> <span class="n">log_moneyness</span><span class="p">,</span> <span class="n">time_to_maturity</span><span class="p">,</span> <span class="n">volatility</span>
         <span class="p">)</span>
-        <span class="c1"># TODO(simaki): Directly compute gamma.</span>
-        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">gamma</span><span class="p">(</span>
+        <span class="k">return</span> <span class="n">bs_european_binary_gamma</span><span class="p">(</span>
             <span class="n">log_moneyness</span><span class="o">=</span><span class="n">log_moneyness</span><span class="p">,</span>
             <span class="n">time_to_maturity</span><span class="o">=</span><span class="n">time_to_maturity</span><span class="p">,</span>
             <span class="n">volatility</span><span class="o">=</span><span class="n">volatility</span><span class="p">,</span>
+            <span class="n">call</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">,</span>
             <span class="n">strike</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">strike</span><span class="p">,</span>
         <span class="p">)</span></div>
 
@@ -579,11 +582,11 @@
         <span class="p">)</span> <span class="o">=</span> <span class="n">acquire_params_from_derivative_1</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">derivative</span><span class="p">,</span> <span class="n">log_moneyness</span><span class="p">,</span> <span class="n">time_to_maturity</span><span class="p">,</span> <span class="n">volatility</span>
         <span class="p">)</span>
-        <span class="c1"># TODO: Directly compute theta.</span>
-        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">vega</span><span class="p">(</span>
+        <span class="k">return</span> <span class="n">bs_european_binary_vega</span><span class="p">(</span>
             <span class="n">log_moneyness</span><span class="o">=</span><span class="n">log_moneyness</span><span class="p">,</span>
             <span class="n">time_to_maturity</span><span class="o">=</span><span class="n">time_to_maturity</span><span class="p">,</span>
             <span class="n">volatility</span><span class="o">=</span><span class="n">volatility</span><span class="p">,</span>
+            <span class="n">call</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">,</span>
             <span class="n">strike</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">strike</span><span class="p">,</span>
         <span class="p">)</span></div>
 
@@ -622,11 +625,11 @@
         <span class="p">)</span> <span class="o">=</span> <span class="n">acquire_params_from_derivative_1</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">derivative</span><span class="p">,</span> <span class="n">log_moneyness</span><span class="p">,</span> <span class="n">time_to_maturity</span><span class="p">,</span> <span class="n">volatility</span>
         <span class="p">)</span>
-        <span class="c1"># TODO: Directly compute theta.</span>
-        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">theta</span><span class="p">(</span>
+        <span class="k">return</span> <span class="n">bs_european_binary_theta</span><span class="p">(</span>
             <span class="n">log_moneyness</span><span class="o">=</span><span class="n">log_moneyness</span><span class="p">,</span>
             <span class="n">time_to_maturity</span><span class="o">=</span><span class="n">time_to_maturity</span><span class="p">,</span>
             <span class="n">volatility</span><span class="o">=</span><span class="n">volatility</span><span class="p">,</span>
+            <span class="n">call</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">,</span>
             <span class="n">strike</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">strike</span><span class="p">,</span>
         <span class="p">)</span></div>
 

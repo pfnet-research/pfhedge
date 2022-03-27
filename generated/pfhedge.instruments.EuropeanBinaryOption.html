@@ -384,7 +384,7 @@ represented.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">BrownianStock</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">EuropeanBinaryOption</span>
-<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">...</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span> <span class="o">=</span> <span class="n">EuropeanBinaryOption</span><span class="p">(</span><span class="n">BrownianStock</span><span class="p">(),</span> <span class="n">maturity</span><span class="o">=</span><span class="mi">5</span><span class="o">/</span><span class="mi">250</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">derivative</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">n_paths</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
@@ -401,14 +401,14 @@ represented.</p>
 <dd><p>Make self a listed derivative.</p>
 <p>After this method self will be a exchange-traded derivative which can be transacted
 at any time with the spot price given by <code class="docutils literal notranslate"><span class="pre">self.spot</span></code>.</p>
-<p>See an example in <a class="reference internal" href="pfhedge.instruments.EuropeanOption.html#pfhedge.instruments.EuropeanOption" title="pfhedge.instruments.EuropeanOption"><code class="xref py py-class docutils literal notranslate"><span class="pre">EuropeanOption</span></code></a> for a usage.derivative
-:param pricer: A function that takes self</p>
-<blockquote>
-<div><p>and returns the spot price tensor of self.</p>
-</div></blockquote>
+<p>See an example in <a class="reference internal" href="pfhedge.instruments.EuropeanOption.html#pfhedge.instruments.EuropeanOption" title="pfhedge.instruments.EuropeanOption"><code class="xref py py-class docutils literal notranslate"><span class="pre">EuropeanOption</span></code></a> for a usage.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>cost</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – The transaction cost rate.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pricer</strong> (<em>Callable</em><em>[</em><em>[</em><a class="reference internal" href="pfhedge.instruments.BaseDerivative.html#pfhedge.instruments.BaseDerivative" title="pfhedge.instruments.BaseDerivative"><em>BaseDerivative</em></a><em>]</em><em>, </em><em>Tensor</em><em>]</em><em>]</em>) – A function that takes self
+and returns the spot price tensor of self.</p></li>
+<li><p><strong>cost</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – The transaction cost rate.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
