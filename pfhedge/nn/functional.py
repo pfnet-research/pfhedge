@@ -704,9 +704,9 @@ def bilerp(
 
 
 def _bs_theta_gamma_relation(gamma: Tensor, spot: Tensor, volatility: Tensor) -> Tensor:
-    # theta = (1/2) * vola^2 * spot^2 * gamma
+    # theta = -(1/2) * vola^2 * spot^2 * gamma
     # by Black-Scholes formula
-    return gamma * volatility.square() * spot.square() / 2
+    return -gamma * volatility.square() * spot.square() / 2
 
 
 def _bs_vega_gamma_relation(
@@ -859,6 +859,7 @@ def bs_european_binary_gamma(
     log_moneyness: Tensor,
     time_to_maturity: Tensor,
     volatility: Tensor,
+    call: bool = True,
     strike: TensorOrScalar = 1.0,
 ) -> Tensor:
     """Returns Black-Scholes gamma of a European binary option.
@@ -871,13 +872,18 @@ def bs_european_binary_gamma(
     d2_tensor = d2(s, t, v)
     w = volatility * time_to_maturity.square()
 
-    return -npdf(d2_tensor).div(w * spot.square()) * (1 + d2_tensor.div(w))
+    gamma = -npdf(d2_tensor).div(w * spot.square()) * (1 + d2_tensor.div(w))
+
+    gamma = -gamma if not call else gamma  # put-call parity
+
+    return gamma
 
 
 def bs_european_binary_vega(
     log_moneyness: Tensor,
     time_to_maturity: Tensor,
     volatility: Tensor,
+    call: bool = True,
     strike: TensorOrScalar = 1.0,
 ) -> Tensor:
     """Returns Black-Scholes vega of a European binary option.
@@ -888,6 +894,7 @@ def bs_european_binary_vega(
         log_moneyness=log_moneyness,
         time_to_maturity=time_to_maturity,
         volatility=volatility,
+        call=call,
         strike=strike,
     )
     spot = log_moneyness.exp() * strike
@@ -900,6 +907,7 @@ def bs_european_binary_theta(
     log_moneyness: Tensor,
     time_to_maturity: Tensor,
     volatility: Tensor,
+    call: bool = True,
     strike: TensorOrScalar = 1.0,
 ) -> Tensor:
     """Returns Black-Scholes theta of a European binary option.
@@ -910,6 +918,7 @@ def bs_european_binary_theta(
         log_moneyness=log_moneyness,
         time_to_maturity=time_to_maturity,
         volatility=volatility,
+        call=call,
         strike=strike,
     )
     spot = log_moneyness.exp() * strike
