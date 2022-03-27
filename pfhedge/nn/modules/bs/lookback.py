@@ -268,7 +268,7 @@ class BSLookbackOption(BSModuleMixin):
             torch.Tensor
 
         Note:
-            args are not optional if it doesn't accept derivative in this initialization.
+            Arguments are not optional if it doesn't accept derivative in this initialization.
         """
         (
             log_moneyness,
@@ -319,7 +319,7 @@ class BSLookbackOption(BSModuleMixin):
             torch.Tensor
 
         Note:
-            args are not optional if it doesn't accept derivative in this initialization.
+            - Arguments are not optional if it doesn't accept derivative in this initialization.
         """
         (
             log_moneyness,
@@ -366,14 +366,12 @@ class BSLookbackOption(BSModuleMixin):
             - volatility: :math:`(N, *)`
             - output: :math:`(N, *)`
 
-        Note:
-            Risk-free rate is set to zero.
-
         Returns:
             torch.Tensor
 
         Note:
-            args are not optional if it doesn't accept derivative in this initialization.
+            - Risk-free rate is set to zero.
+            - Arguments are not optional if it doesn't accept derivative in this initialization.
         """
         (
             log_moneyness,
@@ -424,9 +422,9 @@ class BSLookbackOption(BSModuleMixin):
             torch.Tensor
 
         Note:
-            args are not optional if it doesn't accept derivative in this initialization.
-            price seems optional in typing, but it isn't. It is set for the compatibility to the previous versions.
+            - Arguments are not optional if it doesn't accept derivative in this initialization.
         """
+        # price seems optional in typing, but it isn't. It is set for the compatibility to the previous versions.
         (log_moneyness, time_to_maturity) = acquire_params_from_derivative_0(
             self.derivative, log_moneyness, time_to_maturity
         )
