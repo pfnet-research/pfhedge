@@ -56,7 +56,7 @@ class EuropeanBinaryOption(BaseDerivative, OptionMixin):
         >>> import torch
         >>> from pfhedge.instruments import BrownianStock
         >>> from pfhedge.instruments import EuropeanBinaryOption
-        >>>
+        ...
         >>> _ = torch.manual_seed(42)
         >>> derivative = EuropeanBinaryOption(BrownianStock(), maturity=5/250)
         >>> derivative.simulate(n_paths=2)
