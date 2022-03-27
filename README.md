@@ -218,10 +218,14 @@ The input/output shapes is `(N, H_in) -> (N, 1)`, where `N` is the number of Mon
 Here we show an example of **No-Transaction Band Network**, which is proposed in [Imaki *et al.* 21][ntb-network-arxiv].
 
 ```py
+import torch
 import torch.nn.functional as fn
+from torch import Tensor
 from torch.nn import Module
+
 from pfhedge.nn import BlackScholes
 from pfhedge.nn import Clamp
+from pfhedge.nn import Hedger
 from pfhedge.nn import MultiLayerPerceptron
 
 
@@ -237,18 +241,18 @@ class NoTransactionBandNet(Module):
         return self.delta.inputs() + ["prev_hedge"]
 
     def forward(self, input: Tensor) -> Tensor:
-        prev_hedge = input[:, [-1]]
+        prev_hedge = input[..., [-1]]
 
-        delta = self.delta(input[:, :-1]).reshape(-1, 1)
-        width = self.mlp(input[:, :-1])
+        delta = self.delta(input[..., :-1])
+        width = self.mlp(input[..., :-1])
 
-        min = delta - fn.leaky_relu(width[:, [0]])
-        max = delta + fn.leaky_relu(width[:, [1]])
+        min = delta - fn.leaky_relu(width[..., [0]])
+        max = delta + fn.leaky_relu(width[..., [1]])
 
         return self.clamp(prev_hedge, min=min, max=max)
 
 
-model = NoTransactionBandNet()
+model = NoTransactionBandNet(derivative)
 hedger = Hedger(model, inputs=model.inputs())
 ```
 
