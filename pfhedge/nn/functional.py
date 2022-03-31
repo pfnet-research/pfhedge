@@ -426,25 +426,28 @@ def pl(
     deduct_first_cost: bool = True,
     deduct_final_cost: bool = False,
 ) -> Tensor:
-    r"""Returns the terminal portfolio value.
+    r"""Returns the final profit and loss of hedging.
 
-    The terminal value of a hedger's portfolio is given by
+    For
+    hedging instruments indexed by :math:`h = 1, \dots, H` and
+    time steps :math:`i = 1, \dots, T`,
+    the final profit and loss is given by
 
     .. math::
         \text{PL}(Z, \delta, S) =
             - Z
-            + \sum_{h = 1}^{H} \sum_{i = 0}^{T - 1} \left[
-                    \delta^{(h)}_{i - 1} (S^{(h)}_{i} - S^{(h)}_{i - 1})
-                    - c^{(h)} |\delta^{(h)}_{i} - \delta^{(h)}_{i - 1}| S^{(h)}_{i}
-                \right]
+            + \sum_{h = 1}^{H} \sum_{t = 1}^{T} \left[
+                    \delta^{(h)}_{t - 1} (S^{(h)}_{t} - S^{(h)}_{t - 1})
+                    - c^{(h)} |\delta^{(h)}_{t} - \delta^{(h)}_{t - 1}| S^{(h)}_{t}
+                \right] ,
 
     where
-    :math:`Z` is the payoff of the derivative,
-    :math:`T` is the number of time steps,
-    :math:`S = \{S_i ; i = 0, \dots, T\}` is the spot price,
-    :math:`\delta = \{\delta_i ; i = 0, \dots, T\}` is the number of shares
+    :math:`Z` is the payoff of the derivative.
+    For each hedging instrument,
+    :math:`\{S^{(h)}_t ; t = 1, \dots, T\}` is the spot price,
+    :math:`\{\delta^{(h)}_t ; t = 1, \dots, T\}` is the number of shares
     held at each time step.
-    We define :math:`\delta_0 = 0` for notational convenience.
+    We define :math:`\delta^{(h)}_0 = 0` for notational convenience.
 
     A hedger sells the derivative to its customer and
     obliges to settle the payoff at maturity.
@@ -473,8 +476,8 @@ def pl(
     Shape:
         - spot: :math:`(N, H, T)` where
           :math:`N` is the number of paths,
-          :math:`T` is the number of time steps, and
-          :math:`H` is the number of hedging instruments.
+          :math:`H` is the number of hedging instruments, and
+          :math:`T` is the number of time steps.
         - unit: :math:`(N, H, T)`
         - payoff: :math:`(N)`
         - output: :math:`(N)`.
@@ -499,21 +502,10 @@ def pl(
         output -= payoff
 
     if cost is not None:
-        cost_tensor = torch.tensor(cost).unsqueeze(0).unsqueeze(-1)
-        output -= (
-            spot[..., 1:]
-            .mul(unit.diff(dim=-1).abs())
-            .mul(cost_tensor)
-            .sum(dim=(-2, -1))
-        )
-        # output -= unit.diff(dim=-1).abs().mul(spot[..., 1:]).mul(cost_tensor).sum(dim=(-2, -1))
+        c = torch.tensor(cost).unsqueeze(0).unsqueeze(-1)
+        output -= (spot[..., 1:] * unit.diff(dim=-1).abs() * c).sum(dim=(-2, -1))
         if deduct_first_cost:
-            output -= (
-                spot[..., [0]]
-                .mul(unit[..., [0]].abs())
-                .mul(cost_tensor)
-                .sum(dim=(-2, -1))
-            )
+            output -= (spot[..., [0]] * unit[..., [0]].abs() * c).sum(dim=(-2, -1))
 
     return output
 

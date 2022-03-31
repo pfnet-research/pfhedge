@@ -12,9 +12,9 @@ from pfhedge.nn.functional import d2
 from pfhedge.nn.functional import exp_utility
 from pfhedge.nn.functional import expected_shortfall
 from pfhedge.nn.functional import leaky_clamp
+from pfhedge.nn.functional import pl
 from pfhedge.nn.functional import realized_variance
 from pfhedge.nn.functional import realized_volatility
-from pfhedge.nn.functional import pl
 from pfhedge.nn.functional import topp
 from pfhedge.nn.functional import value_at_risk
 
