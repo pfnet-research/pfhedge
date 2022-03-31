@@ -142,7 +142,8 @@ class BaseDerivative(BaseInstrument):
         After this method self will be a exchange-traded derivative which can be transacted
         at any time with the spot price given by ``self.spot``.
 
-        See an example in :class:`EuropeanOption` for a usage.derivative
+        See an example in :class:`EuropeanOption` for a usage.
+
         Args:
             pricer (Callable[[BaseDerivative], Tensor]]): A function that takes self
                 and returns the spot price tensor of self.

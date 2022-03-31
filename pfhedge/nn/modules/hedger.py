@@ -338,7 +338,7 @@ class Hedger(Module):
                 If ``None`` (default), use ``derivative.underlier``.
 
         Shape:
-            - Output: :math:`(N)` where :math:`N` is the number of paths.
+            - output: :math:`(N)` where :math:`N` is the number of paths.
 
         Returns:
             torch.Tensor

@@ -737,9 +737,9 @@ def bilerp(
 
 
 def _bs_theta_gamma_relation(gamma: Tensor, spot: Tensor, volatility: Tensor) -> Tensor:
-    # theta = (1/2) * vola^2 * spot^2 * gamma
+    # theta = -(1/2) * vola^2 * spot^2 * gamma
     # by Black-Scholes formula
-    return gamma * volatility.square() * spot.square() / 2
+    return -gamma * volatility.square() * spot.square() / 2
 
 
 def _bs_vega_gamma_relation(
@@ -760,7 +760,29 @@ def bs_european_price(
 ) -> Tensor:
     """Returns Black-Scholes price of a European option.
 
-    See :func:`pfhedge.nn.BSEuropeanOption.price` for details.
+    .. seealso::
+        - :func:`pfhedge.nn.BSEuropeanOption.price`
+
+    Args:
+        log_moneyness (torch.Tensor, optional): Log moneyness of the underlying asset.
+        time_to_maturity (torch.Tensor, optional): Time to expiry of the option.
+        volatility (torch.Tensor, optional): Volatility of the underlying asset.
+
+    Shape:
+        - log_moneyness: :math:`(N, *)` where
+          :math:`*` means any number of additional dimensions.
+        - time_to_maturity: :math:`(N, *)`
+        - volatility: :math:`(N, *)`
+        - output: :math:`(N, *)`
+
+    Returns:
+        torch.Tensor
+
+    Examples:
+        >>> from pfhedge.nn.functional import bs_european_price
+        ...
+        >>> bs_european_price(torch.tensor([-0.1, 0.0, 0.1]), 1.0, 0.2)
+        tensor([0.0375, 0.0797, 0.1467])
     """
     s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
 
@@ -779,7 +801,29 @@ def bs_european_delta(
 ) -> Tensor:
     """Returns Black-Scholes delta of a European option.
 
-    See :func:`pfhedge.nn.BSEuropeanOption.delta` for details.
+    .. seealso::
+        - :func:`pfhedge.nn.BSEuropeanOption.delta`
+
+    Args:
+        log_moneyness (torch.Tensor, optional): Log moneyness of the underlying asset.
+        time_to_maturity (torch.Tensor, optional): Time to expiry of the option.
+        volatility (torch.Tensor, optional): Volatility of the underlying asset.
+
+    Shape:
+        - log_moneyness: :math:`(N, *)` where
+          :math:`*` means any number of additional dimensions.
+        - time_to_maturity: :math:`(N, *)`
+        - volatility: :math:`(N, *)`
+        - output: :math:`(N, *)`
+
+    Returns:
+        torch.Tensor
+
+    Examples:
+        >>> from pfhedge.nn.functional import bs_european_delta
+        ...
+        >>> bs_european_delta(torch.tensor([-0.1, 0.0, 0.1]), 1.0, 0.2)
+        tensor([0.3446, 0.5398, 0.7257])
     """
     s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
 
@@ -797,7 +841,29 @@ def bs_european_gamma(
 ) -> Tensor:
     """Returns Black-Scholes gamma of a European option.
 
-    See :func:`pfhedge.nn.BSEuropeanOption.gamma` for details.
+    .. seealso::
+        - :func:`pfhedge.nn.BSEuropeanOption.gamma`
+
+    Args:
+        log_moneyness (torch.Tensor, optional): Log moneyness of the underlying asset.
+        time_to_maturity (torch.Tensor, optional): Time to expiry of the option.
+        volatility (torch.Tensor, optional): Volatility of the underlying asset.
+
+    Shape:
+        - log_moneyness: :math:`(N, *)` where
+          :math:`*` means any number of additional dimensions.
+        - time_to_maturity: :math:`(N, *)`
+        - volatility: :math:`(N, *)`
+        - output: :math:`(N, *)`
+
+    Returns:
+        torch.Tensor
+
+    Examples:
+        >>> from pfhedge.nn.functional import bs_european_gamma
+        ...
+        >>> bs_european_gamma(torch.tensor([-0.1, 0.0, 0.1]), 1.0, 0.2)
+        tensor([2.0350, 1.9848, 1.5076])
     """
     s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
     spot = strike * s.exp()
@@ -892,6 +958,7 @@ def bs_european_binary_gamma(
     log_moneyness: Tensor,
     time_to_maturity: Tensor,
     volatility: Tensor,
+    call: bool = True,
     strike: TensorOrScalar = 1.0,
 ) -> Tensor:
     """Returns Black-Scholes gamma of a European binary option.
@@ -904,13 +971,18 @@ def bs_european_binary_gamma(
     d2_tensor = d2(s, t, v)
     w = volatility * time_to_maturity.square()
 
-    return -npdf(d2_tensor).div(w * spot.square()) * (1 + d2_tensor.div(w))
+    gamma = -npdf(d2_tensor).div(w * spot.square()) * (1 + d2_tensor.div(w))
+
+    gamma = -gamma if not call else gamma  # put-call parity
+
+    return gamma
 
 
 def bs_european_binary_vega(
     log_moneyness: Tensor,
     time_to_maturity: Tensor,
     volatility: Tensor,
+    call: bool = True,
     strike: TensorOrScalar = 1.0,
 ) -> Tensor:
     """Returns Black-Scholes vega of a European binary option.
@@ -921,6 +993,7 @@ def bs_european_binary_vega(
         log_moneyness=log_moneyness,
         time_to_maturity=time_to_maturity,
         volatility=volatility,
+        call=call,
         strike=strike,
     )
     spot = log_moneyness.exp() * strike
@@ -933,6 +1006,7 @@ def bs_european_binary_theta(
     log_moneyness: Tensor,
     time_to_maturity: Tensor,
     volatility: Tensor,
+    call: bool = True,
     strike: TensorOrScalar = 1.0,
 ) -> Tensor:
     """Returns Black-Scholes theta of a European binary option.
@@ -943,6 +1017,7 @@ def bs_european_binary_theta(
         log_moneyness=log_moneyness,
         time_to_maturity=time_to_maturity,
         volatility=volatility,
+        call=call,
         strike=strike,
     )
     spot = log_moneyness.exp() * strike
