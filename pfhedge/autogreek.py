@@ -261,8 +261,7 @@ def theta(
 ) -> Tensor:
     """Computes and returns theta of a derivative using automatic differentiation.
 
-    Theta is a differentiation of a derivative price with respect to
-    a variance of underlying instrument.
+    Theta is a differentiation of a derivative price with respect to time.
 
     Note:
         The keyword argument ``**params`` should contain at least one of the
@@ -285,7 +284,7 @@ def theta(
 
         >>> import pfhedge.autogreek as autogreek
         >>> from pfhedge.nn import BSEuropeanOption
-        >>>
+        ...
         >>> pricer = BSEuropeanOption().price
         >>> autogreek.theta(
         ...     pricer,

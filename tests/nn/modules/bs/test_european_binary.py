@@ -2,6 +2,7 @@ import pytest
 import torch
 from torch.testing import assert_close
 
+import pfhedge.autogreek as autogreek
 from pfhedge.features._getter import get_feature
 from pfhedge.instruments import BrownianStock
 from pfhedge.instruments import EuropeanBinaryOption
@@ -171,18 +172,36 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
         expect = d.payoff().mean(0, keepdim=True)
         assert_close(result, expect, rtol=1e-2, atol=0.0)
 
-    def test_forward(self):
-        m = BSEuropeanBinaryOption()
-        input = torch.tensor([[0.0, 0.1, 0.2]])
-        result = m(input)
-        expect = torch.full_like(result, 6.3047)
-        assert_close(result, expect, atol=1e-4, rtol=1e-4)
+    @pytest.mark.parametrize("call", [True, False])
+    def test_autogreek(self, call):
+        m = BSEuropeanBinaryOption(call=call)
+        s = torch.linspace(-0.5, 0.5, 10)
+        t = torch.full_like(s, 1.0)
+        v = torch.full_like(s, 0.2)
 
-    def test_delta(self):
-        m = BSEuropeanBinaryOption()
-        result = m.delta(torch.tensor(0.0), torch.tensor(0.1), torch.tensor(0.2))
-        expect = torch.tensor(6.3047)
-        assert_close(result, expect, atol=1e-4, rtol=1e-4)
+        result = m.delta(s, t, v)
+        expect = autogreek.delta(
+            m.price, log_moneyness=s, time_to_maturity=t, volatility=v, strike=1.0
+        )
+        assert_close(result, expect, atol=0, rtol=1e-4)
+
+        result = m.gamma(s, t, v)
+        expect = autogreek.gamma(
+            m.price, log_moneyness=s, time_to_maturity=t, volatility=v, strike=1.0
+        )
+        assert_close(result, expect, atol=0, rtol=1e-4)
+
+        result = m.vega(s, t, v)
+        expect = autogreek.vega(
+            m.price, log_moneyness=s, time_to_maturity=t, volatility=v, strike=1.0
+        )
+        assert_close(result, expect, atol=0, rtol=1e-4)
+
+        result = m.theta(s, t, v)
+        expect = autogreek.theta(
+            m.price, log_moneyness=s, time_to_maturity=t, volatility=v, strike=1.0
+        )
+        assert_close(result, expect, atol=0, rtol=1e-4)
 
     @pytest.mark.parametrize("call", [True, False])
     def test_delta_2(self, call: bool):
@@ -256,7 +275,7 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
         assert_close(result, expect)
 
     @pytest.mark.parametrize("call", [True, False])
-    def test_gamma_2(self, call: bool):
+    def test_gamma_valueerror(self, call: bool):
         m = BSEuropeanBinaryOption(call=call)
         with pytest.raises(ValueError):
             m.gamma(torch.tensor(0.0), torch.tensor(-1.0), torch.tensor(0.2))
@@ -306,14 +325,8 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
         with pytest.raises(ValueError):
             m2.gamma(derivative.log_moneyness(), derivative.time_to_maturity(), None)
 
-    def test_vega(self):
-        m = BSEuropeanBinaryOption()
-        result = m.vega(torch.tensor(0.0), torch.tensor(0.1), torch.tensor(0.2))
-        expect = torch.tensor(-0.06305)
-        assert_close(result, expect, atol=1e-4, rtol=1e-4)
-
     @pytest.mark.parametrize("call", [True, False])
-    def test_vega_2(self, call: bool):
+    def test_vega_valueerror(self, call: bool):
         m = BSEuropeanBinaryOption(call=call)
         with pytest.raises(ValueError):
             m.vega(torch.tensor(0.0), torch.tensor(-1.0), torch.tensor(0.2))
@@ -380,24 +393,14 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
         derivative.simulate(n_paths=1)
         vega = m.vega()
         gamma = m.gamma()
-        # ToDo: [..., :-1] should be removed
-        assert_close(
-            vega[..., :-1],
-            (
-                derivative.underlier.spot.square()
-                * derivative.underlier.volatility
-                * derivative.time_to_maturity()
-                * gamma
-            )[..., :-1],
-            atol=1e-3,
-            rtol=0,
-        )
-
-    def test_theta(self):
-        m = BSEuropeanBinaryOption()
-        result = m.theta(torch.tensor(0.0), torch.tensor(0.1), torch.tensor(0.2))
-        expect = torch.tensor(0.0630)
-        assert_close(result, expect, atol=1e-4, rtol=1e-4)
+        result = vega[..., :-1]
+        expect = (
+            derivative.underlier.spot.square()
+            * derivative.underlier.volatility
+            * derivative.time_to_maturity()
+            * gamma
+        )[..., :-1]
+        assert_close(result, expect, atol=0, rtol=1e-4)
 
     @pytest.mark.parametrize("call", [True, False])
     def test_theta_2(self, call: bool):
