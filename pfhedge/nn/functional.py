@@ -727,7 +727,29 @@ def bs_european_price(
 ) -> Tensor:
     """Returns Black-Scholes price of a European option.
 
-    See :func:`pfhedge.nn.BSEuropeanOption.price` for details.
+    .. seealso::
+        - :func:`pfhedge.nn.BSEuropeanOption.price`
+
+    Args:
+        log_moneyness (torch.Tensor, optional): Log moneyness of the underlying asset.
+        time_to_maturity (torch.Tensor, optional): Time to expiry of the option.
+        volatility (torch.Tensor, optional): Volatility of the underlying asset.
+
+    Shape:
+        - log_moneyness: :math:`(N, *)` where
+          :math:`*` means any number of additional dimensions.
+        - time_to_maturity: :math:`(N, *)`
+        - volatility: :math:`(N, *)`
+        - output: :math:`(N, *)`
+
+    Returns:
+        torch.Tensor
+
+    Examples:
+        >>> from pfhedge.nn.functional import bs_european_price
+        ...
+        >>> bs_european_price(torch.tensor([-0.1, 0.0, 0.1]), 1.0, 0.2)
+        tensor([0.0375, 0.0797, 0.1467])
     """
     s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
 
@@ -746,7 +768,29 @@ def bs_european_delta(
 ) -> Tensor:
     """Returns Black-Scholes delta of a European option.
 
-    See :func:`pfhedge.nn.BSEuropeanOption.delta` for details.
+    .. seealso::
+        - :func:`pfhedge.nn.BSEuropeanOption.delta`
+
+    Args:
+        log_moneyness (torch.Tensor, optional): Log moneyness of the underlying asset.
+        time_to_maturity (torch.Tensor, optional): Time to expiry of the option.
+        volatility (torch.Tensor, optional): Volatility of the underlying asset.
+
+    Shape:
+        - log_moneyness: :math:`(N, *)` where
+          :math:`*` means any number of additional dimensions.
+        - time_to_maturity: :math:`(N, *)`
+        - volatility: :math:`(N, *)`
+        - output: :math:`(N, *)`
+
+    Returns:
+        torch.Tensor
+
+    Examples:
+        >>> from pfhedge.nn.functional import bs_european_delta
+        ...
+        >>> bs_european_delta(torch.tensor([-0.1, 0.0, 0.1]), 1.0, 0.2)
+        tensor([0.3446, 0.5398, 0.7257])
     """
     s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
 
@@ -764,7 +808,29 @@ def bs_european_gamma(
 ) -> Tensor:
     """Returns Black-Scholes gamma of a European option.
 
-    See :func:`pfhedge.nn.BSEuropeanOption.gamma` for details.
+    .. seealso::
+        - :func:`pfhedge.nn.BSEuropeanOption.gamma`
+
+    Args:
+        log_moneyness (torch.Tensor, optional): Log moneyness of the underlying asset.
+        time_to_maturity (torch.Tensor, optional): Time to expiry of the option.
+        volatility (torch.Tensor, optional): Volatility of the underlying asset.
+
+    Shape:
+        - log_moneyness: :math:`(N, *)` where
+          :math:`*` means any number of additional dimensions.
+        - time_to_maturity: :math:`(N, *)`
+        - volatility: :math:`(N, *)`
+        - output: :math:`(N, *)`
+
+    Returns:
+        torch.Tensor
+
+    Examples:
+        >>> from pfhedge.nn.functional import bs_european_gamma
+        ...
+        >>> bs_european_gamma(torch.tensor([-0.1, 0.0, 0.1]), 1.0, 0.2)
+        tensor([2.0350, 1.9848, 1.5076])
     """
     s, t, v = broadcast_all(log_moneyness, time_to_maturity, volatility)
     spot = strike * s.exp()
