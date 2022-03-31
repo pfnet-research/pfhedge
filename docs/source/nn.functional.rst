@@ -110,6 +110,7 @@ Other Functions
     d2
     ncdf
     npdf
+    pl
     realized_variance
     realized_volatility
     svi_variance

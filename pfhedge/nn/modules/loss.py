@@ -47,7 +47,7 @@ class HedgeLoss(Module, ABC):
 
         .. code::
 
-            loss(torch.full_like(pnl, cash)) = loss(pnl)
+            loss(torch.full_like(pl, cash)) = loss(pl)
 
         By default, the output is computed by binary search.
         If analytic form is known, it is recommended to override this method
@@ -76,11 +76,11 @@ class EntropicRiskMeasure(HedgeLoss):
     the entropic risk measure.
 
     The entropic risk measure of the profit-loss distribution
-    :math:`\text{pnl}` is given by:
+    :math:`\text{pl}` is given by:
 
     .. math::
-        \text{loss}(\text{pnl}) = \frac{1}{a}
-        \log(- \mathbf{E}[u(\text{pnl})]) \,,
+        \text{loss}(\text{PL}) = \frac{1}{a}
+        \log(- \mathbf{E}[u(\text{PL})]) \,,
         \quad
         u(x) = -\exp(-a x) \,.
 
@@ -130,10 +130,10 @@ class EntropicRiskMeasure(HedgeLoss):
 class EntropicLoss(HedgeLoss):
     r"""Creates a criterion that measures the expected exponential utility.
 
-    The loss of the profit-loss :math:`\text{pnl}` is given by:
+    The loss of the profit-loss :math:`\text{PL}` is given by:
 
     .. math::
-        \text{loss}(\text{pnl}) = -\mathbf{E}[u(\text{pnl})] \,,
+        \text{loss}(\text{PL}) = -\mathbf{E}[u(\text{PL})] \,,
         \quad
         u(x) = -\exp(-a x) \,.
 
@@ -182,10 +182,10 @@ class EntropicLoss(HedgeLoss):
 class IsoelasticLoss(HedgeLoss):
     r"""Creates a criterion that measures the expected isoelastic utility.
 
-    The loss of the profit-loss :math:`\text{pnl}` is given by:
+    The loss of the profit-loss :math:`\text{PL}` is given by:
 
     .. math::
-        \text{loss}(\text{pnl}) = -\mathbf{E}[u(\text{pnl})] \,,
+        \text{loss}(\text{PL}) = -\mathbf{E}[u(\text{PL})] \,,
         \quad
         u(x) = \begin{cases}
         x^{1 - a} & a \neq 1 \\
@@ -217,7 +217,7 @@ class IsoelasticLoss(HedgeLoss):
         tensor(2.3610)
 
         >>> loss = IsoelasticLoss(1.0)
-        >>> pnl = torch.arange(1.0, 5.0)
+        >>> pl = torch.arange(1.0, 5.0)
         >>> loss(input)
         tensor(-0.7945)
         >>> loss.cash(input)
@@ -308,10 +308,10 @@ class OCE(HedgeLoss):
         ...
         >>> _ = torch.manual_seed(42)
         >>> m = OCE(lambda x: 1 - (-x).exp())
-        >>> pnl = torch.randn(10)
-        >>> m(pnl)
+        >>> pl = torch.randn(10)
+        >>> m(pl)
         tensor(0.0855, grad_fn=<SubBackward0>)
-        >>> m.cash(pnl)
+        >>> m.cash(pl)
         tensor(-0.0821)
     """
 

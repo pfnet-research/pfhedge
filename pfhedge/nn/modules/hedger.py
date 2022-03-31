@@ -24,7 +24,7 @@ from pfhedge.features import FeatureList
 from pfhedge.features._base import Feature
 from pfhedge.instruments.base import BaseInstrument
 from pfhedge.instruments.derivative.base import BaseDerivative
-from pfhedge.nn.functional import terminal_value
+from pfhedge.nn.functional import pl
 
 from .loss import EntropicRiskMeasure
 from .loss import HedgeLoss
@@ -110,7 +110,8 @@ class Hedger(Module):
         >>>
         >>> model = MultiLayerPerceptron()
         >>> hedger = Hedger(model, ["moneyness", "time_to_maturity", "volatility"])
-        >>> _ = hedger.compute_pnl(derivative, n_paths=1)  # Lazily materialize
+        >>> derivative.simulate(n_paths=1)
+        >>> _ = hedger.compute_pl(derivative)  # Lazily materialize
         >>> hedger
         Hedger(
           inputs=['moneyness', 'time_to_maturity', 'volatility']
@@ -256,15 +257,16 @@ class Hedger(Module):
         self, derivative: BaseDerivative, hedge: Optional[List[BaseInstrument]] = None
     ) -> Tensor:
         """Compute the hedge ratio at each time step.
-        It assumes that the derivative is already simulated.
+
+        This method assumes that the derivative is already simulated.
 
         Args:
             derivative (BaseDerivative): The derivative to hedge.
-            hedge (BaseInstrument, optional): The hedging instrument.
-                If ``None`` (default), use ``derivative.underlier``.
+            hedge (list[BaseInstrument], optional): The hedging instruments.
+                If ``None`` (default), use ``derivative.underliers``.
 
         Shape:
-            - Output: :math:`(N, H, T)` where
+            - output: :math:`(N, H, T)` where
               :math:`N` is the number of paths,
               :math:`H` is the number of hedging instruments, and
               :math:`T` is the number of time steps.
@@ -325,8 +327,7 @@ class Hedger(Module):
     ) -> Tensor:
         r"""Compute terminal value of the hedging portfolio.
 
-        See :func:`pfhedge.nn.functional.terminal_value`,
-        with :math:`Z` being substituted with 0,
+        See :func:`pfhedge.nn.functional.pl`, with :math:`Z` being substituted with 0,
         for the expression of the terminal value of the hedging portfolio.
 
         This method assumes that the derivative is already simulated.
@@ -337,34 +338,25 @@ class Hedger(Module):
                 If ``None`` (default), use ``derivative.underlier``.
 
         Shape:
-            - Output: :math:`(N, T)` where
-              :math:`N` is the number of paths and
-              :math:`T` is the number of time steps.
+            - output: :math:`(N)` where :math:`N` is the number of paths.
 
         Returns:
             torch.Tensor
         """
         hedge = self._get_hedge(derivative, hedge)
 
+        spot = torch.stack([h.spot for h in hedge], dim=1)
         unit = self.compute_hedge(derivative, hedge=hedge)
+        cost = [h.cost for h in hedge]
 
-        output = torch.zeros(unit.size(0))
-        for i, h in enumerate(hedge):
-            output += terminal_value(h.spot, unit=unit[:, i, :], cost=h.cost)
+        return pl(spot=spot, unit=unit, cost=cost)
 
-        return output
-
-    def compute_pnl(
-        self,
-        derivative: BaseDerivative,
-        hedge: Optional[List[BaseInstrument]] = None,
-        n_paths: int = 1000,
-        init_state: Optional[Tuple[TensorOrScalar, ...]] = None,
+    def compute_pl(
+        self, derivative: BaseDerivative, hedge: Optional[List[BaseInstrument]] = None
     ) -> Tensor:
         """Returns the terminal portfolio value after hedging a given derivative.
 
-        This method simulates the derivative, computes the hedge ratio, and
-        computes the terminal portfolio value.
+        This method assumes that the derivative is already simulated.
 
         See :func:`pfhedge.nn.functional.terminal_value` for the expression of the
         terminal portfolio value after hedging a derivative.
@@ -393,13 +385,31 @@ class Hedger(Module):
             >>> from pfhedge.nn import Hedger
             ...
             >>> derivative = EuropeanOption(BrownianStock())
+            >>> derivative.simulate(n_paths=2)
             >>> model = BlackScholes(derivative)
             >>> hedger = Hedger(model, model.inputs())
-            >>> hedger.compute_pnl(derivative, n_paths=2)
+            >>> hedger.compute_pl(derivative)
             tensor([..., ...])
         """
+        hedge = self._get_hedge(derivative, hedge)
+
+        spot = torch.stack([h.spot for h in hedge], dim=1)
+        unit = self.compute_hedge(derivative, hedge=hedge)
+        cost = [h.cost for h in hedge]
+
+        return pl(spot=spot, unit=unit, cost=cost, payoff=derivative.payoff())
+
+    def compute_pnl(
+        self,
+        derivative: BaseDerivative,
+        hedge: Optional[List[BaseInstrument]] = None,
+        n_paths: int = 1000,
+        init_state: Optional[Tuple[TensorOrScalar, ...]] = None,
+    ) -> Tensor:
+        """(deprecated) Simulates derivative and computes profit loss by :meth:`compute_pl`."""
+        # TODO(simaki): Raise DeprecationWarning later
         derivative.simulate(n_paths=n_paths, init_state=init_state)
-        return -derivative.payoff() + self.compute_portfolio(derivative, hedge=hedge)
+        return self.compute_pl(derivative=derivative, hedge=hedge)
 
     def compute_loss(
         self,
@@ -413,8 +423,8 @@ class Hedger(Module):
         """Returns the value of the criterion for the terminal portfolio value
         after hedging a given derivative.
 
-        This method basically computes ``self.criterion(pnl)``
-        where ``pnl`` is given by :meth:`compute_pnl`.
+        This method basically computes ``self.criterion(pl)``
+        where ``pl`` is given by :meth:`compute_pl`.
 
         Args:
             derivative (BaseDerivative): The derivative to hedge.
@@ -483,7 +493,8 @@ class Hedger(Module):
         if not isinstance(optimizer, Optimizer):
             if has_lazy(self):
                 # Run a placeholder forward to initialize lazy parameters
-                _ = self.compute_pnl(derivative, n_paths=1)
+                derivative.simulate(n_paths=1)
+                _ = self.compute_pl(derivative)
             # If we use `if issubclass(optimizer, Optimizer)` here, mypy thinks that
             # optimizer is Optimizer rather than its subclass (e.g. Adam)
             # and complains that the required parameter default is missing.
@@ -508,8 +519,8 @@ class Hedger(Module):
     ) -> Optional[List[float]]:
         """Fit the hedging model to hedge a given derivative.
 
-        The training is performed so that the hedger minimizes ``criterion(pnl)``
-        where ``pnl`` is given by :meth:`compute_pnl`.
+        The training is performed so that the hedger minimizes ``criterion(pl)``
+        where ``pl`` is given by :meth:`compute_pl`.
 
         It returns the training history, that is,
         validation loss after each simulation.

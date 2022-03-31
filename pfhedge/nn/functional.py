@@ -1,5 +1,6 @@
 from math import ceil
 from math import pi as kPI
+from typing import List
 from typing import Optional
 from typing import Tuple
 from typing import Union
@@ -418,28 +419,36 @@ def realized_volatility(input: Tensor, dt: Union[Tensor, float]) -> Tensor:
     return realized_variance(input, dt=dt).sqrt()
 
 
-def terminal_value(
+def pl(
     spot: Tensor,
     unit: Tensor,
-    cost: float = 0.0,
+    cost: Optional[List[float]] = None,
     payoff: Optional[Tensor] = None,
     deduct_first_cost: bool = True,
+    deduct_final_cost: bool = False,
 ) -> Tensor:
-    r"""Returns the terminal portfolio value.
+    r"""Returns the final profit and loss of hedging.
 
-    The terminal value of a hedger's portfolio is given by
+    For
+    hedging instruments indexed by :math:`h = 1, \dots, H` and
+    time steps :math:`i = 1, \dots, T`,
+    the final profit and loss is given by
 
     .. math::
-
         \text{PL}(Z, \delta, S) =
-        - Z
-        + \sum_{i = 0}^{T - 2} \delta_{i - 1} (S_{i} - S_{i - 1})
-        - c \sum_{i = 0}^{T - 1} |\delta_{i} - \delta_{i - 1}| S_{i}
+            - Z
+            + \sum_{h = 1}^{H} \sum_{t = 1}^{T} \left[
+                    \delta^{(h)}_{t - 1} (S^{(h)}_{t} - S^{(h)}_{t - 1})
+                    - c^{(h)} |\delta^{(h)}_{t} - \delta^{(h)}_{t - 1}| S^{(h)}_{t}
+                \right] ,
 
-    where :math:`Z` is the payoff of the derivative, :math:`T` is the number of
-    time steps, :math:`S` is the spot price, :math:`\delta` is the signed number
-    of shares held at each time step.
-    We define :math:`\delta_0 = 0` for notational convenience.
+    where
+    :math:`Z` is the payoff of the derivative.
+    For each hedging instrument,
+    :math:`\{S^{(h)}_t ; t = 1, \dots, T\}` is the spot price,
+    :math:`\{\delta^{(h)}_t ; t = 1, \dots, T\}` is the number of shares
+    held at each time step.
+    We define :math:`\delta^{(h)}_0 = 0` for notational convenience.
 
     A hedger sells the derivative to its customer and
     obliges to settle the payoff at maturity.
@@ -457,8 +466,8 @@ def terminal_value(
         spot (torch.Tensor): The spot price of the underlying asset :math:`S`.
         unit (torch.Tensor): The signed number of shares of the underlying asset
             :math:`\delta`.
-        cost (float, default=0.0): The proportional transaction cost rate of
-            the underlying asset :math:`c`.
+        cost (list[float], default=None): The proportional transaction cost rate of
+            the underlying assets.
         payoff (torch.Tensor, optional): The payoff of the derivative :math:`Z`.
         deduct_first_cost (bool, default=True): Whether to deduct the transaction
             cost of the stock at the first time step.
@@ -466,31 +475,57 @@ def terminal_value(
             equation of the terminal value.
 
     Shape:
-        - spot: :math:`(N, *, T)` where
-          :math:`T` is the number of time steps and
-          :math:`*` means any number of additional dimensions.
-        - unit: :math:`(N, *, T)`
-        - payoff: :math:`(N, *)`
-        - output: :math:`(N, *)`.
+        - spot: :math:`(N, H, T)` where
+          :math:`N` is the number of paths,
+          :math:`H` is the number of hedging instruments, and
+          :math:`T` is the number of time steps.
+        - unit: :math:`(N, H, T)`
+        - payoff: :math:`(N)`
+        - output: :math:`(N)`.
 
     Returns:
         torch.Tensor
     """
+    # TODO(simaki): Support deduct_final_cost=True
+    assert not deduct_final_cost, "not supported"
+
     if spot.size() != unit.size():
         raise RuntimeError(f"unmatched sizes: spot {spot.size()}, unit {unit.size()}")
-    if payoff is not None and spot.size()[:-1] != payoff.size():
-        raise RuntimeError(
-            f"unmatched sizes: spot {spot.size()}, payoff {payoff.size()}"
-        )
-
-    value = unit[..., :-1].mul(spot.diff(dim=-1)).sum(-1)
-    value += -cost * unit.diff(dim=-1).abs().mul(spot[..., 1:]).sum(-1)
     if payoff is not None:
-        value -= payoff
-    if deduct_first_cost:
-        value -= cost * unit[..., 0].abs() * spot[..., 0]
+        if payoff.dim() != 1 or spot.size(0) != payoff.size(0):
+            raise RuntimeError(
+                f"unmatched sizes: spot {spot.size()}, payoff {payoff.size()}"
+            )
 
-    return value
+    output = unit[..., :-1].mul(spot.diff(dim=-1)).sum(dim=(-2, -1))
+
+    if payoff is not None:
+        output -= payoff
+
+    if cost is not None:
+        c = torch.tensor(cost).unsqueeze(0).unsqueeze(-1)
+        output -= (spot[..., 1:] * unit.diff(dim=-1).abs() * c).sum(dim=(-2, -1))
+        if deduct_first_cost:
+            output -= (spot[..., [0]] * unit[..., [0]].abs() * c).sum(dim=(-2, -1))
+
+    return output
+
+
+def terminal_value(
+    spot: Tensor,
+    unit: Tensor,
+    cost: Optional[List[float]] = None,
+    payoff: Optional[Tensor] = None,
+    deduct_first_cost: bool = True,
+) -> Tensor:
+    """Alias for :func:`pfhedge.nn.functional.pl`."""
+    return pl(
+        spot=spot,
+        unit=unit,
+        cost=cost,
+        payoff=payoff,
+        deduct_first_cost=deduct_first_cost,
+    )
 
 
 def ncdf(input: Tensor) -> Tensor:
