@@ -4,7 +4,6 @@ from typing import Callable
 import torch
 from torch import Tensor
 from torch.nn import Module
-from torch.nn import MSELoss
 from torch.nn.parameter import Parameter
 
 from pfhedge._utils.bisect import bisect
@@ -28,11 +27,13 @@ class HedgeLoss(Module, ABC):
         Args:
             input (torch.Tensor): The distribution of the profit and loss.
             target (torch.Tensor or float, default=0): The target portfolio to replicate.
+                Typically, target is the payoff of a derivative.
 
         Shape:
-            - Input: :math:`(N, *)` where
+            - input: :math:`(N, *)` where
               :math:`*` means any number of additional dimensions.
-            - Output: :math:`(*)`
+            - target: :math:`(N, *)`
+            - output: :math:`(*)`
 
         Returns:
             torch.Tensor
@@ -55,6 +56,7 @@ class HedgeLoss(Module, ABC):
         Args:
             input (torch.Tensor): The distribution of the profit and loss.
             target (torch.Tensor or float, default=0): The target portfolio to replicate.
+                Typically, target is the payoff of a derivative.
 
         Shape:
             - input: :math:`(N, *)` where
@@ -99,7 +101,7 @@ class EntropicRiskMeasure(HedgeLoss):
 
     Examples:
         >>> from pfhedge.nn import EntropicRiskMeasure
-        >>>
+        ...
         >>> loss = EntropicRiskMeasure()
         >>> input = -torch.arange(4.0)
         >>> loss(input)
@@ -144,9 +146,10 @@ class EntropicLoss(HedgeLoss):
             the exponential utility.
 
     Shape:
-        - Input: :math:`(N, *)` where
-          :math:`*` means any number of additional dimensions.
-        - Output: :math:`(*)`
+        - input: :math:`(N, *)` where
+            :math:`*` means any number of additional dimensions.
+        - target: :math:`(N, *)`
+        - output: :math:`(*)`
 
     Examples:
         >>> from pfhedge.nn import EntropicLoss
@@ -198,9 +201,10 @@ class IsoelasticLoss(HedgeLoss):
             This parameter should satisfy :math:`0 < a \leq 1`.
 
     Shape:
-        - Input: :math:`(N, *)` where
-          :math:`*` means any number of additional dimensions.
-        - Output: :math:`(*)`
+        - input: :math:`(N, *)` where
+            :math:`*` means any number of additional dimensions.
+        - target: :math:`(N, *)`
+        - output: :math:`(*)`
 
     Examples:
         >>> from pfhedge.nn import IsoelasticLoss
@@ -247,13 +251,14 @@ class ExpectedShortfall(HedgeLoss):
             This parameter should satisfy :math:`0 < p \leq 1`.
 
     Shape:
-        - Input: :math:`(N, *)` where
-          :math:`*` means any number of additional dimensions.
-        - Output: :math:`(*)`
+        - input: :math:`(N, *)` where
+            :math:`*` means any number of additional dimensions.
+        - target: :math:`(N, *)`
+        - output: :math:`(*)`
 
     Examples:
         >>> from pfhedge.nn import ExpectedShortfall
-        >>>
+        ...
         >>> loss = ExpectedShortfall(0.5)
         >>> input = -torch.arange(4.0)
         >>> loss(input)

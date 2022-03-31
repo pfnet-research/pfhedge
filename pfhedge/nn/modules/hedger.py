@@ -468,9 +468,8 @@ class Hedger(Module):
 
             def _get_loss():
                 derivative.simulate(n_paths=n_paths, init_state=init_state)
-                input = self.compute_portfolio(derivative, hedge=hedge)
-                target = derivative.payoff()
-                return self.criterion(input, target)
+                portfolio = self.compute_portfolio(derivative, hedge=hedge)
+                return self.criterion(portfolio, derivative.payoff())
 
             mean_loss = ensemble_mean(_get_loss, n_times=n_times)
 
