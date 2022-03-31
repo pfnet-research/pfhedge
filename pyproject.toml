@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pfhedge"
-version = "0.19.2"
+version = "0.20.0"
 description = "Deep Hedging in PyTorch"
 authors = ["Shota Imaki <shota.imaki.0801@gmail.com>"]
 license = "MIT"
