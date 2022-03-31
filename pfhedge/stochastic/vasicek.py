@@ -7,6 +7,8 @@ from torch import Tensor
 
 from pfhedge._utils.typing import TensorOrScalar
 
+from ._utils import cast_state
+
 
 def generate_vasicek(
     n_paths: int,
@@ -72,10 +74,7 @@ def generate_vasicek(
     if init_state is None:
         init_state = (theta,)
 
-    # Accept Union[float, Tensor] as well because making a tuple with a single element
-    # is troublesome
-    if isinstance(init_state, (float, Tensor)):
-        init_state = (torch.as_tensor(init_state),)
+    init_state = cast_state(init_state, dtype, device)
 
     if init_state[0] != 0:
         new_init_state = (init_state[0] - theta,)
@@ -90,10 +89,6 @@ def generate_vasicek(
             dtype=dtype,
             device=device,
         )
-
-    # Cast to init_state: Tuple[Tensor, ...] with desired dtype and device
-    init_state = cast(Tuple[Tensor, ...], tuple(map(torch.as_tensor, init_state)))
-    init_state = tuple(map(lambda t: t.to(dtype=dtype, device=device), init_state))
 
     output = torch.empty(*(n_paths, n_steps), dtype=dtype, device=device)
     output[:, 0] = init_state[0]

@@ -12,9 +12,9 @@ from pfhedge.nn.functional import d2
 from pfhedge.nn.functional import exp_utility
 from pfhedge.nn.functional import expected_shortfall
 from pfhedge.nn.functional import leaky_clamp
+from pfhedge.nn.functional import pl
 from pfhedge.nn.functional import realized_variance
 from pfhedge.nn.functional import realized_volatility
-from pfhedge.nn.functional import terminal_value
 from pfhedge.nn.functional import topp
 from pfhedge.nn.functional import value_at_risk
 
@@ -152,73 +152,75 @@ def test_realized_volatility():
     assert_close(result, expect)
 
 
-def test_terminal_value():
+def test_pl():
     N, T = 10, 20
 
-    # pnl = -payoff if unit = 0
+    # pl = -payoff if unit = 0
     torch.manual_seed(42)
-    spot = torch.randn((N, T)).exp()
-    unit = torch.zeros((N, T))
+    spot = torch.randn((N, 1, T)).exp()
+    unit = torch.zeros((N, 1, T))
     payoff = torch.randn(N)
-    result = terminal_value(spot, unit, payoff=payoff)
+    result = pl(spot, unit, payoff=payoff)
     expect = -payoff
     assert_close(result, expect)
 
     # cost = 0
     torch.manual_seed(42)
-    spot = torch.randn((N, T)).exp()
-    unit = torch.randn((N, T))
-    result = terminal_value(spot, unit)
-    expect = ((spot[..., 1:] - spot[..., :-1]) * unit[..., :-1]).sum(-1)
+    spot = torch.randn((N, 1, T)).exp()
+    unit = torch.randn((N, 1, T))
+    result = pl(spot, unit)
+    expect = ((spot[..., 1:] - spot[..., :-1]) * unit[..., :-1]).sum(-1).squeeze(1)
     assert_close(result, expect)
 
     # diff spot = 0, cost=0 -> value = 0
     torch.manual_seed(42)
-    spot = torch.ones((N, T))
-    unit = torch.randn((N, T))
-    result = terminal_value(spot, unit)
+    spot = torch.ones((N, 1, T))
+    unit = torch.randn((N, 1, T))
+    result = pl(spot, unit)
     expect = torch.zeros(N)
     assert_close(result, expect)
 
     # diff spot = 0, cost > 0 -> value = -cost
     torch.manual_seed(42)
-    spot = torch.ones((N, T))
-    unit = torch.randn((N, T))
-    result = terminal_value(spot, unit, cost=1e-3, deduct_first_cost=False)
-    expect = -1e-3 * ((unit[..., 1:] - unit[..., :-1]).abs() * spot[..., :-1]).sum(-1)
+    spot = torch.ones((N, 1, T))
+    unit = torch.randn((N, 1, T))
+    result = pl(spot, unit, cost=[1e-3], deduct_first_cost=False)
+    expect = -1e-3 * ((unit[..., 1:] - unit[..., :-1]).abs() * spot[..., :-1]).sum(
+        -1
+    ).squeeze(1)
     assert_close(result, expect)
 
     torch.manual_seed(42)
-    spot = torch.ones((N, T))
-    unit = torch.randn((N, T))
-    value0 = terminal_value(spot, unit, cost=1e-3, deduct_first_cost=False)
-    value1 = terminal_value(spot, unit, cost=1e-3, deduct_first_cost=True)
+    spot = torch.ones((N, 1, T))
+    unit = torch.randn((N, 1, T))
+    value0 = pl(spot, unit, cost=[1e-3], deduct_first_cost=False)
+    value1 = pl(spot, unit, cost=[1e-3], deduct_first_cost=True)
     result = value1 - value0
-    expect = -1e-3 * unit[..., 0].abs() * spot[..., 1]
+    expect = -1e-3 * (unit[..., 0].abs() * spot[..., 1]).squeeze(1)
     assert_close(result, expect)
 
 
-def test_terminal_value_unmatched_shape():
-    spot = torch.zeros((10, 20))
-    unit = torch.zeros((10, 20))
+def test_pl_unmatched_shape():
+    spot = torch.zeros((10, 1, 20))
+    unit = torch.zeros((10, 1, 20))
     payoff = torch.zeros(10)
     with pytest.raises(RuntimeError):
-        _ = terminal_value(spot, unit[:-1])
+        _ = pl(spot, unit[:-1])
     with pytest.raises(RuntimeError):
-        _ = terminal_value(spot, unit[:, :-1])
+        _ = pl(spot, unit[:, :-1])
     with pytest.raises(RuntimeError):
-        _ = terminal_value(spot, unit, payoff=payoff[:-1])
+        _ = pl(spot, unit, payoff=payoff[:-1])
 
 
-def test_terminal_value_additional_dim():
+def test_pl_additional_dim():
     N, M, T = 10, 30, 20
 
     # pnl = -payoff if unit = 0
     torch.manual_seed(42)
     spot = torch.randn((N, M, T)).exp()
     unit = torch.zeros((N, M, T))
-    payoff = torch.randn(N, M)
-    result = terminal_value(spot, unit, payoff=payoff)
+    payoff = torch.randn(N)
+    result = pl(spot, unit, payoff=payoff)
     expect = -payoff
     assert_close(result, expect)
 
