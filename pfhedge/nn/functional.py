@@ -514,7 +514,7 @@ def pl(
 def terminal_value(
     spot: Tensor,
     unit: Tensor,
-    cost: Optional[list[float]] = None,
+    cost: Optional[List[float]] = None,
     payoff: Optional[Tensor] = None,
     deduct_first_cost: bool = True,
 ) -> Tensor:
