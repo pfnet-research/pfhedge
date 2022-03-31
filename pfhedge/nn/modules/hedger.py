@@ -24,7 +24,7 @@ from pfhedge.features import FeatureList
 from pfhedge.features._base import Feature
 from pfhedge.instruments.base import BaseInstrument
 from pfhedge.instruments.derivative.base import BaseDerivative
-from pfhedge.nn.functional import terminal_value
+from pfhedge.nn.functional import pl
 
 from .loss import EntropicRiskMeasure
 from .loss import HedgeLoss
@@ -256,15 +256,16 @@ class Hedger(Module):
         self, derivative: BaseDerivative, hedge: Optional[List[BaseInstrument]] = None
     ) -> Tensor:
         """Compute the hedge ratio at each time step.
-        It assumes that the derivative is already simulated.
+
+        This method assumes that the derivative is already simulated.
 
         Args:
             derivative (BaseDerivative): The derivative to hedge.
-            hedge (BaseInstrument, optional): The hedging instrument.
-                If ``None`` (default), use ``derivative.underlier``.
+            hedge (list[BaseInstrument], optional): The hedging instruments.
+                If ``None`` (default), use ``derivative.underliers``.
 
         Shape:
-            - Output: :math:`(N, H, T)` where
+            - output: :math:`(N, H, T)` where
               :math:`N` is the number of paths,
               :math:`H` is the number of hedging instruments, and
               :math:`T` is the number of time steps.
@@ -346,13 +347,11 @@ class Hedger(Module):
         """
         hedge = self._get_hedge(derivative, hedge)
 
+        spot = torch.stack([h.spot for h in hedge], dim=1)
         unit = self.compute_hedge(derivative, hedge=hedge)
+        cost = [h.cost for h in hedge]
 
-        output = torch.zeros(unit.size(0))
-        for i, h in enumerate(hedge):
-            output += terminal_value(h.spot, unit=unit[:, i, :], cost=h.cost)
-
-        return output
+        return pl(spot, unit, cost=cost)
 
     def compute_pnl(
         self,

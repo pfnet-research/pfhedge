@@ -157,8 +157,8 @@ def test_terminal_value():
 
     # pnl = -payoff if unit = 0
     torch.manual_seed(42)
-    spot = torch.randn((N, T)).exp()
-    unit = torch.zeros((N, T))
+    spot = torch.randn((N, 1, T)).exp()
+    unit = torch.zeros((N, 1, T))
     payoff = torch.randn(N)
     result = terminal_value(spot, unit, payoff=payoff)
     expect = -payoff
@@ -166,41 +166,43 @@ def test_terminal_value():
 
     # cost = 0
     torch.manual_seed(42)
-    spot = torch.randn((N, T)).exp()
-    unit = torch.randn((N, T))
+    spot = torch.randn((N, 1, T)).exp()
+    unit = torch.randn((N, 1, T))
     result = terminal_value(spot, unit)
-    expect = ((spot[..., 1:] - spot[..., :-1]) * unit[..., :-1]).sum(-1)
+    expect = ((spot[..., 1:] - spot[..., :-1]) * unit[..., :-1]).sum(-1).squeeze(1)
     assert_close(result, expect)
 
     # diff spot = 0, cost=0 -> value = 0
     torch.manual_seed(42)
-    spot = torch.ones((N, T))
-    unit = torch.randn((N, T))
+    spot = torch.ones((N, 1, T))
+    unit = torch.randn((N, 1, T))
     result = terminal_value(spot, unit)
     expect = torch.zeros(N)
     assert_close(result, expect)
 
     # diff spot = 0, cost > 0 -> value = -cost
     torch.manual_seed(42)
-    spot = torch.ones((N, T))
-    unit = torch.randn((N, T))
-    result = terminal_value(spot, unit, cost=1e-3, deduct_first_cost=False)
-    expect = -1e-3 * ((unit[..., 1:] - unit[..., :-1]).abs() * spot[..., :-1]).sum(-1)
+    spot = torch.ones((N, 1, T))
+    unit = torch.randn((N, 1, T))
+    result = terminal_value(spot, unit, cost=[1e-3], deduct_first_cost=False)
+    expect = -1e-3 * ((unit[..., 1:] - unit[..., :-1]).abs() * spot[..., :-1]).sum(
+        -1
+    ).squeeze(1)
     assert_close(result, expect)
 
     torch.manual_seed(42)
-    spot = torch.ones((N, T))
-    unit = torch.randn((N, T))
-    value0 = terminal_value(spot, unit, cost=1e-3, deduct_first_cost=False)
-    value1 = terminal_value(spot, unit, cost=1e-3, deduct_first_cost=True)
+    spot = torch.ones((N, 1, T))
+    unit = torch.randn((N, 1, T))
+    value0 = terminal_value(spot, unit, cost=[1e-3], deduct_first_cost=False)
+    value1 = terminal_value(spot, unit, cost=[1e-3], deduct_first_cost=True)
     result = value1 - value0
-    expect = -1e-3 * unit[..., 0].abs() * spot[..., 1]
+    expect = -1e-3 * (unit[..., 0].abs() * spot[..., 1]).squeeze(1)
     assert_close(result, expect)
 
 
 def test_terminal_value_unmatched_shape():
-    spot = torch.zeros((10, 20))
-    unit = torch.zeros((10, 20))
+    spot = torch.zeros((10, 1, 20))
+    unit = torch.zeros((10, 1, 20))
     payoff = torch.zeros(10)
     with pytest.raises(RuntimeError):
         _ = terminal_value(spot, unit[:-1])
@@ -217,7 +219,7 @@ def test_terminal_value_additional_dim():
     torch.manual_seed(42)
     spot = torch.randn((N, M, T)).exp()
     unit = torch.zeros((N, M, T))
-    payoff = torch.randn(N, M)
+    payoff = torch.randn(N)
     result = terminal_value(spot, unit, payoff=payoff)
     expect = -payoff
     assert_close(result, expect)
