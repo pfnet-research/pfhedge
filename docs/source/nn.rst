@@ -69,6 +69,7 @@ Loss Functions
     nn.EntropicRiskMeasure
     nn.ExpectedShortfall
     nn.IsoelasticLoss
+    nn.MSEHedgeLoss
 
 Multi Layer Perceptron
 ----------------------
