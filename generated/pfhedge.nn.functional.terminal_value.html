@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="pfhedge.nn.functional.topp" href="pfhedge.nn.functional.topp.html" /><link rel="prev" title="pfhedge.nn.functional.svi_variance" href="pfhedge.nn.functional.svi_variance.html" />
 
-    <meta name="generator" content="sphinx-4.4.0, furo 2021.11.23"/>
+    <meta name="generator" content="sphinx-4.5.0, furo 2021.11.23"/>
         <title>pfhedge.nn.functional.terminal_value - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=7f0192ddeb2adecfbaa87ffbcf67d16358b30bc1" />
@@ -222,6 +222,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.d2.html">pfhedge.nn.functional.d2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.ncdf.html">pfhedge.nn.functional.ncdf</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.npdf.html">pfhedge.nn.functional.npdf</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.pl.html">pfhedge.nn.functional.pl</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.realized_variance.html">pfhedge.nn.functional.realized_variance</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.realized_volatility.html">pfhedge.nn.functional.realized_volatility</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.svi_variance.html">pfhedge.nn.functional.svi_variance</a></li>
@@ -324,64 +325,8 @@
 <h1>pfhedge.nn.functional.terminal_value<a class="headerlink" href="#pfhedge-nn-functional-terminal-value" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="pfhedge.nn.functional.terminal_value">
-<span class="sig-prename descclassname"><span class="pre">pfhedge.nn.functional.</span></span><span class="sig-name descname"><span class="pre">terminal_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spot</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">payoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deduct_first_cost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/functional.html#terminal_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.functional.terminal_value" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the terminal portfolio value.</p>
-<p>The terminal value of a hedger’s portfolio is given by</p>
-<div class="math-wrapper"><div class="math notranslate nohighlight">
-\[\text{PL}(Z, \delta, S) =
-- Z
-+ \sum_{i = 0}^{T - 2} \delta_{i - 1} (S_{i} - S_{i - 1})
-- c \sum_{i = 0}^{T - 1} |\delta_{i} - \delta_{i - 1}| S_{i}\]</div></div>
-<p>where <span class="math notranslate nohighlight">\(Z\)</span> is the payoff of the derivative, <span class="math notranslate nohighlight">\(T\)</span> is the number of
-time steps, <span class="math notranslate nohighlight">\(S\)</span> is the spot price, <span class="math notranslate nohighlight">\(\delta\)</span> is the signed number
-of shares held at each time step.
-We define <span class="math notranslate nohighlight">\(\delta_0 = 0\)</span> for notational convenience.</p>
-<p>A hedger sells the derivative to its customer and
-obliges to settle the payoff at maturity.
-The dealer hedges the risk of this liability
-by trading the underlying instrument of the derivative.
-The resulting profit and loss is obtained by adding up the payoff to the
-customer, capital gains from the underlying asset, and the transaction cost.</p>
-<div class="admonition-references admonition">
-<p class="admonition-title">References</p>
-<ul class="simple">
-<li><p>Buehler, H., Gonon, L., Teichmann, J. and Wood, B., 2019.
-Deep hedging. Quantitative Finance, 19(8), pp.1271-1291.
-[arXiv:<a class="reference external" href="https://arxiv.org/abs/1802.03042">1802.03042</a> [q-fin]]</p></li>
-</ul>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>spot</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><em>torch.Tensor</em></a>) – The spot price of the underlying asset <span class="math notranslate nohighlight">\(S\)</span>.</p></li>
-<li><p><strong>unit</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><em>torch.Tensor</em></a>) – The signed number of shares of the underlying asset
-<span class="math notranslate nohighlight">\(\delta\)</span>.</p></li>
-<li><p><strong>cost</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>default=0.0</em>) – The proportional transaction cost rate of
-the underlying asset <span class="math notranslate nohighlight">\(c\)</span>.</p></li>
-<li><p><strong>payoff</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – The payoff of the derivative <span class="math notranslate nohighlight">\(Z\)</span>.</p></li>
-<li><p><strong>deduct_first_cost</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>default=True</em>) – Whether to deduct the transaction
-cost of the stock at the first time step.
-If <code class="docutils literal notranslate"><span class="pre">False</span></code>, <span class="math notranslate nohighlight">\(- c |\delta_0| S_1\)</span> is omitted the above
-equation of the terminal value.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="simple">
-<dt>Shape:</dt><dd><ul class="simple">
-<li><p>spot: <span class="math notranslate nohighlight">\((N, *, T)\)</span> where
-<span class="math notranslate nohighlight">\(T\)</span> is the number of time steps and
-<span class="math notranslate nohighlight">\(*\)</span> means any number of additional dimensions.</p></li>
-<li><p>unit: <span class="math notranslate nohighlight">\((N, *, T)\)</span></p></li>
-<li><p>payoff: <span class="math notranslate nohighlight">\((N, *)\)</span></p></li>
-<li><p>output: <span class="math notranslate nohighlight">\((N, *)\)</span>.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>torch.Tensor</p>
-</dd>
-</dl>
+<span class="sig-prename descclassname"><span class="pre">pfhedge.nn.functional.</span></span><span class="sig-name descname"><span class="pre">terminal_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spot</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">payoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deduct_first_cost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/functional.html#terminal_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.functional.terminal_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for <a class="reference internal" href="pfhedge.nn.functional.pl.html#pfhedge.nn.functional.pl" title="pfhedge.nn.functional.pl"><code class="xref py py-func docutils literal notranslate"><span class="pre">pfhedge.nn.functional.pl()</span></code></a>.</p>
 </dd></dl>
 </section>
 
@@ -437,6 +382,5 @@ equation of the terminal value.</p></li>
     <script src="../_static/scripts/furo.js"></script>
     <script src="../_static/clipboard.min.js"></script>
     <script src="../_static/copybutton.js"></script>
-    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     </body>
 </html>

@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
-    <meta name="generator" content="sphinx-4.4.0, furo 2021.11.23"/>
+    <meta name="generator" content="sphinx-4.5.0, furo 2021.11.23"/>
         <title>pfhedge.nn.modules.loss - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?digest=7f0192ddeb2adecfbaa87ffbcf67d16358b30bc1" />
@@ -221,6 +221,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.nn.functional.d2.html">pfhedge.nn.functional.d2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.nn.functional.ncdf.html">pfhedge.nn.functional.ncdf</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.nn.functional.npdf.html">pfhedge.nn.functional.npdf</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.nn.functional.pl.html">pfhedge.nn.functional.pl</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.nn.functional.realized_variance.html">pfhedge.nn.functional.realized_variance</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.nn.functional.realized_volatility.html">pfhedge.nn.functional.realized_volatility</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.nn.functional.svi_variance.html">pfhedge.nn.functional.svi_variance</a></li>
@@ -326,10 +327,11 @@
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
 <span class="kn">from</span> <span class="nn">torch.nn</span> <span class="kn">import</span> <span class="n">Module</span>
-<span class="kn">from</span> <span class="nn">torch.nn</span> <span class="kn">import</span> <span class="n">Parameter</span>
+<span class="kn">from</span> <span class="nn">torch.nn.parameter</span> <span class="kn">import</span> <span class="n">Parameter</span>
 
 <span class="kn">from</span> <span class="nn">pfhedge._utils.bisect</span> <span class="kn">import</span> <span class="n">bisect</span>
 <span class="kn">from</span> <span class="nn">pfhedge._utils.str</span> <span class="kn">import</span> <span class="n">_format_float</span>
+<span class="kn">from</span> <span class="nn">pfhedge._utils.typing</span> <span class="kn">import</span> <span class="n">TensorOrScalar</span>
 
 <span class="kn">from</span> <span class="nn">..functional</span> <span class="kn">import</span> <span class="n">entropic_risk_measure</span>
 <span class="kn">from</span> <span class="nn">..functional</span> <span class="kn">import</span> <span class="n">exp_utility</span>
@@ -340,24 +342,27 @@
 <div class="viewcode-block" id="HedgeLoss"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.HedgeLoss.html#pfhedge.nn.HedgeLoss">[docs]</a><span class="k">class</span> <span class="nc">HedgeLoss</span><span class="p">(</span><span class="n">Module</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
     <span class="sd">"""Base class for hedging criteria."""</span>
 
-<div class="viewcode-block" id="HedgeLoss.forward"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.HedgeLoss.html#pfhedge.nn.HedgeLoss.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+<div class="viewcode-block" id="HedgeLoss.forward"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.HedgeLoss.html#pfhedge.nn.HedgeLoss.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">TensorOrScalar</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
         <span class="sd">"""Returns the loss of the profit-loss distribution.</span>
 
 <span class="sd">        This method should be overridden.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            input (torch.Tensor): The distribution of the profit and loss.</span>
+<span class="sd">            target (torch.Tensor or float, default=0): The target portfolio to replicate.</span>
+<span class="sd">                Typically, target is the payoff of a derivative.</span>
 
 <span class="sd">        Shape:</span>
-<span class="sd">            - Input: :math:`(N, *)` where</span>
+<span class="sd">            - input: :math:`(N, *)` where</span>
 <span class="sd">              :math:`*` means any number of additional dimensions.</span>
-<span class="sd">            - Output: :math:`(*)`</span>
+<span class="sd">            - target: :math:`(N, *)`</span>
+<span class="sd">            - output: :math:`(*)`</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            torch.Tensor</span>
 <span class="sd">        """</span></div>
 
-<div class="viewcode-block" id="HedgeLoss.cash"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.HedgeLoss.html#pfhedge.nn.HedgeLoss.cash">[docs]</a>    <span class="k">def</span> <span class="nf">cash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+<div class="viewcode-block" id="HedgeLoss.cash"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.HedgeLoss.html#pfhedge.nn.HedgeLoss.cash">[docs]</a>    <span class="k">def</span> <span class="nf">cash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">TensorOrScalar</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
         <span class="sd">"""Returns the cash amount which is as preferable as</span>
 <span class="sd">        the given profit-loss distribution in terms of the loss.</span>
 
@@ -365,7 +370,7 @@
 
 <span class="sd">        .. code::</span>
 
-<span class="sd">            loss(torch.full_like(pnl, cash)) = loss(pnl)</span>
+<span class="sd">            loss(torch.full_like(pl, cash)) = loss(pl)</span>
 
 <span class="sd">        By default, the output is computed by binary search.</span>
 <span class="sd">        If analytic form is known, it is recommended to override this method</span>
@@ -373,16 +378,20 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            input (torch.Tensor): The distribution of the profit and loss.</span>
+<span class="sd">            target (torch.Tensor or float, default=0): The target portfolio to replicate.</span>
+<span class="sd">                Typically, target is the payoff of a derivative.</span>
 
 <span class="sd">        Shape:</span>
-<span class="sd">            - Input: :math:`(N, *)` where</span>
+<span class="sd">            - input: :math:`(N, *)` where</span>
 <span class="sd">              :math:`*` means any number of additional dimensions.</span>
-<span class="sd">            - Output: :math:`(*)`</span>
+<span class="sd">            - target: :math:`(N, *)`</span>
+<span class="sd">            - output: :math:`(*)`</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            torch.Tensor</span>
 <span class="sd">        """</span>
-        <span class="k">return</span> <span class="n">bisect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="p">(</span><span class="nb">input</span><span class="p">),</span> <span class="nb">input</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="nb">input</span><span class="o">.</span><span class="n">max</span><span class="p">())</span></div></div>
+        <span class="n">pl</span> <span class="o">=</span> <span class="nb">input</span> <span class="o">-</span> <span class="n">target</span>
+        <span class="k">return</span> <span class="n">bisect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="p">(</span><span class="n">pl</span><span class="p">),</span> <span class="n">pl</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">pl</span><span class="o">.</span><span class="n">max</span><span class="p">())</span></div></div>
 
 
 <div class="viewcode-block" id="EntropicRiskMeasure"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.EntropicRiskMeasure.html#pfhedge.nn.EntropicRiskMeasure">[docs]</a><span class="k">class</span> <span class="nc">EntropicRiskMeasure</span><span class="p">(</span><span class="n">HedgeLoss</span><span class="p">):</span>
@@ -390,11 +399,11 @@
 <span class="sd">    the entropic risk measure.</span>
 
 <span class="sd">    The entropic risk measure of the profit-loss distribution</span>
-<span class="sd">    :math:`\text{pnl}` is given by:</span>
+<span class="sd">    :math:`\text{pl}` is given by:</span>
 
 <span class="sd">    .. math::</span>
-<span class="sd">        \text{loss}(\text{pnl}) = \frac{1}{a}</span>
-<span class="sd">        \log(- \mathbf{E}[u(\text{pnl})]) \,,</span>
+<span class="sd">        \text{loss}(\text{PL}) = \frac{1}{a}</span>
+<span class="sd">        \log(- \mathbf{E}[u(\text{PL})]) \,,</span>
 <span class="sd">        \quad</span>
 <span class="sd">        u(x) = -\exp(-a x) \,.</span>
 
@@ -408,13 +417,14 @@
 <span class="sd">            This parameter should be positive.</span>
 
 <span class="sd">    Shape:</span>
-<span class="sd">        - Input: :math:`(N, *)` where</span>
+<span class="sd">        - input: :math:`(N, *)` where</span>
 <span class="sd">          :math:`*` means any number of additional dimensions.</span>
-<span class="sd">        - Output: :math:`(*)`</span>
+<span class="sd">        - target: :math:`(N, *)`</span>
+<span class="sd">        - output: :math:`(*)`</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        &gt;&gt;&gt; from pfhedge.nn import EntropicRiskMeasure</span>
-<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        ...</span>
 <span class="sd">        &gt;&gt;&gt; loss = EntropicRiskMeasure()</span>
 <span class="sd">        &gt;&gt;&gt; input = -torch.arange(4.0)</span>
 <span class="sd">        &gt;&gt;&gt; loss(input)</span>
@@ -423,7 +433,7 @@
 <span class="sd">        tensor(-2.0539)</span>
 <span class="sd">    """</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">a</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Risk aversion coefficient should be positive."</span><span class="p">)</span>
 
@@ -433,20 +443,20 @@
     <span class="k">def</span> <span class="nf">extra_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">"a="</span> <span class="o">+</span> <span class="n">_format_float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">a</span> <span class="o">!=</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">""</span>
 
-    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">entropic_risk_measure</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">TensorOrScalar</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">entropic_risk_measure</span><span class="p">(</span><span class="nb">input</span> <span class="o">-</span> <span class="n">target</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">cash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="k">return</span> <span class="o">-</span><span class="bp">self</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span></div>
+    <span class="k">def</span> <span class="nf">cash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">TensorOrScalar</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+        <span class="k">return</span> <span class="o">-</span><span class="bp">self</span><span class="p">(</span><span class="nb">input</span> <span class="o">-</span> <span class="n">target</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="EntropicLoss"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.EntropicLoss.html#pfhedge.nn.EntropicLoss">[docs]</a><span class="k">class</span> <span class="nc">EntropicLoss</span><span class="p">(</span><span class="n">HedgeLoss</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">"""Creates a criterion that measures the expected exponential utility.</span>
 
-<span class="sd">    The loss of the profit-loss :math:`\text{pnl}` is given by:</span>
+<span class="sd">    The loss of the profit-loss :math:`\text{PL}` is given by:</span>
 
 <span class="sd">    .. math::</span>
-<span class="sd">        \text{loss}(\text{pnl}) = -\mathbf{E}[u(\text{pnl})] \,,</span>
+<span class="sd">        \text{loss}(\text{PL}) = -\mathbf{E}[u(\text{PL})] \,,</span>
 <span class="sd">        \quad</span>
 <span class="sd">        u(x) = -\exp(-a x) \,.</span>
 
@@ -459,13 +469,14 @@
 <span class="sd">            the exponential utility.</span>
 
 <span class="sd">    Shape:</span>
-<span class="sd">        - Input: :math:`(N, *)` where</span>
-<span class="sd">          :math:`*` means any number of additional dimensions.</span>
-<span class="sd">        - Output: :math:`(*)`</span>
+<span class="sd">        - input: :math:`(N, *)` where</span>
+<span class="sd">            :math:`*` means any number of additional dimensions.</span>
+<span class="sd">        - target: :math:`(N, *)`</span>
+<span class="sd">        - output: :math:`(*)`</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        &gt;&gt;&gt; from pfhedge.nn import EntropicLoss</span>
-<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        ...</span>
 <span class="sd">        &gt;&gt;&gt; loss = EntropicLoss()</span>
 <span class="sd">        &gt;&gt;&gt; input = -torch.arange(4.0)</span>
 <span class="sd">        &gt;&gt;&gt; loss(input)</span>
@@ -474,7 +485,7 @@
 <span class="sd">        tensor(-2.0539)</span>
 <span class="sd">    """</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">a</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Risk aversion coefficient should be positive."</span><span class="p">)</span>
 
@@ -484,20 +495,20 @@
     <span class="k">def</span> <span class="nf">extra_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">"a="</span> <span class="o">+</span> <span class="n">_format_float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">a</span> <span class="o">!=</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">""</span>
 
-    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="k">return</span> <span class="o">-</span><span class="n">exp_utility</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">TensorOrScalar</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+        <span class="k">return</span> <span class="o">-</span><span class="n">exp_utility</span><span class="p">(</span><span class="nb">input</span> <span class="o">-</span> <span class="n">target</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">cash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="k">return</span> <span class="o">-</span><span class="p">(</span><span class="o">-</span><span class="n">exp_utility</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">log</span><span class="p">()</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">a</span></div>
+    <span class="k">def</span> <span class="nf">cash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">TensorOrScalar</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+        <span class="k">return</span> <span class="o">-</span><span class="p">(</span><span class="o">-</span><span class="n">exp_utility</span><span class="p">(</span><span class="nb">input</span> <span class="o">-</span> <span class="n">target</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">log</span><span class="p">()</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">a</span></div>
 
 
 <div class="viewcode-block" id="IsoelasticLoss"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.IsoelasticLoss.html#pfhedge.nn.IsoelasticLoss">[docs]</a><span class="k">class</span> <span class="nc">IsoelasticLoss</span><span class="p">(</span><span class="n">HedgeLoss</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">"""Creates a criterion that measures the expected isoelastic utility.</span>
 
-<span class="sd">    The loss of the profit-loss :math:`\text{pnl}` is given by:</span>
+<span class="sd">    The loss of the profit-loss :math:`\text{PL}` is given by:</span>
 
 <span class="sd">    .. math::</span>
-<span class="sd">        \text{loss}(\text{pnl}) = -\mathbf{E}[u(\text{pnl})] \,,</span>
+<span class="sd">        \text{loss}(\text{PL}) = -\mathbf{E}[u(\text{PL})] \,,</span>
 <span class="sd">        \quad</span>
 <span class="sd">        u(x) = \begin{cases}</span>
 <span class="sd">        x^{1 - a} &amp; a \neq 1 \\</span>
@@ -513,13 +524,14 @@
 <span class="sd">            This parameter should satisfy :math:`0 &lt; a \leq 1`.</span>
 
 <span class="sd">    Shape:</span>
-<span class="sd">        - Input: :math:`(N, *)` where</span>
-<span class="sd">          :math:`*` means any number of additional dimensions.</span>
-<span class="sd">        - Output: :math:`(*)`</span>
+<span class="sd">        - input: :math:`(N, *)` where</span>
+<span class="sd">            :math:`*` means any number of additional dimensions.</span>
+<span class="sd">        - target: :math:`(N, *)`</span>
+<span class="sd">        - output: :math:`(*)`</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        &gt;&gt;&gt; from pfhedge.nn import IsoelasticLoss</span>
-<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        ...</span>
 <span class="sd">        &gt;&gt;&gt; loss = IsoelasticLoss(0.5)</span>
 <span class="sd">        &gt;&gt;&gt; input = torch.arange(1.0, 5.0)</span>
 <span class="sd">        &gt;&gt;&gt; loss(input)</span>
@@ -528,14 +540,14 @@
 <span class="sd">        tensor(2.3610)</span>
 
 <span class="sd">        &gt;&gt;&gt; loss = IsoelasticLoss(1.0)</span>
-<span class="sd">        &gt;&gt;&gt; pnl = torch.arange(1.0, 5.0)</span>
+<span class="sd">        &gt;&gt;&gt; pl = torch.arange(1.0, 5.0)</span>
 <span class="sd">        &gt;&gt;&gt; loss(input)</span>
 <span class="sd">        tensor(-0.7945)</span>
 <span class="sd">        &gt;&gt;&gt; loss.cash(input)</span>
 <span class="sd">        tensor(2.2134)</span>
 <span class="sd">    """</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">a</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">"Relative risk aversion coefficient should satisfy 0 &lt; a &lt;= 1."</span>
@@ -547,8 +559,8 @@
     <span class="k">def</span> <span class="nf">extra_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">"a="</span> <span class="o">+</span> <span class="n">_format_float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">a</span> <span class="o">!=</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">""</span>
 
-    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="k">return</span> <span class="o">-</span><span class="n">isoelastic_utility</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">TensorOrScalar</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+        <span class="k">return</span> <span class="o">-</span><span class="n">isoelastic_utility</span><span class="p">(</span><span class="nb">input</span> <span class="o">-</span> <span class="n">target</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ExpectedShortfall"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.ExpectedShortfall.html#pfhedge.nn.ExpectedShortfall">[docs]</a><span class="k">class</span> <span class="nc">ExpectedShortfall</span><span class="p">(</span><span class="n">HedgeLoss</span><span class="p">):</span>
@@ -562,13 +574,14 @@
 <span class="sd">            This parameter should satisfy :math:`0 &lt; p \leq 1`.</span>
 
 <span class="sd">    Shape:</span>
-<span class="sd">        - Input: :math:`(N, *)` where</span>
-<span class="sd">          :math:`*` means any number of additional dimensions.</span>
-<span class="sd">        - Output: :math:`(*)`</span>
+<span class="sd">        - input: :math:`(N, *)` where</span>
+<span class="sd">            :math:`*` means any number of additional dimensions.</span>
+<span class="sd">        - target: :math:`(N, *)`</span>
+<span class="sd">        - output: :math:`(*)`</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        &gt;&gt;&gt; from pfhedge.nn import ExpectedShortfall</span>
-<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        ...</span>
 <span class="sd">        &gt;&gt;&gt; loss = ExpectedShortfall(0.5)</span>
 <span class="sd">        &gt;&gt;&gt; input = -torch.arange(4.0)</span>
 <span class="sd">        &gt;&gt;&gt; loss(input)</span>
@@ -587,11 +600,11 @@
     <span class="k">def</span> <span class="nf">extra_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">expected_shortfall</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">TensorOrScalar</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">expected_shortfall</span><span class="p">(</span><span class="nb">input</span> <span class="o">-</span> <span class="n">target</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">cash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="k">return</span> <span class="o">-</span><span class="bp">self</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span></div>
+    <span class="k">def</span> <span class="nf">cash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">TensorOrScalar</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+        <span class="k">return</span> <span class="o">-</span><span class="bp">self</span><span class="p">(</span><span class="nb">input</span> <span class="o">-</span> <span class="n">target</span><span class="p">)</span></div>
 
 
 <span class="k">class</span> <span class="nc">OCE</span><span class="p">(</span><span class="n">HedgeLoss</span><span class="p">):</span>
@@ -600,12 +613,12 @@
 <span class="sd">    The certainty equivalent is given by:</span>
 
 <span class="sd">    .. math::</span>
-<span class="sd">        \\text{loss}(X, w) = w - \\mathrm{E}[u(X + w)]</span>
+<span class="sd">        \text{loss}(X, w) = w - \mathrm{E}[u(X + w)]</span>
 
 <span class="sd">    Minimization of loss gives the optimized certainty equivalent.</span>
 
 <span class="sd">    .. math::</span>
-<span class="sd">        \\rho_u(X) = \\inf_w \\text{loss}(X, w)</span>
+<span class="sd">        \rho_u(X) = \inf_w \text{loss}(X, w)</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        utility (callable): Utility function.</span>
@@ -615,13 +628,13 @@
 
 <span class="sd">    Examples:</span>
 <span class="sd">        &gt;&gt;&gt; from pfhedge.nn.modules.loss import OCE</span>
-<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        ...</span>
 <span class="sd">        &gt;&gt;&gt; _ = torch.manual_seed(42)</span>
 <span class="sd">        &gt;&gt;&gt; m = OCE(lambda x: 1 - (-x).exp())</span>
-<span class="sd">        &gt;&gt;&gt; pnl = torch.randn(10)</span>
-<span class="sd">        &gt;&gt;&gt; m(pnl)</span>
+<span class="sd">        &gt;&gt;&gt; pl = torch.randn(10)</span>
+<span class="sd">        &gt;&gt;&gt; m(pl)</span>
 <span class="sd">        tensor(0.0855, grad_fn=&lt;SubBackward0&gt;)</span>
-<span class="sd">        &gt;&gt;&gt; m.cash(pnl)</span>
+<span class="sd">        &gt;&gt;&gt; m.cash(pl)</span>
 <span class="sd">        tensor(-0.0821)</span>
 <span class="sd">    """</span>
 
@@ -635,8 +648,8 @@
         <span class="n">w</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">utility</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">+</span> <span class="s2">", w="</span> <span class="o">+</span> <span class="n">_format_float</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">utility</span><span class="p">(</span><span class="nb">input</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">TensorOrScalar</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">utility</span><span class="p">(</span><span class="nb">input</span> <span class="o">-</span> <span class="n">target</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
         </article>
       </div>

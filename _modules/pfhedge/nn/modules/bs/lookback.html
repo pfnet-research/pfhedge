@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../../genindex.html" /><link rel="search" title="Search" href="../../../../../search.html" />
 
-    <meta name="generator" content="sphinx-4.4.0, furo 2021.11.23"/>
+    <meta name="generator" content="sphinx-4.5.0, furo 2021.11.23"/>
         <title>pfhedge.nn.modules.bs.lookback - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/styles/furo.css?digest=7f0192ddeb2adecfbaa87ffbcf67d16358b30bc1" />
@@ -221,6 +221,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.nn.functional.d2.html">pfhedge.nn.functional.d2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.nn.functional.ncdf.html">pfhedge.nn.functional.ncdf</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.nn.functional.npdf.html">pfhedge.nn.functional.npdf</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.nn.functional.pl.html">pfhedge.nn.functional.pl</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.nn.functional.realized_variance.html">pfhedge.nn.functional.realized_variance</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.nn.functional.realized_volatility.html">pfhedge.nn.functional.realized_volatility</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.nn.functional.svi_variance.html">pfhedge.nn.functional.svi_variance</a></li>
@@ -590,7 +591,7 @@
 <span class="sd">            torch.Tensor</span>
 
 <span class="sd">        Note:</span>
-<span class="sd">            args are not optional if it doesn't accept derivative in this initialization.</span>
+<span class="sd">            Arguments are not optional if it doesn't accept derivative in this initialization.</span>
 <span class="sd">        """</span>
         <span class="p">(</span>
             <span class="n">log_moneyness</span><span class="p">,</span>
@@ -641,7 +642,7 @@
 <span class="sd">            torch.Tensor</span>
 
 <span class="sd">        Note:</span>
-<span class="sd">            args are not optional if it doesn't accept derivative in this initialization.</span>
+<span class="sd">            - Arguments are not optional if it doesn't accept derivative in this initialization.</span>
 <span class="sd">        """</span>
         <span class="p">(</span>
             <span class="n">log_moneyness</span><span class="p">,</span>
@@ -688,14 +689,12 @@
 <span class="sd">            - volatility: :math:`(N, *)`</span>
 <span class="sd">            - output: :math:`(N, *)`</span>
 
-<span class="sd">        Note:</span>
-<span class="sd">            Risk-free rate is set to zero.</span>
-
 <span class="sd">        Returns:</span>
 <span class="sd">            torch.Tensor</span>
 
 <span class="sd">        Note:</span>
-<span class="sd">            args are not optional if it doesn't accept derivative in this initialization.</span>
+<span class="sd">            - Risk-free rate is set to zero.</span>
+<span class="sd">            - Arguments are not optional if it doesn't accept derivative in this initialization.</span>
 <span class="sd">        """</span>
         <span class="p">(</span>
             <span class="n">log_moneyness</span><span class="p">,</span>
@@ -746,9 +745,9 @@
 <span class="sd">            torch.Tensor</span>
 
 <span class="sd">        Note:</span>
-<span class="sd">            args are not optional if it doesn't accept derivative in this initialization.</span>
-<span class="sd">            price seems optional in typing, but it isn't. It is set for the compatibility to the previous versions.</span>
+<span class="sd">            - Arguments are not optional if it doesn't accept derivative in this initialization.</span>
 <span class="sd">        """</span>
+        <span class="c1"># price seems optional in typing, but it isn't. It is set for the compatibility to the previous versions.</span>
         <span class="p">(</span><span class="n">log_moneyness</span><span class="p">,</span> <span class="n">time_to_maturity</span><span class="p">)</span> <span class="o">=</span> <span class="n">acquire_params_from_derivative_0</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">derivative</span><span class="p">,</span> <span class="n">log_moneyness</span><span class="p">,</span> <span class="n">time_to_maturity</span>
         <span class="p">)</span>
