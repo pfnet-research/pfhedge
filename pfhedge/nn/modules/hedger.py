@@ -399,8 +399,7 @@ class Hedger(Module):
             tensor([..., ...])
         """
         derivative.simulate(n_paths=n_paths, init_state=init_state)
-        portfolio = self.compute_portfolio(derivative, hedge=hedge)
-        return -derivative.payoff() + portfolio
+        return -derivative.payoff() + self.compute_portfolio(derivative, hedge=hedge)
 
     def compute_loss(
         self,
@@ -467,13 +466,13 @@ class Hedger(Module):
         """
         with torch.set_grad_enabled(enable_grad):
 
-            def loss():
+            def _get_loss():
                 derivative.simulate(n_paths=n_paths, init_state=init_state)
                 input = self.compute_portfolio(derivative, hedge=hedge)
                 target = derivative.payoff()
                 return self.criterion(input, target)
 
-            mean_loss = ensemble_mean(loss, n_times=n_times)
+            mean_loss = ensemble_mean(_get_loss, n_times=n_times)
 
         return mean_loss
 
@@ -657,12 +656,13 @@ class Hedger(Module):
             tensor(...)
         """
         with torch.set_grad_enabled(enable_grad):
-            # Negative because selling
-            pricer = lambda: -self.criterion.cash(
-                self.compute_pnl(
-                    derivative, hedge=hedge, n_paths=n_paths, init_state=init_state
-                )
-            )
-            mean_price = ensemble_mean(pricer, n_times=n_times)
+
+            def _get_price():
+                derivative.simulate(n_paths=n_paths, init_state=init_state)
+                portfolio = self.compute_portfolio(derivative, hedge)
+                # Negative because selling
+                return -self.criterion.cash(portfolio, target=derivative.payoff())
+
+            mean_price = ensemble_mean(_get_price, n_times=n_times)
 
         return mean_price
