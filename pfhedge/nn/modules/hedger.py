@@ -178,19 +178,6 @@ class Hedger(Module):
         ...     inputs=["moneyness", "time_to_maturity", "volatility"])
         >>> hedger.price(option, hedge=[stock, varswap], n_paths=2)
         tensor(...)
-
-        One can use PyTorch built-in loss functions,
-        such as the mean squared loss :class:`torch.nn.MSELoss`,
-        as criteria.
-
-        >>> from torch.nn import MSELoss
-        ...
-        >>> _ = torch.manual_seed(42)
-        >>> derivative = EuropeanOption(BrownianStock())
-        >>> model = BlackScholes(derivative)
-        >>> hedger = Hedger(model, model.inputs(), criterion=MSELoss())
-        >>> hedger.compute_loss(derivative, n_paths=10)
-        tensor(...)
     """
 
     inputs: FeatureList
@@ -248,7 +235,7 @@ class Hedger(Module):
             >>> from pfhedge.instruments import BrownianStock
             >>> from pfhedge.instruments import EuropeanOption
             >>> from pfhedge.nn import Naked
-            >>>
+            ...
             >>> derivative = EuropeanOption(BrownianStock())
             >>> derivative.simulate()
             >>> hedger = Hedger(Naked(), ["time_to_maturity", "volatility"])
@@ -257,6 +244,13 @@ class Hedger(Module):
             tensor([[[0.0800, 0.2000]]])
         """
         return self.inputs.of(derivative=derivative).get(time_step)
+
+    def _get_hedge(
+        self, derivative: BaseDerivative, hedge: Optional[List[BaseInstrument]]
+    ) -> List[BaseInstrument]:
+        if hedge is None:
+            hedge = list(derivative.underliers())
+        return cast(List[BaseInstrument], hedge)
 
     def compute_hedge(
         self, derivative: BaseDerivative, hedge: Optional[List[BaseInstrument]] = None
@@ -296,9 +290,7 @@ class Hedger(Module):
                     [0.5056, 0.3785, 0.4609, 0.5239, 0.7281, 0.7281]])
         """
         inputs = self.inputs.of(derivative, self)
-        hedge = cast(
-            List[BaseInstrument], [derivative.ul()] if hedge is None else hedge
-        )
+        hedge = self._get_hedge(derivative, hedge)
 
         # Check that the spot prices of the hedges have the same sizes
         if not all(h.spot.size() == hedge[0].spot.size() for h in hedge):
@@ -331,9 +323,13 @@ class Hedger(Module):
     def compute_portfolio(
         self, derivative: BaseDerivative, hedge: Optional[List[BaseInstrument]] = None
     ) -> Tensor:
-        """Compute ...
+        r"""Compute terminal value of the hedging portfolio.
 
-        It assumes that the derivative is already simulated.
+        See :func:`pfhedge.nn.functional.terminal_value`,
+        with :math:`Z` being substituted with 0,
+        for the expression of the terminal value of the hedging portfolio.
+
+        This method assumes that the derivative is already simulated.
 
         Args:
             derivative (BaseDerivative): The derivative to hedge.
@@ -348,9 +344,7 @@ class Hedger(Module):
         Returns:
             torch.Tensor
         """
-        hedge = cast(
-            List[BaseInstrument], [derivative.ul()] if hedge is None else hedge
-        )
+        hedge = self._get_hedge(derivative, hedge)
 
         unit = self.compute_hedge(derivative, hedge=hedge)
 
@@ -371,8 +365,9 @@ class Hedger(Module):
 
         This method simulates the derivative, computes the hedge ratio, and
         computes the terminal portfolio value.
+
         See :func:`pfhedge.nn.functional.terminal_value` for the expression of the
-        terminal portyol value after hedging a derivative.
+        terminal portfolio value after hedging a derivative.
 
         Args:
             derivative (BaseDerivative): The derivative to hedge.
@@ -453,6 +448,21 @@ class Hedger(Module):
             >>> model = BlackScholes(derivative)
             >>> hedger = Hedger(model, model.inputs())
             >>> hedger.compute_loss(derivative, n_paths=2)
+            tensor(...)
+
+            One can use PyTorch built-in loss functions,
+            such as the mean squared loss :class:`torch.nn.MSELoss`, as criteria.
+            Then the criterion measures the loss between the hedging portfolio
+            (cf. :meth:`compute_portfolio`) as ``input`` and
+            the payoff of the derivative as ``target``.
+
+            >>> from torch.nn import MSELoss
+            ...
+            >>> _ = torch.manual_seed(42)
+            >>> derivative = EuropeanOption(BrownianStock())
+            >>> model = BlackScholes(derivative)
+            >>> hedger = Hedger(model, model.inputs(), criterion=MSELoss())
+            >>> hedger.compute_loss(derivative, n_paths=10)
             tensor(...)
         """
         with torch.set_grad_enabled(enable_grad):
