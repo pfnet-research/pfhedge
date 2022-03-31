@@ -374,7 +374,6 @@ def realized_variance(input: Tensor, dt: TensorOrScalar) -> Tensor:
     Realized variance :math:`\sigma^2` of the stock price :math:`S` is defined as:
 
     .. math::
-
         \sigma^2 = \frac{1}{T - 1} \sum_{i = 1}^{T - 1}
         \frac{1}{dt} \log(S_{i + 1} / S_i)^2
 
