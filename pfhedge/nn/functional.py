@@ -2,6 +2,7 @@ from math import ceil
 from math import pi as kPI
 from typing import Optional
 from typing import Tuple
+from typing import List
 from typing import Union
 
 import torch
@@ -421,7 +422,7 @@ def realized_volatility(input: Tensor, dt: Union[Tensor, float]) -> Tensor:
 def pl(
     spot: Tensor,
     unit: Tensor,
-    cost: Optional[list[float]] = None,
+    cost: Optional[List[float]] = None,
     payoff: Optional[Tensor] = None,
     deduct_first_cost: bool = True,
     deduct_final_cost: bool = False,
