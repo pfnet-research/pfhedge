@@ -80,29 +80,26 @@ class DataHedger(Module):
         loss = self.criterion(self.compute_pnl(input))
         return loss
 
-    def train_one_epoch(self, epoch_index):
-        running_loss = 0.
-        last_loss = 0.
-        for i, data in enumerate(self.dataloader_market):
-            self.optimizer.zero_grad()
-            loss = self.compute_loss(data)
-            loss.backward()
-            self.optimizer.step()
-        return loss.item()
         
     def fit(self, EPOCHS):
 
-        self.dataloader_market= DataLoader(self.dataset_market, batch_size=10000,
+        self.dataloader_market= DataLoader(self.dataset_market, batch_size=256,
                         shuffle=True, num_workers=0)
 
         optimizer = torch.optim.Adam
-        self.optimizer = optimizer(self.parameters(), lr=0.0001)
-
+        self.optimizer = optimizer(self.parameters(), lr=0.005)
+        history = []
         progress = tqdm(range(EPOCHS))
         for _ in progress:
             self.train(True)
-            avg_loss = self.train_one_epoch(1)
-            progress.desc = "Loss=" + str(avg_loss)
+            for i, data in enumerate(self.dataloader_market):
+                self.optimizer.zero_grad()
+                loss = self.compute_loss(data)
+                loss.backward()
+                self.optimizer.step()
+                history.append(loss.item())
+                progress.desc = "Loss=" + str(loss.item())
+        return history
             
     
     def pricer(self) -> Tensor:
