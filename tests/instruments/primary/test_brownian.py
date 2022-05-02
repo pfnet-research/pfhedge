@@ -1,3 +1,6 @@
+from typing import Optional
+from typing import Union
+
 import pytest
 import torch
 from torch.testing import assert_close
@@ -47,11 +50,11 @@ class TestBrownianStock:
         with pytest.raises(TypeError):
             s.register_buffer("a", torch.nn.ReLU())
 
-    def test_buffers(self):
+    def test_buffers(self, device: Optional[Union[str, torch.device]] = "cpu"):
         torch.manual_seed(42)
-        a = torch.randn(10)
-        b = torch.randn(10)
-        c = torch.randn(10)
+        a = torch.randn(10).to(device)
+        b = torch.randn(10).to(device)
+        c = torch.randn(10).to(device)
 
         s = BrownianStock()
         s.register_buffer("a", a)
@@ -65,6 +68,10 @@ class TestBrownianStock:
         result = list(s.buffers())
         expect = [a, b, c]
         assert result == expect
+
+    @pytest.mark.gpu
+    def test_buffers_gpu(self):
+        self.test_buffers(device="cuda")
 
     def test_buffer_attribute_error(self):
         class MyPrimary(BasePrimary):
@@ -182,18 +189,24 @@ class TestBrownianStock:
         assert s.dtype == torch.bfloat16
         assert s.spot.dtype == torch.bfloat16
 
-    def test_simulate_shape(self):
-        s = BrownianStock(dt=0.1)
+    def test_simulate_shape(self, device: Optional[Union[str, torch.device]] = "cpu"):
+        s = BrownianStock(dt=0.1).to(device)
         s.simulate(time_horizon=0.2, n_paths=10)
         assert s.spot.size() == torch.Size((10, 3))
 
-        s = BrownianStock(dt=0.1)
+        s = BrownianStock(dt=0.1).to(device)
         s.simulate(time_horizon=0.25, n_paths=10)
         assert s.spot.size() == torch.Size((10, 4))
 
+    @pytest.mark.gpu
+    def test_simulate_shape_gpu(self):
+        self.test_simulate_shape(device="cuda")
+
     @pytest.mark.parametrize("sigma", [0.2, 0.1])
-    def test_volatility(self, sigma):
-        s = BrownianStock(sigma=sigma)
+    def test_volatility(
+        self, sigma, device: Optional[Union[str, torch.device]] = "cpu"
+    ):
+        s = BrownianStock(sigma=sigma).to(device)
         s.simulate()
         result = s.volatility
         expect = torch.full_like(s.spot, sigma)
@@ -202,6 +215,11 @@ class TestBrownianStock:
         result = s.variance
         expect = torch.full_like(s.spot, sigma**2)
         assert_close(result, expect)
+
+    @pytest.mark.gpu
+    @pytest.mark.parametrize("sigma", [0.2, 0.1])
+    def test_volatility_gpu(self, sigma):
+        self.test_volatility(sigma, device="cuda")
 
     def test_init_device(self):
         s = BrownianStock(device=torch.device("cuda:0"))

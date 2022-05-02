@@ -1,3 +1,7 @@
+from typing import Optional
+from typing import Union
+
+import pytest
 import torch
 
 from pfhedge.instruments import BrownianStock
@@ -35,22 +39,26 @@ class TestBlackScholes:
         # assert m.strike == 2.0
         # assert not m.call
 
-    def test_shape(self):
+    def test_shape(self, device: Optional[Union[str, torch.device]] = "cpu"):
         torch.distributions.Distribution.set_default_validate_args(False)
 
-        deriv = EuropeanOption(BrownianStock())
-        m = BlackScholes(deriv)
+        deriv = EuropeanOption(BrownianStock()).to(device)
+        m = BlackScholes(deriv).to(device)
 
         N = 10
         H_in = len(m.inputs())
         M_1 = 12
         M_2 = 13
 
-        input = torch.zeros((N, H_in))
+        input = torch.zeros((N, H_in)).to(device)
         assert m(input).size() == torch.Size((N, 1))
 
-        input = torch.zeros((N, M_1, H_in))
+        input = torch.zeros((N, M_1, H_in)).to(device)
         assert m(input).size() == torch.Size((N, M_1, 1))
 
-        input = torch.zeros((N, M_1, M_2, H_in))
+        input = torch.zeros((N, M_1, M_2, H_in)).to(device)
         assert m(input).size() == torch.Size((N, M_1, M_2, 1))
+
+    @pytest.mark.gpu
+    def test_shape_gpu(self):
+        self.test_shape(device="cuda")

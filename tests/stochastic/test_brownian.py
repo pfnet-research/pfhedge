@@ -1,5 +1,8 @@
 from math import sqrt
+from typing import Optional
+from typing import Union
 
+import pytest
 import torch
 from torch.testing import assert_close
 
@@ -8,12 +11,13 @@ from pfhedge.stochastic import generate_geometric_brownian
 from pfhedge.stochastic.engine import RandnSobolBoxMuller
 
 
-def test_generate_brownian_mean():
+def test_generate_brownian_mean(device: Optional[Union[str, torch.device]] = "cpu"):
     torch.manual_seed(42)
     n_paths = 10000
     n_steps = 250
 
-    output = generate_brownian(n_paths, n_steps)
+    device = torch.device(device) if device else None
+    output = generate_brownian(n_paths, n_steps, device=device)
     assert output.size() == torch.Size((n_paths, n_steps))
     result = output[:, -1].mean()
     expect = torch.zeros_like(result)
@@ -21,53 +25,77 @@ def test_generate_brownian_mean():
     assert_close(result, expect, atol=3 * std, rtol=0)
 
 
-def test_generate_brownian_nosigma():
+@pytest.mark.gpu
+def test_generate_brownian_mean_gpu():
+    test_generate_brownian_mean(device="cuda")
+
+
+def test_generate_brownian_nosigma(device: Optional[Union[str, torch.device]] = "cpu"):
     torch.manual_seed(42)
     n_steps = 250
 
-    result = generate_brownian(1, n_steps, sigma=0)
-    expect = torch.zeros(1, n_steps)
+    device = torch.device(device) if device else None
+    result = generate_brownian(1, n_steps, sigma=0, device=device)
+    expect = torch.zeros(1, n_steps).to(device)
     assert_close(result, expect)
 
     mu = 0.1
     dt = 0.01
-    result = generate_brownian(1, n_steps, mu=mu, sigma=0, dt=dt)
-    expect = torch.linspace(0, mu * dt * (n_steps - 1), n_steps).unsqueeze(0)
+    result = generate_brownian(1, n_steps, mu=mu, sigma=0, dt=dt, device=device)
+    expect = torch.linspace(0, mu * dt * (n_steps - 1), n_steps).to(device).unsqueeze(0)
     assert_close(result, expect)
 
 
-def test_generate_brownian_std():
+@pytest.mark.gpu
+def test_generate_brownian_nosigma_gpu():
+    test_generate_brownian_nosigma(device="cuda")
+
+
+def test_generate_brownian_std(device: Optional[Union[str, torch.device]] = "cpu"):
     torch.manual_seed(42)
     n_paths = 10000
     n_steps = 250
 
-    output = generate_brownian(n_paths, n_steps)
+    device = torch.device(device) if device else None
+    output = generate_brownian(n_paths, n_steps, device=device)
     assert output.size() == torch.Size((n_paths, n_steps))
     result = output[:, -1].std()
     expect = torch.full_like(result, 0.2)
     assert_close(result, expect, atol=0, rtol=0.1)
 
 
-def test_generate_brownian_mean_init_state():
+@pytest.mark.gpu
+def test_generate_brownian_std_gpu():
+    test_generate_brownian_std(device="cuda")
+
+
+def test_generate_brownian_mean_init_state(
+    device: Optional[Union[str, torch.device]] = "cpu"
+):
     torch.manual_seed(42)
     n_paths = 10000
     n_steps = 250
 
-    output = generate_brownian(n_paths, n_steps, init_state=1.0)
+    device = torch.device(device) if device else None
+    output = generate_brownian(n_paths, n_steps, init_state=1.0, device=device)
     assert output.size() == torch.Size((n_paths, n_steps))
     result = output[:, -1].mean()
     expect = torch.ones_like(result)
     std = 0.2 * sqrt(1 / n_paths)
     assert_close(result, expect, atol=3 * std, rtol=0)
 
-    output = generate_brownian(n_paths, n_steps, init_state=torch.tensor(1.0))
+    output = generate_brownian(
+        n_paths, n_steps, init_state=torch.tensor(1.0).to(device), device=device
+    )
     assert output.size() == torch.Size((n_paths, n_steps))
     result = output[:, -1].mean()
     expect = torch.ones_like(result)
     std = 0.2 * sqrt(1 / n_paths)
     assert_close(result, expect, atol=3 * std, rtol=0)
 
-    output = generate_brownian(n_paths, n_steps, init_state=torch.tensor([1.0]))
+    output = generate_brownian(
+        n_paths, n_steps, init_state=torch.tensor([1.0]).to(device), device=device
+    )
     assert output.size() == torch.Size((n_paths, n_steps))
     result = output[:, -1].mean()
     expect = torch.ones_like(result)
@@ -75,26 +103,40 @@ def test_generate_brownian_mean_init_state():
     assert_close(result, expect, atol=3 * std, rtol=0)
 
 
-def test_generate_brownian_mean_mu():
+@pytest.mark.gpu
+def test_generate_brownian_mean_init_state_gpu():
+    test_generate_brownian_mean_init_state(device="cuda")
+
+
+def test_generate_brownian_mean_mu(device: Optional[Union[str, torch.device]] = "cpu"):
     torch.manual_seed(42)
     n_paths = 10000
     n_steps = 250
     dt = 1 / 250
     mu = 0.1
 
-    output = generate_brownian(n_paths, n_steps, mu=mu)
+    device = torch.device(device) if device else None
+    output = generate_brownian(n_paths, n_steps, mu=mu, device=device)
     result = output[:, -1].mean()
     expect = torch.full_like(result, mu * dt * n_steps)
     std = 0.2 * sqrt(1 / n_paths)
     assert_close(result, expect, atol=3 * std, rtol=0)
 
 
-def test_generate_brownian_sobol_mean():
+@pytest.mark.gpu
+def test_generate_brownian_mean_mu_gpu():
+    test_generate_brownian_mean_mu(device="cuda")
+
+
+def test_generate_brownian_sobol_mean(
+    device: Optional[Union[str, torch.device]] = "cpu"
+):
     n_paths = 10000
     n_steps = 250
 
+    device = torch.device(device) if device else None
     engine = RandnSobolBoxMuller(seed=42, scramble=True)
-    output = generate_brownian(n_paths, n_steps, engine=engine)
+    output = generate_brownian(n_paths, n_steps, engine=engine, device=device)
     assert output.size() == torch.Size((n_paths, n_steps))
     result = output[:, -1].mean()
     expect = torch.zeros_like(result)
@@ -102,49 +144,76 @@ def test_generate_brownian_sobol_mean():
     assert_close(result, expect, atol=3 * std, rtol=0)
 
 
-def test_generate_brownian_dtype():
+@pytest.mark.gpu
+def test_generate_brownian_sobol_mean_gpu():
+    test_generate_brownian_sobol_mean(device="cuda")
+
+
+def test_generate_brownian_dtype(device: Optional[Union[str, torch.device]] = "cpu"):
     torch.manual_seed(42)
 
-    output = generate_brownian(1, 1, dtype=torch.float32)
+    device = torch.device(device) if device else None
+    output = generate_brownian(1, 1, dtype=torch.float32, device=device)
     assert output.dtype == torch.float32
 
-    output = generate_brownian(1, 1, dtype=torch.float64)
+    output = generate_brownian(1, 1, dtype=torch.float64, device=device)
     assert output.dtype == torch.float64
 
 
-def test_generate_geometric_brownian_mean():
+@pytest.mark.gpu
+def test_generate_brownian_dtype_gpu():
+    test_generate_brownian_dtype(device="cuda")
+
+
+def test_generate_geometric_brownian_mean(
+    device: Optional[Union[str, torch.device]] = "cpu"
+):
     torch.manual_seed(42)
 
     n_paths = 10000
     n_steps = 250
 
-    t = generate_geometric_brownian(n_paths, n_steps)
+    device = torch.device(device) if device else None
+    t = generate_geometric_brownian(n_paths, n_steps, device=device)
     result = t[:, -1].mean()
-    expect = torch.ones_like(result)
+    expect = torch.ones_like(result).to(device)
     std = 0.2 * sqrt(1 / n_paths)
     assert_close(result, expect, atol=3 * std, rtol=0)
 
-    t = generate_geometric_brownian(n_paths, n_steps, init_state=2.0)
+    t = generate_geometric_brownian(n_paths, n_steps, init_state=2.0, device=device)
     result = t[:, -1].mean()
-    expect = torch.ones_like(result) * 2
+    expect = torch.ones_like(result).to(device) * 2
     std = 0.2 * sqrt(1 / n_paths)
     assert_close(result, expect, atol=3 * std, rtol=0)
 
     mu = 0.1
     dt = 1 / 250
 
-    output = generate_geometric_brownian(n_paths, n_steps, mu=mu)
+    output = generate_geometric_brownian(n_paths, n_steps, mu=mu, device=device)
     result = output[:, -1].mean()
-    expect = torch.ones_like(result) * torch.tensor(n_steps * dt * mu).exp()
+    expect = torch.ones_like(result) * torch.tensor(n_steps * dt * mu).to(device).exp()
     std = 0.2 * sqrt(1 / n_paths)
     assert_close(result, expect, atol=3 * std, rtol=0)
 
 
-def test_generate_geometric_brownian_dtype():
+@pytest.mark.gpu
+def test_generate_geometric_brownian_mean_gpu():
+    test_generate_geometric_brownian_mean(device="cuda")
+
+
+def test_generate_geometric_brownian_dtype(
+    device: Optional[Union[str, torch.device]] = "cpu"
+):
     torch.manual_seed(42)
 
-    output = generate_geometric_brownian(1, 1, dtype=torch.float32)
+    device = torch.device(device) if device else None
+    output = generate_geometric_brownian(1, 1, dtype=torch.float32, device=device)
     assert output.dtype == torch.float32
 
-    output = generate_geometric_brownian(1, 1, dtype=torch.float64)
+    output = generate_geometric_brownian(1, 1, dtype=torch.float64, device=device)
     assert output.dtype == torch.float64
+
+
+@pytest.mark.gpu
+def test_generate_geometric_brownian_dtype_gpu():
+    test_generate_geometric_brownian_dtype(device="cuda")
