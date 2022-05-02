@@ -1,8 +1,14 @@
+import pytest
 import torch
 from torch import Tensor
 from torch.testing import assert_close
 
 import pfhedge.autogreek as autogreek
+
+
+@pytest.mark.gpu
+def test_gpu():
+    assert False
 
 
 def test_gamma_from_delta():
