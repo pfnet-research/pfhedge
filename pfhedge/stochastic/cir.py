@@ -103,7 +103,7 @@ def generate_cir(
         # Compute m, s, psi: Eq(17,18)
         exp = (-kappa * dt).exp()
         m = theta + (v - theta) * exp
-        s2 = v * (sigma ** 2) * exp * (1 - exp) / kappa + theta * (sigma ** 2) * (
+        s2 = v * (sigma**2) * exp * (1 - exp) / kappa + theta * (sigma**2) * (
             (1 - exp).square()
         ) / (2 * kappa)
         psi = s2 / m.square().clamp(min=EPSILON)
