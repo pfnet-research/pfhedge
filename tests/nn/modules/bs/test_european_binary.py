@@ -597,6 +597,7 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
         with pytest.raises(ValueError):
             m2.theta(derivative.log_moneyness(), derivative.time_to_maturity(), None)
 
+    @pytest.mark.gpu
     @pytest.mark.parametrize("call", [True, False])
     def test_theta_3_gpu(self, call: bool):
         self.test_theta_3(call, device="cuda")
