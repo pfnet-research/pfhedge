@@ -105,4 +105,11 @@ def find_implied_volatility(
         torch.Tensor
     """
     fn = lambda volatility: pricer(volatility=volatility, **params)
-    return bisect(fn, price, lower, upper, precision=precision, max_iter=max_iter)
+    return bisect(
+        fn,
+        price,
+        torch.as_tensor(lower, device=price.device),
+        torch.as_tensor(upper, device=price.device),
+        precision=precision,
+        max_iter=max_iter,
+    )
