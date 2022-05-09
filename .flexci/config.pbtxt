@@ -1,0 +1,62 @@
+configs {
+  key: "pfhedge.prep-linux"
+  value {
+    requirement {
+      cpu: 8
+      memory: 8
+      disk: 20
+    }
+    time_limit: {
+      seconds: 3600
+    }
+    command: "bash .flexci/linux/script.sh prep"
+  }
+}
+
+configs {
+  key: "pfhedge.python38-linux"
+  value {
+    requirement {
+      cpu: 2
+      gpu: 1
+      memory: 4
+      disk: 10
+    }
+    time_limit: {
+      seconds: 1200
+    }
+    command: "bash .flexci/linux/script.sh python38"
+  }
+}
+
+configs {
+  key: "pfhedge.python39-linux"
+  value {
+    requirement {
+      cpu: 2
+      gpu: 1
+      memory: 4
+      disk: 10
+    }
+    time_limit: {
+      seconds: 1200
+    }
+    command: "bash .flexci/linux/script.sh python39"
+  }
+}
+
+configs {
+  key: "pfhedge.python310-linux"
+  value {
+    requirement {
+      cpu: 2
+      gpu: 1
+      memory: 4
+      disk: 10
+    }
+    time_limit: {
+      seconds: 1200
+    }
+    command: "bash .flexci/linux/script.sh python310"
+  }
+}
