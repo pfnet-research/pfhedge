@@ -135,6 +135,39 @@ class TestEntropicRiskMeasure:
     def test_value_gpu(self, n_paths, a):
         self.test_value(n_paths, a, device="cuda")
 
+    @pytest.mark.parametrize("n_paths", [10, 100])
+    @pytest.mark.parametrize("a", [1.0, 2.0, 3.0])
+    @pytest.mark.parametrize("value", [100.0, -100.0])
+    def test_extreme(
+        self, n_paths, a, value, device: Optional[Union[str, torch.device]] = "cpu"
+    ):
+        torch.manual_seed(42)
+
+        loss = EntropicRiskMeasure(a)
+        result = loss(torch.full((n_paths,), value).to(device))
+        assert_close(result, torch.tensor(-value).to(device))
+
+    @pytest.mark.gpu
+    @pytest.mark.parametrize("n_paths", [10, 100])
+    @pytest.mark.parametrize("a", [1.0, 2.0, 3.0])
+    @pytest.mark.parametrize("value", [100.0, -100.0])
+    def test_extreme_gpu(self, n_paths, a, value):
+        self.test_extreme(n_paths=n_paths, a=a, value=value, device="cuda")
+
+    def test_extreme2(self, device: Optional[Union[str, torch.device]] = "cpu"):
+        torch.manual_seed(42)
+
+        loss = EntropicRiskMeasure(a=1.0)
+        result1 = loss(torch.tensor([1000.0, 0.0]).to(device))
+        result2 = loss(torch.tensor([500.0, -500.0]).to(device))
+        result3 = loss(torch.tensor([0.0, -1000.0]).to(device))
+        assert_close(result1 + 500, result2)
+        assert_close(result1 + 1000, result3)
+
+    @pytest.mark.gpu
+    def test_extreme2_gpu(self):
+        self.test_extreme2(device="cuda")
+
     def test_error_a(self):
         with pytest.raises(ValueError):
             EntropicRiskMeasure(0)

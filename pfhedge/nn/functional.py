@@ -200,7 +200,8 @@ def entropic_risk_measure(input: Tensor, a: float = 1.0) -> Tensor:
 
     See :class:`pfhedge.nn.EntropicRiskMeasure` for details.
     """
-    return (-exp_utility(input, a=a).mean(0)).log() / a
+    input_min = torch.min(input, dim=0).values
+    return (-exp_utility(input - input_min, a=a).mean(0)).log() / a - input_min
 
 
 def topp(input: Tensor, p: float, dim: Optional[int] = None, largest: bool = True):
