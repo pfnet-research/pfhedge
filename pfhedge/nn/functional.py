@@ -200,7 +200,8 @@ def entropic_risk_measure(input: Tensor, a: float = 1.0) -> Tensor:
 
     See :class:`pfhedge.nn.EntropicRiskMeasure` for details.
     """
-    return (-exp_utility(input, a=a).mean(0)).log() / a
+    input_min = torch.min(input, dim=0).values
+    return (-exp_utility(input - input_min, a=a).mean(0)).log() / a - input_min
 
 
 def topp(input: Tensor, p: float, dim: Optional[int] = None, largest: bool = True):
@@ -693,7 +694,7 @@ def svi_variance(
         torch.Tensor
     """
     k_m = torch.as_tensor(input - m)  # k - m
-    return a + b * (rho * k_m + (k_m.square() + sigma ** 2).sqrt())
+    return a + b * (rho * k_m + (k_m.square() + sigma**2).sqrt())
 
 
 def bilerp(
