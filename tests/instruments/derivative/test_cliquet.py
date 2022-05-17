@@ -1,3 +1,6 @@
+from typing import Optional
+from typing import Union
+
 import pytest
 import torch
 from torch import Tensor
@@ -16,31 +19,45 @@ class TestEuropeanOption:
     def setup_class(cls):
         torch.manual_seed(42)
 
-    def test_payoff_start0(self):
-        stock = BrownianStock()
-        derivative = EuropeanForwardStartOption(stock, start=0.0)
-        european = EuropeanOption(stock)
+    def test_payoff_start0(self, device: Optional[Union[str, torch.device]] = "cpu"):
+        stock = BrownianStock().to(device)
+        derivative = EuropeanForwardStartOption(stock, start=0.0).to(device)
+        european = EuropeanOption(stock).to(device)
         derivative.simulate(n_paths=10)
         assert_close(derivative.payoff(), european.payoff())
 
-    def test_payoff_start_end(self):
-        stock = BrownianStock()
+    @pytest.mark.gpu
+    def test_payoff_start0_gpu(self):
+        self.test_payoff_start0(device="cuda")
+
+    def test_payoff_start_end(self, device: Optional[Union[str, torch.device]] = "cpu"):
+        stock = BrownianStock().to(device)
         dt = stock.dt
         spot = torch.tensor(
             [[1.0, 2.0, 3.0, 6.0], [1.0, 3.0, 2.0, 6.0], [1.0, 7.0, 1.0, 6.0]]
-        )
-        derivative = EuropeanForwardStartOption(stock, maturity=3 * dt, start=1 * dt)
+        ).to(device)
+        derivative = EuropeanForwardStartOption(
+            stock, maturity=3 * dt, start=1 * dt
+        ).to(device)
         derivative.underlier.register_buffer("spot", spot)
-        assert_close(derivative.payoff(), torch.tensor([2.0, 1.0, 0.0]))
+        assert_close(derivative.payoff(), torch.tensor([2.0, 1.0, 0.0]).to(device))
 
-        derivative = EuropeanForwardStartOption(stock, maturity=3 * dt, start=2 * dt)
+        derivative = EuropeanForwardStartOption(
+            stock, maturity=3 * dt, start=2 * dt
+        ).to(device)
         derivative.underlier.register_buffer("spot", spot)
-        assert_close(derivative.payoff(), torch.tensor([1.0, 2.0, 5.0]))
+        assert_close(derivative.payoff(), torch.tensor([1.0, 2.0, 5.0]).to(device))
 
         # start is rounded off
-        derivative = EuropeanForwardStartOption(stock, maturity=3 * dt, start=2.9 * dt)
+        derivative = EuropeanForwardStartOption(
+            stock, maturity=3 * dt, start=2.9 * dt
+        ).to(device)
         derivative.underlier.register_buffer("spot", spot)
-        assert_close(derivative.payoff(), torch.tensor([1.0, 2.0, 5.0]))
+        assert_close(derivative.payoff(), torch.tensor([1.0, 2.0, 5.0]).to(device))
+
+    @pytest.mark.gpu
+    def test_payoff_start_end_gpu(self):
+        self.test_payoff_start_end(device="cuda")
 
     def test_repr(self):
         derivative = EuropeanForwardStartOption(BrownianStock(), maturity=1.0)

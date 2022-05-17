@@ -1,3 +1,6 @@
+from typing import Optional
+from typing import Union
+
 import pytest
 import torch
 from torch.testing import assert_close
@@ -7,11 +10,11 @@ from pfhedge._utils.parse import parse_time_to_maturity
 from pfhedge._utils.parse import parse_volatility
 
 
-def test_parse_spot():
+def test_parse_spot(device: Optional[Union[str, torch.device]] = "cpu"):
     torch.manual_seed(42)
 
-    spot = torch.randn(10).exp()
-    strike = torch.randn(10).exp()
+    spot = torch.randn(10).to(device).exp()
+    strike = torch.randn(10).to(device).exp()
     moneyness = spot / strike
     log_moneyness = moneyness.log()
 
@@ -32,10 +35,15 @@ def test_parse_spot():
         _ = parse_spot(log_moneyness=log_moneyness)
 
 
-def test_parse_volatility():
+@pytest.mark.gpu
+def test_parse_spot_gpu():
+    test_parse_spot(device="cuda")
+
+
+def test_parse_volatility(device: Optional[Union[str, torch.device]] = "cpu"):
     torch.manual_seed(42)
 
-    volatility = torch.randn(10).exp()
+    volatility = torch.randn(10).to(device).exp()
     variance = volatility.square()
 
     result = parse_volatility(volatility=volatility)
@@ -49,10 +57,15 @@ def test_parse_volatility():
         _ = parse_volatility(spot=volatility)
 
 
-def test_parse_time_to_maturity():
+@pytest.mark.gpu
+def test_parse_volatility_gpu():
+    test_parse_volatility(device="cuda")
+
+
+def test_parse_time_to_maturity(device: Optional[Union[str, torch.device]] = "cpu"):
     torch.manual_seed(42)
 
-    time_to_maturity = torch.randn(10).exp()
+    time_to_maturity = torch.randn(10).to(device).exp()
 
     result = parse_time_to_maturity(time_to_maturity=time_to_maturity)
     assert_close(result, time_to_maturity)
@@ -61,3 +74,8 @@ def test_parse_time_to_maturity():
         _ = parse_time_to_maturity()
     with pytest.raises(ValueError):
         _ = parse_time_to_maturity(spot=time_to_maturity)
+
+
+@pytest.mark.gpu
+def test_parse_time_to_maturity_gpu():
+    test_parse_time_to_maturity(device="cuda")

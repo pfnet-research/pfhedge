@@ -1,3 +1,6 @@
+from typing import Optional
+from typing import Union
+
 import pytest
 import torch
 from torch.testing import assert_close
@@ -17,25 +20,39 @@ class TestLookbackOption:
     def setup_class(cls):
         torch.manual_seed(42)
 
-    def test_payoff(self):
-        derivative = LookbackOption(BrownianStock(), strike=3.0)
+    def test_payoff(self, device: Optional[Union[str, torch.device]] = "cpu"):
+        derivative = LookbackOption(BrownianStock(), strike=3.0).to(device)
         derivative.ul().register_buffer(
-            "spot", torch.tensor([[1.0, 2.0, 1.5], [2.0, 3.0, 4.0], [3.0, 2.0, 1.0]])
+            "spot",
+            torch.tensor([[1.0, 2.0, 1.5], [2.0, 3.0, 4.0], [3.0, 2.0, 1.0]]).to(
+                device
+            ),
         )
         # max [2.0, 4.0, 3.0]
         result = derivative.payoff()
-        expect = torch.tensor([0.0, 1.0, 0.0])
+        expect = torch.tensor([0.0, 1.0, 0.0]).to(device)
         assert_close(result, expect)
 
-    def test_payoff_put(self):
-        derivative = LookbackOption(BrownianStock(), strike=3.0, call=False)
+    @pytest.mark.gpu
+    def test_payoff_gpu(self):
+        self.test_payoff(device="cuda")
+
+    def test_payoff_put(self, device: Optional[Union[str, torch.device]] = "cpu"):
+        derivative = LookbackOption(BrownianStock(), strike=3.0, call=False).to(device)
         derivative.ul().register_buffer(
-            "spot", torch.tensor([[3.0, 2.0, 2.5], [6.0, 5.0, 4.0], [3.0, 4.0, 5.0]])
+            "spot",
+            torch.tensor([[3.0, 2.0, 2.5], [6.0, 5.0, 4.0], [3.0, 4.0, 5.0]]).to(
+                device
+            ),
         )
         # min [2.0, 4.0, 3.0]
         result = derivative.payoff()
-        expect = torch.tensor([1.0, 0.0, 0.0])
+        expect = torch.tensor([1.0, 0.0, 0.0]).to(device)
         assert_close(result, expect)
+
+    @pytest.mark.gpu
+    def test_payoff_put_gpu(self):
+        self.test_payoff_put(device="cuda")
 
     @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
     def test_dtype(self, dtype):

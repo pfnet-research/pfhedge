@@ -25,8 +25,8 @@ def bisect(
     Args:
         fn (callable[[Tensor], Tensor]): A monotone function.
         target (Tensor): Target of function values.
-        lower (Tensor or float): Lower bound of binary search.
-        upper (Tensor or float): Upper bound of binary search.
+        lower (Tensor or float): Lower bound of binary search. (If cuda is used, cuda Tensor is necessaary.)
+        upper (Tensor or float): Upper bound of binary search. (If cuda is used, cuda Tensor is necessaary.)
         precision (float, default=1e-6): Precision of output.
         max_iter (int, default 100000): If the number of iterations exceeds this
             value, abort computation and raise RuntimeError.
@@ -105,4 +105,11 @@ def find_implied_volatility(
         torch.Tensor
     """
     fn = lambda volatility: pricer(volatility=volatility, **params)
-    return bisect(fn, price, lower, upper, precision=precision, max_iter=max_iter)
+    return bisect(
+        fn,
+        price,
+        torch.as_tensor(lower, device=price.device),
+        torch.as_tensor(upper, device=price.device),
+        precision=precision,
+        max_iter=max_iter,
+    )
