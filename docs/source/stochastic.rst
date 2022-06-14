@@ -19,7 +19,7 @@ Stochastic Processes
     generate_heston
     generate_local_volatility_process
     generate_vasicek
-    generate_rbergomi
+    generate_rough_bergomi
 
 Generators
 ----------
