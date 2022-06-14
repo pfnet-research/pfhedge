@@ -1,8 +1,31 @@
 import numpy as np
 import pytest
 import torch
+from torch.testing import assert_close
 
 from pfhedge.stochastic.rough_bergomi import generate_rough_bergomi
+
+
+def test_generate_heston_repr():
+    torch.manual_seed(42)
+    output = generate_rough_bergomi(2, 5)
+    expect = """\
+SpotVarianceTuple(
+  spot=
+  tensor([[1.0000, 0.9807, 0.9563, 0.9540, 0.9570],
+          [1.0000, 1.0147, 1.0097, 1.0107, 1.0164]])
+  variance=
+  tensor([[0.0400, 0.3130, 0.0105, 0.0164, 0.0068],
+          [0.0400, 0.0396, 0.0049, 0.0064, 0.0149]])
+)"""
+    assert repr(output) == expect
+
+
+def test_generate_heston_volatility():
+    torch.manual_seed(42)
+
+    output = generate_rough_bergomi(100, 250)
+    assert_close(output.volatility, output.variance.sqrt())
 
 
 @pytest.mark.skipif(True, reason="for development")
