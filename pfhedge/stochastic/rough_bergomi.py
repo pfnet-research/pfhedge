@@ -5,11 +5,7 @@ import torch
 
 from pfhedge._utils.typing import TensorOrScalar
 from pfhedge.stochastic._utils import cast_state
-from pfhedge.stochastic.heston import HestonTuple
-
-
-class RoughBergomiTuple(HestonTuple):
-    pass
+from pfhedge.stochastic.heston import SpotVarianceTuple
 
 
 def generate_rough_bergomi(
@@ -23,7 +19,7 @@ def generate_rough_bergomi(
     dt: float = 1 / 250,
     dtype: Optional[torch.dtype] = None,
     device: Optional[torch.device] = None,
-) -> RoughBergomiTuple:
+) -> SpotVarianceTuple:
     r"""Returns time series following the rough Bergomi (rBergomi) model.
 
     The time evolution of the process is given by:
@@ -80,11 +76,11 @@ def generate_rough_bergomi(
         >>> from pfhedge.stochastic import generate_rough_bergomi
         ...
         >>> _ = torch.manual_seed(42)
-        >>> spot, variance = generate_rough_bergomi(2, 5)
-        >>> spot
+        >>> outputs = generate_rough_bergomi(2, 5)
+        >>> outputs.spot
         tensor([[1.0000, 0.9807, 0.9563, 0.9540, 0.9570],
                 [1.0000, 1.0147, 1.0097, 1.0107, 1.0164]])
-        >>> variance
+        >>> outputs.variance
         tensor([[0.0400, 0.3130, 0.0105, 0.0164, 0.0068],
                 [0.0400, 0.0396, 0.0049, 0.0064, 0.0149]])
 
@@ -147,4 +143,4 @@ def generate_rough_bergomi(
     )
     prices = init_state[0] * log_return.exp()
 
-    return RoughBergomiTuple(prices, variance)
+    return SpotVarianceTuple(prices, variance)
