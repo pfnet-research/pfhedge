@@ -11,12 +11,14 @@ on:
       - develop
       - release/*
       - hotfix/*
+      - hirano-master
   pull_request:
       branches:
       - main
       - develop
       - release/*
       - hotfix/*
+      - hirano-master
   workflow_dispatch:
 
 jobs:
