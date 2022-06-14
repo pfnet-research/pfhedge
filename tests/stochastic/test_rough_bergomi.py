@@ -1,4 +1,3 @@
-import numpy as np
 import pytest
 import torch
 from torch.testing import assert_close
@@ -31,9 +30,11 @@ def test_generate_heston_volatility():
 @pytest.mark.skipif(True, reason="for development")
 def test_generate_rough_bergomi() -> None:
 
-    torch.manual_seed(42)
+    import numpy as np
     from scipy.optimize import brentq  # type: ignore # mypy ignore
     from scipy.stats import norm  # type: ignore # mypy ignore
+
+    torch.manual_seed(42)
 
     # https://github.com/ryanmccrickerd/rough_bergomi/blob/master/notebooks/rbergomi.ipynb
     def bs(F, K, V, o="call"):
