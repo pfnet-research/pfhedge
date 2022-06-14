@@ -2,11 +2,11 @@ import numpy as np
 import pytest
 import torch
 
-from pfhedge.stochastic.rbergomi import generate_rbergomi
+from pfhedge.stochastic.rough_bergomi import generate_rough_bergomi
 
 
-# @pytest.mark.skipif(True, reason="for development")
-def test_generate_rbergomi() -> None:
+@pytest.mark.skipif(True, reason="for development")
+def test_generate_rough_bergomi() -> None:
 
     torch.manual_seed(42)
     from scipy.optimize import brentq  # type: ignore # mypy ignore
@@ -54,7 +54,7 @@ def test_generate_rbergomi() -> None:
 
     vec_bsinv = np.vectorize(bsinv)
 
-    price, variance = generate_rbergomi(
+    price, variance = generate_rough_bergomi(
         n_paths=30000,
         n_steps=100,
         alpha=-0.43,
