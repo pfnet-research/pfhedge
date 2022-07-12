@@ -26,20 +26,19 @@ def generate_marton_jump(
     init_state = cast_state(init_state, dtype=dtype, device=device)
 
     poisson = torch.distributions.poisson.Poisson(rate=jump_per_year * dt)
-    n_jumps = poisson.sample((n_paths, n_steps)).to(dtype=dtype, device=device)
+    n_jumps = poisson.sample((n_paths, n_steps - 1)).to(dtype=dtype, device=device)
 
     jump_size = (
         jump_mean
-        + torch.randn((n_paths, n_steps), dtype=dtype, device=device) * jump_std
+        + torch.randn((n_paths, n_steps - 1), dtype=dtype, device=device) * jump_std
     )
     jump = n_jumps * jump_size
+    jump = torch.cat(
+        [torch.zeros((n_paths, 1), dtype=dtype, device=device), jump], dim=1
+    )
 
     randn = torch.randn((n_paths, n_steps), dtype=dtype, device=device)
     randn[:, 0] = 0.0
-    drift = (
-        (mu - (sigma**2) / 2 - jump_per_year * (jump_mean + (jump_std**2) / 2))
-        * dt
-        * torch.arange(n_steps).to(randn)
-    )
+    drift = (mu - (sigma**2) / 2) * dt * torch.arange(n_steps).to(randn)
     brown = randn.new_tensor(dt).sqrt() * randn.cumsum(1)
-    return init_state[0] * (drift + sigma * brown + jump).exp()
+    return init_state[0] * (drift + sigma * brown + jump.cumsum(1)).exp()
