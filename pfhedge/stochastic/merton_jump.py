@@ -7,31 +7,36 @@ import torch
 from torch import Tensor
 
 from pfhedge._utils.typing import TensorOrScalar
-from pfhedge.stochastic import generate_geometric_brownian
 from pfhedge.stochastic._utils import cast_state
 
 
-def generate_marton_jump(
+def generate_merton_jump(
     n_paths: int,
     n_steps: int,
     init_state: Union[Tuple[TensorOrScalar, ...], TensorOrScalar] = (1.0,),
-    sigma: float = 0.2,
     mu: float = 0.0,
-    jump_per_year=1.0,
+    sigma: float = 0.2,
+    jump_per_year=68,
     jump_mean=0.0,
-    jump_std=0.3,
+    jump_std=0.01,
     dt: float = 1 / 250,
     dtype: Optional[torch.dtype] = None,
     device: Optional[torch.device] = None,
     engine: Callable[..., Tensor] = torch.randn,
 ) -> Tensor:
-    r"""Returns time series following the Merton's Jump Diffusion Model .
+    r"""Returns time series following the Merton's Jump Diffusion Model.
 
     The time evolution of the process is given by:
 
     .. math::
 
         \frac{dS(t)}{S(t)} = (\mu - \lambda k) dt + \sigma dW(t) + dJ(t) \.
+
+    Reference:
+     - Merton, R.C., Option pricing when underlying stock returns are discontinuous,
+       Journal of Financial Economics, 3 (1976), 125-144.
+     - Gugole, N. (2016). Merton jump-diffusion model versus the black and scholes approach for the log-returns and volatility
+       smile fitting. International Journal of Pure and Applied Mathematics, 109(3), 719-736.
 
     Args:
         n_paths (int): The number of simulated paths.
@@ -40,11 +45,11 @@ def generate_marton_jump(
             the time series.
             This is specified by a tuple :math:`(S(0),)`.
             It also accepts a :class:`torch.Tensor` or a :class:`float`.
+        mu (float, default=0.0): The parameter :math:`\mu`,
+            which stands for the dirft coefficient of the time series.
         sigma (float, default=0.2): The parameter :math:`\sigma`,
             which stands for the volatility of the time series.
-        mu (float, default=0.2): The parameter :math:`\mu`,
-            which stands for the dirft coefficient of the time series.
-        jump_per_year (float, default=1.0): The frequency of jumps in one year
+        jump_per_year (float, default=1.0): The frequency of jumps in one year.
         jump_mean (float, default=0.0): The mean of jumnp sizes.
         jump_std (float, default=0.3): The deviation of jump sizes.
         dt (float, default=1/250): The intervals of the time steps.
@@ -71,12 +76,12 @@ def generate_marton_jump(
         torch.Tensor
 
     Examples:
-        >>> from pfhedge.stochastic import generate_brownian
+        >>> from pfhedge.stochastic import generate_merton_jump
         >>>
         >>> _ = torch.manual_seed(42)
-        >>> generate_geometric_brownian(2, 5)
-        tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930],
-                [1.0000, 1.0282, 1.0199, 1.0258, 1.0292]])
+        >>> generate_merton_jump(2, 5)
+        tensor([[1.0000, 1.0101, 1.0001, 0.9904, 1.0072],
+                [1.0000, 0.9956, 1.0054, 1.0087, 1.0092]])
     """
     # https://www.codearmo.com/python-tutorial/merton-jump-diffusion-model-python
     init_state = cast_state(init_state, dtype=dtype, device=device)
