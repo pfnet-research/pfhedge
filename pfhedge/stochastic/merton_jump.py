@@ -80,8 +80,8 @@ def generate_merton_jump(
         >>>
         >>> _ = torch.manual_seed(42)
         >>> generate_merton_jump(2, 5)
-        tensor([[1.0000, 1.0101, 1.0001, 0.9904, 1.0072],
-                [1.0000, 0.9956, 1.0054, 1.0087, 1.0092]])
+        tensor([[1.0000, 0.9905, 1.0075, 1.0161, 1.0118],
+                [1.0000, 1.0035, 1.0041, 1.0377, 1.0345]])
     """
     # https://www.codearmo.com/python-tutorial/merton-jump-diffusion-model-python
     init_state = cast_state(init_state, dtype=dtype, device=device)
