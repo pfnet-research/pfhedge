@@ -74,7 +74,6 @@ class MertonJumpStock(BasePrimary):
     """
 
     spot: Tensor
-    variance: Tensor
 
     def __init__(
         self,
