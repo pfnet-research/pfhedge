@@ -110,7 +110,7 @@ def gamma(
 ) -> Tensor:
     """Computes and returns gamma of a derivative.
 
-    Delta is a second-order differentiation of a derivative price with respect to
+    Gamma is a second-order differentiation of a derivative price with respect to
     a price of underlying instrument.
 
     Note:
