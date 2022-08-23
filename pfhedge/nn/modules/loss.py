@@ -301,7 +301,7 @@ class QuadraticCVaR(HedgeLoss):
         - :func:`pfhedge.nn.functional.quadratic_cvar`
 
     Args:
-        lam (float, default=2.0): :math:`\lambda`.
+        lam (float, default=10.0): :math:`\lambda`.
             This parameter should satisfy :math:`\lambda \geq 1`.
 
     Shape:
@@ -321,7 +321,7 @@ class QuadraticCVaR(HedgeLoss):
         tensor(-7.9750)
     """
 
-    def __init__(self, lam: float = 2.0):
+    def __init__(self, lam: float = 10.0):
         if not lam >= 1.0:
             raise ValueError("The lam should satisfy lam >= 1.")
 
