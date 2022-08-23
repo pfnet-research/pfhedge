@@ -30,7 +30,7 @@ def generate_merton_jump(
 
     .. math::
 
-        \frac{dS(t)}{S(t)} = (\mu - \lambda k) dt + \sigma dW(t) + dJ(t) \.
+        \frac{dS(t)}{S(t)} = (\mu - \lambda k) dt + \sigma dW(t) + dJ(t) .
 
     Reference:
      - Merton, R.C., Option pricing when underlying stock returns are discontinuous,

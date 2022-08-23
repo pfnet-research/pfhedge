@@ -20,6 +20,7 @@ Stochastic Processes
     generate_local_volatility_process
     generate_vasicek
     generate_rough_bergomi
+    generate_merton_jump
 
 Generators
 ----------
