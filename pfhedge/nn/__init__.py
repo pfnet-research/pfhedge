@@ -11,6 +11,7 @@ from .modules.loss import EntropicRiskMeasure
 from .modules.loss import ExpectedShortfall
 from .modules.loss import HedgeLoss
 from .modules.loss import IsoelasticLoss
+from .modules.loss import QuadraticCVaR
 from .modules.mlp import MultiLayerPerceptron
 from .modules.naked import Naked
 from .modules.svi import SVIVariance

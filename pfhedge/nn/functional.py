@@ -356,15 +356,13 @@ def quadratic_cvar(input: Tensor, lam: float, dim: Optional[int] = None) -> Tens
             dim=dim
         )
 
-        lower = -torch.max(input, dim=dim).values
-        upper = -torch.min(input, dim=dim).values
     else:
         base = input.mean()
         input -= base
         fn_target = lambda _omega: fn.relu(-_omega - input).mean()
 
-        lower = -torch.max(input)
-        upper = -torch.min(input)
+    lower = -_max_values(input, dim=dim) - 1e-8
+    upper = -_min_values(input, dim=dim) + 1e-8
     omega = bisect(fn=fn_target, target=output_target, lower=lower, upper=upper)
     if dim:
         return (

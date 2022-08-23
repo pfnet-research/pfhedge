@@ -11,6 +11,7 @@ from pfhedge.nn import EntropicRiskMeasure
 from pfhedge.nn import ExpectedShortfall
 from pfhedge.nn import IsoelasticLoss
 from pfhedge.nn.modules.loss import OCE
+from pfhedge.nn.modules.loss import QuadraticCVaR
 
 
 def assert_loss_shape(loss):
@@ -299,6 +300,83 @@ class TestExpectedShortFall:
         torch.manual_seed(42)
 
         loss = ExpectedShortfall()
+        assert_loss_shape(loss)
+
+
+class TestQuadraticCVaR:
+    @pytest.mark.parametrize("n_paths", [100, 1000])
+    @pytest.mark.parametrize("lam", [1.0, 2.0])
+    @pytest.mark.parametrize("a", [0.001, 1, 2])
+    def test_nonincreasing(self, n_paths, lam, a):
+        torch.manual_seed(42)
+
+        loss = QuadraticCVaR(lam)
+        x1 = torch.randn(n_paths)
+        x2 = x1 - 1
+        assert_monotone(loss, x1, x2, increasing=False)
+
+    @pytest.mark.parametrize("n_paths", [100, 1000])
+    @pytest.mark.parametrize("lam", [1.0, 2.0, 10.0])
+    @pytest.mark.parametrize("a", [0.1, 0.5])
+    def test_convex(self, n_paths, lam, a):
+        torch.manual_seed(42)
+
+        loss = QuadraticCVaR(lam)
+        x1 = torch.randn(n_paths)
+        x2 = torch.randn(n_paths)
+        assert_convex(loss, x1, x2, a)
+
+    @pytest.mark.parametrize("n_paths", [100, 1000])
+    @pytest.mark.parametrize("lam", [1.0, 2.0, 10.0])
+    def test_cash(self, n_paths, lam):
+        torch.manual_seed(42)
+
+        loss = QuadraticCVaR(lam)
+        x = torch.randn(n_paths)
+        assert_cash_equivalent(loss, x, float(loss.cash(x).item()))
+
+    @pytest.mark.parametrize("n_paths", [10, 100])
+    @pytest.mark.parametrize("lam", [1.0, 2.0, 10.0])
+    @pytest.mark.parametrize("eta", [0.001, 1, 2])
+    def test_cash_equivalent(self, n_paths, lam, eta):
+        loss = QuadraticCVaR(lam)
+        assert_cash_invariant(loss, torch.randn(n_paths), eta)
+
+    def test_error_percentile(self):
+        # 1 is allowed
+        _ = QuadraticCVaR(1.0)
+        with pytest.raises(ValueError):
+            _ = QuadraticCVaR(0)
+        with pytest.raises(ValueError):
+            _ = QuadraticCVaR(-1)
+        with pytest.raises(ValueError):
+            _ = QuadraticCVaR(0.9)
+
+    @pytest.mark.parametrize("percentile", [0.1, 0.5, 0.9])
+    def test_value(self, percentile):
+        torch.manual_seed(42)
+
+        n_paths = 100
+        k = int(n_paths * percentile)
+        loss = ExpectedShortfall(percentile)
+
+        input = torch.randn(n_paths)
+
+        result = loss(input)
+        expect = -torch.mean(torch.tensor(sorted(input)[:k]))
+
+        assert_close(result, expect)
+
+    def test_repr(self):
+        loss = QuadraticCVaR(1.0)
+        assert repr(loss) == "QuadraticCVaR(1.0)"
+        loss = QuadraticCVaR(2.0)
+        assert repr(loss) == "QuadraticCVaR(2.0)"
+
+    def test_shape(self):
+        torch.manual_seed(42)
+
+        loss = QuadraticCVaR()
         assert_loss_shape(loss)
 
 
