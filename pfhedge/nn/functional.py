@@ -1,5 +1,6 @@
 from math import ceil
 from math import pi as kPI
+from typing import Callable
 from typing import List
 from typing import Optional
 from typing import Tuple
@@ -12,6 +13,7 @@ from torch.distributions.normal import Normal
 from torch.distributions.utils import broadcast_all
 
 import pfhedge.autogreek as autogreek
+from pfhedge._utils.bisect import bisect
 from pfhedge._utils.typing import TensorOrScalar
 
 
@@ -315,6 +317,63 @@ def value_at_risk(input: Tensor, p: float, dim: Optional[int] = None) -> Tensor:
         output = input.quantile(q, dim=dim)
 
     return output
+
+
+def quadratic_cvar(input: Tensor, lam: float, dim: Optional[int] = None) -> Tensor:
+    """Returns the Quadratic CVaR of the given input tensor.
+
+    .. math::
+
+        \\rho (X) = \\inf_\\omega \\left\\{\\omega + \\lambda || \\min\\{0, X + \\omega\\}||_2\\right\\}.
+
+    for :math:`\lambda\geq1`.
+
+    References:
+        - Buehler, Hans, Statistical Hedging (March 1, 2019). Available at SSRN: http://dx.doi.org/10.2139/ssrn.2913250
+
+    Args:
+        input (torch.Tensor): The input tensor.
+        lam (float): :math:`lambda`.
+        dim (int, optional): The dimension to sort along.
+
+    Returns:
+        torch.Tensor
+
+    Examples:
+        >>> from pfhedge.nn.functional import quadratic_cvar
+        >>>
+        >>> input = -torch.arange(10.0)
+        >>> input
+        tensor([-0., -1., -2., -3., -4., -5., -6., -7., -8., -9.])
+        >>> quadratic_cvar(input, 2.0)
+        tensor(7.9750)
+    """
+    output_target = torch.as_tensor(1 / (2 * lam))
+    if dim:
+        base = input.mean(dim=dim)
+        input -= base.unsqueeze(dim=dim)
+        fn_target = lambda _omega: fn.relu(-_omega.unsqueeze(dim=dim) - input).mean(
+            dim=dim
+        )
+
+        lower = -torch.max(input, dim=dim).values
+        upper = -torch.min(input, dim=dim).values
+    else:
+        base = input.mean()
+        input -= base
+        fn_target = lambda _omega: fn.relu(-_omega - input).mean()
+
+        lower = -torch.max(input)
+        upper = -torch.min(input)
+    omega = bisect(fn=fn_target, target=output_target, lower=lower, upper=upper)
+    if dim:
+        return (
+            omega
+            + lam * fn.relu(-omega.unsqueeze(dim=dim) - input).square().mean(dim=dim)
+            - base
+        )
+    else:
+        return omega + lam * fn.relu(-omega - input).square().mean() - base
 
 
 def leaky_clamp(
