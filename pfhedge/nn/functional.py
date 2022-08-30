@@ -1,3 +1,4 @@
+import math
 from math import ceil
 from math import pi as kPI
 from typing import Callable
@@ -363,7 +364,16 @@ def quadratic_cvar(input: Tensor, lam: float, dim: Optional[int] = None) -> Tens
 
     lower = -_max_values(input, dim=dim) - 1e-8
     upper = -_min_values(input, dim=dim) + 1e-8
-    omega = bisect(fn=fn_target, target=output_target, lower=lower, upper=upper)
+
+    precision = 1e-6 * math.pow(10, int(math.log10((upper - lower).max())))
+
+    omega = bisect(
+        fn=fn_target,
+        target=output_target,
+        lower=lower,
+        upper=upper,
+        precision=precision,
+    )
     if dim:
         return (
             omega

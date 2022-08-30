@@ -109,9 +109,12 @@ def test_quadratic_cvar_extreme():
     assert_close(result, expect)
 
     input = torch.stack(
-        [torch.arange(1.0, 11.0) - 1000, torch.arange(1.0, 11.0) + 1000], dim=0
+        [torch.arange(1.0, 11.0) - 100000, torch.arange(1.0, 11.0) + 100000], dim=0
     )
-    quadratic_cvar(input, 2.0, dim=1)
+    quadratic_cvar(input, 10.0, dim=1)
+
+    input = torch.randn(1000) * 100000 - 50000
+    quadratic_cvar(input, 10.0)
 
 
 def test_leaky_clamp():
