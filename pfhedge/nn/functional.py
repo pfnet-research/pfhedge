@@ -505,7 +505,7 @@ def pl(
         output -= payoff
 
     if cost is not None:
-        c = torch.tensor(cost, device=spot.device).unsqueeze(0).unsqueeze(-1)
+        c = torch.tensor(cost).to(spot).unsqueeze(0).unsqueeze(-1)
         output -= (spot[..., 1:] * unit.diff(dim=-1).abs() * c).sum(dim=(-2, -1))
         if deduct_first_cost:
             output -= (spot[..., [0]] * unit[..., [0]].abs() * c).sum(dim=(-2, -1))
