@@ -3,11 +3,10 @@ from typing import Optional
 import torch
 from torch import Tensor
 
-from pfhedge._utils.doc import _set_attr_and_docstring
-from pfhedge._utils.doc import _set_docstring
-from pfhedge._utils.str import _format_float
-from pfhedge.nn.functional import realized_variance
-
+from ..._utils.doc import _set_attr_and_docstring
+from ..._utils.doc import _set_docstring
+from ..._utils.str import _format_float
+from ...nn.functional import realized_variance
 from ..primary.base import BasePrimary
 from .base import BaseDerivative
 

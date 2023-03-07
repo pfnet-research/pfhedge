@@ -3,16 +3,15 @@ from typing import Optional
 import torch
 from torch import Tensor
 
-from pfhedge._utils.bisect import find_implied_volatility
-from pfhedge._utils.doc import _set_attr_and_docstring
-from pfhedge._utils.str import _format_float
-from pfhedge.instruments import EuropeanOption
-from pfhedge.nn.functional import bs_european_delta
-from pfhedge.nn.functional import bs_european_gamma
-from pfhedge.nn.functional import bs_european_price
-from pfhedge.nn.functional import bs_european_theta
-from pfhedge.nn.functional import bs_european_vega
-
+from ...._utils.bisect import find_implied_volatility
+from ...._utils.doc import _set_attr_and_docstring
+from ...._utils.str import _format_float
+from ....instruments import EuropeanOption
+from ....nn.functional import bs_european_delta
+from ....nn.functional import bs_european_gamma
+from ....nn.functional import bs_european_price
+from ....nn.functional import bs_european_theta
+from ....nn.functional import bs_european_vega
 from ._base import BSModuleMixin
 from ._base import acquire_params_from_derivative_0
 from ._base import acquire_params_from_derivative_1

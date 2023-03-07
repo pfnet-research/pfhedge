@@ -8,8 +8,7 @@ import torch
 from torch import Tensor
 from torch.nn import Module
 
-from pfhedge.instruments import BaseDerivative
-
+from ..instruments import BaseDerivative
 from ._base import Feature
 from ._getter import get_feature
 

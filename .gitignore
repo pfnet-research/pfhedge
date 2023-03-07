@@ -3,6 +3,7 @@ docs/source/generated/
 examples/output/*
 !examples/output/.gitkeep
 docs/notes/*.pdf
+.idea
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -5,7 +5,7 @@ import torch
 from torch import Tensor
 from torch.quasirandom import SobolEngine
 
-from pfhedge.nn.functional import box_muller
+from ..nn.functional import box_muller
 
 
 def _get_numel(size: Tuple[int, ...]) -> int:

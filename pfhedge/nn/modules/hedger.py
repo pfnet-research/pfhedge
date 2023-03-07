@@ -15,17 +15,16 @@ from torch.optim import Optimizer
 # error: Skipping analyzing "tqdm": found module but no type hints or library stubs
 from tqdm import tqdm  # type: ignore
 
-from pfhedge._utils.hook import save_prev_output
-from pfhedge._utils.lazy import has_lazy
-from pfhedge._utils.operations import ensemble_mean
-from pfhedge._utils.str import _format_float
-from pfhedge._utils.typing import TensorOrScalar
-from pfhedge.features import FeatureList
-from pfhedge.features._base import Feature
-from pfhedge.instruments.base import BaseInstrument
-from pfhedge.instruments.derivative.base import BaseDerivative
-from pfhedge.nn.functional import pl
-
+from ..._utils.hook import save_prev_output
+from ..._utils.lazy import has_lazy
+from ..._utils.operations import ensemble_mean
+from ..._utils.str import _format_float
+from ..._utils.typing import TensorOrScalar
+from ...features import FeatureList
+from ...features._base import Feature
+from ...instruments.base import BaseInstrument
+from ...instruments.derivative.base import BaseDerivative
+from ...nn.functional import pl
 from .loss import EntropicRiskMeasure
 from .loss import HedgeLoss
 

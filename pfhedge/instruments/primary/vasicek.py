@@ -5,12 +5,11 @@ from typing import Tuple
 import torch
 from torch import Tensor
 
-from pfhedge._utils.doc import _set_attr_and_docstring
-from pfhedge._utils.doc import _set_docstring
-from pfhedge._utils.str import _format_float
-from pfhedge._utils.typing import TensorOrScalar
-from pfhedge.stochastic import generate_vasicek
-
+from ..._utils.doc import _set_attr_and_docstring
+from ..._utils.doc import _set_docstring
+from ..._utils.str import _format_float
+from ..._utils.typing import TensorOrScalar
+from ...stochastic import generate_vasicek
 from .base import BasePrimary
 
 

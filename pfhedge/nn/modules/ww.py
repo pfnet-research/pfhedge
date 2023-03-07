@@ -3,9 +3,8 @@ from typing import List
 from torch import Tensor
 from torch.nn import Module
 
-from pfhedge._utils.str import _format_float
-from pfhedge.nn.functional import ww_width
-
+from ..._utils.str import _format_float
+from ...nn.functional import ww_width
 from .bs.black_scholes import BlackScholes
 
 

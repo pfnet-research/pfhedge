@@ -1,8 +1,8 @@
 from torch import Tensor
 from torch.nn import Module
 
-from pfhedge._utils.typing import TensorOrScalar
-from pfhedge.nn.functional import svi_variance
+from ..._utils.typing import TensorOrScalar
+from ...nn.functional import svi_variance
 
 
 class SVIVariance(Module):
