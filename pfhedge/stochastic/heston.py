@@ -132,8 +132,8 @@ def generate_heston(
         k0 = -rho * kappa * theta * dt / sigma
         k1 = GAMMA1 * dt * (kappa * rho / sigma - 0.5) - rho / sigma
         k2 = GAMMA2 * dt * (kappa * rho / sigma - 0.5) + rho / sigma
-        k3 = GAMMA1 * dt * (1 - rho**2)
-        k4 = GAMMA2 * dt * (1 - rho**2)
+        k3 = GAMMA1 * dt * (1 - rho ** 2)
+        k4 = GAMMA2 * dt * (1 - rho ** 2)
         v0 = variance[:, i_step]
         v1 = variance[:, i_step + 1]
         log_spot[:, i_step + 1] = (

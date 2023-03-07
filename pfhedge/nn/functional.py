@@ -695,7 +695,7 @@ def svi_variance(
         torch.Tensor
     """
     k_m = torch.as_tensor(input - m)  # k - m
-    return a + b * (rho * k_m + (k_m.square() + sigma**2).sqrt())
+    return a + b * (rho * k_m + (k_m.square() + sigma ** 2).sqrt())
 
 
 def bilerp(
