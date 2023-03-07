@@ -2,7 +2,7 @@ PROJECT_NAME := pfhedge
 RUN := poetry run
 
 .PHONY: check
-check: test lint mypy
+check: test lint-pysen
 
 .PHONY: install
 install:
@@ -24,7 +24,7 @@ test-cov:
 	$(RUN) pytest --cov=$(PROJECT_NAME) --cov-report=xml
 
 .PHONY: lint
-lint: lint-black lint-isort
+lint: lint-pysen
 
 .PHONY: lint-black
 lint-black:
@@ -38,8 +38,12 @@ lint-isort:
 mypy:
 	$(RUN) mypy $(PROJECT_NAME)
 
+.PHONY: flake8
+flake8:
+	$(RUN) flake8 $(PROJECT_NAME)
+
 .PHONY: format
-format: format-black format-isort
+format: format-pysen
 
 .PHONY: format-black
 format-black:
@@ -48,6 +52,14 @@ format-black:
 .PHONY: format-isort
 format-isort:
 	$(RUN) isort --force-single-line-imports --quiet .
+
+.PHONY: format-pysen
+format-pysen:
+	$(RUN) pysen run format
+
+.PHONY: lint-pysen
+lint-pysen:
+	$(RUN) pysen run lint
 
 .PHONY: doc
 doc:

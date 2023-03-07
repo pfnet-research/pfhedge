@@ -63,7 +63,9 @@ def bisect(
 
     if (fn(lower) > fn(upper)).all():
         # If fn is a decreasing function
-        mf = lambda input: -fn(input)
+        def mf(inputs: Tensor) -> Tensor:
+            return -fn(inputs)
+
         return bisect(mf, -target, lower, upper, precision=precision, max_iter=max_iter)
 
     n_iter = 0
@@ -104,5 +106,8 @@ def find_implied_volatility(
     Returns:
         torch.Tensor
     """
-    fn = lambda volatility: pricer(volatility=volatility, **params)
+
+    def fn(volatility: Tensor) -> Tensor:
+        return pricer(volatility=volatility, **params)
+
     return bisect(fn, price, lower, upper, precision=precision, max_iter=max_iter)
