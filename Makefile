@@ -58,7 +58,7 @@ format-pysen:
 	$(RUN) pysen run format
 
 .PHONY: lint-pysen
-format-pysen:
+lint-pysen:
 	$(RUN) pysen run lint
 
 .PHONY: doc
