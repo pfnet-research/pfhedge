@@ -9,6 +9,7 @@ from torch import Tensor
 from torch.nn import Module
 
 from pfhedge.instruments import BaseDerivative
+from pfhedge.instruments import Derivative
 
 from ._base import Feature
 from ._getter import get_feature
@@ -124,7 +125,7 @@ class ModuleOutput(Feature, Module):
     def get(self, time_step: Optional[int]) -> Tensor:
         return self(self.inputs.get(time_step))
 
-    def of(self: TM, derivative: "Derivative" = None, hedger: "Hedger" = None) -> TM:  # type: ignore  # NOQA
+    def of(self: TM, derivative: BaseDerivative, hedger: Optional[Module] = None) -> TM:
         self.inputs = self.inputs.of(derivative, hedger)
         return self
 
