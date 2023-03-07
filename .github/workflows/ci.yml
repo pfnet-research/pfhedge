@@ -54,46 +54,8 @@ jobs:
       uses: codecov/codecov-action@v1
       if: ${{ matrix.python-version == '3.9' }}
 
-  type:
-
-    name: Type
-
-    runs-on: ubuntu-latest
-
-    steps:
-
-    - uses: actions/checkout@v2
-
-    - uses: actions/setup-python@v2
-      with:
-        python-version: ${{ env.PYTHON_VERSION }}
-
-    - run: pip install poetry && poetry install
-
-    - run: make mypy
-
-  flake8:
-
-    name: flake8
-
-    runs-on: ubuntu-latest
-
-    steps:
-
-      - uses: actions/checkout@v2
-
-      - uses: actions/setup-python@v2
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - run: pip install poetry && poetry install
-
-      - run: make flake8
-
   lint:
-
-    name: Lint
-
+    name: Lint (pysen)
     runs-on: ubuntu-latest
 
     outputs:

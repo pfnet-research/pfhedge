@@ -2,7 +2,7 @@ PROJECT_NAME := pfhedge
 RUN := poetry run
 
 .PHONY: check
-check: test lint mypy flake8
+check: test lint-pysen
 
 .PHONY: install
 install:
@@ -43,7 +43,7 @@ flake8:
 	$(RUN) flake8 $(PROJECT_NAME)
 
 .PHONY: format
-format: format-black format-isort
+format: format-pysen
 
 .PHONY: format-black
 format-black:
