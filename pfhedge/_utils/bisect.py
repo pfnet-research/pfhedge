@@ -113,8 +113,8 @@ def find_implied_volatility(
     return bisect(
         fn,
         price,
-        torch.as_tensor(lower, device=price.device),
-        torch.as_tensor(upper, device=price.device),
+        torch.as_tensor(lower).to(price),
+        torch.as_tensor(upper).to(price),
         precision=precision,
         max_iter=max_iter,
     )
