@@ -251,7 +251,7 @@ class Hedger(Module):
     ) -> List[BaseInstrument]:
         if hedge is None:
             hedge = list(derivative.underliers())
-        return cast(List[BaseInstrument], hedge)
+        return hedge
 
     def compute_hedge(
         self, derivative: BaseDerivative, hedge: Optional[List[BaseInstrument]] = None
@@ -499,7 +499,7 @@ class Hedger(Module):
             # optimizer is Optimizer rather than its subclass (e.g. Adam)
             # and complains that the required parameter default is missing.
             if Optimizer in getattr(optimizer, "__mro__", []):
-                optimizer = cast(Optimizer, optimizer(self.model.parameters()))
+                optimizer = optimizer(self.model.parameters())
             else:
                 raise TypeError("optimizer is not an Optimizer type")
         return optimizer

@@ -126,7 +126,7 @@ def generate_heston(
     )
 
     log_spot = torch.empty_like(variance)
-    log_spot[:, 0] = cast(Tensor, init_state[0]).log()
+    log_spot[:, 0] = init_state[0].log()
     randn = torch.randn_like(variance)
 
     for i_step in range(n_steps - 1):

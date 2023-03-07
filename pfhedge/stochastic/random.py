@@ -51,7 +51,7 @@ def randn_antithetic(
 
     size_list = list(size)
     size_half = [-(-size_list[0] // 2)] + size_list[1:]
-    randn = torch.randn(*size_half, dtype=dtype, device=device)
+    randn = torch.randn(*size_half, dtype=dtype, device=device)  # type: ignore
 
     output = torch.cat((randn, -randn), dim=0)
 

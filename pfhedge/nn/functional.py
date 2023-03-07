@@ -1,6 +1,7 @@
 from math import ceil
 from math import pi as kPI
 from typing import List
+from typing import NamedTuple
 from typing import Optional
 from typing import Tuple
 from typing import Union
@@ -203,7 +204,9 @@ def entropic_risk_measure(input: Tensor, a: float = 1.0) -> Tensor:
     return (-exp_utility(input, a=a).mean(0)).log() / a
 
 
-def topp(input: Tensor, p: float, dim: Optional[int] = None, largest: bool = True):
+def topp(
+    input: Tensor, p: float, dim: Optional[int] = None, largest: bool = True
+) -> "torch._C.namedtuple_values_indices":
     """Returns the largest :math:`p * N` elements of the given input tensor,
     where :math:`N` stands for the total number of elements in the input tensor.
 
@@ -226,7 +229,7 @@ def topp(input: Tensor, p: float, dim: Optional[int] = None, largest: bool = Tru
             elements.
 
     Returns:
-        torch.Tensor
+        Tuple[Tensor, LongTensor] (named tuple)
 
     Examples:
         >>> from pfhedge.nn.functional import topp

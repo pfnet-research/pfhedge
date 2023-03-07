@@ -6,6 +6,7 @@ from torch.nn import Module
 from pfhedge._utils.str import _format_float
 from pfhedge.nn.functional import ww_width
 
+from ...instruments import Derivative
 from .bs.black_scholes import BlackScholes
 
 
@@ -98,7 +99,7 @@ class WhalleyWilmott(Module):
                 [0.7945]])
     """
 
-    def __init__(self, derivative, a: float = 1.0) -> None:
+    def __init__(self, derivative: Derivative, a: float = 1.0) -> None:
         super().__init__()
         self.derivative = derivative
         self.a = a

@@ -95,7 +95,7 @@ def generate_local_volatility_process(
     """
     init_state = cast_state(init_state, dtype=dtype, device=device)
 
-    spot = torch.empty(*(n_paths, n_steps), dtype=dtype, device=device)
+    spot = torch.empty(*(n_paths, n_steps), dtype=dtype, device=device)  # type: ignore
     spot[:, 0] = init_state[0]
     volatility = torch.empty_like(spot)
 

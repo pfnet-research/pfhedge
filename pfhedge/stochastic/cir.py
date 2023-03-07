@@ -87,7 +87,7 @@ def generate_cir(
     # Prevent zero division
     EPSILON = _get_epsilon(dtype)
 
-    output = torch.empty(*(n_paths, n_steps), dtype=dtype, device=device)
+    output = torch.empty(*(n_paths, n_steps), dtype=dtype, device=device)  # type: ignore
     output[:, 0] = init_state[0]
 
     randn = torch.randn_like(output)
