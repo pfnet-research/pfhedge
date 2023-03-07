@@ -1,5 +1,5 @@
+from collections.abc import Callable
 from typing import Any
-from typing import Callable
 
 import torch
 from torch import Tensor

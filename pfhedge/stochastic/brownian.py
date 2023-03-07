@@ -1,4 +1,4 @@
-from typing import Callable
+from collections.abc import Callable
 from typing import Optional
 from typing import Tuple
 from typing import Union

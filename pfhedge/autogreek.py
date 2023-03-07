@@ -1,6 +1,6 @@
+from collections.abc import Callable
 from inspect import signature
 from typing import Any
-from typing import Callable
 
 import torch
 from torch import Tensor

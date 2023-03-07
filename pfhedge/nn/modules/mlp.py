@@ -1,7 +1,7 @@
+from collections.abc import Sequence
 from copy import deepcopy
 from typing import List
 from typing import Optional
-from typing import Sequence
 from typing import Union
 
 from torch.nn import Identity
