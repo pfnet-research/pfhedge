@@ -1,6 +1,5 @@
 from typing import Optional
 from typing import Tuple
-from typing import cast
 
 import torch
 from torch import Tensor
@@ -90,7 +89,7 @@ def generate_vasicek(
             device=device,
         )
 
-    output = torch.empty(*(n_paths, n_steps), dtype=dtype, device=device)
+    output = torch.empty(*(n_paths, n_steps), dtype=dtype, device=device)  # type: ignore
     output[:, 0] = init_state[0]
 
     # Cast to Tensor with desired dtype and device

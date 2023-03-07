@@ -11,7 +11,7 @@ from torch import Tensor
 from torch.distributions.normal import Normal
 from torch.distributions.utils import broadcast_all
 
-import pfhedge.autogreek as autogreek
+from pfhedge import autogreek
 from pfhedge._utils.typing import TensorOrScalar
 
 
@@ -203,7 +203,9 @@ def entropic_risk_measure(input: Tensor, a: float = 1.0) -> Tensor:
     return (-exp_utility(input, a=a).mean(0)).log() / a
 
 
-def topp(input: Tensor, p: float, dim: Optional[int] = None, largest: bool = True):
+def topp(
+    input: Tensor, p: float, dim: Optional[int] = None, largest: bool = True
+) -> torch.return_types.return_types.topk:
     """Returns the largest :math:`p * N` elements of the given input tensor,
     where :math:`N` stands for the total number of elements in the input tensor.
 
@@ -226,7 +228,7 @@ def topp(input: Tensor, p: float, dim: Optional[int] = None, largest: bool = Tru
             elements.
 
     Returns:
-        torch.Tensor
+        Tuple[Tensor, LongTensor] (named tuple)
 
     Examples:
         >>> from pfhedge.nn.functional import topp
@@ -303,7 +305,7 @@ def value_at_risk(input: Tensor, p: float, dim: Optional[int] = None) -> Tensor:
         tensor([-0., -1., -2., -3., -4., -5., -6., -7., -8., -9.])
         >>> value_at_risk(input, 0.3)
         tensor(-7.)
-    """
+    """  # NOQA
     n = input.numel() if dim is None else input.size(dim)
 
     if p <= 1 / n:
