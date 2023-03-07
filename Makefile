@@ -24,7 +24,7 @@ test-cov:
 	$(RUN) pytest --cov=$(PROJECT_NAME) --cov-report=xml
 
 .PHONY: lint
-lint: lint-black lint-isort
+lint: lint-pysen
 
 .PHONY: lint-black
 lint-black:
