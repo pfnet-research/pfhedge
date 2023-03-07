@@ -11,8 +11,8 @@ from torch import Tensor
 from torch.distributions.normal import Normal
 from torch.distributions.utils import broadcast_all
 
-from .. import autogreek
-from .._utils.typing import TensorOrScalar
+import pfhedge.autogreek as autogreek
+from pfhedge._utils.typing import TensorOrScalar
 
 
 def european_payoff(input: Tensor, call: bool = True, strike: float = 1.0) -> Tensor:

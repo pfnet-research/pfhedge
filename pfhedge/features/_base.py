@@ -7,7 +7,7 @@ from typing import TypeVar
 from torch import Tensor
 from torch.nn import Module
 
-from ..instruments import BaseDerivative
+from pfhedge.instruments import BaseDerivative
 
 T = TypeVar("T", bound="Feature")
 

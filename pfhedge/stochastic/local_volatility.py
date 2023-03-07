@@ -2,13 +2,15 @@ from collections import namedtuple
 from typing import Optional
 from typing import Tuple
 from typing import Union
+from typing import cast
 
 import torch
 from torch import Tensor
 
-from .._utils.str import _addindent
-from .._utils.typing import LocalVolatilityFunction
-from .._utils.typing import TensorOrScalar
+from pfhedge._utils.str import _addindent
+from pfhedge._utils.typing import LocalVolatilityFunction
+from pfhedge._utils.typing import TensorOrScalar
+
 from ._utils import cast_state
 
 

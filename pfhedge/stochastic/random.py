@@ -11,7 +11,7 @@ def randn_antithetic(
     dtype: Optional[torch.dtype] = None,
     device: Optional[torch.device] = None,
     dim: int = 0,
-    shuffle: bool = True,
+    shuffle: bool = True
 ) -> Tensor:
     """Returns a tensor filled with random numbers obtained by an antithetic sampling.
 
@@ -68,7 +68,7 @@ def randn_sobol_boxmuller(
     dtype: Optional[torch.dtype] = None,
     device: Optional[torch.device] = None,
     scramble: bool = True,
-    seed: Optional[int] = None,
+    seed: Optional[int] = None
 ) -> Tensor:
     """Returns a tensor filled with random numbers obtained by a Sobol sequence
     applied with the Box-Muller transformation.

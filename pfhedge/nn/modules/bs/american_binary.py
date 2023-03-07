@@ -4,12 +4,13 @@ from typing import Optional
 import torch
 from torch import Tensor
 
-from ...._utils.bisect import find_implied_volatility
-from ...._utils.doc import _set_attr_and_docstring
-from ...._utils.str import _format_float
-from ....instruments import AmericanBinaryOption
-from ....nn.functional import bs_american_binary_delta
-from ....nn.functional import bs_american_binary_price
+from pfhedge._utils.bisect import find_implied_volatility
+from pfhedge._utils.doc import _set_attr_and_docstring
+from pfhedge._utils.str import _format_float
+from pfhedge.instruments import AmericanBinaryOption
+from pfhedge.nn.functional import bs_american_binary_delta
+from pfhedge.nn.functional import bs_american_binary_price
+
 from ._base import BSModuleMixin
 from ._base import acquire_params_from_derivative_0
 from ._base import acquire_params_from_derivative_2

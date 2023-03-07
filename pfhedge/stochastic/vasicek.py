@@ -5,7 +5,8 @@ from typing import cast
 import torch
 from torch import Tensor
 
-from .._utils.typing import TensorOrScalar
+from pfhedge._utils.typing import TensorOrScalar
+
 from ._utils import cast_state
 
 

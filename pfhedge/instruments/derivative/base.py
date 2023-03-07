@@ -11,10 +11,11 @@ from typing import TypeVar
 import torch
 from torch import Tensor
 
-from ..._utils.doc import _set_attr_and_docstring
-from ..._utils.doc import _set_docstring
-from ..._utils.str import _addindent
-from ..._utils.typing import TensorOrScalar
+from pfhedge._utils.doc import _set_attr_and_docstring
+from pfhedge._utils.doc import _set_docstring
+from pfhedge._utils.str import _addindent
+from pfhedge._utils.typing import TensorOrScalar
+
 from ..base import BaseInstrument
 from ..primary.base import BasePrimary
 

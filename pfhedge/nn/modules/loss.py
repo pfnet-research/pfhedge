@@ -6,9 +6,10 @@ from torch import Tensor
 from torch.nn import Module
 from torch.nn.parameter import Parameter
 
-from ..._utils.bisect import bisect
-from ..._utils.str import _format_float
-from ..._utils.typing import TensorOrScalar
+from pfhedge._utils.bisect import bisect
+from pfhedge._utils.str import _format_float
+from pfhedge._utils.typing import TensorOrScalar
+
 from ..functional import entropic_risk_measure
 from ..functional import exp_utility
 from ..functional import expected_shortfall

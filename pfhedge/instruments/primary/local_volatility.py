@@ -7,12 +7,13 @@ from typing import cast
 import torch
 from torch import Tensor
 
-from ..._utils.doc import _set_attr_and_docstring
-from ..._utils.doc import _set_docstring
-from ..._utils.str import _format_float
-from ..._utils.typing import LocalVolatilityFunction
-from ..._utils.typing import TensorOrScalar
-from ...stochastic import generate_local_volatility_process
+from pfhedge._utils.doc import _set_attr_and_docstring
+from pfhedge._utils.doc import _set_docstring
+from pfhedge._utils.str import _format_float
+from pfhedge._utils.typing import LocalVolatilityFunction
+from pfhedge._utils.typing import TensorOrScalar
+from pfhedge.stochastic import generate_local_volatility_process
+
 from .base import BasePrimary
 
 

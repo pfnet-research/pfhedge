@@ -6,9 +6,10 @@ import torch
 from torch import Tensor
 from torch.nn import Module
 
-from .._utils.str import _format_float
-from ..instruments.derivative.base import BaseDerivative
-from ..instruments.derivative.base import OptionMixin
+from pfhedge._utils.str import _format_float
+from pfhedge.instruments.derivative.base import BaseDerivative
+from pfhedge.instruments.derivative.base import OptionMixin
+
 from ._base import Feature
 from ._base import StateIndependentFeature
 from ._getter import FeatureFactory

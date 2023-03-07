@@ -3,7 +3,8 @@ from typing import Optional
 from torch import Tensor
 from torch.nn import Module
 
-from ..._utils.str import _format_float
+from pfhedge._utils.str import _format_float
+
 from ..functional import clamp
 from ..functional import leaky_clamp
 

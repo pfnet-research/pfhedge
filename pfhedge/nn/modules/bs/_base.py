@@ -9,11 +9,11 @@ import torch
 from torch import Tensor
 from torch.nn import Module
 
-from .... import autogreek
-from ....instruments import AmericanBinaryOption
-from ....instruments import EuropeanBinaryOption
-from ....instruments import EuropeanOption
-from ....instruments import LookbackOption
+import pfhedge.autogreek as autogreek
+from pfhedge.instruments import AmericanBinaryOption
+from pfhedge.instruments import EuropeanBinaryOption
+from pfhedge.instruments import EuropeanOption
+from pfhedge.instruments import LookbackOption
 
 
 class BSModuleMixin(Module):
