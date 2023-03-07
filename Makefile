@@ -53,6 +53,14 @@ format-black:
 format-isort:
 	$(RUN) isort --force-single-line-imports --quiet .
 
+.PHONY: format-pysen
+format-pysen:
+	$(RUN) pysen run format
+
+.PHONY: lint-pysen
+format-pysen:
+	$(RUN) pysen run lint
+
 .PHONY: doc
 doc:
 	@cd docs && make html
