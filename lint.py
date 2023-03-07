@@ -14,8 +14,12 @@ def build(
 ) -> ManifestBase:
     isort_setting: IsortSetting = pysen.IsortSetting.default()
     isort_setting.force_single_line = True
-    isort_setting.known_first_party = set(["pfhedge"])
+    isort_setting.known_first_party = {"pfhedge"}
 
     isort = pysen.Isort(setting=isort_setting.to_black_compatible())
 
-    return Manifest([isort])
+    others = [
+        component for component in components if not isinstance(component, pysen.Isort)
+    ]
+
+    return Manifest([isort, *others])
