@@ -4,9 +4,7 @@ from typing import Sequence
 
 import pysen
 from pysen import IsortSetting
-from pysen import Source
 from pysen.component import ComponentBase
-from pysen.ext.isort_wrapper import IsortSectionName
 from pysen.manifest import Manifest
 from pysen.manifest import ManifestBase
 
@@ -16,6 +14,7 @@ def build(
 ) -> ManifestBase:
     isort_setting: IsortSetting = pysen.IsortSetting.default()
     isort_setting.force_single_line = True
+    isort_setting.known_first_party = set(["pfhedge"])
 
     isort = pysen.Isort(setting=isort_setting.to_black_compatible())
 
