@@ -17,7 +17,7 @@ def parse_spot(
     strike: Optional[Tensor] = None,
     moneyness: Optional[Tensor] = None,
     log_moneyness: Optional[Tensor] = None,
-    **kwargs: Any
+    **kwargs: Any,
 ) -> Tensor:
     spot = _as_optional_tensor(spot)
     strike = _as_optional_tensor(strike)
@@ -38,7 +38,7 @@ def parse_volatility(
     *,
     volatility: Optional[Tensor] = None,
     variance: Optional[Tensor] = None,
-    **kwargs: Any
+    **kwargs: Any,
 ) -> Tensor:
     if volatility is not None:
         return volatility
