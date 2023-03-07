@@ -1,7 +1,6 @@
 from math import ceil
 from math import pi as kPI
 from typing import List
-from typing import NamedTuple
 from typing import Optional
 from typing import Tuple
 from typing import Union
@@ -306,7 +305,7 @@ def value_at_risk(input: Tensor, p: float, dim: Optional[int] = None) -> Tensor:
         tensor([-0., -1., -2., -3., -4., -5., -6., -7., -8., -9.])
         >>> value_at_risk(input, 0.3)
         tensor(-7.)
-    """
+    """  # NOQA
     n = input.numel() if dim is None else input.size(dim)
 
     if p <= 1 / n:

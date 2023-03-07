@@ -124,7 +124,7 @@ class ModuleOutput(Feature, Module):
     def get(self, time_step: Optional[int]) -> Tensor:
         return self(self.inputs.get(time_step))
 
-    def of(self: TM, derivative: "Derivative" = None, hedger: "Hedger" = None) -> TM:  # type: ignore
+    def of(self: TM, derivative: "Derivative" = None, hedger: "Hedger" = None) -> TM:  # type: ignore  # NOQA
         self.inputs = self.inputs.of(derivative, hedger)
         return self
 
