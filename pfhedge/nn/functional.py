@@ -11,7 +11,7 @@ from torch import Tensor
 from torch.distributions.normal import Normal
 from torch.distributions.utils import broadcast_all
 
-import pfhedge.autogreek as autogreek
+from pfhedge import autogreek
 from pfhedge._utils.typing import TensorOrScalar
 
 
@@ -205,7 +205,7 @@ def entropic_risk_measure(input: Tensor, a: float = 1.0) -> Tensor:
 
 def topp(
     input: Tensor, p: float, dim: Optional[int] = None, largest: bool = True
-) -> "torch._C.namedtuple_values_indices":
+) -> torch.return_types.return_types:
     """Returns the largest :math:`p * N` elements of the given input tensor,
     where :math:`N` stands for the total number of elements in the input tensor.
 
