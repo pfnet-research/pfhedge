@@ -41,7 +41,7 @@ main() {
   # Run target-specific commands.
   case "${TARGET}" in
     python* )
-      python_version=`python_versions["${TARGET}"]`
+      python_version=${python_versions["${TARGET}"]}
       run "${docker_args[@]} --env python_version" \
           "nvidia/cuda:12.0.1-cudnn8-devel-ubuntu20.04" \
           bash /src/.flexci/linux/test.sh
