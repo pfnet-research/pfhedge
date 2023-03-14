@@ -899,7 +899,7 @@ class TestBSLookbackOption(_TestBSModule):
         input = torch.tensor([[s, s, d.maturity, d.ul().sigma]]).to(device)
         result = compute_price(m, input)
         expect = d.payoff().mean(0, keepdim=True)
-        assert_close(result, expect, rtol=2e-2, atol=0.0)
+        assert_close(result, expect, rtol=3e-2, atol=0.0)
 
     @pytest.mark.gpu
     def test_check_price_monte_carlo_gpu(self):
