@@ -28,21 +28,21 @@ main() {
 
   echo "TARGET: ${TARGET}"
   echo "SRC_ROOT: ${SRC_ROOT}"
-  
-  # Prepare docker args.
-  docker_args=(
-    docker run --rm --ipc=host --privileged --runtime=nvidia
-    --env CUDA_VISIBLE_DEVICES
-    --volume="${SRC_ROOT}:/src"
-    --volume="/tmp/output:/output"
-    --workdir="/src"
-  )
 
   # Run target-specific commands.
   case "${TARGET}" in
     python* )
       python_version=${python_versions["${TARGET}"]}
-      run "${docker_args[@]} --env python_version=${python_version}" \
+      # Prepare docker args.
+      docker_args=(
+        docker run --rm --ipc=host --privileged --runtime=nvidia
+        --env CUDA_VISIBLE_DEVICES
+        --env python_version
+        --volume="${SRC_ROOT}:/src"
+        --volume="/tmp/output:/output"
+        --workdir="/src"
+      )
+      run "${docker_args[@]}" \
           "nvidia/cuda:12.0.1-cudnn8-devel-ubuntu20.04" \
           bash /src/.flexci/linux/test.sh
       gsutil -m -q cp -r /tmp/output/htmlcov gs://${PFHEDGE_FLEXCI_GCS_BUCKET}/pfhedge/pytest-cov/${CI_JOB_ID}/htmlcov
