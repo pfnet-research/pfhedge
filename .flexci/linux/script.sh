@@ -9,9 +9,8 @@
 # Fail immedeately on error or unbound variables.
 set -eu
 
-# note: These values can be overridden per project using secret environment
-# variables of FlexCI.
-PFHEDGE_FLEXCI_GCS_BUCKET=${PFHEDGE_FLEXCI_GCS_BUCKET:-pfhedge-artifacts-pfn-public-ci}
+# note: coverage report is currently disabled (another related part exist later.)
+#PFHEDGE_FLEXCI_GCS_BUCKET=${PFHEDGE_FLEXCI_GCS_BUCKET:-pfhedge-artifacts-pfn-public-ci}
 
 declare -A python_versions=(
   ["python38"]="3.8.12"
@@ -45,8 +44,9 @@ main() {
       run "${docker_args[@]}" \
           "nvidia/cuda:12.0.1-cudnn8-devel-ubuntu20.04" \
           bash /src/.flexci/linux/test.sh
-      gsutil -m -q cp -r /tmp/output/htmlcov gs://${PFHEDGE_FLEXCI_GCS_BUCKET}/pfhedge/pytest-cov/${CI_JOB_ID}/htmlcov
-      echo "pytest-cov output: https://storage.googleapis.com/${PFHEDGE_FLEXCI_GCS_BUCKET}/pfhedge/pytest-cov/${CI_JOB_ID}/htmlcov/index.html"
+# note: coverage report is currently disabled
+#      gsutil -m -q cp -r /tmp/output/htmlcov gs://${PFHEDGE_FLEXCI_GCS_BUCKET}/pfhedge/pytest-cov/${CI_JOB_ID}/htmlcov
+#      echo "pytest-cov output: https://storage.googleapis.com/${PFHEDGE_FLEXCI_GCS_BUCKET}/pfhedge/pytest-cov/${CI_JOB_ID}/htmlcov/index.html"
       ;;
     * )
       echo "${TARGET}: Invalid target."
