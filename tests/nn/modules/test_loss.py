@@ -135,6 +135,26 @@ class TestEntropicRiskMeasure:
     def test_value_gpu(self, n_paths, a):
         self.test_value(n_paths, a, device="cuda")
 
+    @pytest.mark.parametrize("n_paths", [10, 100])
+    @pytest.mark.parametrize("a", [1.0, 2.0, 3.0])
+    @pytest.mark.parametrize("value", [100.0, -100.0])
+    def test_extreme(self, n_paths, a, value):
+        torch.manual_seed(42)
+
+        loss = EntropicRiskMeasure(a)
+        result = loss(torch.full((n_paths,), value))
+        assert_close(result, torch.tensor(-value))
+
+    def test_extreme2(self):
+        torch.manual_seed(42)
+
+        loss = EntropicRiskMeasure(a=1.0)
+        result1 = loss(torch.tensor([1000.0, 0.0]))
+        result2 = loss(torch.tensor([500.0, -500.0]))
+        result3 = loss(torch.tensor([0.0, -1000.0]))
+        assert_close(result1 + 500, result2)
+        assert_close(result1 + 1000, result3)
+
     def test_error_a(self):
         with pytest.raises(ValueError):
             EntropicRiskMeasure(0)
