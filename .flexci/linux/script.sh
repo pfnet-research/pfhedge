@@ -26,6 +26,9 @@ main() {
   TARGET="$1"
   SRC_ROOT="$(cd "$(dirname "${BASH_SOURCE}")/../.."; pwd)"
 
+  echo "TARGET: ${TARGET}"
+  echo "SRC_ROOT: ${SRC_ROOT}"
+
   # Prepare docker args.
   docker_args=(
     docker run --rm --ipc=host --privileged --runtime=nvidia
