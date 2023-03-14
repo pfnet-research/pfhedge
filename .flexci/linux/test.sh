@@ -1,7 +1,8 @@
 #!/bin/bash
 set -uex
 
-sudo apt install -y git gcc make openssl libssl-dev libbz2-dev libreadline-dev libsqlite3-dev libffi-dev zlib1g-dev
+apt update
+apt install -y git gcc make openssl libssl-dev libbz2-dev libreadline-dev libsqlite3-dev libffi-dev zlib1g-dev
 
 git clone https://github.com/pyenv/pyenv.git /opt/pyenv
 PYENV_ROOT=/opt/pyenv
