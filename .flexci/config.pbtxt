@@ -1,19 +1,4 @@
 configs {
-  key: "pfhedge.prep-linux"
-  value {
-    requirement {
-      cpu: 8
-      memory: 8
-      disk: 20
-    }
-    time_limit: {
-      seconds: 3600
-    }
-    command: "bash .flexci/linux/script.sh prep"
-  }
-}
-
-configs {
   key: "pfhedge.python38-linux"
   value {
     requirement {
