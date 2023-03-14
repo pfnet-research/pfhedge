@@ -37,7 +37,7 @@ main() {
       docker_args=(
         docker run --rm --ipc=host --privileged --runtime=nvidia
         --env CUDA_VISIBLE_DEVICES
-        --env python_version
+        --env python_version=${python_version}
         --volume="${SRC_ROOT}:/src"
         --volume="/tmp/output:/output"
         --workdir="/src"
