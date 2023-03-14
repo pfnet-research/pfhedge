@@ -1,3 +1,4 @@
+import math
 from math import ceil
 from math import pi as kPI
 from typing import List
@@ -200,8 +201,7 @@ def entropic_risk_measure(input: Tensor, a: float = 1.0) -> Tensor:
 
     See :class:`pfhedge.nn.EntropicRiskMeasure` for details.
     """
-    input_min = torch.amin(input, dim=0)
-    return (-exp_utility(input - input_min, a=a).mean(0)).log() / a - input_min
+    return (torch.logsumexp(-input * a, dim=0) - math.log(input.size(0))) / a
 
 
 def topp(
