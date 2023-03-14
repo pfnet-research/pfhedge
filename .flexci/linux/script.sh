@@ -15,8 +15,9 @@ set -eu
 
 # note: These values can be overridden per project using secret environment
 # variables of FlexCI.
-PFHEDGE_FLEXCI_IMAGE_NAME=${PFHEDGE_FLEXCI_IMAGE_NAME:-asia.gcr.io/pfn-public-ci/pfhedge}
-PFHEDGE_FLEXCI_GCS_BUCKET=${PFHEDGE_FLEXCI_GCS_BUCKET:-chainer-artifacts-pfn-public-ci}
+#PFHEDGE_FLEXCI_IMAGE_NAME=${PFHEDGE_FLEXCI_IMAGE_NAME:-asia-northeast1-docker.pkg.dev/pfn-artifactregistry/tmp-public-ci-dlfw/pfn-public-ci/pfhedge}
+PFHEDGE_FLEXCI_IMAGE_NAME=${PFHEDGE_FLEXCI_IMAGE_NAME:-asia-northeast1-docker.pkg.dev/pfn-artifactregistry/tmp}
+PFHEDGE_FLEXCI_GCS_BUCKET=${PFHEDGE_FLEXCI_GCS_BUCKET:-pfhedge-artifacts-pfn-public-ci}
 
 ################################################################################
 # Main function
@@ -43,7 +44,7 @@ main() {
     python* )
       run "${docker_args[@]}" \
           "${PFHEDGE_FLEXCI_IMAGE_NAME}:${TARGET}" \
-          /src/.flexci/linux/test.sh
+          bash /src/.flexci/linux/test.sh
       gsutil -m -q cp -r /tmp/output/htmlcov gs://${PFHEDGE_FLEXCI_GCS_BUCKET}/pfhedge/pytest-cov/${CI_JOB_ID}/htmlcov
       echo "pytest-cov output: https://storage.googleapis.com/${PFHEDGE_FLEXCI_GCS_BUCKET}/pfhedge/pytest-cov/${CI_JOB_ID}/htmlcov/index.html"
       ;;
