@@ -1,6 +1,5 @@
 import pytest
 import torch
-from torch import Tensor
 from torch.testing import assert_close
 
 from pfhedge.features._getter import get_feature
