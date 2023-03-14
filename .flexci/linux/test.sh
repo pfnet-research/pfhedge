@@ -13,6 +13,7 @@ python_version=${python_version:-3.9.7}
 echo "python ${python_version}"
 pyenv install ${python_version} && \
 pyenv global ${python_version}
+eval "$(pyenv init --path)"
 
 curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
 PATH=${HOME}/.poetry/env:${PATH}
