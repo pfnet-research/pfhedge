@@ -16,8 +16,8 @@ pyenv install ${python_version} && \
 pyenv global ${python_version}
 eval "$(pyenv init --path)"
 
-curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
-PATH=${HOME}/.poetry/env:${PATH}
+curl -sSL https://install.python-poetry.org | python -
+PATH=${HOME}/.local/bin:${PATH}
 
 poetry install
 
