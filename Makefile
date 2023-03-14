@@ -13,15 +13,15 @@ test: doctest pytest
 
 .PHONY: doctest
 doctest:
-	$(RUN) pytest --doctest-modules $(PROJECT_NAME)
+	$(RUN) pytest --doctest-modules $(PROJECT_NAME) -m "not gpu"
 
 .PHONY: pytest
 pytest:
-	$(RUN) pytest --doctest-modules tests
+	$(RUN) pytest --doctest-modules tests -m "not gpu"
 
 .PHONY: test-cov
 test-cov:
-	$(RUN) pytest --cov=$(PROJECT_NAME) --cov-report=xml
+	$(RUN) pytest --cov=$(PROJECT_NAME) --cov-report=xml -m "not gpu"
 
 .PHONY: lint
 lint: lint-pysen
