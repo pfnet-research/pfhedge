@@ -1,4 +1,5 @@
 #!/bin/bash
+
 # script.sh is a script to run Docker for testing.  This is called by CI like
 # "bash .flexci/linux/script.sh python39".
 #
