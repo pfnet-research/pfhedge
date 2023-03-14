@@ -1,19 +1,29 @@
+from typing import Optional
+from typing import Union
+
+import pytest
 import torch
 
 from pfhedge._utils.operations import ensemble_mean
 
 
 class F:
-    def __init__(self):
+    def __init__(self, device: Optional[Union[str, torch.device]] = "cpu"):
         self.value = 0.0
+        self.device = device
 
     def f(self) -> float:
         self.value += 1.0
-        return torch.tensor(self.value)
+        return torch.tensor(self.value).to(self.device)
 
 
-def test_ensemble_mean():
-    f = F()
+def test_ensemble_mean(device: Optional[Union[str, torch.device]] = "cpu"):
+    f = F(device=device)
     result = ensemble_mean(f.f, n_times=10)
-    expect = torch.tensor(5.5)
+    expect = torch.tensor(5.5).to(device)
     assert result == expect
+
+
+@pytest.mark.gpu
+def test_ensemble_mean_gpu():
+    test_ensemble_mean(device="cuda")
