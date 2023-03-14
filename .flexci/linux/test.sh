@@ -9,6 +9,7 @@ PYENV_ROOT=/opt/pyenv
 PATH=${PYENV_ROOT}/shims:${PYENV_ROOT}/bin:${PATH}
 
 # Install Python.
+echo "python ${python_version}"
 python_version=${python_version:-3.9.7}
 echo "python ${python_version}"
 pyenv install ${python_version} && \
