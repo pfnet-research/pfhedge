@@ -98,7 +98,7 @@ class BrownianStock(BasePrimary):
 
         It is a tensor filled with the square of ``self.sigma``.
         """
-        return torch.full_like(self.get_buffer("spot"), self.sigma**2)
+        return torch.full_like(self.get_buffer("spot"), self.sigma ** 2)
 
     def simulate(
         self,

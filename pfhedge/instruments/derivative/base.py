@@ -240,7 +240,7 @@ class BaseDerivative(BaseInstrument):
     def __getattr__(self, name: str) -> BasePrimary:
         return self.get_underlier(name)
 
-    def __setattr__(self, name, value) -> None:
+    def __setattr__(self, name: str, value: Any) -> None:
         if isinstance(value, BasePrimary):
             self.register_underlier(name, value)
         super().__setattr__(name, value)
@@ -268,7 +268,7 @@ class BaseDerivative(BaseInstrument):
 
 
 class Derivative(BaseDerivative):
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args, **kwargs) -> None:  # type: ignore
         super().__init__(*args, **kwargs)  # type: ignore
         raise DeprecationWarning(
             "Derivative is deprecated. Use BaseDerivative instead."

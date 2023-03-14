@@ -1,6 +1,5 @@
 from typing import Optional
 from typing import Tuple
-from typing import cast
 
 import torch
 from torch import Tensor
@@ -87,7 +86,7 @@ def generate_cir(
     # Prevent zero division
     EPSILON = _get_epsilon(dtype)
 
-    output = torch.empty(*(n_paths, n_steps), dtype=dtype, device=device)
+    output = torch.empty(*(n_paths, n_steps), dtype=dtype, device=device)  # type: ignore
     output[:, 0] = init_state[0]
 
     randn = torch.randn_like(output)
@@ -103,7 +102,7 @@ def generate_cir(
         # Compute m, s, psi: Eq(17,18)
         exp = (-kappa * dt).exp()
         m = theta + (v - theta) * exp
-        s2 = v * (sigma**2) * exp * (1 - exp) / kappa + theta * (sigma**2) * (
+        s2 = v * (sigma ** 2) * exp * (1 - exp) / kappa + theta * (sigma ** 2) * (
             (1 - exp).square()
         ) / (2 * kappa)
         psi = s2 / m.square().clamp(min=EPSILON)
