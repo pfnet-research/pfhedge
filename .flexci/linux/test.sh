@@ -1,5 +1,5 @@
 #!/bin/bash
-set -uex
+set -ex
 
 apt update
 apt install -y git curl wget gcc make openssl libssl-dev libbz2-dev libreadline-dev libsqlite3-dev libffi-dev zlib1g-dev liblzma-dev
