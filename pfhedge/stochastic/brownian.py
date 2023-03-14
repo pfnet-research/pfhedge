@@ -2,7 +2,6 @@ from typing import Callable
 from typing import Optional
 from typing import Tuple
 from typing import Union
-from typing import cast
 
 import torch
 from torch import Tensor
@@ -158,4 +157,4 @@ def generate_geometric_brownian(
         engine=engine,
     )
     t = dt * torch.arange(n_steps).to(brownian).unsqueeze(0)
-    return init_state[0] * (brownian - (sigma**2) * t / 2).exp()
+    return init_state[0] * (brownian - (sigma ** 2) * t / 2).exp()

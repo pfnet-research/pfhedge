@@ -357,22 +357,22 @@ class TestVariance(_TestFeature):
         f = Variance().of(derivative)
 
         result = f[0]
-        expect = torch.full((2, 1), sigma**2).to(device)
+        expect = torch.full((2, 1), sigma ** 2).to(device)
         expect = expect.unsqueeze(-1)
         assert_close(result, expect, check_stride=False)
 
         result = f[1]
-        expect = torch.full((2, 1), sigma**2).to(device)
+        expect = torch.full((2, 1), sigma ** 2).to(device)
         expect = expect.unsqueeze(-1)
         assert_close(result, expect, check_stride=False)
 
         result = f[2]
-        expect = torch.full((2, 1), sigma**2).to(device)
+        expect = torch.full((2, 1), sigma ** 2).to(device)
         expect = expect.unsqueeze(-1)
         assert_close(result, expect, check_stride=False)
 
         result = f[None]
-        expect = torch.full((2, 3), sigma**2).to(device)
+        expect = torch.full((2, 3), sigma ** 2).to(device)
         expect = expect.unsqueeze(-1)
         assert_close(result, expect, check_stride=False)
 

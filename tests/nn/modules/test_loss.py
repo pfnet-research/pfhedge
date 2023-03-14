@@ -168,6 +168,7 @@ class TestEntropicRiskMeasure:
     def test_extreme2_gpu(self):
         self.test_extreme2(device="cuda")
 
+
     def test_error_a(self):
         with pytest.raises(ValueError):
             EntropicRiskMeasure(0)

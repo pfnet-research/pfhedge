@@ -3,10 +3,8 @@ from typing import Union
 
 import pytest
 import torch
-from torch import Tensor
 from torch.testing import assert_close
 
-from pfhedge.instruments import BaseDerivative
 from pfhedge.instruments import BrownianStock
 from pfhedge.instruments import EuropeanForwardStartOption
 from pfhedge.instruments import EuropeanOption

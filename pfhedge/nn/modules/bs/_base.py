@@ -5,7 +5,6 @@ from typing import Tuple
 from typing import Union
 from typing import no_type_check
 
-import torch
 from torch import Tensor
 from torch.nn import Module
 

@@ -22,8 +22,8 @@ def test_generate_cir_mean_1(device: Optional[Union[str, torch.device]] = "cpu")
     t = generate_cir(n_paths, 250, kappa=kappa, theta=theta, sigma=sigma, device=device)
     result = t[:, -1].mean()
     # Asymptotic distribution is gamma distribution
-    alpha = 2 * kappa * theta / sigma**2
-    beta = 2 * kappa / sigma**2
+    alpha = 2 * kappa * theta / sigma ** 2
+    beta = 2 * kappa / sigma ** 2
     d = Gamma(alpha, beta)
 
     expect = torch.full_like(result, d.mean)
@@ -57,8 +57,8 @@ def test_generate_cir_mean_2(device: Optional[Union[str, torch.device]] = "cpu")
     )
     result = t[:, -1].mean()
     # Asymptotic distribution is gamma distribution
-    alpha = 2 * kappa * theta / sigma**2
-    beta = 2 * kappa / sigma**2
+    alpha = 2 * kappa * theta / sigma ** 2
+    beta = 2 * kappa / sigma ** 2
     d = Gamma(alpha, beta)
 
     expect = torch.full_like(result, d.mean)

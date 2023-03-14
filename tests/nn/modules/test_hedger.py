@@ -12,6 +12,7 @@ from torch.testing import assert_close
 
 from pfhedge.instruments import BaseDerivative
 from pfhedge.instruments import BrownianStock
+from pfhedge.instruments import Derivative
 from pfhedge.instruments import EuropeanOption
 from pfhedge.nn import BlackScholes
 from pfhedge.nn import EntropicRiskMeasure
@@ -396,15 +397,16 @@ Hedger(
             def forward(self, input: Tensor):
                 return torch.ones_like(input[..., :1])
 
-        pricer = (
-            lambda derivative: BlackScholes(derivative)
-            .to(device)
-            .price(
-                log_moneyness=derivative.log_moneyness(),
-                time_to_maturity=derivative.time_to_maturity(),
-                volatility=derivative.ul().volatility,
+        def pricer(derivative: Derivative) -> Tensor:
+            return (
+                BlackScholes(derivative)
+                .to(device)
+                .price(
+                    log_moneyness=derivative.log_moneyness(),
+                    time_to_maturity=derivative.time_to_maturity(),
+                    volatility=derivative.ul().volatility,
+                )
             )
-        )
 
         derivative = EuropeanOption(BrownianStock(), maturity=5 / 250).to(device)
         derivative.list(pricer)
