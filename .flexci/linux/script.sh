@@ -42,7 +42,7 @@ main() {
   case "${TARGET}" in
     python* )
       python_version=python_versions["${TARGET}"]
-      run "${docker_args[@]} --env python_version" \
+      run "${docker_args[@]} --env python_version=${python_version}" \
           "nvidia/cuda:12.0.1-cudnn8-devel-ubuntu20.04" \
           bash /src/.flexci/linux/test.sh
       gsutil -m -q cp -r /tmp/output/htmlcov gs://${PFHEDGE_FLEXCI_GCS_BUCKET}/pfhedge/pytest-cov/${CI_JOB_ID}/htmlcov
