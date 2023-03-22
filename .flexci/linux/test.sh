@@ -11,7 +11,7 @@ export PATH="${PYENV_ROOT}/shims:${PYENV_ROOT}/bin:${PATH}"
 # Install Python.
 python_version=${python_version:-3.9.7}
 echo "python ${python_version}"
-pyenv install ${python_version} && \
+pyenv install ${python_version}
 pyenv global ${python_version}
 eval "$(pyenv init --path)"
 
