@@ -16,7 +16,7 @@ pyenv global ${python_version}
 eval "$(pyenv init --path)"
 
 curl -sSL https://install.python-poetry.org | python -
-PATH=${HOME}/.local/bin:${PATH}
+export PATH="${HOME}/.local/bin:${PATH}"
 
 poetry install
 
