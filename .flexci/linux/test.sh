@@ -6,7 +6,7 @@ apt install -y git curl wget gcc make openssl libssl-dev libbz2-dev libreadline-
 
 git clone https://github.com/pyenv/pyenv.git /opt/pyenv
 PYENV_ROOT=/opt/pyenv
-PATH=${PYENV_ROOT}/shims:${PYENV_ROOT}/bin:${PATH}
+export PATH="${PYENV_ROOT}/shims:${PYENV_ROOT}/bin:${PATH}"
 
 # Install Python.
 python_version=${python_version:-3.9.7}
