@@ -206,7 +206,8 @@ def entropic_risk_measure(input: Tensor, a: float = 1.0) -> Tensor:
 
 def topp(
     input: Tensor, p: float, dim: Optional[int] = None, largest: bool = True
-) -> torch.return_types.return_types.topk:
+) -> "torch.return_types.return_types.topk":  # type: ignore
+    # ToDo(masanorihirano): in torch 1.9.0 or some versions (before 1.13.0), this type and alternatives do not exist)
     """Returns the largest :math:`p * N` elements of the given input tensor,
     where :math:`N` stands for the total number of elements in the input tensor.
 
