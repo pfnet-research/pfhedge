@@ -1,6 +1,4 @@
 import contextlib
-from typing import Optional
-from typing import Union
 
 import pytest
 import torch

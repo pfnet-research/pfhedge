@@ -1,6 +1,4 @@
 from math import sqrt
-from typing import Optional
-from typing import Union
 
 import pytest
 import torch

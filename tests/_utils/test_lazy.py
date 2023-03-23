@@ -1,8 +1,4 @@
-from typing import Optional
-from typing import Union
-
 import pytest
-import torch
 from torch.nn import LazyLinear
 from torch.nn import Linear
 from torch.nn import Sequential

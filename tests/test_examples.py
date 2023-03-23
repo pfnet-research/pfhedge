@@ -1,8 +1,4 @@
-from typing import Optional
-from typing import Union
-
 import pytest
-import torch
 
 from pfhedge.instruments import BrownianStock
 from pfhedge.instruments import EuropeanOption
