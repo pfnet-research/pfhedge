@@ -53,11 +53,9 @@ jobs:
 
     - name: Run doctest
       run: make doctest
-      if: always()
 
     - name: Run pytest
       run: make test-cov
-      if: always()
 
     - name: Upload codecov report
       uses: codecov/codecov-action@v1
