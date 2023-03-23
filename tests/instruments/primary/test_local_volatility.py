@@ -32,8 +32,9 @@ def test_local_volatility(device: str = "cpu"):
 
     result = stock.spot[:, 11:]
     expect = stock.spot[:, 10].unsqueeze(0).expand(-1, stock.spot[:, 11:].size(1))
-    # ToDo(masanorihirano): check_stride became False at default after torch 1.10.0.
-    #  Therefore, after dropping torch 1.9.0 support, please delete this option.
+    # TODO(masanorihirano): Remove check_stride once PyTorch 1.9.0 support is
+    # no longer required. In PyTorch 1.10.0 and subsequent versions,
+    # check_stride is set to False by default.
     assert_close(result, expect, check_stride=False)
 
     result = stock.volatility[:, 10:]
