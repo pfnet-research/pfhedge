@@ -37,7 +37,9 @@ def test_local_volatility(device: Optional[Union[str, torch.device]] = "cpu"):
 
     result = stock.spot[:, 11:]
     expect = stock.spot[:, 10].unsqueeze(0).expand(-1, stock.spot[:, 11:].size(1))
-    assert_close(result, expect)
+    # ToDo(masanorihirano): check_stride became False at default after torch 1.10.0.
+    #  Therefore, after dropping torch 1.9.0 support, please delete this option.
+    assert_close(result, expect, check_stride=False)
 
     result = stock.volatility[:, 10:]
     expect = torch.zeros_like(stock.volatility[:, 10:])
