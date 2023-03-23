@@ -49,11 +49,15 @@ class FakeModule(Module):
 
 
 class TestHedger:
-    def test_error_optimizer(self):
-        hedger = Hedger(Linear(2, 1), ["moneyness", "time_to_maturity"])
-        derivative = EuropeanOption(BrownianStock())
+    def test_error_optimizer(self, device: str = "cpu"):
+        hedger = Hedger(Linear(2, 1), ["moneyness", "time_to_maturity"]).to(device)
+        derivative = EuropeanOption(BrownianStock()).to(device)
         with pytest.raises(TypeError):
             hedger._configure_optimizer(derivative, optimizer=Identity)
+
+    @pytest.mark.gpu
+    def test_error_optimizer_gpu(self):
+        self.test_error_optimizer(device="cuda")
 
     def test_repr(self):
         hedger = Hedger(Linear(2, 1), ["moneyness", "time_to_maturity"])
@@ -76,46 +80,57 @@ Hedger(
 )"""
         assert repr(hedger) == expect
 
-    def test_compute_hedge_error_not_same_size(self):
-        stock0 = BrownianStock()
-        stock1 = BrownianStock()
-        stock0.register_buffer("spot", torch.ones(2, 3))
-        derivative = EuropeanOption(stock0)
-        hedger = Hedger(Naked(), ["empty"])
+    def test_compute_hedge_error_not_same_size(self, device: str = "cpu"):
+        stock0 = BrownianStock().to(device)
+        stock1 = BrownianStock().to(device)
+        stock0.register_buffer("spot", torch.ones(2, 3).to(device))
+        derivative = EuropeanOption(stock0).to(device)
+        hedger = Hedger(Naked(), ["empty"]).to(device)
 
-        stock1.register_buffer("spot", torch.ones(2, 4))
+        stock1.register_buffer("spot", torch.ones(2, 4).to(device))
         with pytest.raises(ValueError):
             _ = hedger.compute_hedge(derivative, hedge=[stock0, stock1])
-        stock1.register_buffer("spot", torch.ones(3, 3))
+        stock1.register_buffer("spot", torch.ones(3, 3).to(device))
         with pytest.raises(ValueError):
             _ = hedger.compute_hedge(derivative, hedge=[stock0, stock1])
+
+    @pytest.mark.gpu
+    def test_compute_hedge_error_not_same_size_gpu(self):
+        self.test_compute_hedge_error_not_same_size(device="cuda")
 
     @pytest.mark.parametrize("hin", [1, 2])
-    def test_compute_pnl_size(self, hin):
+    def test_compute_pnl_size(self, hin, device: str = "cpu"):
         torch.manual_seed(42)
 
-        derivative = EuropeanOption(BrownianStock())
-        hedger = Hedger(Linear(hin, 1), inputs=["empty"] * hin)
+        derivative = EuropeanOption(BrownianStock()).to(device)
+        hedger = Hedger(Linear(hin, 1), inputs=["empty"] * hin).to(device)
         pnl = hedger.compute_pnl(derivative)
 
         N = derivative.ul().spot.size(0)
         assert pnl.size() == torch.Size((N,))
 
         torch.manual_seed(42)
-        derivative = EuropeanOption(BrownianStock())
-        hedger = Hedger(Linear(hin + 1, 1), inputs=["empty"] * hin + ["prev_hedge"])
+        derivative = EuropeanOption(BrownianStock()).to(device)
+        hedger = Hedger(Linear(hin + 1, 1), inputs=["empty"] * hin + ["prev_hedge"]).to(
+            device
+        )
         pnl = hedger.compute_pnl(derivative)
 
         N = derivative.ul().spot.size(0)
         assert pnl.size() == torch.Size((N,))
+
+    @pytest.mark.gpu
+    @pytest.mark.parametrize("hin", [1, 2])
+    def test_compute_pnl_size_gpu(self, hin):
+        self.test_compute_pnl_size(hin=hin, device="cuda")
 
     @pytest.mark.parametrize("cost", [0.0, 1e-3])
-    def test_compute_pnl_1(self, cost):
+    def test_compute_pnl_1(self, cost, device: str = "cpu"):
         # pnl = -payoff if output = 0
         torch.manual_seed(42)
 
-        deriv = EuropeanOption(BrownianStock(cost=cost))
-        hedger = Hedger(Naked(), ["empty"])
+        deriv = EuropeanOption(BrownianStock(cost=cost)).to(device)
+        hedger = Hedger(Naked(), ["empty"]).to(device)
 
         pnl = hedger.compute_pnl(deriv)
         payoff = deriv.payoff()
@@ -125,16 +140,21 @@ Hedger(
         expect = -deriv.payoff()
         assert_close(result, expect)
 
-    def test_compute_pnl_2(self):
+    @pytest.mark.gpu
+    @pytest.mark.parametrize("cost", [0.0, 1e-3])
+    def test_compute_pnl_1_gpu(self, cost):
+        self.test_compute_pnl_1(cost=cost, device="cuda")
+
+    def test_compute_pnl_2(self, device: str = "cpu"):
         torch.manual_seed(42)
         N, T = 2, 4
-        derivative = ZeroDerivative(BrownianStock())
-        output = torch.randn(N, T - 1)
+        derivative = ZeroDerivative(BrownianStock()).to(device)
+        output = torch.randn(N, T - 1).to(device)
 
-        m = FakeModule(output.unsqueeze(-1))
-        hedger = Hedger(m, ["empty", "prev_hedge"])
+        m = FakeModule(output.unsqueeze(-1)).to(device)
+        hedger = Hedger(m, ["empty", "prev_hedge"]).to(device)
 
-        spot = torch.randn(N, T).exp()
+        spot = torch.randn(N, T).to(device).exp()
         derivative.ul().register_buffer("spot", spot)
         with patch("pfhedge.instruments.BrownianStock.simulate", void):
             # so that the simulation is not performed
@@ -143,18 +163,22 @@ Hedger(
         expect = (spot.diff(dim=-1) * output).sum(-1)
         assert_close(result, expect)
 
-    def test_compute_pnl_2_multiple_hedges(self):
+    @pytest.mark.gpu
+    def test_compute_pnl_2_gpu(self):
+        self.test_compute_pnl_2(device="cuda")
+
+    def test_compute_pnl_2_multiple_hedges(self, device: str = "cpu"):
         torch.manual_seed(42)
         N, T = 2, 4
 
-        stock0 = BrownianStock()
-        stock1 = BrownianStock()
-        stock0.register_buffer("spot", torch.randn(N, T).exp())
-        stock1.register_buffer("spot", torch.randn(N, T).exp())
-        derivative = ZeroDerivative(stock0)
+        stock0 = BrownianStock().to(device)
+        stock1 = BrownianStock().to(device)
+        stock0.register_buffer("spot", torch.randn(N, T).to(device).exp())
+        stock1.register_buffer("spot", torch.randn(N, T).to(device).exp())
+        derivative = ZeroDerivative(stock0).to(device)
 
-        output = torch.randn(N, T - 1, 2)
-        m = FakeModule(output)
+        output = torch.randn(N, T - 1, 2).to(device)
+        m = FakeModule(output).to(device)
         hedger = Hedger(m, ["empty", "prev_hedge"])
 
         with patch("pfhedge.instruments.BrownianStock.simulate", void):
@@ -166,21 +190,25 @@ Hedger(
         expect = pnl0 + pnl1
         assert_close(result, expect)
 
-    def test_compute_pnl_2_multiple_hedges_payoff(self):
+    @pytest.mark.gpu
+    def test_compute_pnl_2_multiple_hedges_gpu(self):
+        self.test_compute_pnl_2_multiple_hedges(device="cuda")
+
+    def test_compute_pnl_2_multiple_hedges_payoff(self, device: str = "cpu"):
         torch.manual_seed(42)
 
         N, T = 2, 4
 
-        stock0 = BrownianStock()
-        stock1 = BrownianStock()
-        stock0.register_buffer("spot", torch.randn(N, T).exp())
-        stock1.register_buffer("spot", torch.randn(N, T).exp())
-        derivative = EuropeanOption(stock0)
+        stock0 = BrownianStock().to(device)
+        stock1 = BrownianStock().to(device)
+        stock0.register_buffer("spot", torch.randn(N, T).to(device).exp())
+        stock1.register_buffer("spot", torch.randn(N, T).to(device).exp())
+        derivative = EuropeanOption(stock0).to(device)
         payoff = derivative.payoff()
 
-        output = torch.randn(N, T - 1, 2)
-        m = FakeModule(output)
-        hedger = Hedger(m, ["empty", "prev_hedge"])
+        output = torch.randn(N, T - 1, 2).to(device)
+        m = FakeModule(output).to(device)
+        hedger = Hedger(m, ["empty", "prev_hedge"]).to(device)
         with patch("pfhedge.instruments.BrownianStock.simulate", void):
             result = hedger.compute_pnl(derivative, hedge=[stock0, stock1])
         pnl0 = (stock0.spot.diff(dim=-1) * output[..., 0]).sum(-1)
@@ -188,16 +216,24 @@ Hedger(
         expect = pnl0 + pnl1 - payoff
         assert_close(result, expect)
 
-    def test_compute_pnl_payoff(self):
+    @pytest.mark.gpu
+    def test_compute_pnl_2_multiple_hedges_payoff_gpu(self):
+        self.test_compute_pnl_2_multiple_hedges_payoff(device="cuda")
+
+    def test_compute_pnl_payoff(self, device: str = "cpu"):
         torch.manual_seed(42)
 
         N, T = 10, 20
-        derivative0 = EuropeanOption(BrownianStock())
-        derivative1 = ZeroDerivative(BrownianStock())
+        derivative0 = EuropeanOption(BrownianStock()).to(device)
+        derivative1 = ZeroDerivative(BrownianStock()).to(device)
         output = torch.randn(N, T - 1)
 
-        hedger0 = Hedger(FakeModule(output.unsqueeze(-1)), ["empty", "prev_hedge"])
-        hedger1 = Hedger(FakeModule(output.unsqueeze(-1)), ["empty", "prev_hedge"])
+        hedger0 = Hedger(FakeModule(output.unsqueeze(-1)), ["empty", "prev_hedge"]).to(
+            device
+        )
+        hedger1 = Hedger(FakeModule(output.unsqueeze(-1)), ["empty", "prev_hedge"]).to(
+            device
+        )
 
         spot = torch.randn(N, T).exp()
         derivative0.ul().register_buffer("spot", spot)
@@ -211,17 +247,25 @@ Hedger(
         expect = -derivative0.payoff()
         assert_close(result, expect)
 
-    def test_compute_pnl_cost(self):
+    @pytest.mark.gpu
+    def test_compute_pnl_payoff_gpu(self):
+        self.test_compute_pnl_payoff(device="cuda")
+
+    def test_compute_pnl_cost(self, device: str = "cpu"):
         cost = 1e-3
         N, T = 10, 20
-        derivative0 = EuropeanOption(BrownianStock(cost=0.0))
-        derivative1 = EuropeanOption(BrownianStock(cost=cost))
-        output = torch.randn(N, T - 1)
+        derivative0 = EuropeanOption(BrownianStock(cost=0.0)).to(device)
+        derivative1 = EuropeanOption(BrownianStock(cost=cost)).to(device)
+        output = torch.randn(N, T - 1).to(device)
 
-        hedger0 = Hedger(FakeModule(output.unsqueeze(-1)), ["empty", "prev_hedge"])
-        hedger1 = Hedger(FakeModule(output.unsqueeze(-1)), ["empty", "prev_hedge"])
+        hedger0 = Hedger(FakeModule(output.unsqueeze(-1)), ["empty", "prev_hedge"]).to(
+            device
+        )
+        hedger1 = Hedger(FakeModule(output.unsqueeze(-1)), ["empty", "prev_hedge"]).to(
+            device
+        )
 
-        spot = torch.randn(N, T).exp()
+        spot = torch.randn(N, T).to(device).exp()
         derivative0.ul().register_buffer("spot", spot)
         derivative1.ul().register_buffer("spot", spot)
         with patch("pfhedge.instruments.BrownianStock.simulate", void):
@@ -230,43 +274,51 @@ Hedger(
             pnl1 = hedger1.compute_pnl(derivative1)
 
         result = pnl0 - pnl1
-        output = torch.cat((torch.zeros(N, 1), output), dim=-1)
+        output = torch.cat((torch.zeros(N, 1).to(device), output), dim=-1)
         expect = cost * (spot[..., :-1] * output.diff(dim=-1).abs()).sum(-1)
         assert_close(result, expect)
 
-    def test_forward_shape(self):
+    @pytest.mark.gpu
+    def test_compute_pnl_cost_gpu(self):
+        self.test_compute_pnl_cost(device="cuda")
+
+    def test_forward_shape(self, device: str = "cpu"):
         torch.distributions.Distribution.set_default_validate_args(False)
 
-        deriv = EuropeanOption(BrownianStock())
+        deriv = EuropeanOption(BrownianStock()).to(device)
 
         N = 2
         M_1 = 5
         M_2 = 6
         H_in = 3
 
-        input = torch.zeros((N, M_1, M_2, H_in))
-        m = Hedger(MultiLayerPerceptron(), ["empty"])
+        input = torch.zeros((N, M_1, M_2, H_in)).to(device)
+        m = Hedger(MultiLayerPerceptron(), ["empty"]).to(device)
         assert m(input).size() == torch.Size((N, M_1, M_2, 1))
 
-        model = BlackScholes(deriv)
-        m = Hedger(model, model.inputs())
+        model = BlackScholes(deriv).to(device)
+        m = Hedger(model, model.inputs()).to(device)
         input = torch.zeros((N, M_1, M_2, len(model.inputs())))
         assert m(input).size() == torch.Size((N, M_1, M_2, 1))
 
-        model = WhalleyWilmott(deriv)
-        m = Hedger(model, model.inputs())
+        model = WhalleyWilmott(deriv).to(device)
+        m = Hedger(model, model.inputs()).to(device)
         input = torch.zeros((N, M_1, M_2, len(model.inputs())))
         assert m(input).size() == torch.Size((N, M_1, M_2, 1))
 
-        model = Naked()
-        m = Hedger(model, ["empty"])
-        input = torch.zeros((N, M_1, M_2, 10))
+        model = Naked().to(device)
+        m = Hedger(model, ["empty"]).to(device)
+        input = torch.zeros((N, M_1, M_2, 10)).to(device)
         assert m(input).size() == torch.Size((N, M_1, M_2, 1))
+
+    @pytest.mark.gpu
+    def test_forward_shape_gpu(self):
+        self.test_forward_shape(device="cuda")
 
     @pytest.mark.parametrize("h_in", [1, 2, 3])
-    def test_get_input(self, h_in):
-        hedger = Hedger(Naked(), ["zeros"] * h_in)
-        derivative = EuropeanOption(BrownianStock())
+    def test_get_input(self, h_in, device: str = "cpu"):
+        hedger = Hedger(Naked(), ["zeros"] * h_in).to(device)
+        derivative = EuropeanOption(BrownianStock()).to(device)
         derivative.simulate()
         _ = hedger.compute_pnl(derivative, n_paths=1)
         N, T = derivative.ul().spot.size()
@@ -275,11 +327,16 @@ Hedger(
         input = hedger.get_input(derivative, None)
         assert input.size() == torch.Size((N, T, h_in))
 
+    @pytest.mark.gpu
     @pytest.mark.parametrize("h_in", [1, 2, 3])
-    def test_compute_hedge(self, h_in):
+    def test_get_input_gpu(self, h_in):
+        self.test_get_input(h_in=h_in, device="cuda")
+
+    @pytest.mark.parametrize("h_in", [1, 2, 3])
+    def test_compute_hedge(self, h_in, device: str = "cpu"):
         # test size
-        hedger = Hedger(Naked(), ["zeros"] * h_in)
-        derivative = EuropeanOption(BrownianStock())
+        hedger = Hedger(Naked(), ["zeros"] * h_in).to(device)
+        derivative = EuropeanOption(BrownianStock()).to(device)
         derivative.simulate()
         hedge = hedger.compute_hedge(derivative)
         N, T = derivative.ul().spot.size()
@@ -287,24 +344,35 @@ Hedger(
         assert hedge.size() == torch.Size((N, H, T))
 
         # test size
-        hedger = Hedger(Naked(), ["zeros"] * h_in + ["prev_hedge"])
-        derivative = EuropeanOption(BrownianStock())
+        hedger = Hedger(Naked(), ["zeros"] * h_in + ["prev_hedge"]).to(device)
+        derivative = EuropeanOption(BrownianStock()).to(device)
         derivative.simulate()
         hedge = hedger.compute_hedge(derivative)
         N, T = derivative.ul().spot.size()
         H = 1
         assert hedge.size() == torch.Size((N, H, T))
 
-    def test_compute_loss(self):
+    @pytest.mark.gpu
+    @pytest.mark.parametrize("h_in", [1, 2, 3])
+    def test_compute_hedge_gpu(self, h_in):
+        self.test_compute_hedge(h_in=h_in, device="cuda")
+
+    def test_compute_loss(self, device: str = "cpu"):
         torch.manual_seed(42)
-        deriv = EuropeanOption(BrownianStock())
-        hedger = Hedger(Naked(), ["log_moneyness", "time_to_maturity", "volatility"])
+        deriv = EuropeanOption(BrownianStock()).to(device)
+        hedger = Hedger(
+            Naked(), ["log_moneyness", "time_to_maturity", "volatility"]
+        ).to(device)
 
         result = hedger.compute_loss(deriv)
-        expect = EntropicRiskMeasure()(-deriv.payoff())
+        expect = EntropicRiskMeasure().to(device)(-deriv.payoff())
         assert_close(result, expect)
 
-    def test_hedging_with_identical_derivative(self):
+    @pytest.mark.gpu
+    def test_compute_loss_gpu(self):
+        self.test_compute_loss(device="cuda")
+
+    def test_hedging_with_identical_derivative(self, device: str = "cpu"):
         torch.manual_seed(42)
 
         class Ones(Module):
@@ -312,15 +380,19 @@ Hedger(
                 return torch.ones_like(input[..., :1])
 
         def pricer(derivative: Derivative) -> Tensor:
-            return BlackScholes(derivative).price(
-                log_moneyness=derivative.log_moneyness(),
-                time_to_maturity=derivative.time_to_maturity(),
-                volatility=derivative.ul().volatility,
+            return (
+                BlackScholes(derivative)
+                .to(device)
+                .price(
+                    log_moneyness=derivative.log_moneyness(),
+                    time_to_maturity=derivative.time_to_maturity(),
+                    volatility=derivative.ul().volatility,
+                )
             )
 
-        derivative = EuropeanOption(BrownianStock(), maturity=5 / 250)
+        derivative = EuropeanOption(BrownianStock(), maturity=5 / 250).to(device)
         derivative.list(pricer)
-        hedger = Hedger(Ones(), ["empty", "prev_hedge"])
+        hedger = Hedger(Ones(), ["empty", "prev_hedge"]).to(device)
 
         torch.manual_seed(42)
         result = hedger.compute_pnl(derivative, hedge=[derivative], n_paths=2)
@@ -332,3 +404,7 @@ Hedger(
         result = hedger.price(derivative, hedge=[derivative], n_paths=2)
         expect = derivative.spot[0, 0]
         assert_close(result, expect, check_stride=False)
+
+    @pytest.mark.gpu
+    def test_hedging_with_identical_derivative_gpu(self):
+        self.test_hedging_with_identical_derivative(device="cuda")
