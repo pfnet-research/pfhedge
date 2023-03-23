@@ -95,7 +95,7 @@ class BasePrimary(BaseInstrument):
         # Implementation here refers to torch.nn.Module.register_buffer.
         if "_buffers" not in self.__dict__:
             raise AttributeError("cannot assign buffer before __init__() call")
-        elif not isinstance(name, torch._six.string_classes):
+        elif not isinstance(name, (str, bytes)):
             raise TypeError(
                 "buffer name should be a string. " "Got {}".format(torch.typename(name))
             )

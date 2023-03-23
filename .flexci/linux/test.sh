@@ -20,6 +20,14 @@ export PATH="${HOME}/.local/bin:${PATH}"
 
 poetry install
 
+poetry run pip uninstall -y torch
+poetry run pip install --no-cache-dir "torch>=2.0.0,<3"
+
+poetry run pytest -m gpu pfhedge .
+
+poetry run pip uninstall -y torch
+poetry run pip install --no-cache-dir "torch<2.0.0"
+
 poetry run pytest -m gpu --cov-report=html --cov pfhedge .
 
 mv htmlcov /output/htmlcov

@@ -8,14 +8,14 @@ repository = "https://github.com/pfnet-research/pfhedge"
 
 [tool.poetry.dependencies]
 python = "^3.7.12"
-torch = "^1.9.0"
+torch = ">=1.9.0,<3.0.0"
 tqdm = "^4.62.3"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
 black = "21.9b0"
 isort = "^5.9.3"
-mypy = "^0.910,<2.0"
+mypy = "0.920"
 pytest-cov = "^3.0.0"
 Sphinx = "^4.2.0"
 sphinx-autobuild = "^2021.3.14"

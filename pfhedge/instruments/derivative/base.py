@@ -178,7 +178,7 @@ class BaseDerivative(BaseInstrument):
             clause (callable[[BaseDerivative, torch.Tensor], torch.Tensor]):
                 The clause to add.
         """
-        if not isinstance(name, torch._six.string_classes):
+        if not isinstance(name, (str, bytes)):
             raise TypeError(
                 f"clause name should be a string. Got {torch.typename(name)}"
             )
@@ -206,7 +206,7 @@ class BaseDerivative(BaseInstrument):
             yield clause
 
     def register_underlier(self, name: str, underlier: BasePrimary) -> None:
-        if not isinstance(name, torch._six.string_classes):
+        if not isinstance(name, (str, bytes)):
             raise TypeError(f"name should be a string. Got {torch.typename(name)}")
         elif hasattr(self, name) and name not in self._underliers:
             raise KeyError(f"attribute '{name}' already exists")
