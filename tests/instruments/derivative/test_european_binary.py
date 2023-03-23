@@ -16,7 +16,7 @@ class TestEuropeanBinaryOption:
     def setup_class(cls):
         torch.manual_seed(42)
 
-    def test_payoff(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_payoff(self, device: str = "cpu"):
         derivative = EuropeanBinaryOption(BrownianStock(), strike=2.0).to(device)
         derivative.underlier.register_buffer(
             "spot",
@@ -46,7 +46,7 @@ class TestEuropeanBinaryOption:
         maturity,
         n_paths,
         init_spot,
-        device: Optional[Union[str, torch.device]] = "cpu",
+        device: str = "cpu",
     ):
         """
         Test put-call parity.
@@ -78,7 +78,7 @@ class TestEuropeanBinaryOption:
         )
 
     @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
-    def test_dtype(self, dtype, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_dtype(self, dtype, device: str = "cpu"):
         derivative = EuropeanBinaryOption(BrownianStock(dtype=dtype)).to(device)
         assert derivative.dtype == dtype
         derivative.simulate()

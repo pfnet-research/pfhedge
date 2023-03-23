@@ -50,7 +50,7 @@ class TestBrownianStock:
         with pytest.raises(TypeError):
             s.register_buffer("a", torch.nn.ReLU())
 
-    def test_buffers(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_buffers(self, device: str = "cpu"):
         torch.manual_seed(42)
         a = torch.randn(10).to(device)
         b = torch.randn(10).to(device)
@@ -86,9 +86,7 @@ class TestBrownianStock:
             MyPrimary().simulate()
 
     @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
-    def test_init_dtype(
-        self, dtype, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_init_dtype(self, dtype, device: str = "cpu"):
         s = BrownianStock(dtype=dtype, device=device)
         s.simulate()
         assert s.dtype == dtype
@@ -100,7 +98,7 @@ class TestBrownianStock:
         self.test_init_dtype(dtype, device="cuda")
 
     @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
-    def test_to_dtype(self, dtype, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_to_dtype(self, dtype, device: str = "cpu"):
         # to(dtype) before simulate()
         s = BrownianStock().to(dtype=dtype, device=device)
         s.simulate()
@@ -201,7 +199,7 @@ class TestBrownianStock:
     def test_to_dtype_gpu(self, dtype):
         self.test_to_dtype(dtype, device="cuda")
 
-    def test_simulate_shape(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_simulate_shape(self, device: str = "cpu"):
         s = BrownianStock(dt=0.1).to(device)
         s.simulate(time_horizon=0.2, n_paths=10)
         assert s.spot.size() == torch.Size((10, 3))
@@ -215,9 +213,7 @@ class TestBrownianStock:
         self.test_simulate_shape(device="cuda")
 
     @pytest.mark.parametrize("sigma", [0.2, 0.1])
-    def test_volatility(
-        self, sigma, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_volatility(self, sigma, device: str = "cpu"):
         s = BrownianStock(sigma=sigma).to(device)
         s.simulate()
         result = s.volatility

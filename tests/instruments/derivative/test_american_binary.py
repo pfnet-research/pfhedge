@@ -20,7 +20,7 @@ class TestAmericanBinaryOption:
     def setup_class(cls):
         torch.manual_seed(42)
 
-    def test_payoff(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_payoff(self, device: str = "cpu"):
         derivative = AmericanBinaryOption(BrownianStock(), strike=2.0).to(device)
         derivative.underlier.register_buffer(
             "spot",
@@ -52,7 +52,7 @@ class TestAmericanBinaryOption:
         self.test_payoff(device="cuda")
 
     @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
-    def test_dtype(self, dtype, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_dtype(self, dtype, device: str = "cpu"):
         derivative = AmericanBinaryOption(BrownianStock(dtype=dtype, device=device))
         assert derivative.dtype == dtype
         derivative.simulate()

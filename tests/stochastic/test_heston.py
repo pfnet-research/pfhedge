@@ -23,7 +23,7 @@ HestonTuple(
     assert repr(output) == expect
 
 
-def test_generate_heston_volatility(device: Optional[Union[str, torch.device]] = "cpu"):
+def test_generate_heston_volatility(device: str = "cpu"):
     torch.manual_seed(42)
 
     device = torch.device(device) if device else None

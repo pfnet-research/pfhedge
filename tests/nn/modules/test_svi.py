@@ -9,7 +9,7 @@ from torch.testing import assert_allclose
 from pfhedge.nn import SVIVariance
 
 
-def test_svi(device: Optional[Union[str, torch.device]] = "cpu"):
+def test_svi(device: str = "cpu"):
     input = torch.linspace(-1.0, 1.0, 10).to(device)
 
     # for b = 0, output = a

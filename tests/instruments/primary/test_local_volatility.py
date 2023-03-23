@@ -8,9 +8,7 @@ from torch.testing import assert_close
 from pfhedge.instruments import LocalVolatilityStock
 
 
-def test_local_volatility_zero_volatility(
-    device: Optional[Union[str, torch.device]] = "cpu"
-):
+def test_local_volatility_zero_volatility(device: str = "cpu"):
     def zeros(time, spot):
         return torch.zeros_like(time)
 
@@ -26,7 +24,7 @@ def test_local_volatility_zero_volatility_gpu():
     test_local_volatility_zero_volatility(device="cuda")
 
 
-def test_local_volatility(device: Optional[Union[str, torch.device]] = "cpu"):
+def test_local_volatility(device: str = "cpu"):
     def zeros(time, spot):
         zero = torch.zeros_like(time)
         nonzero = torch.full_like(time, 0.2)

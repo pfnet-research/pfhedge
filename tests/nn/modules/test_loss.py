@@ -16,7 +16,7 @@ from pfhedge.nn import IsoelasticLoss
 from pfhedge.nn.modules.loss import OCE
 
 
-def assert_loss_shape(loss, device: Optional[Union[str, torch.device]] = "cpu"):
+def assert_loss_shape(loss, device: str = "cpu"):
     torch.manual_seed(42)
 
     N = 20
@@ -46,9 +46,7 @@ class TestEntropicRiskMeasure:
     @pytest.mark.parametrize("n_paths", [10, 100])
     @pytest.mark.parametrize("risk", [1.0, 2.0, 10.0])
     @pytest.mark.parametrize("a", [0.001, 1, 2])
-    def test_nonincreasing(
-        self, n_paths, risk, a, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_nonincreasing(self, n_paths, risk, a, device: str = "cpu"):
         torch.manual_seed(42)
 
         loss = EntropicRiskMeasure(risk).to(device)
@@ -66,9 +64,7 @@ class TestEntropicRiskMeasure:
     @pytest.mark.parametrize("n_paths", [10, 100])
     @pytest.mark.parametrize("risk", [1.0, 2.0, 3.0])
     @pytest.mark.parametrize("a", [0.1, 0.5])
-    def test_convex(
-        self, n_paths, risk, a, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_convex(self, n_paths, risk, a, device: str = "cpu"):
         torch.manual_seed(42)
 
         loss = EntropicRiskMeasure(risk).to(device)
@@ -85,7 +81,7 @@ class TestEntropicRiskMeasure:
 
     @pytest.mark.parametrize("n_paths", [10, 100])
     @pytest.mark.parametrize("a", [1.0, 2.0, 3.0])
-    def test_cash(self, n_paths, a, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_cash(self, n_paths, a, device: str = "cpu"):
         torch.manual_seed(42)
 
         loss = EntropicRiskMeasure(a).to(device)
@@ -101,9 +97,7 @@ class TestEntropicRiskMeasure:
     @pytest.mark.parametrize("n_paths", [10, 100])
     @pytest.mark.parametrize("risk", [1.0, 2.0, 3.0])
     @pytest.mark.parametrize("c", [0.001, 1, 2])
-    def test_cash_equivalent(
-        self, n_paths, risk, c, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_cash_equivalent(self, n_paths, risk, c, device: str = "cpu"):
         torch.manual_seed(42)
 
         loss = EntropicRiskMeasure(risk).to(device)
@@ -118,9 +112,7 @@ class TestEntropicRiskMeasure:
 
     @pytest.mark.parametrize("n_paths", [10, 100])
     @pytest.mark.parametrize("a", [1.0, 2.0, 3.0])
-    def test_value(
-        self, n_paths, a, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_value(self, n_paths, a, device: str = "cpu"):
         torch.manual_seed(42)
 
         value = 1.0
@@ -138,9 +130,7 @@ class TestEntropicRiskMeasure:
     @pytest.mark.parametrize("n_paths", [10, 100])
     @pytest.mark.parametrize("a", [1.0, 2.0, 3.0])
     @pytest.mark.parametrize("value", [100.0, -100.0])
-    def test_extreme(
-        self, n_paths, a, value, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_extreme(self, n_paths, a, value, device: str = "cpu"):
         torch.manual_seed(42)
 
         loss = EntropicRiskMeasure(a)
@@ -154,7 +144,7 @@ class TestEntropicRiskMeasure:
     def test_extreme_gpu(self, n_paths, a, value):
         self.test_extreme(n_paths=n_paths, a=a, value=value, device="cuda")
 
-    def test_extreme2(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_extreme2(self, device: str = "cpu"):
         torch.manual_seed(42)
 
         loss = EntropicRiskMeasure(a=1.0)
@@ -180,7 +170,7 @@ class TestEntropicRiskMeasure:
         loss = EntropicRiskMeasure(a=10.0)
         assert repr(loss) == "EntropicRiskMeasure(a=10.)"
 
-    def test_shape(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_shape(self, device: str = "cpu"):
         torch.manual_seed(42)
 
         loss = EntropicRiskMeasure().to(device)
@@ -195,9 +185,7 @@ class TestEntropicLoss:
     @pytest.mark.parametrize("n_paths", [1, 10, 100])
     @pytest.mark.parametrize("risk", [1.0, 2.0, 10.0])
     @pytest.mark.parametrize("a", [0.001, 1, 2])
-    def test_nonincreasing(
-        self, n_paths, risk, a, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_nonincreasing(self, n_paths, risk, a, device: str = "cpu"):
         torch.manual_seed(42)
 
         loss = EntropicLoss(risk).to(device)
@@ -215,9 +203,7 @@ class TestEntropicLoss:
     @pytest.mark.parametrize("n_paths", [1, 10, 100])
     @pytest.mark.parametrize("risk", [1.0, 2.0, 3.0])
     @pytest.mark.parametrize("a", [0.1, 0.5])
-    def test_convex(
-        self, n_paths, risk, a, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_convex(self, n_paths, risk, a, device: str = "cpu"):
         torch.manual_seed(42)
 
         loss = EntropicLoss(risk).to(device)
@@ -234,7 +220,7 @@ class TestEntropicLoss:
 
     @pytest.mark.parametrize("n_paths", [10, 100])
     @pytest.mark.parametrize("a", [1.0, 2.0, 3.0])
-    def test_cash(self, n_paths, a, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_cash(self, n_paths, a, device: str = "cpu"):
         torch.manual_seed(42)
 
         loss = EntropicLoss(a).to(device)
@@ -249,9 +235,7 @@ class TestEntropicLoss:
 
     @pytest.mark.parametrize("n_paths", [10, 100])
     @pytest.mark.parametrize("a", [1.0, 2.0, 3.0])
-    def test_value(
-        self, n_paths, a, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_value(self, n_paths, a, device: str = "cpu"):
         value = 1.0
         loss = EntropicLoss(a).to(device)
         result = loss(torch.full((n_paths,), value).to(device))
@@ -276,7 +260,7 @@ class TestEntropicLoss:
         loss = EntropicLoss(a=10.0)
         assert repr(loss) == "EntropicLoss(a=10.)"
 
-    def test_shape(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_shape(self, device: str = "cpu"):
         torch.manual_seed(42)
 
         loss = EntropicLoss().to(device)
@@ -291,9 +275,7 @@ class TestIsoelasticLoss:
     @pytest.mark.parametrize("n_paths", [1, 10, 100])
     @pytest.mark.parametrize("risk", [0.1, 0.5, 1.0])
     @pytest.mark.parametrize("a", [0.001, 1, 2])
-    def test_nonincreasing(
-        self, n_paths, risk, a, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_nonincreasing(self, n_paths, risk, a, device: str = "cpu"):
         torch.manual_seed(42)
 
         loss = IsoelasticLoss(risk).to(device)
@@ -312,9 +294,7 @@ class TestIsoelasticLoss:
     @pytest.mark.parametrize("n_paths", [1, 10, 100])
     @pytest.mark.parametrize("risk", [0.1, 0.5, 1.0])
     @pytest.mark.parametrize("a", [0.1, 0.5])
-    def test_convex(
-        self, n_paths, risk, a, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_convex(self, n_paths, risk, a, device: str = "cpu"):
         torch.manual_seed(42)
 
         loss = IsoelasticLoss(risk).to(device)
@@ -331,9 +311,7 @@ class TestIsoelasticLoss:
 
     @pytest.mark.parametrize("n_paths", [10, 100])
     @pytest.mark.parametrize("risk", [0.1, 0.5, 1.0])
-    def test_cash(
-        self, n_paths, risk, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_cash(self, n_paths, risk, device: str = "cpu"):
         torch.manual_seed(42)
 
         loss = IsoelasticLoss(risk).to(device)
@@ -358,7 +336,7 @@ class TestIsoelasticLoss:
         loss = IsoelasticLoss(0.5)
         assert repr(loss) == "IsoelasticLoss(a=0.5000)"
 
-    def test_shape(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_shape(self, device: str = "cpu"):
         torch.manual_seed(42)
 
         loss = IsoelasticLoss(0.5).to(device)
@@ -376,9 +354,7 @@ class TestExpectedShortFall:
     @pytest.mark.parametrize("n_paths", [100, 1000])
     @pytest.mark.parametrize("p", [0.5])
     @pytest.mark.parametrize("a", [0.001, 1, 2])
-    def test_nonincreasing(
-        self, n_paths, p, a, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_nonincreasing(self, n_paths, p, a, device: str = "cpu"):
         torch.manual_seed(42)
 
         loss = ExpectedShortfall(p).to(device)
@@ -396,9 +372,7 @@ class TestExpectedShortFall:
     @pytest.mark.parametrize("n_paths", [100, 1000])
     @pytest.mark.parametrize("p", [0.1, 0.5, 0.9])
     @pytest.mark.parametrize("a", [0.1, 0.5])
-    def test_convex(
-        self, n_paths, p, a, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_convex(self, n_paths, p, a, device: str = "cpu"):
         torch.manual_seed(42)
 
         loss = ExpectedShortfall(p).to(device)
@@ -415,7 +389,7 @@ class TestExpectedShortFall:
 
     @pytest.mark.parametrize("n_paths", [100, 1000])
     @pytest.mark.parametrize("p", [0.1, 0.5, 0.9])
-    def test_cash(self, n_paths, p, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_cash(self, n_paths, p, device: str = "cpu"):
         torch.manual_seed(42)
 
         loss = ExpectedShortfall(p).to(device)
@@ -431,9 +405,7 @@ class TestExpectedShortFall:
     @pytest.mark.parametrize("n_paths", [10, 100])
     @pytest.mark.parametrize("p", [0.1, 0.5, 0.9])
     @pytest.mark.parametrize("eta", [0.001, 1, 2])
-    def test_cash_equivalent(
-        self, n_paths, p, eta, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_cash_equivalent(self, n_paths, p, eta, device: str = "cpu"):
         loss = ExpectedShortfall(p).to(device)
         assert_cash_invariant(loss, torch.randn(n_paths).to(device), eta)
 
@@ -455,9 +427,7 @@ class TestExpectedShortFall:
             _ = ExpectedShortfall(1.1)
 
     @pytest.mark.parametrize("percentile", [0.1, 0.5, 0.9])
-    def test_value(
-        self, percentile, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_value(self, percentile, device: str = "cpu"):
         torch.manual_seed(42)
 
         n_paths = 100
@@ -482,7 +452,7 @@ class TestExpectedShortFall:
         loss = ExpectedShortfall(0.5)
         assert repr(loss) == "ExpectedShortfall(0.5)"
 
-    def test_shape(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_shape(self, device: str = "cpu"):
         torch.manual_seed(42)
 
         loss = ExpectedShortfall().to(device)
@@ -494,7 +464,7 @@ class TestExpectedShortFall:
 
 
 class TestOCE:
-    def train_oce(self, m, device: Optional[Union[str, torch.device]] = "cpu"):
+    def train_oce(self, m, device: str = "cpu"):
         torch.manual_seed(42)
 
         optim = torch.optim.Adam(m.parameters())
@@ -504,7 +474,7 @@ class TestOCE:
             m(torch.randn(10000).to(device)).backward()
             optim.step()
 
-    def test_fit(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_fit(self, device: str = "cpu"):
         torch.manual_seed(42)
 
         m = OCE(lambda input: 1 - torch.exp(-input)).to(device)
@@ -529,7 +499,7 @@ class TestOCE:
         loss = OCE(exp_utility)
         assert repr(loss) == "OCE(exp_utility, w=0.)"
 
-    def test_shape(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_shape(self, device: str = "cpu"):
         torch.manual_seed(42)
 
         loss = OCE(lambda input: 1 - torch.exp(-input)).to(device)

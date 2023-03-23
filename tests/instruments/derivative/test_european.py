@@ -18,7 +18,7 @@ class TestEuropeanOption:
     def setup_class(cls):
         torch.manual_seed(42)
 
-    def test_payoff(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_payoff(self, device: str = "cpu"):
         derivative = EuropeanOption(BrownianStock(), strike=2.0).to(device)
         spot = torch.tensor(
             [[1.0, 1.0, 1.9], [1.0, 1.0, 2.0], [1.0, 1.0, 2.1], [1.0, 1.0, 3.0]]
@@ -44,7 +44,7 @@ class TestEuropeanOption:
         maturity,
         n_paths,
         init_spot,
-        device: Optional[Union[str, torch.device]] = "cpu",
+        device: str = "cpu",
     ):
         stock = BrownianStock(volatility).to(device)
         co = EuropeanOption(stock, strike=strike, maturity=maturity, call=True).to(
@@ -76,9 +76,7 @@ class TestEuropeanOption:
         )
 
     @pytest.mark.parametrize("strike", [1.0, 2.0])
-    def test_moneyness(
-        self, strike, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_moneyness(self, strike, device: str = "cpu"):
         stock = BrownianStock().to(device)
         derivative = EuropeanOption(stock, strike=strike).to(device)
         derivative.simulate()
@@ -104,9 +102,7 @@ class TestEuropeanOption:
     def test_moneyness_gpu(self, strike):
         self.test_moneyness(strike, device="cuda")
 
-    def test_max_log_moneyness(
-        self, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_max_log_moneyness(self, device: str = "cpu"):
         derivative = EuropeanOption(BrownianStock()).to(device)
         derivative.simulate()
 
@@ -118,7 +114,7 @@ class TestEuropeanOption:
     def test_max_log_moneyness_gpu(self):
         self.test_max_log_moneyness(device="cuda")
 
-    def test_time_to_maturity(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_time_to_maturity(self, device: str = "cpu"):
         stock = BrownianStock(dt=0.1).to(device)
         derivative = EuropeanOption(stock, maturity=0.2).to(device)
         derivative.simulate(n_paths=2)
@@ -143,9 +139,7 @@ class TestEuropeanOption:
     def test_time_to_maturity_gpu(self):
         self.test_time_to_maturity(device="cuda")
 
-    def test_time_to_maturity_2(
-        self, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_time_to_maturity_2(self, device: str = "cpu"):
         stock = BrownianStock(dt=0.1).to(device)
         derivative = EuropeanOption(stock, maturity=0.25).to(device)
         derivative.simulate(n_paths=2)
@@ -171,9 +165,7 @@ class TestEuropeanOption:
         self.test_time_to_maturity_2(device="cuda")
 
     @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
-    def test_init_dtype(
-        self, dtype, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_init_dtype(self, dtype, device: str = "cpu"):
         derivative = EuropeanOption(BrownianStock(dtype=dtype, device=device))
         assert derivative.dtype == dtype
 
@@ -186,7 +178,7 @@ class TestEuropeanOption:
         self.test_init_dtype(dtype, device="cuda")
 
     @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
-    def test_to_dtype(self, dtype, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_to_dtype(self, dtype, device: str = "cpu"):
         # to(dtype)
         derivative = EuropeanOption(BrownianStock()).to(dtype).to(device)
         derivative.simulate()
@@ -274,7 +266,7 @@ EuropeanOption(
 )"""
         assert repr(derivative) == expect
 
-    def test_spot_not_listed(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_spot_not_listed(self, device: str = "cpu"):
         derivative = EuropeanOption(BrownianStock()).to(device)
         with pytest.raises(ValueError):
             _ = derivative.spot
@@ -291,7 +283,7 @@ EuropeanOption(
     def test_spot_not_listed_gpu(self):
         self.test_spot_not_listed(device="cuda")
 
-    def test_us_listed(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_us_listed(self, device: str = "cpu"):
         derivative = EuropeanOption(BrownianStock(device=device))
         assert not derivative.is_listed
         derivative.list(pricer=lambda x: x)
@@ -306,7 +298,7 @@ EuropeanOption(
         with pytest.raises(DeprecationWarning):
             _ = EuropeanOption(BrownianStock(), dtype=torch.float64)
 
-    def test_clause(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_clause(self, device: str = "cpu"):
         torch.manual_seed(42)
 
         derivative = cls(BrownianStock()).to(device)
@@ -328,7 +320,7 @@ EuropeanOption(
     def test_clause_gpu(self):
         self.test_clause(device="cuda")
 
-    def test_add_clause_error(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_add_clause_error(self, device: str = "cpu"):
         derivative = cls(BrownianStock()).to(device)
 
         def knockout(derivative: BaseDerivative, payoff: Tensor) -> Tensor:

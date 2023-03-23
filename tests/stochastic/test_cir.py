@@ -10,7 +10,7 @@ from torch.testing import assert_close
 from pfhedge.stochastic import generate_cir
 
 
-def test_generate_cir_mean_1(device: Optional[Union[str, torch.device]] = "cpu"):
+def test_generate_cir_mean_1(device: str = "cpu"):
     torch.manual_seed(42)
 
     n_paths = 10000
@@ -37,7 +37,7 @@ def test_generate_cir_mean_1_gpu():
     test_generate_cir_mean_1(device="cuda")
 
 
-def test_generate_cir_mean_2(device: Optional[Union[str, torch.device]] = "cpu"):
+def test_generate_cir_mean_2(device: str = "cpu"):
     torch.manual_seed(42)
 
     n_paths = 10000
@@ -72,7 +72,7 @@ def test_generate_cir_mean_2_gpu():
     test_generate_cir_mean_2(device="cuda")
 
 
-def test_dtype(device: Optional[Union[str, torch.device]] = "cpu"):
+def test_dtype(device: str = "cpu"):
     device = torch.device(device) if device else None
 
     output = generate_cir(2, 3, dtype=torch.float32, device=device)

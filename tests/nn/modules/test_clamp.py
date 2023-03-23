@@ -10,7 +10,7 @@ from pfhedge.nn import LeakyClamp
 
 
 class TestLeakyClamp:
-    def test_output(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_output(self, device: str = "cpu"):
         input = torch.tensor([-1.0, 0.0, 0.5, 1.0, 2.0]).to(device)
 
         result = LeakyClamp(0.1)(input, 0, 1)
