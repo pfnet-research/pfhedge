@@ -68,51 +68,70 @@ class TestMultiLayerPerceptron:
 
     @pytest.mark.parametrize("activation", [torch.nn.ELU(), torch.nn.CELU()])
     @pytest.mark.parametrize("out_activation", [torch.nn.ELU(), torch.nn.CELU()])
-    def test_activation(self, activation, out_activation):
+    def test_activation(
+        self,
+        activation,
+        out_activation,
+        device: Optional[Union[str, torch.device]] = "cpu",
+    ):
         n_layers = 4
         m = MultiLayerPerceptron(
             n_layers=n_layers, activation=activation, out_activation=out_activation
-        )
+        ).to(device)
 
         for i in range(n_layers + 1):
             expect = out_activation if i == n_layers else activation
             activ = m[2 * i + 1]
             assert isinstance(activ, expect.__class__)
 
-    def test_shape(self):
+    @pytest.mark.gpu
+    @pytest.mark.parametrize("activation", [torch.nn.ELU(), torch.nn.CELU()])
+    @pytest.mark.parametrize("out_activation", [torch.nn.ELU(), torch.nn.CELU()])
+    def test_activation_gpu(self, activation, out_activation):
+        self.test_activation(activation, out_activation, device="cuda")
+
+    def test_shape(self, device: Optional[Union[str, torch.device]] = "cpu"):
         N = 10
         H_in = 11
         M_1 = 12
         M_2 = 13
         H_out = 14
 
-        input = torch.zeros((N, H_in))
-        m = MultiLayerPerceptron(H_in, H_out)
+        input = torch.zeros((N, H_in)).to(device)
+        m = MultiLayerPerceptron(H_in, H_out).to(device)
         assert m(input).size() == torch.Size((N, H_out))
 
-        input = torch.zeros((N, M_1, H_in))
-        m = MultiLayerPerceptron(H_in, H_out)
+        input = torch.zeros((N, M_1, H_in)).to(device)
+        m = MultiLayerPerceptron(H_in, H_out).to(device)
         assert m(input).size() == torch.Size((N, M_1, H_out))
 
-        input = torch.zeros((N, M_1, M_2, H_in))
-        m = MultiLayerPerceptron(H_in, H_out)
+        input = torch.zeros((N, M_1, M_2, H_in)).to(device)
+        m = MultiLayerPerceptron(H_in, H_out).to(device)
         assert m(input).size() == torch.Size((N, M_1, M_2, H_out))
 
-    def test_shape_lazy(self):
+    @pytest.mark.gpu
+    def test_shape_gpu(self):
+        self.test_shape(device="cpu")
+
+    def test_shape_lazy(self, device: Optional[Union[str, torch.device]] = "cpu"):
         N = 10
         H_in = 11
         M_1 = 12
         M_2 = 13
         H_out = 14
 
-        input = torch.zeros((N, H_in))
-        m = MultiLayerPerceptron(out_features=H_out)
+        input = torch.zeros((N, H_in)).to(device)
+        m = MultiLayerPerceptron(out_features=H_out).to(device)
         assert m(input).size() == torch.Size((N, H_out))
 
-        input = torch.zeros((N, M_1, H_in))
-        m = MultiLayerPerceptron(out_features=H_out)
+        input = torch.zeros((N, M_1, H_in)).to(device)
+        m = MultiLayerPerceptron(out_features=H_out).to(device)
         assert m(input).size() == torch.Size((N, M_1, H_out))
 
-        input = torch.zeros((N, M_1, M_2, H_in))
-        m = MultiLayerPerceptron(out_features=H_out)
+        input = torch.zeros((N, M_1, M_2, H_in)).to(device)
+        m = MultiLayerPerceptron(out_features=H_out).to(device)
         assert m(input).size() == torch.Size((N, M_1, M_2, H_out))
+
+    @pytest.mark.gpu
+    def test_shape_lazy_gpu(self):
+        self.test_shape_lazy(device="cpu")

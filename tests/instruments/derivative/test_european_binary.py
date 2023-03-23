@@ -78,15 +78,20 @@ class TestEuropeanBinaryOption:
         )
 
     @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
-    def test_dtype(self, dtype):
-        derivative = EuropeanBinaryOption(BrownianStock(dtype=dtype))
+    def test_dtype(self, dtype, device: Optional[Union[str, torch.device]] = "cpu"):
+        derivative = EuropeanBinaryOption(BrownianStock(dtype=dtype)).to(device)
         assert derivative.dtype == dtype
         derivative.simulate()
         assert derivative.payoff().dtype == dtype
 
-        derivative = EuropeanBinaryOption(BrownianStock()).to(dtype=dtype)
+        derivative = EuropeanBinaryOption(BrownianStock()).to(dtype=dtype).to(device)
         derivative.simulate()
         assert derivative.payoff().dtype == dtype
+
+    @pytest.mark.gpu
+    @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
+    def test_dtype_gpu(self, dtype):
+        self.test_dtype(dtype, device="cuda")
 
     @pytest.mark.parametrize("device", ["cuda:0", "cuda:1"])
     def test_device(self, device):

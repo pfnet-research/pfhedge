@@ -55,14 +55,19 @@ class TestLookbackOption:
         self.test_payoff_put(device="cuda")
 
     @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
-    def test_dtype(self, dtype):
-        derivative = LookbackOption(BrownianStock(dtype=dtype))
+    def test_dtype(self, dtype, device: Optional[Union[str, torch.device]] = "cpu"):
+        derivative = LookbackOption(BrownianStock(dtype=dtype, device=device))
         derivative.simulate()
         assert derivative.payoff().dtype == dtype
 
-        derivative = LookbackOption(BrownianStock()).to(dtype=dtype)
+        derivative = LookbackOption(BrownianStock()).to(dtype=dtype, device=device)
         derivative.simulate()
         assert derivative.payoff().dtype == dtype
+
+    @pytest.mark.gpu
+    @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
+    def test_dtype_gpu(self, dtype):
+        self.test_dtype(dtype, device="cuda")
 
     def test_repr(self):
         derivative = LookbackOption(BrownianStock(), maturity=1.0)

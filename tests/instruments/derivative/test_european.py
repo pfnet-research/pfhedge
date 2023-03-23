@@ -171,12 +171,19 @@ class TestEuropeanOption:
         self.test_time_to_maturity_2(device="cuda")
 
     @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
-    def test_init_dtype(self, dtype):
-        derivative = EuropeanOption(BrownianStock(dtype=dtype))
+    def test_init_dtype(
+        self, dtype, device: Optional[Union[str, torch.device]] = "cpu"
+    ):
+        derivative = EuropeanOption(BrownianStock(dtype=dtype, device=device))
         assert derivative.dtype == dtype
 
         derivative.simulate()
         assert derivative.payoff().dtype == dtype
+
+    @pytest.mark.gpu
+    @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
+    def test_init_dtype_gpu(self, dtype):
+        self.test_init_dtype(dtype, device="cuda")
 
     @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
     def test_to_dtype(self, dtype, device: Optional[Union[str, torch.device]] = "cpu"):
@@ -284,11 +291,16 @@ EuropeanOption(
     def test_spot_not_listed_gpu(self):
         self.test_spot_not_listed(device="cuda")
 
-    def test_us_listed(self):
-        derivative = EuropeanOption(BrownianStock())
+    def test_us_listed(self, device: Optional[Union[str, torch.device]] = "cpu"):
+        derivative = EuropeanOption(BrownianStock(device=device))
         assert not derivative.is_listed
         derivative.list(pricer=lambda x: x)
         assert derivative.is_listed
+
+    @pytest.mark.gpu
+    @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
+    def test_us_listed_gpu(self, dtype):
+        self.test_us_listed(device="cuda")
 
     def test_init_dtype_deprecated(self):
         with pytest.raises(DeprecationWarning):
