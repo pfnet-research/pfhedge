@@ -148,6 +148,22 @@ def test_quadratic_cvar_extreme_gpu():
     test_quadratic_cvar_extreme(device="cuda")
 
 
+def test_value_at_risk(device: str = "cpu"):
+    input = -torch.arange(10.0).to(device)
+
+    assert_close(value_at_risk(input, 0.0), -torch.tensor(9.0).to(device))
+    assert_close(value_at_risk(input, 0.1), -torch.tensor(9.0).to(device))
+    assert_close(value_at_risk(input, 0.2), -torch.tensor(8.0).to(device))
+    assert_close(value_at_risk(input, 0.8), -torch.tensor(2.0).to(device))
+    assert_close(value_at_risk(input, 0.9), -torch.tensor(1.0).to(device))
+    assert_close(value_at_risk(input, 1.0), -torch.tensor(0.0).to(device))
+
+
+@pytest.mark.gpu
+def test_value_at_risk_gpu():
+    test_value_at_risk(device="cuda")
+
+
 def test_leaky_clamp(device: str = "cpu"):
     input = torch.tensor([-1.0, 0.0, 0.5, 1.0, 2.0], device=device)
 
