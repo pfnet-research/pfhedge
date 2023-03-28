@@ -67,7 +67,7 @@ jobs:
         draft: false
         prerelease: false
         body: |
-          ${{ github.event.pull_request.description }}
+          ${{ github.event.pull_request }}
           
           This release is automatically generated.
           Please see the pull request for more details.
