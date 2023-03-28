@@ -104,16 +104,17 @@ def generate_rough_bergomi(
         covariance_matrix=_dW1_covariance_matrix,
     )
 
-    dW1 = _dW1_generator.sample([n_paths, n_steps - 1])
+    dW1 = _dW1_generator.sample(torch.Size([n_paths, n_steps - 1]))
     dW2 = torch.randn([n_paths, n_steps - 1], dtype=dtype, device=device)
     dW2 *= dW2.new_tensor(dt).sqrt()
 
     _Y1 = torch.cat(
         [torch.zeros([n_paths, 1], dtype=dtype, device=device), dW1[:, :, 1]], dim=-1
     )
-    discrete_TBSS_fn = lambda k, a: ((k ** (a + 1) - (k - 1) ** (a + 1)) / (a + 1)) ** (
-        1 / a
-    )
+
+    def discrete_TBSS_fn(k: TensorOrScalar, a: TensorOrScalar) -> torch.Tensor:
+        return ((k ** (a + 1) - (k - 1) ** (a + 1)) / (a + 1)) ** (1 / a)
+
     _gamma = (
         discrete_TBSS_fn(torch.arange(2, n_steps, dtype=dtype, device=device), alpha)
         / (n_steps - 1)
