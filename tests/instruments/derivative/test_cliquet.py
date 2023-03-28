@@ -1,12 +1,7 @@
-from typing import Optional
-from typing import Union
-
 import pytest
 import torch
-from torch import Tensor
 from torch.testing import assert_close
 
-from pfhedge.instruments import BaseDerivative
 from pfhedge.instruments import BrownianStock
 from pfhedge.instruments import EuropeanForwardStartOption
 from pfhedge.instruments import EuropeanOption
@@ -19,7 +14,7 @@ class TestEuropeanOption:
     def setup_class(cls):
         torch.manual_seed(42)
 
-    def test_payoff_start0(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_payoff_start0(self, device: str = "cpu"):
         stock = BrownianStock().to(device)
         derivative = EuropeanForwardStartOption(stock, start=0.0).to(device)
         european = EuropeanOption(stock).to(device)
@@ -30,7 +25,7 @@ class TestEuropeanOption:
     def test_payoff_start0_gpu(self):
         self.test_payoff_start0(device="cuda")
 
-    def test_payoff_start_end(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_payoff_start_end(self, device: str = "cpu"):
         stock = BrownianStock().to(device)
         dt = stock.dt
         spot = torch.tensor(

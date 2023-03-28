@@ -1,6 +1,3 @@
-from typing import Optional
-from typing import Union
-
 import pytest
 import torch
 from torch import Tensor
@@ -9,7 +6,7 @@ from torch.testing import assert_close
 import pfhedge.autogreek as autogreek
 
 
-def test_gamma_from_delta(device: Optional[Union[str, torch.device]] = "cpu"):
+def test_gamma_from_delta(device: str = "cpu"):
     torch.manual_seed(42)
 
     def price(spot: Tensor):
@@ -29,7 +26,7 @@ def test_gamma_from_delta_gpu():
     test_gamma_from_delta(device="cuda")
 
 
-def test_vega(device: Optional[Union[str, torch.device]] = "cpu"):
+def test_vega(device: str = "cpu"):
     def pricer(volatility, coef):
         return coef * volatility.pow(2)
 
@@ -53,7 +50,7 @@ def test_vega_gpu():
     test_vega(device="cuda")
 
 
-def test_theta(device: Optional[Union[str, torch.device]] = "cpu"):
+def test_theta(device: str = "cpu"):
     def pricer(time_to_maturity, coef):
         return coef * time_to_maturity.pow(2)
 

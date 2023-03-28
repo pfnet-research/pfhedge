@@ -1,3 +1,4 @@
+import math
 from math import ceil
 from math import pi as kPI
 from typing import List
@@ -11,7 +12,7 @@ from torch import Tensor
 from torch.distributions.normal import Normal
 from torch.distributions.utils import broadcast_all
 
-import pfhedge.autogreek as autogreek
+from pfhedge import autogreek
 from pfhedge._utils.typing import TensorOrScalar
 
 
@@ -200,11 +201,13 @@ def entropic_risk_measure(input: Tensor, a: float = 1.0) -> Tensor:
 
     See :class:`pfhedge.nn.EntropicRiskMeasure` for details.
     """
-    input_min = torch.min(input, dim=0).values
-    return (-exp_utility(input - input_min, a=a).mean(0)).log() / a - input_min
+    return (torch.logsumexp(-input * a, dim=0) - math.log(input.size(0))) / a
 
 
-def topp(input: Tensor, p: float, dim: Optional[int] = None, largest: bool = True):
+def topp(
+    input: Tensor, p: float, dim: Optional[int] = None, largest: bool = True
+) -> "torch.return_types.return_types.topk":  # type: ignore
+    # ToDo(masanorihirano): in torch 1.9.0 or some versions (before 1.13.0), this type and alternatives do not exist)
     """Returns the largest :math:`p * N` elements of the given input tensor,
     where :math:`N` stands for the total number of elements in the input tensor.
 
@@ -227,7 +230,7 @@ def topp(input: Tensor, p: float, dim: Optional[int] = None, largest: bool = Tru
             elements.
 
     Returns:
-        torch.Tensor
+        Tuple[Tensor, LongTensor] (named tuple)
 
     Examples:
         >>> from pfhedge.nn.functional import topp
@@ -304,7 +307,7 @@ def value_at_risk(input: Tensor, p: float, dim: Optional[int] = None) -> Tensor:
         tensor([-0., -1., -2., -3., -4., -5., -6., -7., -8., -9.])
         >>> value_at_risk(input, 0.3)
         tensor(-7.)
-    """
+    """  # NOQA
     n = input.numel() if dim is None else input.size(dim)
 
     if p <= 1 / n:
@@ -504,7 +507,7 @@ def pl(
         output -= payoff
 
     if cost is not None:
-        c = torch.tensor(cost, device=spot.device).unsqueeze(0).unsqueeze(-1)
+        c = torch.tensor(cost).to(spot).unsqueeze(0).unsqueeze(-1)
         output -= (spot[..., 1:] * unit.diff(dim=-1).abs() * c).sum(dim=(-2, -1))
         if deduct_first_cost:
             output -= (spot[..., [0]] * unit[..., [0]].abs() * c).sum(dim=(-2, -1))
@@ -694,7 +697,7 @@ def svi_variance(
         torch.Tensor
     """
     k_m = torch.as_tensor(input - m)  # k - m
-    return a + b * (rho * k_m + (k_m.square() + sigma**2).sqrt())
+    return a + b * (rho * k_m + (k_m.square() + sigma ** 2).sqrt())
 
 
 def bilerp(

@@ -1,6 +1,4 @@
 from math import sqrt
-from typing import Optional
-from typing import Union
 
 import pytest
 import torch
@@ -14,7 +12,7 @@ cls = VarianceSwap
 
 
 class TestVarianceSwap:
-    def test_payoff(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_payoff(self, device: str = "cpu"):
         derivative = VarianceSwap(BrownianStock(), strike=0.04).to(device)
         derivative.ul().register_buffer("spot", torch.ones(2, 3).to(device))
         result = derivative.payoff()

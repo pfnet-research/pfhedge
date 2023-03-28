@@ -2,7 +2,6 @@ from math import ceil
 from typing import Callable
 from typing import Optional
 from typing import Tuple
-from typing import Union
 
 import torch
 from torch import Tensor
@@ -119,7 +118,7 @@ class MertonJumpStock(BasePrimary):
 
         It is a tensor filled with the square of ``self.sigma``.
         """
-        return torch.full_like(self.get_buffer("spot"), self.sigma**2)
+        return torch.full_like(self.get_buffer("spot"), self.sigma ** 2)
 
     def simulate(
         self,

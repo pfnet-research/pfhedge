@@ -1,7 +1,6 @@
 from math import ceil
 from typing import Optional
 from typing import Tuple
-from typing import Union
 
 import torch
 from torch import Tensor

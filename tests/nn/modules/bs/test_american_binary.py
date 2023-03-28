@@ -1,6 +1,4 @@
 from math import sqrt
-from typing import Optional
-from typing import Union
 
 import pytest
 import torch
@@ -40,7 +38,7 @@ class TestBSAmericanBinaryOption(_TestBSModule):
             derivative = AmericanBinaryOption(BrownianStock(), call=False)
             BSAmericanBinaryOption.from_derivative(derivative)
 
-    def test_check_delta(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_check_delta(self, device: str = "cpu"):
         m = BSAmericanBinaryOption().to(device)
 
         # delta = 0 for max --> +0
@@ -68,9 +66,7 @@ class TestBSAmericanBinaryOption(_TestBSModule):
         self.test_check_delta(device="cuda")
 
     @pytest.mark.parametrize("call", [True])
-    def test_delta_2(
-        self, call: bool, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_delta_2(self, call: bool, device: str = "cpu"):
         m = BSAmericanBinaryOption(call=call).to(device)
         with pytest.raises(ValueError):
             m.delta(
@@ -93,9 +89,7 @@ class TestBSAmericanBinaryOption(_TestBSModule):
         self.test_delta_2(call, device="cuda")
 
     @pytest.mark.parametrize("call", [True])
-    def test_delta_3(
-        self, call: bool, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_delta_3(self, call: bool, device: str = "cpu"):
         derivative = AmericanBinaryOption(BrownianStock(), call=call).to(device)
         m = BSAmericanBinaryOption.from_derivative(derivative).to(device)
         m2 = BSAmericanBinaryOption(call=call).to(device)
@@ -201,7 +195,7 @@ class TestBSAmericanBinaryOption(_TestBSModule):
     def test_delta_3_gpu(self, call: bool):
         self.test_delta_3(call, device="cuda")
 
-    def test_check_gamma(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_check_gamma(self, device: str = "cpu"):
         m = BSAmericanBinaryOption().to(device)
 
         # gamma = 0 for max --> +0
@@ -229,9 +223,7 @@ class TestBSAmericanBinaryOption(_TestBSModule):
         self.test_check_gamma(device="cuda")
 
     @pytest.mark.parametrize("call", [True])
-    def test_gamma_2(
-        self, call: bool, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_gamma_2(self, call: bool, device: str = "cpu"):
         m = BSAmericanBinaryOption(call=call).to(device)
         with pytest.raises(ValueError):
             m.gamma(
@@ -254,9 +246,7 @@ class TestBSAmericanBinaryOption(_TestBSModule):
         self.test_gamma_2(call, device="cuda")
 
     @pytest.mark.parametrize("call", [True])
-    def test_gamma_3(
-        self, call: bool, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_gamma_3(self, call: bool, device: str = "cpu"):
         derivative = AmericanBinaryOption(BrownianStock(), call=call).to(device)
         m = BSAmericanBinaryOption.from_derivative(derivative).to(device)
         m2 = BSAmericanBinaryOption(call=call).to(device)
@@ -361,7 +351,7 @@ class TestBSAmericanBinaryOption(_TestBSModule):
     def test_gamma_3_gpu(self, call: bool):
         self.test_gamma_3(call, device="cuda")
 
-    def test_check_vega(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_check_vega(self, device: str = "cpu"):
         m = BSAmericanBinaryOption().to(device)
 
         # vega = 0 for max --> +0
@@ -389,9 +379,7 @@ class TestBSAmericanBinaryOption(_TestBSModule):
         self.test_check_vega(device="cuda")
 
     @pytest.mark.parametrize("call", [True])
-    def test_vega_2(
-        self, call: bool, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_vega_2(self, call: bool, device: str = "cpu"):
         m = BSAmericanBinaryOption(call=call).to(device)
         with pytest.raises(ValueError):
             m.vega(
@@ -414,9 +402,7 @@ class TestBSAmericanBinaryOption(_TestBSModule):
         self.test_vega_2(call, device="cuda")
 
     @pytest.mark.parametrize("call", [True])
-    def test_vega_3(
-        self, call: bool, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_vega_3(self, call: bool, device: str = "cpu"):
         derivative = AmericanBinaryOption(BrownianStock(), call=call).to(device)
         m = BSAmericanBinaryOption.from_derivative(derivative).to(device)
         m2 = BSAmericanBinaryOption(call=call).to(device)
@@ -521,7 +507,7 @@ class TestBSAmericanBinaryOption(_TestBSModule):
     def test_vega_3_gpu(self, call: bool):
         self.test_vega_3(call, device="cuda")
 
-    def test_check_theta(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_check_theta(self, device: str = "cpu"):
         m = BSAmericanBinaryOption().to(device)
 
         # vega = 0 for max --> +0
@@ -549,9 +535,7 @@ class TestBSAmericanBinaryOption(_TestBSModule):
         self.test_check_theta(device="cuda")
 
     @pytest.mark.parametrize("call", [True])
-    def test_theta_2(
-        self, call: bool, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_theta_2(self, call: bool, device: str = "cpu"):
         m = BSAmericanBinaryOption(call=call).to(device)
         with pytest.raises(ValueError):
             m.theta(
@@ -574,9 +558,7 @@ class TestBSAmericanBinaryOption(_TestBSModule):
         self.test_theta_2(call, device="cuda")
 
     @pytest.mark.parametrize("call", [True])
-    def test_theta_3(
-        self, call: bool, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_theta_3(self, call: bool, device: str = "cpu"):
         derivative = AmericanBinaryOption(BrownianStock(), call=call).to(device)
         m = BSAmericanBinaryOption.from_derivative(derivative).to(device)
         m2 = BSAmericanBinaryOption(call=call).to(device)
@@ -681,7 +663,7 @@ class TestBSAmericanBinaryOption(_TestBSModule):
     def test_theta_3_gpu(self, call: bool):
         self.test_theta_3(call, device="cuda")
 
-    def test_check_price(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_check_price(self, device: str = "cpu"):
         m = BSAmericanBinaryOption().to(device)
 
         # price = 0 for max --> +0
@@ -709,9 +691,7 @@ class TestBSAmericanBinaryOption(_TestBSModule):
         self.test_check_price(device="cuda")
 
     @pytest.mark.parametrize("call", [True])
-    def test_price_3(
-        self, call: bool, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_price_3(self, call: bool, device: str = "cpu"):
         m = BSAmericanBinaryOption(call=call).to(device)
         with pytest.raises(ValueError):
             m.price(
@@ -734,9 +714,7 @@ class TestBSAmericanBinaryOption(_TestBSModule):
         self.test_price_3(call, device="cuda")
 
     @pytest.mark.parametrize("call", [True])
-    def test_price_4(
-        self, call: bool, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_price_4(self, call: bool, device: str = "cpu"):
         derivative = AmericanBinaryOption(BrownianStock(), call=call).to(device)
         m = BSAmericanBinaryOption.from_derivative(derivative).to(device)
         m2 = BSAmericanBinaryOption(call=call).to(device)
@@ -840,9 +818,7 @@ class TestBSAmericanBinaryOption(_TestBSModule):
     def test_price_4_gpu(self, call: bool):
         self.test_price_4(call, device="cuda")
 
-    def test_check_price_monte_carlo(
-        self, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_check_price_monte_carlo(self, device: str = "cpu"):
         torch.manual_seed(42)
 
         # Monte Carlo evaluation of a lookback option needs small dt
@@ -881,7 +857,7 @@ class TestBSAmericanBinaryOption(_TestBSModule):
     def test_check_price_monte_carlo_gpu(self):
         self.test_check_price_monte_carlo(device="cuda")
 
-    def test_vega_and_gamma(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_vega_and_gamma(self, device: str = "cpu"):
         m = BSAmericanBinaryOption().to(device)
         # vega = spot^2 * sigma * (T - t) * gamma
         # See Chapter 5 Appendix A, Bergomi "Stochastic volatility modeling"
@@ -897,9 +873,7 @@ class TestBSAmericanBinaryOption(_TestBSModule):
         self.test_vega_and_gamma(device="cuda")
 
     @pytest.mark.parametrize("call", [True])
-    def test_vega_and_gamma_2(
-        self, call: bool, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_vega_and_gamma_2(self, call: bool, device: str = "cpu"):
         derivative = AmericanBinaryOption(BrownianStock(), call=call).to(device)
         m = BSAmericanBinaryOption.from_derivative(derivative).to(device)
         torch.manual_seed(42)
@@ -934,9 +908,7 @@ class TestBSAmericanBinaryOption(_TestBSModule):
         ]
         _ = [get_feature(f) for f in m.inputs()]
 
-    def test_implied_volatility(
-        self, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_implied_volatility(self, device: str = "cpu"):
         # log_moneyness, max_log_moneyness, time_to_maturity, price
         input = torch.tensor(
             [
@@ -959,9 +931,7 @@ class TestBSAmericanBinaryOption(_TestBSModule):
         self.test_implied_volatility(device="cuda")
 
     @pytest.mark.parametrize("call", [True])
-    def test_implied_volatility_2(
-        self, call: bool, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_implied_volatility_2(self, call: bool, device: str = "cpu"):
         derivative = AmericanBinaryOption(BrownianStock(), call=call).to(device)
         m = BSAmericanBinaryOption.from_derivative(derivative).to(device)
         m2 = BSAmericanBinaryOption(call=call).to(device)
@@ -1053,7 +1023,7 @@ class TestBSAmericanBinaryOption(_TestBSModule):
     def test_implied_volatility_2_gpu(self, call: bool):
         self.test_implied_volatility_2(call, device="cuda")
 
-    def test_shape(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_shape(self, device: str = "cpu"):
         torch.distributions.Distribution.set_default_validate_args(False)
 
         m = BSAmericanBinaryOption().to(device)

@@ -16,9 +16,9 @@ def generate_merton_jump(
     init_state: Union[Tuple[TensorOrScalar, ...], TensorOrScalar] = (1.0,),
     mu: float = 0.0,
     sigma: float = 0.2,
-    jump_per_year=68,
-    jump_mean=0.0,
-    jump_std=0.01,
+    jump_per_year: float = 68.2,
+    jump_mean: float = 0.0,
+    jump_std: float = 0.02,
     dt: float = 1 / 250,
     dtype: Optional[torch.dtype] = None,
     device: Optional[torch.device] = None,
@@ -37,6 +37,7 @@ def generate_merton_jump(
        Journal of Financial Economics, 3 (1976), 125-144.
      - Gugole, N. (2016). Merton jump-diffusion model versus the black and scholes approach for the log-returns and volatility
        smile fitting. International Journal of Pure and Applied Mathematics, 109(3), 719-736.
+       (Especially p.730 for parameter calibulation.)
 
     Args:
         n_paths (int): The number of simulated paths.
@@ -49,9 +50,9 @@ def generate_merton_jump(
             which stands for the dirft coefficient of the time series.
         sigma (float, default=0.2): The parameter :math:`\sigma`,
             which stands for the volatility of the time series.
-        jump_per_year (float, default=1.0): The frequency of jumps in one year.
+        jump_per_year (float, default=68.2): The frequency of jumps in one year.
         jump_mean (float, default=0.0): The mean of jumnp sizes.
-        jump_std (float, default=0.3): The deviation of jump sizes.
+        jump_std (float, default=0.02): The deviation of jump sizes.
         dt (float, default=1/250): The intervals of the time steps.
         dtype (torch.dtype, optional): The desired data type of returned tensor.
             Default: If ``None``, uses a global default
@@ -80,8 +81,8 @@ def generate_merton_jump(
         >>>
         >>> _ = torch.manual_seed(42)
         >>> generate_merton_jump(2, 5)
-        tensor([[1.0000, 0.9905, 1.0075, 1.0161, 1.0118],
-                [1.0000, 1.0035, 1.0041, 1.0377, 1.0345]])
+        tensor([[1.0000, 0.9904, 1.0074, 1.0160, 1.0117],
+                [1.0000, 1.0034, 1.0040, 1.0654, 1.0621]])
     """
     # https://www.codearmo.com/python-tutorial/merton-jump-diffusion-model-python
     init_state = cast_state(init_state, dtype=dtype, device=device)
@@ -101,7 +102,7 @@ def generate_merton_jump(
     randn = engine(*(n_paths, n_steps), dtype=dtype, device=device)
     randn[:, 0] = 0.0
     drift = (
-        (mu - (sigma**2) / 2 - jump_per_year * (jump_mean + jump_std**2 / 2))
+        (mu - (sigma ** 2) / 2 - jump_per_year * (jump_mean + jump_std ** 2 / 2))
         * dt
         * torch.arange(n_steps).to(randn)
     )

@@ -1,6 +1,3 @@
-from typing import Optional
-from typing import Union
-
 import pytest
 import torch
 
@@ -8,7 +5,7 @@ from pfhedge._utils.operations import ensemble_mean
 
 
 class F:
-    def __init__(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def __init__(self, device: str = "cpu"):
         self.value = 0.0
         self.device = device
 
@@ -17,7 +14,7 @@ class F:
         return torch.tensor(self.value).to(self.device)
 
 
-def test_ensemble_mean(device: Optional[Union[str, torch.device]] = "cpu"):
+def test_ensemble_mean(device: str = "cpu"):
     f = F(device=device)
     result = ensemble_mean(f.f, n_times=10)
     expect = torch.tensor(5.5).to(device)

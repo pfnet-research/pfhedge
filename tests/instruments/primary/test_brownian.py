@@ -1,6 +1,3 @@
-from typing import Optional
-from typing import Union
-
 import pytest
 import torch
 from torch.testing import assert_close
@@ -50,7 +47,7 @@ class TestBrownianStock:
         with pytest.raises(TypeError):
             s.register_buffer("a", torch.nn.ReLU())
 
-    def test_buffers(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_buffers(self, device: str = "cpu"):
         torch.manual_seed(42)
         a = torch.randn(10).to(device)
         b = torch.randn(10).to(device)
@@ -86,55 +83,60 @@ class TestBrownianStock:
             MyPrimary().simulate()
 
     @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
-    def test_init_dtype(self, dtype):
-        s = BrownianStock(dtype=dtype)
+    def test_init_dtype(self, dtype, device: str = "cpu"):
+        s = BrownianStock(dtype=dtype, device=device)
         s.simulate()
         assert s.dtype == dtype
         assert s.spot.dtype == dtype
 
+    @pytest.mark.gpu
     @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
-    def test_to_dtype(self, dtype):
+    def test_init_dtype_gpu(self, dtype):
+        self.test_init_dtype(dtype, device="cuda")
+
+    @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
+    def test_to_dtype(self, dtype, device: str = "cpu"):
         # to(dtype) before simulate()
-        s = BrownianStock().to(dtype)
+        s = BrownianStock().to(dtype=dtype, device=device)
         s.simulate()
         assert s.dtype == dtype
         assert s.spot.dtype == dtype
 
         # to(dtype) after simulate()
-        s = BrownianStock()
+        s = BrownianStock().to(device)
         s.simulate()
-        s.to(dtype)
+        s.to(dtype=dtype)
         assert s.dtype == dtype
         assert s.spot.dtype == dtype
 
         # to(instrument) before simulate()
-        instrument = BrownianStock(dtype=dtype)
+        instrument = BrownianStock(dtype=dtype, device=device)
         s = BrownianStock().to(instrument)
         s.simulate()
         assert s.dtype == dtype
         assert s.spot.dtype == dtype
 
-        instrument = BrownianStock(dtype=dtype)
+        instrument = BrownianStock(dtype=dtype, device=device)
         s = BrownianStock().to(instrument=instrument)  # Use kwargs
         s.simulate()
         assert s.dtype == dtype
         assert s.spot.dtype == dtype
 
-        instrument = EuropeanOption(BrownianStock(dtype=dtype))
+        instrument = EuropeanOption(BrownianStock(dtype=dtype, device=device))
         s = BrownianStock().to(instrument)
         s.simulate()
         assert s.dtype == dtype
         assert s.spot.dtype == dtype
 
         # to(instrument) after simulate()
-        instrument = BrownianStock(dtype=dtype)
+        instrument = BrownianStock(dtype=dtype, device=device)
         s = BrownianStock()
         s.simulate()
         s.to(instrument)
         assert s.dtype == dtype
         assert s.spot.dtype == dtype
 
-        instrument = EuropeanOption(BrownianStock(dtype=dtype))
+        instrument = EuropeanOption(BrownianStock(dtype=dtype, device=device))
         s = BrownianStock()
         s.simulate()
         s.to(instrument)
@@ -147,49 +149,54 @@ class TestBrownianStock:
 
         # Aliases
 
-        s = BrownianStock()
+        s = BrownianStock().to(device)
         s.simulate()
         s.double()
         assert s.dtype == torch.float64
         assert s.spot.dtype == torch.float64
 
-        s = BrownianStock()
+        s = BrownianStock().to(device)
         s.simulate()
         s.float64()
         assert s.dtype == torch.float64
         assert s.spot.dtype == torch.float64
 
-        s = BrownianStock()
+        s = BrownianStock().to(device)
         s.simulate()
         s.float()
         assert s.dtype == torch.float32
         assert s.spot.dtype == torch.float32
 
-        s = BrownianStock()
+        s = BrownianStock().to(device)
         s.simulate()
         s.float32()
         assert s.dtype == torch.float32
         assert s.spot.dtype == torch.float32
 
-        s = BrownianStock()
+        s = BrownianStock().to(device)
         s.simulate()
         s.half()
         assert s.dtype == torch.float16
         assert s.spot.dtype == torch.float16
 
-        s = BrownianStock()
+        s = BrownianStock().to(device)
         s.simulate()
         s.float16()
         assert s.dtype == torch.float16
         assert s.spot.dtype == torch.float16
 
-        s = BrownianStock()
+        s = BrownianStock().to(device)
         s.simulate()
         s.bfloat16()
         assert s.dtype == torch.bfloat16
         assert s.spot.dtype == torch.bfloat16
 
-    def test_simulate_shape(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    @pytest.mark.gpu
+    @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
+    def test_to_dtype_gpu(self, dtype):
+        self.test_to_dtype(dtype, device="cuda")
+
+    def test_simulate_shape(self, device: str = "cpu"):
         s = BrownianStock(dt=0.1).to(device)
         s.simulate(time_horizon=0.2, n_paths=10)
         assert s.spot.size() == torch.Size((10, 3))
@@ -203,9 +210,7 @@ class TestBrownianStock:
         self.test_simulate_shape(device="cuda")
 
     @pytest.mark.parametrize("sigma", [0.2, 0.1])
-    def test_volatility(
-        self, sigma, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_volatility(self, sigma, device: str = "cpu"):
         s = BrownianStock(sigma=sigma).to(device)
         s.simulate()
         result = s.volatility
@@ -213,7 +218,7 @@ class TestBrownianStock:
         assert_close(result, expect)
 
         result = s.variance
-        expect = torch.full_like(s.spot, sigma**2)
+        expect = torch.full_like(s.spot, sigma ** 2)
         assert_close(result, expect)
 
     @pytest.mark.gpu

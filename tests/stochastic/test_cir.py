@@ -1,6 +1,4 @@
 from math import sqrt
-from typing import Optional
-from typing import Union
 
 import pytest
 import torch
@@ -10,7 +8,7 @@ from torch.testing import assert_close
 from pfhedge.stochastic import generate_cir
 
 
-def test_generate_cir_mean_1(device: Optional[Union[str, torch.device]] = "cpu"):
+def test_generate_cir_mean_1(device: str = "cpu"):
     torch.manual_seed(42)
 
     n_paths = 10000
@@ -22,8 +20,8 @@ def test_generate_cir_mean_1(device: Optional[Union[str, torch.device]] = "cpu")
     t = generate_cir(n_paths, 250, kappa=kappa, theta=theta, sigma=sigma, device=device)
     result = t[:, -1].mean()
     # Asymptotic distribution is gamma distribution
-    alpha = 2 * kappa * theta / sigma**2
-    beta = 2 * kappa / sigma**2
+    alpha = 2 * kappa * theta / sigma ** 2
+    beta = 2 * kappa / sigma ** 2
     d = Gamma(alpha, beta)
 
     expect = torch.full_like(result, d.mean)
@@ -37,7 +35,7 @@ def test_generate_cir_mean_1_gpu():
     test_generate_cir_mean_1(device="cuda")
 
 
-def test_generate_cir_mean_2(device: Optional[Union[str, torch.device]] = "cpu"):
+def test_generate_cir_mean_2(device: str = "cpu"):
     torch.manual_seed(42)
 
     n_paths = 10000
@@ -57,8 +55,8 @@ def test_generate_cir_mean_2(device: Optional[Union[str, torch.device]] = "cpu")
     )
     result = t[:, -1].mean()
     # Asymptotic distribution is gamma distribution
-    alpha = 2 * kappa * theta / sigma**2
-    beta = 2 * kappa / sigma**2
+    alpha = 2 * kappa * theta / sigma ** 2
+    beta = 2 * kappa / sigma ** 2
     d = Gamma(alpha, beta)
 
     expect = torch.full_like(result, d.mean)
@@ -72,7 +70,7 @@ def test_generate_cir_mean_2_gpu():
     test_generate_cir_mean_2(device="cuda")
 
 
-def test_dtype(device: Optional[Union[str, torch.device]] = "cpu"):
+def test_dtype(device: str = "cpu"):
     device = torch.device(device) if device else None
 
     output = generate_cir(2, 3, dtype=torch.float32, device=device)

@@ -1,5 +1,3 @@
-from typing import Optional
-from typing import Union
 from unittest.mock import patch
 
 import pytest
@@ -12,6 +10,7 @@ from torch.testing import assert_close
 
 from pfhedge.instruments import BaseDerivative
 from pfhedge.instruments import BrownianStock
+from pfhedge.instruments import Derivative
 from pfhedge.instruments import EuropeanOption
 from pfhedge.nn import BlackScholes
 from pfhedge.nn import EntropicRiskMeasure
@@ -50,7 +49,7 @@ class FakeModule(Module):
 
 
 class TestHedger:
-    def test_error_optimizer(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_error_optimizer(self, device: str = "cpu"):
         hedger = Hedger(Linear(2, 1), ["moneyness", "time_to_maturity"]).to(device)
         derivative = EuropeanOption(BrownianStock()).to(device)
         with pytest.raises(TypeError):
@@ -81,9 +80,7 @@ Hedger(
 )"""
         assert repr(hedger) == expect
 
-    def test_compute_hedge_error_not_same_size(
-        self, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_compute_hedge_error_not_same_size(self, device: str = "cpu"):
         stock0 = BrownianStock().to(device)
         stock1 = BrownianStock().to(device)
         stock0.register_buffer("spot", torch.ones(2, 3).to(device))
@@ -102,9 +99,7 @@ Hedger(
         self.test_compute_hedge_error_not_same_size(device="cuda")
 
     @pytest.mark.parametrize("hin", [1, 2])
-    def test_compute_pnl_size(
-        self, hin, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_compute_pnl_size(self, hin, device: str = "cpu"):
         torch.manual_seed(42)
 
         derivative = EuropeanOption(BrownianStock()).to(device)
@@ -130,9 +125,7 @@ Hedger(
         self.test_compute_pnl_size(hin=hin, device="cuda")
 
     @pytest.mark.parametrize("cost", [0.0, 1e-3])
-    def test_compute_pnl_1(
-        self, cost, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_compute_pnl_1(self, cost, device: str = "cpu"):
         # pnl = -payoff if output = 0
         torch.manual_seed(42)
 
@@ -152,7 +145,7 @@ Hedger(
     def test_compute_pnl_1_gpu(self, cost):
         self.test_compute_pnl_1(cost=cost, device="cuda")
 
-    def test_compute_pnl_2(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_compute_pnl_2(self, device: str = "cpu"):
         torch.manual_seed(42)
         N, T = 2, 4
         derivative = ZeroDerivative(BrownianStock()).to(device)
@@ -174,9 +167,7 @@ Hedger(
     def test_compute_pnl_2_gpu(self):
         self.test_compute_pnl_2(device="cuda")
 
-    def test_compute_pnl_2_multiple_hedges(
-        self, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_compute_pnl_2_multiple_hedges(self, device: str = "cpu"):
         torch.manual_seed(42)
         N, T = 2, 4
 
@@ -203,9 +194,7 @@ Hedger(
     def test_compute_pnl_2_multiple_hedges_gpu(self):
         self.test_compute_pnl_2_multiple_hedges(device="cuda")
 
-    def test_compute_pnl_2_multiple_hedges_payoff(
-        self, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_compute_pnl_2_multiple_hedges_payoff(self, device: str = "cpu"):
         torch.manual_seed(42)
 
         N, T = 2, 4
@@ -231,9 +220,7 @@ Hedger(
     def test_compute_pnl_2_multiple_hedges_payoff_gpu(self):
         self.test_compute_pnl_2_multiple_hedges_payoff(device="cuda")
 
-    def test_compute_pnl_payoff(
-        self, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_compute_pnl_payoff(self, device: str = "cpu"):
         torch.manual_seed(42)
 
         N, T = 10, 20
@@ -264,7 +251,7 @@ Hedger(
     def test_compute_pnl_payoff_gpu(self):
         self.test_compute_pnl_payoff(device="cuda")
 
-    def test_compute_pnl_cost(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_compute_pnl_cost(self, device: str = "cpu"):
         cost = 1e-3
         N, T = 10, 20
         derivative0 = EuropeanOption(BrownianStock(cost=0.0)).to(device)
@@ -295,7 +282,7 @@ Hedger(
     def test_compute_pnl_cost_gpu(self):
         self.test_compute_pnl_cost(device="cuda")
 
-    def test_forward_shape(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_forward_shape(self, device: str = "cpu"):
         torch.distributions.Distribution.set_default_validate_args(False)
 
         deriv = EuropeanOption(BrownianStock()).to(device)
@@ -329,7 +316,7 @@ Hedger(
         self.test_forward_shape(device="cuda")
 
     @pytest.mark.parametrize("h_in", [1, 2, 3])
-    def test_get_input(self, h_in, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_get_input(self, h_in, device: str = "cpu"):
         hedger = Hedger(Naked(), ["zeros"] * h_in).to(device)
         derivative = EuropeanOption(BrownianStock()).to(device)
         derivative.simulate()
@@ -346,9 +333,7 @@ Hedger(
         self.test_get_input(h_in=h_in, device="cuda")
 
     @pytest.mark.parametrize("h_in", [1, 2, 3])
-    def test_compute_hedge(
-        self, h_in, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_compute_hedge(self, h_in, device: str = "cpu"):
         # test size
         hedger = Hedger(Naked(), ["zeros"] * h_in).to(device)
         derivative = EuropeanOption(BrownianStock()).to(device)
@@ -372,7 +357,7 @@ Hedger(
     def test_compute_hedge_gpu(self, h_in):
         self.test_compute_hedge(h_in=h_in, device="cuda")
 
-    def test_compute_loss(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_compute_loss(self, device: str = "cpu"):
         torch.manual_seed(42)
         deriv = EuropeanOption(BrownianStock()).to(device)
         hedger = Hedger(
@@ -387,24 +372,23 @@ Hedger(
     def test_compute_loss_gpu(self):
         self.test_compute_loss(device="cuda")
 
-    def test_hedging_with_identical_derivative(
-        self, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_hedging_with_identical_derivative(self, device: str = "cpu"):
         torch.manual_seed(42)
 
         class Ones(Module):
             def forward(self, input: Tensor):
                 return torch.ones_like(input[..., :1])
 
-        pricer = (
-            lambda derivative: BlackScholes(derivative)
-            .to(device)
-            .price(
-                log_moneyness=derivative.log_moneyness(),
-                time_to_maturity=derivative.time_to_maturity(),
-                volatility=derivative.ul().volatility,
+        def pricer(derivative: Derivative) -> Tensor:
+            return (
+                BlackScholes(derivative)
+                .to(device)
+                .price(
+                    log_moneyness=derivative.log_moneyness(),
+                    time_to_maturity=derivative.time_to_maturity(),
+                    volatility=derivative.ul().volatility,
+                )
             )
-        )
 
         derivative = EuropeanOption(BrownianStock(), maturity=5 / 250).to(device)
         derivative.list(pricer)

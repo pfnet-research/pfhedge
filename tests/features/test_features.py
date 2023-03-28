@@ -1,6 +1,3 @@
-from typing import Optional
-from typing import Union
-
 import pytest
 import torch
 from torch.nn import Linear
@@ -30,8 +27,14 @@ from pfhedge.nn import Naked
 
 
 class _TestFeature:
-    def assert_same_dtype(self, feature, derivative, dtype):
-        derivative.to(dtype).simulate()
+    def assert_same_dtype(
+        self,
+        feature,
+        derivative,
+        dtype,
+        device: str = "cpu",
+    ):
+        derivative.to(dtype=dtype, device=device).simulate()
         f = feature.of(derivative)
         assert f.get(0).dtype == dtype
 
@@ -39,9 +42,7 @@ class _TestFeature:
 class TestMoneyness(_TestFeature):
     @pytest.mark.parametrize("strike", [1.0, 2.0])
     @pytest.mark.parametrize("log", [True, False])
-    def test_value(
-        self, strike, log, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_value(self, strike, log, device: str = "cpu"):
         derivative = EuropeanOption(BrownianStock(), strike=strike).to(device)
         spot = torch.arange(1.0, 7.0).to(device).reshape(2, 3)
         # tensor([[1., 2., 3.],
@@ -84,13 +85,16 @@ class TestMoneyness(_TestFeature):
         assert str(Moneyness(log=True)) == "log_moneyness"
 
     @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
-    def test_dtype(self, dtype):
-        derivative = EuropeanOption(BrownianStock())
-        self.assert_same_dtype(Moneyness(), derivative, dtype)
+    def test_dtype(self, dtype, device: str = "cpu"):
+        derivative = EuropeanOption(BrownianStock()).to(device)
+        self.assert_same_dtype(Moneyness(), derivative, dtype, device)
 
-    def test_is_state_dependent(
-        self, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    @pytest.mark.gpu
+    @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
+    def test_dtype_gpu(self, dtype):
+        self.test_dtype(dtype, device="cuda")
+
+    def test_is_state_dependent(self, device: str = "cpu"):
         derivative = EuropeanOption(BrownianStock()).to(device)
         hedger = Hedger(Naked(), inputs=["empty"]).to(device)
         f = Moneyness().of(derivative, hedger)
@@ -101,7 +105,7 @@ class TestMoneyness(_TestFeature):
         self.test_is_state_dependent(device="cuda")
 
     # def test_getitem_deprecation_warning(
-    #     self, device: Optional[Union[str, torch.device]] = "cpu"
+    #     self, device: str = "cpu"
     # ):
     #     derivative = EuropeanOption(BrownianStock()).to(device)
     #     spot = torch.zeros(2, 3).to(device)
@@ -116,7 +120,7 @@ class TestMoneyness(_TestFeature):
     #     self.test_getitem_deprecation_warning(device="cuda")
 
     @pytest.mark.filterwarnings("ignore")
-    def test_getitem_get(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_getitem_get(self, device: str = "cpu"):
         derivative = EuropeanOption(BrownianStock()).to(device)
         spot = torch.zeros(2, 3).to(device)
         derivative.underlier.register_buffer("spot", spot)
@@ -131,7 +135,7 @@ class TestMoneyness(_TestFeature):
 
 class TestLogMoneyness(_TestFeature):
     @pytest.mark.parametrize("strike", [1.0, 2.0])
-    def test_value(self, strike, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_value(self, strike, device: str = "cpu"):
         derivative = EuropeanOption(BrownianStock(), strike=strike).to(device)
         derivative.ul().register_buffer(
             "spot", torch.arange(1.0, 7.0).to(device).reshape(2, 3)
@@ -164,13 +168,16 @@ class TestLogMoneyness(_TestFeature):
         assert str(LogMoneyness()) == "log_moneyness"
 
     @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
-    def test_dtype(self, dtype):
-        derivative = EuropeanOption(BrownianStock())
-        self.assert_same_dtype(LogMoneyness(), derivative, dtype)
+    def test_dtype(self, dtype, device: str = "cpu"):
+        derivative = EuropeanOption(BrownianStock()).to(device)
+        self.assert_same_dtype(LogMoneyness(), derivative, dtype, device)
 
-    def test_is_state_dependent(
-        self, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    @pytest.mark.gpu
+    @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
+    def test_dtype_gpu(self, dtype):
+        self.test_dtype(dtype, device="cuda")
+
+    def test_is_state_dependent(self, device: str = "cpu"):
         derivative = EuropeanOption(BrownianStock()).to(device)
         hedger = Hedger(Naked(), inputs=["empty"]).to(device)
         f = LogMoneyness().of(derivative, hedger)
@@ -182,7 +189,7 @@ class TestLogMoneyness(_TestFeature):
 
 
 class TestTimeToMaturity(_TestFeature):
-    def test(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test(self, device: str = "cpu"):
         derivative = EuropeanOption(BrownianStock(dt=0.1), maturity=0.2).to(device)
         derivative.ul().register_buffer("spot", torch.zeros(2, 3).to(device))
         f = TimeToMaturity().of(derivative)
@@ -211,7 +218,7 @@ class TestTimeToMaturity(_TestFeature):
     def test_gpu(self):
         self.test(device="cuda")
 
-    def test_2(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_2(self, device: str = "cpu"):
         derivative = EuropeanOption(BrownianStock(dt=0.1), maturity=0.15).to(device)
         derivative.underlier.register_buffer("spot", torch.zeros(2, 3).to(device))
         f = TimeToMaturity().of(derivative)
@@ -245,13 +252,16 @@ class TestTimeToMaturity(_TestFeature):
         assert str(ExpiryTime()) == "expiry_time"
 
     @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
-    def test_dtype(self, dtype):
-        derivative = EuropeanOption(BrownianStock())
-        self.assert_same_dtype(TimeToMaturity(), derivative, dtype)
+    def test_dtype(self, dtype, device: str = "cpu"):
+        derivative = EuropeanOption(BrownianStock()).to(device)
+        self.assert_same_dtype(TimeToMaturity(), derivative, dtype, device)
 
-    def test_is_state_dependent(
-        self, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    @pytest.mark.gpu
+    @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
+    def test_dtype_gpu(self, dtype):
+        self.test_dtype(dtype, device="cuda")
+
+    def test_is_state_dependent(self, device: str = "cpu"):
         derivative = EuropeanOption(BrownianStock()).to(device)
         hedger = Hedger(Naked(), inputs=["empty"]).to(device)
         f = TimeToMaturity().of(derivative, hedger)
@@ -264,9 +274,7 @@ class TestTimeToMaturity(_TestFeature):
 
 class TestVolatility(_TestFeature):
     @pytest.mark.parametrize("sigma", [0.2, 0.1])
-    def test_constant_volatility(
-        self, sigma, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_constant_volatility(self, sigma, device: str = "cpu"):
         derivative = EuropeanOption(BrownianStock(sigma=sigma)).to(device)
         derivative.underlier.register_buffer("spot", torch.zeros(2, 3).to(device))
 
@@ -297,9 +305,7 @@ class TestVolatility(_TestFeature):
     def test_constant_volatility_gpu(self, sigma):
         self.test_constant_volatility(sigma, device="cuda")
 
-    def test_stochastic_volatility(
-        self, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_stochastic_volatility(self, device: str = "cpu"):
         derivative = EuropeanOption(HestonStock(dt=0.1), maturity=0.2).to(device)
         derivative.simulate(n_paths=2)
         variance = derivative.ul().variance
@@ -329,13 +335,16 @@ class TestVolatility(_TestFeature):
         assert str(Volatility()) == "volatility"
 
     @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
-    def test_dtype(self, dtype):
-        derivative = EuropeanOption(BrownianStock())
-        self.assert_same_dtype(Volatility(), derivative, dtype)
+    def test_dtype(self, dtype, device: str = "cpu"):
+        derivative = EuropeanOption(BrownianStock()).to(device)
+        self.assert_same_dtype(Volatility(), derivative, dtype, device)
 
-    def test_is_state_dependent(
-        self, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    @pytest.mark.gpu
+    @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
+    def test_dtype_gpu(self, dtype):
+        self.test_dtype(dtype, device="cuda")
+
+    def test_is_state_dependent(self, device: str = "cpu"):
         derivative = EuropeanOption(BrownianStock()).to(device)
         hedger = Hedger(Naked(), inputs=["empty"]).to(device)
         f = Volatility().of(derivative, hedger)
@@ -348,31 +357,29 @@ class TestVolatility(_TestFeature):
 
 class TestVariance(_TestFeature):
     @pytest.mark.parametrize("sigma", [0.2, 0.1])
-    def test_constant_volatility(
-        self, sigma, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_constant_volatility(self, sigma, device: str = "cpu"):
         derivative = EuropeanOption(BrownianStock(sigma=sigma)).to(device)
         derivative.underlier.register_buffer("spot", torch.zeros(2, 3).to(device))
 
         f = Variance().of(derivative)
 
         result = f[0]
-        expect = torch.full((2, 1), sigma**2).to(device)
+        expect = torch.full((2, 1), sigma ** 2).to(device)
         expect = expect.unsqueeze(-1)
         assert_close(result, expect, check_stride=False)
 
         result = f[1]
-        expect = torch.full((2, 1), sigma**2).to(device)
+        expect = torch.full((2, 1), sigma ** 2).to(device)
         expect = expect.unsqueeze(-1)
         assert_close(result, expect, check_stride=False)
 
         result = f[2]
-        expect = torch.full((2, 1), sigma**2).to(device)
+        expect = torch.full((2, 1), sigma ** 2).to(device)
         expect = expect.unsqueeze(-1)
         assert_close(result, expect, check_stride=False)
 
         result = f[None]
-        expect = torch.full((2, 3), sigma**2).to(device)
+        expect = torch.full((2, 3), sigma ** 2).to(device)
         expect = expect.unsqueeze(-1)
         assert_close(result, expect, check_stride=False)
 
@@ -381,9 +388,7 @@ class TestVariance(_TestFeature):
     def test_constant_volatility_gpu(self, sigma):
         self.test_constant_volatility(sigma, device="cuda")
 
-    def test_stochastic_volatility(
-        self, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_stochastic_volatility(self, device: str = "cpu"):
         derivative = EuropeanOption(HestonStock(dt=0.1), maturity=0.2).to(device)
         derivative.simulate(n_paths=2)
         variance = derivative.ul().variance
@@ -413,13 +418,16 @@ class TestVariance(_TestFeature):
         assert str(Variance()) == "variance"
 
     @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
-    def test_dtype(self, dtype):
-        derivative = EuropeanOption(BrownianStock())
-        self.assert_same_dtype(Variance(), derivative, dtype)
+    def test_dtype(self, dtype, device: str = "cpu"):
+        derivative = EuropeanOption(BrownianStock()).to(device)
+        self.assert_same_dtype(Variance(), derivative, dtype, device)
 
-    def test_is_state_dependent(
-        self, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    @pytest.mark.gpu
+    @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
+    def test_dtype_gpu(self, dtype):
+        self.test_dtype(dtype, device="cuda")
+
+    def test_is_state_dependent(self, device: str = "cpu"):
         derivative = EuropeanOption(BrownianStock()).to(device)
         hedger = Hedger(Naked(), inputs=["empty"]).to(device)
         f = Variance().of(derivative, hedger)
@@ -432,7 +440,7 @@ class TestVariance(_TestFeature):
 
 class TestPrevHedge(_TestFeature):
     @pytest.mark.parametrize("volatility", [0.2, 0.1])
-    def test(self, volatility, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test(self, volatility, device: str = "cpu"):
         N, T = 10, 20
         torch.manual_seed(42)
         derivative = EuropeanOption(BrownianStock(volatility)).to(device)
@@ -466,9 +474,7 @@ class TestPrevHedge(_TestFeature):
     def test_str(self):
         assert str(PrevHedge()) == "prev_hedge"
 
-    def test_is_state_dependent(
-        self, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_is_state_dependent(self, device: str = "cpu"):
         derivative = EuropeanOption(BrownianStock()).to(device)
         hedger = Hedger(Naked(), inputs=["empty"]).to(device)
         f = PrevHedge().of(derivative, hedger)
@@ -478,9 +484,7 @@ class TestPrevHedge(_TestFeature):
     def test_is_state_dependent_gpu(self):
         self.test_is_state_dependent(device="cuda")
 
-    def test_error_time_step_is_none(
-        self, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_error_time_step_is_none(self, device: str = "cpu"):
         derivative = EuropeanOption(BrownianStock()).to(device)
         hedger = Hedger(Naked(), inputs=["empty"]).to(device)
         f = PrevHedge().of(derivative, hedger)
@@ -493,7 +497,7 @@ class TestPrevHedge(_TestFeature):
 
 
 class TestBarrier(_TestFeature):
-    def test(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test(self, device: str = "cpu"):
         derivative = EuropeanOption(BrownianStock()).to(device)
         derivative.ul().register_buffer(
             "spot",
@@ -603,13 +607,16 @@ class TestBarrier(_TestFeature):
         assert repr(Barrier(2.0, up=False)) == "Barrier(2., up=False)"
 
     @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
-    def test_dtype(self, dtype):
-        derivative = EuropeanOption(BrownianStock())
-        self.assert_same_dtype(Barrier(1.0), derivative, dtype)
+    def test_dtype(self, dtype, device: str = "cpu"):
+        derivative = EuropeanOption(BrownianStock()).to(device)
+        self.assert_same_dtype(Barrier(1.0), derivative, dtype, device)
 
-    def test_is_state_dependent(
-        self, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    @pytest.mark.gpu
+    @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
+    def test_dtype_gpu(self, dtype):
+        self.test_dtype(dtype, device="cuda")
+
+    def test_is_state_dependent(self, device: str = "cpu"):
         derivative = EuropeanOption(BrownianStock()).to(device)
         hedger = Hedger(Naked(), inputs=["empty"]).to(device)
         f = Barrier(1.0).of(derivative, hedger)
@@ -625,7 +632,7 @@ class TestZeros(_TestFeature):
     pfhedge.features.Zeros
     """
 
-    def test(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test(self, device: str = "cpu"):
         torch.manual_seed(42)
         derivative = EuropeanOption(BrownianStock()).to(device)
         derivative.ul().register_buffer("spot", torch.zeros(2, 3).to(device))
@@ -660,13 +667,16 @@ class TestZeros(_TestFeature):
         assert str(Zeros()) == "zeros"
 
     @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
-    def test_dtype(self, dtype):
-        derivative = EuropeanOption(BrownianStock())
-        self.assert_same_dtype(Zeros(), derivative, dtype)
+    def test_dtype(self, dtype, device: str = "cpu"):
+        derivative = EuropeanOption(BrownianStock()).to(device)
+        self.assert_same_dtype(Zeros(), derivative, dtype, device)
 
-    def test_is_state_dependent(
-        self, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    @pytest.mark.gpu
+    @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
+    def test_dtype_gpu(self, dtype):
+        self.test_dtype(dtype, device="cuda")
+
+    def test_is_state_dependent(self, device: str = "cpu"):
         derivative = EuropeanOption(BrownianStock()).to(device)
         hedger = Hedger(Naked(), inputs=["empty"]).to(device)
         f = Zeros().of(derivative, hedger)
@@ -678,7 +688,7 @@ class TestZeros(_TestFeature):
 
 
 class TestEmpty(_TestFeature):
-    def test(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test(self, device: str = "cpu"):
         torch.manual_seed(42)
         derivative = EuropeanOption(BrownianStock()).to(device)
         derivative.underlier.register_buffer("spot", torch.zeros(2, 3).to(device))
@@ -705,13 +715,16 @@ class TestEmpty(_TestFeature):
         assert str(Empty()) == "empty"
 
     @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
-    def test_dtype(self, dtype):
-        derivative = EuropeanOption(BrownianStock())
-        self.assert_same_dtype(Empty(), derivative, dtype)
+    def test_dtype(self, dtype, device: str = "cpu"):
+        derivative = EuropeanOption(BrownianStock()).to(device)
+        self.assert_same_dtype(Empty(), derivative, dtype, device)
 
-    def test_is_state_dependent(
-        self, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    @pytest.mark.gpu
+    @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
+    def test_dtype_gpu(self, dtype):
+        self.test_dtype(dtype, device="cuda")
+
+    def test_is_state_dependent(self, device: str = "cpu"):
         derivative = EuropeanOption(BrownianStock()).to(device)
         hedger = Hedger(Naked(), inputs=["empty"]).to(device)
         f = Empty().of(derivative, hedger)
@@ -725,7 +738,7 @@ class TestEmpty(_TestFeature):
 class TestMaxMoneyness(_TestFeature):
     @pytest.mark.parametrize("strike", [1.0, 2.0])
     @pytest.mark.parametrize("log", [True, False])
-    def test(self, strike, log, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test(self, strike, log, device: str = "cpu"):
         derivative = EuropeanOption(BrownianStock(), strike=strike).to(device)
         derivative.ul().register_buffer(
             "spot",
@@ -774,13 +787,16 @@ class TestMaxMoneyness(_TestFeature):
         assert str(MaxMoneyness(log=True)) == "max_log_moneyness"
 
     @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
-    def test_dtype(self, dtype):
-        derivative = EuropeanOption(BrownianStock())
-        self.assert_same_dtype(MaxMoneyness(), derivative, dtype)
+    def test_dtype(self, dtype, device: str = "cpu"):
+        derivative = EuropeanOption(BrownianStock()).to(device)
+        self.assert_same_dtype(MaxMoneyness(), derivative, dtype, device)
 
-    def test_is_state_dependent(
-        self, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    @pytest.mark.gpu
+    @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
+    def test_dtype_gpu(self, dtype):
+        self.test_dtype(dtype, device="cuda")
+
+    def test_is_state_dependent(self, device: str = "cpu"):
         derivative = EuropeanOption(BrownianStock()).to(device)
         hedger = Hedger(Naked(), inputs=["empty"]).to(device)
         f = MaxMoneyness().of(derivative, hedger)
@@ -793,7 +809,7 @@ class TestMaxMoneyness(_TestFeature):
 
 class TestMaxLogMoneyness(_TestFeature):
     @pytest.mark.parametrize("strike", [1.0, 2.0])
-    def test(self, strike, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test(self, strike, device: str = "cpu"):
         derivative = EuropeanOption(BrownianStock(), strike=strike).to(device)
         derivative.ul().register_buffer(
             "spot",
@@ -836,13 +852,16 @@ class TestMaxLogMoneyness(_TestFeature):
         assert str(MaxLogMoneyness()) == "max_log_moneyness"
 
     @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
-    def test_dtype(self, dtype):
-        derivative = EuropeanOption(BrownianStock())
-        self.assert_same_dtype(MaxLogMoneyness(), derivative, dtype)
+    def test_dtype(self, dtype, device: str = "cpu"):
+        derivative = EuropeanOption(BrownianStock()).to(device)
+        self.assert_same_dtype(MaxLogMoneyness(), derivative, dtype, device)
 
-    def test_is_state_dependent(
-        self, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    @pytest.mark.gpu
+    @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
+    def test_dtype_gpu(self, dtype):
+        self.test_dtype(dtype, device="cuda")
+
+    def test_is_state_dependent(self, device: str = "cpu"):
         derivative = EuropeanOption(BrownianStock()).to(device)
         hedger = Hedger(Naked(), inputs=["empty"]).to(device)
         f = MaxLogMoneyness().of(derivative, hedger)
@@ -854,7 +873,7 @@ class TestMaxLogMoneyness(_TestFeature):
 
 
 class TestModuleOutput(_TestFeature):
-    def test(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test(self, device: str = "cpu"):
         derivative = EuropeanOption(BrownianStock()).to(device)
         derivative.simulate()
 
@@ -897,15 +916,18 @@ class TestModuleOutput(_TestFeature):
         assert repr(f) == expect
 
     @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
-    def test_dtype(self, dtype):
-        derivative = EuropeanOption(BrownianStock()).to(dtype)
-        m = Linear(2, 1).to(derivative.dtype)
+    def test_dtype(self, dtype, device: str = "cpu"):
+        derivative = EuropeanOption(BrownianStock()).to(device, dtype)
+        m = Linear(2, 1).to(derivative.device, derivative.dtype)
         f = ModuleOutput(m, [Moneyness(), TimeToMaturity()])
-        self.assert_same_dtype(f, derivative, dtype)
+        self.assert_same_dtype(f, derivative, dtype, device)
 
-    def test_is_state_dependent(
-        self, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    @pytest.mark.gpu
+    @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
+    def test_dtype_gpu(self, dtype):
+        self.test_dtype(dtype, device="cuda")
+
+    def test_is_state_dependent(self, device: str = "cpu"):
         derivative = EuropeanOption(BrownianStock()).to(device)
         hedger = Hedger(Naked(), inputs=["empty"]).to(device)
 
@@ -936,7 +958,7 @@ class TestFeatureList:
         f = FeatureList(["empty", "empty"])
         assert len(f) == 2
 
-    def test_value(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_value(self, device: str = "cpu"):
         torch.manual_seed(42)
 
         derivative = EuropeanOption(BrownianStock()).to(device)
@@ -979,9 +1001,7 @@ class TestFeatureList:
     def test_value_gpu(self):
         self.test_value(device="cuda")
 
-    def test_is_state_dependent(
-        self, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_is_state_dependent(self, device: str = "cpu"):
         derivative = EuropeanOption(BrownianStock()).to(device)
         derivative.simulate()
         hedger = Hedger(Naked(), inputs=["empty"]).to(device)
@@ -1004,9 +1024,7 @@ class TestFeatureList:
 class TestUnderlierSpot(_TestFeature):
     @pytest.mark.parametrize("strike", [1.0, 2.0])
     @pytest.mark.parametrize("log", [True, False])
-    def test_value(
-        self, strike, log, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_value(self, strike, log, device: str = "cpu"):
         derivative = EuropeanOption(BrownianStock(), strike=strike).to(device)
         spot = torch.arange(1.0, 7.0).to(device).reshape(2, 3)
         # tensor([[1., 2., 3.],
@@ -1047,9 +1065,7 @@ class TestUnderlierSpot(_TestFeature):
     def test_str(self):
         assert str(UnderlierSpot()) == "underlier_spot"
 
-    def test_is_state_dependent(
-        self, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_is_state_dependent(self, device: str = "cpu"):
         derivative = EuropeanOption(BrownianStock()).to(device)
         hedger = Hedger(Naked(), inputs=["empty"]).to(device)
         f = UnderlierSpot().of(derivative, hedger)
@@ -1063,9 +1079,7 @@ class TestUnderlierSpot(_TestFeature):
 class TestSpot(_TestFeature):
     @pytest.mark.parametrize("strike", [1.0, 2.0])
     @pytest.mark.parametrize("log", [True, False])
-    def test_value(
-        self, strike, log, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_value(self, strike, log, device: str = "cpu"):
         derivative = EuropeanOption(BrownianStock(), strike=strike).to(device)
         spot = torch.arange(1.0, 7.0).to(device).reshape(2, 3)
         # tensor([[1., 2., 3.],
@@ -1106,9 +1120,7 @@ class TestSpot(_TestFeature):
     def test_str(self):
         assert str(Spot()) == "spot"
 
-    def test_is_state_dependent(
-        self, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_is_state_dependent(self, device: str = "cpu"):
         derivative = EuropeanOption(BrownianStock()).to(device)
         hedger = Hedger(Naked(), inputs=["empty"]).to(device)
         f = Spot().of(derivative, hedger)

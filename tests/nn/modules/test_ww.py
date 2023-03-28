@@ -1,6 +1,3 @@
-from typing import Optional
-from typing import Union
-
 import pytest
 import torch
 
@@ -39,7 +36,7 @@ WhalleyWilmott(
 )"""
         assert repr(m) == expect
 
-    def test_shape(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_shape(self, device: str = "cpu"):
         torch.distributions.Distribution.set_default_validate_args(False)
 
         deriv = EuropeanOption(BrownianStock()).to(device)
@@ -63,7 +60,7 @@ WhalleyWilmott(
     def test_shape_gpu(self):
         self.test_shape(device="cuda")
 
-    def test(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test(self, device: str = "cpu"):
         derivative = EuropeanOption(BrownianStock(cost=1e-4)).to(device)
         model = WhalleyWilmott(derivative).to(device)
         hedger = Hedger(model, model.inputs())
@@ -74,9 +71,7 @@ WhalleyWilmott(
     def test_gpu(self):
         self.test(device="cuda")
 
-    def test_autogreek_generate_nan_for_float64(
-        self, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_autogreek_generate_nan_for_float64(self, device: str = "cpu"):
         derivative = (
             EuropeanOption(BrownianStock(cost=1e-4)).to(torch.float64).to(device)
         )

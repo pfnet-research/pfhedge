@@ -1,6 +1,3 @@
-from typing import Optional
-from typing import Union
-
 import pytest
 import torch
 
@@ -9,9 +6,7 @@ from pfhedge.instruments import HestonStock
 
 class TestHestonStock:
     @pytest.mark.parametrize("seed", range(1))
-    def test_values_are_finite(
-        self, seed, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_values_are_finite(self, seed, device: str = "cpu"):
         torch.manual_seed(seed)
 
         s = HestonStock().to(device)
@@ -30,7 +25,7 @@ class TestHestonStock:
 kappa=1., theta=0.0400, sigma=0.2000, rho=-0.7000, cost=1.0000e-04, dt=0.0040)"
         assert repr(s) == expect
 
-    def test_simulate_shape(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_simulate_shape(self, device: str = "cpu"):
         s = HestonStock(dt=0.1).to(device)
         s.simulate(time_horizon=0.2, n_paths=10)
         assert s.spot.size() == torch.Size((10, 3))

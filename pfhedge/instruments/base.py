@@ -208,7 +208,7 @@ class BaseInstrument(ABC):
 
 
 class Instrument(BaseInstrument):
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args, **kwargs) -> None:  # type: ignore
         super().__init__(*args, **kwargs)  # type: ignore
         raise DeprecationWarning(
             "Instrument is deprecated. Use BaseInstrument instead."

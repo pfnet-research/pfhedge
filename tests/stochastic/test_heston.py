@@ -1,6 +1,3 @@
-from typing import Optional
-from typing import Union
-
 import pytest
 import torch
 from torch.testing import assert_close
@@ -23,7 +20,7 @@ SpotVarianceTuple(
     assert repr(output) == expect
 
 
-def test_generate_heston_volatility(device: Optional[Union[str, torch.device]] = "cpu"):
+def test_generate_heston_volatility(device: str = "cpu"):
     torch.manual_seed(42)
 
     device = torch.device(device) if device else None

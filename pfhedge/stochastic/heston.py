@@ -1,8 +1,6 @@
 from collections import namedtuple
 from typing import Optional
 from typing import Tuple
-from typing import Union
-from typing import cast
 
 import torch
 from torch import Tensor
@@ -126,7 +124,7 @@ def generate_heston(
     )
 
     log_spot = torch.empty_like(variance)
-    log_spot[:, 0] = cast(Tensor, init_state[0]).log()
+    log_spot[:, 0] = init_state[0].log()
     randn = torch.randn_like(variance)
 
     for i_step in range(n_steps - 1):
@@ -134,8 +132,8 @@ def generate_heston(
         k0 = -rho * kappa * theta * dt / sigma
         k1 = GAMMA1 * dt * (kappa * rho / sigma - 0.5) - rho / sigma
         k2 = GAMMA2 * dt * (kappa * rho / sigma - 0.5) + rho / sigma
-        k3 = GAMMA1 * dt * (1 - rho**2)
-        k4 = GAMMA2 * dt * (1 - rho**2)
+        k3 = GAMMA1 * dt * (1 - rho ** 2)
+        k4 = GAMMA2 * dt * (1 - rho ** 2)
         v0 = variance[:, i_step]
         v1 = variance[:, i_step + 1]
         log_spot[:, i_step + 1] = (

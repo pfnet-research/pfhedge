@@ -1,8 +1,4 @@
-from typing import Optional
-from typing import Union
-
 import pytest
-import torch
 from torch.nn import LazyLinear
 from torch.nn import Linear
 from torch.nn import Sequential
@@ -10,7 +6,7 @@ from torch.nn import Sequential
 from pfhedge._utils.lazy import has_lazy
 
 
-def test_has_lazy(device: Optional[Union[str, torch.device]] = "cpu"):
+def test_has_lazy(device: str = "cpu"):
     m = LazyLinear(1).to(device)
     assert has_lazy(m)
 

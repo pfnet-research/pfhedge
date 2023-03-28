@@ -1,6 +1,3 @@
-from typing import Optional
-from typing import Union
-
 import pytest
 import torch
 from torch.testing import assert_close
@@ -8,9 +5,7 @@ from torch.testing import assert_close
 from pfhedge.instruments import LocalVolatilityStock
 
 
-def test_local_volatility_zero_volatility(
-    device: Optional[Union[str, torch.device]] = "cpu"
-):
+def test_local_volatility_zero_volatility(device: str = "cpu"):
     def zeros(time, spot):
         return torch.zeros_like(time)
 
@@ -26,7 +21,7 @@ def test_local_volatility_zero_volatility_gpu():
     test_local_volatility_zero_volatility(device="cuda")
 
 
-def test_local_volatility(device: Optional[Union[str, torch.device]] = "cpu"):
+def test_local_volatility(device: str = "cpu"):
     def zeros(time, spot):
         zero = torch.zeros_like(time)
         nonzero = torch.full_like(time, 0.2)
@@ -37,7 +32,10 @@ def test_local_volatility(device: Optional[Union[str, torch.device]] = "cpu"):
 
     result = stock.spot[:, 11:]
     expect = stock.spot[:, 10].unsqueeze(0).expand(-1, stock.spot[:, 11:].size(1))
-    assert_close(result, expect)
+    # TODO(masanorihirano): Remove check_stride once PyTorch 1.9.0 support is
+    # no longer required. In PyTorch 1.10.0 and subsequent versions,
+    # check_stride is set to False by default.
+    assert_close(result, expect, check_stride=False)
 
     result = stock.volatility[:, 10:]
     expect = torch.zeros_like(stock.volatility[:, 10:])

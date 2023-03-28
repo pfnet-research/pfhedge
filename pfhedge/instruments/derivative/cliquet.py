@@ -1,6 +1,5 @@
 from math import floor
 
-import torch
 from torch import Tensor
 
 from pfhedge._utils.doc import _set_attr_and_docstring

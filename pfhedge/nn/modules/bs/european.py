@@ -1,6 +1,5 @@
 from typing import Optional
 
-import torch
 from torch import Tensor
 
 from pfhedge._utils.bisect import find_implied_volatility
@@ -46,6 +45,7 @@ class BSEuropeanOption(BSModuleMixin):
           All but the last dimension are the same shape as the input.
 
     Examples:
+        >>> import torch
         >>> from pfhedge.nn import BSEuropeanOption
         >>>
         >>> m = BSEuropeanOption()

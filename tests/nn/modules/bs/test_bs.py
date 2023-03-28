@@ -1,6 +1,3 @@
-from typing import Optional
-from typing import Union
-
 import pytest
 import torch
 
@@ -39,7 +36,7 @@ class TestBlackScholes:
         # assert m.strike == 2.0
         # assert not m.call
 
-    def test_shape(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_shape(self, device: str = "cpu"):
         torch.distributions.Distribution.set_default_validate_args(False)
 
         deriv = EuropeanOption(BrownianStock()).to(device)

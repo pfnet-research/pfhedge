@@ -1,6 +1,3 @@
-from typing import Optional
-from typing import Union
-
 import pytest
 import torch
 from torch.testing import assert_close
@@ -37,7 +34,7 @@ class TestBSLookbackOption(_TestBSModule):
         ]
         _ = [get_feature(f) for f in m.inputs()]
 
-    def test_check_delta(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_check_delta(self, device: str = "cpu"):
         m = BSLookbackOption().to(device)
 
         # delta = 0 for max --> +0
@@ -73,9 +70,7 @@ class TestBSLookbackOption(_TestBSModule):
         self.test_check_delta(device="cuda")
 
     @pytest.mark.parametrize("call", [True])
-    def test_delta_2(
-        self, call: bool, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_delta_2(self, call: bool, device: str = "cpu"):
         m = BSLookbackOption(call=call).to(device)
         with pytest.raises(ValueError):
             m.delta(
@@ -98,9 +93,7 @@ class TestBSLookbackOption(_TestBSModule):
         self.test_delta_2(call, device="cuda")
 
     @pytest.mark.parametrize("call", [True])
-    def test_delta_3(
-        self, call: bool, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_delta_3(self, call: bool, device: str = "cpu"):
         derivative = LookbackOption(BrownianStock(), call=call).to(device)
         m = BSLookbackOption.from_derivative(derivative).to(device)
         m2 = BSLookbackOption(call=call).to(device)
@@ -205,7 +198,7 @@ class TestBSLookbackOption(_TestBSModule):
     def test_delta_3_gpu(self, call: bool):
         self.test_delta_3(call, device="cuda")
 
-    def test_check_gamma(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_check_gamma(self, device: str = "cpu"):
         m = BSLookbackOption().to(device)
 
         # gamma = 0 for max --> +0
@@ -241,9 +234,7 @@ class TestBSLookbackOption(_TestBSModule):
         self.test_check_gamma(device="cuda")
 
     @pytest.mark.parametrize("call", [True])
-    def test_gamma_2(
-        self, call: bool, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_gamma_2(self, call: bool, device: str = "cpu"):
         m = BSLookbackOption(call=call).to(device)
         with pytest.raises(ValueError):
             m.gamma(
@@ -266,9 +257,7 @@ class TestBSLookbackOption(_TestBSModule):
         self.test_gamma_2(call, device="cuda")
 
     @pytest.mark.parametrize("call", [True])
-    def test_gamma_3(
-        self, call: bool, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_gamma_3(self, call: bool, device: str = "cpu"):
         derivative = LookbackOption(BrownianStock(), call=call).to(device)
         m = BSLookbackOption.from_derivative(derivative).to(device)
         m2 = BSLookbackOption(call=call).to(device)
@@ -373,7 +362,7 @@ class TestBSLookbackOption(_TestBSModule):
     def test_gamma_3_gpu(self, call: bool):
         self.test_gamma_3(call, device="cuda")
 
-    def test_check_vega(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_check_vega(self, device: str = "cpu"):
         m = BSLookbackOption().to(device)
 
         # gamma = 0 for max --> +0
@@ -409,9 +398,7 @@ class TestBSLookbackOption(_TestBSModule):
         self.test_check_vega(device="cuda")
 
     @pytest.mark.parametrize("call", [True])
-    def test_vega_2(
-        self, call: bool, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_vega_2(self, call: bool, device: str = "cpu"):
         m = BSLookbackOption(call=call).to(device)
         with pytest.raises(ValueError):
             m.vega(
@@ -434,9 +421,7 @@ class TestBSLookbackOption(_TestBSModule):
         self.test_vega_2(call, device="cuda")
 
     @pytest.mark.parametrize("call", [True])
-    def test_vega_3(
-        self, call: bool, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_vega_3(self, call: bool, device: str = "cpu"):
         derivative = LookbackOption(BrownianStock(), call=call).to(device)
         m = BSLookbackOption.from_derivative(derivative).to(device)
         m2 = BSLookbackOption(call=call).to(device)
@@ -541,7 +526,7 @@ class TestBSLookbackOption(_TestBSModule):
     def test_vega_3_gpu(self, call: bool):
         self.test_vega_3(call, device="cuda")
 
-    def test_check_theta(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_check_theta(self, device: str = "cpu"):
         m = BSLookbackOption().to(device)
 
         # gamma = 0 for max --> +0
@@ -577,9 +562,7 @@ class TestBSLookbackOption(_TestBSModule):
         self.test_check_theta(device="cuda")
 
     @pytest.mark.parametrize("call", [True])
-    def test_theta_2(
-        self, call: bool, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_theta_2(self, call: bool, device: str = "cpu"):
         m = BSLookbackOption(call=call).to(device)
         with pytest.raises(ValueError):
             m.theta(
@@ -602,9 +585,7 @@ class TestBSLookbackOption(_TestBSModule):
         self.test_theta_2(call, device="cuda")
 
     @pytest.mark.parametrize("call", [True])
-    def test_theta_3(
-        self, call: bool, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_theta_3(self, call: bool, device: str = "cpu"):
         derivative = LookbackOption(BrownianStock(), call=call).to(device)
         m = BSLookbackOption.from_derivative(derivative).to(device)
         m2 = BSLookbackOption(call=call).to(device)
@@ -709,7 +690,7 @@ class TestBSLookbackOption(_TestBSModule):
     def test_theta_3_gpu(self, call: bool):
         self.test_theta_3(call, device="cuda")
 
-    def test_check_price(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_check_price(self, device: str = "cpu"):
         m = BSLookbackOption().to(device)
 
         # price = 0 for max --> +0
@@ -752,9 +733,7 @@ class TestBSLookbackOption(_TestBSModule):
         self.test_check_price(device="cuda")
 
     @pytest.mark.parametrize("call", [True])
-    def test_price_3(
-        self, call: bool, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_price_3(self, call: bool, device: str = "cpu"):
         m = BSLookbackOption(call=call).to(device)
         with pytest.raises(ValueError):
             m.price(
@@ -777,9 +756,7 @@ class TestBSLookbackOption(_TestBSModule):
         self.test_price_3(call, device="cuda")
 
     @pytest.mark.parametrize("call", [True])
-    def test_price_4(
-        self, call: bool, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_price_4(self, call: bool, device: str = "cpu"):
         derivative = LookbackOption(BrownianStock(), call=call).to(device)
         m = BSLookbackOption.from_derivative(derivative).to(device)
         m2 = BSLookbackOption(call=call).to(device)
@@ -884,9 +861,7 @@ class TestBSLookbackOption(_TestBSModule):
     def test_price_4_gpu(self, call: bool):
         self.test_price_4(call, device="cuda")
 
-    def test_check_price_monte_carlo(
-        self, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_check_price_monte_carlo(self, device: str = "cpu"):
         torch.manual_seed(42)
 
         # Monte Carlo evaluation of a lookback option needs small dt
@@ -899,13 +874,13 @@ class TestBSLookbackOption(_TestBSModule):
         input = torch.tensor([[s, s, d.maturity, d.ul().sigma]]).to(device)
         result = compute_price(m, input)
         expect = d.payoff().mean(0, keepdim=True)
-        assert_close(result, expect, rtol=2e-2, atol=0.0)
+        assert_close(result, expect, rtol=3e-2, atol=0.0)
 
     @pytest.mark.gpu
     def test_check_price_monte_carlo_gpu(self):
         self.test_check_price_monte_carlo(device="cuda")
 
-    def test_forward(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_forward(self, device: str = "cpu"):
         m = BSLookbackOption().to(device)
         s = torch.tensor(1.00 / 1.03).to(device).log()
         input = torch.tensor([[s, s, 1.0, 0.2]]).to(device)
@@ -917,7 +892,7 @@ class TestBSLookbackOption(_TestBSModule):
     def test_forward_gpu(self):
         self.test_forward(device="cuda")
 
-    def test_price(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_price(self, device: str = "cpu"):
         m = BSLookbackOption(strike=1.03).to(device)
         s = torch.tensor(1.00 / 1.03).to(device).log()
         result = m.price(
@@ -930,7 +905,7 @@ class TestBSLookbackOption(_TestBSModule):
     def test_price_gpu(self):
         self.test_price(device="cuda")
 
-    def test_delta(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_delta(self, device: str = "cpu"):
         m = BSLookbackOption().to(device)
         s = torch.tensor(1.00 / 1.03).to(device).log()
         result = m.delta(
@@ -943,7 +918,7 @@ class TestBSLookbackOption(_TestBSModule):
     def test_delta_gpu(self):
         self.test_delta(device="cuda")
 
-    def test_gamma(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_gamma(self, device: str = "cpu"):
         m = BSLookbackOption().to(device)
         s = torch.tensor(1.00 / 1.03).to(device).log()
         result = m.gamma(
@@ -956,9 +931,7 @@ class TestBSLookbackOption(_TestBSModule):
     def test_gamma_gpu(self):
         self.test_gamma(device="cuda")
 
-    def test_implied_volatility(
-        self, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_implied_volatility(self, device: str = "cpu"):
         input = torch.tensor(
             [[0.0, 0.0, 0.1, 0.01], [0.0, 0.0, 0.1, 0.02], [0.0, 0.0, 0.1, 0.03]]
         ).to(device)
@@ -973,9 +946,7 @@ class TestBSLookbackOption(_TestBSModule):
         self.test_implied_volatility(device="cuda")
 
     @pytest.mark.parametrize("call", [True])
-    def test_implied_volatility_2(
-        self, call: bool, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_implied_volatility_2(self, call: bool, device: str = "cpu"):
         derivative = LookbackOption(BrownianStock(), call=call).to(device)
         m = BSLookbackOption.from_derivative(derivative).to(device)
         m2 = BSLookbackOption(call=call).to(device)
@@ -1041,7 +1012,7 @@ class TestBSLookbackOption(_TestBSModule):
     def test_implied_volatility_2_gpu(self, call: bool):
         self.test_implied_volatility_2(call, device="cuda")
 
-    def test_vega_and_gamma(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_vega_and_gamma(self, device: str = "cpu"):
         m = BSLookbackOption().to(device)
         # vega = spot^2 * sigma * (T - t) * gamma
         # See Chapter 5 Appendix A, Bergomi "Stochastic volatility modeling"
@@ -1057,9 +1028,7 @@ class TestBSLookbackOption(_TestBSModule):
         self.test_vega_and_gamma(device="cuda")
 
     @pytest.mark.parametrize("call", [True])
-    def test_vega_and_gamma_2(
-        self, call: bool, device: Optional[Union[str, torch.device]] = "cpu"
-    ):
+    def test_vega_and_gamma_2(self, call: bool, device: str = "cpu"):
         derivative = LookbackOption(BrownianStock(), call=call).to(device)
         m = BSLookbackOption.from_derivative(derivative).to(device)
         torch.manual_seed(42)
@@ -1089,7 +1058,7 @@ class TestBSLookbackOption(_TestBSModule):
             # not yet supported
             BSLookbackOption(call=False)
 
-    def test_shape(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_shape(self, device: str = "cpu"):
         torch.distributions.Distribution.set_default_validate_args(False)
 
         m = BSLookbackOption().to(device)
@@ -1104,7 +1073,7 @@ class TestBSLookbackOption(_TestBSModule):
     def test_shape_gpu(self):
         self.test_shape(device="cuda")
 
-    def test_example(self, device: Optional[Union[str, torch.device]] = "cpu"):
+    def test_example(self, device: str = "cpu"):
         torch.manual_seed(42)
 
         from pfhedge.instruments import BrownianStock

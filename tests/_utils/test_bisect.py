@@ -1,6 +1,3 @@
-from typing import Optional
-from typing import Union
-
 import pytest
 import torch
 import torch.nn.functional as fn
@@ -9,7 +6,7 @@ from torch.testing import assert_close
 from pfhedge._utils.bisect import bisect
 
 
-def test_bisect(device: Optional[Union[str, torch.device]] = "cpu"):
+def test_bisect(device: str = "cpu"):
     f = torch.sigmoid
     targets = torch.linspace(0.1, 0.9, 10).to(device)
     roots = bisect(
@@ -17,7 +14,9 @@ def test_bisect(device: Optional[Union[str, torch.device]] = "cpu"):
     )
     assert_close(f(roots), targets, atol=1e-4, rtol=1e-4)
 
-    f = lambda input: -torch.sigmoid(input)
+    def f(inputs):
+        return -torch.sigmoid(inputs)
+
     targets = -torch.linspace(0.1, 0.9, 10).to(device)
     roots = bisect(
         f, targets, torch.tensor(-6.0).to(device), torch.tensor(6.0).to(device)
@@ -35,7 +34,9 @@ def test_bisect(device: Optional[Union[str, torch.device]] = "cpu"):
     )
     assert_close(f(roots), targets, atol=1e-4, rtol=1e-4)
 
-    f = lambda input: -fn.tanhshrink(input)
+    def f(inputs):
+        return -fn.tanhshrink(inputs)
+
     targets = -torch.linspace(-0.4, 0.4, 10).to(device)
     roots = bisect(
         f,
@@ -57,7 +58,9 @@ def test_bisect(device: Optional[Union[str, torch.device]] = "cpu"):
     )
     assert_close(f(roots), targets, atol=1e-4, rtol=1e-4)
 
-    f = lambda input: -torch.tanh(input)
+    def f(inputs):
+        return -torch.tanh(inputs)
+
     targets = -torch.linspace(-0.9, 0.9, 10).to(device)
     roots = bisect(
         f,

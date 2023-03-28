@@ -1,6 +1,3 @@
-from typing import Optional
-from typing import Union
-
 import pytest
 import torch
 from torch.testing import assert_close
@@ -10,7 +7,7 @@ from pfhedge._utils.parse import parse_time_to_maturity
 from pfhedge._utils.parse import parse_volatility
 
 
-def test_parse_spot(device: Optional[Union[str, torch.device]] = "cpu"):
+def test_parse_spot(device: str = "cpu"):
     torch.manual_seed(42)
 
     spot = torch.randn(10).to(device).exp()
@@ -40,7 +37,7 @@ def test_parse_spot_gpu():
     test_parse_spot(device="cuda")
 
 
-def test_parse_volatility(device: Optional[Union[str, torch.device]] = "cpu"):
+def test_parse_volatility(device: str = "cpu"):
     torch.manual_seed(42)
 
     volatility = torch.randn(10).to(device).exp()
@@ -62,7 +59,7 @@ def test_parse_volatility_gpu():
     test_parse_volatility(device="cuda")
 
 
-def test_parse_time_to_maturity(device: Optional[Union[str, torch.device]] = "cpu"):
+def test_parse_time_to_maturity(device: str = "cpu"):
     torch.manual_seed(42)
 
     time_to_maturity = torch.randn(10).to(device).exp()

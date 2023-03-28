@@ -1,6 +1,4 @@
 from math import sqrt
-from typing import Optional
-from typing import Union
 
 import pytest
 import torch
@@ -11,7 +9,7 @@ from pfhedge.stochastic import generate_geometric_brownian
 from pfhedge.stochastic.engine import RandnSobolBoxMuller
 
 
-def test_generate_brownian_mean(device: Optional[Union[str, torch.device]] = "cpu"):
+def test_generate_brownian_mean(device: str = "cpu"):
     torch.manual_seed(42)
     n_paths = 10000
     n_steps = 250
@@ -30,7 +28,7 @@ def test_generate_brownian_mean_gpu():
     test_generate_brownian_mean(device="cuda")
 
 
-def test_generate_brownian_nosigma(device: Optional[Union[str, torch.device]] = "cpu"):
+def test_generate_brownian_nosigma(device: str = "cpu"):
     torch.manual_seed(42)
     n_steps = 250
 
@@ -51,7 +49,7 @@ def test_generate_brownian_nosigma_gpu():
     test_generate_brownian_nosigma(device="cuda")
 
 
-def test_generate_brownian_std(device: Optional[Union[str, torch.device]] = "cpu"):
+def test_generate_brownian_std(device: str = "cpu"):
     torch.manual_seed(42)
     n_paths = 10000
     n_steps = 250
@@ -69,9 +67,7 @@ def test_generate_brownian_std_gpu():
     test_generate_brownian_std(device="cuda")
 
 
-def test_generate_brownian_mean_init_state(
-    device: Optional[Union[str, torch.device]] = "cpu"
-):
+def test_generate_brownian_mean_init_state(device: str = "cpu"):
     torch.manual_seed(42)
     n_paths = 10000
     n_steps = 250
@@ -108,7 +104,7 @@ def test_generate_brownian_mean_init_state_gpu():
     test_generate_brownian_mean_init_state(device="cuda")
 
 
-def test_generate_brownian_mean_mu(device: Optional[Union[str, torch.device]] = "cpu"):
+def test_generate_brownian_mean_mu(device: str = "cpu"):
     torch.manual_seed(42)
     n_paths = 10000
     n_steps = 250
@@ -128,9 +124,7 @@ def test_generate_brownian_mean_mu_gpu():
     test_generate_brownian_mean_mu(device="cuda")
 
 
-def test_generate_brownian_sobol_mean(
-    device: Optional[Union[str, torch.device]] = "cpu"
-):
+def test_generate_brownian_sobol_mean(device: str = "cpu"):
     n_paths = 10000
     n_steps = 250
 
@@ -149,7 +143,7 @@ def test_generate_brownian_sobol_mean_gpu():
     test_generate_brownian_sobol_mean(device="cuda")
 
 
-def test_generate_brownian_dtype(device: Optional[Union[str, torch.device]] = "cpu"):
+def test_generate_brownian_dtype(device: str = "cpu"):
     torch.manual_seed(42)
 
     device = torch.device(device) if device else None
@@ -165,9 +159,7 @@ def test_generate_brownian_dtype_gpu():
     test_generate_brownian_dtype(device="cuda")
 
 
-def test_generate_geometric_brownian_mean(
-    device: Optional[Union[str, torch.device]] = "cpu"
-):
+def test_generate_geometric_brownian_mean(device: str = "cpu"):
     torch.manual_seed(42)
 
     n_paths = 10000
@@ -201,9 +193,7 @@ def test_generate_geometric_brownian_mean_gpu():
     test_generate_geometric_brownian_mean(device="cuda")
 
 
-def test_generate_geometric_brownian_dtype(
-    device: Optional[Union[str, torch.device]] = "cpu"
-):
+def test_generate_geometric_brownian_dtype(device: str = "cpu"):
     torch.manual_seed(42)
 
     device = torch.device(device) if device else None

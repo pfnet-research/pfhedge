@@ -11,14 +11,12 @@ on:
       - develop
       - release/*
       - hotfix/*
-      - hirano-master
   pull_request:
       branches:
       - main
       - develop
       - release/*
       - hotfix/*
-      - hirano-master
   workflow_dispatch:
 
 jobs:
@@ -31,7 +29,14 @@ jobs:
 
     strategy:
       matrix:
-        python-version: ['3.7', '3.8', '3.9']
+        python-version: ['3.8', '3.9', '3.10', '3.11']
+        torch-version: ['1.9.0', '1.13.1', '2.0.0']
+        # pytorch 1.9.0 does not support python 3.10, 3.11
+        exclude:
+          - python-version: '3.10'
+            torch-version: "1.9.0"
+          - python-version: '3.11'
+            torch-version: "1.9.0"
 
     steps:
 
@@ -42,42 +47,24 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Install
-      run: pip install poetry && poetry install
+      run: |
+        pip install poetry
+        poetry install
+        poetry run pip uninstall -y torch
+        poetry run pip install torch==${{ matrix.torch-version }}
 
     - name: Run doctest
       run: make doctest
-      if: always()
 
     - name: Run pytest
       run: make test-cov
-      if: always()
 
     - name: Upload codecov report
       uses: codecov/codecov-action@v1
-      if: ${{ matrix.python-version == '3.9' }}
-
-  type:
-
-    name: Type
-
-    runs-on: ubuntu-latest
-
-    steps:
-
-    - uses: actions/checkout@v2
-
-    - uses: actions/setup-python@v2
-      with:
-        python-version: ${{ env.PYTHON_VERSION }}
-
-    - run: pip install poetry && poetry install
-
-    - run: make mypy
+      if: ${{ matrix.python-version == '3.9' && matrix.torch-version == '1.13.1' }}
 
   lint:
-
-    name: Lint
-
+    name: Lint (pysen)
     runs-on: ubuntu-latest
 
     outputs:

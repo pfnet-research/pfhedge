@@ -1,8 +1,4 @@
-from typing import Optional
-from typing import Union
-
 import pytest
-import torch
 
 from pfhedge.instruments import BrownianStock
 from pfhedge.instruments import EuropeanOption
@@ -12,7 +8,7 @@ from pfhedge.nn import MultiLayerPerceptron
 from pfhedge.nn import WhalleyWilmott
 
 
-def test_net(device: Optional[Union[str, torch.device]] = "cpu"):
+def test_net(device: str = "cpu"):
     derivative = EuropeanOption(BrownianStock(cost=1e-4)).to(device)
     model = MultiLayerPerceptron().to(device)
     hedger = Hedger(
@@ -31,7 +27,7 @@ def test_net_gpu():
     test_net(device="cuda")
 
 
-def test_bs(device: Optional[Union[str, torch.device]] = "cpu"):
+def test_bs(device: str = "cpu"):
     derivative = EuropeanOption(BrownianStock(cost=1e-4)).to(device)
     model = BlackScholes(derivative).to(device)
     hedger = Hedger(model, model.inputs()).to(device)
@@ -43,7 +39,7 @@ def test_bs_gpu():
     test_bs(device="cuda")
 
 
-def test_ww(device: Optional[Union[str, torch.device]] = "cpu"):
+def test_ww(device: str = "cpu"):
     derivative = EuropeanOption(BrownianStock(cost=1e-4)).to(device)
     model = WhalleyWilmott(derivative).to(device)
     hedger = Hedger(model, model.inputs()).to(device)
