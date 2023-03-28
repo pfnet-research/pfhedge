@@ -6,6 +6,7 @@ from typing import Iterator
 from typing import Optional
 from typing import Tuple
 from typing import TypeVar
+from typing import Union
 from typing import no_type_check
 
 import torch
@@ -94,7 +95,7 @@ class BasePrimary(BaseInstrument):
         # Implementation here refers to torch.nn.Module.register_buffer.
         if "_buffers" not in self.__dict__:
             raise AttributeError("cannot assign buffer before __init__() call")
-        elif not isinstance(name, torch._six.string_classes):
+        elif not isinstance(name, (str, bytes)):
             raise TypeError(
                 "buffer name should be a string. " "Got {}".format(torch.typename(name))
             )
@@ -186,7 +187,12 @@ class BasePrimary(BaseInstrument):
         return self
 
     @staticmethod
-    def _parse_to(*args: Any, **kwargs: Any):
+    def _parse_to(
+        *args: Any, **kwargs: Any
+    ) -> Union[
+        Tuple[torch.device, torch.dtype],
+        Tuple[torch.device, torch.dtype, bool, torch.memory_format],
+    ]:
         # Can be called as:
         #   to(device=None, dtype=None)
         #   to(tensor)
@@ -194,10 +200,10 @@ class BasePrimary(BaseInstrument):
         # and return a tuple (device, dtype, ...)
         if len(args) > 0 and isinstance(args[0], BaseInstrument):
             instrument = args[0]
-            return (getattr(instrument, "device"), getattr(instrument, "dtype"))
+            return getattr(instrument, "device"), getattr(instrument, "dtype")
         elif "instrument" in kwargs:
             instrument = kwargs["instrument"]
-            return (getattr(instrument, "device"), getattr(instrument, "dtype"))
+            return getattr(instrument, "device"), getattr(instrument, "dtype")
         else:
             return torch._C._nn._parse_to(*args, **kwargs)
 
@@ -212,8 +218,8 @@ class BasePrimary(BaseInstrument):
 
 
 class Primary(BasePrimary):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, *args, **kwargs):  # type: ignore
+        super().__init__(*args, **kwargs)  # type: ignore
         raise DeprecationWarning("Primary is deprecated. Use BasePrimary instead.")
 
 

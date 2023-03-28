@@ -1,3 +1,4 @@
+import pytest
 import torch
 from torch.testing import assert_close
 
@@ -19,8 +20,14 @@ SpotVarianceTuple(
     assert repr(output) == expect
 
 
-def test_generate_heston_volatility():
+def test_generate_heston_volatility(device: str = "cpu"):
     torch.manual_seed(42)
 
-    output = generate_heston(100, 250)
+    device = torch.device(device) if device else None
+    output = generate_heston(100, 250, device=device)
     assert_close(output.volatility, output.variance.sqrt())
+
+
+@pytest.mark.gpu
+def test_generate_heston_volatility_gpu():
+    test_generate_heston_volatility(device="cuda")
