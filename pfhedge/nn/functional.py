@@ -351,14 +351,14 @@ def quadratic_cvar(input: Tensor, lam: float, dim: Optional[int] = None) -> Tens
         tensor([-0., -1., -2., -3., -4., -5., -6., -7., -8., -9.])
         >>> quadratic_cvar(input, 2.0)
         tensor(7.9750)
-    """
+    """  # NOQA
     output_target = torch.as_tensor(1 / (2 * lam))
     if dim:
         base = input.mean(dim=dim)
         input -= base.unsqueeze(dim=dim)
-        fn_target = lambda _omega: fn.relu(-_omega.unsqueeze(dim=dim) - input).mean(
-            dim=dim
-        )
+
+        def fn_target(_omega: Tensor) -> Tensor:
+            return fn.relu(-_omega.unsqueeze(dim=dim) - input).mean(dim=dim)
 
     else:
         base = input.mean()
