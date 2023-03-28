@@ -548,7 +548,7 @@ class TestQuadraticCVaR:
         input = torch.randn(n_paths).to(device)
 
         result = loss(input)
-        expect = -torch.mean(torch.tensor(sorted(input)[:k]))
+        expect = -torch.mean(torch.tensor(sorted(input)[:k]).to(device))
 
         assert_close(result, expect)
 
