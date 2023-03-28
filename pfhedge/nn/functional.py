@@ -357,9 +357,10 @@ def quadratic_cvar(input: Tensor, lam: float, dim: Optional[int] = None) -> Tens
     if dim:
         base = input.mean(dim=dim)
         input -= base.unsqueeze(dim=dim)
-        dim = cast(int, dim)
 
         def fn_target(_omega: Tensor) -> Tensor:
+            if not dim:
+                raise AssertionError("Unknown Error (dim is modified inappropriately.)")
             return fn.relu(-_omega.unsqueeze(dim=dim) - input).mean(dim=dim)
 
     else:
