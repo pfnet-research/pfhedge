@@ -112,7 +112,7 @@ def generate_rough_bergomi(
         [torch.zeros([n_paths, 1], dtype=dtype, device=device), dW1[:, :, 1]], dim=-1
     )
 
-    def discrete_TBSS_fn(k: TensorOrScalar, a: TensorOrScalar) -> torch.Tensor:
+    def discrete_TBSS_fn(k: torch.Tensor, a: TensorOrScalar) -> torch.Tensor:
         return ((k ** (a + 1) - (k - 1) ** (a + 1)) / (a + 1)) ** (1 / a)
 
     _gamma = (
