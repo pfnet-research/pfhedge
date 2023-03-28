@@ -20,11 +20,16 @@ SpotVarianceTuple(
     assert repr(output) == expect
 
 
-def test_generate_heston_volatility():
+def test_generate_heston_volatility(device: str = "cpu"):
     torch.manual_seed(42)
 
-    output = generate_rough_bergomi(100, 250)
+    output = generate_rough_bergomi(100, 250, device=device)
     assert_close(output.volatility, output.variance.sqrt())
+
+
+@pytest.mark.gpu
+def test_generate_heston_volatility_gpu():
+    test_generate_heston_volatility(device="cuda")
 
 
 @pytest.mark.skipif(True, reason="for development")
@@ -36,11 +41,12 @@ def test_generate_rough_bergomi() -> None:
 
     torch.manual_seed(42)
 
+    # referring the original implementation
     # https://github.com/ryanmccrickerd/rough_bergomi/blob/master/notebooks/rbergomi.ipynb
     def bs(F, K, V, o="call"):
         """
-        Returns the Black call price for given forward, strike and integrated
-        variance.
+        Returns the Black call price for given forward, strike and integrated variance.
+        referring: https://github.com/ryanmccrickerd/rough_bergomi/blob/master/rbergomi/utils.py#L29-L45
         """
         # Set appropriate weight for option token o
         w = 1
@@ -57,8 +63,8 @@ def test_generate_rough_bergomi() -> None:
 
     def bsinv(P, F, K, t, o="call"):
         """
-        Returns implied Black vol from given call price, forward, strike and time
-        to maturity.
+        Returns implied Black vol from given call price, forward, strike and time to maturity.
+        referring: https://github.com/ryanmccrickerd/rough_bergomi/blob/master/rbergomi/utils.py#L29-L45
         """
         # Set appropriate weight for option token o
         w = 1
@@ -71,7 +77,7 @@ def test_generate_rough_bergomi() -> None:
         P = np.maximum(P, np.maximum(w * (F - K), 0))
 
         def error(s):
-            return bs(F, K, s**2 * t, o) - P
+            return bs(F, K, s ** 2 * t, o) - P
 
         s = brentq(error, 1e-9, 1e9)
         return s
@@ -84,7 +90,7 @@ def test_generate_rough_bergomi() -> None:
         alpha=-0.43,
         rho=-0.9,
         eta=1.9,
-        xi=0.235**2,
+        xi=0.235 ** 2,
         dt=1 / 100,
         dtype=torch.float64,
     )
