@@ -465,40 +465,67 @@ class TestQuadraticCVaR:
     @pytest.mark.parametrize("n_paths", [100, 1000])
     @pytest.mark.parametrize("lam", [1.0, 2.0])
     @pytest.mark.parametrize("a", [0.001, 1, 2])
-    def test_nonincreasing(self, n_paths, lam, a):
+    def test_nonincreasing(self, n_paths, lam, a, device: str = "cpu"):
         torch.manual_seed(42)
 
-        loss = QuadraticCVaR(lam)
-        x1 = torch.randn(n_paths)
+        loss = QuadraticCVaR(lam).to(device)
+        x1 = torch.randn(n_paths).to(device)
         x2 = x1 - 1
         assert_monotone(loss, x1, x2, increasing=False)
+
+    @pytest.mark.gpu
+    @pytest.mark.parametrize("n_paths", [100, 1000])
+    @pytest.mark.parametrize("lam", [1.0, 2.0])
+    @pytest.mark.parametrize("a", [0.001, 1, 2])
+    def test_nonincreasing_gpu(self, n_paths, lam, a):
+        self.test_nonincreasing(n_paths, lam, a, device="cuda")
 
     @pytest.mark.parametrize("n_paths", [100, 1000])
     @pytest.mark.parametrize("lam", [1.0, 2.0, 10.0])
     @pytest.mark.parametrize("a", [0.1, 0.5])
-    def test_convex(self, n_paths, lam, a):
+    def test_convex(self, n_paths, lam, a, device: str = "cpu"):
         torch.manual_seed(42)
 
-        loss = QuadraticCVaR(lam)
-        x1 = torch.randn(n_paths)
-        x2 = torch.randn(n_paths)
+        loss = QuadraticCVaR(lam).to(device)
+        x1 = torch.randn(n_paths).to(device)
+        x2 = torch.randn(n_paths).to(device)
         assert_convex(loss, x1, x2, a)
+
+    @pytest.mark.gpu
+    @pytest.mark.parametrize("n_paths", [100, 1000])
+    @pytest.mark.parametrize("lam", [1.0, 2.0, 10.0])
+    @pytest.mark.parametrize("a", [0.1, 0.5])
+    def test_convex_gpu(self, n_paths, lam, a):
+        self.test_convex(n_paths, lam, a, device="cuda")
 
     @pytest.mark.parametrize("n_paths", [100, 1000])
     @pytest.mark.parametrize("lam", [1.0, 2.0, 10.0])
-    def test_cash(self, n_paths, lam):
+    def test_cash(self, n_paths, lam, device: str = "cpu"):
         torch.manual_seed(42)
 
-        loss = QuadraticCVaR(lam)
-        x = torch.randn(n_paths)
+        loss = QuadraticCVaR(lam).to(device)
+        x = torch.randn(n_paths).to(device)
         assert_cash_equivalent(loss, x, float(loss.cash(x).item()))
+
+    @pytest.mark.gpu
+    @pytest.mark.parametrize("n_paths", [100, 1000])
+    @pytest.mark.parametrize("lam", [1.0, 2.0, 10.0])
+    def test_cash_gpu(self, n_paths, lam):
+        self.test_cash(n_paths, lam, device="cuda")
 
     @pytest.mark.parametrize("n_paths", [10, 100])
     @pytest.mark.parametrize("lam", [1.0, 2.0, 10.0])
     @pytest.mark.parametrize("eta", [0.001, 1, 2])
-    def test_cash_equivalent(self, n_paths, lam, eta):
-        loss = QuadraticCVaR(lam)
-        assert_cash_invariant(loss, torch.randn(n_paths), eta)
+    def test_cash_equivalent(self, n_paths, lam, eta, device: str = "cpu"):
+        loss = QuadraticCVaR(lam).to(device)
+        assert_cash_invariant(loss, torch.randn(n_paths).to(device), eta)
+
+    @pytest.mark.gpu
+    @pytest.mark.parametrize("n_paths", [10, 100])
+    @pytest.mark.parametrize("lam", [1.0, 2.0, 10.0])
+    @pytest.mark.parametrize("eta", [0.001, 1, 2])
+    def test_cash_equivalent_gpu(self, n_paths, lam, eta):
+        self.test_cash_equivalent(n_paths, lam, eta, device="cuda")
 
     def test_error_percentile(self):
         # 1 is allowed
@@ -511,19 +538,24 @@ class TestQuadraticCVaR:
             _ = QuadraticCVaR(0.9)
 
     @pytest.mark.parametrize("percentile", [0.1, 0.5, 0.9])
-    def test_value(self, percentile):
+    def test_value(self, percentile, device: str = "cpu"):
         torch.manual_seed(42)
 
         n_paths = 100
         k = int(n_paths * percentile)
-        loss = ExpectedShortfall(percentile)
+        loss = ExpectedShortfall(percentile).to(device)
 
-        input = torch.randn(n_paths)
+        input = torch.randn(n_paths).to(device)
 
         result = loss(input)
         expect = -torch.mean(torch.tensor(sorted(input)[:k]))
 
         assert_close(result, expect)
+
+    @pytest.mark.gpu
+    @pytest.mark.parametrize("percentile", [0.1, 0.5, 0.9])
+    def test_value_gpu(self, percentile):
+        self.test_value(percentile, device="cuda")
 
     def test_repr(self):
         loss = QuadraticCVaR(1.0)
@@ -531,11 +563,15 @@ class TestQuadraticCVaR:
         loss = QuadraticCVaR(2.0)
         assert repr(loss) == "QuadraticCVaR(2.0)"
 
-    def test_shape(self):
+    def test_shape(self, device="cpu"):
         torch.manual_seed(42)
 
-        loss = QuadraticCVaR()
+        loss = QuadraticCVaR().to(device)
         assert_loss_shape(loss)
+
+    @pytest.mark.gpu
+    def test_shape_gpu(self):
+        self.test_shape(device="cuda")
 
 
 class TestOCE:
