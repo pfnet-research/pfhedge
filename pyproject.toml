@@ -2,7 +2,7 @@
 name = "pfhedge"
 version = "0.20.0"
 description = "Deep Hedging in PyTorch"
-authors = ["Shota Imaki <shota.imaki.0801@gmail.com>"]
+authors = ["Shota Imaki <shota.imaki.0801@gmail.com>", "Masanori Hirano <masa.hirano.1996@gmail.com>"]
 license = "MIT"
 repository = "https://github.com/pfnet-research/pfhedge"
 

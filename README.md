@@ -290,7 +290,7 @@ Any contributions to PFHedge are more than welcome!
 
 Please take a look at [CONTRIBUTING.md](.github/CONTRIBUTING.md) before creating a pull request.
 
-This project is owned by [Preferred Networks](https://www.preferred.jp/en/) and maintained by [Shota Imaki](https://github.com/simaki).
+This project is owned by [Preferred Networks](https://www.preferred.jp/en/) and maintained by [Shota Imaki](https://github.com/simaki) and [Masanori Hirano](https://github.com/masanorihirano).
 
 ## References
 
