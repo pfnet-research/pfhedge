@@ -31,7 +31,6 @@ Primary Instruments
     instruments.BrownianStock
     instruments.HestonStock
     instruments.LocalVolatilityStock
-    instruments.RoughBergomiStock
     instruments.MertonJumpStock
     instruments.CIRRate
     instruments.VasicekRate
