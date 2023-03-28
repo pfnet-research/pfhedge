@@ -6,6 +6,7 @@
 [![codecov](https://codecov.io/gh/pfnet-research/pfhedge/branch/main/graph/badge.svg?token=GpXV1ldVCN)](https://codecov.io/gh/pfnet-research/pfhedge)
 [![downloads](https://img.shields.io/pypi/dm/pfhedge)](https://pypi.org/project/pfhedge)
 [![code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+![pytorch](https://img.shields.io/badge/torch-1.9.0--%20%7C%202.0.0---red)
 
 **PFHedge** is a [PyTorch](https://pytorch.org/)-based framework for [Deep Hedging][deep-hedging-arxiv].
 
