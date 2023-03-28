@@ -4,7 +4,6 @@ from typing import List
 from typing import Optional
 from typing import Tuple
 from typing import Union
-from typing import cast
 
 import torch
 from torch import Tensor
@@ -251,7 +250,7 @@ class Hedger(Module):
     ) -> List[BaseInstrument]:
         if hedge is None:
             hedge = list(derivative.underliers())
-        return cast(List[BaseInstrument], hedge)
+        return hedge
 
     def compute_hedge(
         self, derivative: BaseDerivative, hedge: Optional[List[BaseInstrument]] = None
@@ -301,7 +300,7 @@ class Hedger(Module):
         (n_paths, n_steps), n_hedges = hedge[0].spot.size(), len(hedge)
         if inputs.is_state_dependent():
             zeros = hedge[0].spot.new_zeros((n_paths, 1, n_hedges))
-            save_prev_output(self, input=None, output=zeros)
+            save_prev_output(self, input=(), output=zeros)
             outputs = []
             for time_step in range(n_steps - 1):
                 input = inputs.get(time_step)  # (N, T=1, F)
@@ -499,7 +498,7 @@ class Hedger(Module):
             # optimizer is Optimizer rather than its subclass (e.g. Adam)
             # and complains that the required parameter default is missing.
             if Optimizer in getattr(optimizer, "__mro__", []):
-                optimizer = cast(Optimizer, optimizer(self.model.parameters()))
+                optimizer = optimizer(self.model.parameters())
             else:
                 raise TypeError("optimizer is not an Optimizer type")
         return optimizer

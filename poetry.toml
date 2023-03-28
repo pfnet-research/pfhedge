@@ -1,0 +1,4 @@
+[installer]
+# TODO(masanorihirano): Remove this after the bugs happenning after poetry version 1.4.1 are fixed in some packages
+# issue #609, avoiding invalid hash (c.f., https://github.com/python-poetry/poetry/issues/7691).
+modern-installation = false

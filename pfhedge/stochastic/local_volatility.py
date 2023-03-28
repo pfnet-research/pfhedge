@@ -2,7 +2,6 @@ from collections import namedtuple
 from typing import Optional
 from typing import Tuple
 from typing import Union
-from typing import cast
 
 import torch
 from torch import Tensor
@@ -95,7 +94,7 @@ def generate_local_volatility_process(
     """
     init_state = cast_state(init_state, dtype=dtype, device=device)
 
-    spot = torch.empty(*(n_paths, n_steps), dtype=dtype, device=device)
+    spot = torch.empty(*(n_paths, n_steps), dtype=dtype, device=device)  # type: ignore
     spot[:, 0] = init_state[0]
     volatility = torch.empty_like(spot)
 
