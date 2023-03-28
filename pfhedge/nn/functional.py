@@ -6,6 +6,7 @@ from typing import List
 from typing import Optional
 from typing import Tuple
 from typing import Union
+from typing import cast
 
 import torch
 import torch.nn.functional as fn
@@ -356,6 +357,7 @@ def quadratic_cvar(input: Tensor, lam: float, dim: Optional[int] = None) -> Tens
     if dim:
         base = input.mean(dim=dim)
         input -= base.unsqueeze(dim=dim)
+        dim = cast(int, dim)
 
         def fn_target(_omega: Tensor) -> Tensor:
             return fn.relu(-_omega.unsqueeze(dim=dim) - input).mean(dim=dim)
@@ -363,7 +365,9 @@ def quadratic_cvar(input: Tensor, lam: float, dim: Optional[int] = None) -> Tens
     else:
         base = input.mean()
         input -= base
-        fn_target = lambda _omega: fn.relu(-_omega - input).mean()
+
+        def fn_target(_omega: Tensor) -> Tensor:
+            return fn.relu(-_omega - input).mean()
 
     lower = -_max_values(input, dim=dim) - 1e-8
     upper = -_min_values(input, dim=dim) + 1e-8
