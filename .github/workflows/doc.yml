@@ -10,13 +10,11 @@ on:
       - main
       - develop
       - release/*
-      - hirano-master
   pull_request:
     branches:
       - main
       - develop
       - release/*
-      - hirano-master
   workflow_dispatch:
 
 jobs:
