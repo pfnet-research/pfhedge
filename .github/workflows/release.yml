@@ -1,0 +1,104 @@
+name: Release
+on:
+ pull_request:
+   branches:
+     - main
+   types:
+     - closed
+jobs:
+  tagging:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release/')
+    steps:
+       - name: Get the version
+         id: get_version
+         run: |
+           echo ::set-output name=TAG::`echo $SOURCE_VERSION | cut -d / -f 2`
+         env:
+           SOURCE_VERSION: ${{ github.event.pull_request.head.ref }}
+       - name: Echo tag
+         run: echo ${{ steps.get_version.outputs.TAG }}
+       - uses: actions/checkout@v2
+       - run: |
+           git config --global user.email "github-actions[bot]@users.noreply.github.com"
+           git config --global user.name "github-actions[bot]"
+           git fetch origin ${{ github.event.pull_request.head.ref }}
+           git checkout main
+           git tag -a `echo '${{ github.event.pull_request.head.ref }}' | sed 's/release\///'` -m " "
+           git push origin `echo '${{ github.event.pull_request.head.ref }}' | sed 's/release\///'`
+           git push --delete origin ${{ github.event.pull_request.head.ref }}
+
+  release:
+    name: release
+    needs: [tagging]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.9']
+
+    steps:
+    - name: Get the version
+      id: get_version
+      run: |
+        echo ::set-output name=TAG::`echo $SOURCE_VERSION | cut -d / -f 2`
+      env:
+        SOURCE_VERSION: ${{ github.event.pull_request.head.ref }}
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2.2.2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip setuptools wheel
+        python -m pip install poetry
+        poetry install
+    - name: release
+      run: |
+        poetry publish --build --username __token__ --password ${{ secrets.PYPI_TOKEN }}
+    - name: Create release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.get_version.outputs.TAG }}
+        release_name: ${{ steps.get_version.outputs.TAG }}
+        draft: false
+        prerelease: false
+        body: |
+          ${{ github.event.pull_request.description }}
+          
+          This release is automatically generated.
+          Please see the pull request for more details.
+          [${{ github.event.pull_request.html_url }}](${{ github.event.pull_request.html_url }})
+    - name: Generate checksum
+      run: |
+        cd dist; sha256sum * > checksums.txt; cd -
+    - name: Upload tar.gz
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: dist/pfhedge-${{ steps.get_version.outputs.TAG }}.tar.gz
+        asset_name: pfhedge-${{ steps.get_version.outputs.TAG }}.tar.gz
+        asset_content_type: application/gzip
+    - name: Upload whl
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: dist/pfhedge-${{ steps.get_version.outputs.TAG }}-py3-none-any.whl
+        asset_name: pfhedge-${{ steps.get_version.outputs.TAG }}-py3-none-any.whl
+        asset_content_type: application/x-pywheel+zip
+    - name: Upload checksum
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: dist/checksums.txt
+        asset_name: pfhedge-${{ steps.get_version.outputs.TAG }}-checksums.txt
+        asset_content_type: text/plain
