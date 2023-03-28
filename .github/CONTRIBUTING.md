@@ -25,3 +25,11 @@ Before making a pull request, run `make format` and make sure `make check` succe
 make format
 make check
 ```
+
+## Release Procedures For Maintainers
+
+1. make branch for release whose name starts from "release/"
+2. Version update pull request is automatically generated. Then, check and accept the pull request.
+3. After the release pull request was merged to main branch, pypi release and release page is automatically uploaded.
+    - please do not remove release branch by yourself. Github action will delete it after the procedures are completed.
+
