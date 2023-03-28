@@ -14,6 +14,7 @@ from torch.distributions.normal import Normal
 from torch.distributions.utils import broadcast_all
 
 from pfhedge import autogreek
+from pfhedge._utils.bisect import bisect
 from pfhedge._utils.typing import TensorOrScalar
 
 
