@@ -119,7 +119,7 @@ def generate_rough_bergomi(
         discrete_TBSS_fn(torch.arange(2, n_steps, dtype=dtype, device=device), alpha)
         / (n_steps - 1)
     ) ** alpha
-    _gamma = torch.cat([torch.zeros([2], dtype=dtype, device=device), _gamma], dim=0)
+    _gamma = torch.cat([torch.zeros(2, dtype=dtype, device=device), _gamma], dim=0)
     _Xi = dW1[:, :, 0]
     _GXi_convolve = torch.nn.functional.conv1d(
         _gamma.__reversed__().repeat(1, 1, 1),
