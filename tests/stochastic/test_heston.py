@@ -9,7 +9,7 @@ def test_generate_heston_repr():
     torch.manual_seed(42)
     output = generate_heston(2, 5)
     expect = """\
-HestonTuple(
+SpotVarianceTuple(
   spot=
   tensor([[1.0000, 0.9941, 0.9905, 0.9846, 0.9706],
           [1.0000, 1.0031, 0.9800, 0.9785, 0.9735]])

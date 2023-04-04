@@ -12,7 +12,7 @@ from ._utils import cast_state
 from .cir import generate_cir
 
 
-class HestonTuple(namedtuple("HestonTuple", ["spot", "variance"])):
+class SpotVarianceTuple(namedtuple("SpotVarianceTuple", ["spot", "variance"])):
 
     __module__ = "pfhedge.stochastic"
 
@@ -39,7 +39,7 @@ def generate_heston(
     dt: float = 1 / 250,
     dtype: Optional[torch.dtype] = None,
     device: Optional[torch.device] = None,
-) -> HestonTuple:
+) -> SpotVarianceTuple:
     """Returns time series following Heston model.
 
     The time evolution of the process is given by:
@@ -144,4 +144,4 @@ def generate_heston(
             + (k3 * v0 + k4 * v1).sqrt() * randn[:, i_step]
         )
 
-    return HestonTuple(log_spot.exp(), variance)
+    return SpotVarianceTuple(log_spot.exp(), variance)
