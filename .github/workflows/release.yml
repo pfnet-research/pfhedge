@@ -81,7 +81,7 @@ jobs:
       run: |
         cd dist; sha256sum * > checksums.txt; cd -
       #memo: make check sum for all elements in dist
-    - name: Upload tar.gz
+    - name: Attach an archive of source files to the release
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
