@@ -116,6 +116,6 @@ jobs:
     needs: [tagging, release]
     steps:
     - uses: actions/checkout@v2
-    - name: Delete branch
+    - name: Delete the release branch
       run: |
         git push --delete origin ${{ github.event.pull_request.head.ref }}
