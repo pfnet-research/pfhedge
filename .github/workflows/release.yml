@@ -105,7 +105,7 @@ jobs:
         asset_path: dist/checksums.txt
         asset_name: pfhedge-${{ steps.get_version.outputs.TAG }}-checksums.txt
         asset_content_type: text/plain
-    - name: Release to PyPI
+    - name: Release the version to PyPI
       run: |
         poetry publish --username __token__ --password ${{ secrets.PYPI_TOKEN }}
 
