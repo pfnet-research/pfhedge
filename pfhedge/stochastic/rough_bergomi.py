@@ -133,7 +133,7 @@ def generate_rough_bergomi(
         eta_tensor * Y
         - 0.5
         * eta_tensor.square()
-        * (torch.arange(0, n_steps, dtype=dtype, device=device) * dt)
+        * (torch.arange(n_steps, dtype=dtype, device=device) * dt)
         ** (2 * alpha_tensor + 1)
     )
 
