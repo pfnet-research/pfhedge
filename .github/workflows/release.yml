@@ -53,7 +53,7 @@ jobs:
         python -m pip install --upgrade pip setuptools wheel
         python -m pip install poetry
         poetry install
-    - name: release
+    - name: Release to PyPI
       run: |
         poetry publish --build --username __token__ --password ${{ secrets.PYPI_TOKEN }}
     - name: Create release
