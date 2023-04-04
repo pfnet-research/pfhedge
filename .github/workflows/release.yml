@@ -30,6 +30,7 @@ jobs:
   release:
     name: release
     runs-on: ubuntu-latest
+    needs: [tagging]
     strategy:
       matrix:
         python-version: ['3.9']
@@ -51,6 +52,9 @@ jobs:
         python -m pip install --upgrade pip setuptools wheel
         python -m pip install poetry
         poetry install
+    - name: Create build
+      run: |
+        poetry build
     - name: Create release
       id: create_release
       uses: actions/create-release@v1
@@ -99,7 +103,7 @@ jobs:
         asset_content_type: text/plain
     - name: Release to PyPI
       run: |
-        poetry publish --build --username __token__ --password ${{ secrets.PYPI_TOKEN }}
+        poetry publish --username __token__ --password ${{ secrets.PYPI_TOKEN }}
 
   delete-branch:
     runs-on: ubuntu-latest
