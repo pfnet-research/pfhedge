@@ -54,7 +54,7 @@ jobs:
         python -m pip install --upgrade pip setuptools wheel
         python -m pip install poetry
         poetry install
-    - name: Create build
+    - name: Build the package
       run: |
         poetry build
     - name: Create release
