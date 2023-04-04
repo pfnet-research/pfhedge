@@ -106,8 +106,9 @@ def generate_rough_bergomi(
     )
 
     dW1 = _dW1_generator.sample(torch.Size([n_paths, n_steps - 1]))
-    dW2 = torch.randn([n_paths, n_steps - 1], dtype=dtype, device=device)
-    dW2 = dW2 * math.sqrt(dt)
+    dW2 = torch.randn([n_paths, n_steps - 1], dtype=dtype, device=device) * math.sqrt(
+        dt
+    )
 
     _Y1 = torch.cat([torch.zeros_like(dW1[:, :1, 1]), dW1[:, :, 1]], dim=-1)
 
