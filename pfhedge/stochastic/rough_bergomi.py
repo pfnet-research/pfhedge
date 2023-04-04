@@ -125,7 +125,7 @@ def generate_rough_bergomi(
         _gamma.flip(0)[None, None, :],
         _Xi[:, None, :],
         padding=_Xi.size(1) - 1,
-    ).squeeze(dim=0)
+    )[0, :, :]
     _Y2 = _GXi_convolve[:, torch.arange(-1, -1 - n_steps, -1)]
     Y = torch.sqrt(2 * alpha_tensor + 1) * (_Y1 + _Y2)
     dB = rho_tensor * dW1[:, :, 0] + torch.sqrt(1 - rho_tensor.square()) * dW2
