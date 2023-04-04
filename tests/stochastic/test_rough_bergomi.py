@@ -96,7 +96,7 @@ def test_generate_rough_bergomi(device: str = "cpu") -> None:
     )
     k = np.arange(-0.5, 0.51, 0.01)
 
-    ST = price.numpy()[:, -1][:, np.newaxis]
+    ST = price.cpu().numpy()[:, -1][:, np.newaxis]
     K = np.exp(k)[np.newaxis, :]
     call_payoffs = np.maximum(ST - K, 0)
     call_prices = np.mean(call_payoffs, axis=0)[:, np.newaxis]
