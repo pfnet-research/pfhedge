@@ -238,6 +238,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.HestonStock.html">HestonStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.LocalVolatilityStock.html">LocalVolatilityStock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.RoughBergomiStock.html">RoughBergomiStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.CIRRate.html">CIRRate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.VasicekRate.html">VasicekRate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
@@ -255,6 +256,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.stochastic.generate_heston.html">pfhedge.stochastic.generate_heston</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.stochastic.generate_local_volatility_process.html">pfhedge.stochastic.generate_local_volatility_process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.stochastic.generate_vasicek.html">pfhedge.stochastic.generate_vasicek</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.stochastic.generate_rough_bergomi.html">pfhedge.stochastic.generate_rough_bergomi</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.stochastic.randn_antithetic.html">pfhedge.stochastic.randn_antithetic</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../generated/pfhedge.stochastic.randn_sobol_boxmuller.html">pfhedge.stochastic.randn_sobol_boxmuller</a></li>
 </ul>
@@ -332,11 +334,7 @@
 <span class="kn">from</span> <span class="nn">pfhedge._utils.doc</span> <span class="kn">import</span> <span class="n">_set_docstring</span>
 <span class="kn">from</span> <span class="nn">pfhedge._utils.str</span> <span class="kn">import</span> <span class="n">_format_float</span>
 <span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">LookbackOption</span>
-<span class="kn">from</span> <span class="nn">pfhedge.nn.functional</span> <span class="kn">import</span> <span class="n">bs_lookback_delta</span>
-<span class="kn">from</span> <span class="nn">pfhedge.nn.functional</span> <span class="kn">import</span> <span class="n">bs_lookback_gamma</span>
 <span class="kn">from</span> <span class="nn">pfhedge.nn.functional</span> <span class="kn">import</span> <span class="n">bs_lookback_price</span>
-<span class="kn">from</span> <span class="nn">pfhedge.nn.functional</span> <span class="kn">import</span> <span class="n">bs_lookback_theta</span>
-<span class="kn">from</span> <span class="nn">pfhedge.nn.functional</span> <span class="kn">import</span> <span class="n">bs_lookback_vega</span>
 
 <span class="kn">from</span> <span class="nn">._base</span> <span class="kn">import</span> <span class="n">BSModuleMixin</span>
 <span class="kn">from</span> <span class="nn">._base</span> <span class="kn">import</span> <span class="n">acquire_params_from_derivative_0</span>
@@ -345,7 +343,7 @@
 
 
 <div class="viewcode-block" id="BSLookbackOption"><a class="viewcode-back" href="../../../../../generated/pfhedge.nn.BSLookbackOption.html#pfhedge.nn.BSLookbackOption">[docs]</a><span class="k">class</span> <span class="nc">BSLookbackOption</span><span class="p">(</span><span class="n">BSModuleMixin</span><span class="p">):</span>
-    <span class="sd">"""Black-Scholes formula for a lookback option with a fixed strike.</span>
+<span class="w">    </span><span class="sd">"""Black-Scholes formula for a lookback option with a fixed strike.</span>
 
 <span class="sd">    Note:</span>
 <span class="sd">        - The formulas are for continuous monitoring while</span>
@@ -411,7 +409,7 @@
 
 <div class="viewcode-block" id="BSLookbackOption.from_derivative"><a class="viewcode-back" href="../../../../../generated/pfhedge.nn.BSLookbackOption.html#pfhedge.nn.BSLookbackOption.from_derivative">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_derivative</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">derivative</span><span class="p">):</span>
-        <span class="sd">"""Initialize a module from a derivative.</span>
+<span class="w">        </span><span class="sd">"""Initialize a module from a derivative.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            derivative (:class:`pfhedge.instruments.LookbackOption`):</span>
@@ -448,7 +446,7 @@
         <span class="n">time_to_maturity</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">volatility</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="sa">r</span><span class="sd">"""Returns price of the derivative.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">"""Returns price of the derivative.</span>
 
 <span class="sd">        The price is given by:</span>
 
@@ -517,7 +515,7 @@
         <span class="n">volatility</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">create_graph</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">"""Returns delta of the derivative.</span>
+<span class="w">        </span><span class="sd">"""Returns delta of the derivative.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            log_moneyness (torch.Tensor, optional): Log moneyness of the underlying asset.</span>
@@ -570,7 +568,7 @@
         <span class="n">time_to_maturity</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">volatility</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">"""Returns gamma of the derivative.</span>
+<span class="w">        </span><span class="sd">"""Returns gamma of the derivative.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            log_moneyness (torch.Tensor, optional): Log moneyness of the underlying asset.</span>
@@ -621,7 +619,7 @@
         <span class="n">time_to_maturity</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">volatility</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">"""Returns vega of the derivative.</span>
+<span class="w">        </span><span class="sd">"""Returns vega of the derivative.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            log_moneyness (torch.Tensor, optional): Log moneyness of the underlying asset.</span>
@@ -672,7 +670,7 @@
         <span class="n">time_to_maturity</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">volatility</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">"""Returns theta of the derivative.</span>
+<span class="w">        </span><span class="sd">"""Returns theta of the derivative.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            log_moneyness (torch.Tensor, optional): Log moneyness of the underlying asset.</span>
@@ -724,7 +722,7 @@
         <span class="n">price</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">precision</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-6</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">"""Returns implied volatility of the derivative.</span>
+<span class="w">        </span><span class="sd">"""Returns implied volatility of the derivative.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            log_moneyness (torch.Tensor, optional): Log moneyness of the underlying asset.</span>

@@ -239,6 +239,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.HestonStock.html">HestonStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.LocalVolatilityStock.html">LocalVolatilityStock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.RoughBergomiStock.html">RoughBergomiStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.CIRRate.html">CIRRate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.VasicekRate.html">VasicekRate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
@@ -256,6 +257,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.generate_heston.html">pfhedge.stochastic.generate_heston</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.generate_local_volatility_process.html">pfhedge.stochastic.generate_local_volatility_process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.generate_vasicek.html">pfhedge.stochastic.generate_vasicek</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.generate_rough_bergomi.html">pfhedge.stochastic.generate_rough_bergomi</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.randn_antithetic.html">pfhedge.stochastic.randn_antithetic</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.randn_sobol_boxmuller.html">pfhedge.stochastic.randn_sobol_boxmuller</a></li>
 </ul>
@@ -338,14 +340,14 @@ Deep hedging. Quantitative Finance, 19(8), pp.1271-1291.
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module" title="(in PyTorch v1.11.0)"><em>torch.nn.Module</em></a>) – Hedging model to compute the hedge ratio at the
+<li><p><strong>model</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module" title="(in PyTorch v2.0)"><em>torch.nn.Module</em></a>) – Hedging model to compute the hedge ratio at the
 next time step from the input features at the current time step.
 The input and output shapes should be <span class="math notranslate nohighlight">\((N, F)\)</span> and
 <span class="math notranslate nohighlight">\((N, H)\)</span> respectively, where
 <span class="math notranslate nohighlight">\(N\)</span> stands for the number simulated paths of the asset prices and
 <span class="math notranslate nohighlight">\(F\)</span> is the number of input features (<code class="docutils literal notranslate"><span class="pre">len(inputs)</span></code>), and
 <span class="math notranslate nohighlight">\(H\)</span> is the number of hedging instruments.</p></li>
-<li><p><strong>inputs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>|</em><em>Feature</em><em>]</em>) – List of the names of the input features that
+<li><p><strong>inputs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>|</em><em>Feature</em><em>]</em>) – List of the names of the input features that
 will be fed to the model.
 See <a class="reference internal" href="pfhedge.features.list_feature_names.html#pfhedge.features.list_feature_names" title="pfhedge.features.list_feature_names"><code class="xref py py-func docutils literal notranslate"><span class="pre">pfhedge.features.list_feature_names()</span></code></a> for available feature names
 and see <a class="reference internal" href="../features.html#features"><span class="std std-ref">pfhedge.features</span></a> for the details of features.</p></li>
@@ -492,7 +494,7 @@ See <a class="reference internal" href="pfhedge.nn.MultiLayerPerceptron.html#pfh
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>derivative</strong> (<a class="reference internal" href="pfhedge.instruments.BaseDerivative.html#pfhedge.instruments.BaseDerivative" title="pfhedge.instruments.BaseDerivative"><em>BaseDerivative</em></a>) – The derivative to hedge.</p></li>
-<li><p><strong>hedge</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a><em>[</em><a class="reference internal" href="pfhedge.instruments.BaseInstrument.html#pfhedge.instruments.BaseInstrument" title="pfhedge.instruments.BaseInstrument"><em>BaseInstrument</em></a><em>]</em><em>, </em><em>optional</em>) – The hedging instruments.
+<li><p><strong>hedge</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a><em>[</em><a class="reference internal" href="pfhedge.instruments.BaseInstrument.html#pfhedge.instruments.BaseInstrument" title="pfhedge.instruments.BaseInstrument"><em>BaseInstrument</em></a><em>]</em><em>, </em><em>optional</em>) – The hedging instruments.
 If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), use <code class="docutils literal notranslate"><span class="pre">derivative.underliers</span></code>.</p></li>
 </ul>
 </dd>
@@ -541,17 +543,17 @@ where <code class="docutils literal notranslate"><span class="pre">pl</span></co
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>derivative</strong> (<a class="reference internal" href="pfhedge.instruments.BaseDerivative.html#pfhedge.instruments.BaseDerivative" title="pfhedge.instruments.BaseDerivative"><em>BaseDerivative</em></a>) – The derivative to hedge.</p></li>
-<li><p><strong>hedge</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a><em>[</em><a class="reference internal" href="pfhedge.instruments.BaseInstrument.html#pfhedge.instruments.BaseInstrument" title="pfhedge.instruments.BaseInstrument"><em>BaseInstrument</em></a><em>]</em><em>, </em><em>optional</em>) – The hedging instruments.
+<li><p><strong>hedge</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a><em>[</em><a class="reference internal" href="pfhedge.instruments.BaseInstrument.html#pfhedge.instruments.BaseInstrument" title="pfhedge.instruments.BaseInstrument"><em>BaseInstrument</em></a><em>]</em><em>, </em><em>optional</em>) – The hedging instruments.
 If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), use <code class="docutils literal notranslate"><span class="pre">[derivative.underlier]</span></code>.</p></li>
-<li><p><strong>n_paths</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>default=1000</em>) – The number of simulated price paths of the
+<li><p><strong>n_paths</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>default=1000</em>) – The number of simulated price paths of the
 underlying instrument.</p></li>
-<li><p><strong>n_times</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>default=1</em>) – If <code class="docutils literal notranslate"><span class="pre">n_times</span> <span class="pre">&gt;</span> <span class="pre">1</span></code>, returns the ensemble mean
+<li><p><strong>n_times</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>default=1</em>) – If <code class="docutils literal notranslate"><span class="pre">n_times</span> <span class="pre">&gt;</span> <span class="pre">1</span></code>, returns the ensemble mean
 of the losses computed through multiple simulations.</p></li>
-<li><p><strong>init_state</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.10)"><em>tuple</em></a><em>, </em><em>optional</em>) – The initial price of the underlying
+<li><p><strong>init_state</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.11)"><em>tuple</em></a><em>, </em><em>optional</em>) – The initial price of the underlying
 instrument of the derivative.
 If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), it uses the default value of
 the underlying instrument.</p></li>
-<li><p><strong>enable_grad</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>default=True</em>) – Context-manager that sets gradient
+<li><p><strong>enable_grad</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>default=True</em>) – Context-manager that sets gradient
 calculation to on or off.</p></li>
 </ul>
 </dd>
@@ -581,7 +583,7 @@ calculation to on or off.</p></li>
 </pre></div>
 </div>
 <p>One can use PyTorch built-in loss functions,
-such as the mean squared loss <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.MSELoss.html#torch.nn.MSELoss" title="(in PyTorch v1.11.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.MSELoss</span></code></a>, as criteria.
+such as the mean squared loss <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.MSELoss.html#torch.nn.MSELoss" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.MSELoss</span></code></a>, as criteria.
 Then the criterion measures the loss between the hedging portfolio
 (cf. <a class="reference internal" href="#pfhedge.nn.Hedger.compute_portfolio" title="pfhedge.nn.Hedger.compute_portfolio"><code class="xref py py-meth docutils literal notranslate"><span class="pre">compute_portfolio()</span></code></a>) as <code class="docutils literal notranslate"><span class="pre">input</span></code> and
 the payoff of the derivative as <code class="docutils literal notranslate"><span class="pre">target</span></code>.</p>
@@ -607,11 +609,11 @@ terminal portfolio value after hedging a derivative.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>derivative</strong> (<a class="reference internal" href="pfhedge.instruments.BaseDerivative.html#pfhedge.instruments.BaseDerivative" title="pfhedge.instruments.BaseDerivative"><em>BaseDerivative</em></a>) – The derivative to hedge.</p></li>
-<li><p><strong>hedge</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a><em>[</em><a class="reference internal" href="pfhedge.instruments.BaseInstrument.html#pfhedge.instruments.BaseInstrument" title="pfhedge.instruments.BaseInstrument"><em>BaseInstrument</em></a><em>]</em><em>, </em><em>optional</em>) – The hedging instruments.
+<li><p><strong>hedge</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a><em>[</em><a class="reference internal" href="pfhedge.instruments.BaseInstrument.html#pfhedge.instruments.BaseInstrument" title="pfhedge.instruments.BaseInstrument"><em>BaseInstrument</em></a><em>]</em><em>, </em><em>optional</em>) – The hedging instruments.
 If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), use <code class="docutils literal notranslate"><span class="pre">[derivative.underlier]</span></code>.</p></li>
-<li><p><strong>n_paths</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>default=1000</em>) – The number of simulated price paths of the
+<li><p><strong>n_paths</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>default=1000</em>) – The number of simulated price paths of the
 underlying instrument.</p></li>
-<li><p><strong>init_state</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.10)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><em>torch.Tensor</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>]</em><em>, </em><em>optional</em>) – The initial state of
+<li><p><strong>init_state</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.11)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><em>torch.Tensor</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>]</em><em>, </em><em>optional</em>) – The initial state of
 the underlying instrument of the derivative.
 If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), it uses the default value.</p></li>
 </ul>
@@ -689,24 +691,24 @@ validation loss after each simulation.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>derivative</strong> (<a class="reference internal" href="pfhedge.instruments.BaseDerivative.html#pfhedge.instruments.BaseDerivative" title="pfhedge.instruments.BaseDerivative"><em>BaseDerivative</em></a>) – The derivative to hedge.</p></li>
-<li><p><strong>hedge</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a><em>[</em><a class="reference internal" href="pfhedge.instruments.BaseInstrument.html#pfhedge.instruments.BaseInstrument" title="pfhedge.instruments.BaseInstrument"><em>BaseInstrument</em></a><em>]</em><em>, </em><em>optional</em>) – The hedging instruments.
+<li><p><strong>hedge</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a><em>[</em><a class="reference internal" href="pfhedge.instruments.BaseInstrument.html#pfhedge.instruments.BaseInstrument" title="pfhedge.instruments.BaseInstrument"><em>BaseInstrument</em></a><em>]</em><em>, </em><em>optional</em>) – The hedging instruments.
 If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), use <code class="docutils literal notranslate"><span class="pre">[derivative.underlier]</span></code>.</p></li>
-<li><p><strong>n_epochs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>default=100</em>) – Number of Monte-Carlo simulations.</p></li>
-<li><p><strong>n_paths</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>default=1000</em>) – The number of simulated price paths of the
+<li><p><strong>n_epochs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>default=100</em>) – Number of Monte-Carlo simulations.</p></li>
+<li><p><strong>n_paths</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>default=1000</em>) – The number of simulated price paths of the
 underlying instrument.</p></li>
-<li><p><strong>n_times</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>default=1</em>) – If <code class="docutils literal notranslate"><span class="pre">n_times</span> <span class="pre">&gt;</span> <span class="pre">1</span></code>, returns the ensemble mean of
+<li><p><strong>n_times</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>default=1</em>) – If <code class="docutils literal notranslate"><span class="pre">n_times</span> <span class="pre">&gt;</span> <span class="pre">1</span></code>, returns the ensemble mean of
 the losses computed through multiple simulations.</p></li>
-<li><p><strong>optimizer</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/optim.html#torch.optim.Optimizer" title="(in PyTorch v1.11.0)"><em>torch.optim.Optimizer</em></a><em>, </em><em>default=Adam</em>) – The optimizer algorithm
+<li><p><strong>optimizer</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/optim.html#torch.optim.Optimizer" title="(in PyTorch v2.0)"><em>torch.optim.Optimizer</em></a><em>, </em><em>default=Adam</em>) – The optimizer algorithm
 to use.  It can be an instance or a class of
-<a class="reference external" href="https://pytorch.org/docs/stable/optim.html#torch.optim.Optimizer" title="(in PyTorch v1.11.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.optim.Optimizer</span></code></a>.</p></li>
-<li><p><strong>init_state</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.10)"><em>tuple</em></a><em>, </em><em>optional</em>) – The initial price of the underlying
+<a class="reference external" href="https://pytorch.org/docs/stable/optim.html#torch.optim.Optimizer" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.optim.Optimizer</span></code></a>.</p></li>
+<li><p><strong>init_state</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.11)"><em>tuple</em></a><em>, </em><em>optional</em>) – The initial price of the underlying
 instrument of the derivative.
 If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), sensible default value is used.</p></li>
-<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>default=True</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, print progress of the training to
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>default=True</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, print progress of the training to
 standard output.</p></li>
-<li><p><strong>validation</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>default=True</em>) – If <code class="docutils literal notranslate"><span class="pre">False</span></code>, skip the computation of the
+<li><p><strong>validation</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>default=True</em>) – If <code class="docutils literal notranslate"><span class="pre">False</span></code>, skip the computation of the
 validation loss and returns <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
-<li><p><strong>tqdm_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a><em>, </em><em>default={}</em>) – Keyword argument passed to <code class="docutils literal notranslate"><span class="pre">tqdm.__init__</span></code>
+<li><p><strong>tqdm_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a><em>, </em><em>default={}</em>) – Keyword argument passed to <code class="docutils literal notranslate"><span class="pre">tqdm.__init__</span></code>
 to customize the progress bar.</p></li>
 </ul>
 </dd>
@@ -778,7 +780,7 @@ before calling this method.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>derivative</strong> (<a class="reference internal" href="pfhedge.instruments.BaseDerivative.html#pfhedge.instruments.BaseDerivative" title="pfhedge.instruments.BaseDerivative"><em>BaseDerivative</em></a>) – The derivative used for getting the input.</p></li>
-<li><p><strong>time_step</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>optional</em>) – The time step to get the input tensor.
+<li><p><strong>time_step</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – The time step to get the input tensor.
 If <code class="docutils literal notranslate"><span class="pre">None</span></code> an input tensor for all time steps is returned.</p></li>
 </ul>
 </dd>
@@ -820,17 +822,17 @@ If <code class="docutils literal notranslate"><span class="pre">time_step</span>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>derivative</strong> (<a class="reference internal" href="pfhedge.instruments.BaseDerivative.html#pfhedge.instruments.BaseDerivative" title="pfhedge.instruments.BaseDerivative"><em>BaseDerivative</em></a>) – The derivative to price.</p></li>
-<li><p><strong>hedge</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a><em>[</em><a class="reference internal" href="pfhedge.instruments.BaseInstrument.html#pfhedge.instruments.BaseInstrument" title="pfhedge.instruments.BaseInstrument"><em>BaseInstrument</em></a><em>]</em><em>, </em><em>optional</em>) – The hedging instruments.
+<li><p><strong>hedge</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a><em>[</em><a class="reference internal" href="pfhedge.instruments.BaseInstrument.html#pfhedge.instruments.BaseInstrument" title="pfhedge.instruments.BaseInstrument"><em>BaseInstrument</em></a><em>]</em><em>, </em><em>optional</em>) – The hedging instruments.
 If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), use <code class="docutils literal notranslate"><span class="pre">[derivative.underlier]</span></code>.</p></li>
-<li><p><strong>n_paths</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>default=1000</em>) – The number of simulated price paths of the
+<li><p><strong>n_paths</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>default=1000</em>) – The number of simulated price paths of the
 underlying instrument.</p></li>
-<li><p><strong>n_times</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>default=1</em>) – If <code class="docutils literal notranslate"><span class="pre">n_times</span> <span class="pre">&gt;</span> <span class="pre">1</span></code>, returns the ensemble mean of
+<li><p><strong>n_times</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>default=1</em>) – If <code class="docutils literal notranslate"><span class="pre">n_times</span> <span class="pre">&gt;</span> <span class="pre">1</span></code>, returns the ensemble mean of
 the losses computed through multiple simulations.</p></li>
-<li><p><strong>init_state</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.10)"><em>tuple</em></a><em>, </em><em>optional</em>) – The initial price of the underlying
+<li><p><strong>init_state</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.11)"><em>tuple</em></a><em>, </em><em>optional</em>) – The initial price of the underlying
 instrument of the derivative.
 If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), it uses the default value of
 the underlying instrument.</p></li>
-<li><p><strong>enable_grad</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>default=False</em>) – Context-manager that sets gradient
+<li><p><strong>enable_grad</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>default=False</em>) – Context-manager that sets gradient
 calculation to on or off.</p></li>
 </ul>
 </dd>

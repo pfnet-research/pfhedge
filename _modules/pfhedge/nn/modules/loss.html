@@ -238,6 +238,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.HestonStock.html">HestonStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.LocalVolatilityStock.html">LocalVolatilityStock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.RoughBergomiStock.html">RoughBergomiStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.CIRRate.html">CIRRate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.VasicekRate.html">VasicekRate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
@@ -255,6 +256,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.stochastic.generate_heston.html">pfhedge.stochastic.generate_heston</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.stochastic.generate_local_volatility_process.html">pfhedge.stochastic.generate_local_volatility_process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.stochastic.generate_vasicek.html">pfhedge.stochastic.generate_vasicek</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.stochastic.generate_rough_bergomi.html">pfhedge.stochastic.generate_rough_bergomi</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.stochastic.randn_antithetic.html">pfhedge.stochastic.randn_antithetic</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.stochastic.randn_sobol_boxmuller.html">pfhedge.stochastic.randn_sobol_boxmuller</a></li>
 </ul>
@@ -340,10 +342,10 @@
 
 
 <div class="viewcode-block" id="HedgeLoss"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.HedgeLoss.html#pfhedge.nn.HedgeLoss">[docs]</a><span class="k">class</span> <span class="nc">HedgeLoss</span><span class="p">(</span><span class="n">Module</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
-    <span class="sd">"""Base class for hedging criteria."""</span>
+<span class="w">    </span><span class="sd">"""Base class for hedging criteria."""</span>
 
 <div class="viewcode-block" id="HedgeLoss.forward"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.HedgeLoss.html#pfhedge.nn.HedgeLoss.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">TensorOrScalar</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">"""Returns the loss of the profit-loss distribution.</span>
+<span class="w">        </span><span class="sd">"""Returns the loss of the profit-loss distribution.</span>
 
 <span class="sd">        This method should be overridden.</span>
 
@@ -363,7 +365,7 @@
 <span class="sd">        """</span></div>
 
 <div class="viewcode-block" id="HedgeLoss.cash"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.HedgeLoss.html#pfhedge.nn.HedgeLoss.cash">[docs]</a>    <span class="k">def</span> <span class="nf">cash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">TensorOrScalar</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">"""Returns the cash amount which is as preferable as</span>
+<span class="w">        </span><span class="sd">"""Returns the cash amount which is as preferable as</span>
 <span class="sd">        the given profit-loss distribution in terms of the loss.</span>
 
 <span class="sd">        The output ``cash`` is expected to satisfy the following relation:</span>
@@ -395,7 +397,7 @@
 
 
 <div class="viewcode-block" id="EntropicRiskMeasure"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.EntropicRiskMeasure.html#pfhedge.nn.EntropicRiskMeasure">[docs]</a><span class="k">class</span> <span class="nc">EntropicRiskMeasure</span><span class="p">(</span><span class="n">HedgeLoss</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">"""Creates a criterion that measures</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Creates a criterion that measures</span>
 <span class="sd">    the entropic risk measure.</span>
 
 <span class="sd">    The entropic risk measure of the profit-loss distribution</span>
@@ -451,7 +453,7 @@
 
 
 <div class="viewcode-block" id="EntropicLoss"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.EntropicLoss.html#pfhedge.nn.EntropicLoss">[docs]</a><span class="k">class</span> <span class="nc">EntropicLoss</span><span class="p">(</span><span class="n">HedgeLoss</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">"""Creates a criterion that measures the expected exponential utility.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Creates a criterion that measures the expected exponential utility.</span>
 
 <span class="sd">    The loss of the profit-loss :math:`\text{PL}` is given by:</span>
 
@@ -503,7 +505,7 @@
 
 
 <div class="viewcode-block" id="IsoelasticLoss"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.IsoelasticLoss.html#pfhedge.nn.IsoelasticLoss">[docs]</a><span class="k">class</span> <span class="nc">IsoelasticLoss</span><span class="p">(</span><span class="n">HedgeLoss</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">"""Creates a criterion that measures the expected isoelastic utility.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Creates a criterion that measures the expected isoelastic utility.</span>
 
 <span class="sd">    The loss of the profit-loss :math:`\text{PL}` is given by:</span>
 
@@ -564,7 +566,7 @@
 
 
 <div class="viewcode-block" id="ExpectedShortfall"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.ExpectedShortfall.html#pfhedge.nn.ExpectedShortfall">[docs]</a><span class="k">class</span> <span class="nc">ExpectedShortfall</span><span class="p">(</span><span class="n">HedgeLoss</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">"""Creates a criterion that measures the expected shortfall.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Creates a criterion that measures the expected shortfall.</span>
 
 <span class="sd">    .. seealso::</span>
 <span class="sd">        - :func:`pfhedge.nn.functional.expected_shortfall`</span>
@@ -608,7 +610,7 @@
 
 
 <span class="k">class</span> <span class="nc">OCE</span><span class="p">(</span><span class="n">HedgeLoss</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">"""Creates a criterion that measures the optimized certainty equivalent.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Creates a criterion that measures the optimized certainty equivalent.</span>
 
 <span class="sd">    The certainty equivalent is given by:</span>
 

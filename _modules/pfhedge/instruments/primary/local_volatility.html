@@ -238,6 +238,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.HestonStock.html">HestonStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.LocalVolatilityStock.html">LocalVolatilityStock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.RoughBergomiStock.html">RoughBergomiStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.CIRRate.html">CIRRate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.VasicekRate.html">VasicekRate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
@@ -255,6 +256,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.stochastic.generate_heston.html">pfhedge.stochastic.generate_heston</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.stochastic.generate_local_volatility_process.html">pfhedge.stochastic.generate_local_volatility_process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.stochastic.generate_vasicek.html">pfhedge.stochastic.generate_vasicek</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.stochastic.generate_rough_bergomi.html">pfhedge.stochastic.generate_rough_bergomi</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.stochastic.randn_antithetic.html">pfhedge.stochastic.randn_antithetic</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.stochastic.randn_sobol_boxmuller.html">pfhedge.stochastic.randn_sobol_boxmuller</a></li>
 </ul>
@@ -322,7 +324,6 @@
         <article role="main">
           <h1>Source code for pfhedge.instruments.primary.local_volatility</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">ceil</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">cast</span>
@@ -341,7 +342,7 @@
 
 
 <div class="viewcode-block" id="LocalVolatilityStock"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.LocalVolatilityStock.html#pfhedge.instruments.LocalVolatilityStock">[docs]</a><span class="k">class</span> <span class="nc">LocalVolatilityStock</span><span class="p">(</span><span class="n">BasePrimary</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">"""A stock of which spot prices follow the local volatility model.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""A stock of which spot prices follow the local volatility model.</span>
 
 <span class="sd">    .. seealso::</span>
 <span class="sd">        - :func:`pfhedge.stochastic.generate_local_volatility_process`:</span>
@@ -394,7 +395,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">variance</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">"""Returns the volatility of self.</span>
+<span class="w">        </span><span class="sd">"""Returns the volatility of self.</span>
 
 <span class="sd">        It is a tensor filled with the square of ``self.sigma``.</span>
 <span class="sd">        """</span>
@@ -406,7 +407,7 @@
         <span class="n">time_horizon</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">20</span> <span class="o">/</span> <span class="mi">250</span><span class="p">,</span>
         <span class="n">init_state</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">TensorOrScalar</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">"""Simulate the spot price and add it as a buffer named ``spot``.</span>
+<span class="w">        </span><span class="sd">"""Simulate the spot price and add it as a buffer named ``spot``.</span>
 
 <span class="sd">        The shape of the spot is :math:`(N, T)`, where :math:`N` is the number of</span>
 <span class="sd">        simulated paths and :math:`T` is the number of time steps.</span>

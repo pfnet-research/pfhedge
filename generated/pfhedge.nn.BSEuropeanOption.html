@@ -239,6 +239,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.HestonStock.html">HestonStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.LocalVolatilityStock.html">LocalVolatilityStock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.RoughBergomiStock.html">RoughBergomiStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.CIRRate.html">CIRRate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.VasicekRate.html">VasicekRate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
@@ -256,6 +257,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.generate_heston.html">pfhedge.stochastic.generate_heston</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.generate_local_volatility_process.html">pfhedge.stochastic.generate_local_volatility_process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.generate_vasicek.html">pfhedge.stochastic.generate_vasicek</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.generate_rough_bergomi.html">pfhedge.stochastic.generate_rough_bergomi</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.randn_antithetic.html">pfhedge.stochastic.randn_antithetic</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.randn_sobol_boxmuller.html">pfhedge.stochastic.randn_sobol_boxmuller</a></li>
 </ul>
@@ -349,8 +351,8 @@ Corresponding derivative.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>call</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>default=True</em>) – Specifies whether the option is call or put.</p></li>
-<li><p><strong>strike</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>default=1.0</em>) – The strike price of the option.</p></li>
+<li><p><strong>call</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>default=True</em>) – Specifies whether the option is call or put.</p></li>
+<li><p><strong>strike</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>default=1.0</em>) – The strike price of the option.</p></li>
 </ul>
 </dd>
 </dl>
@@ -365,7 +367,8 @@ All but the last dimension are the same shape as the input.</p></li>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">BSEuropeanOption</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">BSEuropeanOption</span>
 <span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">BSEuropeanOption</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">inputs</span><span class="p">()</span>
@@ -387,9 +390,9 @@ All but the last dimension are the same shape as the input.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>log_moneyness</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Log moneyness of the underlying asset.</p></li>
-<li><p><strong>time_to_maturity</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Time to expiry of the option.</p></li>
-<li><p><strong>volatility</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Volatility of the underlying asset.</p></li>
+<li><p><strong>log_moneyness</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Log moneyness of the underlying asset.</p></li>
+<li><p><strong>time_to_maturity</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Time to expiry of the option.</p></li>
+<li><p><strong>volatility</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Volatility of the underlying asset.</p></li>
 </ul>
 </dd>
 </dl>
@@ -419,7 +422,7 @@ All but the last dimension are the same shape as the input.</p></li>
 <dd><p>Returns delta of the derivative.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>input</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><em>torch.Tensor</em></a>) – The input tensor. Features are concatenated along
+<dd class="field-odd"><p><strong>input</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><em>torch.Tensor</em></a>) – The input tensor. Features are concatenated along
 the last dimension.
 See <a class="reference internal" href="#pfhedge.nn.BSEuropeanOption.inputs" title="pfhedge.nn.BSEuropeanOption.inputs"><code class="xref py py-meth docutils literal notranslate"><span class="pre">inputs()</span></code></a> for the names of the input features.</p>
 </dd>
@@ -458,9 +461,9 @@ See <a class="reference internal" href="#pfhedge.nn.BSEuropeanOption.inputs" tit
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>log_moneyness</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Log moneyness of the underlying asset.</p></li>
-<li><p><strong>time_to_maturity</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Time to expiry of the option.</p></li>
-<li><p><strong>volatility</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Volatility of the underlying asset.</p></li>
+<li><p><strong>log_moneyness</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Log moneyness of the underlying asset.</p></li>
+<li><p><strong>time_to_maturity</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Time to expiry of the option.</p></li>
+<li><p><strong>volatility</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Volatility of the underlying asset.</p></li>
 </ul>
 </dd>
 </dl>
@@ -491,10 +494,10 @@ See <a class="reference internal" href="#pfhedge.nn.BSEuropeanOption.inputs" tit
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>log_moneyness</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Log moneyness of the underlying asset.</p></li>
-<li><p><strong>time_to_maturity</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Time to expiry of the option.</p></li>
-<li><p><strong>price</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><em>torch.Tensor</em></a>) – Price of the derivative.</p></li>
-<li><p><strong>precision</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Computational precision of the
+<li><p><strong>log_moneyness</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Log moneyness of the underlying asset.</p></li>
+<li><p><strong>time_to_maturity</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Time to expiry of the option.</p></li>
+<li><p><strong>price</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><em>torch.Tensor</em></a>) – Price of the derivative.</p></li>
+<li><p><strong>precision</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – Computational precision of the
 implied volatility.</p></li>
 </ul>
 </dd>
@@ -534,9 +537,9 @@ price seems optional in typing, but it isn’t. It is set for the compatibility 
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>log_moneyness</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Log moneyness of the underlying asset.</p></li>
-<li><p><strong>time_to_maturity</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Time to expiry of the option.</p></li>
-<li><p><strong>volatility</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Volatility of the underlying asset.</p></li>
+<li><p><strong>log_moneyness</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Log moneyness of the underlying asset.</p></li>
+<li><p><strong>time_to_maturity</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Time to expiry of the option.</p></li>
+<li><p><strong>volatility</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Volatility of the underlying asset.</p></li>
 </ul>
 </dd>
 </dl>
@@ -567,9 +570,9 @@ price seems optional in typing, but it isn’t. It is set for the compatibility 
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>log_moneyness</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Log moneyness of the underlying asset.</p></li>
-<li><p><strong>time_to_maturity</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Time to expiry of the option.</p></li>
-<li><p><strong>volatility</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Volatility of the underlying asset.</p></li>
+<li><p><strong>log_moneyness</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Log moneyness of the underlying asset.</p></li>
+<li><p><strong>time_to_maturity</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Time to expiry of the option.</p></li>
+<li><p><strong>volatility</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Volatility of the underlying asset.</p></li>
 </ul>
 </dd>
 </dl>
@@ -604,9 +607,9 @@ price seems optional in typing, but it isn’t. It is set for the compatibility 
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>log_moneyness</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Log moneyness of the underlying asset.</p></li>
-<li><p><strong>time_to_maturity</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Time to expiry of the option.</p></li>
-<li><p><strong>volatility</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Volatility of the underlying asset.</p></li>
+<li><p><strong>log_moneyness</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Log moneyness of the underlying asset.</p></li>
+<li><p><strong>time_to_maturity</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Time to expiry of the option.</p></li>
+<li><p><strong>volatility</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Volatility of the underlying asset.</p></li>
 </ul>
 </dd>
 </dl>

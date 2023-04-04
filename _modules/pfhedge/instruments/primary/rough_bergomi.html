@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
     <meta name="generator" content="sphinx-4.5.0, furo 2021.11.23"/>
-        <title>pfhedge.instruments.primary.base - PFHedge documentation</title>
+        <title>pfhedge.instruments.primary.rough_bergomi - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?digest=7f0192ddeb2adecfbaa87ffbcf67d16358b30bc1" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
@@ -322,239 +322,168 @@
           </label>
         </div>
         <article role="main">
-          <h1>Source code for pfhedge.instruments.primary.base</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">abstractmethod</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Iterator</span>
+          <h1>Source code for pfhedge.instruments.primary.rough_bergomi</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">ceil</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TypeVar</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">no_type_check</span>
 
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
 
 <span class="kn">from</span> <span class="nn">pfhedge._utils.doc</span> <span class="kn">import</span> <span class="n">_set_attr_and_docstring</span>
 <span class="kn">from</span> <span class="nn">pfhedge._utils.doc</span> <span class="kn">import</span> <span class="n">_set_docstring</span>
+<span class="kn">from</span> <span class="nn">pfhedge._utils.str</span> <span class="kn">import</span> <span class="n">_format_float</span>
 <span class="kn">from</span> <span class="nn">pfhedge._utils.typing</span> <span class="kn">import</span> <span class="n">TensorOrScalar</span>
+<span class="kn">from</span> <span class="nn">pfhedge.stochastic</span> <span class="kn">import</span> <span class="n">generate_rough_bergomi</span>
 
-<span class="kn">from</span> <span class="nn">..base</span> <span class="kn">import</span> <span class="n">BaseInstrument</span>
-
-<span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"T"</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">"BasePrimary"</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">BasePrimary</span>
 
 
-<div class="viewcode-block" id="BasePrimary"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.BasePrimary.html#pfhedge.instruments.BasePrimary">[docs]</a><span class="k">class</span> <span class="nc">BasePrimary</span><span class="p">(</span><span class="n">BaseInstrument</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Base class for all primary instruments.</span>
+<div class="viewcode-block" id="RoughBergomiStock"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.RoughBergomiStock.html#pfhedge.instruments.RoughBergomiStock">[docs]</a><span class="k">class</span> <span class="nc">RoughBergomiStock</span><span class="p">(</span><span class="n">BasePrimary</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""A stock of which spot price and variance follow rough Bergomi (rBergomi) process.</span>
 
-<span class="sd">    A primary instrument is a basic financial instrument which is traded on a market</span>
-<span class="sd">    and therefore the price is accessible as the market price.</span>
-<span class="sd">    Examples include stocks, bonds, commodities, and currencies.</span>
+<span class="sd">    .. seealso::</span>
+<span class="sd">        - :func:`pfhedge.stochastic.generate_rough_bergomi`:</span>
+<span class="sd">          The stochastic process.</span>
 
-<span class="sd">    Derivatives are issued based on primary instruments</span>
-<span class="sd">    (See :class:`BaseDerivative` for details).</span>
+<span class="sd">    Args:</span>
+<span class="sd">        alpha (float, default=-0.4): The parameter :math:`\\alpha`.</span>
+<span class="sd">        rho (float, default=-0.9): The parameter :math:`\\rho`.</span>
+<span class="sd">        eta (float, default=1.9): The parameter :math:`\\eta`.</span>
+<span class="sd">        xi (float, default=0.04): The parameter :math:`\\xi`.</span>
+<span class="sd">        cost (float, default=0.0): The transaction cost rate.</span>
+<span class="sd">        dt (float, default=1/250): The intervals of the time steps.</span>
+<span class="sd">        dtype (torch.device, optional): Desired device of returned tensor.</span>
+<span class="sd">            Default: If None, uses a global default</span>
+<span class="sd">            (see :func:`torch.set_default_tensor_type()`).</span>
+<span class="sd">        device (torch.device, optional): Desired device of returned tensor.</span>
+<span class="sd">            Default: if None, uses the current device for the default tensor type</span>
+<span class="sd">            (see :func:`torch.set_default_tensor_type()`).</span>
+<span class="sd">            ``device`` will be the CPU for CPU tensor types and</span>
+<span class="sd">            the current CUDA device for CUDA tensor types.</span>
 
 <span class="sd">    Buffers:</span>
 <span class="sd">        - spot (:class:`torch.Tensor`): The spot price of the instrument.</span>
+<span class="sd">          This attribute is set by a method :meth:`simulate()`.</span>
+<span class="sd">          The shape is :math:`(N, T)` where</span>
+<span class="sd">          :math:`N` is the number of simulated paths and</span>
+<span class="sd">          :math:`T` is the number of time steps.</span>
+<span class="sd">        - variance (:class:`torch.Tensor`): The variance of the instrument.</span>
+<span class="sd">          Note that this is different from the realized variance of the spot price.</span>
+<span class="sd">          This attribute is set by a method :meth:`simulate()`.</span>
+<span class="sd">          The shape is :math:`(N, T)`.</span>
 
-<span class="sd">    Attributes:</span>
-<span class="sd">        dtype (torch.dtype): The dtype with which the simulated time-series are</span>
-<span class="sd">            represented.</span>
-<span class="sd">        device (torch.device): The device where the simulated time-series are.</span>
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; from pfhedge.instruments import RoughBergomiStock</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; _ = torch.manual_seed(42)</span>
+<span class="sd">        &gt;&gt;&gt; stock = RoughBergomiStock()</span>
+<span class="sd">        &gt;&gt;&gt; stock.simulate(n_paths=2, time_horizon=5/250)</span>
+<span class="sd">        &gt;&gt;&gt; stock.spot</span>
+<span class="sd">        tensor([[1.0000, 0.9741, 0.9351, 0.9429, 0.9386, 0.9284],</span>
+<span class="sd">                [1.0000, 1.0100, 1.0127, 1.0148, 1.0201, 1.0148]])</span>
+<span class="sd">        &gt;&gt;&gt; stock.variance</span>
+<span class="sd">        tensor([[0.0400, 0.3130, 0.0107, 0.0279, 0.1336, 0.0170],</span>
+<span class="sd">                [0.0400, 0.0175, 0.0164, 0.0274, 0.0099, 0.0196]])</span>
+<span class="sd">        &gt;&gt;&gt; stock.volatility</span>
+<span class="sd">        tensor([[0.2000, 0.5595, 0.1034, 0.1670, 0.3656, 0.1304],</span>
+<span class="sd">                [0.2000, 0.1324, 0.1282, 0.1655, 0.0993, 0.1402]])</span>
 <span class="sd">    """</span>
 
-    <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span>
-    <span class="n">cost</span><span class="p">:</span> <span class="nb">float</span>
-    <span class="n">_buffers</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">]</span>
-    <span class="n">dtype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span>
-    <span class="n">device</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">]</span>
+    <span class="n">spot</span><span class="p">:</span> <span class="n">Tensor</span>
+    <span class="n">variance</span><span class="p">:</span> <span class="n">Tensor</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.4</span><span class="p">,</span>
+        <span class="n">rho</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.9</span><span class="p">,</span>
+        <span class="n">eta</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.9</span><span class="p">,</span>
+        <span class="n">xi</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.04</span><span class="p">,</span>
+        <span class="n">cost</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">250</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">device</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_buffers</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="n">alpha</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rho</span> <span class="o">=</span> <span class="n">rho</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eta</span> <span class="o">=</span> <span class="n">eta</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xi</span> <span class="o">=</span> <span class="n">xi</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cost</span> <span class="o">=</span> <span class="n">cost</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">=</span> <span class="n">dt</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">default_init_state</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">TensorOrScalar</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">"""Returns the default initial state of simulation."""</span>
-        <span class="k">return</span> <span class="p">()</span>
+    <span class="k">def</span> <span class="nf">default_init_state</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xi</span><span class="p">)</span>
 
-    <span class="c1"># TODO(simaki): Remove @no_type_check once BrownianStock and HestonStock get</span>
-    <span class="c1">#   unified signatures.</span>
-<div class="viewcode-block" id="BasePrimary.simulate"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.BasePrimary.html#pfhedge.instruments.BasePrimary.simulate">[docs]</a>    <span class="nd">@abstractmethod</span>
-    <span class="nd">@no_type_check</span>
-    <span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">volatility</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""An alias for ``self.variance.sqrt()``."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_buffer</span><span class="p">(</span><span class="s2">"variance"</span><span class="p">)</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span><span class="o">.</span><span class="n">sqrt</span><span class="p">()</span>
+
+<div class="viewcode-block" id="RoughBergomiStock.simulate"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.RoughBergomiStock.html#pfhedge.instruments.RoughBergomiStock.simulate">[docs]</a>    <span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">n_paths</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-        <span class="n">time_horizon</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">n_paths</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">time_horizon</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">20</span> <span class="o">/</span> <span class="mi">250</span><span class="p">,</span>
         <span class="n">init_state</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">TensorOrScalar</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Simulate time series associated with the instrument and add them as buffers.</span>
+<span class="w">        </span><span class="sd">"""Simulate the spot price and add it as a buffer named ``spot``.</span>
 
-<span class="sd">        The shapes of the registered buffers should be ``(n_paths, n_steps)``</span>
-<span class="sd">        where ``n_steps`` is the minimum integer that satisfies</span>
-<span class="sd">        ``n_steps * self.dt &gt;= time_horizon``.</span>
+<span class="sd">        The shape of the spot is :math:`(N, T)`, where</span>
+<span class="sd">        :math:`N` is the number of simulated paths and</span>
+<span class="sd">        :math:`T` is the number of time steps.</span>
+<span class="sd">        The number of time steps is determinded from ``dt`` and ``time_horizon``.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            n_paths (int): The number of paths to simulate.</span>
-<span class="sd">            time_horizon (float): The period of time to simulate the price.</span>
-<span class="sd">            init_state (tuple[torch.Tensor | float], optional): The initial state of</span>
-<span class="sd">                the instrument.</span>
+<span class="sd">            n_paths (int, default=1): The number of paths to simulate.</span>
+<span class="sd">            time_horizon (float, default=20/250): The period of time to simulate</span>
+<span class="sd">                the price.</span>
+<span class="sd">            init_state (tuple[torch.Tensor | float], optional): The initial</span>
+<span class="sd">                state of the instrument.</span>
+<span class="sd">                This is specified by a tuple :math:`(S(0), V(0))` where</span>
+<span class="sd">                :math:`S(0)` and :math:`V(0)` are the initial values of</span>
+<span class="sd">                spot and variance, respectively.</span>
 <span class="sd">                If ``None`` (default), it uses the default value</span>
 <span class="sd">                (See :attr:`default_init_state`).</span>
-<span class="sd">        """</span></div>
-
-<div class="viewcode-block" id="BasePrimary.register_buffer"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.BasePrimary.html#pfhedge.instruments.BasePrimary.register_buffer">[docs]</a>    <span class="k">def</span> <span class="nf">register_buffer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">tensor</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Adds a buffer to the instrument.</span>
-<span class="sd">        The dtype and device of the buffer are the instrument's dtype and device.</span>
-
-<span class="sd">        Buffers can be accessed as attributes using given names.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            name (str): name of the buffer. The buffer can be accessed</span>
-<span class="sd">                from this module using the given name.</span>
-<span class="sd">            tensor (Tensor or None): buffer to be registered. If ``None``, then</span>
-<span class="sd">                operations that run on buffers, such as :attr:`cuda`, are ignored.</span>
 <span class="sd">        """</span>
-        <span class="c1"># Implementation here refers to torch.nn.Module.register_buffer.</span>
-        <span class="k">if</span> <span class="s2">"_buffers"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">"cannot assign buffer before __init__() call"</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">)):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                <span class="s2">"buffer name should be a string. "</span> <span class="s2">"Got </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">typename</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
-            <span class="p">)</span>
-        <span class="k">elif</span> <span class="s2">"."</span> <span class="ow">in</span> <span class="n">name</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s1">'buffer name can</span><span class="se">\'</span><span class="s1">t contain "."'</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">""</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s1">'buffer name can</span><span class="se">\'</span><span class="s1">t be empty string ""'</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span> <span class="ow">and</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buffers</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">"attribute '</span><span class="si">{}</span><span class="s2">' already exists"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
-        <span class="k">elif</span> <span class="n">tensor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                <span class="s2">"cannot assign '</span><span class="si">{}</span><span class="s2">' object to buffer '</span><span class="si">{}</span><span class="s2">' "</span>
-                <span class="s2">"(torch Tensor or None required)"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">typename</span><span class="p">(</span><span class="n">tensor</span><span class="p">),</span> <span class="n">name</span><span class="p">)</span>
-            <span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">):</span>
-                <span class="n">tensor</span> <span class="o">=</span> <span class="n">tensor</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_buffers</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">tensor</span></div>
+        <span class="k">if</span> <span class="n">init_state</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">init_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_init_state</span>
 
-<div class="viewcode-block" id="BasePrimary.named_buffers"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.BasePrimary.html#pfhedge.instruments.BasePrimary.named_buffers">[docs]</a>    <span class="k">def</span> <span class="nf">named_buffers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">"""Returns an iterator over module buffers, yielding both the</span>
-<span class="sd">        name of the buffer as well as the buffer itself.</span>
-
-<span class="sd">        Yields:</span>
-<span class="sd">            (string, torch.Tensor): Tuple containing the name and buffer</span>
-<span class="sd">        """</span>
-        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">buffer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buffers</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">buffer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">yield</span> <span class="n">name</span><span class="p">,</span> <span class="n">buffer</span></div>
-
-<div class="viewcode-block" id="BasePrimary.buffers"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.BasePrimary.html#pfhedge.instruments.BasePrimary.buffers">[docs]</a>    <span class="k">def</span> <span class="nf">buffers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tensor</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">"""Returns an iterator over module buffers.</span>
-
-<span class="sd">        Yields:</span>
-<span class="sd">            torch.Tensor: module buffer</span>
-<span class="sd">        """</span>
-        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">buffer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">named_buffers</span><span class="p">():</span>
-            <span class="k">yield</span> <span class="n">buffer</span></div>
-
-<div class="viewcode-block" id="BasePrimary.get_buffer"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.BasePrimary.html#pfhedge.instruments.BasePrimary.get_buffer">[docs]</a>    <span class="k">def</span> <span class="nf">get_buffer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Returns the buffer given by target if it exists, otherwise throws an error.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            name (str): the name of the buffer.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            torch.Tensor</span>
-<span class="sd">        """</span>
-        <span class="k">if</span> <span class="s2">"_buffers"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buffers</span><span class="p">:</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buffers</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
-        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_name</span><span class="p">()</span> <span class="o">+</span> <span class="s2">" has no buffer named "</span> <span class="o">+</span> <span class="n">name</span><span class="p">)</span></div>
-
-    <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_buffer</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">spot</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="s2">"spot"</span>
-        <span class="k">if</span> <span class="s2">"_buffers"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">:</span>
-            <span class="n">_buffers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">"_buffers"</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">_buffers</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">_buffers</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
-        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">"'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_name</span><span class="p">()</span><span class="si">}</span><span class="s2">' object has no attribute '</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">'. "</span>
-            <span class="s2">"Asset may not be simulated."</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">generate_rough_bergomi</span><span class="p">(</span>
+            <span class="n">n_paths</span><span class="o">=</span><span class="n">n_paths</span><span class="p">,</span>
+            <span class="n">n_steps</span><span class="o">=</span><span class="n">ceil</span><span class="p">(</span><span class="n">time_horizon</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="n">init_state</span><span class="o">=</span><span class="n">init_state</span><span class="p">,</span>
+            <span class="n">alpha</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">,</span>
+            <span class="n">rho</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">rho</span><span class="p">,</span>
+            <span class="n">eta</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">eta</span><span class="p">,</span>
+            <span class="n">xi</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">xi</span><span class="p">,</span>
+            <span class="n">dt</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span>
+            <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">,</span>
         <span class="p">)</span>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">is_listed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">register_buffer</span><span class="p">(</span><span class="s2">"spot"</span><span class="p">,</span> <span class="n">output</span><span class="o">.</span><span class="n">spot</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">register_buffer</span><span class="p">(</span><span class="s2">"variance"</span><span class="p">,</span> <span class="n">output</span><span class="o">.</span><span class="n">variance</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="BasePrimary.to"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.BasePrimary.html#pfhedge.instruments.BasePrimary.to">[docs]</a>    <span class="k">def</span> <span class="nf">to</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
-        <span class="n">device</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_to</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">dtype</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">dtype</span><span class="o">.</span><span class="n">is_floating_point</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">"to() only accepts floating point dtypes, but got desired dtype=</span><span class="si">{</span><span class="n">dtype</span><span class="si">}</span><span class="s2">"</span>
-            <span class="p">)</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"dtype"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">dtype</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span> <span class="o">=</span> <span class="n">dtype</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"device"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">device</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">device</span>
-
-        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">buffer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">named_buffers</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">register_buffer</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">buffer</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="n">dtype</span><span class="p">))</span>
-
-        <span class="k">return</span> <span class="bp">self</span></div>
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_parse_to</span><span class="p">(</span>
-        <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span>
-        <span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">dtype</span><span class="p">],</span>
-        <span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">memory_format</span><span class="p">],</span>
-    <span class="p">]:</span>
-        <span class="c1"># Can be called as:</span>
-        <span class="c1">#   to(device=None, dtype=None)</span>
-        <span class="c1">#   to(tensor)</span>
-        <span class="c1">#   to(instrument)</span>
-        <span class="c1"># and return a tuple (device, dtype, ...)</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">BaseInstrument</span><span class="p">):</span>
-            <span class="n">instrument</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="s2">"device"</span><span class="p">),</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="s2">"dtype"</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="s2">"instrument"</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-            <span class="n">instrument</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">"instrument"</span><span class="p">]</span>
-            <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="s2">"device"</span><span class="p">),</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="s2">"dtype"</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">_C</span><span class="o">.</span><span class="n">_nn</span><span class="o">.</span><span class="n">_parse_to</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="n">extra_repr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra_repr</span><span class="p">()</span>
-        <span class="n">dinfo</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dinfo</span><span class="p">())</span>
-        <span class="n">main_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_name</span><span class="p">()</span> <span class="o">+</span> <span class="s2">"("</span>
-        <span class="k">if</span> <span class="n">extra_repr</span> <span class="ow">and</span> <span class="n">dinfo</span><span class="p">:</span>
-            <span class="n">extra_repr</span> <span class="o">+=</span> <span class="s2">", "</span>
-        <span class="n">main_str</span> <span class="o">+=</span> <span class="n">extra_repr</span> <span class="o">+</span> <span class="n">dinfo</span> <span class="o">+</span> <span class="s2">")"</span>
-        <span class="k">return</span> <span class="n">main_str</span></div>
-
-
-<span class="k">class</span> <span class="nc">Primary</span><span class="p">(</span><span class="n">BasePrimary</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c1"># type: ignore</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
-        <span class="k">raise</span> <span class="ne">DeprecationWarning</span><span class="p">(</span><span class="s2">"Primary is deprecated. Use BasePrimary instead."</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">extra_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">"alpha="</span> <span class="o">+</span> <span class="n">_format_float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">),</span>
+            <span class="s2">"rho="</span> <span class="o">+</span> <span class="n">_format_float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rho</span><span class="p">),</span>
+            <span class="s2">"eta="</span> <span class="o">+</span> <span class="n">_format_float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eta</span><span class="p">),</span>
+            <span class="s2">"xi="</span> <span class="o">+</span> <span class="n">_format_float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xi</span><span class="p">),</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cost</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"cost="</span> <span class="o">+</span> <span class="n">_format_float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cost</span><span class="p">))</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"dt="</span> <span class="o">+</span> <span class="n">_format_float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">))</span>
+        <span class="k">return</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">params</span><span class="p">)</span></div>
 
 
 <span class="c1"># Assign docstrings so they appear in Sphinx documentation</span>
-<span class="n">_set_docstring</span><span class="p">(</span><span class="n">BasePrimary</span><span class="p">,</span> <span class="s2">"to"</span><span class="p">,</span> <span class="n">BaseInstrument</span><span class="o">.</span><span class="n">to</span><span class="p">)</span>
-<span class="n">_set_attr_and_docstring</span><span class="p">(</span><span class="n">BasePrimary</span><span class="p">,</span> <span class="s2">"cpu"</span><span class="p">,</span> <span class="n">BaseInstrument</span><span class="o">.</span><span class="n">cpu</span><span class="p">)</span>
-<span class="n">_set_attr_and_docstring</span><span class="p">(</span><span class="n">BasePrimary</span><span class="p">,</span> <span class="s2">"cuda"</span><span class="p">,</span> <span class="n">BaseInstrument</span><span class="o">.</span><span class="n">cuda</span><span class="p">)</span>
-<span class="n">_set_attr_and_docstring</span><span class="p">(</span><span class="n">BasePrimary</span><span class="p">,</span> <span class="s2">"double"</span><span class="p">,</span> <span class="n">BaseInstrument</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
-<span class="n">_set_attr_and_docstring</span><span class="p">(</span><span class="n">BasePrimary</span><span class="p">,</span> <span class="s2">"float"</span><span class="p">,</span> <span class="n">BaseInstrument</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
-<span class="n">_set_attr_and_docstring</span><span class="p">(</span><span class="n">BasePrimary</span><span class="p">,</span> <span class="s2">"half"</span><span class="p">,</span> <span class="n">BaseInstrument</span><span class="o">.</span><span class="n">half</span><span class="p">)</span>
+<span class="n">_set_docstring</span><span class="p">(</span><span class="n">RoughBergomiStock</span><span class="p">,</span> <span class="s2">"default_init_state"</span><span class="p">,</span> <span class="n">BasePrimary</span><span class="o">.</span><span class="n">default_init_state</span><span class="p">)</span>
+<span class="n">_set_attr_and_docstring</span><span class="p">(</span><span class="n">RoughBergomiStock</span><span class="p">,</span> <span class="s2">"to"</span><span class="p">,</span> <span class="n">BasePrimary</span><span class="o">.</span><span class="n">to</span><span class="p">)</span>
 </pre></div>
         </article>
       </div>

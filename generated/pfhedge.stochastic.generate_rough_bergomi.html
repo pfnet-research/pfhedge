@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="pfhedge.nn.functional.bs_american_binary_vega" href="pfhedge.nn.functional.bs_american_binary_vega.html" /><link rel="prev" title="pfhedge.nn.functional.bs_american_binary_delta" href="pfhedge.nn.functional.bs_american_binary_delta.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="pfhedge.stochastic.randn_antithetic" href="pfhedge.stochastic.randn_antithetic.html" /><link rel="prev" title="pfhedge.stochastic.generate_vasicek" href="pfhedge.stochastic.generate_vasicek.html" />
 
     <meta name="generator" content="sphinx-4.5.0, furo 2021.11.23"/>
-        <title>pfhedge.nn.functional.bs_american_binary_gamma - PFHedge documentation</title>
+        <title>pfhedge.stochastic.generate_rough_bergomi - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=7f0192ddeb2adecfbaa87ffbcf67d16358b30bc1" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
@@ -183,7 +183,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.SVIVariance.html">SVIVariance</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current has-children"><a class="reference internal" href="../nn.functional.html">pfhedge.nn.functional</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../nn.functional.html">pfhedge.nn.functional</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.european_payoff.html">pfhedge.nn.functional.european_payoff</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.lookback_payoff.html">pfhedge.nn.functional.lookback_payoff</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.american_binary_payoff.html">pfhedge.nn.functional.american_binary_payoff</a></li>
@@ -203,7 +203,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.bs_european_theta.html">pfhedge.nn.functional.bs_european_theta</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.bs_american_binary_price.html">pfhedge.nn.functional.bs_american_binary_price</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.bs_american_binary_delta.html">pfhedge.nn.functional.bs_american_binary_delta</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">pfhedge.nn.functional.bs_american_binary_gamma</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.bs_american_binary_gamma.html">pfhedge.nn.functional.bs_american_binary_gamma</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.bs_american_binary_vega.html">pfhedge.nn.functional.bs_american_binary_vega</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.bs_american_binary_theta.html">pfhedge.nn.functional.bs_american_binary_theta</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.bs_european_binary_price.html">pfhedge.nn.functional.bs_european_binary_price</a></li>
@@ -250,14 +250,14 @@
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.VarianceSwap.html">VarianceSwap</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../stochastic.html">pfhedge.stochastic</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../stochastic.html">pfhedge.stochastic</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.generate_brownian.html">pfhedge.stochastic.generate_brownian</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.generate_cir.html">pfhedge.stochastic.generate_cir</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.generate_geometric_brownian.html">pfhedge.stochastic.generate_geometric_brownian</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.generate_heston.html">pfhedge.stochastic.generate_heston</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.generate_local_volatility_process.html">pfhedge.stochastic.generate_local_volatility_process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.generate_vasicek.html">pfhedge.stochastic.generate_vasicek</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.generate_rough_bergomi.html">pfhedge.stochastic.generate_rough_bergomi</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">pfhedge.stochastic.generate_rough_bergomi</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.randn_antithetic.html">pfhedge.stochastic.randn_antithetic</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.randn_sobol_boxmuller.html">pfhedge.stochastic.randn_sobol_boxmuller</a></li>
 </ul>
@@ -323,13 +323,85 @@
           </label>
         </div>
         <article role="main">
-          <section id="pfhedge-nn-functional-bs-american-binary-gamma">
-<h1>pfhedge.nn.functional.bs_american_binary_gamma<a class="headerlink" href="#pfhedge-nn-functional-bs-american-binary-gamma" title="Permalink to this headline">¶</a></h1>
+          <section id="pfhedge-stochastic-generate-rough-bergomi">
+<h1>pfhedge.stochastic.generate_rough_bergomi<a class="headerlink" href="#pfhedge-stochastic-generate-rough-bergomi" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="pfhedge.nn.functional.bs_american_binary_gamma">
-<span class="sig-prename descclassname"><span class="pre">pfhedge.nn.functional.</span></span><span class="sig-name descname"><span class="pre">bs_american_binary_gamma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_moneyness</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_log_moneyness</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_to_maturity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volatility</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strike</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/functional.html#bs_american_binary_gamma"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.functional.bs_american_binary_gamma" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns Black-Scholes gamma of an American binary option.</p>
-<p>See <a class="reference internal" href="pfhedge.nn.BSAmericanBinaryOption.html#pfhedge.nn.BSAmericanBinaryOption.gamma" title="pfhedge.nn.BSAmericanBinaryOption.gamma"><code class="xref py py-func docutils literal notranslate"><span class="pre">pfhedge.nn.BSAmericanBinaryOption.gamma()</span></code></a> for details.</p>
+<dt class="sig sig-object py" id="pfhedge.stochastic.generate_rough_bergomi">
+<span class="sig-prename descclassname"><span class="pre">pfhedge.stochastic.</span></span><span class="sig-name descname"><span class="pre">generate_rough_bergomi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_steps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">0.4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">0.9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.04</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.004</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/stochastic/rough_bergomi.html#generate_rough_bergomi"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.stochastic.generate_rough_bergomi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns time series following the rough Bergomi (rBergomi) model.</p>
+<p>The time evolution of the process is given by:</p>
+<div class="math-wrapper"><div class="math notranslate nohighlight">
+\[\begin{split}S(t) &amp;=&amp; \exp{\left\{\int_0^t \sqrt{V(u)} dB(u) - \frac{1}{2} \int_0^t V(u) du \right\}}, \\
+B(u) &amp;=&amp; \rho W_u^1 + \sqrt{1-\rho^2}W_u^2, \\
+V(t) &amp;=&amp; \xi\exp{\left\{\eta Y^\alpha(t) - \frac{\eta^2}{2} t^{2\alpha + 1}\right\}}, \\
+Y^\alpha(t) &amp;=&amp; \sqrt{1\alpha + 1}\int_0^t (t-u)^\alpha dW_u^1,\end{split}\]</div></div>
+<p><span class="math notranslate nohighlight">\(dW^1\)</span> and <span class="math notranslate nohighlight">\(dW^2\)</span> are the Brownian motion.</p>
+<p>Time-series is generated by Ryan et al.’s Monte Carlo algorithm.</p>
+<div class="admonition-references admonition">
+<p class="admonition-title">References</p>
+<ul class="simple">
+<li><p>Bayer, C., Friz, P., &amp; Gatheral, J. (2015). Pricing under rough volatility.
+Quantitative Finance, 16(6), 887–904. <a class="reference external" href="https://doi.org/10.1080/14697688.2015.1099717">https://doi.org/10.1080/14697688.2015.1099717</a></p></li>
+<li><p>McCrickerd, R., &amp; Pakkanen, M. S. (2018). Turbocharging Monte Carlo pricing for the rough Bergomi model.
+Quantitative Finance, 18(11), 1877–1886. <a class="reference external" href="https://doi.org/10.1080/14697688.2018.1459812">https://doi.org/10.1080/14697688.2018.1459812</a>
+Code: <a class="reference external" href="https://github.com/ryanmccrickerd/rough_bergomi">https://github.com/ryanmccrickerd/rough_bergomi</a></p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_paths</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – The number of simulated paths.</p></li>
+<li><p><strong>n_steps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – The number of time steps.</p></li>
+<li><p><strong>init_state</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.11)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><em>torch.Tensor</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>]</em><em>, </em><em>optional</em>) – The initial state of
+the time series.
+This is specified by a tuple <span class="math notranslate nohighlight">\((S(0), V(0))\)</span>.
+If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), it uses <span class="math notranslate nohighlight">\((1.0, \\xi)\)</span>.</p></li>
+<li><p><strong>alpha</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>default=-0.4</em>) – The parameter <span class="math notranslate nohighlight">\(\\alpha\)</span>.</p></li>
+<li><p><strong>rho</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>default=-0.9</em>) – The parameter <span class="math notranslate nohighlight">\(\\rho\)</span>.</p></li>
+<li><p><strong>eta</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>default=1.9</em>) – The parameter <span class="math notranslate nohighlight">\(\\eta\)</span>.</p></li>
+<li><p><strong>xi</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>default=0.04</em>) – The parameter <span class="math notranslate nohighlight">\(\\xi\)</span>.</p></li>
+<li><p><strong>dt</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>default=1 / 250</em>) – The intervals of the time steps.</p></li>
+<li><p><strong>dtype</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensor_attributes.html#torch.dtype" title="(in PyTorch v2.0)"><em>torch.dtype</em></a><em>, </em><em>optional</em>) – The desired data type of returned tensor.
+Default: If <code class="docutils literal notranslate"><span class="pre">None</span></code>, uses a global default
+(see <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.set_default_tensor_type.html#torch.set_default_tensor_type" title="(in PyTorch v2.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.set_default_tensor_type()</span></code></a>).</p></li>
+<li><p><strong>device</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensor_attributes.html#torch.device" title="(in PyTorch v2.0)"><em>torch.device</em></a><em>, </em><em>optional</em>) – The desired device of returned tensor.
+Default: If <code class="docutils literal notranslate"><span class="pre">None</span></code>, uses the current device for the default tensor type
+(see <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.set_default_tensor_type.html#torch.set_default_tensor_type" title="(in PyTorch v2.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.set_default_tensor_type()</span></code></a>).
+<code class="docutils literal notranslate"><span class="pre">device</span></code> will be the CPU for CPU tensor types and the current CUDA device
+for CUDA tensor types.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Shape:</dt><dd><ul class="simple">
+<li><p>spot: <span class="math notranslate nohighlight">\((N, T)\)</span> where
+<span class="math notranslate nohighlight">\(N\)</span> is the number of paths and
+<span class="math notranslate nohighlight">\(T\)</span> is the number of time steps.</p></li>
+<li><p>variance: <span class="math notranslate nohighlight">\((N, T)\)</span>.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A namedtuple <code class="docutils literal notranslate"><span class="pre">(spot,</span> <span class="pre">variance)</span></code>.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>(<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)">torch.Tensor</a>, <a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)">torch.Tensor</a>)</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.stochastic</span> <span class="kn">import</span> <span class="n">generate_rough_bergomi</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">outputs</span> <span class="o">=</span> <span class="n">generate_rough_bergomi</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">outputs</span><span class="o">.</span><span class="n">spot</span>
+<span class="go">tensor([[1.0000, 0.9807, 0.9563, 0.9540, 0.9570],</span>
+<span class="go">        [1.0000, 1.0147, 1.0097, 1.0107, 1.0164]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">outputs</span><span class="o">.</span><span class="n">variance</span>
+<span class="go">tensor([[0.0400, 0.3130, 0.0105, 0.0164, 0.0068],</span>
+<span class="go">        [0.0400, 0.0396, 0.0049, 0.0064, 0.0149]])</span>
+</pre></div>
+</div>
 </dd></dl>
 </section>
 
@@ -338,23 +410,23 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="pfhedge.nn.functional.bs_american_binary_vega.html">
+          <a class="next-page" href="pfhedge.stochastic.randn_antithetic.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">pfhedge.nn.functional.bs_american_binary_vega</div>
+                <div class="title">pfhedge.stochastic.randn_antithetic</div>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="pfhedge.nn.functional.bs_american_binary_delta.html">
+          <a class="prev-page" href="pfhedge.stochastic.generate_vasicek.html">
               <svg><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">pfhedge.nn.functional.bs_american_binary_delta</div>
+                <div class="title">pfhedge.stochastic.generate_vasicek</div>
                 
               </div>
             </a>
@@ -364,7 +436,7 @@
               Copyright &#169; 2021, pfnet-research |
           Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
           <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
-            | <a class="muted-link" href="../_sources/generated/pfhedge.nn.functional.bs_american_binary_gamma.rst.txt"
+            | <a class="muted-link" href="../_sources/generated/pfhedge.stochastic.generate_rough_bergomi.rst.txt"
                rel="nofollow">
               Show Source
             </a>
@@ -385,5 +457,6 @@
     <script src="../_static/scripts/furo.js"></script>
     <script src="../_static/clipboard.min.js"></script>
     <script src="../_static/copybutton.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     </body>
 </html>

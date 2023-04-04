@@ -238,6 +238,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.HestonStock.html">HestonStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.LocalVolatilityStock.html">LocalVolatilityStock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.RoughBergomiStock.html">RoughBergomiStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.CIRRate.html">CIRRate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.VasicekRate.html">VasicekRate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
@@ -255,6 +256,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.stochastic.generate_heston.html">pfhedge.stochastic.generate_heston</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.stochastic.generate_local_volatility_process.html">pfhedge.stochastic.generate_local_volatility_process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.stochastic.generate_vasicek.html">pfhedge.stochastic.generate_vasicek</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.stochastic.generate_rough_bergomi.html">pfhedge.stochastic.generate_rough_bergomi</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.stochastic.randn_antithetic.html">pfhedge.stochastic.randn_antithetic</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.stochastic.randn_sobol_boxmuller.html">pfhedge.stochastic.randn_sobol_boxmuller</a></li>
 </ul>
@@ -347,7 +349,7 @@
 
 
 <div class="viewcode-block" id="BaseDerivative"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.BaseDerivative.html#pfhedge.instruments.BaseDerivative">[docs]</a><span class="k">class</span> <span class="nc">BaseDerivative</span><span class="p">(</span><span class="n">BaseInstrument</span><span class="p">):</span>
-    <span class="sd">"""Base class for all derivatives.</span>
+<span class="w">    </span><span class="sd">"""Base class for all derivatives.</span>
 
 <span class="sd">    A derivative is a financial instrument whose payoff is contingent on</span>
 <span class="sd">    a primary instrument (or a set of primary instruments).</span>
@@ -401,7 +403,7 @@
 <div class="viewcode-block" id="BaseDerivative.simulate"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.BaseDerivative.html#pfhedge.instruments.BaseDerivative.simulate">[docs]</a>    <span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">n_paths</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">init_state</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">TensorOrScalar</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">"""Simulate time series associated with the underlier.</span>
+<span class="w">        </span><span class="sd">"""Simulate time series associated with the underlier.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            n_paths (int): The number of paths to simulate.</span>
@@ -415,7 +417,7 @@
             <span class="p">)</span></div>
 
 <div class="viewcode-block" id="BaseDerivative.ul"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.BaseDerivative.html#pfhedge.instruments.BaseDerivative.ul">[docs]</a>    <span class="k">def</span> <span class="nf">ul</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BasePrimary</span><span class="p">:</span>
-        <span class="sd">"""Alias for ``self.underlier``."""</span>
+<span class="w">        </span><span class="sd">"""Alias for ``self.underlier``."""</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">underliers</span><span class="p">())[</span><span class="n">index</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="BaseDerivative.to"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.BaseDerivative.html#pfhedge.instruments.BaseDerivative.to">[docs]</a>    <span class="k">def</span> <span class="nf">to</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
@@ -425,7 +427,7 @@
 
 <div class="viewcode-block" id="BaseDerivative.payoff_fn"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.BaseDerivative.html#pfhedge.instruments.BaseDerivative.payoff_fn">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">payoff_fn</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">"""Defines the payoff function of the derivative.</span>
+<span class="w">        </span><span class="sd">"""Defines the payoff function of the derivative.</span>
 
 <span class="sd">        This should be overridden by all subclasses.</span>
 
@@ -445,7 +447,7 @@
 <span class="sd">        """</span></div>
 
 <div class="viewcode-block" id="BaseDerivative.payoff"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.BaseDerivative.html#pfhedge.instruments.BaseDerivative.payoff">[docs]</a>    <span class="k">def</span> <span class="nf">payoff</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">"""Returns the payoff of the derivative.</span>
+<span class="w">        </span><span class="sd">"""Returns the payoff of the derivative.</span>
 
 <span class="sd">        Shape:</span>
 <span class="sd">            - Output: :math:`(N)` where</span>
@@ -460,7 +462,7 @@
         <span class="k">return</span> <span class="n">payoff</span></div>
 
 <div class="viewcode-block" id="BaseDerivative.list"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.BaseDerivative.html#pfhedge.instruments.BaseDerivative.list">[docs]</a>    <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span> <span class="n">pricer</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">T</span><span class="p">],</span> <span class="n">Tensor</span><span class="p">],</span> <span class="n">cost</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">"""Make self a listed derivative.</span>
+<span class="w">        </span><span class="sd">"""Make self a listed derivative.</span>
 
 <span class="sd">        After this method self will be a exchange-traded derivative which can be transacted</span>
 <span class="sd">        at any time with the spot price given by ``self.spot``.</span>
@@ -476,7 +478,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">cost</span> <span class="o">=</span> <span class="n">cost</span></div>
 
 <div class="viewcode-block" id="BaseDerivative.delist"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.BaseDerivative.html#pfhedge.instruments.BaseDerivative.delist">[docs]</a>    <span class="k">def</span> <span class="nf">delist</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">"""Make self a delisted derivative.</span>
+<span class="w">        </span><span class="sd">"""Make self a delisted derivative.</span>
 
 <span class="sd">        After this method self will be a private derivative.</span>
 <span class="sd">        """</span>
@@ -488,7 +490,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pricer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="BaseDerivative.add_clause"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.BaseDerivative.html#pfhedge.instruments.BaseDerivative.add_clause">[docs]</a>    <span class="k">def</span> <span class="nf">add_clause</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">clause</span><span class="p">:</span> <span class="n">Clause</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">"""Adds a clause to the derivative.</span>
+<span class="w">        </span><span class="sd">"""Adds a clause to the derivative.</span>
 
 <span class="sd">        The clause will be called after :meth:`payoff_fn` method</span>
 <span class="sd">        has computed the payoff and modify the payoff tensor.</span>
@@ -501,7 +503,7 @@
 <span class="sd">            clause (callable[[BaseDerivative, torch.Tensor], torch.Tensor]):</span>
 <span class="sd">                The clause to add.</span>
 <span class="sd">        """</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">_six</span><span class="o">.</span><span class="n">string_classes</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">)):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">"clause name should be a string. Got </span><span class="si">{</span><span class="n">torch</span><span class="o">.</span><span class="n">typename</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
@@ -529,7 +531,7 @@
             <span class="k">yield</span> <span class="n">clause</span>
 
     <span class="k">def</span> <span class="nf">register_underlier</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">underlier</span><span class="p">:</span> <span class="n">BasePrimary</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">_six</span><span class="o">.</span><span class="n">string_classes</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">)):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"name should be a string. Got </span><span class="si">{</span><span class="n">torch</span><span class="o">.</span><span class="n">typename</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span> <span class="ow">and</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_underliers</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"attribute '</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">' already exists"</span><span class="p">)</span>
@@ -563,14 +565,14 @@
     <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BasePrimary</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_underlier</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">BasePrimary</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">register_underlier</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">spot</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">"""Returns ``self.pricer(self)`` if self is listed.</span>
+<span class="w">        </span><span class="sd">"""Returns ``self.pricer(self)`` if self is listed.</span>
 
 <span class="sd">        See :meth:`list()` for details.</span>
 <span class="sd">        """</span>
@@ -591,7 +593,7 @@
 
 
 <span class="k">class</span> <span class="nc">Derivative</span><span class="p">(</span><span class="n">BaseDerivative</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
         <span class="k">raise</span> <span class="ne">DeprecationWarning</span><span class="p">(</span>
             <span class="s2">"Derivative is deprecated. Use BaseDerivative instead."</span>
@@ -599,14 +601,14 @@
 
 
 <div class="viewcode-block" id="OptionMixin"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.OptionMixin.html#pfhedge.instruments.OptionMixin">[docs]</a><span class="k">class</span> <span class="nc">OptionMixin</span><span class="p">:</span>
-    <span class="sd">"""Mixin class for options."""</span>
+<span class="w">    </span><span class="sd">"""Mixin class for options."""</span>
 
     <span class="n">underlier</span><span class="p">:</span> <span class="n">BasePrimary</span>
     <span class="n">strike</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">maturity</span><span class="p">:</span> <span class="nb">float</span>
 
 <div class="viewcode-block" id="OptionMixin.moneyness"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.OptionMixin.html#pfhedge.instruments.OptionMixin.moneyness">[docs]</a>    <span class="k">def</span> <span class="nf">moneyness</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_step</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">log</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">"""Returns the moneyness of self.</span>
+<span class="w">        </span><span class="sd">"""Returns the moneyness of self.</span>
 
 <span class="sd">        Moneyness reads :math:`S / K` where</span>
 <span class="sd">        :math:`S` is the spot price of the underlying instrument and</span>
@@ -634,7 +636,7 @@
         <span class="k">return</span> <span class="n">output</span></div>
 
 <div class="viewcode-block" id="OptionMixin.log_moneyness"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.OptionMixin.html#pfhedge.instruments.OptionMixin.log_moneyness">[docs]</a>    <span class="k">def</span> <span class="nf">log_moneyness</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_step</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="sa">r</span><span class="sd">"""Returns log-moneyness of self.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">"""Returns log-moneyness of self.</span>
 
 <span class="sd">        Log-moneyness reads :math:`\log(S / K)` where</span>
 <span class="sd">        :math:`S` is the spot price of the underlying instrument and</span>
@@ -647,7 +649,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">moneyness</span><span class="p">(</span><span class="n">time_step</span><span class="o">=</span><span class="n">time_step</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="OptionMixin.time_to_maturity"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.OptionMixin.html#pfhedge.instruments.OptionMixin.time_to_maturity">[docs]</a>    <span class="k">def</span> <span class="nf">time_to_maturity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_step</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">"""Returns the time to maturity of self.</span>
+<span class="w">        </span><span class="sd">"""Returns the time to maturity of self.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            time_step (int, optional): The time step to calculate</span>
@@ -676,7 +678,7 @@
 <div class="viewcode-block" id="OptionMixin.max_moneyness"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.OptionMixin.html#pfhedge.instruments.OptionMixin.max_moneyness">[docs]</a>    <span class="k">def</span> <span class="nf">max_moneyness</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">time_step</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">log</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">"""Returns the cumulative maximum of the moneyness.</span>
+<span class="w">        </span><span class="sd">"""Returns the cumulative maximum of the moneyness.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            time_step (int, optional): The time step to calculate</span>
@@ -701,7 +703,7 @@
             <span class="k">return</span> <span class="n">moneyness</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span> <span class="n">time_step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">values</span></div>
 
 <div class="viewcode-block" id="OptionMixin.max_log_moneyness"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.OptionMixin.html#pfhedge.instruments.OptionMixin.max_log_moneyness">[docs]</a>    <span class="k">def</span> <span class="nf">max_log_moneyness</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_step</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">"""Returns ``self.max_moneyness(time_step).log()``.</span>
+<span class="w">        </span><span class="sd">"""Returns ``self.max_moneyness(time_step).log()``.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            torch.Tensor</span>
@@ -710,7 +712,7 @@
 
 
 <div class="viewcode-block" id="BaseOption"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.BaseOption.html#pfhedge.instruments.BaseOption">[docs]</a><span class="k">class</span> <span class="nc">BaseOption</span><span class="p">(</span><span class="n">BaseDerivative</span><span class="p">,</span> <span class="n">OptionMixin</span><span class="p">):</span>
-    <span class="sd">"""(deprecated) Base class for options."""</span>
+<span class="w">    </span><span class="sd">"""(deprecated) Base class for options."""</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>

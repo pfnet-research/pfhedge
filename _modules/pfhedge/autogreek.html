@@ -238,6 +238,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../generated/pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../generated/pfhedge.instruments.HestonStock.html">HestonStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../generated/pfhedge.instruments.LocalVolatilityStock.html">LocalVolatilityStock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../generated/pfhedge.instruments.RoughBergomiStock.html">RoughBergomiStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../generated/pfhedge.instruments.CIRRate.html">CIRRate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../generated/pfhedge.instruments.VasicekRate.html">VasicekRate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../generated/pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
@@ -255,6 +256,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../generated/pfhedge.stochastic.generate_heston.html">pfhedge.stochastic.generate_heston</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../generated/pfhedge.stochastic.generate_local_volatility_process.html">pfhedge.stochastic.generate_local_volatility_process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../generated/pfhedge.stochastic.generate_vasicek.html">pfhedge.stochastic.generate_vasicek</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../generated/pfhedge.stochastic.generate_rough_bergomi.html">pfhedge.stochastic.generate_rough_bergomi</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../generated/pfhedge.stochastic.randn_antithetic.html">pfhedge.stochastic.randn_antithetic</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../generated/pfhedge.stochastic.randn_sobol_boxmuller.html">pfhedge.stochastic.randn_sobol_boxmuller</a></li>
 </ul>
@@ -336,7 +338,7 @@
 <div class="viewcode-block" id="delta"><a class="viewcode-back" href="../../autogreek.html#pfhedge.autogreek.delta">[docs]</a><span class="k">def</span> <span class="nf">delta</span><span class="p">(</span>
     <span class="n">pricer</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">create_graph</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="n">Any</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-    <span class="sd">"""Computes and returns delta of a derivative using automatic differentiation.</span>
+<span class="w">    </span><span class="sd">"""Computes and returns delta of a derivative using automatic differentiation.</span>
 
 <span class="sd">    Delta is a differentiation of a derivative price with respect to</span>
 <span class="sd">    a price of underlying instrument.</span>
@@ -431,7 +433,7 @@
 <div class="viewcode-block" id="gamma"><a class="viewcode-back" href="../../autogreek.html#pfhedge.autogreek.gamma">[docs]</a><span class="k">def</span> <span class="nf">gamma</span><span class="p">(</span>
     <span class="n">pricer</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">create_graph</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="n">Any</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-    <span class="sd">"""Computes and returns gamma of a derivative.</span>
+<span class="w">    </span><span class="sd">"""Computes and returns gamma of a derivative.</span>
 
 <span class="sd">    Delta is a second-order differentiation of a derivative price with respect to</span>
 <span class="sd">    a price of underlying instrument.</span>
@@ -497,7 +499,7 @@
 <span class="k">def</span> <span class="nf">gamma_from_delta</span><span class="p">(</span>
     <span class="n">fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">create_graph</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="n">Any</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-    <span class="sd">"""Computes and returns gamma of a derivative from the formula of delta.</span>
+<span class="w">    </span><span class="sd">"""Computes and returns gamma of a derivative from the formula of delta.</span>
 
 <span class="sd">    Note:</span>
 <span class="sd">        The keyword argument ``**params`` should contain at least one of</span>
@@ -523,7 +525,7 @@
 <div class="viewcode-block" id="vega"><a class="viewcode-back" href="../../autogreek.html#pfhedge.autogreek.vega">[docs]</a><span class="k">def</span> <span class="nf">vega</span><span class="p">(</span>
     <span class="n">pricer</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">create_graph</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="n">Any</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-    <span class="sd">"""Computes and returns vega of a derivative using automatic differentiation.</span>
+<span class="w">    </span><span class="sd">"""Computes and returns vega of a derivative using automatic differentiation.</span>
 
 <span class="sd">    Vega is a differentiation of a derivative price with respect to</span>
 <span class="sd">    a variance of underlying instrument.</span>
@@ -582,7 +584,7 @@
 <div class="viewcode-block" id="theta"><a class="viewcode-back" href="../../autogreek.html#pfhedge.autogreek.theta">[docs]</a><span class="k">def</span> <span class="nf">theta</span><span class="p">(</span>
     <span class="n">pricer</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">create_graph</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="n">Any</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-    <span class="sd">"""Computes and returns theta of a derivative using automatic differentiation.</span>
+<span class="w">    </span><span class="sd">"""Computes and returns theta of a derivative using automatic differentiation.</span>
 
 <span class="sd">    Theta is a differentiation of a derivative price with respect to time.</span>
 

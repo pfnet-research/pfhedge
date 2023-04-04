@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="pfhedge.nn.functional.bs_american_binary_vega" href="pfhedge.nn.functional.bs_american_binary_vega.html" /><link rel="prev" title="pfhedge.nn.functional.bs_american_binary_delta" href="pfhedge.nn.functional.bs_american_binary_delta.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="CIRRate" href="pfhedge.instruments.CIRRate.html" /><link rel="prev" title="LocalVolatilityStock" href="pfhedge.instruments.LocalVolatilityStock.html" />
 
     <meta name="generator" content="sphinx-4.5.0, furo 2021.11.23"/>
-        <title>pfhedge.nn.functional.bs_american_binary_gamma - PFHedge documentation</title>
+        <title>RoughBergomiStock - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=7f0192ddeb2adecfbaa87ffbcf67d16358b30bc1" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
@@ -183,7 +183,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.SVIVariance.html">SVIVariance</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current has-children"><a class="reference internal" href="../nn.functional.html">pfhedge.nn.functional</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../nn.functional.html">pfhedge.nn.functional</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.european_payoff.html">pfhedge.nn.functional.european_payoff</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.lookback_payoff.html">pfhedge.nn.functional.lookback_payoff</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.american_binary_payoff.html">pfhedge.nn.functional.american_binary_payoff</a></li>
@@ -203,7 +203,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.bs_european_theta.html">pfhedge.nn.functional.bs_european_theta</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.bs_american_binary_price.html">pfhedge.nn.functional.bs_american_binary_price</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.bs_american_binary_delta.html">pfhedge.nn.functional.bs_american_binary_delta</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">pfhedge.nn.functional.bs_american_binary_gamma</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.bs_american_binary_gamma.html">pfhedge.nn.functional.bs_american_binary_gamma</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.bs_american_binary_vega.html">pfhedge.nn.functional.bs_american_binary_vega</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.bs_american_binary_theta.html">pfhedge.nn.functional.bs_american_binary_theta</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.bs_european_binary_price.html">pfhedge.nn.functional.bs_european_binary_price</a></li>
@@ -230,7 +230,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.topp.html">pfhedge.nn.functional.topp</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../instruments.html">pfhedge.instruments</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../instruments.html">pfhedge.instruments</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BaseInstrument.html">BaseInstrument</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BasePrimary.html">BasePrimary</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BaseDerivative.html">BaseDerivative</a></li>
@@ -239,7 +239,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.HestonStock.html">HestonStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.LocalVolatilityStock.html">LocalVolatilityStock</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.RoughBergomiStock.html">RoughBergomiStock</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">RoughBergomiStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.CIRRate.html">CIRRate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.VasicekRate.html">VasicekRate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
@@ -323,13 +323,160 @@
           </label>
         </div>
         <article role="main">
-          <section id="pfhedge-nn-functional-bs-american-binary-gamma">
-<h1>pfhedge.nn.functional.bs_american_binary_gamma<a class="headerlink" href="#pfhedge-nn-functional-bs-american-binary-gamma" title="Permalink to this headline">¶</a></h1>
+          <section id="roughbergomistock">
+<h1>RoughBergomiStock<a class="headerlink" href="#roughbergomistock" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="pfhedge.instruments.RoughBergomiStock">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pfhedge.instruments.</span></span><span class="sig-name descname"><span class="pre">RoughBergomiStock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">0.4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">0.9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.04</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.004</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/primary/rough_bergomi.html#RoughBergomiStock"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.RoughBergomiStock" title="Permalink to this definition">¶</a></dt>
+<dd><p>A stock of which spot price and variance follow rough Bergomi (rBergomi) process.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="pfhedge.stochastic.generate_rough_bergomi.html#pfhedge.stochastic.generate_rough_bergomi" title="pfhedge.stochastic.generate_rough_bergomi"><code class="xref py py-func docutils literal notranslate"><span class="pre">pfhedge.stochastic.generate_rough_bergomi()</span></code></a>:
+The stochastic process.</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>alpha</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>default=-0.4</em>) – The parameter <span class="math notranslate nohighlight">\(\\alpha\)</span>.</p></li>
+<li><p><strong>rho</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>default=-0.9</em>) – The parameter <span class="math notranslate nohighlight">\(\\rho\)</span>.</p></li>
+<li><p><strong>eta</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>default=1.9</em>) – The parameter <span class="math notranslate nohighlight">\(\\eta\)</span>.</p></li>
+<li><p><strong>xi</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>default=0.04</em>) – The parameter <span class="math notranslate nohighlight">\(\\xi\)</span>.</p></li>
+<li><p><strong>cost</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>default=0.0</em>) – The transaction cost rate.</p></li>
+<li><p><strong>dt</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>default=1/250</em>) – The intervals of the time steps.</p></li>
+<li><p><strong>dtype</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensor_attributes.html#torch.device" title="(in PyTorch v2.0)"><em>torch.device</em></a><em>, </em><em>optional</em>) – Desired device of returned tensor.
+Default: If None, uses a global default
+(see <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.set_default_tensor_type.html#torch.set_default_tensor_type" title="(in PyTorch v2.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.set_default_tensor_type()</span></code></a>).</p></li>
+<li><p><strong>device</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensor_attributes.html#torch.device" title="(in PyTorch v2.0)"><em>torch.device</em></a><em>, </em><em>optional</em>) – Desired device of returned tensor.
+Default: if None, uses the current device for the default tensor type
+(see <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.set_default_tensor_type.html#torch.set_default_tensor_type" title="(in PyTorch v2.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.set_default_tensor_type()</span></code></a>).
+<code class="docutils literal notranslate"><span class="pre">device</span></code> will be the CPU for CPU tensor types and
+the current CUDA device for CUDA tensor types.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Buffers:</dt><dd><ul class="simple">
+<li><p>spot (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.Tensor</span></code></a>): The spot price of the instrument.
+This attribute is set by a method <a class="reference internal" href="#pfhedge.instruments.RoughBergomiStock.simulate" title="pfhedge.instruments.RoughBergomiStock.simulate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">simulate()</span></code></a>.
+The shape is <span class="math notranslate nohighlight">\((N, T)\)</span> where
+<span class="math notranslate nohighlight">\(N\)</span> is the number of simulated paths and
+<span class="math notranslate nohighlight">\(T\)</span> is the number of time steps.</p></li>
+<li><p>variance (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.Tensor</span></code></a>): The variance of the instrument.
+Note that this is different from the realized variance of the spot price.
+This attribute is set by a method <a class="reference internal" href="#pfhedge.instruments.RoughBergomiStock.simulate" title="pfhedge.instruments.RoughBergomiStock.simulate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">simulate()</span></code></a>.
+The shape is <span class="math notranslate nohighlight">\((N, T)\)</span>.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">RoughBergomiStock</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span> <span class="o">=</span> <span class="n">RoughBergomiStock</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">n_paths</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">time_horizon</span><span class="o">=</span><span class="mi">5</span><span class="o">/</span><span class="mi">250</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span><span class="o">.</span><span class="n">spot</span>
+<span class="go">tensor([[1.0000, 0.9741, 0.9351, 0.9429, 0.9386, 0.9284],</span>
+<span class="go">        [1.0000, 1.0100, 1.0127, 1.0148, 1.0201, 1.0148]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span><span class="o">.</span><span class="n">variance</span>
+<span class="go">tensor([[0.0400, 0.3130, 0.0107, 0.0279, 0.1336, 0.0170],</span>
+<span class="go">        [0.0400, 0.0175, 0.0164, 0.0274, 0.0099, 0.0196]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stock</span><span class="o">.</span><span class="n">volatility</span>
+<span class="go">tensor([[0.2000, 0.5595, 0.1034, 0.1670, 0.3656, 0.1304],</span>
+<span class="go">        [0.2000, 0.1324, 0.1282, 0.1655, 0.0993, 0.1402]])</span>
+</pre></div>
+</div>
+<dl class="py property">
+<dt class="sig sig-object py" id="pfhedge.instruments.RoughBergomiStock.default_init_state">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">default_init_state</span></span><a class="headerlink" href="#pfhedge.instruments.RoughBergomiStock.default_init_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the default initial state of simulation.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pfhedge.instruments.RoughBergomiStock.simulate">
+<span class="sig-name descname"><span class="pre">simulate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_horizon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/instruments/primary/rough_bergomi.html#RoughBergomiStock.simulate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.instruments.RoughBergomiStock.simulate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simulate the spot price and add it as a buffer named <code class="docutils literal notranslate"><span class="pre">spot</span></code>.</p>
+<p>The shape of the spot is <span class="math notranslate nohighlight">\((N, T)\)</span>, where
+<span class="math notranslate nohighlight">\(N\)</span> is the number of simulated paths and
+<span class="math notranslate nohighlight">\(T\)</span> is the number of time steps.
+The number of time steps is determinded from <code class="docutils literal notranslate"><span class="pre">dt</span></code> and <code class="docutils literal notranslate"><span class="pre">time_horizon</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_paths</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>default=1</em>) – The number of paths to simulate.</p></li>
+<li><p><strong>time_horizon</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>default=20/250</em>) – The period of time to simulate
+the price.</p></li>
+<li><p><strong>init_state</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.11)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><em>torch.Tensor</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>]</em><em>, </em><em>optional</em>) – The initial
+state of the instrument.
+This is specified by a tuple <span class="math notranslate nohighlight">\((S(0), V(0))\)</span> where
+<span class="math notranslate nohighlight">\(S(0)\)</span> and <span class="math notranslate nohighlight">\(V(0)\)</span> are the initial values of
+spot and variance, respectively.
+If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), it uses the default value
+(See <a class="reference internal" href="#pfhedge.instruments.RoughBergomiStock.default_init_state" title="pfhedge.instruments.RoughBergomiStock.default_init_state"><code class="xref py py-attr docutils literal notranslate"><span class="pre">default_init_state</span></code></a>).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pfhedge.instruments.RoughBergomiStock.to">
+<span class="sig-name descname"><span class="pre">to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfhedge.instruments.RoughBergomiStock.to" title="Permalink to this definition">¶</a></dt>
+<dd><p>Moves and/or casts the buffers of the instrument.</p>
+<p>This can be called as</p>
 <dl class="py function">
-<dt class="sig sig-object py" id="pfhedge.nn.functional.bs_american_binary_gamma">
-<span class="sig-prename descclassname"><span class="pre">pfhedge.nn.functional.</span></span><span class="sig-name descname"><span class="pre">bs_american_binary_gamma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_moneyness</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_log_moneyness</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_to_maturity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volatility</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strike</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/functional.html#bs_american_binary_gamma"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.functional.bs_american_binary_gamma" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns Black-Scholes gamma of an American binary option.</p>
-<p>See <a class="reference internal" href="pfhedge.nn.BSAmericanBinaryOption.html#pfhedge.nn.BSAmericanBinaryOption.gamma" title="pfhedge.nn.BSAmericanBinaryOption.gamma"><code class="xref py py-func docutils literal notranslate"><span class="pre">pfhedge.nn.BSAmericanBinaryOption.gamma()</span></code></a> for details.</p>
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="id1">
+<span class="sig-name descname"><span class="pre">to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id1" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="id2">
+<span class="sig-name descname"><span class="pre">to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<p>Its signature is similar to <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module.to" title="(in PyTorch v2.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">torch.nn.Module.to()</span></code></a>.
+It only accepts floating point dtypes.
+See <a class="reference internal" href="../notes/instrument_attributes.html#instrument-attributes-doc"><span class="std std-ref">Instrument dtype and device</span></a> for details.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This method modifies the instrument in-place.</p>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<ul class="simple">
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">float()</span></code>: Cast to <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.float32</span></code>.</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">double()</span></code>: Cast to <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.float64</span></code>.</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">half()</span></code>: Cast to <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.float16</span></code>.</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">bfloat16()</span></code>: Cast to <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.bfloat16</span></code>.</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">cuda()</span></code>: Move to CUDA memory.</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">cpu()</span></code>: Move to CPU memory.</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dtype</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensor_attributes.html#torch.dtype" title="(in PyTorch v2.0)"><em>torch.dtype</em></a>) – The desired floating point dtype of
+the buffers in this instrument.</p></li>
+<li><p><strong>device</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensor_attributes.html#torch.device" title="(in PyTorch v2.0)"><em>torch.device</em></a>) – The desired device of
+the buffers in this instrument.</p></li>
+<li><p><strong>tensor</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><em>torch.Tensor</em></a>) – Tensor whose dtype and device are
+the desired dtype and device of
+the buffers in this instrument.</p></li>
+<li><p><strong>instrument</strong> (<a class="reference internal" href="pfhedge.instruments.BaseInstrument.html#pfhedge.instruments.BaseInstrument" title="pfhedge.instruments.BaseInstrument"><em>BaseInstrument</em></a>) – Instrument whose dtype and device are
+the desired dtype and device of
+the buffers in this instrument.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>self</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="pfhedge.instruments.RoughBergomiStock.volatility">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">volatility</span></span><a class="headerlink" href="#pfhedge.instruments.RoughBergomiStock.volatility" title="Permalink to this definition">¶</a></dt>
+<dd><p>An alias for <code class="docutils literal notranslate"><span class="pre">self.variance.sqrt()</span></code>.</p>
+</dd></dl>
 </dd></dl>
 </section>
 
@@ -338,23 +485,23 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="pfhedge.nn.functional.bs_american_binary_vega.html">
+          <a class="next-page" href="pfhedge.instruments.CIRRate.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">pfhedge.nn.functional.bs_american_binary_vega</div>
+                <div class="title">CIRRate</div>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="pfhedge.nn.functional.bs_american_binary_delta.html">
+          <a class="prev-page" href="pfhedge.instruments.LocalVolatilityStock.html">
               <svg><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">pfhedge.nn.functional.bs_american_binary_delta</div>
+                <div class="title">LocalVolatilityStock</div>
                 
               </div>
             </a>
@@ -364,7 +511,7 @@
               Copyright &#169; 2021, pfnet-research |
           Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
           <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
-            | <a class="muted-link" href="../_sources/generated/pfhedge.nn.functional.bs_american_binary_gamma.rst.txt"
+            | <a class="muted-link" href="../_sources/generated/pfhedge.instruments.RoughBergomiStock.rst.txt"
                rel="nofollow">
               Show Source
             </a>
@@ -385,5 +532,6 @@
     <script src="../_static/scripts/furo.js"></script>
     <script src="../_static/clipboard.min.js"></script>
     <script src="../_static/copybutton.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     </body>
 </html>

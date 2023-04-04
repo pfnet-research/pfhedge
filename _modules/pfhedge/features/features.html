@@ -238,6 +238,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.HestonStock.html">HestonStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.LocalVolatilityStock.html">LocalVolatilityStock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.RoughBergomiStock.html">RoughBergomiStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.CIRRate.html">CIRRate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.VasicekRate.html">VasicekRate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
@@ -255,6 +256,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.stochastic.generate_heston.html">pfhedge.stochastic.generate_heston</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.stochastic.generate_local_volatility_process.html">pfhedge.stochastic.generate_local_volatility_process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.stochastic.generate_vasicek.html">pfhedge.stochastic.generate_vasicek</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.stochastic.generate_rough_bergomi.html">pfhedge.stochastic.generate_rough_bergomi</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.stochastic.randn_antithetic.html">pfhedge.stochastic.randn_antithetic</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.stochastic.randn_sobol_boxmuller.html">pfhedge.stochastic.randn_sobol_boxmuller</a></li>
 </ul>
@@ -344,7 +346,7 @@
 
 
 <div class="viewcode-block" id="Moneyness"><a class="viewcode-back" href="../../../generated/pfhedge.features.Moneyness.html#pfhedge.features.Moneyness">[docs]</a><span class="k">class</span> <span class="nc">Moneyness</span><span class="p">(</span><span class="n">StateIndependentFeature</span><span class="p">):</span>
-    <span class="sd">"""Moneyness of the derivative.</span>
+<span class="w">    </span><span class="sd">"""Moneyness of the derivative.</span>
 
 <span class="sd">    Moneyness reads :math:`S / K` where</span>
 <span class="sd">    :math:`S` is the spot price of the underlying instrument and</span>
@@ -387,7 +389,7 @@
 
 
 <div class="viewcode-block" id="LogMoneyness"><a class="viewcode-back" href="../../../generated/pfhedge.features.LogMoneyness.html#pfhedge.features.LogMoneyness">[docs]</a><span class="k">class</span> <span class="nc">LogMoneyness</span><span class="p">(</span><span class="n">Moneyness</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">"""Log-moneyness of the derivative.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Log-moneyness of the derivative.</span>
 
 <span class="sd">    Log-moneyness reads :math:`\log(S / K)` where</span>
 <span class="sd">    :math:`S` is the spot price of the underlying instrument and</span>
@@ -404,7 +406,7 @@
 
 
 <div class="viewcode-block" id="TimeToMaturity"><a class="viewcode-back" href="../../../generated/pfhedge.features.TimeToMaturity.html#pfhedge.features.TimeToMaturity">[docs]</a><span class="k">class</span> <span class="nc">TimeToMaturity</span><span class="p">(</span><span class="n">StateIndependentFeature</span><span class="p">):</span>
-    <span class="sd">"""Remaining time to the maturity of the derivative.</span>
+<span class="w">    </span><span class="sd">"""Remaining time to the maturity of the derivative.</span>
 
 <span class="sd">    Name:</span>
 <span class="sd">        ``'time_to_maturity'``</span>
@@ -435,14 +437,14 @@
 
 
 <span class="k">class</span> <span class="nc">ExpiryTime</span><span class="p">(</span><span class="n">TimeToMaturity</span><span class="p">):</span>
-    <span class="sd">"""Alias for ``TimeToMaturity``."""</span>
+<span class="w">    </span><span class="sd">"""Alias for ``TimeToMaturity``."""</span>
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">"expiry_time"</span>
 
 
 <div class="viewcode-block" id="UnderlierSpot"><a class="viewcode-back" href="../../../generated/pfhedge.features.UnderlierSpot.html#pfhedge.features.UnderlierSpot">[docs]</a><span class="k">class</span> <span class="nc">UnderlierSpot</span><span class="p">(</span><span class="n">StateIndependentFeature</span><span class="p">):</span>
-    <span class="sd">"""Spot price of the underlier of the derivative.</span>
+<span class="w">    </span><span class="sd">"""Spot price of the underlier of the derivative.</span>
 
 <span class="sd">    Name:</span>
 <span class="sd">        ``'underlier_spot'``</span>
@@ -464,7 +466,7 @@
 
 
 <span class="k">class</span> <span class="nc">UnderlierLogSpot</span><span class="p">(</span><span class="n">UnderlierSpot</span><span class="p">):</span>
-    <span class="sd">"""Logarithm of the spot price of the underlier of the derivative.</span>
+<span class="w">    </span><span class="sd">"""Logarithm of the spot price of the underlier of the derivative.</span>
 
 <span class="sd">    Name:</span>
 <span class="sd">        ``'underlier_log_spot'``</span>
@@ -475,7 +477,7 @@
 
 
 <span class="k">class</span> <span class="nc">Spot</span><span class="p">(</span><span class="n">StateIndependentFeature</span><span class="p">):</span>
-    <span class="sd">"""Spot price of the derivative.</span>
+<span class="w">    </span><span class="sd">"""Spot price of the derivative.</span>
 
 <span class="sd">    Name:</span>
 <span class="sd">        ``'spot'``</span>
@@ -497,7 +499,7 @@
 
 
 <div class="viewcode-block" id="Volatility"><a class="viewcode-back" href="../../../generated/pfhedge.features.Volatility.html#pfhedge.features.Volatility">[docs]</a><span class="k">class</span> <span class="nc">Volatility</span><span class="p">(</span><span class="n">StateIndependentFeature</span><span class="p">):</span>
-    <span class="sd">"""Volatility of the underlier of the derivative.</span>
+<span class="w">    </span><span class="sd">"""Volatility of the underlier of the derivative.</span>
 
 <span class="sd">    Name:</span>
 <span class="sd">        ``'volatility'``</span>
@@ -513,7 +515,7 @@
 
 
 <div class="viewcode-block" id="Variance"><a class="viewcode-back" href="../../../generated/pfhedge.features.Variance.html#pfhedge.features.Variance">[docs]</a><span class="k">class</span> <span class="nc">Variance</span><span class="p">(</span><span class="n">StateIndependentFeature</span><span class="p">):</span>
-    <span class="sd">"""Variance of the underlier of the derivative.</span>
+<span class="w">    </span><span class="sd">"""Variance of the underlier of the derivative.</span>
 
 <span class="sd">    Name:</span>
 <span class="sd">        ``'variance'``</span>
@@ -527,7 +529,7 @@
 
 
 <div class="viewcode-block" id="PrevHedge"><a class="viewcode-back" href="../../../generated/pfhedge.features.PrevHedge.html#pfhedge.features.PrevHedge">[docs]</a><span class="k">class</span> <span class="nc">PrevHedge</span><span class="p">(</span><span class="n">Feature</span><span class="p">):</span>
-    <span class="sd">"""Previous holding of underlier.</span>
+<span class="w">    </span><span class="sd">"""Previous holding of underlier.</span>
 
 <span class="sd">    Name:</span>
 <span class="sd">        ``'prev_hedge'``</span>
@@ -543,7 +545,7 @@
 
 
 <div class="viewcode-block" id="Barrier"><a class="viewcode-back" href="../../../generated/pfhedge.features.Barrier.html#pfhedge.features.Barrier">[docs]</a><span class="k">class</span> <span class="nc">Barrier</span><span class="p">(</span><span class="n">StateIndependentFeature</span><span class="p">):</span>
-    <span class="sd">"""A feature which signifies whether the price of the underlier have reached</span>
+<span class="w">    </span><span class="sd">"""A feature which signifies whether the price of the underlier have reached</span>
 <span class="sd">    the barrier. The output 1.0 means that the price have touched the barrier,</span>
 <span class="sd">    and 0.0 otherwise.</span>
 
@@ -602,7 +604,7 @@
 
 
 <div class="viewcode-block" id="Zeros"><a class="viewcode-back" href="../../../generated/pfhedge.features.Zeros.html#pfhedge.features.Zeros">[docs]</a><span class="k">class</span> <span class="nc">Zeros</span><span class="p">(</span><span class="n">StateIndependentFeature</span><span class="p">):</span>
-    <span class="sd">"""A feature filled with the scalar value 0.</span>
+<span class="w">    </span><span class="sd">"""A feature filled with the scalar value 0.</span>
 
 <span class="sd">    Name:</span>
 <span class="sd">        ``'zeros'``</span>
@@ -632,7 +634,7 @@
 
 
 <div class="viewcode-block" id="Ones"><a class="viewcode-back" href="../../../generated/pfhedge.features.Ones.html#pfhedge.features.Ones">[docs]</a><span class="k">class</span> <span class="nc">Ones</span><span class="p">(</span><span class="n">StateIndependentFeature</span><span class="p">):</span>
-    <span class="sd">"""A feature filled with the scalar value 1.</span>
+<span class="w">    </span><span class="sd">"""A feature filled with the scalar value 1.</span>
 
 <span class="sd">    Name:</span>
 <span class="sd">        ``'ones'``</span>
@@ -662,7 +664,7 @@
 
 
 <div class="viewcode-block" id="Empty"><a class="viewcode-back" href="../../../generated/pfhedge.features.Empty.html#pfhedge.features.Empty">[docs]</a><span class="k">class</span> <span class="nc">Empty</span><span class="p">(</span><span class="n">StateIndependentFeature</span><span class="p">):</span>
-    <span class="sd">"""A feature filled with uninitialized data.</span>
+<span class="w">    </span><span class="sd">"""A feature filled with uninitialized data.</span>
 
 <span class="sd">    Name:</span>
 <span class="sd">        ``'empty'``</span>
@@ -692,7 +694,7 @@
 
 
 <div class="viewcode-block" id="MaxMoneyness"><a class="viewcode-back" href="../../../generated/pfhedge.features.MaxMoneyness.html#pfhedge.features.MaxMoneyness">[docs]</a><span class="k">class</span> <span class="nc">MaxMoneyness</span><span class="p">(</span><span class="n">StateIndependentFeature</span><span class="p">):</span>
-    <span class="sd">"""Cumulative maximum of moneyness.</span>
+<span class="w">    </span><span class="sd">"""Cumulative maximum of moneyness.</span>
 
 <span class="sd">    Name:</span>
 <span class="sd">        ``'max_moneyness'``</span>
@@ -731,7 +733,7 @@
 
 
 <div class="viewcode-block" id="MaxLogMoneyness"><a class="viewcode-back" href="../../../generated/pfhedge.features.MaxLogMoneyness.html#pfhedge.features.MaxLogMoneyness">[docs]</a><span class="k">class</span> <span class="nc">MaxLogMoneyness</span><span class="p">(</span><span class="n">MaxMoneyness</span><span class="p">):</span>
-    <span class="sd">"""Cumulative maximum of log Moneyness.</span>
+<span class="w">    </span><span class="sd">"""Cumulative maximum of log Moneyness.</span>
 
 <span class="sd">    Name:</span>
 <span class="sd">        ``'max_log_moneyness'``</span>

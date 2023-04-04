@@ -237,6 +237,7 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.HestonStock.html">HestonStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.LocalVolatilityStock.html">LocalVolatilityStock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.RoughBergomiStock.html">RoughBergomiStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.CIRRate.html">CIRRate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.VasicekRate.html">VasicekRate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
@@ -254,6 +255,7 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.stochastic.generate_heston.html">pfhedge.stochastic.generate_heston</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.stochastic.generate_local_volatility_process.html">pfhedge.stochastic.generate_local_volatility_process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.stochastic.generate_vasicek.html">pfhedge.stochastic.generate_vasicek</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.stochastic.generate_rough_bergomi.html">pfhedge.stochastic.generate_rough_bergomi</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.stochastic.randn_antithetic.html">pfhedge.stochastic.randn_antithetic</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pfhedge.stochastic.randn_sobol_boxmuller.html">pfhedge.stochastic.randn_sobol_boxmuller</a></li>
 </ul>
@@ -495,6 +497,8 @@
 </li>
           <li><a href="generated/pfhedge.instruments.LocalVolatilityStock.html#pfhedge.instruments.LocalVolatilityStock.default_init_state">(pfhedge.instruments.LocalVolatilityStock property)</a>
 </li>
+          <li><a href="generated/pfhedge.instruments.RoughBergomiStock.html#pfhedge.instruments.RoughBergomiStock.default_init_state">(pfhedge.instruments.RoughBergomiStock property)</a>
+</li>
           <li><a href="generated/pfhedge.instruments.VasicekRate.html#pfhedge.instruments.VasicekRate.default_init_state">(pfhedge.instruments.VasicekRate property)</a>
 </li>
         </ul></li>
@@ -689,6 +693,8 @@
         <li><a href="generated/pfhedge.stochastic.generate_heston.html#pfhedge.stochastic.generate_heston">generate_heston() (in module pfhedge.stochastic)</a>
 </li>
         <li><a href="generated/pfhedge.stochastic.generate_local_volatility_process.html#pfhedge.stochastic.generate_local_volatility_process">generate_local_volatility_process() (in module pfhedge.stochastic)</a>
+</li>
+        <li><a href="generated/pfhedge.stochastic.generate_rough_bergomi.html#pfhedge.stochastic.generate_rough_bergomi">generate_rough_bergomi() (in module pfhedge.stochastic)</a>
 </li>
         <li><a href="generated/pfhedge.stochastic.generate_vasicek.html#pfhedge.stochastic.generate_vasicek">generate_vasicek() (in module pfhedge.stochastic)</a>
 </li>
@@ -928,13 +934,17 @@
 </li>
         <li><a href="generated/pfhedge.stochastic.randn_sobol_boxmuller.html#pfhedge.stochastic.randn_sobol_boxmuller">randn_sobol_boxmuller() (in module pfhedge.stochastic)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="generated/pfhedge.nn.functional.realized_variance.html#pfhedge.nn.functional.realized_variance">realized_variance() (in module pfhedge.nn.functional)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="generated/pfhedge.nn.functional.realized_volatility.html#pfhedge.nn.functional.realized_volatility">realized_volatility() (in module pfhedge.nn.functional)</a>
 </li>
         <li><a href="generated/pfhedge.instruments.BasePrimary.html#pfhedge.instruments.BasePrimary.register_buffer">register_buffer() (pfhedge.instruments.BasePrimary method)</a>
+</li>
+        <li><a href="generated/pfhedge.instruments.RoughBergomiStock.html#pfhedge.instruments.RoughBergomiStock">RoughBergomiStock (class in pfhedge.instruments)</a>
+</li>
+        <li><a href="generated/pfhedge.instruments.RoughBergomiStock.html#id0">RoughBergomiStock.to() (in module pfhedge.instruments)</a>, <a href="generated/pfhedge.instruments.RoughBergomiStock.html#id1">[1]</a>, <a href="generated/pfhedge.instruments.RoughBergomiStock.html#id2">[2]</a>
 </li>
     </ul></td>
   </tr></table>
@@ -968,6 +978,8 @@
           <li><a href="generated/pfhedge.instruments.LocalVolatilityStock.html#pfhedge.instruments.LocalVolatilityStock.simulate">(pfhedge.instruments.LocalVolatilityStock method)</a>
 </li>
           <li><a href="generated/pfhedge.instruments.LookbackOption.html#pfhedge.instruments.LookbackOption.simulate">(pfhedge.instruments.LookbackOption method)</a>
+</li>
+          <li><a href="generated/pfhedge.instruments.RoughBergomiStock.html#pfhedge.instruments.RoughBergomiStock.simulate">(pfhedge.instruments.RoughBergomiStock method)</a>
 </li>
           <li><a href="generated/pfhedge.instruments.VarianceSwap.html#pfhedge.instruments.VarianceSwap.simulate">(pfhedge.instruments.VarianceSwap method)</a>
 </li>
@@ -1044,6 +1056,8 @@
           <li><a href="generated/pfhedge.instruments.LocalVolatilityStock.html#pfhedge.instruments.LocalVolatilityStock.to">(pfhedge.instruments.LocalVolatilityStock method)</a>
 </li>
           <li><a href="generated/pfhedge.instruments.LookbackOption.html#pfhedge.instruments.LookbackOption.to">(pfhedge.instruments.LookbackOption method)</a>
+</li>
+          <li><a href="generated/pfhedge.instruments.RoughBergomiStock.html#pfhedge.instruments.RoughBergomiStock.to">(pfhedge.instruments.RoughBergomiStock method)</a>
 </li>
           <li><a href="generated/pfhedge.instruments.VarianceSwap.html#pfhedge.instruments.VarianceSwap.to">(pfhedge.instruments.VarianceSwap method)</a>
 </li>
@@ -1130,6 +1144,8 @@
 
         <ul>
           <li><a href="generated/pfhedge.instruments.HestonStock.html#pfhedge.instruments.HestonStock.volatility">(pfhedge.instruments.HestonStock property)</a>
+</li>
+          <li><a href="generated/pfhedge.instruments.RoughBergomiStock.html#pfhedge.instruments.RoughBergomiStock.volatility">(pfhedge.instruments.RoughBergomiStock property)</a>
 </li>
         </ul></li>
     </ul></td>

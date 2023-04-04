@@ -238,6 +238,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.HestonStock.html">HestonStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.LocalVolatilityStock.html">LocalVolatilityStock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.RoughBergomiStock.html">RoughBergomiStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.CIRRate.html">CIRRate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.VasicekRate.html">VasicekRate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
@@ -255,6 +256,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.stochastic.generate_heston.html">pfhedge.stochastic.generate_heston</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.stochastic.generate_local_volatility_process.html">pfhedge.stochastic.generate_local_volatility_process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.stochastic.generate_vasicek.html">pfhedge.stochastic.generate_vasicek</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.stochastic.generate_rough_bergomi.html">pfhedge.stochastic.generate_rough_bergomi</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.stochastic.randn_antithetic.html">pfhedge.stochastic.randn_antithetic</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.stochastic.randn_sobol_boxmuller.html">pfhedge.stochastic.randn_sobol_boxmuller</a></li>
 </ul>
@@ -344,7 +346,7 @@
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_instance</span>
 
     <span class="k">def</span> <span class="nf">register_feature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="bp">cls</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">Feature</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">"""Adds a feature to the factory.</span>
+<span class="w">        </span><span class="sd">"""Adds a feature to the factory.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            name (str): name of the feature.</span>
@@ -353,7 +355,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_features</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">cls</span>
 
     <span class="k">def</span> <span class="nf">named_features</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Type</span><span class="p">[</span><span class="n">Feature</span><span class="p">]]]:</span>
-        <span class="sd">"""Returns an iterator over feature classes, yielding both the</span>
+<span class="w">        </span><span class="sd">"""Returns an iterator over feature classes, yielding both the</span>
 <span class="sd">        name of the feature class as well as the feature class itself.</span>
 
 <span class="sd">        Yields:</span>
@@ -365,7 +367,7 @@
                 <span class="k">yield</span> <span class="n">name</span><span class="p">,</span> <span class="n">feature</span>
 
     <span class="k">def</span> <span class="nf">names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="sd">"""Returns an iterator over the names of the feature classes.</span>
+<span class="w">        </span><span class="sd">"""Returns an iterator over the names of the feature classes.</span>
 
 <span class="sd">        Yields:</span>
 <span class="sd">            str: name of the feature class.</span>
@@ -374,7 +376,7 @@
             <span class="k">yield</span> <span class="n">name</span>
 
     <span class="k">def</span> <span class="nf">features</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">Feature</span><span class="p">]]:</span>
-        <span class="sd">"""Returns an iterator over feature classes.</span>
+<span class="w">        </span><span class="sd">"""Returns an iterator over feature classes.</span>
 
 <span class="sd">        Yields:</span>
 <span class="sd">            type(Feature): Feature class.</span>
@@ -383,7 +385,7 @@
             <span class="k">yield</span> <span class="n">feature</span>
 
     <span class="k">def</span> <span class="nf">get_class</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Type</span><span class="p">[</span><span class="n">Feature</span><span class="p">]:</span>
-        <span class="sd">"""Returns the feature class with the given name.</span>
+<span class="w">        </span><span class="sd">"""Returns the feature class with the given name.</span>
 
 <span class="sd">        Parameters:</span>
 <span class="sd">            name (str): name of the feature class.</span>
@@ -399,7 +401,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_features</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">get_instance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Feature</span><span class="p">:</span>
-        <span class="sd">"""Returns the feature with the given name.</span>
+<span class="w">        </span><span class="sd">"""Returns the feature with the given name.</span>
 
 <span class="sd">        Parameters:</span>
 <span class="sd">            name (str): name of the feature class.</span>
@@ -411,7 +413,7 @@
 
 
 <div class="viewcode-block" id="get_feature"><a class="viewcode-back" href="../../../generated/pfhedge.features.get_feature.html#pfhedge.features.get_feature">[docs]</a><span class="k">def</span> <span class="nf">get_feature</span><span class="p">(</span><span class="n">feature</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Feature</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Feature</span><span class="p">:</span>
-    <span class="sd">"""Get feature from name.</span>
+<span class="w">    </span><span class="sd">"""Get feature from name.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        name (str): Name of feature.</span>
@@ -438,7 +440,7 @@
 
 
 <div class="viewcode-block" id="list_feature_names"><a class="viewcode-back" href="../../../generated/pfhedge.features.list_feature_names.html#pfhedge.features.list_feature_names">[docs]</a><span class="k">def</span> <span class="nf">list_feature_names</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
-    <span class="sd">"""Returns the list of the names of available features.</span>
+<span class="w">    </span><span class="sd">"""Returns the list of the names of available features.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        list[str]</span>

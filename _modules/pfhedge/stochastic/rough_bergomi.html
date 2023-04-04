@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <meta name="generator" content="sphinx-4.5.0, furo 2021.11.23"/>
-        <title>pfhedge.stochastic.vasicek - PFHedge documentation</title>
+        <title>pfhedge.stochastic.rough_bergomi - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=7f0192ddeb2adecfbaa87ffbcf67d16358b30bc1" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
@@ -322,115 +322,152 @@
           </label>
         </div>
         <article role="main">
-          <h1>Source code for pfhedge.stochastic.vasicek</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+          <h1>Source code for pfhedge.stochastic.rough_bergomi</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
 
 <span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
 
 <span class="kn">from</span> <span class="nn">pfhedge._utils.typing</span> <span class="kn">import</span> <span class="n">TensorOrScalar</span>
+<span class="kn">from</span> <span class="nn">pfhedge.stochastic._utils</span> <span class="kn">import</span> <span class="n">cast_state</span>
+<span class="kn">from</span> <span class="nn">pfhedge.stochastic.heston</span> <span class="kn">import</span> <span class="n">SpotVarianceTuple</span>
 
-<span class="kn">from</span> <span class="nn">._utils</span> <span class="kn">import</span> <span class="n">cast_state</span>
 
-
-<div class="viewcode-block" id="generate_vasicek"><a class="viewcode-back" href="../../../generated/pfhedge.stochastic.generate_vasicek.html#pfhedge.stochastic.generate_vasicek">[docs]</a><span class="k">def</span> <span class="nf">generate_vasicek</span><span class="p">(</span>
+<div class="viewcode-block" id="generate_rough_bergomi"><a class="viewcode-back" href="../../../generated/pfhedge.stochastic.generate_rough_bergomi.html#pfhedge.stochastic.generate_rough_bergomi">[docs]</a><span class="k">def</span> <span class="nf">generate_rough_bergomi</span><span class="p">(</span>
     <span class="n">n_paths</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">n_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">init_state</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">TensorOrScalar</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">kappa</span><span class="p">:</span> <span class="n">TensorOrScalar</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
-    <span class="n">theta</span><span class="p">:</span> <span class="n">TensorOrScalar</span> <span class="o">=</span> <span class="mf">0.04</span><span class="p">,</span>
-    <span class="n">sigma</span><span class="p">:</span> <span class="n">TensorOrScalar</span> <span class="o">=</span> <span class="mf">0.04</span><span class="p">,</span>
-    <span class="n">dt</span><span class="p">:</span> <span class="n">TensorOrScalar</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">250</span><span class="p">,</span>
+    <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.4</span><span class="p">,</span>
+    <span class="n">rho</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.9</span><span class="p">,</span>
+    <span class="n">eta</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.9</span><span class="p">,</span>
+    <span class="n">xi</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.04</span><span class="p">,</span>
+    <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">250</span><span class="p">,</span>
     <span class="n">dtype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">device</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">"""Returns time series following Vasicek model.</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SpotVarianceTuple</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Returns time series following the rough Bergomi (rBergomi) model.</span>
 
 <span class="sd">    The time evolution of the process is given by:</span>
 
 <span class="sd">    .. math::</span>
 
-<span class="sd">        dX(t) = \kappa (\theta - X(t)) dt + \sigma dW(t) .</span>
+<span class="sd">        S(t) &amp;=&amp; \exp{\left\{\int_0^t \sqrt{V(u)} dB(u) - \frac{1}{2} \int_0^t V(u) du \right\}}, \\</span>
+<span class="sd">        B(u) &amp;=&amp; \rho W_u^1 + \sqrt{1-\rho^2}W_u^2, \\</span>
+<span class="sd">        V(t) &amp;=&amp; \xi\exp{\left\{\eta Y^\alpha(t) - \frac{\eta^2}{2} t^{2\alpha + 1}\right\}}, \\</span>
+<span class="sd">        Y^\alpha(t) &amp;=&amp; \sqrt{1\alpha + 1}\int_0^t (t-u)^\alpha dW_u^1,</span>
+
+<span class="sd">    :math:`dW^1` and :math:`dW^2` are the Brownian motion.</span>
+
+<span class="sd">    Time-series is generated by Ryan et al.'s Monte Carlo algorithm.</span>
 
 <span class="sd">    References:</span>
-<span class="sd">        - Gillespie, D.T., 1996.</span>
-<span class="sd">          Exact numerical simulation of the Ornstein-Uhlenbeck process and its integral.</span>
-<span class="sd">          Physical review E, 54(2), p.2084.</span>
+<span class="sd">        - Bayer, C., Friz, P., &amp; Gatheral, J. (2015). Pricing under rough volatility.</span>
+<span class="sd">          Quantitative Finance, 16(6), 887–904. https://doi.org/10.1080/14697688.2015.1099717</span>
+<span class="sd">        - McCrickerd, R., &amp; Pakkanen, M. S. (2018). Turbocharging Monte Carlo pricing for the rough Bergomi model.</span>
+<span class="sd">          Quantitative Finance, 18(11), 1877–1886. https://doi.org/10.1080/14697688.2018.1459812</span>
+<span class="sd">          Code: https://github.com/ryanmccrickerd/rough_bergomi</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        n_paths (int): The number of simulated paths.</span>
 <span class="sd">        n_steps (int): The number of time steps.</span>
 <span class="sd">        init_state (tuple[torch.Tensor | float], optional): The initial state of</span>
 <span class="sd">            the time series.</span>
-<span class="sd">            This is specified by a tuple :math:`(X(0),)`.</span>
-<span class="sd">            It also accepts a :class:`torch.Tensor` or a :class:`float`.</span>
-<span class="sd">            If ``None`` (default), it uses :math:`(\theta, )`.</span>
-<span class="sd">        kappa (torch.Tensor or float, default=1.0): The parameter :math:`\kappa`.</span>
-<span class="sd">        theta (torch.Tensor or float, default=0.04): The parameter :math:`\theta`.</span>
-<span class="sd">        sigma (torch.Tensor or float, default=0.04): The parameter :math:`\sigma`.</span>
-<span class="sd">        dt (torch.Tensor or float, default=1/250): The intervals of the time steps.</span>
+<span class="sd">            This is specified by a tuple :math:`(S(0), V(0))`.</span>
+<span class="sd">            If ``None`` (default), it uses :math:`(1.0, \\xi)`.</span>
+<span class="sd">        alpha (float, default=-0.4): The parameter :math:`\\alpha`.</span>
+<span class="sd">        rho (float, default=-0.9): The parameter :math:`\\rho`.</span>
+<span class="sd">        eta (float, default=1.9): The parameter :math:`\\eta`.</span>
+<span class="sd">        xi (float, default=0.04): The parameter :math:`\\xi`.</span>
+<span class="sd">        dt (float, default=1 / 250): The intervals of the time steps.</span>
 <span class="sd">        dtype (torch.dtype, optional): The desired data type of returned tensor.</span>
 <span class="sd">            Default: If ``None``, uses a global default</span>
 <span class="sd">            (see :func:`torch.set_default_tensor_type()`).</span>
 <span class="sd">        device (torch.device, optional): The desired device of returned tensor.</span>
-<span class="sd">            Default: if None, uses the current device for the default tensor type</span>
+<span class="sd">            Default: If ``None``, uses the current device for the default tensor type</span>
 <span class="sd">            (see :func:`torch.set_default_tensor_type()`).</span>
 <span class="sd">            ``device`` will be the CPU for CPU tensor types and the current CUDA device</span>
 <span class="sd">            for CUDA tensor types.</span>
 
 <span class="sd">    Shape:</span>
-<span class="sd">        - Output: :math:`(N, T)` where</span>
+<span class="sd">        - spot: :math:`(N, T)` where</span>
 <span class="sd">          :math:`N` is the number of paths and</span>
 <span class="sd">          :math:`T` is the number of time steps.</span>
+<span class="sd">        - variance: :math:`(N, T)`.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        torch.Tensor</span>
+<span class="sd">        (torch.Tensor, torch.Tensor): A namedtuple ``(spot, variance)``.</span>
 
 <span class="sd">    Examples:</span>
-<span class="sd">        &gt;&gt;&gt; from pfhedge.stochastic import generate_vasicek</span>
+<span class="sd">        &gt;&gt;&gt; from pfhedge.stochastic import generate_rough_bergomi</span>
 <span class="sd">        ...</span>
 <span class="sd">        &gt;&gt;&gt; _ = torch.manual_seed(42)</span>
-<span class="sd">        &gt;&gt;&gt; generate_vasicek(2, 5)</span>
-<span class="sd">        tensor([[0.0400, 0.0409, 0.0412, 0.0418, 0.0423],</span>
-<span class="sd">                [0.0400, 0.0395, 0.0451, 0.0435, 0.0446]])</span>
+<span class="sd">        &gt;&gt;&gt; outputs = generate_rough_bergomi(2, 5)</span>
+<span class="sd">        &gt;&gt;&gt; outputs.spot</span>
+<span class="sd">        tensor([[1.0000, 0.9807, 0.9563, 0.9540, 0.9570],</span>
+<span class="sd">                [1.0000, 1.0147, 1.0097, 1.0107, 1.0164]])</span>
+<span class="sd">        &gt;&gt;&gt; outputs.variance</span>
+<span class="sd">        tensor([[0.0400, 0.3130, 0.0105, 0.0164, 0.0068],</span>
+<span class="sd">                [0.0400, 0.0396, 0.0049, 0.0064, 0.0149]])</span>
+
 <span class="sd">    """</span>
+
     <span class="k">if</span> <span class="n">init_state</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">init_state</span> <span class="o">=</span> <span class="p">(</span><span class="n">theta</span><span class="p">,)</span>
+        <span class="n">init_state</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">xi</span><span class="p">)</span>
 
-    <span class="n">init_state</span> <span class="o">=</span> <span class="n">cast_state</span><span class="p">(</span><span class="n">init_state</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span>
+    <span class="n">init_state</span> <span class="o">=</span> <span class="n">cast_state</span><span class="p">(</span><span class="n">init_state</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+    <span class="n">alpha_tensor</span><span class="p">,</span> <span class="n">rho_tensor</span><span class="p">,</span> <span class="n">eta_tensor</span> <span class="o">=</span> <span class="n">cast_state</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">eta</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span>
+    <span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">init_state</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">new_init_state</span> <span class="o">=</span> <span class="p">(</span><span class="n">init_state</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">theta</span><span class="p">,)</span>
-        <span class="k">return</span> <span class="n">theta</span> <span class="o">+</span> <span class="n">generate_vasicek</span><span class="p">(</span>
-            <span class="n">n_paths</span><span class="o">=</span><span class="n">n_paths</span><span class="p">,</span>
-            <span class="n">n_steps</span><span class="o">=</span><span class="n">n_steps</span><span class="p">,</span>
-            <span class="n">init_state</span><span class="o">=</span><span class="n">new_init_state</span><span class="p">,</span>
-            <span class="n">kappa</span><span class="o">=</span><span class="n">kappa</span><span class="p">,</span>
-            <span class="n">theta</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
-            <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span>
-            <span class="n">dt</span><span class="o">=</span><span class="n">dt</span><span class="p">,</span>
-            <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span>
-            <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">,</span>
-        <span class="p">)</span>
+    <span class="n">_dW1_cov1</span> <span class="o">=</span> <span class="n">dt</span> <span class="o">**</span> <span class="p">(</span><span class="n">alpha</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">alpha</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">_dW1_cov2</span> <span class="o">=</span> <span class="n">dt</span> <span class="o">**</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">alpha</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">alpha</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">_dW1_covariance_matrix</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span>
+        <span class="p">[[</span><span class="n">dt</span><span class="p">,</span> <span class="n">_dW1_cov1</span><span class="p">],</span> <span class="p">[</span><span class="n">_dW1_cov1</span><span class="p">,</span> <span class="n">_dW1_cov2</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span>
+    <span class="p">)</span>
+    <span class="n">_dW1_generator</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">multivariate_normal</span><span class="o">.</span><span class="n">MultivariateNormal</span><span class="p">(</span>
+        <span class="n">loc</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">),</span>
+        <span class="n">covariance_matrix</span><span class="o">=</span><span class="n">_dW1_covariance_matrix</span><span class="p">,</span>
+    <span class="p">)</span>
 
-    <span class="n">output</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">n_paths</span><span class="p">,</span> <span class="n">n_steps</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
-    <span class="n">output</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">init_state</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">dW1</span> <span class="o">=</span> <span class="n">_dW1_generator</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">([</span><span class="n">n_paths</span><span class="p">,</span> <span class="n">n_steps</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]))</span>
+    <span class="n">dW2</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">([</span><span class="n">n_paths</span><span class="p">,</span> <span class="n">n_steps</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+        <span class="n">dt</span>
+    <span class="p">)</span>
 
-    <span class="c1"># Cast to Tensor with desired dtype and device</span>
-    <span class="n">kappa</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">dt</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">,</span> <span class="p">(</span><span class="n">kappa</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">dt</span><span class="p">))</span>
-    <span class="n">kappa</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">dt</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">output</span><span class="p">),</span> <span class="p">(</span><span class="n">kappa</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">dt</span><span class="p">))</span>
+    <span class="n">_Y1</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">torch</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">dW1</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]),</span> <span class="n">dW1</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">1</span><span class="p">]],</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
 
-    <span class="n">randn</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn_like</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">discrete_TBSS_fn</span><span class="p">(</span><span class="n">k</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="n">TensorOrScalar</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">((</span><span class="n">k</span> <span class="o">**</span> <span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="n">k</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">a</span><span class="p">)</span>
 
-    <span class="c1"># Compute \mu: Equation (3.3)</span>
-    <span class="n">mu</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">kappa</span> <span class="o">*</span> <span class="n">dt</span><span class="p">)</span><span class="o">.</span><span class="n">exp</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">i_step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_steps</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
-        <span class="c1"># Compute \sigma_X: Equation (3.4)</span>
-        <span class="n">vola</span> <span class="o">=</span> <span class="n">sigma</span> <span class="o">*</span> <span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">mu</span><span class="o">.</span><span class="n">square</span><span class="p">())</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">kappa</span><span class="p">)</span><span class="o">.</span><span class="n">sqrt</span><span class="p">()</span>
-        <span class="n">output</span><span class="p">[:,</span> <span class="n">i_step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">mu</span> <span class="o">*</span> <span class="n">output</span><span class="p">[:,</span> <span class="n">i_step</span><span class="p">]</span> <span class="o">+</span> <span class="n">vola</span> <span class="o">*</span> <span class="n">randn</span><span class="p">[:,</span> <span class="n">i_step</span><span class="p">]</span>
+    <span class="n">_gamma</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">discrete_TBSS_fn</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">n_steps</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">),</span> <span class="n">alpha</span><span class="p">)</span>
+        <span class="o">/</span> <span class="p">(</span><span class="n">n_steps</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="p">)</span> <span class="o">**</span> <span class="n">alpha</span>
+    <span class="n">_gamma</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">),</span> <span class="n">_gamma</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">_Xi</span> <span class="o">=</span> <span class="n">dW1</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">_GXi_convolve</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">functional</span><span class="o">.</span><span class="n">conv1d</span><span class="p">(</span>
+        <span class="n">_gamma</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="mi">0</span><span class="p">)[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:],</span>
+        <span class="n">_Xi</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:],</span>
+        <span class="n">padding</span><span class="o">=</span><span class="n">_Xi</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="p">)[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+    <span class="n">_Y2</span> <span class="o">=</span> <span class="n">_GXi_convolve</span><span class="p">[:,</span> <span class="o">-</span><span class="n">n_steps</span><span class="p">:]</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">Y</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">alpha_tensor</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">_Y1</span> <span class="o">+</span> <span class="n">_Y2</span><span class="p">)</span>
+    <span class="n">dB</span> <span class="o">=</span> <span class="n">rho_tensor</span> <span class="o">*</span> <span class="n">dW1</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">torch</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">rho_tensor</span><span class="o">.</span><span class="n">square</span><span class="p">())</span> <span class="o">*</span> <span class="n">dW2</span>
+    <span class="n">variance</span> <span class="o">=</span> <span class="n">init_state</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span>
+        <span class="n">eta_tensor</span> <span class="o">*</span> <span class="n">Y</span>
+        <span class="o">-</span> <span class="mf">0.5</span>
+        <span class="o">*</span> <span class="n">eta_tensor</span><span class="o">.</span><span class="n">square</span><span class="p">()</span>
+        <span class="o">*</span> <span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_steps</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span> <span class="o">*</span> <span class="n">dt</span><span class="p">)</span>
+        <span class="o">**</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">alpha_tensor</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">output</span></div>
+    <span class="n">_increments</span> <span class="o">=</span> <span class="n">variance</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">sqrt</span><span class="p">()</span> <span class="o">*</span> <span class="n">dB</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">variance</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">dt</span>
+    <span class="n">_integral</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">_increments</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">log_return</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">torch</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">_integral</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="mi">1</span><span class="p">]),</span> <span class="n">_integral</span><span class="p">],</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">prices</span> <span class="o">=</span> <span class="n">init_state</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">log_return</span><span class="o">.</span><span class="n">exp</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">SpotVarianceTuple</span><span class="p">(</span><span class="n">prices</span><span class="p">,</span> <span class="n">variance</span><span class="p">)</span></div>
 </pre></div>
         </article>
       </div>

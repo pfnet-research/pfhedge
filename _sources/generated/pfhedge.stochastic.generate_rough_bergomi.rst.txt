@@ -1,0 +1,6 @@
+﻿pfhedge.stochastic.generate\_rough\_bergomi
+===========================================
+
+.. currentmodule:: pfhedge.stochastic
+
+.. autofunction:: generate_rough_bergomi

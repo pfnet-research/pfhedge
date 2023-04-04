@@ -239,6 +239,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.HestonStock.html">HestonStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.LocalVolatilityStock.html">LocalVolatilityStock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.RoughBergomiStock.html">RoughBergomiStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.CIRRate.html">CIRRate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.VasicekRate.html">VasicekRate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
@@ -256,6 +257,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.generate_heston.html">pfhedge.stochastic.generate_heston</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.generate_local_volatility_process.html">pfhedge.stochastic.generate_local_volatility_process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.generate_vasicek.html">pfhedge.stochastic.generate_vasicek</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.generate_rough_bergomi.html">pfhedge.stochastic.generate_rough_bergomi</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.randn_antithetic.html">pfhedge.stochastic.randn_antithetic</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.randn_sobol_boxmuller.html">pfhedge.stochastic.randn_sobol_boxmuller</a></li>
 </ul>
@@ -325,7 +327,7 @@
 <h1>Clamp<a class="headerlink" href="#clamp" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="pfhedge.nn.Clamp">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pfhedge.nn.</span></span><span class="sig-name descname"><span class="pre">Clamp</span></span><a class="reference internal" href="../_modules/pfhedge/nn/modules/clamp.html#Clamp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.Clamp" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pfhedge.nn.</span></span><span class="sig-name descname"><span class="pre">Clamp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/modules/clamp.html#Clamp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.Clamp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clamp all elements in <code class="docutils literal notranslate"><span class="pre">input</span></code> into the range <span class="math notranslate nohighlight">\([\min, \max]\)</span>.</p>
 <p>The bounds <span class="math notranslate nohighlight">\(\min\)</span> and <span class="math notranslate nohighlight">\(\max\)</span> can be tensors.</p>
 <p>If <span class="math notranslate nohighlight">\(\min \leq \max\)</span>:</p>
@@ -346,14 +348,14 @@
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <ul class="simple">
-<li><p><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.clamp.html#torch.clamp" title="(in PyTorch v1.11.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.clamp()</span></code></a></p></li>
+<li><p><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.clamp.html#torch.clamp" title="(in PyTorch v2.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.clamp()</span></code></a></p></li>
 <li><p><a class="reference internal" href="pfhedge.nn.functional.clamp.html#pfhedge.nn.functional.clamp" title="pfhedge.nn.functional.clamp"><code class="xref py py-func docutils literal notranslate"><span class="pre">pfhedge.nn.functional.clamp()</span></code></a></p></li>
 </ul>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>inverted_output</strong> (<em>{'mean'</em><em>, </em><em>''max'}</em><em>, </em><em>default='mean'</em>) – Controls the output when <span class="math notranslate nohighlight">\(\min &gt; \max\)</span>.
-‘max’ is consistent with <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.clamp.html#torch.clamp" title="(in PyTorch v1.11.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.clamp()</span></code></a>.</p>
+‘max’ is consistent with <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.clamp.html#torch.clamp" title="(in PyTorch v2.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.clamp()</span></code></a>.</p>
 </dd>
 </dl>
 <dl class="simple">
@@ -395,9 +397,9 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>input</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><em>torch.Tensor</em></a>) – The input tensor.</p></li>
-<li><p><strong>min</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Lower-bound of the range to be clamped to.</p></li>
-<li><p><strong>max</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.11.0)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Upper-bound of the range to be clamped to.</p></li>
+<li><p><strong>input</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><em>torch.Tensor</em></a>) – The input tensor.</p></li>
+<li><p><strong>min</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Lower-bound of the range to be clamped to.</p></li>
+<li><p><strong>max</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Upper-bound of the range to be clamped to.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>

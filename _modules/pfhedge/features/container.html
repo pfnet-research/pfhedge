@@ -238,6 +238,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.BrownianStock.html">BrownianStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.HestonStock.html">HestonStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.LocalVolatilityStock.html">LocalVolatilityStock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.RoughBergomiStock.html">RoughBergomiStock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.CIRRate.html">CIRRate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.VasicekRate.html">VasicekRate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.instruments.AmericanBinaryOption.html">AmericanBinaryOption</a></li>
@@ -255,6 +256,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.stochastic.generate_heston.html">pfhedge.stochastic.generate_heston</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.stochastic.generate_local_volatility_process.html">pfhedge.stochastic.generate_local_volatility_process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.stochastic.generate_vasicek.html">pfhedge.stochastic.generate_vasicek</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.stochastic.generate_rough_bergomi.html">pfhedge.stochastic.generate_rough_bergomi</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.stochastic.randn_antithetic.html">pfhedge.stochastic.randn_antithetic</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../generated/pfhedge.stochastic.randn_sobol_boxmuller.html">pfhedge.stochastic.randn_sobol_boxmuller</a></li>
 </ul>
@@ -341,7 +343,7 @@
 
 
 <div class="viewcode-block" id="FeatureList"><a class="viewcode-back" href="../../../generated/pfhedge.features.FeatureList.html#pfhedge.features.FeatureList">[docs]</a><span class="k">class</span> <span class="nc">FeatureList</span><span class="p">(</span><span class="n">Feature</span><span class="p">):</span>
-    <span class="sd">"""Holds features in a list.</span>
+<span class="w">    </span><span class="sd">"""Holds features in a list.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        features (list[str | Features]): A list of features.</span>
@@ -387,7 +389,7 @@
 
 
 <div class="viewcode-block" id="ModuleOutput"><a class="viewcode-back" href="../../../generated/pfhedge.features.ModuleOutput.html#pfhedge.features.ModuleOutput">[docs]</a><span class="k">class</span> <span class="nc">ModuleOutput</span><span class="p">(</span><span class="n">Feature</span><span class="p">,</span> <span class="n">Module</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">"""The feature computed as an output of a :class:`torch.nn.Module`.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""The feature computed as an output of a :class:`torch.nn.Module`.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        module (torch.nn.Module): Module to compute the value of the feature.</span>
@@ -447,7 +449,7 @@
     <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_step</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">time_step</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="nf">of</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">TM</span><span class="p">,</span> <span class="n">derivative</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hedger</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TM</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">of</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">TM</span><span class="p">,</span> <span class="n">derivative</span><span class="p">:</span> <span class="n">BaseDerivative</span><span class="p">,</span> <span class="n">hedger</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Module</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TM</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="n">derivative</span><span class="p">,</span> <span class="n">hedger</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span>
 
