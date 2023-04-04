@@ -109,9 +109,7 @@ def generate_rough_bergomi(
     dW2 = torch.randn([n_paths, n_steps - 1], dtype=dtype, device=device)
     dW2 = dW2 * math.sqrt(dt)
 
-    _Y1 = torch.cat(
-        [torch.zeros_like(dW[:, :1, 1]), dW1[:, :, 1]], dim=-1
-    )
+    _Y1 = torch.cat([torch.zeros_like(dW1[:, :1, 1]), dW1[:, :, 1]], dim=-1)
 
     def discrete_TBSS_fn(k: torch.Tensor, a: TensorOrScalar) -> torch.Tensor:
         return ((k ** (a + 1) - (k - 1) ** (a + 1)) / (a + 1)) ** (1 / a)
@@ -140,9 +138,7 @@ def generate_rough_bergomi(
 
     _increments = variance[:, :-1].sqrt() * dB - 0.5 * variance[:, :-1] * dt
     _integral = torch.cumsum(_increments, dim=1)
-    log_return = torch.cat(
-        [torch.zeros_like(_integral[..., :1]), _integral], dim=-1
-    )
+    log_return = torch.cat([torch.zeros_like(_integral[..., :1]), _integral], dim=-1)
     prices = init_state[0] * log_return.exp()
 
     return SpotVarianceTuple(prices, variance)
