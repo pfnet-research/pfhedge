@@ -76,7 +76,7 @@ jobs:
     - name: Build the package
       run: |
         poetry build
-    - name: Push a release to GitHub
+    - name: Push a release to GitHub. At the beginning of release, the body of pull request is shown.
       id: create_release
       uses: actions/create-release@v1
       env:
@@ -92,11 +92,9 @@ jobs:
           This release is automatically generated.
           Please see the pull request for more details.
           [${{ github.event.pull_request.html_url }}](${{ github.event.pull_request.html_url }})
-      #memo: Create release pages. At the beginning of release, the body of pull request is shown.
-    - name: Generate checksum
+    - name: Generate checksum for all elements in dist directory
       run: |
         cd dist; sha256sum * > checksums.txt; cd -
-      #memo: make check sum for all elements in dist
     - name: Attach an archive of source files to the release
       uses: actions/upload-release-asset@v1
       env:
