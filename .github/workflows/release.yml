@@ -16,9 +16,8 @@ jobs:
            echo "TAG=$(echo $BRANCH | cut -d / -f 2)" >> $GITHUB_OUTPUT
          env:
            BRANCH: ${{ github.event.pull_request.head.ref }}
-       - name: Echo tag
-         run: echo ${{ steps.get_version.outputs.TAG }}
-         #memo: echo release version for debugging
+       - name: Print the tag name for debugging
+         run: echo "${{ steps.get_version.outputs.TAG }}"
        - uses: actions/checkout@v2
        - name: Create a corresponding tag branch
          run: |
