@@ -101,6 +101,8 @@ def test_generate_rough_bergomi(device: str = "cpu") -> None:
     call_payoffs = np.maximum(ST - K, 0)
     call_prices = np.mean(call_payoffs, axis=0)[:, np.newaxis]
     implied_vols = vec_bsinv(call_prices, 1.0, np.transpose(K), 1.0)
+    # This should be the same values as the original notebook's original implied volatility has:
+    # https://github.com/ryanmccrickerd/rough_bergomi/blob/master/notebooks/rbergomi.ipynb
     iv_expected = np.array(
         [
             [0.32451138],
