@@ -81,10 +81,10 @@ class RoughBergomiStock(BasePrimary):
     ) -> None:
         super().__init__()
 
-        self.alpha: float = alpha
-        self.rho: float = rho
-        self.eta: float = eta
-        self.xi: float = xi
+        self.alpha = alpha
+        self.rho = rho
+        self.eta = eta
+        self.xi = xi
         self.cost = cost
         self.dt = dt
 
