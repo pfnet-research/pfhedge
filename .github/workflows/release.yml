@@ -14,7 +14,7 @@
 #     - Create a release on GitHub
 #     - Release the package on PyPI
 # 3. `delete-branch` job runs:
-#     - Delete the release branch .
+#     - Delete the release branch
 name: Release
 on:
  pull_request:
