@@ -38,13 +38,12 @@ jobs:
       #memo: only one version should be set. This matrix is used to reduce the maintenance cost to change version
 
     steps:
-    - name: Get the version
+    - name: Determine the tag name based on the branch name
       id: get_version
       run: |
-        echo "TAG=`echo $SOURCE_VERSION | cut -d / -f 2`" >> $GITHUB_OUTPUT
+        echo "TAG=$(echo $BRANCH | cut -d / -f 2)" >> $GITHUB_OUTPUT
       env:
-        SOURCE_VERSION: ${{ github.event.pull_request.head.ref }}
-      #memo: extract version name from branch name (release/x.y.x -> x.y.z) and register it to steps.get_version.outputs.TAG
+        BRANCH: ${{ github.event.pull_request.head.ref }}
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2.2.2
