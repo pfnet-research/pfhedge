@@ -57,7 +57,7 @@ jobs:
     - name: Build the package
       run: |
         poetry build
-    - name: Create release
+    - name: Push a release to GitHub
       id: create_release
       uses: actions/create-release@v1
       env:
