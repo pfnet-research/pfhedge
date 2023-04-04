@@ -106,5 +106,5 @@ def generate_merton_jump(
         * dt
         * torch.arange(n_steps).to(randn)
     )
-    brown = randn.new_tensor(dt).sqrt() * randn.cumsum(1)
+    brown = randn.cumsum(1) * math.sqrt(dt)
     return init_state[0] * (drift + sigma * brown + jump.cumsum(1)).exp()
