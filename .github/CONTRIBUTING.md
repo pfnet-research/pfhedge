@@ -34,4 +34,4 @@ make check
 4. After the release pull request was merged to main branch, pypi release and release page is automatically uploaded.
     - please do not remove release branch by yourself. Github action will delete it after the procedures are completed.
 
-Note: dev branch is no longer used for development. Please make pull request directly into main branch.
+Note: dev/develop branch is no longer used for development. Please make pull request directly into main branch.
