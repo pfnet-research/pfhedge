@@ -110,7 +110,7 @@ def generate_rough_bergomi(
     dW2 = dW2 * math.sqrt(dt)
 
     _Y1 = torch.cat(
-        [torch.zeros([n_paths, 1], dtype=dtype, device=device), dW1[:, :, 1]], dim=-1
+        [torch.zeros_like(dW[:, :1, 1]), dW1[:, :, 1]], dim=-1
     )
 
     def discrete_TBSS_fn(k: torch.Tensor, a: TensorOrScalar) -> torch.Tensor:
