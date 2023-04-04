@@ -13,7 +13,7 @@ jobs:
        - name: Get the version
          id: get_version
          run: |
-           echo ::set-output name=TAG::`echo $SOURCE_VERSION | cut -d / -f 2`
+           echo "TAG=`echo $SOURCE_VERSION | cut -d / -f 2`" >> $GITHUB_OUTPUT
          env:
            SOURCE_VERSION: ${{ github.event.pull_request.head.ref }}
        - name: Echo tag
@@ -26,11 +26,9 @@ jobs:
            git checkout main
            git tag -a `echo '${{ github.event.pull_request.head.ref }}' | sed 's/release\///'` -m " "
            git push origin `echo '${{ github.event.pull_request.head.ref }}' | sed 's/release\///'`
-           git push --delete origin ${{ github.event.pull_request.head.ref }}
 
   release:
     name: release
-    needs: [tagging]
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -40,7 +38,7 @@ jobs:
     - name: Get the version
       id: get_version
       run: |
-        echo ::set-output name=TAG::`echo $SOURCE_VERSION | cut -d / -f 2`
+        echo "TAG=`echo $SOURCE_VERSION | cut -d / -f 2`" >> $GITHUB_OUTPUT
       env:
         SOURCE_VERSION: ${{ github.event.pull_request.head.ref }}
     - uses: actions/checkout@v2
@@ -53,9 +51,6 @@ jobs:
         python -m pip install --upgrade pip setuptools wheel
         python -m pip install poetry
         poetry install
-    - name: Release to PyPI
-      run: |
-        poetry publish --build --username __token__ --password ${{ secrets.PYPI_TOKEN }}
     - name: Create release
       id: create_release
       uses: actions/create-release@v1
@@ -68,7 +63,7 @@ jobs:
         prerelease: false
         body: |
           ${{ github.event.pull_request.body }}
-          
+
           This release is automatically generated.
           Please see the pull request for more details.
           [${{ github.event.pull_request.html_url }}](${{ github.event.pull_request.html_url }})
@@ -102,3 +97,14 @@ jobs:
         asset_path: dist/checksums.txt
         asset_name: pfhedge-${{ steps.get_version.outputs.TAG }}-checksums.txt
         asset_content_type: text/plain
+    - name: Release to PyPI
+      run: |
+        poetry publish --build --username __token__ --password ${{ secrets.PYPI_TOKEN }}
+
+  delete-branch:
+    runs-on: ubuntu-latest
+    needs: [tagging, release]
+    steps:
+    - name: Delete branch
+      run: |
+        git push --delete origin ${{ github.event.pull_request.head.ref }}
