@@ -20,14 +20,14 @@ jobs:
          run: echo ${{ steps.get_version.outputs.TAG }}
          #memo: echo release version for debugging
        - uses: actions/checkout@v2
-       - run: |
+       - name: Create a corresponding tag branch
+         run: |
            git config --global user.email "github-actions[bot]@users.noreply.github.com"
            git config --global user.name "github-actions[bot]"
            git fetch origin ${{ github.event.pull_request.head.ref }}
            git checkout main
            git tag -a `echo '${{ github.event.pull_request.head.ref }}' | sed 's/release\///'` -m " "
            git push origin `echo '${{ github.event.pull_request.head.ref }}' | sed 's/release\///'`
-         #memo: push tag to the head of the branch as github action bot user
 
   release:
     name: release
