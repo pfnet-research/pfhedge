@@ -90,7 +90,7 @@ jobs:
         asset_path: dist/pfhedge-${{ steps.get_version.outputs.TAG }}.tar.gz
         asset_name: pfhedge-${{ steps.get_version.outputs.TAG }}.tar.gz
         asset_content_type: application/gzip
-    - name: Upload whl
+    - name: Attach a Python wheel to the release
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
