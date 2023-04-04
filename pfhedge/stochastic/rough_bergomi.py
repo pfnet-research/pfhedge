@@ -141,7 +141,7 @@ def generate_rough_bergomi(
     _increments = variance[:, :-1].sqrt() * dB - 0.5 * variance[:, :-1] * dt
     _integral = torch.cumsum(_increments, dim=1)
     log_return = torch.cat(
-        [torch.zeros((n_paths, 1), dtype=dtype, device=device), _integral], dim=-1
+        [torch.zeros_like(_integral[..., :1]), _integral], dim=-1
     )
     prices = init_state[0] * log_return.exp()
 
