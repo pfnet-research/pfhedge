@@ -83,7 +83,7 @@ def generate_merton_jump(
         >>> _ = torch.manual_seed(42)
         >>> generate_merton_jump(2, 5)
         tensor([[1.0000, 0.9904, 1.0074, 1.0160, 1.0117],
-                [1.0000, 1.0034, 1.0040, 1.0654, 1.0621]])
+                [1.0000, 1.0034, 1.0040, 1.0490, 1.0457]])
     """
     # https://www.codearmo.com/python-tutorial/merton-jump-diffusion-model-python
     init_state = cast_state(init_state, dtype=dtype, device=device)
@@ -91,11 +91,13 @@ def generate_merton_jump(
     poisson = torch.distributions.poisson.Poisson(rate=jump_per_year * dt)
     n_jumps = poisson.sample((n_paths, n_steps - 1)).to(dtype=dtype, device=device)
 
-    jump_size = (
-        jump_mean
-        + engine(*(n_paths, n_steps - 1), dtype=dtype, device=device) * jump_std
+    # Eq. (3) in https://www.imes.boj.or.jp/research/papers/japanese/kk22-b1-3.pdf
+    jump = (
+        jump_mean * n_jumps
+        + engine(*(n_paths, n_steps - 1), dtype=dtype, device=device)
+        * jump_std
+        * n_jumps.sqrt()
     )
-    jump = n_jumps * jump_size
     jump = torch.cat(
         [torch.zeros((n_paths, 1), dtype=dtype, device=device), jump], dim=1
     )
