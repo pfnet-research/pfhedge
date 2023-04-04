@@ -1,3 +1,20 @@
+# `release` workflow configuration
+#
+# This workflow is triggered when a release branch is merged into the main
+# branch. It automates the process of creating a package and releasing it to
+# GitHub and PyPI.
+#
+# Workflow steps:
+# 0. A release branch named release/[TAG] is merged into main via a pull
+#    request.
+# 1. `tagging` job runs:
+#     - A branch named [TAG] is created
+# 2. `release` job runs:
+#     - Create a PyPI package
+#     - Create a release on GitHub
+#     - Release the package on PyPI
+# 3. `delete-branch` job runs:
+#     - Delete the release branch .
 name: Release
 on:
  pull_request:
