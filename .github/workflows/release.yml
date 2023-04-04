@@ -16,10 +16,10 @@ jobs:
            echo "TAG=`echo $SOURCE_VERSION | cut -d / -f 2`" >> $GITHUB_OUTPUT
          env:
            SOURCE_VERSION: ${{ github.event.pull_request.head.ref }}
-         memo: extract version name from branch name (release/x.y.x -> x.y.z) and register it to steps.get_version.outputs.TAG
+         #memo: extract version name from branch name (release/x.y.x -> x.y.z) and register it to steps.get_version.outputs.TAG
        - name: Echo tag
          run: echo ${{ steps.get_version.outputs.TAG }}
-         memo: echo release version for debugging
+         #memo: echo release version for debugging
        - uses: actions/checkout@v2
        - run: |
            git config --global user.email "github-actions[bot]@users.noreply.github.com"
@@ -28,7 +28,7 @@ jobs:
            git checkout main
            git tag -a `echo '${{ github.event.pull_request.head.ref }}' | sed 's/release\///'` -m " "
            git push origin `echo '${{ github.event.pull_request.head.ref }}' | sed 's/release\///'`
-         memo: push tag to the head of the branch as github action bot user
+         #memo: push tag to the head of the branch as github action bot user
 
   release:
     name: release
@@ -37,7 +37,7 @@ jobs:
     strategy:
       matrix:
         python-version: ['3.9']
-      memo: only one version should be set. This matrix is used to reduce the maintenance cost to change version
+      #memo: only one version should be set. This matrix is used to reduce the maintenance cost to change version
 
     steps:
     - name: Get the version
@@ -46,7 +46,7 @@ jobs:
         echo "TAG=`echo $SOURCE_VERSION | cut -d / -f 2`" >> $GITHUB_OUTPUT
       env:
         SOURCE_VERSION: ${{ github.event.pull_request.head.ref }}
-      memo: extract version name from branch name (release/x.y.x -> x.y.z) and register it to steps.get_version.outputs.TAG
+      #memo: extract version name from branch name (release/x.y.x -> x.y.z) and register it to steps.get_version.outputs.TAG
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2.2.2
@@ -76,11 +76,11 @@ jobs:
           This release is automatically generated.
           Please see the pull request for more details.
           [${{ github.event.pull_request.html_url }}](${{ github.event.pull_request.html_url }})
-      memo: Create release pages. At the beginning of release, the body of pull request is shown.
+      #memo: Create release pages. At the beginning of release, the body of pull request is shown.
     - name: Generate checksum
       run: |
         cd dist; sha256sum * > checksums.txt; cd -
-      memo: make check sum for all elements in dist
+      #memo: make check sum for all elements in dist
     - name: Upload tar.gz
       uses: actions/upload-release-asset@v1
       env:
