@@ -12,16 +12,16 @@ cls = VarianceSwap
 
 
 class TestVarianceSwap:
-    def test_payoff(self):
-        derivative = VarianceSwap(BrownianStock(), strike=0.04)
-        derivative.ul().register_buffer("spot", torch.ones(2, 3))
+    def test_payoff(self, device: str = "cpu"):
+        derivative = VarianceSwap(BrownianStock(), strike=0.04).to(device)
+        derivative.ul().register_buffer("spot", torch.ones(2, 3).to(device))
         result = derivative.payoff()
         expect = torch.full_like(result, -0.04)
         assert_close(result, expect)
 
-        derivative = VarianceSwap(BrownianStock(dt=0.01), strike=0)
+        derivative = VarianceSwap(BrownianStock(dt=0.01), strike=0).to(device)
         var = 0.04
-        log_return = torch.full((2, 10), sqrt(var * derivative.ul().dt))
+        log_return = torch.full((2, 10), sqrt(var * derivative.ul().dt)).to(device)
         log_return[:, 0] = 0.0
         spot = log_return.cumsum(-1).exp()
         derivative.ul().register_buffer("spot", spot)
@@ -35,6 +35,10 @@ class TestVarianceSwap:
         result = derivative.payoff()
         expect = torch.full_like(result, -0.04)
         assert_close(result, expect)
+
+    @pytest.mark.gpu
+    def test_payoff_gpu(self):
+        self.test_payoff(device="cuda")
 
     def test_repr(self):
         derivative = VarianceSwap(BrownianStock())

@@ -178,7 +178,7 @@ class BaseDerivative(BaseInstrument):
             clause (callable[[BaseDerivative, torch.Tensor], torch.Tensor]):
                 The clause to add.
         """
-        if not isinstance(name, torch._six.string_classes):
+        if not isinstance(name, (str, bytes)):
             raise TypeError(
                 f"clause name should be a string. Got {torch.typename(name)}"
             )
@@ -206,7 +206,7 @@ class BaseDerivative(BaseInstrument):
             yield clause
 
     def register_underlier(self, name: str, underlier: BasePrimary) -> None:
-        if not isinstance(name, torch._six.string_classes):
+        if not isinstance(name, (str, bytes)):
             raise TypeError(f"name should be a string. Got {torch.typename(name)}")
         elif hasattr(self, name) and name not in self._underliers:
             raise KeyError(f"attribute '{name}' already exists")
@@ -240,7 +240,7 @@ class BaseDerivative(BaseInstrument):
     def __getattr__(self, name: str) -> BasePrimary:
         return self.get_underlier(name)
 
-    def __setattr__(self, name, value) -> None:
+    def __setattr__(self, name: str, value: Any) -> None:
         if isinstance(value, BasePrimary):
             self.register_underlier(name, value)
         super().__setattr__(name, value)
@@ -268,7 +268,7 @@ class BaseDerivative(BaseInstrument):
 
 
 class Derivative(BaseDerivative):
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args, **kwargs) -> None:  # type: ignore
         super().__init__(*args, **kwargs)  # type: ignore
         raise DeprecationWarning(
             "Derivative is deprecated. Use BaseDerivative instead."

@@ -9,11 +9,7 @@ from pfhedge._utils.doc import _set_attr_and_docstring
 from pfhedge._utils.doc import _set_docstring
 from pfhedge._utils.str import _format_float
 from pfhedge.instruments import LookbackOption
-from pfhedge.nn.functional import bs_lookback_delta
-from pfhedge.nn.functional import bs_lookback_gamma
 from pfhedge.nn.functional import bs_lookback_price
-from pfhedge.nn.functional import bs_lookback_theta
-from pfhedge.nn.functional import bs_lookback_vega
 
 from ._base import BSModuleMixin
 from ._base import acquire_params_from_derivative_0

@@ -9,23 +9,23 @@ from pfhedge._utils.doc import _set_attr_and_docstring
 from pfhedge._utils.doc import _set_docstring
 from pfhedge._utils.str import _format_float
 from pfhedge._utils.typing import TensorOrScalar
-from pfhedge.stochastic import generate_heston
+from pfhedge.stochastic import generate_rough_bergomi
 
 from .base import BasePrimary
 
 
-class HestonStock(BasePrimary):
-    r"""A stock of which spot price and variance follow Heston process.
+class RoughBergomiStock(BasePrimary):
+    r"""A stock of which spot price and variance follow rough Bergomi (rBergomi) process.
 
     .. seealso::
-        - :func:`pfhedge.stochastic.generate_heston`:
+        - :func:`pfhedge.stochastic.generate_rough_bergomi`:
           The stochastic process.
 
     Args:
-        kappa (float, default=1.0): The parameter :math:`\kappa`.
-        theta (float, default=0.04): The parameter :math:`\theta`.
-        sigma (float, default=2.0): The parameter :math:`\sigma`.
-        rho (float, default=-0.7): The parameter :math:`\rho`.
+        alpha (float, default=-0.4): The parameter :math:`\\alpha`.
+        rho (float, default=-0.9): The parameter :math:`\\rho`.
+        eta (float, default=1.9): The parameter :math:`\\eta`.
+        xi (float, default=0.04): The parameter :math:`\\xi`.
         cost (float, default=0.0): The transaction cost rate.
         dt (float, default=1/250): The intervals of the time steps.
         dtype (torch.device, optional): Desired device of returned tensor.
@@ -49,20 +49,20 @@ class HestonStock(BasePrimary):
           The shape is :math:`(N, T)`.
 
     Examples:
-        >>> from pfhedge.instruments import HestonStock
+        >>> from pfhedge.instruments import RoughBergomiStock
         >>>
         >>> _ = torch.manual_seed(42)
-        >>> stock = HestonStock()
+        >>> stock = RoughBergomiStock()
         >>> stock.simulate(n_paths=2, time_horizon=5/250)
         >>> stock.spot
-        tensor([[1.0000, 0.9902, 0.9823, 0.9926, 0.9968, 1.0040],
-                [1.0000, 0.9826, 0.9891, 0.9898, 0.9851, 0.9796]])
+        tensor([[1.0000, 0.9741, 0.9351, 0.9429, 0.9386, 0.9284],
+                [1.0000, 1.0100, 1.0127, 1.0148, 1.0201, 1.0148]])
         >>> stock.variance
-        tensor([[0.0400, 0.0408, 0.0411, 0.0417, 0.0422, 0.0393],
-                [0.0400, 0.0457, 0.0440, 0.0451, 0.0458, 0.0472]])
+        tensor([[0.0400, 0.3130, 0.0107, 0.0279, 0.1336, 0.0170],
+                [0.0400, 0.0175, 0.0164, 0.0274, 0.0099, 0.0196]])
         >>> stock.volatility
-        tensor([[0.2000, 0.2020, 0.2027, 0.2041, 0.2054, 0.1982],
-                [0.2000, 0.2138, 0.2097, 0.2124, 0.2140, 0.2172]])
+        tensor([[0.2000, 0.5595, 0.1034, 0.1670, 0.3656, 0.1304],
+                [0.2000, 0.1324, 0.1282, 0.1655, 0.0993, 0.1402]])
     """
 
     spot: Tensor
@@ -70,10 +70,10 @@ class HestonStock(BasePrimary):
 
     def __init__(
         self,
-        kappa: float = 1.0,
-        theta: float = 0.04,
-        sigma: float = 0.2,
-        rho: float = -0.7,
+        alpha: float = -0.4,
+        rho: float = -0.9,
+        eta: float = 1.9,
+        xi: float = 0.04,
         cost: float = 0.0,
         dt: float = 1 / 250,
         dtype: Optional[torch.dtype] = None,
@@ -81,10 +81,10 @@ class HestonStock(BasePrimary):
     ) -> None:
         super().__init__()
 
-        self.kappa = kappa
-        self.theta = theta
-        self.sigma = sigma
+        self.alpha = alpha
         self.rho = rho
+        self.eta = eta
+        self.xi = xi
         self.cost = cost
         self.dt = dt
 
@@ -92,7 +92,7 @@ class HestonStock(BasePrimary):
 
     @property
     def default_init_state(self) -> Tuple[float, ...]:
-        return (1.0, self.theta)
+        return (1.0, self.xi)
 
     @property
     def volatility(self) -> Tensor:
@@ -127,14 +127,14 @@ class HestonStock(BasePrimary):
         if init_state is None:
             init_state = self.default_init_state
 
-        output = generate_heston(
+        output = generate_rough_bergomi(
             n_paths=n_paths,
             n_steps=ceil(time_horizon / self.dt + 1),
             init_state=init_state,
-            kappa=self.kappa,
-            theta=self.theta,
-            sigma=self.sigma,
+            alpha=self.alpha,
             rho=self.rho,
+            eta=self.eta,
+            xi=self.xi,
             dt=self.dt,
             dtype=self.dtype,
             device=self.device,
@@ -145,10 +145,10 @@ class HestonStock(BasePrimary):
 
     def extra_repr(self) -> str:
         params = [
-            "kappa=" + _format_float(self.kappa),
-            "theta=" + _format_float(self.theta),
-            "sigma=" + _format_float(self.sigma),
+            "alpha=" + _format_float(self.alpha),
             "rho=" + _format_float(self.rho),
+            "eta=" + _format_float(self.eta),
+            "xi=" + _format_float(self.xi),
         ]
         if self.cost != 0.0:
             params.append("cost=" + _format_float(self.cost))
@@ -157,5 +157,5 @@ class HestonStock(BasePrimary):
 
 
 # Assign docstrings so they appear in Sphinx documentation
-_set_docstring(HestonStock, "default_init_state", BasePrimary.default_init_state)
-_set_attr_and_docstring(HestonStock, "to", BasePrimary.to)
+_set_docstring(RoughBergomiStock, "default_init_state", BasePrimary.default_init_state)
+_set_attr_and_docstring(RoughBergomiStock, "to", BasePrimary.to)
