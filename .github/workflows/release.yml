@@ -99,7 +99,7 @@ jobs:
         asset_path: dist/pfhedge-${{ steps.get_version.outputs.TAG }}-py3-none-any.whl
         asset_name: pfhedge-${{ steps.get_version.outputs.TAG }}-py3-none-any.whl
         asset_content_type: application/x-pywheel+zip
-    - name: Upload checksum
+    - name: Attach the checksum of the files to the release
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
