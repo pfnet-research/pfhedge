@@ -65,6 +65,7 @@ jobs:
 
     - name: Generate python single files from notebook
       run: |
+        mkdir -p tests/examples/
         ls examples/*.ipynb | xargs -I {} bash -c "poetry run jupyter nbconvert --to python {} --stdout > tests/{}.py"
 
     - name: Run examples in python single file
