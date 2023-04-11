@@ -63,6 +63,13 @@ jobs:
       uses: codecov/codecov-action@v1
       if: ${{ matrix.python-version == '3.9' && matrix.torch-version == '1.13.1' }}
 
+    - name: Generate python single files from notebook
+      run: |
+        ls examples/*.ipynb | xargs -I {} bash -c "poetry run jupyter nbconvert --to python {} --stdout > tests/{}.py"
+
+    - name: Run examples in python single file
+      run: cd tests/examples && find . -name '*.py' -exec poetry run python {} \;
+
   lint:
     name: Lint (pysen)
     runs-on: ubuntu-latest
