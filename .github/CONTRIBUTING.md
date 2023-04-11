@@ -28,9 +28,9 @@ make check
 
 ## Release Procedures For Maintainers
 
-1. make branch for release whose name starts from "release/"
-2. Version update pull request is automatically generated. Then, check and accept the pull request.
-3. Create pull request from "release/*" to "main" and write release note on the body of the pull request.
+1. Create a release branch named with the prefix "release/".
+2. A pull request to update the version information in the release branch is automatically generated. Then, review and merge the pull request.
+3. Create a pull request from "release/*" to "main", and write release notes in the description of the pull request.
 4. After the release pull request was merged to main branch, pypi release and release page is automatically uploaded.
     - please do not remove release branch by yourself. Github action will delete it after the procedures are completed.
 
