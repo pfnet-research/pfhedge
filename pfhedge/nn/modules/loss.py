@@ -286,7 +286,7 @@ class ExpectedShortfall(HedgeLoss):
 
 
 class QuadraticCVaR(HedgeLoss):
-    r"""Creates a criterion that measures the QuadraticCVaR.
+    """Creates a criterion that measures the QuadraticCVaR.
 
     .. math::
 
@@ -296,6 +296,7 @@ class QuadraticCVaR(HedgeLoss):
 
     References:
         - Buehler, Hans, Statistical Hedging (March 1, 2019). Available at SSRN: http://dx.doi.org/10.2139/ssrn.2913250
+          (See Conclusion.)
 
     .. seealso::
         - :func:`pfhedge.nn.functional.quadratic_cvar`
@@ -319,7 +320,7 @@ class QuadraticCVaR(HedgeLoss):
         tensor(7.9750)
         >>> loss.cash(input)
         tensor(-7.9750)
-    """
+    """  # NOQA
 
     def __init__(self, lam: float = 10.0):
         if not lam >= 1.0:

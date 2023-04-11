@@ -333,6 +333,7 @@ def quadratic_cvar(input: Tensor, lam: float, dim: Optional[int] = None) -> Tens
 
     References:
         - Buehler, Hans, Statistical Hedging (March 1, 2019). Available at SSRN: http://dx.doi.org/10.2139/ssrn.2913250
+          (See Conclusion.)
 
     Args:
         input (torch.Tensor): The input tensor.
