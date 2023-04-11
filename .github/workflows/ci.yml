@@ -69,7 +69,7 @@ jobs:
         ls examples/*.ipynb | xargs -I {} bash -c "poetry run jupyter nbconvert --to python {} --stdout > tests/{}.py"
 
     - name: Run examples in python single file
-      run: cd tests/examples && find . -name '*.py' -exec poetry run python {} \;
+      run: cd tests/examples && find . -name '*.py' | xargs -I {} poetry run python {};
 
   lint:
     name: Lint (pysen)

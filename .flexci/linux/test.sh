@@ -33,7 +33,7 @@ mv htmlcov /output/htmlcov
 
 # run notebook test using gpu w/ pytorch 2.0
 cd examples_tests/examples
-find . -name '*.py' -exec poetry run python {} \;
+find . -name '*.py' | xargs -I {} poetry run python {};
 cd -
 
 poetry run pip uninstall -y torch
