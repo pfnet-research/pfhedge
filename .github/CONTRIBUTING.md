@@ -26,7 +26,7 @@ make format
 make check
 ```
 
-## Release Procedures For Maintainers
+## Release Process for Maintainers
 
 1. Create a release branch named with the prefix "release/".
 2. A pull request to update the version information in the release branch is automatically generated. Then, review and merge the pull request.
