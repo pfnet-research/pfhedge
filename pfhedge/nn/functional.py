@@ -352,6 +352,8 @@ def quadratic_cvar(input: Tensor, lam: float, dim: Optional[int] = None) -> Tens
         >>> quadratic_cvar(input, 2.0)
         tensor(7.9750)
     """  # NOQA
+    if dim is None:
+        return quadratic_cvar(input.flatten(), lam, 0)
     output_target = torch.as_tensor(1 / (2 * lam))
     if dim:
         base = input.mean(dim=dim)
