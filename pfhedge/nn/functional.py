@@ -383,14 +383,7 @@ def quadratic_cvar(input: Tensor, lam: float, dim: Optional[int] = None) -> Tens
         upper=upper,
         precision=precision,
     )
-    if dim:
-        return (
-            omega
-            + lam * fn.relu(-omega.unsqueeze(dim=dim) - input).square().mean(dim=dim)
-            - base
-        )
-    else:
-        return omega + lam * fn.relu(-omega - input).square().mean() - base
+    return omega + lam * fn.relu(-omega.unsqueeze(dim=dim) - input).square().mean(dim=dim) - base
 
 
 def leaky_clamp(
