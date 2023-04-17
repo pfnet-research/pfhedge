@@ -369,8 +369,8 @@ def quadratic_cvar(input: Tensor, lam: float, dim: Optional[int] = None) -> Tens
         def fn_target(_omega: Tensor) -> Tensor:
             return fn.relu(-_omega - input).mean()
 
-    lower = -_max_values(input, dim=dim) - 1e-8
-    upper = -_min_values(input, dim=dim) + 1e-8
+    lower = _min_values(-input, dim=dim) - 1e-8
+    upper = _max_values(-input, dim=dim) + 1e-8
 
     precision = 1e-6 * math.pow(10, int(math.log10((upper - lower).max())))
 
