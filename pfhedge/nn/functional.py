@@ -372,7 +372,7 @@ def quadratic_cvar(input: Tensor, lam: float, dim: Optional[int] = None) -> Tens
     lower = _min_values(-input, dim=dim) - 1e-8
     upper = _max_values(-input, dim=dim) + 1e-8
 
-    precision = 1e-6 * math.pow(10, int(math.log10((upper - lower).max())))
+    precision = 1e-6 * 10 ** int(math.log10((upper - lower).amax()))
 
     omega = bisect(
         fn=fn_target,
