@@ -355,21 +355,11 @@ def quadratic_cvar(input: Tensor, lam: float, dim: Optional[int] = None) -> Tens
     if dim is None:
         return quadratic_cvar(input.flatten(), lam, 0)
     output_target = torch.as_tensor(1 / (2 * lam))
-    if dim:
-        base = input.mean(dim=dim)
-        input -= base.unsqueeze(dim=dim)
+    base = input.mean(dim=dim, keepdim=True)
+    input = input - base
 
-        def fn_target(_omega: Tensor) -> Tensor:
-            if not dim:
-                raise AssertionError("Unknown Error (dim is modified inappropriately.)")
-            return fn.relu(-_omega.unsqueeze(dim=dim) - input).mean(dim=dim)
-
-    else:
-        base = input.mean()
-        input -= base
-
-        def fn_target(_omega: Tensor) -> Tensor:
-            return fn.relu(-_omega - input).mean()
+    def fn_target(omega: Tensor) -> Tensor:
+        return fn.relu(-omega - input).mean(dim=dim)
 
     lower = _min_values(-input, dim=dim) - 1e-8
     upper = _max_values(-input, dim=dim) + 1e-8
