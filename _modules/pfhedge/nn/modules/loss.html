@@ -176,6 +176,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.nn.EntropicLoss.html">EntropicLoss</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.nn.EntropicRiskMeasure.html">EntropicRiskMeasure</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.nn.ExpectedShortfall.html">ExpectedShortfall</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.nn.QuadraticCVaR.html">QuadraticCVaR</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.nn.IsoelasticLoss.html">IsoelasticLoss</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.nn.MultiLayerPerceptron.html">MultiLayerPerceptron</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.nn.Naked.html">Naked</a></li>
@@ -195,6 +196,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.nn.functional.entropic_risk_measure.html">pfhedge.nn.functional.entropic_risk_measure</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.nn.functional.expected_shortfall.html">pfhedge.nn.functional.expected_shortfall</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.nn.functional.value_at_risk.html">pfhedge.nn.functional.value_at_risk</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.nn.functional.quadratic_cvar.html">pfhedge.nn.functional.quadratic_cvar</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.nn.functional.bs_european_price.html">pfhedge.nn.functional.bs_european_price</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.nn.functional.bs_european_delta.html">pfhedge.nn.functional.bs_european_delta</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../generated/pfhedge.nn.functional.bs_european_gamma.html">pfhedge.nn.functional.bs_european_gamma</a></li>
@@ -339,6 +341,7 @@
 <span class="kn">from</span> <span class="nn">..functional</span> <span class="kn">import</span> <span class="n">exp_utility</span>
 <span class="kn">from</span> <span class="nn">..functional</span> <span class="kn">import</span> <span class="n">expected_shortfall</span>
 <span class="kn">from</span> <span class="nn">..functional</span> <span class="kn">import</span> <span class="n">isoelastic_utility</span>
+<span class="kn">from</span> <span class="nn">..functional</span> <span class="kn">import</span> <span class="n">quadratic_cvar</span>
 
 
 <div class="viewcode-block" id="HedgeLoss"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.HedgeLoss.html#pfhedge.nn.HedgeLoss">[docs]</a><span class="k">class</span> <span class="nc">HedgeLoss</span><span class="p">(</span><span class="n">Module</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
@@ -604,6 +607,60 @@
 
     <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">TensorOrScalar</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">expected_shortfall</span><span class="p">(</span><span class="nb">input</span> <span class="o">-</span> <span class="n">target</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">cash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">TensorOrScalar</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+        <span class="k">return</span> <span class="o">-</span><span class="bp">self</span><span class="p">(</span><span class="nb">input</span> <span class="o">-</span> <span class="n">target</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="QuadraticCVaR"><a class="viewcode-back" href="../../../../generated/pfhedge.nn.QuadraticCVaR.html#pfhedge.nn.QuadraticCVaR">[docs]</a><span class="k">class</span> <span class="nc">QuadraticCVaR</span><span class="p">(</span><span class="n">HedgeLoss</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Creates a criterion that measures the QuadraticCVaR.</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \\rho (X) = \\inf_\\omega \\left\\{\\omega + \\lambda || \\min\\{0, X + \\omega\\}||_2\\right\\}.</span>
+
+<span class="sd">    for :math:`\lambda\geq1`.</span>
+
+<span class="sd">    References:</span>
+<span class="sd">        - Buehler, Hans, Statistical Hedging (March 1, 2019). Available at SSRN: http://dx.doi.org/10.2139/ssrn.2913250</span>
+<span class="sd">          (See Conclusion.)</span>
+
+<span class="sd">    .. seealso::</span>
+<span class="sd">        - :func:`pfhedge.nn.functional.quadratic_cvar`</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        lam (float, default=10.0): :math:`\lambda`.</span>
+<span class="sd">            This parameter should satisfy :math:`\lambda \geq 1`.</span>
+
+<span class="sd">    Shape:</span>
+<span class="sd">        - input: :math:`(N, *)` where</span>
+<span class="sd">            :math:`*` means any number of additional dimensions.</span>
+<span class="sd">        - target: :math:`(N, *)`</span>
+<span class="sd">        - output: :math:`(*)`</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; from pfhedge.nn import QuadraticCVaR</span>
+<span class="sd">        ...</span>
+<span class="sd">        &gt;&gt;&gt; loss = QuadraticCVaR(2.0)</span>
+<span class="sd">        &gt;&gt;&gt; input = -torch.arange(10.0)</span>
+<span class="sd">        &gt;&gt;&gt; loss(input)</span>
+<span class="sd">        tensor(7.9750)</span>
+<span class="sd">        &gt;&gt;&gt; loss.cash(input)</span>
+<span class="sd">        tensor(-7.9750)</span>
+<span class="sd">    """</span>  <span class="c1"># NOQA</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lam</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">lam</span> <span class="o">&gt;=</span> <span class="mf">1.0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"The lam should satisfy lam &gt;= 1."</span><span class="p">)</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lam</span> <span class="o">=</span> <span class="n">lam</span>
+
+    <span class="k">def</span> <span class="nf">extra_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lam</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">TensorOrScalar</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">quadratic_cvar</span><span class="p">(</span><span class="nb">input</span> <span class="o">-</span> <span class="n">target</span><span class="p">,</span> <span class="n">lam</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lam</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">cash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">TensorOrScalar</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
         <span class="k">return</span> <span class="o">-</span><span class="bp">self</span><span class="p">(</span><span class="nb">input</span> <span class="o">-</span> <span class="n">target</span><span class="p">)</span></div>

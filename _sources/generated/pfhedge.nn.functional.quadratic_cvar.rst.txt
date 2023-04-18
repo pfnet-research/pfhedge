@@ -1,0 +1,6 @@
+﻿pfhedge.nn.functional.quadratic\_cvar
+=====================================
+
+.. currentmodule:: pfhedge.nn.functional
+
+.. autofunction:: quadratic_cvar

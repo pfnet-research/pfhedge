@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="pfhedge.nn.functional.european_forward_start_payoff" href="pfhedge.nn.functional.european_forward_start_payoff.html" /><link rel="prev" title="pfhedge.nn.functional.american_binary_payoff" href="pfhedge.nn.functional.american_binary_payoff.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="pfhedge.nn.functional.bs_european_price" href="pfhedge.nn.functional.bs_european_price.html" /><link rel="prev" title="pfhedge.nn.functional.value_at_risk" href="pfhedge.nn.functional.value_at_risk.html" />
 
     <meta name="generator" content="sphinx-4.5.0, furo 2021.11.23"/>
-        <title>pfhedge.nn.functional.european_binary_payoff - PFHedge documentation</title>
+        <title>pfhedge.nn.functional.quadratic_cvar - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=7f0192ddeb2adecfbaa87ffbcf67d16358b30bc1" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
@@ -188,7 +188,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.european_payoff.html">pfhedge.nn.functional.european_payoff</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.lookback_payoff.html">pfhedge.nn.functional.lookback_payoff</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.american_binary_payoff.html">pfhedge.nn.functional.american_binary_payoff</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">pfhedge.nn.functional.european_binary_payoff</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.european_binary_payoff.html">pfhedge.nn.functional.european_binary_payoff</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.european_forward_start_payoff.html">pfhedge.nn.functional.european_forward_start_payoff</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.leaky_clamp.html">pfhedge.nn.functional.leaky_clamp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.clamp.html">pfhedge.nn.functional.clamp</a></li>
@@ -197,7 +197,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.entropic_risk_measure.html">pfhedge.nn.functional.entropic_risk_measure</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.expected_shortfall.html">pfhedge.nn.functional.expected_shortfall</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.value_at_risk.html">pfhedge.nn.functional.value_at_risk</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.quadratic_cvar.html">pfhedge.nn.functional.quadratic_cvar</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">pfhedge.nn.functional.quadratic_cvar</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.bs_european_price.html">pfhedge.nn.functional.bs_european_price</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.bs_european_delta.html">pfhedge.nn.functional.bs_european_delta</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.bs_european_gamma.html">pfhedge.nn.functional.bs_european_gamma</a></li>
@@ -325,41 +325,47 @@
           </label>
         </div>
         <article role="main">
-          <section id="pfhedge-nn-functional-european-binary-payoff">
-<h1>pfhedge.nn.functional.european_binary_payoff<a class="headerlink" href="#pfhedge-nn-functional-european-binary-payoff" title="Permalink to this headline">¶</a></h1>
+          <section id="pfhedge-nn-functional-quadratic-cvar">
+<h1>pfhedge.nn.functional.quadratic_cvar<a class="headerlink" href="#pfhedge-nn-functional-quadratic-cvar" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="pfhedge.nn.functional.european_binary_payoff">
-<span class="sig-prename descclassname"><span class="pre">pfhedge.nn.functional.</span></span><span class="sig-name descname"><span class="pre">european_binary_payoff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">call</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strike</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/functional.html#european_binary_payoff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.functional.european_binary_payoff" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the payoff of a European binary option.</p>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
+<dt class="sig sig-object py" id="pfhedge.nn.functional.quadratic_cvar">
+<span class="sig-prename descclassname"><span class="pre">pfhedge.nn.functional.</span></span><span class="sig-name descname"><span class="pre">quadratic_cvar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/functional.html#quadratic_cvar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.functional.quadratic_cvar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the Quadratic CVaR of the given input tensor.</p>
+<div class="math-wrapper"><div class="math notranslate nohighlight">
+\[\rho (X) = \inf_\omega \left\{\omega + \lambda || \min\{0, X + \omega\}||_2\right\}.\]</div></div>
+<p>for <span class="math notranslate nohighlight">\(\lambda\geq1\)</span>.</p>
+<div class="admonition-references admonition">
+<p class="admonition-title">References</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="pfhedge.instruments.EuropeanBinaryOption.html#pfhedge.instruments.EuropeanBinaryOption" title="pfhedge.instruments.EuropeanBinaryOption"><code class="xref py py-class docutils literal notranslate"><span class="pre">pfhedge.instruments.EuropeanBinaryOption</span></code></a></p></li>
+<li><p>Buehler, Hans, Statistical Hedging (March 1, 2019). Available at SSRN: <a class="reference external" href="http://dx.doi.org/10.2139/ssrn.2913250">http://dx.doi.org/10.2139/ssrn.2913250</a>
+(See Conclusion.)</p></li>
 </ul>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>input</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><em>torch.Tensor</em></a>) – The input tensor representing the price trajectory.</p></li>
-<li><p><strong>call</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>default=True</em>) – Specifies whether the option is call or put.</p></li>
-<li><p><strong>strike</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>default=1.0</em>) – The strike price of the option.</p></li>
+<li><p><strong>input</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><em>torch.Tensor</em></a>) – The input tensor.</p></li>
+<li><p><strong>lam</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – The <span class="math notranslate nohighlight">\(lambda\)</span> parameter, representing the weight given to the tail losses.</p></li>
+<li><p><strong>dim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – The dimension to sort along. If None, the tensor is flattened.</p></li>
 </ul>
 </dd>
-</dl>
-<dl class="simple">
-<dt>Shape:</dt><dd><ul class="simple">
-<li><p>input: <span class="math notranslate nohighlight">\((*, T)\)</span> where
-<span class="math notranslate nohighlight">\(T\)</span> is the number of time steps and
-<span class="math notranslate nohighlight">\(*\)</span> means any number of additional dimensions.</p></li>
-<li><p>output: <span class="math notranslate nohighlight">\((*)\)</span></p></li>
-</ul>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The Quadratic CVaR of the input tensor.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)">torch.Tensor</a></p>
 </dd>
 </dl>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>torch.Tensor</p>
-</dd>
-</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.nn.functional</span> <span class="kn">import</span> <span class="n">quadratic_cvar</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">input</span> <span class="o">=</span> <span class="o">-</span><span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">10.0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">input</span>
+<span class="go">tensor([-0., -1., -2., -3., -4., -5., -6., -7., -8., -9.])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">quadratic_cvar</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">)</span>
+<span class="go">tensor(7.9750)</span>
+</pre></div>
+</div>
 </dd></dl>
 </section>
 
@@ -368,23 +374,23 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="pfhedge.nn.functional.european_forward_start_payoff.html">
+          <a class="next-page" href="pfhedge.nn.functional.bs_european_price.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">pfhedge.nn.functional.european_forward_start_payoff</div>
+                <div class="title">pfhedge.nn.functional.bs_european_price</div>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="pfhedge.nn.functional.american_binary_payoff.html">
+          <a class="prev-page" href="pfhedge.nn.functional.value_at_risk.html">
               <svg><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">pfhedge.nn.functional.american_binary_payoff</div>
+                <div class="title">pfhedge.nn.functional.value_at_risk</div>
                 
               </div>
             </a>
@@ -394,7 +400,7 @@
               Copyright &#169; 2021, pfnet-research |
           Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
           <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
-            | <a class="muted-link" href="../_sources/generated/pfhedge.nn.functional.european_binary_payoff.rst.txt"
+            | <a class="muted-link" href="../_sources/generated/pfhedge.nn.functional.quadratic_cvar.rst.txt"
                rel="nofollow">
               Show Source
             </a>

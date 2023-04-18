@@ -41,6 +41,7 @@ Criterion Functions
     entropic_risk_measure
     expected_shortfall
     value_at_risk
+    quadratic_cvar
 
 Black-Scholes formulas
 ----------------------
