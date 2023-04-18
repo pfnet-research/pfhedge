@@ -51,9 +51,9 @@ def generate_merton_jump(
             which stands for the dirft coefficient of the time series.
         sigma (float, default=0.2): The parameter :math:`\sigma`,
             which stands for the volatility of the time series.
-        jump_per_year (float, default=68.2): The frequency of jumps in one year.
-        jump_mean (float, default=0.0): The mean of jumnp sizes.
-        jump_std (float, default=0.02): The deviation of jump sizes.
+        jump_per_year (float, default=68.2): The average number of jumps per year.
+        jump_mean (float, default=0.0): The mean of jump sizes.
+        jump_std (float, default=0.02): The standard deviation of jump sizes.
         dt (float, default=1/250): The time step interval.
         dtype (torch.dtype, optional): The desired data type of returned tensor.
             Default: If ``None``, uses a global default
