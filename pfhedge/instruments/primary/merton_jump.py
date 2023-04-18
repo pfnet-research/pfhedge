@@ -46,13 +46,13 @@ class MertonJumpStock(BasePrimary):
 
     Buffers:
         - spot (:class:`torch.Tensor`): The spot price of the instrument.
-          This attribute is set by a method :meth:`simulate()`.
+          This attribute is set by the method :meth:`simulate()`.
           The shape is :math:`(N, T)` where
           :math:`N` is the number of simulated paths and
           :math:`T` is the number of time steps.
         - variance (:class:`torch.Tensor`): The variance of the instrument.
           Note that this is different from the realized variance of the spot price.
-          This attribute is set by a method :meth:`simulate()`.
+          This attribute is set by the method :meth:`simulate()`.
           The shape is :math:`(N, T)`.
 
     Examples:
