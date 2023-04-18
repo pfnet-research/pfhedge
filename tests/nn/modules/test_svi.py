@@ -34,11 +34,6 @@ def test_svi_gpu():
     test_svi(device="cuda")
 
 
-@pytest.mark.gpu
-def test_svi_gpu():
-    test_svi(device="cuda")
-
-
 def test_svi_repr():
     m = SVIVariance(a=1.0, b=0, rho=0.1, m=0.2, sigma=0.3)
     assert repr(m) == "SVIVariance(a=1.0, b=0, rho=0.1, m=0.2, sigma=0.3)"
