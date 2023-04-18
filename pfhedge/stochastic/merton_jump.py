@@ -54,7 +54,7 @@ def generate_merton_jump(
         jump_per_year (float, default=68.2): The frequency of jumps in one year.
         jump_mean (float, default=0.0): The mean of jumnp sizes.
         jump_std (float, default=0.02): The deviation of jump sizes.
-        dt (float, default=1/250): The intervals of the time steps.
+        dt (float, default=1/250): The time step interval.
         dtype (torch.dtype, optional): The desired data type of returned tensor.
             Default: If ``None``, uses a global default
             (see :func:`torch.set_default_tensor_type()`).
