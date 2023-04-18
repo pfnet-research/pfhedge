@@ -23,13 +23,13 @@ class MertonJumpStock(BasePrimary):
           The stochastic process.
 
     Args:
-        mu (float, default=0.0): The parameter :math:`\mu`.
-        sigma (float, default=0.2): The parameter :math:`\sigma`.
-        jump_per_year (float, default=1.0): The frequency of jumps in one year.
+        mu (float, default=0.0): The drift parameter :math:`\mu`.
+        sigma (float, default=0.2): The volatility parameter :math:`\sigma`.
+        jump_per_year (float, default=1.0): The average number of jumps per year.
         jump_mean (float, default=0.0): The mean of jumnp sizes.
-        jump_std (float, default=0.3): The deviation of jump sizes.
+        jump_std (float, default=0.3): The standard deviation of jump sizes.
         cost (float, default=0.0): The transaction cost rate.
-        dt (float, default=1/250): The intervals of the time steps.
+        dt (float, default=1/250): The time step interval.
         dtype (torch.device, optional): Desired device of returned tensor.
             Default: If None, uses a global default
             (see :func:`torch.set_default_tensor_type()`).
