@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="pfhedge.nn.functional.realized_volatility" href="pfhedge.nn.functional.realized_volatility.html" /><link rel="prev" title="pfhedge.nn.functional.pl" href="pfhedge.nn.functional.pl.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="pfhedge.stochastic.generate_rough_bergomi" href="pfhedge.stochastic.generate_rough_bergomi.html" /><link rel="prev" title="pfhedge.stochastic.generate_vasicek" href="pfhedge.stochastic.generate_vasicek.html" />
 
     <meta name="generator" content="sphinx-4.5.0, furo 2021.11.23"/>
-        <title>pfhedge.nn.functional.realized_variance - PFHedge documentation</title>
+        <title>pfhedge.stochastic.generate_merton_jump - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=7f0192ddeb2adecfbaa87ffbcf67d16358b30bc1" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
@@ -184,7 +184,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.SVIVariance.html">SVIVariance</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current has-children"><a class="reference internal" href="../nn.functional.html">pfhedge.nn.functional</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../nn.functional.html">pfhedge.nn.functional</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.european_payoff.html">pfhedge.nn.functional.european_payoff</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.lookback_payoff.html">pfhedge.nn.functional.lookback_payoff</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.american_binary_payoff.html">pfhedge.nn.functional.american_binary_payoff</a></li>
@@ -225,7 +225,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.ncdf.html">pfhedge.nn.functional.ncdf</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.npdf.html">pfhedge.nn.functional.npdf</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.pl.html">pfhedge.nn.functional.pl</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">pfhedge.nn.functional.realized_variance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.realized_variance.html">pfhedge.nn.functional.realized_variance</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.realized_volatility.html">pfhedge.nn.functional.realized_volatility</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.svi_variance.html">pfhedge.nn.functional.svi_variance</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.nn.functional.terminal_value.html">pfhedge.nn.functional.terminal_value</a></li>
@@ -253,14 +253,14 @@
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.instruments.VarianceSwap.html">VarianceSwap</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../stochastic.html">pfhedge.stochastic</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../stochastic.html">pfhedge.stochastic</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.generate_brownian.html">pfhedge.stochastic.generate_brownian</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.generate_cir.html">pfhedge.stochastic.generate_cir</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.generate_geometric_brownian.html">pfhedge.stochastic.generate_geometric_brownian</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.generate_heston.html">pfhedge.stochastic.generate_heston</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.generate_local_volatility_process.html">pfhedge.stochastic.generate_local_volatility_process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.generate_vasicek.html">pfhedge.stochastic.generate_vasicek</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.generate_merton_jump.html">pfhedge.stochastic.generate_merton_jump</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">pfhedge.stochastic.generate_merton_jump</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.generate_rough_bergomi.html">pfhedge.stochastic.generate_rough_bergomi</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.randn_antithetic.html">pfhedge.stochastic.randn_antithetic</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pfhedge.stochastic.randn_sobol_boxmuller.html">pfhedge.stochastic.randn_sobol_boxmuller</a></li>
@@ -327,35 +327,63 @@
           </label>
         </div>
         <article role="main">
-          <section id="pfhedge-nn-functional-realized-variance">
-<h1>pfhedge.nn.functional.realized_variance<a class="headerlink" href="#pfhedge-nn-functional-realized-variance" title="Permalink to this headline">¶</a></h1>
+          <section id="pfhedge-stochastic-generate-merton-jump">
+<h1>pfhedge.stochastic.generate_merton_jump<a class="headerlink" href="#pfhedge-stochastic-generate-merton-jump" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="pfhedge.nn.functional.realized_variance">
-<span class="sig-prename descclassname"><span class="pre">pfhedge.nn.functional.</span></span><span class="sig-name descname"><span class="pre">realized_variance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/nn/functional.html#realized_variance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.nn.functional.realized_variance" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the realized variance of the price.</p>
-<p>Realized variance <span class="math notranslate nohighlight">\(\sigma^2\)</span> of the stock price <span class="math notranslate nohighlight">\(S\)</span> is defined as:</p>
+<dt class="sig sig-object py" id="pfhedge.stochastic.generate_merton_jump">
+<span class="sig-prename descclassname"><span class="pre">pfhedge.stochastic.</span></span><span class="sig-name descname"><span class="pre">generate_merton_jump</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_steps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_state=(1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu=0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma=0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jump_per_year=68.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jump_mean=0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jump_std=0.02</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt=0.004</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">engine=&lt;built-in</span> <span class="pre">method</span> <span class="pre">randn</span> <span class="pre">of</span> <span class="pre">type</span> <span class="pre">object&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pfhedge/stochastic/merton_jump.html#generate_merton_jump"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfhedge.stochastic.generate_merton_jump" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns time series following the Merton’s Jump Diffusion Model.</p>
+<p>The time evolution of the process is given by:</p>
 <div class="math-wrapper"><div class="math notranslate nohighlight">
-\[\sigma^2 = \frac{1}{T - 1} \sum_{i = 1}^{T - 1}
-\frac{1}{dt} \log(S_{i + 1} / S_i)^2\]</div></div>
-<p>where <span class="math notranslate nohighlight">\(T\)</span> is the number of time steps.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The mean of log return is assumed to be zero.</p>
-</div>
+\[\frac{dS(t)}{S(t)} = (\mu - \lambda k) dt + \sigma dW(t) + dJ(t) .\]</div></div>
+<dl class="simple">
+<dt>Reference:</dt><dd><ul class="simple">
+<li><p>Merton, R.C., Option pricing when underlying stock returns are discontinuous,
+Journal of Financial Economics, 3 (1976), 125-144.</p></li>
+<li><p>Gugole, N. (2016). Merton jump-diffusion model versus the black and scholes approach for the log-returns and volatility
+smile fitting. International Journal of Pure and Applied Mathematics, 109(3), 719-736.
+(Especially p.730 for parameter calibulation.)</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>input</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><em>torch.Tensor</em></a>) – The input tensor.</p></li>
-<li><p><strong>dt</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><em>torch.Tensor</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – The intervals of the time steps.</p></li>
+<li><p><strong>n_paths</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – The number of simulated paths.</p></li>
+<li><p><strong>n_steps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – The number of time steps.</p></li>
+<li><p><strong>init_state</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.11)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><em>torch.Tensor</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>]</em><em>, </em><em>default=</em><em>(</em><em>1.0</em><em>,</em><em>)</em>) – The initial state of
+the time series.
+This is specified by a tuple <span class="math notranslate nohighlight">\((S(0),)\)</span>.
+It also accepts a <a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.Tensor</span></code></a> or a <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>.</p></li>
+<li><p><strong>mu</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>default=0.0</em>) – The parameter <span class="math notranslate nohighlight">\(\mu\)</span>,
+which stands for the dirft coefficient of the time series.</p></li>
+<li><p><strong>sigma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>default=0.2</em>) – The parameter <span class="math notranslate nohighlight">\(\sigma\)</span>,
+which stands for the volatility of the time series.</p></li>
+<li><p><strong>jump_per_year</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>default=68.2</em>) – The average number of jumps per year.</p></li>
+<li><p><strong>jump_mean</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>default=0.0</em>) – The mean of jump sizes.</p></li>
+<li><p><strong>jump_std</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>default=0.02</em>) – The standard deviation of jump sizes.</p></li>
+<li><p><strong>dt</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>default=1/250</em>) – The time step interval.</p></li>
+<li><p><strong>dtype</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensor_attributes.html#torch.dtype" title="(in PyTorch v2.0)"><em>torch.dtype</em></a><em>, </em><em>optional</em>) – The desired data type of returned tensor.
+Default: If <code class="docutils literal notranslate"><span class="pre">None</span></code>, uses a global default
+(see <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.set_default_tensor_type.html#torch.set_default_tensor_type" title="(in PyTorch v2.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.set_default_tensor_type()</span></code></a>).</p></li>
+<li><p><strong>device</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensor_attributes.html#torch.device" title="(in PyTorch v2.0)"><em>torch.device</em></a><em>, </em><em>optional</em>) – The desired device of returned tensor.
+Default: If <code class="docutils literal notranslate"><span class="pre">None</span></code>, uses the current device for the default tensor type
+(see <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.set_default_tensor_type.html#torch.set_default_tensor_type" title="(in PyTorch v2.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.set_default_tensor_type()</span></code></a>).
+<code class="docutils literal notranslate"><span class="pre">device</span></code> will be the CPU for CPU tensor types and the current CUDA device
+for CUDA tensor types.</p></li>
+<li><p><strong>engine</strong> (<em>callable</em><em>, </em><em>default=torch.randn</em>) – The desired generator of random numbers
+from a standard normal distribution.
+A function call <code class="docutils literal notranslate"><span class="pre">engine(size,</span> <span class="pre">dtype=None,</span> <span class="pre">device=None)</span></code>
+should return a tensor filled with random numbers
+from a standard normal distribution.</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="simple">
 <dt>Shape:</dt><dd><ul class="simple">
-<li><p>input: <span class="math notranslate nohighlight">\((*, T)\)</span> where
-<span class="math notranslate nohighlight">\(T\)</span> stands for the number of time steps and
-<span class="math notranslate nohighlight">\(*\)</span> means any number of additional dimensions.</p></li>
-<li><p>output: <span class="math notranslate nohighlight">\((*)\)</span></p></li>
+<li><p>Output: <span class="math notranslate nohighlight">\((N, T)\)</span> where
+<span class="math notranslate nohighlight">\(N\)</span> is the number of paths and
+<span class="math notranslate nohighlight">\(T\)</span> is the number of time steps.</p></li>
 </ul>
 </dd>
 </dl>
@@ -364,6 +392,15 @@
 <dd class="field-odd"><p>torch.Tensor</p>
 </dd>
 </dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.stochastic</span> <span class="kn">import</span> <span class="n">generate_merton_jump</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">generate_merton_jump</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="go">tensor([[1.0000, 0.9904, 1.0074, 1.0160, 1.0117],</span>
+<span class="go">        [1.0000, 1.0034, 1.0040, 1.0490, 1.0457]])</span>
+</pre></div>
+</div>
 </dd></dl>
 </section>
 
@@ -372,23 +409,23 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="pfhedge.nn.functional.realized_volatility.html">
+          <a class="next-page" href="pfhedge.stochastic.generate_rough_bergomi.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">pfhedge.nn.functional.realized_volatility</div>
+                <div class="title">pfhedge.stochastic.generate_rough_bergomi</div>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="pfhedge.nn.functional.pl.html">
+          <a class="prev-page" href="pfhedge.stochastic.generate_vasicek.html">
               <svg><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">pfhedge.nn.functional.pl</div>
+                <div class="title">pfhedge.stochastic.generate_vasicek</div>
                 
               </div>
             </a>
@@ -398,7 +435,7 @@
               Copyright &#169; 2021, pfnet-research |
           Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
           <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
-            | <a class="muted-link" href="../_sources/generated/pfhedge.nn.functional.realized_variance.rst.txt"
+            | <a class="muted-link" href="../_sources/generated/pfhedge.stochastic.generate_merton_jump.rst.txt"
                rel="nofollow">
               Show Source
             </a>

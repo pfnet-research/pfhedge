@@ -1,0 +1,6 @@
+﻿pfhedge.stochastic.generate\_merton\_jump
+=========================================
+
+.. currentmodule:: pfhedge.stochastic
+
+.. autofunction:: generate_merton_jump

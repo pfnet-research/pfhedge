@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <meta name="generator" content="sphinx-4.5.0, furo 2021.11.23"/>
-        <title>pfhedge.features.container - PFHedge documentation</title>
+        <title>pfhedge.stochastic.merton_jump - PFHedge documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=7f0192ddeb2adecfbaa87ffbcf67d16358b30bc1" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
@@ -326,139 +326,120 @@
           </label>
         </div>
         <article role="main">
-          <h1>Source code for pfhedge.features.container</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">copy</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+          <h1>Source code for pfhedge.stochastic.merton_jump</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TypeVar</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
-<span class="kn">from</span> <span class="nn">torch.nn</span> <span class="kn">import</span> <span class="n">Module</span>
 
-<span class="kn">from</span> <span class="nn">pfhedge.instruments</span> <span class="kn">import</span> <span class="n">BaseDerivative</span>
-
-<span class="kn">from</span> <span class="nn">._base</span> <span class="kn">import</span> <span class="n">Feature</span>
-<span class="kn">from</span> <span class="nn">._getter</span> <span class="kn">import</span> <span class="n">get_feature</span>
-
-<span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"T"</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">"FeatureList"</span><span class="p">)</span>
-<span class="n">TM</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"TM"</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">"ModuleOutput"</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pfhedge._utils.typing</span> <span class="kn">import</span> <span class="n">TensorOrScalar</span>
+<span class="kn">from</span> <span class="nn">pfhedge.stochastic._utils</span> <span class="kn">import</span> <span class="n">cast_state</span>
 
 
-<div class="viewcode-block" id="FeatureList"><a class="viewcode-back" href="../../../generated/pfhedge.features.FeatureList.html#pfhedge.features.FeatureList">[docs]</a><span class="k">class</span> <span class="nc">FeatureList</span><span class="p">(</span><span class="n">Feature</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Holds features in a list.</span>
+<div class="viewcode-block" id="generate_merton_jump"><a class="viewcode-back" href="../../../generated/pfhedge.stochastic.generate_merton_jump.html#pfhedge.stochastic.generate_merton_jump">[docs]</a><span class="k">def</span> <span class="nf">generate_merton_jump</span><span class="p">(</span>
+    <span class="n">n_paths</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">n_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">init_state</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">TensorOrScalar</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">TensorOrScalar</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,),</span>
+    <span class="n">mu</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
+    <span class="n">jump_per_year</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">68.2</span><span class="p">,</span>
+    <span class="n">jump_mean</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">jump_std</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.02</span><span class="p">,</span>
+    <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">250</span><span class="p">,</span>
+    <span class="n">dtype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">device</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">engine</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Returns time series following the Merton's Jump Diffusion Model.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">        features (list[str | Features]): A list of features.</span>
+<span class="sd">    The time evolution of the process is given by:</span>
 
-<span class="sd">    Examples:</span>
+<span class="sd">    .. math::</span>
 
-<span class="sd">        &gt;&gt;&gt; from pfhedge.features import FeatureList</span>
-<span class="sd">        &gt;&gt;&gt; from pfhedge.instruments import BrownianStock</span>
-<span class="sd">        &gt;&gt;&gt; from pfhedge.instruments import EuropeanOption</span>
-<span class="sd">        &gt;&gt;&gt;</span>
-<span class="sd">        &gt;&gt;&gt; derivative = EuropeanOption(BrownianStock(), maturity=5/250)</span>
-<span class="sd">        &gt;&gt;&gt; derivative.simulate(n_paths=2)</span>
-<span class="sd">        &gt;&gt;&gt; f = FeatureList(["moneyness", "volatility", "empty"]).of(derivative)</span>
-<span class="sd">        &gt;&gt;&gt; len(f)</span>
-<span class="sd">        3</span>
-<span class="sd">        &gt;&gt;&gt; f.get(0).size()</span>
-<span class="sd">        torch.Size([2, 1, 3])</span>
-<span class="sd">    """</span>
+<span class="sd">        \frac{dS(t)}{S(t)} = (\mu - \lambda k) dt + \sigma dW(t) + dJ(t) .</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Feature</span><span class="p">]]):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">features</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">get_feature</span><span class="p">,</span> <span class="n">features</span><span class="p">))</span>
-
-    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_step</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="c1"># Return size: (N, T, F)</span>
-        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">f</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">time_step</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">],</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">)))</span>
-
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">of</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span> <span class="n">derivative</span><span class="p">:</span> <span class="n">BaseDerivative</span><span class="p">,</span> <span class="n">hedger</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Module</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
-        <span class="n">output</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="n">output</span><span class="o">.</span><span class="n">features</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="n">derivative</span><span class="p">,</span> <span class="n">hedger</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">output</span>
-
-    <span class="k">def</span> <span class="nf">is_state_dependent</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">f</span><span class="p">:</span> <span class="n">f</span><span class="o">.</span><span class="n">is_state_dependent</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">))</span></div>
-
-
-<div class="viewcode-block" id="ModuleOutput"><a class="viewcode-back" href="../../../generated/pfhedge.features.ModuleOutput.html#pfhedge.features.ModuleOutput">[docs]</a><span class="k">class</span> <span class="nc">ModuleOutput</span><span class="p">(</span><span class="n">Feature</span><span class="p">,</span> <span class="n">Module</span><span class="p">):</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">"""The feature computed as an output of a :class:`torch.nn.Module`.</span>
+<span class="sd">    Reference:</span>
+<span class="sd">     - Merton, R.C., Option pricing when underlying stock returns are discontinuous,</span>
+<span class="sd">       Journal of Financial Economics, 3 (1976), 125-144.</span>
+<span class="sd">     - Gugole, N. (2016). Merton jump-diffusion model versus the black and scholes approach for the log-returns and volatility</span>
+<span class="sd">       smile fitting. International Journal of Pure and Applied Mathematics, 109(3), 719-736.</span>
+<span class="sd">       (Especially p.730 for parameter calibulation.)</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        module (torch.nn.Module): Module to compute the value of the feature.</span>
-<span class="sd">            The input and output shapes should be</span>
-<span class="sd">            :math:`(N, *, H_{\mathrm{in}}) \to (N, *, H_{\mathrm{out}})` where</span>
-<span class="sd">            :math:`N` is the number of simulated paths of the underlying instrument,</span>
-<span class="sd">            :math:`H_{\mathrm{in}}` is the number of input features,</span>
-<span class="sd">            :math:`H_{\mathrm{out}}` is the number of output features, and</span>
-<span class="sd">            :math:`*` means any number of additional dimensions.</span>
-<span class="sd">        inputs (list[Feature]): The input features to the module.</span>
+<span class="sd">        n_paths (int): The number of simulated paths.</span>
+<span class="sd">        n_steps (int): The number of time steps.</span>
+<span class="sd">        init_state (tuple[torch.Tensor | float], default=(1.0,)): The initial state of</span>
+<span class="sd">            the time series.</span>
+<span class="sd">            This is specified by a tuple :math:`(S(0),)`.</span>
+<span class="sd">            It also accepts a :class:`torch.Tensor` or a :class:`float`.</span>
+<span class="sd">        mu (float, default=0.0): The parameter :math:`\mu`,</span>
+<span class="sd">            which stands for the dirft coefficient of the time series.</span>
+<span class="sd">        sigma (float, default=0.2): The parameter :math:`\sigma`,</span>
+<span class="sd">            which stands for the volatility of the time series.</span>
+<span class="sd">        jump_per_year (float, default=68.2): The average number of jumps per year.</span>
+<span class="sd">        jump_mean (float, default=0.0): The mean of jump sizes.</span>
+<span class="sd">        jump_std (float, default=0.02): The standard deviation of jump sizes.</span>
+<span class="sd">        dt (float, default=1/250): The time step interval.</span>
+<span class="sd">        dtype (torch.dtype, optional): The desired data type of returned tensor.</span>
+<span class="sd">            Default: If ``None``, uses a global default</span>
+<span class="sd">            (see :func:`torch.set_default_tensor_type()`).</span>
+<span class="sd">        device (torch.device, optional): The desired device of returned tensor.</span>
+<span class="sd">            Default: If ``None``, uses the current device for the default tensor type</span>
+<span class="sd">            (see :func:`torch.set_default_tensor_type()`).</span>
+<span class="sd">            ``device`` will be the CPU for CPU tensor types and the current CUDA device</span>
+<span class="sd">            for CUDA tensor types.</span>
+<span class="sd">        engine (callable, default=torch.randn): The desired generator of random numbers</span>
+<span class="sd">            from a standard normal distribution.</span>
+<span class="sd">            A function call ``engine(size, dtype=None, device=None)``</span>
+<span class="sd">            should return a tensor filled with random numbers</span>
+<span class="sd">            from a standard normal distribution.</span>
+
+<span class="sd">    Shape:</span>
+<span class="sd">        - Output: :math:`(N, T)` where</span>
+<span class="sd">          :math:`N` is the number of paths and</span>
+<span class="sd">          :math:`T` is the number of time steps.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        torch.Tensor</span>
 
 <span class="sd">    Examples:</span>
-<span class="sd">        &gt;&gt;&gt; from torch.nn import Linear</span>
-<span class="sd">        &gt;&gt;&gt; from pfhedge.instruments import BrownianStock</span>
-<span class="sd">        &gt;&gt;&gt; from pfhedge.instruments import EuropeanOption</span>
-<span class="sd">        &gt;&gt;&gt; derivative = EuropeanOption(BrownianStock())</span>
-<span class="sd">        &gt;&gt;&gt; derivative.simulate(n_paths=3)</span>
-<span class="sd">        &gt;&gt;&gt;</span>
-<span class="sd">        &gt;&gt;&gt; m = Linear(2, 1)</span>
-<span class="sd">        &gt;&gt;&gt; f = ModuleOutput(m, inputs=["moneyness", "expiry_time"]).of(derivative)</span>
-<span class="sd">        &gt;&gt;&gt; f.get(0).size()</span>
-<span class="sd">        torch.Size([3, 1, 1])</span>
-<span class="sd">        &gt;&gt;&gt; f</span>
-<span class="sd">        ModuleOutput(</span>
-<span class="sd">          inputs=['moneyness', 'expiry_time']</span>
-<span class="sd">          (module): Linear(in_features=2, out_features=1, bias=True)</span>
-<span class="sd">        )</span>
-
-<span class="sd">        &gt;&gt;&gt; from pfhedge.nn import BlackScholes</span>
+<span class="sd">        &gt;&gt;&gt; from pfhedge.stochastic import generate_merton_jump</span>
 <span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt; _ = torch.manual_seed(42)</span>
-<span class="sd">        &gt;&gt;&gt; derivative = EuropeanOption(BrownianStock())</span>
-<span class="sd">        &gt;&gt;&gt; derivative.simulate(n_paths=3)</span>
-<span class="sd">        &gt;&gt;&gt; m = BlackScholes(derivative)</span>
-<span class="sd">        &gt;&gt;&gt; f = ModuleOutput(m, ["log_moneyness", "expiry_time", "volatility"])</span>
-<span class="sd">        &gt;&gt;&gt; f = f.of(derivative)</span>
-<span class="sd">        &gt;&gt;&gt; f.get(0).size()</span>
-<span class="sd">        torch.Size([3, 1, 1])</span>
+<span class="sd">        &gt;&gt;&gt; generate_merton_jump(2, 5)</span>
+<span class="sd">        tensor([[1.0000, 0.9904, 1.0074, 1.0160, 1.0117],</span>
+<span class="sd">                [1.0000, 1.0034, 1.0040, 1.0490, 1.0457]])</span>
 <span class="sd">    """</span>
+    <span class="c1"># https://www.codearmo.com/python-tutorial/merton-jump-diffusion-model-python</span>
+    <span class="n">init_state</span> <span class="o">=</span> <span class="n">cast_state</span><span class="p">(</span><span class="n">init_state</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
 
-    <span class="n">module</span><span class="p">:</span> <span class="n">Module</span>
-    <span class="n">inputs</span><span class="p">:</span> <span class="n">FeatureList</span>
+    <span class="n">poisson</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">poisson</span><span class="o">.</span><span class="n">Poisson</span><span class="p">(</span><span class="n">rate</span><span class="o">=</span><span class="n">jump_per_year</span> <span class="o">*</span> <span class="n">dt</span><span class="p">)</span>
+    <span class="n">n_jumps</span> <span class="o">=</span> <span class="n">poisson</span><span class="o">.</span><span class="n">sample</span><span class="p">((</span><span class="n">n_paths</span><span class="p">,</span> <span class="n">n_steps</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">:</span> <span class="n">Module</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Feature</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">Module</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">Feature</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+    <span class="c1"># Eq. (3) in https://www.imes.boj.or.jp/research/papers/japanese/kk22-b1-3.pdf</span>
+    <span class="n">jump</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">jump_mean</span> <span class="o">*</span> <span class="n">n_jumps</span>
+        <span class="o">+</span> <span class="n">engine</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">n_paths</span><span class="p">,</span> <span class="n">n_steps</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+        <span class="o">*</span> <span class="n">jump_std</span>
+        <span class="o">*</span> <span class="n">n_jumps</span><span class="o">.</span><span class="n">sqrt</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="n">jump</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_paths</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">),</span> <span class="n">jump</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span>
+    <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_module</span><span class="p">(</span><span class="s2">"module"</span><span class="p">,</span> <span class="n">module</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span> <span class="o">=</span> <span class="n">FeatureList</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">extra_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">"inputs="</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_step</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">time_step</span><span class="p">))</span>
-
-    <span class="k">def</span> <span class="nf">of</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">TM</span><span class="p">,</span> <span class="n">derivative</span><span class="p">:</span> <span class="n">BaseDerivative</span><span class="p">,</span> <span class="n">hedger</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Module</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TM</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="n">derivative</span><span class="p">,</span> <span class="n">hedger</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span>
-
-    <span class="k">def</span> <span class="nf">is_state_dependent</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="o">.</span><span class="n">is_state_dependent</span><span class="p">()</span></div>
+    <span class="n">randn</span> <span class="o">=</span> <span class="n">engine</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">n_paths</span><span class="p">,</span> <span class="n">n_steps</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+    <span class="n">randn</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">drift</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">mu</span> <span class="o">-</span> <span class="p">(</span><span class="n">sigma</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">jump_per_year</span> <span class="o">*</span> <span class="p">(</span><span class="n">jump_mean</span> <span class="o">+</span> <span class="n">jump_std</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="o">*</span> <span class="n">dt</span>
+        <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_steps</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">randn</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">brown</span> <span class="o">=</span> <span class="n">randn</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">init_state</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">drift</span> <span class="o">+</span> <span class="n">sigma</span> <span class="o">*</span> <span class="n">brown</span> <span class="o">+</span> <span class="n">jump</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">exp</span><span class="p">()</span></div>
 </pre></div>
         </article>
       </div>
