@@ -11,6 +11,7 @@ from .modules.loss import EntropicRiskMeasure  # NOQA
 from .modules.loss import ExpectedShortfall  # NOQA
 from .modules.loss import HedgeLoss  # NOQA
 from .modules.loss import IsoelasticLoss  # NOQA
+from .modules.loss import QuadraticCVaR  # NOQA
 from .modules.mlp import MultiLayerPerceptron  # NOQA
 from .modules.naked import Naked  # NOQA
 from .modules.svi import SVIVariance  # NOQA

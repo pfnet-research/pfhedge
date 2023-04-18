@@ -14,6 +14,7 @@ from ..functional import entropic_risk_measure
 from ..functional import exp_utility
 from ..functional import expected_shortfall
 from ..functional import isoelastic_utility
+from ..functional import quadratic_cvar
 
 
 class HedgeLoss(Module, ABC):
@@ -279,6 +280,60 @@ class ExpectedShortfall(HedgeLoss):
 
     def forward(self, input: Tensor, target: TensorOrScalar = 0.0) -> Tensor:
         return expected_shortfall(input - target, p=self.p, dim=0)
+
+    def cash(self, input: Tensor, target: TensorOrScalar = 0.0) -> Tensor:
+        return -self(input - target)
+
+
+class QuadraticCVaR(HedgeLoss):
+    """Creates a criterion that measures the QuadraticCVaR.
+
+    .. math::
+
+        \\rho (X) = \\inf_\\omega \\left\\{\\omega + \\lambda || \\min\\{0, X + \\omega\\}||_2\\right\\}.
+
+    for :math:`\lambda\geq1`.
+
+    References:
+        - Buehler, Hans, Statistical Hedging (March 1, 2019). Available at SSRN: http://dx.doi.org/10.2139/ssrn.2913250
+          (See Conclusion.)
+
+    .. seealso::
+        - :func:`pfhedge.nn.functional.quadratic_cvar`
+
+    Args:
+        lam (float, default=10.0): :math:`\lambda`.
+            This parameter should satisfy :math:`\lambda \geq 1`.
+
+    Shape:
+        - input: :math:`(N, *)` where
+            :math:`*` means any number of additional dimensions.
+        - target: :math:`(N, *)`
+        - output: :math:`(*)`
+
+    Examples:
+        >>> from pfhedge.nn import QuadraticCVaR
+        ...
+        >>> loss = QuadraticCVaR(2.0)
+        >>> input = -torch.arange(10.0)
+        >>> loss(input)
+        tensor(7.9750)
+        >>> loss.cash(input)
+        tensor(-7.9750)
+    """  # NOQA
+
+    def __init__(self, lam: float = 10.0):
+        if not lam >= 1.0:
+            raise ValueError("The lam should satisfy lam >= 1.")
+
+        super().__init__()
+        self.lam = lam
+
+    def extra_repr(self) -> str:
+        return str(self.lam)
+
+    def forward(self, input: Tensor, target: TensorOrScalar = 0.0) -> Tensor:
+        return quadratic_cvar(input - target, lam=self.lam, dim=0)
 
     def cash(self, input: Tensor, target: TensorOrScalar = 0.0) -> Tensor:
         return -self(input - target)

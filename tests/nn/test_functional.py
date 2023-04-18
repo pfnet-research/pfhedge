@@ -13,6 +13,7 @@ from pfhedge.nn.functional import exp_utility
 from pfhedge.nn.functional import expected_shortfall
 from pfhedge.nn.functional import leaky_clamp
 from pfhedge.nn.functional import pl
+from pfhedge.nn.functional import quadratic_cvar
 from pfhedge.nn.functional import realized_variance
 from pfhedge.nn.functional import realized_volatility
 from pfhedge.nn.functional import topp
@@ -87,6 +88,64 @@ def test_expected_shortfall(device: str = "cpu"):
 @pytest.mark.gpu
 def test_expected_shortfall_gpu():
     test_expected_shortfall(device="cuda")
+
+
+def test_quadratic_cvar(device: str = "cpu"):
+    input = torch.arange(1.0, 11.0).to(device)
+
+    result = quadratic_cvar(input, 2.0)
+    expect = torch.tensor(-2.025).to(device)
+    assert_close(result, expect)
+
+    input = torch.stack(
+        [torch.arange(1.0, 11.0).to(device), torch.arange(2.0, 12.0).to(device)], dim=0
+    )
+
+    result = quadratic_cvar(input, 2.0, dim=1)
+    expect = torch.tensor([-2.025, -3.025]).to(device)
+    assert_close(result, expect)
+
+
+@pytest.mark.gpu
+def test_quadratic_cvar_gpu():
+    test_quadratic_cvar(device="cuda")
+
+
+def test_quadratic_cvar_extreme(device: str = "cpu"):
+    input = torch.arange(1.0, 11.0).to(device) + 1000
+
+    result = quadratic_cvar(input, 2.0)
+    expect = torch.tensor(-2.025 - 1000).to(device)
+    assert_close(result, expect)
+
+    input = (
+        torch.stack(
+            [torch.arange(1.0, 11.0).to(device), torch.arange(2.0, 12.0).to(device)],
+            dim=0,
+        )
+        - 1000
+    )
+
+    result = quadratic_cvar(input, 2.0, dim=1)
+    expect = torch.tensor([-2.025, -3.025]).to(device) + 1000
+    assert_close(result, expect)
+
+    input = torch.stack(
+        [
+            torch.arange(1.0, 11.0).to(device) - 100000,
+            torch.arange(1.0, 11.0).to(device) + 100000,
+        ],
+        dim=0,
+    )
+    quadratic_cvar(input, 10.0, dim=1)
+
+    input = torch.randn(1000).to(device) * 100000 - 50000
+    quadratic_cvar(input, 10.0)
+
+
+@pytest.mark.gpu
+def test_quadratic_cvar_extreme_gpu():
+    test_quadratic_cvar_extreme(device="cuda")
 
 
 def test_value_at_risk(device: str = "cpu"):

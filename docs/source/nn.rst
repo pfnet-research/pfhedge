@@ -68,6 +68,7 @@ Loss Functions
     nn.EntropicLoss
     nn.EntropicRiskMeasure
     nn.ExpectedShortfall
+    nn.QuadraticCVaR
     nn.IsoelasticLoss
 
 Multi Layer Perceptron

@@ -13,6 +13,7 @@ from torch.distributions.normal import Normal
 from torch.distributions.utils import broadcast_all
 
 from pfhedge import autogreek
+from pfhedge._utils.bisect import bisect
 from pfhedge._utils.typing import TensorOrScalar
 
 
@@ -319,6 +320,65 @@ def value_at_risk(input: Tensor, p: float, dim: Optional[int] = None) -> Tensor:
         output = input.quantile(q, dim=dim)
 
     return output
+
+
+def quadratic_cvar(input: Tensor, lam: float, dim: Optional[int] = None) -> Tensor:
+    """Returns the Quadratic CVaR of the given input tensor.
+
+    .. math::
+
+        \\rho (X) = \\inf_\\omega \\left\\{\\omega + \\lambda || \\min\\{0, X + \\omega\\}||_2\\right\\}.
+
+    for :math:`\lambda\geq1`.
+
+    References:
+        - Buehler, Hans, Statistical Hedging (March 1, 2019). Available at SSRN: http://dx.doi.org/10.2139/ssrn.2913250
+          (See Conclusion.)
+
+    Args:
+        input (torch.Tensor): The input tensor.
+        lam (float): The :math:`lambda` parameter, representing the weight given to the tail losses.
+        dim (int, optional): The dimension to sort along. If None, the tensor is flattened.
+
+    Returns:
+        torch.Tensor: The Quadratic CVaR of the input tensor.
+
+    Examples:
+        >>> from pfhedge.nn.functional import quadratic_cvar
+        >>>
+        >>> input = -torch.arange(10.0)
+        >>> input
+        tensor([-0., -1., -2., -3., -4., -5., -6., -7., -8., -9.])
+        >>> quadratic_cvar(input, 2.0)
+        tensor(7.9750)
+    """  # NOQA
+    if dim is None:
+        return quadratic_cvar(input.flatten(), lam, 0)
+
+    output_target = torch.as_tensor(1 / (2 * lam))
+    base = input.mean(dim=dim, keepdim=True)
+    input = input - base
+
+    def fn_target(omega: Tensor) -> Tensor:
+        return fn.relu(-omega - input).mean(dim=dim, keepdim=True)
+
+    lower = torch.amin(-input, dim=dim, keepdim=True) - 1e-8
+    upper = torch.amax(-input, dim=dim, keepdim=True) + 1e-8
+
+    precision = 1e-6 * 10 ** int(math.log10((upper - lower).amax()))
+
+    omega = bisect(
+        fn=fn_target,
+        target=output_target,
+        lower=lower,
+        upper=upper,
+        precision=precision,
+    )
+    return (
+        omega
+        + lam * fn.relu(-omega - input).square().mean(dim=dim, keepdim=True)
+        - base
+    ).squeeze(dim)
 
 
 def leaky_clamp(
