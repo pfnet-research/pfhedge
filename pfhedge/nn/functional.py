@@ -337,8 +337,8 @@ def quadratic_cvar(input: Tensor, lam: float, dim: Optional[int] = None) -> Tens
 
     Args:
         input (torch.Tensor): The input tensor.
-        lam (float): :math:`lambda`.
-        dim (int, optional): The dimension to sort along.
+        lam (float): The :math:`lambda` parameter, representing the weight given to the tail losses.
+        dim (int, optional): The dimension to sort along. If None, the tensor is flattened.
 
     Returns:
         torch.Tensor: The Quadratic CVaR of the input tensor.
