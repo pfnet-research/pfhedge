@@ -359,10 +359,10 @@ def quadratic_cvar(input: Tensor, lam: float, dim: Optional[int] = None) -> Tens
     input = input - base
 
     def fn_target(omega: Tensor) -> Tensor:
-        return fn.relu(-omega - input).mean(dim=dim)
+        return fn.relu(-omega - input).mean(dim=dim, keepdim=True)
 
-    lower = _min_values(-input, dim=dim) - 1e-8
-    upper = _max_values(-input, dim=dim) + 1e-8
+    lower = torch.amin(-input, dim=dim, keepdim=True) - 1e-8
+    upper = torch.amax(-input, dim=dim, keepdim=True) + 1e-8
 
     precision = 1e-6 * 10 ** int(math.log10((upper - lower).amax()))
 
@@ -373,7 +373,11 @@ def quadratic_cvar(input: Tensor, lam: float, dim: Optional[int] = None) -> Tens
         upper=upper,
         precision=precision,
     )
-    return omega + lam * fn.relu(-omega.unsqueeze(dim=dim) - input).square().mean(dim=dim) - base
+    return (
+        omega
+        + lam * fn.relu(-omega - input).square().mean(dim=dim, keepdim=True)
+        - base
+    ).squeeze(dim)
 
 
 def leaky_clamp(
