@@ -341,7 +341,7 @@ def quadratic_cvar(input: Tensor, lam: float, dim: Optional[int] = None) -> Tens
         dim (int, optional): The dimension to sort along.
 
     Returns:
-        torch.Tensor
+        torch.Tensor: The Quadratic CVaR of the input tensor.
 
     Examples:
         >>> from pfhedge.nn.functional import quadratic_cvar
