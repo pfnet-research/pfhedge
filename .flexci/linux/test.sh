@@ -20,14 +20,29 @@ export PATH="${HOME}/.local/bin:${PATH}"
 
 poetry install
 
+# generate python single files from notebook files
+mkdir -p examples_tests/examples/
+ls examples/*.ipynb | xargs -I {} bash -c "poetry run jupyter nbconvert --to python {} --stdout > examples_tests/{}.py"
+
 poetry run pip uninstall -y torch
 poetry run pip install --no-cache-dir "torch>=2.0.0,<3"
 
-poetry run pytest -m gpu pfhedge .
+# run normal test using gpu w/ pytorch 2.0
+poetry run pytest -m gpu --cov-report=html --cov pfhedge .
+mv htmlcov /output/htmlcov
+
+# run notebook test using gpu w/ pytorch 2.0
+cd examples_tests/examples
+find . -name '*.py' | xargs -I {} poetry run python {};
+cd -
 
 poetry run pip uninstall -y torch
 poetry run pip install --no-cache-dir "torch<2.0.0"
 
-poetry run pytest -m gpu --cov-report=html --cov pfhedge .
+# run normal test using gpu w/ pytorch 1.x
+poetry run pytest -m gpu pfhedge .
 
-mv htmlcov /output/htmlcov
+# run notebook test using gpu w/ pytorch 1.x
+cd examples_tests/examples
+find . -name '*.py' -exec poetry run python {} \;
+cd -
