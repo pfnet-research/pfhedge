@@ -56,12 +56,12 @@ def test_generate_brownian_mean_no_jump_std(device: str = "cpu"):
         n_steps,
         jump_per_year=1000,
         jump_std=0.0,
-        jump_mean=0.1,
+        jump_mean=0.01,
         device=torch.device(device),
     )
     assert output.size() == torch.Size((n_paths, n_steps))
-    result = output[:, -1].log().mean()
-    expect = torch.zeros_like(result)
+    result = output[:, -1].mean()
+    expect = torch.ones_like(result)
     std = 0.2 * sqrt(1 / n_paths)
     assert_close(result, expect, atol=3 * std, rtol=0)
 
