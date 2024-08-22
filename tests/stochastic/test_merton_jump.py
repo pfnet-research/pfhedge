@@ -54,7 +54,7 @@ def test_generate_brownian_mean_no_jump_std(device: str = "cpu"):
     output = generate_merton_jump(
         n_paths,
         n_steps,
-        jump_per_year=68.2, # default value
+        jump_per_year=68.2,  # default value
         jump_std=0.0,
         jump_mean=0.1,
         device=torch.device(device),
