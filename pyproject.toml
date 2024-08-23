@@ -36,22 +36,7 @@ markers = ["gpu: tests using gpu"]
 
 [tool.black]
 line-length = 88
-exclude = '''
-(
-  /(
-      __pycache__
-      __init__.py
-    | \.git
-    | \.cache
-    | \.mypy_cache
-    | docs
-    | build
-    | dist
-    | \.venv
-    | qfeval
-  )/
-)
-'''
+exclude = '/(__pycache__|__init__\.py|\.git|\.cache|\.mypy_cache|docs|build|dist|\.venv)/'
 
 [tool.isort]
 profile = 'black'
@@ -67,8 +52,7 @@ skip = [
     "docs",
     "build",
     "dist",
-    ".venv",
-]
+    ".venv"]
 line_length = 88
 multi_line_output = 3
 use_parentheses = true
@@ -83,8 +67,7 @@ exclude = [
     "docs",
     "build",
     "dist",
-    ".venv",
-]
+    ".venv"]
 
 [tool.flake8]
 ignore = "E203,E231,E501,W503"

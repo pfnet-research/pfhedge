@@ -47,7 +47,7 @@ format: format-pysen
 
 .PHONY: format-black
 format-black:
-	$(RUN) black --quiet --skip-magic-trailing-comma .
+	$(RUN) black --quiet .
 
 .PHONY: format-isort
 format-isort:
