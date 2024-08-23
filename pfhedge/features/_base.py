@@ -74,7 +74,7 @@ class Feature(ABC):
         # If a feature uses the state of a hedger, it is state dependent.
         return getattr(self, "hedger") is not None
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
     # TODO(simaki) Remove later

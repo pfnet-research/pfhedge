@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 from typing import Callable
 
 import torch
@@ -20,6 +20,7 @@ from ..functional import quadratic_cvar
 class HedgeLoss(Module, ABC):
     """Base class for hedging criteria."""
 
+    @abstractmethod
     def forward(self, input: Tensor, target: TensorOrScalar = 0.0) -> Tensor:
         """Returns the loss of the profit-loss distribution.
 
@@ -39,6 +40,7 @@ class HedgeLoss(Module, ABC):
         Returns:
             torch.Tensor
         """
+        pass
 
     def cash(self, input: Tensor, target: TensorOrScalar = 0.0) -> Tensor:
         """Returns the cash amount which is as preferable as
