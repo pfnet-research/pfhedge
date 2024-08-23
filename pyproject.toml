@@ -45,7 +45,7 @@ enable_isort = true
 enable_mypy = true
 mypy_preset = "entry"
 line_length = 88
-py_version = "py37"
+py_version = "py311"
 #isort_known_first_party = ["pfhedge"]
 
 [[tool.pysen.lint.mypy_targets]]
