@@ -24,7 +24,7 @@ test-cov:
 	$(RUN) pytest --cov=$(PROJECT_NAME) --cov-report=xml -m "not gpu"
 
 .PHONY: lint
-lint: lint-pysen
+lint: lint-black lint-isort flake8 mypy
 
 .PHONY: lint-black
 lint-black:
@@ -43,7 +43,7 @@ flake8:
 	$(RUN) pflake8 $(PROJECT_NAME)
 
 .PHONY: format
-format: format-pysen
+format: format-black format-isort
 
 .PHONY: format-black
 format-black:
@@ -52,14 +52,6 @@ format-black:
 .PHONY: format-isort
 format-isort:
 	$(RUN) isort --force-single-line-imports --quiet .
-
-.PHONY: format-pysen
-format-pysen:
-	$(RUN) pysen run format
-
-.PHONY: lint-pysen
-lint-pysen:
-	$(RUN) pysen run lint
 
 .PHONY: doc
 doc:
