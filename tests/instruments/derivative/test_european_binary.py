@@ -37,13 +37,7 @@ class TestEuropeanBinaryOption:
     @pytest.mark.parametrize("n_paths", [100])
     @pytest.mark.parametrize("init_spot", [1.0, 1.1, 0.9])
     def test_parity(
-        self,
-        volatility,
-        strike,
-        maturity,
-        n_paths,
-        init_spot,
-        device: str = "cpu",
+        self, volatility, strike, maturity, n_paths, init_spot, device: str = "cpu"
     ):
         """
         Test put-call parity.

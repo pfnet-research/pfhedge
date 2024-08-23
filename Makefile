@@ -40,7 +40,7 @@ mypy:
 
 .PHONY: flake8
 flake8:
-	$(RUN) flake8 $(PROJECT_NAME)
+	$(RUN) pflake8 $(PROJECT_NAME)
 
 .PHONY: format
 format: format-pysen
