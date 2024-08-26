@@ -2,17 +2,17 @@ name: CI
 
 env:
   PROJECT_NAME: pfhedge
-  PYTHON_VERSION: '3.9'
+  PYTHON_VERSION: "3.9"
 
 on:
   push:
-      branches:
+    branches:
       - main
       - develop
       - release/*
       - hotfix/*
   pull_request:
-      branches:
+    branches:
       - main
       - develop
       - release/*
@@ -20,48 +20,45 @@ on:
   workflow_dispatch:
 
 jobs:
-
   test:
-
     name: Test
 
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        python-version: ['3.8', '3.9', '3.10', '3.11']
-        torch-version: ['1.9.0', '1.13.1', '2.0.0']
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+        torch-version: ["1.9.0", "1.13.1", "2.0.0", "2.4.0"]
         # pytorch 1.9.0 does not support python 3.10, 3.11
         exclude:
-          - python-version: '3.10'
+          - python-version: "3.10"
             torch-version: "1.9.0"
-          - python-version: '3.11'
+          - python-version: "3.11"
             torch-version: "1.9.0"
 
     steps:
+      - uses: actions/checkout@v2
 
-    - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
 
-    - uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
+      - name: Install
+        run: |
+          pip install poetry
+          poetry install
+          poetry run pip uninstall -y torch
+          poetry run pip install torch==${{ matrix.torch-version }}
 
-    - name: Install
-      run: |
-        pip install poetry
-        poetry install
-        poetry run pip uninstall -y torch
-        poetry run pip install torch==${{ matrix.torch-version }}
+      - name: Run doctest
+        run: make doctest
 
-    - name: Run doctest
-      run: make doctest
+      - name: Run pytest
+        run: make test-cov
 
-    - name: Run pytest
-      run: make test-cov
-
-    - name: Upload codecov report
-      uses: codecov/codecov-action@v1
-      if: ${{ matrix.python-version == '3.9' && matrix.torch-version == '1.13.1' }}
+      - name: Upload codecov report
+        uses: codecov/codecov-action@v1
+        if: ${{ matrix.python-version == '3.9' && matrix.torch-version == '1.13.1' }}
 
   lint:
     name: Lint (pysen)
@@ -71,19 +68,17 @@ jobs:
       status: ${{ job.status }}
 
     steps:
+      - uses: actions/checkout@v2
 
-    - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
 
-    - uses: actions/setup-python@v2
-      with:
-        python-version: ${{ env.PYTHON_VERSION }}
+      - run: pip install poetry && poetry install
 
-    - run: pip install poetry && poetry install
-
-    - run: make lint
+      - run: make lint
 
   format:
-
     name: Format
 
     runs-on: ubuntu-latest
@@ -93,23 +88,22 @@ jobs:
     if: ${{ always() && needs.lint.outputs.status == 'failure' }}
 
     steps:
+      - uses: actions/checkout@v2
 
-    - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
 
-    - uses: actions/setup-python@v2
-      with:
-        python-version: ${{ env.PYTHON_VERSION }}
+      - run: pip install poetry && poetry install
 
-    - run: pip install poetry && poetry install
+      - run: make format
 
-    - run: make format
-
-    - name: Create pull request
-      uses: peter-evans/create-pull-request@v3
-      with:
-        author: GitHub Actions <action@github.com>
-        base: ${{ github.event.pull_request.head.ref }}
-        commit-message: Automated Format
-        delete-branch: true
-        branch-suffix: short-commit-hash
-        title: Automated Format
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v3
+        with:
+          author: GitHub Actions <action@github.com>
+          base: ${{ github.event.pull_request.head.ref }}
+          commit-message: Automated Format
+          delete-branch: true
+          branch-suffix: short-commit-hash
+          title: Automated Format
