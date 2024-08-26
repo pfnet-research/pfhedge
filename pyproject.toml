@@ -27,7 +27,6 @@ scipy = [
     { version = "^1.10.1", markers = "python_version < '3.9'" },
     { version = "^1.12.0", markers = "python_version >= '3.9'" }
 ]
-
 mypy = "^1.11.1"
 pyproject-flake8 = "4.0.1"
 
