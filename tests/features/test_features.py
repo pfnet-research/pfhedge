@@ -27,13 +27,7 @@ from pfhedge.nn import Naked
 
 
 class _TestFeature:
-    def assert_same_dtype(
-        self,
-        feature,
-        derivative,
-        dtype,
-        device: str = "cpu",
-    ):
+    def assert_same_dtype(self, feature, derivative, dtype, device: str = "cpu"):
         derivative.to(dtype=dtype, device=device).simulate()
         f = feature.of(derivative)
         assert f.get(0).dtype == dtype

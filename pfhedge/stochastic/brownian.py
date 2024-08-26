@@ -136,7 +136,7 @@ def generate_geometric_brownian(
         torch.Tensor
 
     Examples:
-        >>> from pfhedge.stochastic import generate_brownian
+        >>> from pfhedge.stochastic import generate_geometric_brownian
         >>>
         >>> _ = torch.manual_seed(42)
         >>> generate_geometric_brownian(2, 5)

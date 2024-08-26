@@ -14,7 +14,7 @@ class FeatureFactory:
     _features: Dict[str, Type[Feature]]
 
     # singleton
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls, *args: Any, **kwargs: Any) -> "FeatureFactory":
         if not hasattr(cls, "_instance"):
             cls._instance = super().__new__(cls)
             cls._instance._features = OrderedDict()

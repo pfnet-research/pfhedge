@@ -82,7 +82,9 @@ class BSAmericanBinaryOption(BSModuleMixin):
         self.derivative = derivative
 
     @classmethod
-    def from_derivative(cls, derivative):
+    def from_derivative(
+        cls, derivative: AmericanBinaryOption
+    ) -> "BSAmericanBinaryOption":
         """Initialize a module from a derivative.
 
         Args:
