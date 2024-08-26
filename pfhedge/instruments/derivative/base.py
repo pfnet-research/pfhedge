@@ -305,7 +305,7 @@ class OptionMixin:
             torch.Tensor
         """
         index = ... if time_step is None else [time_step]
-        output = self.underlier.spot[..., index] / self.strike
+        output = self.underlier.spot[..., index] / self.strike  # type: ignore
         if log:
             output = output.log()
         return output
@@ -389,7 +389,7 @@ class OptionMixin:
 class BaseOption(BaseDerivative, OptionMixin):
     """(deprecated) Base class for options."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         raise DeprecationWarning(
             "BaseOption is deprecated. Inherit `BaseDerivative` and `OptionMixin` instead."

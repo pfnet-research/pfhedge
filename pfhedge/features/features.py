@@ -134,7 +134,7 @@ class UnderlierSpot(StateIndependentFeature):
 
     def get(self, time_step: Optional[int] = None) -> Tensor:
         index = [time_step] if isinstance(time_step, int) else ...
-        output = self.derivative.ul().spot[:, index].unsqueeze(-1)
+        output = self.derivative.ul().spot[:, index].unsqueeze(-1)  # type: ignore
         if self.log:
             output.log_()
         return output
@@ -147,7 +147,7 @@ class UnderlierLogSpot(UnderlierSpot):
         ``'underlier_log_spot'``
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(log=True)
 
 
@@ -167,7 +167,7 @@ class Spot(StateIndependentFeature):
 
     def get(self, time_step: Optional[int] = None) -> Tensor:
         index = [time_step] if isinstance(time_step, int) else ...
-        output = self.derivative.spot[:, index].unsqueeze(-1)
+        output = self.derivative.spot[:, index].unsqueeze(-1)  # type: ignore
         if self.log:
             output.log_()
         return output
@@ -186,7 +186,7 @@ class Volatility(StateIndependentFeature):
 
     def get(self, time_step: Optional[int] = None) -> Tensor:
         index = [time_step] if isinstance(time_step, int) else ...
-        return self.derivative.ul().volatility[:, index].unsqueeze(-1)
+        return self.derivative.ul().volatility[:, index].unsqueeze(-1)  # type: ignore
 
 
 class Variance(StateIndependentFeature):
@@ -200,7 +200,7 @@ class Variance(StateIndependentFeature):
 
     def get(self, time_step: Optional[int]) -> Tensor:
         index = [time_step] if isinstance(time_step, int) else ...
-        return self.derivative.ul().variance[:, index].unsqueeze(-1)
+        return self.derivative.ul().variance[:, index].unsqueeze(-1)  # type: ignore
 
 
 class PrevHedge(Feature):
@@ -305,7 +305,7 @@ class Zeros(StateIndependentFeature):
 
     def get(self, time_step: Optional[int] = None) -> Tensor:
         index = [time_step] if time_step is not None else ...
-        return torch.zeros_like(self.derivative.ul().spot[..., index]).unsqueeze(-1)
+        return torch.zeros_like(self.derivative.ul().spot[..., index]).unsqueeze(-1)  # type: ignore
 
 
 class Ones(StateIndependentFeature):
@@ -335,7 +335,7 @@ class Ones(StateIndependentFeature):
 
     def get(self, time_step: Optional[int] = None) -> Tensor:
         index = [time_step] if time_step is not None else ...
-        return torch.ones_like(self.derivative.ul().spot[..., index]).unsqueeze(-1)
+        return torch.ones_like(self.derivative.ul().spot[..., index]).unsqueeze(-1)  # type: ignore
 
 
 class Empty(StateIndependentFeature):
@@ -365,7 +365,7 @@ class Empty(StateIndependentFeature):
 
     def get(self, time_step: Optional[int] = None) -> Tensor:
         index = [time_step] if time_step is not None else ...
-        return torch.empty_like(self.derivative.ul().spot[..., index]).unsqueeze(-1)
+        return torch.empty_like(self.derivative.ul().spot[..., index]).unsqueeze(-1)  # type: ignore
 
 
 class MaxMoneyness(StateIndependentFeature):

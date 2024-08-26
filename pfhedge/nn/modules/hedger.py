@@ -475,7 +475,7 @@ class Hedger(Module):
         """
         with torch.set_grad_enabled(enable_grad):
 
-            def _get_loss():
+            def _get_loss() -> Tensor:
                 derivative.simulate(n_paths=n_paths, init_state=init_state)
                 portfolio = self.compute_portfolio(derivative, hedge=hedge)
                 return self.criterion(portfolio, derivative.payoff())
@@ -666,7 +666,7 @@ class Hedger(Module):
         """
         with torch.set_grad_enabled(enable_grad):
 
-            def _get_price():
+            def _get_price() -> Tensor:
                 derivative.simulate(n_paths=n_paths, init_state=init_state)
                 portfolio = self.compute_portfolio(derivative, hedge)
                 # Negative because selling

@@ -32,13 +32,7 @@ class TestMultiLayerPerceptron:
     @pytest.mark.parametrize("n_units", [2, 8, 32])
     @pytest.mark.parametrize("in_features", [1, 2])
     @pytest.mark.parametrize("out_features", [1, 2])
-    def test_n_units(
-        self,
-        n_units,
-        in_features,
-        out_features,
-        device: str = "cpu",
-    ):
+    def test_n_units(self, n_units, in_features, out_features, device: str = "cpu"):
         n_layers = 4
         m = MultiLayerPerceptron(
             n_layers=n_layers, n_units=n_units, out_features=out_features
@@ -61,12 +55,7 @@ class TestMultiLayerPerceptron:
 
     @pytest.mark.parametrize("activation", [torch.nn.ELU(), torch.nn.CELU()])
     @pytest.mark.parametrize("out_activation", [torch.nn.ELU(), torch.nn.CELU()])
-    def test_activation(
-        self,
-        activation,
-        out_activation,
-        device: str = "cpu",
-    ):
+    def test_activation(self, activation, out_activation, device: str = "cpu"):
         n_layers = 4
         m = MultiLayerPerceptron(
             n_layers=n_layers, activation=activation, out_activation=out_activation

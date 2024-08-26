@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from typing import Any
 from typing import Callable
 from typing import Dict
 from typing import Iterator
@@ -17,7 +18,7 @@ class BlackScholesModuleFactory:
     _modules: Dict[str, Type[Module]]
 
     # singleton
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls, *args: Any, **kwargs: Any) -> "BlackScholesModuleFactory":
         if not hasattr(cls, "_instance"):
             cls._instance = super().__new__(cls)
             cls._instance._modules = OrderedDict()
@@ -97,5 +98,5 @@ class BlackScholes(Module):
     vega: Callable[..., Tensor]  # vega(self, ...) -> Tensor
     theta: Callable[..., Tensor]  # theta(self, ...) -> Tensor
 
-    def __new__(cls, derivative):
-        return BlackScholesModuleFactory().get_class_from_derivative(derivative)
+    def __new__(cls, derivative: "Derivative") -> "BlackScholes":
+        return BlackScholesModuleFactory().get_class_from_derivative(derivative)  # type: ignore
