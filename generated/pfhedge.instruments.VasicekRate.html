@@ -343,17 +343,17 @@ The stochastic process.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>kappa</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>default=1.0</em>) – The parameter <span class="math notranslate nohighlight">\(\kappa\)</span>.</p></li>
-<li><p><strong>theta</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>default=0.04</em>) – The parameter <span class="math notranslate nohighlight">\(\theta\)</span>.</p></li>
-<li><p><strong>sigma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>default=0.04</em>) – The parameter <span class="math notranslate nohighlight">\(\sigma\)</span>.</p></li>
-<li><p><strong>cost</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>default=0.0</em>) – The transaction cost rate.</p></li>
-<li><p><strong>dt</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>default=1/250</em>) – The intervals of the time steps.</p></li>
-<li><p><strong>dtype</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensor_attributes.html#torch.device" title="(in PyTorch v2.0)"><em>torch.device</em></a><em>, </em><em>optional</em>) – Desired device of returned tensor.
+<li><p><strong>kappa</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a><em>, </em><em>default=1.0</em>) – The parameter <span class="math notranslate nohighlight">\(\kappa\)</span>.</p></li>
+<li><p><strong>theta</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a><em>, </em><em>default=0.04</em>) – The parameter <span class="math notranslate nohighlight">\(\theta\)</span>.</p></li>
+<li><p><strong>sigma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a><em>, </em><em>default=0.04</em>) – The parameter <span class="math notranslate nohighlight">\(\sigma\)</span>.</p></li>
+<li><p><strong>cost</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a><em>, </em><em>default=0.0</em>) – The transaction cost rate.</p></li>
+<li><p><strong>dt</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a><em>, </em><em>default=1/250</em>) – The intervals of the time steps.</p></li>
+<li><p><strong>dtype</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensor_attributes.html#torch.device" title="(in PyTorch v2.4)"><em>torch.device</em></a><em>, </em><em>optional</em>) – Desired device of returned tensor.
 Default: If None, uses a global default
-(see <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.set_default_tensor_type.html#torch.set_default_tensor_type" title="(in PyTorch v2.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.set_default_tensor_type()</span></code></a>).</p></li>
-<li><p><strong>device</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensor_attributes.html#torch.device" title="(in PyTorch v2.0)"><em>torch.device</em></a><em>, </em><em>optional</em>) – Desired device of returned tensor.
+(see <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.set_default_tensor_type.html#torch.set_default_tensor_type" title="(in PyTorch v2.4)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.set_default_tensor_type()</span></code></a>).</p></li>
+<li><p><strong>device</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensor_attributes.html#torch.device" title="(in PyTorch v2.4)"><em>torch.device</em></a><em>, </em><em>optional</em>) – Desired device of returned tensor.
 Default: if None, uses the current device for the default tensor type
-(see <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.set_default_tensor_type.html#torch.set_default_tensor_type" title="(in PyTorch v2.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.set_default_tensor_type()</span></code></a>).
+(see <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.set_default_tensor_type.html#torch.set_default_tensor_type" title="(in PyTorch v2.4)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.set_default_tensor_type()</span></code></a>).
 <code class="docutils literal notranslate"><span class="pre">device</span></code> will be the CPU for CPU tensor types and
 the current CUDA device for CUDA tensor types.</p></li>
 </ul>
@@ -361,7 +361,7 @@ the current CUDA device for CUDA tensor types.</p></li>
 </dl>
 <dl class="simple">
 <dt>Buffers:</dt><dd><ul class="simple">
-<li><p>spot (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.Tensor</span></code></a>): The spot rate of the instrument.
+<li><p>spot (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.Tensor</span></code></a>): The spot rate of the instrument.
 This attribute is set by a method <code class="xref py py-meth docutils literal notranslate"><span class="pre">simulate()</span></code>.
 The shape is <span class="math notranslate nohighlight">\((N, T)\)</span> where
 <span class="math notranslate nohighlight">\(N\)</span> is the number of simulated paths and
@@ -402,7 +402,7 @@ The shape is <span class="math notranslate nohighlight">\((N, T)\)</span> where
 <dt class="sig sig-object py" id="id2">
 <span class="sig-name descname"><span class="pre">to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id2" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-<p>Its signature is similar to <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module.to" title="(in PyTorch v2.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">torch.nn.Module.to()</span></code></a>.
+<p>Its signature is similar to <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module.to" title="(in PyTorch v2.4)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">torch.nn.Module.to()</span></code></a>.
 It only accepts floating point dtypes.
 See <a class="reference internal" href="../notes/instrument_attributes.html#instrument-attributes-doc"><span class="std std-ref">Instrument dtype and device</span></a> for details.</p>
 <div class="admonition note">
@@ -423,11 +423,11 @@ See <a class="reference internal" href="../notes/instrument_attributes.html#inst
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dtype</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensor_attributes.html#torch.dtype" title="(in PyTorch v2.0)"><em>torch.dtype</em></a>) – The desired floating point dtype of
+<li><p><strong>dtype</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensor_attributes.html#torch.dtype" title="(in PyTorch v2.4)"><em>torch.dtype</em></a>) – The desired floating point dtype of
 the buffers in this instrument.</p></li>
-<li><p><strong>device</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensor_attributes.html#torch.device" title="(in PyTorch v2.0)"><em>torch.device</em></a>) – The desired device of
+<li><p><strong>device</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensor_attributes.html#torch.device" title="(in PyTorch v2.4)"><em>torch.device</em></a>) – The desired device of
 the buffers in this instrument.</p></li>
-<li><p><strong>tensor</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><em>torch.Tensor</em></a>) – Tensor whose dtype and device are
+<li><p><strong>tensor</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.4)"><em>torch.Tensor</em></a>) – Tensor whose dtype and device are
 the desired dtype and device of
 the buffers in this instrument.</p></li>
 <li><p><strong>instrument</strong> (<a class="reference internal" href="pfhedge.instruments.BaseInstrument.html#pfhedge.instruments.BaseInstrument" title="pfhedge.instruments.BaseInstrument"><em>BaseInstrument</em></a>) – Instrument whose dtype and device are

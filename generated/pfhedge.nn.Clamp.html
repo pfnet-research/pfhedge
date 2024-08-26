@@ -352,14 +352,14 @@
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <ul class="simple">
-<li><p><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.clamp.html#torch.clamp" title="(in PyTorch v2.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.clamp()</span></code></a></p></li>
+<li><p><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.clamp.html#torch.clamp" title="(in PyTorch v2.4)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.clamp()</span></code></a></p></li>
 <li><p><a class="reference internal" href="pfhedge.nn.functional.clamp.html#pfhedge.nn.functional.clamp" title="pfhedge.nn.functional.clamp"><code class="xref py py-func docutils literal notranslate"><span class="pre">pfhedge.nn.functional.clamp()</span></code></a></p></li>
 </ul>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>inverted_output</strong> (<em>{'mean'</em><em>, </em><em>''max'}</em><em>, </em><em>default='mean'</em>) – Controls the output when <span class="math notranslate nohighlight">\(\min &gt; \max\)</span>.
-‘max’ is consistent with <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.clamp.html#torch.clamp" title="(in PyTorch v2.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.clamp()</span></code></a>.</p>
+‘max’ is consistent with <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.clamp.html#torch.clamp" title="(in PyTorch v2.4)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.clamp()</span></code></a>.</p>
 </dd>
 </dl>
 <dl class="simple">
@@ -375,7 +375,7 @@
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.nn</span> <span class="kn">import</span> <span class="n">Clamp</span>
-<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">Clamp</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">input</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">15</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.1</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">input</span>
@@ -401,9 +401,9 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>input</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><em>torch.Tensor</em></a>) – The input tensor.</p></li>
-<li><p><strong>min</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Lower-bound of the range to be clamped to.</p></li>
-<li><p><strong>max</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Upper-bound of the range to be clamped to.</p></li>
+<li><p><strong>input</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.4)"><em>torch.Tensor</em></a>) – The input tensor.</p></li>
+<li><p><strong>min</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.4)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Lower-bound of the range to be clamped to.</p></li>
+<li><p><strong>max</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.4)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Upper-bound of the range to be clamped to.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>

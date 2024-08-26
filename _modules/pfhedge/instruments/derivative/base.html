@@ -634,7 +634,7 @@
 <span class="sd">            torch.Tensor</span>
 <span class="sd">        """</span>
         <span class="n">index</span> <span class="o">=</span> <span class="o">...</span> <span class="k">if</span> <span class="n">time_step</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[</span><span class="n">time_step</span><span class="p">]</span>
-        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">underlier</span><span class="o">.</span><span class="n">spot</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">index</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">strike</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">underlier</span><span class="o">.</span><span class="n">spot</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">index</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">strike</span>  <span class="c1"># type: ignore</span>
         <span class="k">if</span> <span class="n">log</span><span class="p">:</span>
             <span class="n">output</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">log</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">output</span></div>
@@ -718,7 +718,7 @@
 <div class="viewcode-block" id="BaseOption"><a class="viewcode-back" href="../../../../generated/pfhedge.instruments.BaseOption.html#pfhedge.instruments.BaseOption">[docs]</a><span class="k">class</span> <span class="nc">BaseOption</span><span class="p">(</span><span class="n">BaseDerivative</span><span class="p">,</span> <span class="n">OptionMixin</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""(deprecated) Base class for options."""</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="k">raise</span> <span class="ne">DeprecationWarning</span><span class="p">(</span>
             <span class="s2">"BaseOption is deprecated. Inherit `BaseDerivative` and `OptionMixin` instead."</span>

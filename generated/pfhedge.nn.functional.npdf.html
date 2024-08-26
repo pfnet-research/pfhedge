@@ -337,7 +337,7 @@
 \[\text{npdf}(x) = \frac{1}{\sqrt{2 \pi}} e^{-\frac{x^2}{2}}\]</div></div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>input</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><em>torch.Tensor</em></a>) – The input tensor.</p>
+<dd class="field-odd"><p><strong>input</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.4)"><em>torch.Tensor</em></a>) – The input tensor.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>torch.Tensor</p>
@@ -345,7 +345,7 @@
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pfhedge.nn.functional</span> <span class="kn">import</span> <span class="n">npdf</span>
-<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">input</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">npdf</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
 <span class="go">tensor([2.4197e-01, 3.9894e-01, 7.6946e-23])</span>

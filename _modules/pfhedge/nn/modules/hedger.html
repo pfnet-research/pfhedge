@@ -804,7 +804,7 @@
 <span class="sd">        """</span>
         <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">set_grad_enabled</span><span class="p">(</span><span class="n">enable_grad</span><span class="p">):</span>
 
-            <span class="k">def</span> <span class="nf">_get_loss</span><span class="p">():</span>
+            <span class="k">def</span> <span class="nf">_get_loss</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
                 <span class="n">derivative</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">n_paths</span><span class="o">=</span><span class="n">n_paths</span><span class="p">,</span> <span class="n">init_state</span><span class="o">=</span><span class="n">init_state</span><span class="p">)</span>
                 <span class="n">portfolio</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_portfolio</span><span class="p">(</span><span class="n">derivative</span><span class="p">,</span> <span class="n">hedge</span><span class="o">=</span><span class="n">hedge</span><span class="p">)</span>
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">criterion</span><span class="p">(</span><span class="n">portfolio</span><span class="p">,</span> <span class="n">derivative</span><span class="o">.</span><span class="n">payoff</span><span class="p">())</span>
@@ -995,7 +995,7 @@
 <span class="sd">        """</span>
         <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">set_grad_enabled</span><span class="p">(</span><span class="n">enable_grad</span><span class="p">):</span>
 
-            <span class="k">def</span> <span class="nf">_get_price</span><span class="p">():</span>
+            <span class="k">def</span> <span class="nf">_get_price</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
                 <span class="n">derivative</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">n_paths</span><span class="o">=</span><span class="n">n_paths</span><span class="p">,</span> <span class="n">init_state</span><span class="o">=</span><span class="n">init_state</span><span class="p">)</span>
                 <span class="n">portfolio</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_portfolio</span><span class="p">(</span><span class="n">derivative</span><span class="p">,</span> <span class="n">hedge</span><span class="p">)</span>
                 <span class="c1"># Negative because selling</span>

@@ -368,13 +368,13 @@ Deep hedging. Quantitative Finance, 19(8), pp.1271-1291.
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>spot</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><em>torch.Tensor</em></a>) – The spot price of the underlying asset <span class="math notranslate nohighlight">\(S\)</span>.</p></li>
-<li><p><strong>unit</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><em>torch.Tensor</em></a>) – The signed number of shares of the underlying asset
+<li><p><strong>spot</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.4)"><em>torch.Tensor</em></a>) – The spot price of the underlying asset <span class="math notranslate nohighlight">\(S\)</span>.</p></li>
+<li><p><strong>unit</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.4)"><em>torch.Tensor</em></a>) – The signed number of shares of the underlying asset
 <span class="math notranslate nohighlight">\(\delta\)</span>.</p></li>
-<li><p><strong>cost</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>]</em><em>, </em><em>default=None</em>) – The proportional transaction cost rate of
+<li><p><strong>cost</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a><em>]</em><em>, </em><em>default=None</em>) – The proportional transaction cost rate of
 the underlying assets.</p></li>
-<li><p><strong>payoff</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – The payoff of the derivative <span class="math notranslate nohighlight">\(Z\)</span>.</p></li>
-<li><p><strong>deduct_first_cost</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>default=True</em>) – Whether to deduct the transaction
+<li><p><strong>payoff</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.4)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – The payoff of the derivative <span class="math notranslate nohighlight">\(Z\)</span>.</p></li>
+<li><p><strong>deduct_first_cost</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a><em>, </em><em>default=True</em>) – Whether to deduct the transaction
 cost of the stock at the first time step.
 If <code class="docutils literal notranslate"><span class="pre">False</span></code>, <span class="math notranslate nohighlight">\(- c |\delta_0| S_1\)</span> is omitted the above
 equation of the terminal value.</p></li>
