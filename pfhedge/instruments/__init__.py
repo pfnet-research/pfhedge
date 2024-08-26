@@ -15,6 +15,7 @@ from .primary.base import Primary  # NOQA
 from .primary.brownian import BrownianStock  # NOQA
 from .primary.cir import CIRRate  # NOQA
 from .primary.heston import HestonStock  # NOQA
+from .primary.kou_jump import KouJumpStock  # noqa: F401
 from .primary.local_volatility import LocalVolatilityStock  # NOQA
 from .primary.merton_jump import MertonJumpStock  # NOQA
 from .primary.rough_bergomi import RoughBergomiStock  # NOQA
