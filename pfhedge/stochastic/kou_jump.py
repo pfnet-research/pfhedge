@@ -95,9 +95,9 @@ def generate_kou_jump(
         >>> from pfhedge.stochastic import generate_kou_jump
         >>>
         >>> _ = torch.manual_seed(42)
-        >>> generate_kou_jump(2, 5, jump_per_year = 0.0)
-        tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930],
-                [1.0000, 1.0282, 1.0199, 1.0258, 1.0292]])
+        >>> generate_kou_jump(2, 5, jump_per_year = 10.0)
+        tensor([[1.0000, 1.0021, 1.0055, 1.0089, 0.9952],
+                [1.0000, 1.0288, 1.0210, 1.0275, 1.0314]])
     """
     assert jump_eta_up > 1.0, "jump_eta_up must be larger than 1.0"
     assert jump_eta_down > 0.0, "jump_eta_down must be larger than 0.0"
