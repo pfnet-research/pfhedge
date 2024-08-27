@@ -96,7 +96,7 @@ def generate_kou_jump(
         >>>
         >>> _ = torch.manual_seed(42)
         >>> generate_kou_jump(2, 5)
-        tensor([[1.0000, 1.0053, 1.0119, 0.9993, 0.9887],
+        tensor([[1.0000, 1.0053, 1.0119, 0.9271, 0.9174],
                 [1.0000, 1.0321, 1.0275, 1.0372, 1.0445]])
     """
     assert jump_eta_up > 1.0, "jump_eta_up must be larger than 1.0"
@@ -115,23 +115,26 @@ def generate_kou_jump(
     returns[:, 0] = 0.0
 
     # Generate jump components
-    n_jumps = torch.poisson(torch.full((n_paths, n_steps - 1), jump_per_year * dt)).to(
-        returns
-    )
+    poisson = torch.distributions.poisson.Poisson(rate=jump_per_year * dt)
+    n_jumps = poisson.sample((n_paths, n_steps - 1)).to(dtype=dtype, device=device)
+
     # if n_steps is greater than 1
     if (n_steps - 1) > 0:
         # max jumps used to aggregte jump in between dt time
         max_jumps = int(n_jumps.max())
-        size_paths = (n_paths, n_steps - 1, max_jumps)
+        size_paths = torch.Size([n_paths, n_steps - 1, max_jumps])
 
         # up exp generator
-        up_exp_dist = torch.distributions.Exponential(jump_eta_up)
+        up_exp_dist = torch.distributions.exponential.Exponential(rate=jump_eta_up)
 
         # down exp generator
-        down_exp_dist = torch.distributions.Exponential(jump_eta_down)
+        down_exp_dist = torch.distributions.exponential.Exponential(rate=jump_eta_down)
+
+        # up or down generator
+        direction_uni_dist = torch.distributions.uniform.Uniform(0.0, 1.0)
 
         log_jump = torch.where(
-            torch.rand(size_paths) < jump_up_prob,
+            direction_uni_dist.sample(size_paths) < jump_up_prob,
             up_exp_dist.sample(size_paths),
             -down_exp_dist.sample(size_paths),
         ).to(returns)
