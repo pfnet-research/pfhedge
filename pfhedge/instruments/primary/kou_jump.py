@@ -69,11 +69,11 @@ class KouJumpStock(BasePrimary):
         >>> from pfhedge.instruments import KouJumpStock
         >>>
         >>> _ = torch.manual_seed(42)
-        >>> stock = KouJumpStock(device = torch.device('cpu'))
+        >>> stock = KouJumpStock(jump_per_year = 10.0)
         >>> stock.simulate(n_paths=2, time_horizon=5 / 250)
         >>> stock.spot
-        tensor([[1.0000, 0.9868, 0.9934, 0.9999, 0.9893, 0.9906],
-                [1.0000, 0.9956, 1.0050, 1.0121, 1.0227, 1.0369]])
+        tensor([[1.0000, 1.0021, 1.0055, 1.0089, 0.9952, 0.9933],
+                [1.0000, 0.9924, 0.9987, 1.0025, 1.0098, 1.0207]])
         >>> stock.variance
         tensor([[0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400],
                 [0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400]])
