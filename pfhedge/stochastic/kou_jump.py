@@ -81,7 +81,7 @@ def generate_kou_jump(
             should return a tensor filled with random numbers
             from a standard normal distribution.
             Only to be used for the normal component,
-            jupms uses poisson distribution
+            jupms uses poisson distribution.
 
     Shape:
         - Output: :math:`(N, T)` where
@@ -95,8 +95,8 @@ def generate_kou_jump(
         >>> from pfhedge.stochastic import generate_kou_jump
         >>>
         >>> _ = torch.manual_seed(42)
-        >>> generate_kou_jump(2, 5)
-        tensor([[1.0000, 1.0053, 1.0119, 0.9993, 0.9887],
+        >>> generate_kou_jump(2, 5, device = torch.device('cpu'))
+        tensor([[1.0000, 1.0053, 1.0119, 0.9271, 0.9174],
                 [1.0000, 1.0321, 1.0275, 1.0372, 1.0445]])
     """
     assert jump_eta_up > 1.0, "jump_eta_up must be larger than 1.0"

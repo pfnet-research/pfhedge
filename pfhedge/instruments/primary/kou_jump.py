@@ -1,4 +1,5 @@
 from math import ceil
+from typing import Callable
 from typing import Optional
 from typing import Tuple
 from typing import cast
@@ -49,6 +50,13 @@ class KouJumpStock(BasePrimary):
             (see :func:`torch.set_default_tensor_type()`).
             ``device`` will be the CPU for CPU tensor types and
             the current CUDA device for CUDA tensor types.
+        engine (callable, default=torch.randn): The desired generator of random numbers
+            from a standard normal distribution.
+            A function call ``engine(size, dtype=None, device=None)``
+            should return a tensor filled with random numbers
+            from a standard normal distribution.
+            Only to be used for the normal component,
+            jupms uses poisson distribution.
 
     Buffers:
         - spot (:class:`torch.Tensor`): The spot prices of the instrument.
@@ -61,7 +69,7 @@ class KouJumpStock(BasePrimary):
         >>> from pfhedge.instruments import KouJumpStock
         >>>
         >>> _ = torch.manual_seed(42)
-        >>> stock = KouJumpStock()
+        >>> stock = KouJumpStock(device = torch.device('cpu'))
         >>> stock.simulate(n_paths=2, time_horizon=5 / 250)
         >>> stock.spot
         tensor([[1.0000, 1.0018, 1.0084, 1.0150, 1.0044, 1.0056],
@@ -86,6 +94,7 @@ class KouJumpStock(BasePrimary):
         dt: float = 1 / 250,
         dtype: Optional[torch.dtype] = None,
         device: Optional[torch.device] = None,
+        engine: Callable[..., Tensor] = torch.randn,
     ) -> None:
         super().__init__()
 
@@ -97,6 +106,7 @@ class KouJumpStock(BasePrimary):
         self.jump_up_prob = jump_up_prob
         self.cost = cost
         self.dt = dt
+        self.engine = engine
 
         self.to(dtype=dtype, device=device)
 
@@ -160,6 +170,7 @@ class KouJumpStock(BasePrimary):
             dt=self.dt,
             dtype=self.dtype,
             device=self.device,
+            engine=self.engine,
         )
 
         self.register_buffer("spot", spot)
