@@ -105,7 +105,11 @@ def generate_merton_jump(
     randn = engine(*(n_paths, n_steps), dtype=dtype, device=device)
     randn[:, 0] = 0.0
     drift = (
-        (mu - (sigma ** 2) / 2 - jump_per_year * (jump_mean + jump_std ** 2 / 2))
+        (
+            mu
+            - (sigma ** 2) / 2
+            - jump_per_year * (math.exp(jump_mean + jump_std ** 2 / 2) - 1)
+        )
         * dt
         * torch.arange(n_steps).to(randn)
     )

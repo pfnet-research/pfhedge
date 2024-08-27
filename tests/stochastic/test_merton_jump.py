@@ -54,15 +54,15 @@ def test_generate_brownian_mean_no_jump_std(device: str = "cpu"):
     output = generate_merton_jump(
         n_paths,
         n_steps,
-        jump_per_year=1000,
+        jump_per_year=68.2,  # default value
         jump_std=0.0,
         jump_mean=0.1,
         device=torch.device(device),
     )
     assert output.size() == torch.Size((n_paths, n_steps))
-    result = output[:, -1].log().mean()
-    expect = torch.zeros_like(result)
-    std = 0.2 * sqrt(1 / n_paths)
+    result = output[:, -1].mean()
+    expect = torch.ones_like(result)
+    std = 0.4 * sqrt(1 / n_paths)
     assert_close(result, expect, atol=3 * std, rtol=0)
 
 
@@ -272,8 +272,8 @@ def test_generate_merton_jump_sobol_mean(device: str = "cpu"):
         n_paths, n_steps, engine=engine, jump_per_year=0, device=torch.device(device)
     )
     assert output.size() == torch.Size((n_paths, n_steps))
-    result = output[:, -1].log().mean()
-    expect = torch.zeros_like(result).to(device)
+    result = output[:, -1].mean()
+    expect = torch.ones_like(result).to(device)
     std = 0.2 * sqrt(1 / n_paths)
     assert_close(result, expect, atol=10 * std, rtol=0)
 
