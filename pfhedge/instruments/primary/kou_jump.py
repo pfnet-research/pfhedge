@@ -72,7 +72,7 @@ class KouJumpStock(BasePrimary):
         >>> stock = KouJumpStock(device = torch.device('cpu'))
         >>> stock.simulate(n_paths=2, time_horizon=5 / 250)
         >>> stock.spot
-        tensor([[1.0000, 1.0018, 1.0084, 1.0150, 1.0044, 1.0056],
+        tensor([[1.0000, 0.9868, 0.9934, 0.9999, 0.9893, 0.9906],
                 [1.0000, 0.9956, 1.0050, 1.0121, 1.0227, 1.0369]])
         >>> stock.variance
         tensor([[0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400],
