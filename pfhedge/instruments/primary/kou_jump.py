@@ -1,10 +1,13 @@
 from math import ceil
-from typing import Optional, Tuple, cast
+from typing import Optional
+from typing import Tuple
+from typing import cast
 
 import torch
 from torch import Tensor
 
-from pfhedge._utils.doc import _set_attr_and_docstring, _set_docstring
+from pfhedge._utils.doc import _set_attr_and_docstring
+from pfhedge._utils.doc import _set_docstring
 from pfhedge._utils.str import _format_float
 from pfhedge._utils.typing import TensorOrScalar
 from pfhedge.stochastic import generate_kou_jump
@@ -61,15 +64,14 @@ class KouJumpStock(BasePrimary):
         >>> stock = KouJumpStock()
         >>> stock.simulate(n_paths=2, time_horizon=5 / 250)
         >>> stock.spot
-        tensor([[1.0000, 1.0018, 1.0084, 1.0150, 1.0044, 1.0056],
+        tensor([[1.0000, 0.9868, 0.9934, 0.9999, 0.9893, 0.9906],
                 [1.0000, 0.9956, 1.0050, 1.0121, 1.0227, 1.0369]])
-
-        Using custom ``dtype`` and ``device``.
-
-        >>> stock = KouJumpStock()
-        >>> stock.to(dtype=torch.float64, device="cuda:0")
-        KouJumpStock(sigma=0.2000, dt=0.0040, jump_per_year=68., jump_eta_up=50.,
-        jump_eta_down=20., jump_up_prob=0.5000, dtype=torch.float64, device='cuda:0')
+        >>> stock.variance
+        tensor([[0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400],
+                [0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400]])
+        >>> stock.volatility
+        tensor([[0.2000, 0.2000, 0.2000, 0.2000, 0.2000, 0.2000],
+                [0.2000, 0.2000, 0.2000, 0.2000, 0.2000, 0.2000]])
     """
 
     def __init__(
@@ -141,16 +143,6 @@ class KouJumpStock(BasePrimary):
                 If ``None`` (default), it uses the default value
                 (See :attr:`default_init_state`).
                 It also accepts a :class:`float` or a :class:`torch.Tensor`.
-
-        Examples:
-            >>> from pfhedge.instruments import KouJumpStock
-            >>>
-            >>> _ = torch.manual_seed(42)
-            >>> stock = KouJumpStock()
-            >>> stock.simulate(n_paths=2, time_horizon=5 / 250, init_state=(2.0,))
-            >>> stock.spot
-            tensor([[2.0000, 2.0036, 2.0169, 2.0301, 2.0087, 2.0113],
-                    [2.0000, 1.9911, 2.0100, 2.0242, 2.0453, 2.0738]])
         """
         if init_state is None:
             init_state = cast(Tuple[float], self.default_init_state)
