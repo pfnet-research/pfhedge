@@ -110,8 +110,8 @@ def generate_merton_jump(
             - (sigma ** 2) / 2
             - jump_per_year * (math.exp(jump_mean + jump_std ** 2 / 2) - 1)
         )
-         * dt
-         * torch.arange(n_steps).to(randn)
-     )
+        * dt
+        * torch.arange(n_steps).to(randn)
+    )
     brown = randn.cumsum(1) * math.sqrt(dt)
     return init_state[0] * (drift + sigma * brown + jump.cumsum(1)).exp()
