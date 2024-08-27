@@ -154,14 +154,10 @@ def test_generate_kou_jump_mean_mu_gpu():
 def test_generate_kou_jump_dtype(device: str = "cpu"):
     torch.manual_seed(42)
 
-    output = generate_kou_jump(
-        1, 1, dtype=torch.float32, device=torch.device(device)
-    )
+    output = generate_kou_jump(1, 1, dtype=torch.float32, device=torch.device(device))
     assert output.dtype == torch.float32
 
-    output = generate_kou_jump(
-        1, 1, dtype=torch.float64, device=torch.device(device)
-    )
+    output = generate_kou_jump(1, 1, dtype=torch.float64, device=torch.device(device))
     assert output.dtype == torch.float64
 
 

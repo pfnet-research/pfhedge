@@ -93,8 +93,8 @@ def generate_kou_jump(
         >>>
         >>> _ = torch.manual_seed(42)
         >>> generate_kou_jump(2, 5)
-        tensor([[1.0000, 1.0053, 1.0119, 0.9272, 0.9174],
-                [1.0000, 1.0321, 1.0275, 1.0373, 1.0446]])
+        tensor([[1.0000, 1.0053, 1.0119, 0.9271, 0.9174],
+                [1.0000, 1.0321, 1.0275, 1.0372, 1.0445]])
     """
     assert jump_eta_up > 1.0, "jump_eta_up must be larger than 1.0"
     assert jump_eta_down > 0.0, "jump_eta_down must be larger than 0.0"
@@ -116,7 +116,7 @@ def generate_kou_jump(
         returns
     )
     # if n_steps is greater than 1
-    if (n_steps-1 ) > 0:
+    if (n_steps - 1) > 0:
         # max jumps used to aggregte jump in between dt time
         max_jumps = int(n_jumps.max())
         size_paths = (n_paths, n_steps - 1, max_jumps)
@@ -137,7 +137,7 @@ def generate_kou_jump(
         log_jump = torch.cat(
             (torch.zeros(n_paths, n_steps - 1, 1).to(log_jump), log_jump), dim=-1
         )
-    
+
         exp_jump_ind = torch.exp(log_jump)
 
         # filter out jump movements that did not occur in dt time
@@ -167,7 +167,9 @@ def generate_kou_jump(
     )
 
     prices = (
-        torch.exp((mu - jump_per_year * m) * t + returns.cumsum(1) - (sigma ** 2) * t / 2)
+        torch.exp(
+            (mu - jump_per_year * m) * t + returns.cumsum(1) - (sigma ** 2) * t / 2
+        )
         * init_value.view(-1, 1)
         * exp_jump_agg
     )

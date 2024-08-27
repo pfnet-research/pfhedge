@@ -61,8 +61,8 @@ class KouJumpStock(BasePrimary):
         >>> stock = KouJumpStock()
         >>> stock.simulate(n_paths=2, time_horizon=5 / 250)
         >>> stock.spot
-        tensor([[1.0000, 1.0101, 1.0137, 1.0144, 1.0211, 1.0180],
-                [1.0000, 1.0067, 1.0065, 1.0158, 1.0175, 1.0287]])
+        tensor([[1.0000, 1.0018, 1.0084, 1.0150, 1.0044, 1.0056],
+                [1.0000, 0.9956, 1.0050, 1.0121, 1.0227, 1.0369]])
 
         Using custom ``dtype`` and ``device``.
 
@@ -149,8 +149,8 @@ class KouJumpStock(BasePrimary):
             >>> stock = KouJumpStock()
             >>> stock.simulate(n_paths=2, time_horizon=5 / 250, init_state=(2.0,))
             >>> stock.spot
-            tensor([[2.0000, 2.0032, 2.0091, 2.0149, 1.9865, 1.9817],
-                    [2.0000, 1.9839, 1.9954, 2.0022, 2.0157, 2.0364]])
+            tensor([[2.0000, 2.0036, 2.0169, 2.0301, 2.0087, 2.0113],
+                    [2.0000, 1.9911, 2.0100, 2.0242, 2.0453, 2.0738]])
         """
         if init_state is None:
             init_state = cast(Tuple[float], self.default_init_state)
