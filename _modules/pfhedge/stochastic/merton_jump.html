@@ -434,7 +434,11 @@
     <span class="n">randn</span> <span class="o">=</span> <span class="n">engine</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">n_paths</span><span class="p">,</span> <span class="n">n_steps</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
     <span class="n">randn</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
     <span class="n">drift</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="p">(</span><span class="n">mu</span> <span class="o">-</span> <span class="p">(</span><span class="n">sigma</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">jump_per_year</span> <span class="o">*</span> <span class="p">(</span><span class="n">jump_mean</span> <span class="o">+</span> <span class="n">jump_std</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="p">(</span>
+            <span class="n">mu</span>
+            <span class="o">-</span> <span class="p">(</span><span class="n">sigma</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="o">-</span> <span class="n">jump_per_year</span> <span class="o">*</span> <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">jump_mean</span> <span class="o">+</span> <span class="n">jump_std</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="p">)</span>
         <span class="o">*</span> <span class="n">dt</span>
         <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_steps</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">randn</span><span class="p">)</span>
     <span class="p">)</span>
