@@ -68,8 +68,8 @@ class KouJumpStock(BasePrimary):
 
         >>> stock = KouJumpStock()
         >>> stock.to(dtype=torch.float64, device="cuda:0")
-        KouJumpStock(sigma=0.2000, dt=0.0040, jump_per_year=1., j_mu=0.,
-        j_sigma=0.2000, dtype=torch.float64, device='cuda:0')
+        KouJumpStock(sigma=0.2000, dt=0.0040, jump_per_year=68., jump_eta_up=50.,
+        jump_eta_down=20., jump_up_prob=0.5000, dtype=torch.float64, device='cuda:0')
     """
 
     def __init__(

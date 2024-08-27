@@ -152,7 +152,7 @@ def generate_kou_jump(
 
         # no jump at time 0--> exp(0.0)=1.0
         exp_jump = torch.cat((torch.ones(n_paths, 1).to(exp_jump), exp_jump), dim=1)
-    
+
     else:
         exp_jump = torch.ones(n_paths, 1).to(returns)
 
