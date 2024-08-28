@@ -101,7 +101,7 @@ def generate_kou_jump(
     """
     # change means to rate of exponential distributions
     jump_eta_up = 1 / jump_mean_up
-    jump_eta_down = 1/ jump_mean_down
+    jump_eta_down = 1 / jump_mean_down
 
     if jump_eta_up <= 1:
         raise ValueError("jump_mean_up must be postive and smaller than 1")
