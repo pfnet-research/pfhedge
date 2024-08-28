@@ -177,10 +177,8 @@ class KouJumpStock(BasePrimary):
 
     def extra_repr(self) -> str:
         params = ["sigma=" + _format_float(self.sigma)]
-        if self.mu != 0.0:
-            params.append("mu=" + _format_float(self.mu))
-        if self.cost != 0.0:
-            params.append("cost=" + _format_float(self.cost))
+        params.append("mu=" + _format_float(self.mu))
+        params.append("cost=" + _format_float(self.cost))
         params.append("dt=" + _format_float(self.dt))
         params.append("jump_per_year=" + _format_float(self.jump_per_year))
         params.append("jump_mean_up=" + _format_float(self.jump_mean_up))

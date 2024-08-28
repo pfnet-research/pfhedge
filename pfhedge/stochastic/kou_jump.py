@@ -99,18 +99,18 @@ def generate_kou_jump(
         tensor([[1.0000, 1.0021, 1.0055, 1.0089, 0.9952],
                 [1.0000, 1.0288, 1.0210, 1.0275, 1.0314]])
     """
-    # change means to rate of exponential distributions
-    jump_eta_up = 1 / jump_mean_up
-    jump_eta_down = 1 / jump_mean_down
-
-    if jump_eta_up <= 1:
+    if not (0 < jump_mean_up < 1.0):
         raise ValueError("jump_mean_up must be postive and smaller than 1")
 
-    if jump_eta_down <= 0:
+    if not jump_mean_down > 0:
         raise ValueError("jump_mean_down must be postive")
 
     if not (0 <= jump_up_prob <= 1.0):
-        raise ValueError("jump prob must be in [0,1]")
+        raise ValueError("jump prob must be in 0 and 1 incl")
+    
+    # change means to rate of exponential distributions
+    jump_eta_up = 1 / jump_mean_up
+    jump_eta_down = 1 / jump_mean_down
 
     init_state = cast_state(init_state, dtype=dtype, device=device)
 

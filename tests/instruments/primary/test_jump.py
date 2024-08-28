@@ -32,7 +32,7 @@ class TestJumpStock:
 mu=0., sigma=0.2000, jump_per_year=68, jump_mean=0., jump_std=0.0100, cost=1.0000e-04, dt=0.0040)"
         if self.jump_test_class == KouJumpStock:
             expect = "KouJumpStock(\
-sigma=0.2000, cost=1.0000e-04, dt=0.0040, jump_per_year=68., jump_mean_up=0.0200, jump_mean_down=0.0500, jump_up_prob=0.5000)"
+sigma=0.2000, mu=0., cost=1.0000e-04, dt=0.0040, jump_per_year=68., jump_mean_up=0.0200, jump_mean_down=0.0500, jump_up_prob=0.5000)"
         assert repr(s) == expect
 
     def test_simulate_shape(self, device: str = "cpu"):
