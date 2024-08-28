@@ -107,7 +107,7 @@ def generate_kou_jump(
 
     if not (0 <= jump_up_prob <= 1.0):
         raise ValueError("jump prob must be in 0 and 1 incl")
-    
+
     # change means to rate of exponential distributions
     jump_eta_up = 1 / jump_mean_up
     jump_eta_down = 1 / jump_mean_down
