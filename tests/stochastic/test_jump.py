@@ -310,7 +310,9 @@ class TestGenerateKouJumpStock(TestGenerateJumpStock):
         n_steps = 250
         jump_mean_up = 1.1
         with (
-            pytest.raises(ValueError,match="jump_mean_up must be postive and smaller than 1")
+            pytest.raises(
+                ValueError,match="jump_mean_up must be postive and smaller than 1"
+            )
         ):
             generate_kou_jump(n_paths, n_steps, jump_mean_up=jump_mean_up)
 
