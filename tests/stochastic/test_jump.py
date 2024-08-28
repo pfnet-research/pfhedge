@@ -200,7 +200,7 @@ class TestGenerateJumpStock:
             n_steps,
             init_state=1.0,
             jump_per_year=0,
-            device=torch.device(device)
+            device=torch.device(device),
         )
         assert output.size() == torch.Size((n_paths, n_steps))
         result = output[:, -1].mean()
@@ -284,7 +284,7 @@ class TestGenerateJumpStock:
             n_steps,
             engine=engine,
             jump_per_year=0,
-            device=torch.device(device)
+            device=torch.device(device),
         )
         assert output.size() == torch.Size((n_paths, n_steps))
         result = output[:, -1].mean()
