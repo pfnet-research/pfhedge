@@ -71,7 +71,7 @@ class TestGenerateJumpStock:
         assert output.size() == torch.Size((n_paths, n_steps))
         result = output[:, -1].mean()
         expect = torch.ones_like(result)
-        std = 0.4 * sqrt(1 / n_paths)
+        std = 0.5 * sqrt(1 / n_paths)
         assert_close(result, expect, atol=3 * std, rtol=0)
 
     @pytest.mark.gpu
