@@ -22,7 +22,7 @@ class TestKouJumpStock:
     def test_repr(self):
         s = KouJumpStock(cost=1e-4)
         expect = "KouJumpStock(\
-sigma=0.2000, cost=1.0000e-04, dt=0.0040, jump_per_year=68., jump_eta_up=50., jump_eta_down=20., jump_up_prob=0.5000)"
+sigma=0.2000, cost=1.0000e-04, dt=0.0040, jump_per_year=68., jump_mean_up=0.0200, jump_mean_down=0.0500, jump_up_prob=0.5000)"
         assert repr(s) == expect
 
     def test_simulate_shape(self, device: str = "cpu"):

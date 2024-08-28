@@ -30,11 +30,11 @@ class KouJumpStock(BasePrimary):
             which stands for the drift of the spot price.
         jump_per_year (float, optional): Jump poisson process annual
             lambda: Average number of annual jumps. Defaults to 1.0.
-        jump_eta_up (float, optional): 1/Mu for the up jumps:
-            Instaneous value. Defaults to 1/0.02.
-            This has to be larger than 1.
-        jump_eta_down (float, optional): 1/Mu for the down jumps:
-            Instaneous value. Defaults to 1/0.05.
+        jump_mean_up (float, optional): Mu for the up jumps:
+            Instaneous value. Defaults to 0.02.
+            This has to be positive and smaller than 1.
+        jump_mean_down (float, optional): Mu for the down jumps:
+            Instaneous value. Defaults to 0.05.
             This has to be larger than 0.
         jump_up_prob (float, optional): Given a jump occurs,
             this is conditional prob for up jump.
@@ -87,8 +87,8 @@ class KouJumpStock(BasePrimary):
         sigma: float = 0.2,
         mu: float = 0.0,
         jump_per_year: float = 68.0,
-        jump_eta_up: float = 1 / 0.02,
-        jump_eta_down: float = 1 / 0.05,
+        jump_mean_up: float = 0.02,
+        jump_mean_down: float = 0.05,
         jump_up_prob: float = 0.5,
         cost: float = 0.0,
         dt: float = 1 / 250,
@@ -101,8 +101,8 @@ class KouJumpStock(BasePrimary):
         self.sigma = sigma
         self.mu = mu
         self.jump_per_year = jump_per_year
-        self.jump_eta_up = jump_eta_up
-        self.jump_eta_down = jump_eta_down
+        self.jump_mean_up = jump_mean_up
+        self.jump_mean_down = jump_mean_down
         self.jump_up_prob = jump_up_prob
         self.cost = cost
         self.dt = dt
@@ -164,8 +164,8 @@ class KouJumpStock(BasePrimary):
             sigma=self.sigma,
             mu=self.mu,
             jump_per_year=self.jump_per_year,
-            jump_eta_up=self.jump_eta_up,
-            jump_eta_down=self.jump_eta_down,
+            jump_mean_up=self.jump_mean_up,
+            jump_mean_down=self.jump_mean_down,
             jump_up_prob=self.jump_up_prob,
             dt=self.dt,
             dtype=self.dtype,
@@ -183,8 +183,8 @@ class KouJumpStock(BasePrimary):
             params.append("cost=" + _format_float(self.cost))
         params.append("dt=" + _format_float(self.dt))
         params.append("jump_per_year=" + _format_float(self.jump_per_year))
-        params.append("jump_eta_up=" + _format_float(self.jump_eta_up))
-        params.append("jump_eta_down=" + _format_float(self.jump_eta_down))
+        params.append("jump_mean_up=" + _format_float(self.jump_mean_up))
+        params.append("jump_mean_down=" + _format_float(self.jump_mean_down))
         params.append("jump_up_prob=" + _format_float(self.jump_up_prob))
         return ", ".join(params)
 

@@ -19,8 +19,8 @@ def generate_kou_jump(
     sigma: float = 0.2,
     mu: float = 0.0,
     jump_per_year: float = 68.0,
-    jump_eta_up: float = 1 / 0.02,
-    jump_eta_down: float = 1 / 0.05,
+    jump_mean_up: float = 0.02,
+    jump_mean_down: float = 0.05,
     jump_up_prob: float = 0.5,
     dt: float = 1 / 250,
     dtype: Optional[torch.dtype] = None,
@@ -31,7 +31,7 @@ def generate_kou_jump(
        Assumes number of jumps to be poisson distribution
        with ASYMMETRIC jump for up and down movement; the
        lof of these jump follows exponential distribution
-       with mean 1/jump_eta_up and 1/jump_eta_down resp.
+       with mean jump_mean_up and jump_mean_down resp.
 
        See Glasserman, Paul. Monte Carlo Methods in Financial
        Engineering. New York: Springer-Verlag, 2004.for details.
@@ -56,11 +56,11 @@ def generate_kou_jump(
             which stands for the drift of the time series.
         jump_per_year (float, optional): Jump poisson process annual
             lambda: Average number of annual jumps. Defaults to 1.0.
-        jump_eta_up (float, optional): 1/Mu for the up jumps:
-            Instaneous value. Defaults to 1/0.02.
-            This has to be larger than 1.
-        jump_eta_down (float, optional): 1/Mu for the down jumps:
-            Instaneous value. Defaults to 1/0.05.
+        jump_mean_up (float, optional): Mu for the up jumps:
+            Instaneous value. Defaults to 0.02.
+            This has to be postive and smaller than 1.
+        jump_mean_down (float, optional): Mu for the down jumps:
+            Instaneous value. Defaults to 0.05.
             This has to be larger than 0.
         jump_up_prob (float, optional): Given a jump occurs,
             this is conditional prob for up jump.
@@ -99,9 +99,18 @@ def generate_kou_jump(
         tensor([[1.0000, 1.0021, 1.0055, 1.0089, 0.9952],
                 [1.0000, 1.0288, 1.0210, 1.0275, 1.0314]])
     """
-    assert jump_eta_up > 1.0, "jump_eta_up must be larger than 1.0"
-    assert jump_eta_down > 0.0, "jump_eta_down must be larger than 0.0"
-    assert 0 <= jump_up_prob <= 1.0, "jump prob must be in [0,1]"
+    # change means to rate of exponential distributions
+    jump_eta_up = 1 / jump_mean_up
+    jump_eta_down = 1/ jump_mean_down
+
+    if jump_eta_up <= 1:
+        raise ValueError("jump_mean_up must be postive and smaller than 1")
+
+    if jump_eta_down <= 0:
+        raise ValueError("jump_mean_down must be postive")
+
+    if not (0 <= jump_up_prob <= 1.0):
+        raise ValueError("jump prob must be in [0,1]")
 
     init_state = cast_state(init_state, dtype=dtype, device=device)
 
