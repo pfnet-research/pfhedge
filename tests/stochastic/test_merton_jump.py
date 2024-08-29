@@ -282,4 +282,3 @@ class TestGenerateMertonJumpStock:
     @pytest.mark.gpu
     def test_generate_jump_sobol_mean_gpu(self):
         self.test_generate_jump_sobol_mean(device="cuda")
-
