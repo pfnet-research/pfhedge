@@ -10,6 +10,7 @@ from tests.stochastic.test_merton_jump import (
     TestGenerateMertonJumpStock as BaseGenerateJumpStockTest,
 )
 
+
 class TestGenerateKouJumpStock(BaseGenerateJumpStockTest):
     func = staticmethod(generate_kou_jump)
 
