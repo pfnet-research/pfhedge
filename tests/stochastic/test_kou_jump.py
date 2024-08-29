@@ -6,7 +6,6 @@ from torch.testing import assert_close
 
 from pfhedge.stochastic import generate_kou_jump
 from pfhedge.stochastic.engine import RandnSobolBoxMuller
-
 from tests.stochastic.test_merton_jump import TestGenerateMertonJumpStock
 
 
