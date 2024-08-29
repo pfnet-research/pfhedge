@@ -16,19 +16,19 @@ class TestGenerateKouJumpStock(TestGenerateMertonJumpStock):
     def test_generate_brownian_mean_no_jump(self, device: str = "cpu"):
         # kou jump has no std
         return
-    
+
     def test_generate_brownian_mean_no_jump_std(self, device: str = "cpu"):
         # kou jump has no std
         return
-    
+
     def test_generate_jump_nosigma2(self, device: str = "cpu"):
         # kou jump has no std
         return
-    
+
     def test_generate_jump_std2(self, device: str = "cpu"):
         # kou jump has no std
         return
-    
+
     # addtional tests for Kou jumo model params
     def test_kou_jump_mean_up(self):
         n_paths = 10000
@@ -54,5 +54,3 @@ class TestGenerateKouJumpStock(TestGenerateMertonJumpStock):
         jump_up_prob = 1.1
         with pytest.raises(ValueError, match="jump prob must be in 0 and 1 incl"):
             generate_kou_jump(n_paths, n_steps, jump_up_prob=jump_up_prob)
-
-
