@@ -6,6 +6,7 @@ from tests.instruments.primary.test_merton_jump import (
     TestMertonJumpStock as BaseJumpStockTest,
 )
 
+
 class TestKouJumpStock(BaseJumpStockTest):
     cls = KouJumpStock
 
