@@ -6,10 +6,10 @@ from torch.testing import assert_close
 
 from pfhedge.stochastic import generate_kou_jump
 from pfhedge.stochastic.engine import RandnSobolBoxMuller
-from tests.stochastic.test_merton_jump import TestGenerateMertonJumpStock
+from tests.stochastic import test_merton_jump
 
 
-class TestGenerateKouJumpStock(TestGenerateMertonJumpStock):
+class TestGenerateKouJumpStock(test_merton_jump.TestGenerateMertonJumpStock):
     func = staticmethod(generate_kou_jump)
 
     def test_generate_brownian_mean_no_jump(self, device: str = "cpu"):
