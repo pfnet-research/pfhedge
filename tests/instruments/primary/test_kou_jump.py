@@ -2,10 +2,10 @@ import pytest
 import torch
 
 from pfhedge.instruments import KouJumpStock
-from tests.instruments.primary.test_merton_jump import TestMertonJumpStock
+from tests.instruments.primary import test_merton_jump
 
 
-class TestKouJumpStock(TestMertonJumpStock):
+class TestKouJumpStock(test_merton_jump.TestMertonJumpStock):
     cls = KouJumpStock
 
     def test_repr(self):
