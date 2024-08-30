@@ -64,7 +64,8 @@ jobs:
 
       - name: Upload codecov report
         uses: codecov/codecov-action@v4
-        token: ${{ secrets.CODECOV_TOKEN }}
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
         if: ${{ matrix.python-version == '3.9' && matrix.torch-version == '1.13.1' }}
 
   lint:
