@@ -159,7 +159,7 @@ class KouJumpStock(BasePrimary):
 
         spot = generate_kou_jump(
             n_paths=n_paths,
-            n_steps=ceil(time_horizon / self.dt + 1),
+            n_steps=ceil(round(time_horizon / self.dt, 8) + 1),
             init_state=init_state,
             sigma=self.sigma,
             mu=self.mu,

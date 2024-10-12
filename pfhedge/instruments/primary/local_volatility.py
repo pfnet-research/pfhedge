@@ -123,7 +123,7 @@ class LocalVolatilityStock(BasePrimary):
 
         output = generate_local_volatility_process(
             n_paths=n_paths,
-            n_steps=ceil(time_horizon / self.dt + 1),
+            n_steps=ceil(round(time_horizon / self.dt, 8) + 1),
             sigma_fn=self.sigma_fn,
             init_state=init_state,
             dt=self.dt,

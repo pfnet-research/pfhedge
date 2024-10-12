@@ -129,7 +129,7 @@ class RoughBergomiStock(BasePrimary):
 
         output = generate_rough_bergomi(
             n_paths=n_paths,
-            n_steps=ceil(time_horizon / self.dt + 1),
+            n_steps=ceil(round(time_horizon / self.dt, 8) + 1),
             init_state=init_state,
             alpha=self.alpha,
             rho=self.rho,

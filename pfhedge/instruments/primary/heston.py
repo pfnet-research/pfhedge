@@ -129,7 +129,7 @@ class HestonStock(BasePrimary):
 
         output = generate_heston(
             n_paths=n_paths,
-            n_steps=ceil(time_horizon / self.dt + 1),
+            n_steps=ceil(round(time_horizon / self.dt, 8) + 1),
             init_state=init_state,
             kappa=self.kappa,
             theta=self.theta,
