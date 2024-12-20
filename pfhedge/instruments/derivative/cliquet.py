@@ -9,9 +9,10 @@ from pfhedge.nn.functional import european_forward_start_payoff
 
 from ..primary.base import BasePrimary
 from .base import BaseDerivative
+from .base import OptionMixin
 
 
-class EuropeanForwardStartOption(BaseDerivative):
+class EuropeanForwardStartOption(BaseDerivative, OptionMixin):
     r"""European forward start option.
 
     The payoff is given by
