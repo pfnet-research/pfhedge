@@ -1,36 +1,45 @@
-[tool.poetry]
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
 name = "pfhedge"
 version = "0.23.0"
 description = "Deep Hedging in PyTorch"
-authors = ["Shota Imaki <shota.imaki.0801@gmail.com>", "Masanori Hirano <masa.hirano.1996@gmail.com>"]
-license = "MIT"
+authors = [
+    {name = "Shota Imaki", email = "shota.imaki.0801@gmail.com"},
+    {name = "Masanori Hirano", email = "masa.hirano.1996@gmail.com"}
+]
+license = {text = "MIT"}
+requires-python = ">=3.8.1"
+dependencies = [
+    "torch>=1.9.0,<3.0.0",
+    "tqdm>=4.62.3",
+    "numpy>=1.26; python_version>='3.9'",
+    "numpy<1.25; python_version=='3.8'"
+]
+
+[project.urls]
 repository = "https://github.com/pfnet-research/pfhedge"
 
-[tool.poetry.dependencies]
-python = "^3.8.1"
-torch = ">=1.9.0,<3.0.0"
-tqdm = "^4.62.3"
-numpy = [{version = "^1.26", python = ">=3.9"}, {version = "<1.25", python = "=3.8"}]
-
-[tool.poetry.dev-dependencies]
-pytest = "^6.2.5"
-black = "21.9b0"
-isort = "5.9.3"
-pytest-cov = "^3.0.0"
-Sphinx = "^4.2.0"
-sphinx-autobuild = "^2021.3.14"
-sphinx-copybutton = "^0.4.0"
-furo = "^2021.9.22"
-codecov = "^2.1.12"
-click = "8.0.4"
-flake8 = "4.0.1"
-scipy = [{ version = "^1.10.1", markers = "python_version < '3.9'" }, { version = "^1.12.0", markers = "python_version >= '3.9'" }]
-mypy = "^1.11.1"
-pyproject-flake8 = "4.0.1"
-
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+[project.optional-dependencies]
+dev = [
+    "pytest>=6.2.5",
+    "black==21.9b0",
+    "isort==5.9.3",
+    "pytest-cov>=3.0.0",
+    "Sphinx>=4.2.0",
+    "sphinx-autobuild>=2021.3.14",
+    "sphinx-copybutton>=0.4.0",
+    "furo>=2021.9.22",
+    "codecov>=2.1.12",
+    "click==8.0.4",
+    "flake8>=5.0.0",
+    "scipy>=1.10.1; python_version<'3.9'",
+    "scipy>=1.12.0; python_version>='3.9'",
+    "mypy>=1.11.1",
+    "pyproject-flake8>=5.0.0"
+]
 
 [tool.pytest.ini_options]
 markers = ["gpu: tests using gpu"]

@@ -4,6 +4,7 @@ examples/output/*
 !examples/output/.gitkeep
 docs/notes/*.pdf
 .idea
+.vscode
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
