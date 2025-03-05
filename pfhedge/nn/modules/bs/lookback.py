@@ -8,7 +8,6 @@ from pfhedge._utils.bisect import find_implied_volatility
 from pfhedge._utils.doc import _set_attr_and_docstring
 from pfhedge._utils.doc import _set_docstring
 from pfhedge._utils.str import _format_float
-from pfhedge.instruments import LookbackOption
 from pfhedge.nn.functional import bs_lookback_price
 
 from ._base import BSModuleMixin
@@ -70,7 +69,7 @@ class BSLookbackOption(BSModuleMixin):
         self,
         call: bool = True,
         strike: float = 1.0,
-        derivative: Optional[LookbackOption] = None,
+        derivative: Optional["LookbackOption"] = None,
     ) -> None:
         if not call:
             raise ValueError(
@@ -83,7 +82,7 @@ class BSLookbackOption(BSModuleMixin):
         self.derivative = derivative
 
     @classmethod
-    def from_derivative(cls, derivative: LookbackOption) -> "BSLookbackOption":
+    def from_derivative(cls, derivative: "LookbackOption") -> "BSLookbackOption":
         """Initialize a module from a derivative.
 
         Args:

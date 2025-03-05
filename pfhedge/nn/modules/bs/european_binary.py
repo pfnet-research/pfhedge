@@ -8,7 +8,6 @@ from pfhedge._utils.bisect import find_implied_volatility
 from pfhedge._utils.doc import _set_attr_and_docstring
 from pfhedge._utils.doc import _set_docstring
 from pfhedge._utils.str import _format_float
-from pfhedge.instruments import EuropeanBinaryOption
 from pfhedge.nn.functional import bs_european_binary_delta
 from pfhedge.nn.functional import bs_european_binary_gamma
 from pfhedge.nn.functional import bs_european_binary_price
@@ -67,7 +66,7 @@ class BSEuropeanBinaryOption(BSModuleMixin):
         self,
         call: bool = True,
         strike: float = 1.0,
-        derivative: Optional[EuropeanBinaryOption] = None,
+        derivative: Optional["EuropeanBinaryOption"] = None,
     ) -> None:
         super().__init__()
         self.call = call
@@ -76,7 +75,7 @@ class BSEuropeanBinaryOption(BSModuleMixin):
 
     @classmethod
     def from_derivative(
-        cls, derivative: EuropeanBinaryOption
+        cls, derivative: "EuropeanBinaryOption"
     ) -> "BSEuropeanBinaryOption":
         """Initialize a module from a derivative.
 

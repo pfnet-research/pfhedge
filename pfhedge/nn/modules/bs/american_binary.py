@@ -6,7 +6,6 @@ from torch import Tensor
 from pfhedge._utils.bisect import find_implied_volatility
 from pfhedge._utils.doc import _set_attr_and_docstring
 from pfhedge._utils.str import _format_float
-from pfhedge.instruments import AmericanBinaryOption
 from pfhedge.nn.functional import bs_american_binary_delta
 from pfhedge.nn.functional import bs_american_binary_price
 
@@ -69,7 +68,7 @@ class BSAmericanBinaryOption(BSModuleMixin):
         self,
         call: bool = True,
         strike: float = 1.0,
-        derivative: Optional[AmericanBinaryOption] = None,
+        derivative: Optional["AmericanBinaryOption"] = None,
     ):
         if not call:
             raise ValueError(
@@ -83,7 +82,7 @@ class BSAmericanBinaryOption(BSModuleMixin):
 
     @classmethod
     def from_derivative(
-        cls, derivative: AmericanBinaryOption
+        cls, derivative: "AmericanBinaryOption"
     ) -> "BSAmericanBinaryOption":
         """Initialize a module from a derivative.
 

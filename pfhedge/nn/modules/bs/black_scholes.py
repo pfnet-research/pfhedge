@@ -10,8 +10,6 @@ from typing import Type
 from torch import Tensor
 from torch.nn import Module
 
-from pfhedge.instruments import Derivative
-
 
 class BlackScholesModuleFactory:
 
@@ -43,7 +41,7 @@ class BlackScholesModuleFactory:
     def get_class(self, name: str) -> Type[Module]:
         return self._modules[name]
 
-    def get_class_from_derivative(self, derivative: Derivative) -> Type[Module]:
+    def get_class_from_derivative(self, derivative: "Derivative") -> Type[Module]:
         return self.get_class(derivative.__class__.__name__).from_derivative(derivative)  # type: ignore
 
 

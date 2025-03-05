@@ -8,8 +8,6 @@ import torch
 from torch import Tensor
 from torch.nn import Module
 
-from pfhedge.instruments import BaseDerivative
-
 from ._base import Feature
 from ._getter import get_feature
 
@@ -54,7 +52,7 @@ class FeatureList(Feature):
     def __repr__(self) -> str:
         return str(self)
 
-    def of(self: T, derivative: BaseDerivative, hedger: Optional[Module] = None) -> T:
+    def of(self: T, derivative: "BaseDerivative", hedger: Optional[Module] = None) -> T:
         output = copy.copy(self)
         output.features = [f.of(derivative, hedger) for f in self.features]
         return output
@@ -124,7 +122,7 @@ class ModuleOutput(Feature, Module):
     def get(self, time_step: Optional[int]) -> Tensor:
         return self(self.inputs.get(time_step))
 
-    def of(self: TM, derivative: BaseDerivative, hedger: Optional[Module] = None) -> TM:
+    def of(self: TM, derivative: "BaseDerivative", hedger: Optional[Module] = None) -> TM:
         self.inputs = self.inputs.of(derivative, hedger)
         return self
 

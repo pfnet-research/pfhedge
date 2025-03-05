@@ -9,10 +9,6 @@ from torch import Tensor
 from torch.nn import Module
 
 import pfhedge.autogreek as autogreek
-from pfhedge.instruments import AmericanBinaryOption
-from pfhedge.instruments import EuropeanBinaryOption
-from pfhedge.instruments import EuropeanOption
-from pfhedge.instruments import LookbackOption
 
 
 class BSModuleMixin(Module):
@@ -96,7 +92,7 @@ class BSModuleMixin(Module):
 def acquire_params_from_derivative_0(
     derivative: Optional[
         Union[
-            EuropeanOption, EuropeanBinaryOption, AmericanBinaryOption, LookbackOption
+            "EuropeanOption", "EuropeanBinaryOption", "AmericanBinaryOption", "LookbackOption"
         ]
     ],
     log_moneyness: Optional[Tensor] = None,
@@ -120,7 +116,7 @@ def acquire_params_from_derivative_0(
 def acquire_params_from_derivative_1(
     derivative: Optional[
         Union[
-            EuropeanOption, EuropeanBinaryOption, AmericanBinaryOption, LookbackOption
+            "EuropeanOption", "EuropeanBinaryOption", "AmericanBinaryOption", "LookbackOption"
         ]
     ],
     log_moneyness: Optional[Tensor] = None,
@@ -146,7 +142,7 @@ def acquire_params_from_derivative_1(
 
 
 def acquire_params_from_derivative_2(
-    derivative: Optional[Union[AmericanBinaryOption, LookbackOption]],
+    derivative: Optional[Union["AmericanBinaryOption", "LookbackOption"]],
     log_moneyness: Optional[Tensor] = None,
     max_log_moneyness: Optional[Tensor] = None,
     time_to_maturity: Optional[Tensor] = None,
