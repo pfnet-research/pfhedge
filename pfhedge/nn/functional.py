@@ -1361,3 +1361,86 @@ def box_muller(
     output1 = radius * angle.cos()
     output2 = radius * angle.sin()
     return output1, output2
+
+
+def cum_pl(
+    spot: Tensor,
+    unit: Tensor,
+    cost: Optional[List[float]] = None,
+    payoff: Optional[Tensor] = None,
+    prices: Optional[Tensor] = None,
+    deduct_first_cost: bool = True,
+    deduct_final_cost: bool = False,
+) -> Tensor:
+    r"""Returns the profit and loss of hedging until each time step.
+
+    Args:
+        spot (torch.Tensor): The spot price of the underlying asset :math:`S`.
+        unit (torch.Tensor): The signed number of shares of the underlying asset
+            :math:`\delta`.
+        cost (list[float], default=None): The proportional transaction cost rate of
+            the underlying assets.
+        payoff (torch.Tensor, optional): The payoff of the derivative :math:`Z`.
+        deduct_first_cost (bool, default=True): Whether to deduct the transaction
+            cost of the stock at the first time step.
+            If ``False``, :math:`- c |\delta_0| S_1` is omitted the above
+            equation of the terminal value.
+        prices (torch.Tensor, optional): The market prices of the derivative at each time step.
+            If provided, these prices will be subtracted from the PnL calculation.
+
+    Shape:
+        - spot: :math:`(N, H, T)` where
+          :math:`N` is the number of paths,
+          :math:`H` is the number of hedging instruments, and
+          :math:`T` is the number of time steps.
+        - unit: :math:`(N, H, T)`
+        - payoff: :math:`(N)`
+        - prices: :math:`(N, T)`
+        - output: :math:`(N, T)` where output[..., t] represents PnL up to time step t+1.
+
+    Returns:
+        torch.Tensor
+    """
+    # TODO(simaki): Support deduct_final_cost=True
+    assert not deduct_final_cost, "not supported"
+
+    if spot.size() != unit.size():
+        raise RuntimeError(f"unmatched sizes: spot {spot.size()}, unit {unit.size()}")
+    if payoff is not None:
+        if payoff.dim() != 1 or spot.size(0) != payoff.size(0):
+            raise RuntimeError(
+                f"unmatched sizes: spot {spot.size()}, payoff {payoff.size()}"
+            )
+
+    # Calculate capital gains: δ_{i-1} * (S_i - S_{i-1})
+    capital_gains = torch.cat([
+        torch.zeros_like(unit[..., [0]]),  # Add initial 0
+        unit[..., :-1].mul(spot.diff(dim=-1))  # Original calculation
+    ], dim=-1)
+    # Vectorized cumulative sum over time steps
+    output = capital_gains.sum(dim=-2).cumsum(dim=-1)
+
+    # Subtract payoff only at the last time step
+    if payoff is not None:
+        output[..., -1] -= payoff
+
+    # Handle transaction costs
+    if cost is not None:
+        c = torch.tensor(cost).to(spot).unsqueeze(0).unsqueeze(-1)
+
+        # Transaction costs for each time step: c * |δ_i - δ_{i-1}| * S_i
+        transaction_costs = spot[..., 1:] * unit.diff(dim=-1).abs() * c
+        # Vectorized cumulative sum of transaction costs
+        output[..., 1:] -= transaction_costs.cumsum(dim=-1).sum(dim=-2)
+        # Handle first transaction cost if needed
+        if deduct_first_cost:
+            first_cost = (spot[..., [0]] * unit[..., [0]].abs() * c).sum(dim=(-2, -1))
+            output -= first_cost.unsqueeze(-1)
+
+    # Subtract prices if provided
+    if prices is not None:
+        if prices.size() != output.size():
+            raise RuntimeError(f"Price shape {prices.size()} mismatch with PnL shape {output.size()}")
+        output -= prices
+
+    return output

@@ -23,7 +23,7 @@ from pfhedge.features import FeatureList
 from pfhedge.features._base import Feature
 from pfhedge.instruments.base import BaseInstrument
 from pfhedge.instruments.derivative.base import BaseDerivative
-from pfhedge.nn.functional import pl
+from pfhedge.nn.functional import pl, cum_pl
 
 from .loss import EntropicRiskMeasure
 from .loss import HedgeLoss
@@ -675,3 +675,50 @@ class Hedger(Module):
             mean_price = ensemble_mean(_get_price, n_times=n_times)
 
         return mean_price
+
+    def compute_cum_pl(
+        self, derivative: BaseDerivative,
+        hedge: Optional[List[BaseInstrument]] = None,
+        priceable: Optional["BSModuleMixin"] = None
+    ) -> Tensor:
+        """Computes cumulative profit and loss over time steps using functional.cum_pl.
+
+        This method assumes that the derivative is already simulated.
+
+        Args:
+            derivative (BaseDerivative): The derivative to hedge.
+            hedge (list[BaseInstrument], optional): The hedging instruments.
+                If ``None`` (default), use ``[derivative.underlier]``.
+            priceable (BSModuleMixin, optional): A Black-Scholes pricing model.
+                If provided, the model's prices will be subtracted from the PnL.
+
+        Shape:
+            - Output: :math:`(N, T)` where
+              :math:`N` is the number of paths and
+              :math:`T` is the number of time steps.
+
+        Returns:
+            torch.Tensor: Cumulative PnL tensor of shape (N, T)
+        """
+        hedge = self._get_hedge(derivative, hedge)
+
+        spot = torch.stack([h.spot for h in hedge], dim=1)
+        unit = self.compute_hedge(derivative, hedge=hedge)
+        cost = [h.cost for h in hedge]
+
+        # Get prices from the priceable model if provided
+        prices = None
+        if priceable is not None:
+            # Get prices directly from the priceable object
+            with torch.no_grad():
+                model_prices = priceable.price()
+            prices = model_prices
+
+        return cum_pl(
+            spot=spot,
+            unit=unit,
+            cost=cost,
+            payoff=derivative.payoff(),
+            prices=prices,
+            deduct_first_cost=True
+        )

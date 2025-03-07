@@ -20,3 +20,4 @@ from .primary.local_volatility import LocalVolatilityStock  # NOQA
 from .primary.merton_jump import MertonJumpStock  # NOQA
 from .primary.rough_bergomi import RoughBergomiStock  # NOQA
 from .primary.vasicek import VasicekRate  # NOQA
+from .primary.fixed import FixedStock  # NOQA
