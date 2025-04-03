@@ -677,9 +677,10 @@ class Hedger(Module):
         return mean_price
 
     def compute_cum_pl(
-        self, derivative: BaseDerivative,
+        self,
+        derivative: BaseDerivative,
         hedge: Optional[List[BaseInstrument]] = None,
-        priceable: Optional["BSModuleMixin"] = None
+        priceable: Optional["BSModuleMixin"] = None,
     ) -> Tensor:
         """Computes cumulative profit and loss over time steps using functional.cum_pl.
 
@@ -713,6 +714,7 @@ class Hedger(Module):
             with torch.no_grad():
                 model_prices = priceable.price()
             prices = model_prices
+            prices[..., -1] = 0
 
         return cum_pl(
             spot=spot,
@@ -720,5 +722,5 @@ class Hedger(Module):
             cost=cost,
             payoff=derivative.payoff(),
             prices=prices,
-            deduct_first_cost=True
+            deduct_first_cost=True,
         )

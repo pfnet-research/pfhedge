@@ -1,5 +1,8 @@
-from typing import List, Optional, Tuple
 import math
+from itertools import islice
+from typing import List
+from typing import Optional
+from typing import Tuple
 
 import torch
 from torch import Tensor
@@ -51,21 +54,27 @@ class FixedStock(BasePrimary):
                 the instrument.
 
         Raises:
-            ValueError: If the requested number of time steps exceeds the length of stored spots.
+            ValueError: If the requested number of paths exceeds the maximum number of paths.
         """
+        if n_paths > self.max_n_paths(time_horizon):
+            raise ValueError(
+                f"Requested {n_paths} paths but only {self.max_n_paths(time_horizon)} available"
+            )
+        n_steps = self._n_steps(time_horizon)
+
         if init_state is None:
             init_state = self.default_init_state
         init_value = init_state[0]
 
-        n_steps = math.ceil(time_horizon / self.dt + 1)
-        if n_steps > len(self.spots):
-            raise ValueError(
-                f"Requested {n_steps} time steps but only {len(self.spots)} spots available"
-            )
+        def spot_generator():
+            yield self.spots[-n_steps:]
+            start, end = -n_steps - 1, -1
+            while start >= -len(self.spots):
+                yield self.spots[start:end]
+                start, end = start - 1, end - 1
 
-        scale = init_value / self.spots[0]
-        spots = (self.spots[:n_steps] * scale).repeat(n_paths, 1)
-        self.register_buffer('spot', spots)
+        spots = [s * init_value / s[0] for s in islice(spot_generator(), n_paths)]
+        self.register_buffer("spot", torch.stack(spots))
 
     @property
     def volatility(self) -> Tensor:
@@ -92,3 +101,10 @@ class FixedStock(BasePrimary):
         """Returns the drift of the stored spots."""
         returns = torch.log(self.spots[1:] / self.spots[:-1])
         return returns.mean() / self.dt
+
+    def _n_steps(self, time_horizon: float) -> int:
+        return math.ceil(time_horizon / self.dt + 1)
+
+    def max_n_paths(self, time_horizon: float) -> int:
+        """Returns the maximum number of paths that can be simulated."""
+        return max(len(self.spots) - self._n_steps(time_horizon) + 1, 0)

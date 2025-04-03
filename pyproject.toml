@@ -38,7 +38,11 @@ dev = [
     "scipy>=1.10.1; python_version<'3.9'",
     "scipy>=1.12.0; python_version>='3.9'",
     "mypy>=1.11.1",
-    "pyproject-flake8>=5.0.0"
+    "pyproject-flake8>=5.0.0",
+    "matplotlib",
+    "pandas",
+    "ipykernel",
+    "ipywidgets"
 ]
 
 [tool.pytest.ini_options]
