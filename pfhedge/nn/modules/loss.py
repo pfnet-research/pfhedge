@@ -230,9 +230,7 @@ class IsoelasticLoss(HedgeLoss):
 
     def __init__(self, a: float) -> None:
         if not 0 < a <= 1:
-            raise ValueError(
-                "Relative risk aversion coefficient should satisfy 0 < a <= 1."
-            )
+            raise ValueError("Relative risk aversion coefficient should satisfy 0 < a <= 1.")
 
         super().__init__()
         self.a = a
@@ -385,3 +383,37 @@ class OCE(HedgeLoss):
 
     def forward(self, input: Tensor, target: TensorOrScalar = 0.0) -> Tensor:
         return self.w - self.utility(input - target + self.w).mean(0)
+
+
+class ExpectedPnl(HedgeLoss):
+    r"""Creates a criterion that measures the expected profit and loss.
+
+    The expected profit and loss of the distribution :math:`\text{PL}` is given by:
+
+    .. math::
+        \text{loss}(\text{PL}) = -\mathbf{E}[\text{PL}]
+
+    This is simply the negative of the mean of the profit-loss distribution.
+
+    Shape:
+        - input: :math:`(N, *)` where
+          :math:`*` means any number of additional dimensions.
+        - target: :math:`(N, *)`
+        - output: :math:`(*)`
+
+    Examples:
+        >>> from pfhedge.nn import ExpectedPnl
+        ...
+        >>> loss = ExpectedPnl()
+        >>> input = torch.arange(4.0)
+        >>> loss(input)
+        tensor(-1.5000)
+        >>> loss.cash(input)
+        tensor(1.5000)
+    """
+
+    def forward(self, input: Tensor, target: TensorOrScalar = 0.0) -> Tensor:
+        return -(input - target).mean(0)
+
+    def cash(self, input: Tensor, target: TensorOrScalar = 0.0) -> Tensor:
+        return (input - target).mean(0)
