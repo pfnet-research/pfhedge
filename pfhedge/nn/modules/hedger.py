@@ -1,3 +1,4 @@
+from copy import deepcopy
 from typing import Any
 from typing import Callable
 from typing import List
@@ -23,7 +24,8 @@ from pfhedge.features import FeatureList
 from pfhedge.features._base import Feature
 from pfhedge.instruments.base import BaseInstrument
 from pfhedge.instruments.derivative.base import BaseDerivative
-from pfhedge.nn.functional import pl, cum_pl
+from pfhedge.nn.functional import cum_pl
+from pfhedge.nn.functional import pl
 
 from .loss import EntropicRiskMeasure
 from .loss import HedgeLoss
@@ -515,6 +517,7 @@ class Hedger(Module):
         verbose: bool = True,
         validation: bool = True,
         tqdm_kwargs: dict = {},
+        snapshots: Optional[list[int]] = None,
     ) -> Optional[List[float]]:
         """Fit the hedging model to hedge a given derivative.
 
@@ -601,8 +604,9 @@ class Hedger(Module):
             )
 
         history = []
+        hedger_snapshots = []
         progress = tqdm(range(n_epochs), disable=not verbose, **tqdm_kwargs)
-        for _ in progress:
+        for i in progress:
             # Compute training loss and backpropagate
             self.train()
             optimizer.zero_grad()
@@ -618,7 +622,16 @@ class Hedger(Module):
 
                 progress.desc = "Loss=" + _format_float(float(loss.item()))
 
-        return history if validation else None
+            if snapshots is not None and (i + 1) in snapshots:
+                hedger_snapshots.append(
+                    Hedger(deepcopy(self.model), self.inputs.features, criterion=self.criterion)
+                )
+
+        return (
+            (history if validation else None)
+            if snapshots is None
+            else (history if validation else None, hedger_snapshots + [self])
+        )
 
     def price(
         self,
