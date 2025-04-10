@@ -9,6 +9,7 @@ from .derivative.cliquet import EuropeanForwardStartOption  # NOQA
 from .derivative.european import EuropeanOption  # NOQA
 from .derivative.european_binary import EuropeanBinaryOption  # NOQA
 from .derivative.lookback import LookbackOption  # NOQA
+from .derivative.snowball import Snowball  # NOQA
 from .derivative.variance_swap import VarianceSwap  # NOQA
 from .primary.base import BasePrimary  # NOQA
 from .primary.base import Primary  # NOQA

@@ -420,6 +420,29 @@ class MaxLogMoneyness(MaxMoneyness):
         super().__init__(log=True)
 
 
+class KnockedIn(StateIndependentFeature):
+    """A feature which signifies whether the price of the underlier have reached
+    the barrier. The returned value is 1.0 if the price have touched the barrier,
+    and 0.0 otherwise.
+
+    Name:
+        ``'knocked_in'``
+    """
+
+    derivative: OptionType
+
+    def __init__(self) -> None:
+        super().__init__()
+
+    def __str__(self) -> str:
+        return "knocked_in"
+
+    def get(self, time_step: Optional[int] = None) -> Tensor:
+        return (
+            self.derivative.knocked_in(time_step).to(self.derivative.ul().spot.dtype).unsqueeze(-1)
+        )
+
+
 FEATURES: List[Type[Feature]] = [
     Empty,
     ExpiryTime,
@@ -434,6 +457,7 @@ FEATURES: List[Type[Feature]] = [
     Zeros,
     Spot,
     UnderlierSpot,
+    KnockedIn,
 ]
 
 for cls in FEATURES:
