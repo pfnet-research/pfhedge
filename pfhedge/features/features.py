@@ -443,6 +443,24 @@ class KnockedIn(StateIndependentFeature):
         )
 
 
+class KnockInBarrierToStrike(StateIndependentFeature):
+    derivative: OptionType
+
+    def __init__(self) -> None:
+        super().__init__()
+
+    def __str__(self) -> str:
+        return "knockin_barrier_to_strike"
+
+    def get(self, time_step: Optional[int] = None) -> Tensor:
+        n_time_steps = self.derivative.ul().spot.shape[1] if time_step is None else 1
+        b2s = self.derivative.knockin_barrier / self.derivative.strike
+        if isinstance(b2s, Tensor):
+            return b2s.unsqueeze(-1).unsqueeze(-1).expand(-1, n_time_steps, -1)
+        n_paths = self.derivative.ul().spot.shape[0]
+        return torch.tensor(b2s).view(1, 1, 1).expand(n_paths, n_time_steps, -1)
+
+
 FEATURES: List[Type[Feature]] = [
     Empty,
     ExpiryTime,
@@ -458,6 +476,7 @@ FEATURES: List[Type[Feature]] = [
     Spot,
     UnderlierSpot,
     KnockedIn,
+    KnockInBarrierToStrike,
 ]
 
 for cls in FEATURES:

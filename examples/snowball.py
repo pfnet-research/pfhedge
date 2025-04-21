@@ -9,7 +9,6 @@ from pfhedge.instruments import BrownianStock
 from pfhedge.instruments import Snowball
 from pfhedge.nn.modules.hedger import Hedger
 from pfhedge.nn.modules.loss import EntropicRiskMeasure
-from pfhedge.nn.modules.loss import ExpectedPnl
 from pfhedge.nn.modules.mlp import MultiLayerPerceptron
 
 
@@ -102,7 +101,7 @@ def main():
     plt.xlabel("Epoch")
     plt.ylabel("Loss")
     plt.title("History of Loss")
-    plt.savefig(f"examples/output/{prefix}_fithistory.png")
+    plt.savefig(f"examples/output/snowball/{prefix}_fithistory.png")
     plt.close()
 
     # Price from hedging
@@ -127,7 +126,7 @@ def main():
         axes[i // 2, i % 2].set_title(f"PnL Distribution - {fit_n_epochs[i]} epochs")
     # Adjust layout and save
     plt.tight_layout()
-    plt.savefig(f"examples/output/{prefix}_pnl.png")
+    plt.savefig(f"examples/output/snowball/{prefix}_pnl.png")
     plt.close()
 
 

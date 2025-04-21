@@ -1,5 +1,5 @@
-from dataclasses import dataclass
 from typing import Any
+from typing import Callable
 from typing import Optional
 from typing import override
 
@@ -11,24 +11,12 @@ from pfhedge.instruments.derivative.base import OptionMixin
 from pfhedge.nn.functional import european_payoff
 
 
-@dataclass
 class Snowball(BaseDerivative, OptionMixin):
     """Snowball option.
 
     A Snowball option is a structured product with potential early redemption
     and knockout features.
     """
-
-    notional: float
-    init_spot: float
-    strike: float
-    maturity: float
-    knockin_barrier: float
-    no_touch_coupon: float
-    observations: list[float]
-    knockout_barriers: list[float]
-    knockout_coupons: list[float]
-    is_knocked_in: bool
 
     def __init__(
         self,
@@ -37,7 +25,7 @@ class Snowball(BaseDerivative, OptionMixin):
         init_spot: float,
         strike: float,
         maturity: float,
-        knockin_barrier: float,
+        knockin_barrier: float | Callable[[int], Tensor],
         observations: list[float],
         knockout_barriers: list[float],
         knockout_coupons: list[float],
@@ -64,12 +52,18 @@ class Snowball(BaseDerivative, OptionMixin):
         self.init_spot = init_spot
         self.strike = strike
         self.maturity = maturity
-        self.knockin_barrier = knockin_barrier
+        self._knockin_barrier = knockin_barrier
         self.observations = torch.tensor(observations)
         self.knockout_barriers = torch.tensor(knockout_barriers)
         self.knockout_coupons = torch.tensor(knockout_coupons)
         self.no_touch_coupon = no_touch_coupon
         self.is_knocked_in = is_knocked_in
+
+    @property
+    def knockin_barrier(self) -> float | Tensor:
+        if callable(self._knockin_barrier):
+            return self._knockin_barrier(self.ul().spot.shape[0])
+        return self._knockin_barrier
 
     def payoff_fn(self) -> Tensor:
         """Defines the payoff function of the Snowball option.
@@ -97,9 +91,13 @@ class Snowball(BaseDerivative, OptionMixin):
 
     def knocked_in(self, time_step: Optional[int] = None) -> Tensor:
         spot = self.ul().spot
+        ki_barrier = self.knockin_barrier
+        if not isinstance(ki_barrier, Tensor):
+            ki_barrier = torch.tensor(ki_barrier).expand(spot.shape[0])
+        ki_barrier = ki_barrier.unsqueeze(-1)
         if time_step is None:
-            return spot.cummin(-1).values <= self.knockin_barrier
-        return spot[..., : time_step + 1].min(-1, keepdim=True).values <= self.knockin_barrier
+            return spot.cummin(-1).values <= ki_barrier
+        return spot[..., : time_step + 1].min(-1, keepdim=True).values <= ki_barrier
 
     @override
     def extra_repr(self) -> str:
@@ -108,7 +106,7 @@ class Snowball(BaseDerivative, OptionMixin):
         params.append("init_spot=" + _format_float(self.init_spot))
         params.append("strike=" + _format_float(self.strike))
         params.append("maturity=" + _format_float(self.maturity))
-        params.append("knockin_barrier=" + _format_float(self.knockin_barrier))
+        params.append("knockin_barrier=" + _format_float(self._knockin_barrier))
         params.append("observations=" + str(self.observations))
         params.append("knockout_barriers=" + str(self.knockout_barriers))
         params.append("knockout_coupons=" + str(self.knockout_coupons))

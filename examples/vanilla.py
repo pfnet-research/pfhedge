@@ -120,6 +120,7 @@ if __name__ == "__main__":
     hedgers = [hedger1, hedger2, hedger3, hedger4, hedger5]
     derivatives = [derivative1, derivative2, derivative3, derivative4, derivative5]
     init_states = [init_state1, init_state2, init_state3, init_state4, init_state5]
+    histories = [history1, history2, history3, history4, history5]
     for d, init_state in zip(derivatives, init_states):
         d.simulate(n_paths=n_paths, init_state=init_state)
     # Compute loss
@@ -152,7 +153,7 @@ if __name__ == "__main__":
             axes[i][j].text(
                 0.05,
                 0.95,
-                f"Mean: {mean:.4f}\nStd: {std:.4f}",
+                f"Mean: {mean:.6f}\nStd: {std:.6f}\nLoss: {histories[i][-1]:.6f}",
                 transform=axes[i][j].transAxes,
                 verticalalignment="top",
             )
