@@ -300,13 +300,23 @@ class Hedger(Module):
             raise ValueError("The spot prices of the hedges must have the same size")
 
         (n_paths, n_steps), n_hedges = hedge[0].spot.size(), len(hedge)
-        if inputs.is_state_dependent():
+        if inputs.is_state_dependent() or derivative.early_termination():
             zeros = hedge[0].spot.new_zeros((n_paths, 1, n_hedges))
             save_prev_output(self, input=(), output=zeros)
             outputs = []
             for time_step in range(n_steps - 1):
                 input = inputs.get(time_step)  # (N, T=1, F)
-                outputs.append(self(input))  # (N, T=1, H)
+                o: Tensor = self(input)  # (N, T=1, H)
+                if derivative.early_termination():
+                    early_terminated = derivative.early_terminated(time_step)
+                    o = o.where(
+                        early_terminated.logical_not()
+                        .unsqueeze(-1)
+                        .unsqueeze(-1)
+                        .expand(-1, -1, n_hedges),
+                        0.0,
+                    )
+                outputs.append(o)
             outputs.append(outputs[-1])
             output = torch.cat(outputs, dim=-2)  # (N, T, H)
         else:

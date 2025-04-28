@@ -87,9 +87,7 @@ class BaseDerivative(BaseInstrument):
             **kwargs: Other parameters passed to ``self.underlier.simulate()``.
         """
         for underlier in self.underliers():
-            underlier.simulate(
-                n_paths=n_paths, time_horizon=self.maturity, init_state=init_state
-            )
+            underlier.simulate(n_paths=n_paths, time_horizon=self.maturity, init_state=init_state)
 
     def ul(self, index: int = 0) -> BasePrimary:
         """Alias for ``self.underlier``."""
@@ -179,9 +177,7 @@ class BaseDerivative(BaseInstrument):
                 The clause to add.
         """
         if not isinstance(name, (str, bytes)):
-            raise TypeError(
-                f"clause name should be a string. Got {torch.typename(name)}"
-            )
+            raise TypeError(f"clause name should be a string. Got {torch.typename(name)}")
         elif hasattr(self, name) and name not in self._clauses:
             raise KeyError(f"attribute '{name}' already exists")
         elif "." in name:
@@ -190,9 +186,7 @@ class BaseDerivative(BaseInstrument):
             raise KeyError('clause name cannot be empty string ""')
 
         if not hasattr(self, "_clauses"):
-            raise AttributeError(
-                "cannot assign clause before BaseDerivative.__init__() call"
-            )
+            raise AttributeError("cannot assign clause before BaseDerivative.__init__() call")
 
         self._clauses[name] = clause
 
@@ -216,9 +210,7 @@ class BaseDerivative(BaseInstrument):
             raise KeyError('name cannot be empty string ""')
 
         if not hasattr(self, "_underliers"):
-            raise AttributeError(
-                "cannot assign underlier before BaseDerivative.__init__() call"
-            )
+            raise AttributeError("cannot assign underlier before BaseDerivative.__init__() call")
 
         self._underliers[name] = underlier
 
@@ -255,6 +247,13 @@ class BaseDerivative(BaseInstrument):
             raise ValueError("self is not listed.")
         return self.pricer(self)
 
+    def early_termination(self) -> bool:
+        """Returns True if the derivative may early terminated."""
+        return False
+
+    def early_terminated(self, time_step: Optional[int] = None) -> Tensor:
+        return torch.zeros_like(self.spot[..., 0], dtype=torch.bool)
+
     def __repr__(self) -> str:
         params_str = ""
         if self.extra_repr() != "":
@@ -270,9 +269,7 @@ class BaseDerivative(BaseInstrument):
 class Derivative(BaseDerivative):
     def __init__(self, *args, **kwargs) -> None:  # type: ignore
         super().__init__(*args, **kwargs)  # type: ignore
-        raise DeprecationWarning(
-            "Derivative is deprecated. Use BaseDerivative instead."
-        )
+        raise DeprecationWarning("Derivative is deprecated. Use BaseDerivative instead.")
 
 
 class OptionMixin:
@@ -350,9 +347,7 @@ class OptionMixin:
             t = torch.tensor([[time]]).to(self.underlier.spot) * self.underlier.dt
             return t.expand(n_paths, -1)
 
-    def max_moneyness(
-        self, time_step: Optional[int] = None, log: bool = False
-    ) -> Tensor:
+    def max_moneyness(self, time_step: Optional[int] = None, log: bool = False) -> Tensor:
         """Returns the cumulative maximum of the moneyness.
 
         Args:

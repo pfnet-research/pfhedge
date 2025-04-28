@@ -1,7 +1,6 @@
 from typing import Any
 from typing import Callable
 from typing import Optional
-from typing import override
 
 import torch
 from torch import Tensor
@@ -55,8 +54,8 @@ class Snowball(BaseDerivative, OptionMixin):
         self._knockin_barrier = knockin_barrier
         self.observations = torch.tensor(observations)
         self.knockout_barriers = torch.tensor(knockout_barriers)
-        self.knockout_coupons = torch.tensor(knockout_coupons)
-        self.no_touch_coupon = no_touch_coupon
+        self.knockout_coupons = torch.tensor(knockout_coupons) * notional
+        self.no_touch_coupon = no_touch_coupon * notional
         self.is_knocked_in = is_knocked_in
 
     @property
@@ -99,7 +98,19 @@ class Snowball(BaseDerivative, OptionMixin):
             return spot.cummin(-1).values <= ki_barrier
         return spot[..., : time_step + 1].min(-1, keepdim=True).values <= ki_barrier
 
-    @override
+    def early_termination(self) -> bool:
+        return True
+
+    def early_terminated(self, time_step: Optional[int] = None) -> Tensor:
+        spot = self.ul().spot
+        ko = torch.zeros_like(spot[..., 0], dtype=torch.bool)
+        for o, b in zip(self.observations, self.knockout_barriers):
+            idx = torch.round(o / self.underlier.dt).long().item()
+            if time_step is not None and idx > time_step:
+                break
+            ko = ko | (spot[..., idx] > b)
+        return ko
+
     def extra_repr(self) -> str:
         params = []
         params.append("notional=" + _format_float(self.notional))
