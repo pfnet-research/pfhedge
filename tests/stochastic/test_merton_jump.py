@@ -37,7 +37,7 @@ class TestGenerateMertonJumpStock:
         n_paths = 10000
         n_steps = 250
 
-        output = self.jump_test_func(n_paths, n_steps, jump_per_year=0.0, device=device)
+        output = self.jump_test_func(n_paths, n_steps, jump_per_year=0.0, device=torch.device(device))
         assert output.size() == torch.Size((n_paths, n_steps))
         result = output[:, -1].mean()
         expect = torch.ones_like(result)

@@ -1,5 +1,5 @@
-# Example to use a user-defined Module as a hedging model
-# Here we show an example of No-Transaction Band Network,
+# Example to use a user-defined Module as a hedging model 自定义模型
+# Here we show an example of No-Transaction Band Network 无交易区间网络
 # which is proposed in Imaki et al. 21.
 
 import sys
@@ -17,7 +17,7 @@ from pfhedge.nn import Clamp
 from pfhedge.nn import Hedger
 from pfhedge.nn import MultiLayerPerceptron
 
-
+#定义类：根据上一次对冲比(Hedge Ratio)和市场特征，输出当前对冲比
 class NoTransactionBandNet(Module):
     """Initialize a no-transaction band network.
 
@@ -84,7 +84,7 @@ if __name__ == "__main__":
 
     # Create your hedger
     model = NoTransactionBandNet(derivative)
-    hedger = Hedger(model, model.inputs())
+    hedger = Hedger(model, model.inputs()) #type: ignore
 
     # Fit and price
     hedger.fit(derivative, n_paths=10000, n_epochs=200)

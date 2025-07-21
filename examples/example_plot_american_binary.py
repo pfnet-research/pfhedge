@@ -1,3 +1,4 @@
+#美式期权：在到期日之前的任何时间可以行权
 import sys
 
 import matplotlib.pyplot as plt

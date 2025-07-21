@@ -1,3 +1,4 @@
+#lookback option：期权到期时，以标的资产在期权存续期间内的最优价格进行交易
 import sys
 
 import matplotlib.pyplot as plt
