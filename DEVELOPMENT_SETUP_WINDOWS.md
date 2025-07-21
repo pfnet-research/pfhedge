@@ -79,8 +79,8 @@ Conda is a powerful package manager and environment management system. We'll use
    ```
 3. Clone the repository:
    ```cmd
-   git clone https://github.com/pfnet-research/pfhedge.git
-   cd pfhedge
+   git clone https://github.com/ammonitex/pfhedge-ty.git
+   cd pfhedge-ty
    ```
 
 ## Set Up the Development Environment
