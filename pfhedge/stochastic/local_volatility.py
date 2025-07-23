@@ -78,6 +78,7 @@ def generate_local_volatility_process(
     Examples:
         >>> from pfhedge.stochastic import generate_local_volatility_process
         ...
+        #自定义局部波动率函数 此处使用Heston模型
         >>> def sigma_fn(time: Tensor, spot: Tensor) -> Tensor:
         ...     a, b, sigma = 0.0001, 0.0004, 0.1000
         ...     sqrt_term = (spot.log().square() + sigma ** 2).sqrt()
@@ -108,3 +109,52 @@ def generate_local_volatility_process(
             spot[:, i_step + 1] = spot[:, i_step] * (1 + sigma * dw[:, i_step])
 
     return LocalVolatilityTuple(spot, volatility)
+
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+import scipy.stats as stats
+from scipy.interpolate import CubicSpline
+from scipy.interpolate import interp1d
+import matplotlib as mpl
+
+def get_spline(data):  # 用来事先计算好4个期限的样条函数值，后续就不用反复计算了
+    spline = []
+    for m in data["maturity"].unique():
+        moneyness = data.loc[data["maturity"] == m]["y"]
+        sample_volatility = data.loc[data["maturity"] == m]["w"]
+        cs_k = CubicSpline(x = moneyness, y = sample_volatility, extrapolate=True)
+        spline.append(cs_k)
+    return spline
+
+spline = get_spline(option)
+
+def get_total_v(data, spline, y, t):
+    total_v = [float(cs(y)) for cs in spline]
+    f = interp1d(x=data["maturity"].unique(), y=total_v, kind="linear", fill_value="extrapolate")
+    v = float(f(t))
+    return v
+
+def diff(data, spline, y, t):
+    yt = get_total_v(data, spline, y, t)
+    y_up = get_total_v(data, spline, y*(1+0.001), t)
+    y_down = get_total_v(data, spline, y*(1-0.001), t)
+    t_up = get_total_v(data, spline, y, t*(1+0.001))
+
+    dw_dt = (t_up - yt)/(t*0.001)
+    dw_dy = (y_up - y_down)/(y*0.001*2)
+    dw_dy2 = (y_up + y_down - 2*yt)/(y*0.001)**2
+    return dw_dt, dw_dy, dw_dy2
+
+def local_v(data, spline, y, t):
+    w = get_total_v(data, spline, y, t)
+    dw_dt, dw_dy, dw_dy2 = diff(data, spline, y, t)
+    numetator = dw_dt
+    denonimator = 1 - y/w*dw_dy + 0.25*(-0.25 - 1/w + y**2/w**2) * (dw_dy**2) + 0.5*dw_dy2
+    local_variance = numetator / denonimator
+    if local_variance < 0:  # 若存在套利机会，很可能会出现算出的结果为负数，这里简单处理一下
+        local_variance = 1e-8
+    return np.sqrt(local_variance)  # 公式计算的是方差，我们返回标准差，即波动率
+
