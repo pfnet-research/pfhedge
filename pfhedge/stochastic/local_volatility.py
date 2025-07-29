@@ -129,7 +129,8 @@ def get_spline(data):  # 用来事先计算好4个期限的样条函数值，后
         spline.append(cs_k)
     return spline
 
-spline = get_spline(option)
+# 注释掉这行，因为它引用了未定义的变量
+# spline = get_spline(option)
 
 def get_total_v(data, spline, y, t):
     total_v = [float(cs(y)) for cs in spline]

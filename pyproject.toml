@@ -98,3 +98,7 @@ exclude = [
     "qfeval",
     ]
 select = "B,B950,C,E,F,W"
+
+   [tool.setuptools.packages.find]
+   where = ["."]
+   include = ["pfhedge*"]
