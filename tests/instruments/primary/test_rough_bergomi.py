@@ -2,6 +2,7 @@ import pytest
 import torch
 
 from pfhedge.instruments import RoughBergomiStock
+from tests._utils import select_most_accurate_gpu_device
 
 
 class TestRoughBergomiStock:
@@ -33,4 +34,4 @@ alpha=-0.4000, rho=-0.9000, eta=1.9000, xi=0.0400, cost=1.0000e-04, dt=0.0040)"
 
     @pytest.mark.gpu
     def test_simulate_shape_gpu(self):
-        self.test_simulate_shape(device="cuda")
+        self.test_simulate_shape(device=select_most_accurate_gpu_device())

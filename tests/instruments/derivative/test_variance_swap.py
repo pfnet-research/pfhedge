@@ -7,6 +7,7 @@ from torch.testing import assert_close
 from pfhedge.instruments import BrownianStock
 from pfhedge.instruments import HestonStock
 from pfhedge.instruments import VarianceSwap
+from tests._utils import select_most_accurate_gpu_device
 
 cls = VarianceSwap
 
@@ -38,7 +39,7 @@ class TestVarianceSwap:
 
     @pytest.mark.gpu
     def test_payoff_gpu(self):
-        self.test_payoff(device="cuda")
+        self.test_payoff(device=select_most_accurate_gpu_device())
 
     def test_repr(self):
         derivative = VarianceSwap(BrownianStock())

@@ -4,6 +4,7 @@ from torch.testing import assert_close
 
 from pfhedge.nn import Clamp
 from pfhedge.nn import LeakyClamp
+from tests._utils import select_most_accurate_gpu_device
 
 
 class TestLeakyClamp:
@@ -32,7 +33,7 @@ class TestLeakyClamp:
 
     @pytest.mark.gpu
     def test_output_gpu(self):
-        self.test_output(device="cuda")
+        self.test_output(device=select_most_accurate_gpu_device())
 
     def test_repr(self):
         expect = "LeakyClamp(clamped_slope=0.1000)"

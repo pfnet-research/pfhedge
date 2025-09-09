@@ -4,6 +4,7 @@ from torch.nn import Linear
 from torch.nn import Sequential
 
 from pfhedge._utils.lazy import has_lazy
+from .device import select_most_accurate_gpu_device
 
 
 def test_has_lazy(device: str = "cpu"):
@@ -22,4 +23,4 @@ def test_has_lazy(device: str = "cpu"):
 
 @pytest.mark.gpu
 def test_has_lazy_gpu():
-    test_has_lazy(device="cuda")
+    test_has_lazy(device=select_most_accurate_gpu_device())

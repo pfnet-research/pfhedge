@@ -2,6 +2,7 @@ import pytest
 import torch
 
 from pfhedge._utils.operations import ensemble_mean
+from .device import select_most_accurate_gpu_device
 
 
 class F:
@@ -23,4 +24,4 @@ def test_ensemble_mean(device: str = "cpu"):
 
 @pytest.mark.gpu
 def test_ensemble_mean_gpu():
-    test_ensemble_mean(device="cuda")
+    test_ensemble_mean(device=select_most_accurate_gpu_device())

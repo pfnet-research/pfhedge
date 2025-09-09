@@ -2,6 +2,7 @@ import pytest
 import torch
 
 from pfhedge.instruments import HestonStock
+from tests._utils import select_most_accurate_gpu_device
 
 
 class TestHestonStock:
@@ -17,7 +18,7 @@ class TestHestonStock:
     @pytest.mark.gpu
     @pytest.mark.parametrize("seed", range(1))
     def test_values_are_finite_gpu(self, seed):
-        self.test_values_are_finite(seed, device="cuda")
+        self.test_values_are_finite(seed, device=select_most_accurate_gpu_device())
 
     def test_repr(self):
         s = HestonStock(cost=1e-4)
@@ -38,4 +39,4 @@ kappa=1., theta=0.0400, sigma=0.2000, rho=-0.7000, cost=1.0000e-04, dt=0.0040)"
 
     @pytest.mark.gpu
     def test_simulate_shape_gpu(self):
-        self.test_simulate_shape(device="cuda")
+        self.test_simulate_shape(device=select_most_accurate_gpu_device())

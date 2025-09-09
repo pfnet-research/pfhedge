@@ -4,6 +4,7 @@ from torch.testing import assert_close
 
 from pfhedge.instruments import BrownianStock
 from pfhedge.instruments import LookbackOption
+from tests._utils import select_most_accurate_gpu_device, get_available_dtypes
 
 cls = LookbackOption
 
@@ -32,7 +33,7 @@ class TestLookbackOption:
 
     @pytest.mark.gpu
     def test_payoff_gpu(self):
-        self.test_payoff(device="cuda")
+        self.test_payoff(device=select_most_accurate_gpu_device())
 
     def test_payoff_put(self, device: str = "cpu"):
         derivative = LookbackOption(BrownianStock(), strike=3.0, call=False).to(device)
@@ -49,9 +50,9 @@ class TestLookbackOption:
 
     @pytest.mark.gpu
     def test_payoff_put_gpu(self):
-        self.test_payoff_put(device="cuda")
+        self.test_payoff_put(device=select_most_accurate_gpu_device())
 
-    @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
+    @pytest.mark.parametrize("dtype", get_available_dtypes())
     def test_dtype(self, dtype, device: str = "cpu"):
         derivative = LookbackOption(BrownianStock(dtype=dtype, device=device))
         derivative.simulate()
@@ -62,9 +63,9 @@ class TestLookbackOption:
         assert derivative.payoff().dtype == dtype
 
     @pytest.mark.gpu
-    @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
+    @pytest.mark.parametrize("dtype", get_available_dtypes())
     def test_dtype_gpu(self, dtype):
-        self.test_dtype(dtype, device="cuda")
+        self.test_dtype(dtype, device=select_most_accurate_gpu_device())
 
     def test_repr(self):
         derivative = LookbackOption(BrownianStock(), maturity=1.0)

@@ -4,6 +4,7 @@ from torch.nn.functional import relu
 from torch.testing import assert_close
 
 from pfhedge.nn import SVIVariance
+from tests._utils import select_most_accurate_gpu_device
 
 
 def test_svi(device: str = "cpu"):
@@ -31,7 +32,7 @@ def test_svi(device: str = "cpu"):
 
 @pytest.mark.gpu
 def test_svi_gpu():
-    test_svi(device="cuda")
+    test_svi(device=select_most_accurate_gpu_device())
 
 
 def test_svi_repr():

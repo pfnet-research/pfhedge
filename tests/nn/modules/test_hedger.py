@@ -18,6 +18,7 @@ from pfhedge.nn import Hedger
 from pfhedge.nn import MultiLayerPerceptron
 from pfhedge.nn import Naked
 from pfhedge.nn import WhalleyWilmott
+from tests._utils import select_most_accurate_gpu_device
 
 
 def void(*args, **kwargs):
@@ -57,7 +58,7 @@ class TestHedger:
 
     @pytest.mark.gpu
     def test_error_optimizer_gpu(self):
-        self.test_error_optimizer(device="cuda")
+        self.test_error_optimizer(device=select_most_accurate_gpu_device())
 
     def test_repr(self):
         hedger = Hedger(Linear(2, 1), ["moneyness", "time_to_maturity"])
@@ -96,7 +97,7 @@ Hedger(
 
     @pytest.mark.gpu
     def test_compute_hedge_error_not_same_size_gpu(self):
-        self.test_compute_hedge_error_not_same_size(device="cuda")
+        self.test_compute_hedge_error_not_same_size(device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("hin", [1, 2])
     def test_compute_pnl_size(self, hin, device: str = "cpu"):
@@ -122,7 +123,7 @@ Hedger(
     @pytest.mark.gpu
     @pytest.mark.parametrize("hin", [1, 2])
     def test_compute_pnl_size_gpu(self, hin):
-        self.test_compute_pnl_size(hin=hin, device="cuda")
+        self.test_compute_pnl_size(hin=hin, device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("cost", [0.0, 1e-3])
     def test_compute_pnl_1(self, cost, device: str = "cpu"):
@@ -143,7 +144,7 @@ Hedger(
     @pytest.mark.gpu
     @pytest.mark.parametrize("cost", [0.0, 1e-3])
     def test_compute_pnl_1_gpu(self, cost):
-        self.test_compute_pnl_1(cost=cost, device="cuda")
+        self.test_compute_pnl_1(cost=cost, device=select_most_accurate_gpu_device())
 
     def test_compute_pnl_2(self, device: str = "cpu"):
         torch.manual_seed(42)
@@ -165,7 +166,7 @@ Hedger(
 
     @pytest.mark.gpu
     def test_compute_pnl_2_gpu(self):
-        self.test_compute_pnl_2(device="cuda")
+        self.test_compute_pnl_2(device=select_most_accurate_gpu_device())
 
     def test_compute_pnl_2_multiple_hedges(self, device: str = "cpu"):
         torch.manual_seed(42)
@@ -192,7 +193,7 @@ Hedger(
 
     @pytest.mark.gpu
     def test_compute_pnl_2_multiple_hedges_gpu(self):
-        self.test_compute_pnl_2_multiple_hedges(device="cuda")
+        self.test_compute_pnl_2_multiple_hedges(device=select_most_accurate_gpu_device())
 
     def test_compute_pnl_2_multiple_hedges_payoff(self, device: str = "cpu"):
         torch.manual_seed(42)
@@ -218,7 +219,7 @@ Hedger(
 
     @pytest.mark.gpu
     def test_compute_pnl_2_multiple_hedges_payoff_gpu(self):
-        self.test_compute_pnl_2_multiple_hedges_payoff(device="cuda")
+        self.test_compute_pnl_2_multiple_hedges_payoff(device=select_most_accurate_gpu_device())
 
     def test_compute_pnl_payoff(self, device: str = "cpu"):
         torch.manual_seed(42)
@@ -249,7 +250,7 @@ Hedger(
 
     @pytest.mark.gpu
     def test_compute_pnl_payoff_gpu(self):
-        self.test_compute_pnl_payoff(device="cuda")
+        self.test_compute_pnl_payoff(device=select_most_accurate_gpu_device())
 
     def test_compute_pnl_cost(self, device: str = "cpu"):
         cost = 1e-3
@@ -280,7 +281,7 @@ Hedger(
 
     @pytest.mark.gpu
     def test_compute_pnl_cost_gpu(self):
-        self.test_compute_pnl_cost(device="cuda")
+        self.test_compute_pnl_cost(device=select_most_accurate_gpu_device())
 
     def test_forward_shape(self, device: str = "cpu"):
         torch.distributions.Distribution.set_default_validate_args(False)
@@ -313,7 +314,7 @@ Hedger(
 
     @pytest.mark.gpu
     def test_forward_shape_gpu(self):
-        self.test_forward_shape(device="cuda")
+        self.test_forward_shape(device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("h_in", [1, 2, 3])
     def test_get_input(self, h_in, device: str = "cpu"):
@@ -330,7 +331,7 @@ Hedger(
     @pytest.mark.gpu
     @pytest.mark.parametrize("h_in", [1, 2, 3])
     def test_get_input_gpu(self, h_in):
-        self.test_get_input(h_in=h_in, device="cuda")
+        self.test_get_input(h_in=h_in, device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("h_in", [1, 2, 3])
     def test_compute_hedge(self, h_in, device: str = "cpu"):
@@ -355,7 +356,7 @@ Hedger(
     @pytest.mark.gpu
     @pytest.mark.parametrize("h_in", [1, 2, 3])
     def test_compute_hedge_gpu(self, h_in):
-        self.test_compute_hedge(h_in=h_in, device="cuda")
+        self.test_compute_hedge(h_in=h_in, device=select_most_accurate_gpu_device())
 
     def test_compute_loss(self, device: str = "cpu"):
         torch.manual_seed(42)
@@ -370,7 +371,7 @@ Hedger(
 
     @pytest.mark.gpu
     def test_compute_loss_gpu(self):
-        self.test_compute_loss(device="cuda")
+        self.test_compute_loss(device=select_most_accurate_gpu_device())
 
     def test_hedging_with_identical_derivative(self, device: str = "cpu"):
         torch.manual_seed(42)
@@ -407,4 +408,4 @@ Hedger(
 
     @pytest.mark.gpu
     def test_hedging_with_identical_derivative_gpu(self):
-        self.test_hedging_with_identical_derivative(device="cuda")
+        self.test_hedging_with_identical_derivative(device=select_most_accurate_gpu_device())

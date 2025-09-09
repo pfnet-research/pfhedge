@@ -5,6 +5,7 @@ from torch.testing import assert_close
 from pfhedge.instruments import BasePrimary
 from pfhedge.instruments import BrownianStock
 from pfhedge.instruments import EuropeanOption
+from tests._utils import select_most_accurate_gpu_device, get_available_dtypes
 
 
 class NullPrimary(BasePrimary):
@@ -68,7 +69,7 @@ class TestBrownianStock:
 
     @pytest.mark.gpu
     def test_buffers_gpu(self):
-        self.test_buffers(device="cuda")
+        self.test_buffers(device=select_most_accurate_gpu_device())
 
     def test_buffer_attribute_error(self):
         class MyPrimary(BasePrimary):
@@ -82,7 +83,7 @@ class TestBrownianStock:
         with pytest.raises(AttributeError):
             MyPrimary().simulate()
 
-    @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
+    @pytest.mark.parametrize("dtype", get_available_dtypes())
     def test_init_dtype(self, dtype, device: str = "cpu"):
         s = BrownianStock(dtype=dtype, device=device)
         s.simulate()
@@ -90,11 +91,11 @@ class TestBrownianStock:
         assert s.spot.dtype == dtype
 
     @pytest.mark.gpu
-    @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
+    @pytest.mark.parametrize("dtype", get_available_dtypes())
     def test_init_dtype_gpu(self, dtype):
-        self.test_init_dtype(dtype, device="cuda")
+        self.test_init_dtype(dtype, device=select_most_accurate_gpu_device())
 
-    @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
+    @pytest.mark.parametrize("dtype", get_available_dtypes())
     def test_to_dtype(self, dtype, device: str = "cpu"):
         # to(dtype) before simulate()
         s = BrownianStock().to(dtype=dtype, device=device)
@@ -151,15 +152,26 @@ class TestBrownianStock:
 
         s = BrownianStock().to(device)
         s.simulate()
-        s.double()
-        assert s.dtype == torch.float64
-        assert s.spot.dtype == torch.float64
+        if select_most_accurate_gpu_device() == "cuda":
+            s.double()
+            assert s.dtype == torch.float64
+            assert s.spot.dtype == torch.float64
+        else:
+            s.float32()
+            assert s.dtype == torch.float32
+            assert s.spot.dtype == torch.float32
+
 
         s = BrownianStock().to(device)
         s.simulate()
-        s.float64()
-        assert s.dtype == torch.float64
-        assert s.spot.dtype == torch.float64
+        if select_most_accurate_gpu_device() == "cuda":
+            s.float64()
+            assert s.dtype == torch.float64
+            assert s.spot.dtype == torch.float64
+        else:
+            s.float32()
+            assert s.dtype == torch.float32
+            assert s.spot.dtype == torch.float32
 
         s = BrownianStock().to(device)
         s.simulate()
@@ -192,9 +204,9 @@ class TestBrownianStock:
         assert s.spot.dtype == torch.bfloat16
 
     @pytest.mark.gpu
-    @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
+    @pytest.mark.parametrize("dtype", get_available_dtypes())
     def test_to_dtype_gpu(self, dtype):
-        self.test_to_dtype(dtype, device="cuda")
+        self.test_to_dtype(dtype, device=select_most_accurate_gpu_device())
 
     def test_simulate_shape(self, device: str = "cpu"):
         s = BrownianStock(dt=0.1).to(device)
@@ -207,7 +219,7 @@ class TestBrownianStock:
 
     @pytest.mark.gpu
     def test_simulate_shape_gpu(self):
-        self.test_simulate_shape(device="cuda")
+        self.test_simulate_shape(device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("sigma", [0.2, 0.1])
     def test_volatility(self, sigma, device: str = "cpu"):
@@ -224,7 +236,7 @@ class TestBrownianStock:
     @pytest.mark.gpu
     @pytest.mark.parametrize("sigma", [0.2, 0.1])
     def test_volatility_gpu(self, sigma):
-        self.test_volatility(sigma, device="cuda")
+        self.test_volatility(sigma, device=select_most_accurate_gpu_device())
 
     def test_init_device(self):
         s = BrownianStock(device=torch.device("cuda:0"))

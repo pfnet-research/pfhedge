@@ -13,6 +13,7 @@ from ._utils import compute_gamma
 from ._utils import compute_price
 from ._utils import compute_theta
 from ._utils import compute_vega
+from tests._utils import select_most_accurate_gpu_device
 
 
 class TestBSLookbackOption(_TestBSModule):
@@ -67,7 +68,7 @@ class TestBSLookbackOption(_TestBSModule):
 
     @pytest.mark.gpu
     def test_check_delta_gpu(self):
-        self.test_check_delta(device="cuda")
+        self.test_check_delta(device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("call", [True])
     def test_delta_2(self, call: bool, device: str = "cpu"):
@@ -90,7 +91,7 @@ class TestBSLookbackOption(_TestBSModule):
     @pytest.mark.gpu
     @pytest.mark.parametrize("call", [True])
     def test_delta_2_gpu(self, call: bool):
-        self.test_delta_2(call, device="cuda")
+        self.test_delta_2(call, device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("call", [True])
     def test_delta_3(self, call: bool, device: str = "cpu"):
@@ -196,7 +197,7 @@ class TestBSLookbackOption(_TestBSModule):
     @pytest.mark.gpu
     @pytest.mark.parametrize("call", [True])
     def test_delta_3_gpu(self, call: bool):
-        self.test_delta_3(call, device="cuda")
+        self.test_delta_3(call, device=select_most_accurate_gpu_device())
 
     def test_check_gamma(self, device: str = "cpu"):
         m = BSLookbackOption().to(device)
@@ -231,7 +232,7 @@ class TestBSLookbackOption(_TestBSModule):
 
     @pytest.mark.gpu
     def test_check_gamma_gpu(self):
-        self.test_check_gamma(device="cuda")
+        self.test_check_gamma(device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("call", [True])
     def test_gamma_2(self, call: bool, device: str = "cpu"):
@@ -254,7 +255,7 @@ class TestBSLookbackOption(_TestBSModule):
     @pytest.mark.gpu
     @pytest.mark.parametrize("call", [True])
     def test_gamma_2_gpu(self, call: bool):
-        self.test_gamma_2(call, device="cuda")
+        self.test_gamma_2(call, device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("call", [True])
     def test_gamma_3(self, call: bool, device: str = "cpu"):
@@ -360,7 +361,7 @@ class TestBSLookbackOption(_TestBSModule):
     @pytest.mark.gpu
     @pytest.mark.parametrize("call", [True])
     def test_gamma_3_gpu(self, call: bool):
-        self.test_gamma_3(call, device="cuda")
+        self.test_gamma_3(call, device=select_most_accurate_gpu_device())
 
     def test_check_vega(self, device: str = "cpu"):
         m = BSLookbackOption().to(device)
@@ -395,7 +396,7 @@ class TestBSLookbackOption(_TestBSModule):
 
     @pytest.mark.gpu
     def test_check_vega_gpu(self):
-        self.test_check_vega(device="cuda")
+        self.test_check_vega(device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("call", [True])
     def test_vega_2(self, call: bool, device: str = "cpu"):
@@ -418,7 +419,7 @@ class TestBSLookbackOption(_TestBSModule):
     @pytest.mark.gpu
     @pytest.mark.parametrize("call", [True])
     def test_vega_2_gpu(self, call: bool):
-        self.test_vega_2(call, device="cuda")
+        self.test_vega_2(call, device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("call", [True])
     def test_vega_3(self, call: bool, device: str = "cpu"):
@@ -524,7 +525,7 @@ class TestBSLookbackOption(_TestBSModule):
     @pytest.mark.gpu
     @pytest.mark.parametrize("call", [True])
     def test_vega_3_gpu(self, call: bool):
-        self.test_vega_3(call, device="cuda")
+        self.test_vega_3(call, device=select_most_accurate_gpu_device())
 
     def test_check_theta(self, device: str = "cpu"):
         m = BSLookbackOption().to(device)
@@ -559,7 +560,7 @@ class TestBSLookbackOption(_TestBSModule):
 
     @pytest.mark.gpu
     def test_check_theta_gpu(self):
-        self.test_check_theta(device="cuda")
+        self.test_check_theta(device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("call", [True])
     def test_theta_2(self, call: bool, device: str = "cpu"):
@@ -582,7 +583,7 @@ class TestBSLookbackOption(_TestBSModule):
     @pytest.mark.gpu
     @pytest.mark.parametrize("call", [True])
     def test_theta_2_gpu(self, call: bool):
-        self.test_theta_2(call, device="cuda")
+        self.test_theta_2(call, device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("call", [True])
     def test_theta_3(self, call: bool, device: str = "cpu"):
@@ -688,7 +689,7 @@ class TestBSLookbackOption(_TestBSModule):
     @pytest.mark.gpu
     @pytest.mark.parametrize("call", [True])
     def test_theta_3_gpu(self, call: bool):
-        self.test_theta_3(call, device="cuda")
+        self.test_theta_3(call, device=select_most_accurate_gpu_device())
 
     def test_check_price(self, device: str = "cpu"):
         m = BSLookbackOption().to(device)
@@ -730,7 +731,7 @@ class TestBSLookbackOption(_TestBSModule):
 
     @pytest.mark.gpu
     def test_check_price_gpu(self):
-        self.test_check_price(device="cuda")
+        self.test_check_price(device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("call", [True])
     def test_price_3(self, call: bool, device: str = "cpu"):
@@ -753,7 +754,7 @@ class TestBSLookbackOption(_TestBSModule):
     @pytest.mark.gpu
     @pytest.mark.parametrize("call", [True])
     def test_price_3_gpu(self, call: bool):
-        self.test_price_3(call, device="cuda")
+        self.test_price_3(call, device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("call", [True])
     def test_price_4(self, call: bool, device: str = "cpu"):
@@ -859,7 +860,7 @@ class TestBSLookbackOption(_TestBSModule):
     @pytest.mark.gpu
     @pytest.mark.parametrize("call", [True])
     def test_price_4_gpu(self, call: bool):
-        self.test_price_4(call, device="cuda")
+        self.test_price_4(call, device=select_most_accurate_gpu_device())
 
     def test_check_price_monte_carlo(self, device: str = "cpu"):
         torch.manual_seed(42)
@@ -878,7 +879,7 @@ class TestBSLookbackOption(_TestBSModule):
 
     @pytest.mark.gpu
     def test_check_price_monte_carlo_gpu(self):
-        self.test_check_price_monte_carlo(device="cuda")
+        self.test_check_price_monte_carlo(device=select_most_accurate_gpu_device())
 
     def test_forward(self, device: str = "cpu"):
         m = BSLookbackOption().to(device)
@@ -890,7 +891,7 @@ class TestBSLookbackOption(_TestBSModule):
 
     @pytest.mark.gpu
     def test_forward_gpu(self):
-        self.test_forward(device="cuda")
+        self.test_forward(device=select_most_accurate_gpu_device())
 
     def test_price(self, device: str = "cpu"):
         m = BSLookbackOption(strike=1.03).to(device)
@@ -903,7 +904,7 @@ class TestBSLookbackOption(_TestBSModule):
 
     @pytest.mark.gpu
     def test_price_gpu(self):
-        self.test_price(device="cuda")
+        self.test_price(device=select_most_accurate_gpu_device())
 
     def test_delta(self, device: str = "cpu"):
         m = BSLookbackOption().to(device)
@@ -916,7 +917,7 @@ class TestBSLookbackOption(_TestBSModule):
 
     @pytest.mark.gpu
     def test_delta_gpu(self):
-        self.test_delta(device="cuda")
+        self.test_delta(device=select_most_accurate_gpu_device())
 
     def test_gamma(self, device: str = "cpu"):
         m = BSLookbackOption().to(device)
@@ -929,7 +930,7 @@ class TestBSLookbackOption(_TestBSModule):
 
     @pytest.mark.gpu
     def test_gamma_gpu(self):
-        self.test_gamma(device="cuda")
+        self.test_gamma(device=select_most_accurate_gpu_device())
 
     def test_implied_volatility(self, device: str = "cpu"):
         input = torch.tensor(
@@ -943,7 +944,7 @@ class TestBSLookbackOption(_TestBSModule):
 
     @pytest.mark.gpu
     def test_implied_volatility_gpu(self):
-        self.test_implied_volatility(device="cuda")
+        self.test_implied_volatility(device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("call", [True])
     def test_implied_volatility_2(self, call: bool, device: str = "cpu"):
@@ -1010,7 +1011,7 @@ class TestBSLookbackOption(_TestBSModule):
     @pytest.mark.gpu
     @pytest.mark.parametrize("call", [True])
     def test_implied_volatility_2_gpu(self, call: bool):
-        self.test_implied_volatility_2(call, device="cuda")
+        self.test_implied_volatility_2(call, device=select_most_accurate_gpu_device())
 
     def test_vega_and_gamma(self, device: str = "cpu"):
         m = BSLookbackOption().to(device)
@@ -1025,7 +1026,7 @@ class TestBSLookbackOption(_TestBSModule):
 
     @pytest.mark.gpu
     def test_vega_and_gamma_gpu(self):
-        self.test_vega_and_gamma(device="cuda")
+        self.test_vega_and_gamma(device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("call", [True])
     def test_vega_and_gamma_2(self, call: bool, device: str = "cpu"):
@@ -1051,7 +1052,7 @@ class TestBSLookbackOption(_TestBSModule):
     @pytest.mark.gpu
     @pytest.mark.parametrize("call", [True])
     def test_vega_and_gamma_2_gpu(self, call: bool):
-        self.test_vega_and_gamma_2(call, device="cuda")
+        self.test_vega_and_gamma_2(call, device=select_most_accurate_gpu_device())
 
     def test_put_notimplemented(self):
         with pytest.raises(ValueError):
@@ -1071,7 +1072,7 @@ class TestBSLookbackOption(_TestBSModule):
 
     @pytest.mark.gpu
     def test_shape_gpu(self):
-        self.test_shape(device="cuda")
+        self.test_shape(device=select_most_accurate_gpu_device())
 
     def test_example(self, device: str = "cpu"):
         torch.manual_seed(42)
@@ -1079,6 +1080,7 @@ class TestBSLookbackOption(_TestBSModule):
         from pfhedge.instruments import BrownianStock
         from pfhedge.instruments import LookbackOption
         from pfhedge.nn import Hedger
+        from tests._utils import select_most_accurate_gpu_device
 
         deriv = LookbackOption(BrownianStock(), strike=1.03).to(device)
         model = BSLookbackOption.from_derivative(deriv).to(device)
@@ -1089,4 +1091,4 @@ class TestBSLookbackOption(_TestBSModule):
 
     @pytest.mark.gpu
     def test_example_gpu(self):
-        self.test_example(device="cuda")
+        self.test_example(device=select_most_accurate_gpu_device())

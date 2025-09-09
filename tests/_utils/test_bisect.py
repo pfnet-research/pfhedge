@@ -4,6 +4,7 @@ import torch.nn.functional as fn
 from torch.testing import assert_close
 
 from pfhedge._utils.bisect import bisect
+from .device import select_most_accurate_gpu_device
 
 
 def test_bisect(device: str = "cpu"):
@@ -74,7 +75,7 @@ def test_bisect(device: str = "cpu"):
 
 @pytest.mark.gpu
 def test_bisect_gpu():
-    test_bisect(device="cuda")
+    test_bisect(device=select_most_accurate_gpu_device())
 
 
 def test_bisect_error():

@@ -5,6 +5,7 @@ from torch.testing import assert_close
 from pfhedge.instruments import BrownianStock
 from pfhedge.instruments import EuropeanForwardStartOption
 from pfhedge.instruments import EuropeanOption
+from tests._utils import select_most_accurate_gpu_device
 
 cls = EuropeanForwardStartOption
 
@@ -23,7 +24,7 @@ class TestEuropeanOption:
 
     @pytest.mark.gpu
     def test_payoff_start0_gpu(self):
-        self.test_payoff_start0(device="cuda")
+        self.test_payoff_start0(device=select_most_accurate_gpu_device())
 
     def test_payoff_start_end(self, device: str = "cpu"):
         stock = BrownianStock().to(device)
@@ -52,7 +53,7 @@ class TestEuropeanOption:
 
     @pytest.mark.gpu
     def test_payoff_start_end_gpu(self):
-        self.test_payoff_start_end(device="cuda")
+        self.test_payoff_start_end(device=select_most_accurate_gpu_device())
 
     def test_repr(self):
         derivative = EuropeanForwardStartOption(BrownianStock(), maturity=1.0)

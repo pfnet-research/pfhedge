@@ -2,6 +2,7 @@ import pytest
 import torch
 
 from pfhedge.instruments import MertonJumpStock
+from tests._utils import select_most_accurate_gpu_device
 
 
 class TestMertonJumpStock:
@@ -23,7 +24,7 @@ class TestMertonJumpStock:
     @pytest.mark.gpu
     @pytest.mark.parametrize("seed", range(1))
     def test_values_are_finite_gpu(self, seed):
-        self.test_values_are_finite(seed, device="cuda")
+        self.test_values_are_finite(seed, device=select_most_accurate_gpu_device())
 
     def test_repr(self):
         s = self.jump_test_class(cost=1e-4)
@@ -46,4 +47,4 @@ mu=0., sigma=0.2000, jump_per_year=68, jump_mean=0., jump_std=0.0100, cost=1.000
 
     @pytest.mark.gpu
     def test_simulate_shape_gpu(self):
-        self.test_simulate_shape(device="cuda")
+        self.test_simulate_shape(device=select_most_accurate_gpu_device())
