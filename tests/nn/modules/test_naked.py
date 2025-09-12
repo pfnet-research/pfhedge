@@ -2,6 +2,7 @@ import pytest
 import torch
 
 from pfhedge.nn import Naked
+from tests._utils import select_most_accurate_gpu_device
 
 
 class TestNaked:
@@ -20,7 +21,7 @@ class TestNaked:
     @pytest.mark.parametrize("n_paths", [1, 10])
     @pytest.mark.parametrize("n_features", [1, 10])
     def test_gpu(self, n_paths, n_features):
-        self.test(n_paths, n_features, device="cuda")
+        self.test(n_paths, n_features, device=select_most_accurate_gpu_device())
 
     def test_shape(self, device: str = "cpu"):
         N = 11
@@ -43,4 +44,4 @@ class TestNaked:
 
     @pytest.mark.gpu
     def test_shape_gpu(self):
-        self.test_shape(device="cuda")
+        self.test_shape(device=select_most_accurate_gpu_device())

@@ -7,6 +7,7 @@ from pfhedge.instruments import LookbackOption
 from pfhedge.nn import BlackScholes
 from pfhedge.nn import BSEuropeanOption
 from pfhedge.nn import BSLookbackOption
+from tests._utils import select_most_accurate_gpu_device
 
 
 class TestBlackScholes:
@@ -58,4 +59,4 @@ class TestBlackScholes:
 
     @pytest.mark.gpu
     def test_shape_gpu(self):
-        self.test_shape(device="cuda")
+        self.test_shape(device=select_most_accurate_gpu_device())

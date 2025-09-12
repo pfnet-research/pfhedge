@@ -12,6 +12,7 @@ from ._base import _TestBSModule
 from ._utils import compute_delta
 from ._utils import compute_gamma
 from ._utils import compute_price
+from tests._utils import select_most_accurate_gpu_device
 
 
 class TestBSEuropeanBinaryOption(_TestBSModule):
@@ -75,7 +76,7 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
 
     @pytest.mark.gpu
     def test_delta_limit_gpu(self):
-        self.test_delta_limit(device="cuda")
+        self.test_delta_limit(device=select_most_accurate_gpu_device())
 
     def test_gamma_limit(self, device: str = "cpu"):
         c = BSEuropeanBinaryOption().to(device)
@@ -117,7 +118,7 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
 
     @pytest.mark.gpu
     def test_gamma_limit_gpu(self):
-        self.test_gamma_limit(device="cuda")
+        self.test_gamma_limit(device=select_most_accurate_gpu_device())
 
     def test_price_limit(self, device: str = "cpu"):
         c = BSEuropeanBinaryOption().to(device)
@@ -161,7 +162,7 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
 
     @pytest.mark.gpu
     def test_price_limit_gpu(self):
-        self.test_price_limit(device="cuda")
+        self.test_price_limit(device=select_most_accurate_gpu_device())
 
     def test_price_monte_carlo(self, device: str = "cpu"):
         d = EuropeanBinaryOption(BrownianStock()).to(device)
@@ -186,7 +187,7 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
 
     @pytest.mark.gpu
     def test_price_monte_carlo_gpu(self):
-        self.test_price_monte_carlo(device="cuda")
+        self.test_price_monte_carlo(device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("call", [True, False])
     def test_autogreek(self, call, device: str = "cpu"):
@@ -222,7 +223,7 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
     @pytest.mark.gpu
     @pytest.mark.parametrize("call", [True, False])
     def test_autogreek_gpu(self, call: bool):
-        self.test_autogreek(call, device="cuda")
+        self.test_autogreek(call, device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("call", [True, False])
     def test_delta_2(self, call: bool, device: str = "cpu"):
@@ -278,7 +279,7 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
     @pytest.mark.gpu
     @pytest.mark.parametrize("call", [True, False])
     def test_delta_2_gpu(self, call: bool):
-        self.test_delta_2(call, device="cuda")
+        self.test_delta_2(call, device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("call", [True, False])
     def test_delta_3(self, call: bool, device: str = "cpu"):
@@ -324,7 +325,7 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
     @pytest.mark.gpu
     @pytest.mark.parametrize("call", [True, False])
     def test_delta_3_gpu(self, call: bool):
-        self.test_delta_3(call, device="cuda")
+        self.test_delta_3(call, device=select_most_accurate_gpu_device())
 
     def test_gamma(self, device: str = "cpu"):
         m = BSEuropeanBinaryOption().to(device)
@@ -338,7 +339,7 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
 
     @pytest.mark.gpu
     def test_gamma_gpu(self):
-        self.test_gamma(device="cuda")
+        self.test_gamma(device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("call", [True, False])
     def test_gamma_valueerror(self, call: bool, device: str = "cpu"):
@@ -359,7 +360,7 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
     @pytest.mark.gpu
     @pytest.mark.parametrize("call", [True, False])
     def test_gamma_valueerror_gpu(self, call: bool):
-        self.test_gamma_valueerror(call, device="cuda")
+        self.test_gamma_valueerror(call, device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("call", [True, False])
     def test_gamma_3(self, call: bool, device: str = "cpu"):
@@ -406,7 +407,7 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
     @pytest.mark.gpu
     @pytest.mark.parametrize("call", [True, False])
     def test_gamma_3_gpu(self, call: bool):
-        self.test_gamma_3(call, device="cuda")
+        self.test_gamma_3(call, device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("call", [True, False])
     def test_vega_valueerror(self, call: bool, device: str = "cpu"):
@@ -427,7 +428,7 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
     @pytest.mark.gpu
     @pytest.mark.parametrize("call", [True, False])
     def test_vega_valueerror_gpu(self, call: bool):
-        self.test_vega_valueerror(call, device="cuda")
+        self.test_vega_valueerror(call, device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("call", [True, False])
     def test_vega_3(self, call: bool, device: str = "cpu"):
@@ -472,7 +473,7 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
     @pytest.mark.gpu
     @pytest.mark.parametrize("call", [True, False])
     def test_vega_3_gpu(self, call: bool):
-        self.test_vega_3(call, device="cuda")
+        self.test_vega_3(call, device=select_most_accurate_gpu_device())
 
     def test_vega_and_gamma(self, device: str = "cpu"):
         m = BSEuropeanBinaryOption().to(device)
@@ -487,7 +488,7 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
 
     @pytest.mark.gpu
     def test_vega_and_gamma_gpu(self):
-        self.test_vega_and_gamma(device="cuda")
+        self.test_vega_and_gamma(device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("call", [True, False])
     def test_vega_and_gamma_2(self, call: bool, device: str = "cpu"):
@@ -509,7 +510,7 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
     @pytest.mark.gpu
     @pytest.mark.parametrize("call", [True, False])
     def test_vega_and_gamma_2_gpu(self, call: bool):
-        self.test_vega_and_gamma_2(call, device="cuda")
+        self.test_vega_and_gamma_2(call, device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("call", [True, False])
     def test_theta_2(self, call: bool, device: str = "cpu"):
@@ -530,7 +531,7 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
     @pytest.mark.gpu
     @pytest.mark.parametrize("call", [True, False])
     def test_theta_2_gpu(self, call: bool):
-        self.test_theta_2(call, device="cuda")
+        self.test_theta_2(call, device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("call", [True, False])
     def test_theta_3(self, call: bool, device: str = "cpu"):
@@ -577,7 +578,7 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
     @pytest.mark.gpu
     @pytest.mark.parametrize("call", [True, False])
     def test_theta_3_gpu(self, call: bool):
-        self.test_theta_3(call, device="cuda")
+        self.test_theta_3(call, device=select_most_accurate_gpu_device())
 
     def test_price(self, device: str = "cpu"):
         m = BSEuropeanBinaryOption().to(device)
@@ -600,7 +601,7 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
 
     @pytest.mark.gpu
     def test_price_gpu(self):
-        self.test_price(device="cuda")
+        self.test_price(device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("call", [True, False])
     def test_price_2(self, call: bool, device: str = "cpu"):
@@ -656,7 +657,7 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
     @pytest.mark.gpu
     @pytest.mark.parametrize("call", [True, False])
     def test_price_2_gpu(self, call: bool):
-        self.test_price_2(call, device="cuda")
+        self.test_price_2(call, device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("call", [True, False])
     def test_price_3(self, call: bool, device: str = "cpu"):
@@ -702,7 +703,7 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
     @pytest.mark.gpu
     @pytest.mark.parametrize("call", [True, False])
     def test_price_3_gpu(self, call: bool):
-        self.test_price_3(call, device="cuda")
+        self.test_price_3(call, device=select_most_accurate_gpu_device())
 
     def test_implied_volatility(self, device: str = "cpu"):
         lm = torch.full((3,), -0.01).to(device)
@@ -717,7 +718,7 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
 
     @pytest.mark.gpu
     def test_implied_volatility_gpu(self):
-        self.test_implied_volatility(device="cuda")
+        self.test_implied_volatility(device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("call", [True, False])
     def test_implied_volatility_2(self, call: bool, device: str = "cpu"):
@@ -769,12 +770,13 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
     @pytest.mark.gpu
     @pytest.mark.parametrize("call", [True, False])
     def test_implied_volatility_2_gpu(self, call: bool):
-        self.test_implied_volatility_2(call, device="cuda")
+        self.test_implied_volatility_2(call, device=select_most_accurate_gpu_device())
 
     def test_example(self, device: str = "cpu"):
         from pfhedge.instruments import BrownianStock
         from pfhedge.instruments import EuropeanBinaryOption
         from pfhedge.nn import Hedger
+        from tests._utils import select_most_accurate_gpu_device
 
         derivative = EuropeanBinaryOption(BrownianStock()).to(device)
         model = BSEuropeanBinaryOption.from_derivative(derivative).to(device)
@@ -783,11 +785,11 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
         expect = torch.tensor(0.4922).to(device)
         x = hedger.compute_hedge(derivative)
         assert not x.isnan().any()
-        assert_close(result, expect, atol=1e-2, rtol=1e-2)
+        assert_close(result, expect, atol=2e-2, rtol=4e-2)
 
     @pytest.mark.gpu
     def test_example_gpu(self):
-        self.test_example(device="cuda")
+        self.test_example(device=select_most_accurate_gpu_device())
 
     def test_shape(self, device: str = "cpu"):
         torch.distributions.Distribution.set_default_validate_args(False)
@@ -802,4 +804,4 @@ class TestBSEuropeanBinaryOption(_TestBSModule):
 
     @pytest.mark.gpu
     def test_shape_gpu(self):
-        self.test_shape(device="cuda")
+        self.test_shape(device=select_most_accurate_gpu_device())

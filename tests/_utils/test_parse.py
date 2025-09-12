@@ -5,6 +5,7 @@ from torch.testing import assert_close
 from pfhedge._utils.parse import parse_spot
 from pfhedge._utils.parse import parse_time_to_maturity
 from pfhedge._utils.parse import parse_volatility
+from .device import select_most_accurate_gpu_device
 
 
 def test_parse_spot(device: str = "cpu"):
@@ -34,7 +35,7 @@ def test_parse_spot(device: str = "cpu"):
 
 @pytest.mark.gpu
 def test_parse_spot_gpu():
-    test_parse_spot(device="cuda")
+    test_parse_spot(device=select_most_accurate_gpu_device())
 
 
 def test_parse_volatility(device: str = "cpu"):
@@ -56,7 +57,7 @@ def test_parse_volatility(device: str = "cpu"):
 
 @pytest.mark.gpu
 def test_parse_volatility_gpu():
-    test_parse_volatility(device="cuda")
+    test_parse_volatility(device=select_most_accurate_gpu_device())
 
 
 def test_parse_time_to_maturity(device: str = "cpu"):
@@ -75,4 +76,4 @@ def test_parse_time_to_maturity(device: str = "cpu"):
 
 @pytest.mark.gpu
 def test_parse_time_to_maturity_gpu():
-    test_parse_time_to_maturity(device="cuda")
+    test_parse_time_to_maturity(device=select_most_accurate_gpu_device())

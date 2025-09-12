@@ -4,6 +4,7 @@ from torch.testing import assert_close
 
 from pfhedge.instruments import AmericanBinaryOption
 from pfhedge.instruments import BrownianStock
+from tests._utils import select_most_accurate_gpu_device, get_available_dtypes
 
 cls = AmericanBinaryOption
 
@@ -46,9 +47,9 @@ class TestAmericanBinaryOption:
 
     @pytest.mark.gpu
     def test_payoff_gpu(self):
-        self.test_payoff(device="cuda")
+        self.test_payoff(device=select_most_accurate_gpu_device())
 
-    @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
+    @pytest.mark.parametrize("dtype", get_available_dtypes())
     def test_dtype(self, dtype, device: str = "cpu"):
         derivative = AmericanBinaryOption(BrownianStock(dtype=dtype, device=device))
         assert derivative.dtype == dtype
@@ -62,9 +63,9 @@ class TestAmericanBinaryOption:
         assert derivative.payoff().dtype == dtype
 
     @pytest.mark.gpu
-    @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
+    @pytest.mark.parametrize("dtype", get_available_dtypes())
     def test_dtype_gpu(self, dtype):
-        self.test_dtype(dtype, device="cuda")
+        self.test_dtype(dtype, device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("device", ["cuda:0", "cuda:1"])
     def test_device(self, device):

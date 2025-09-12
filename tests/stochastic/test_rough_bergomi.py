@@ -4,6 +4,8 @@ from torch.testing import assert_close
 
 from pfhedge.stochastic.rough_bergomi import generate_rough_bergomi
 
+from tests._utils import select_most_accurate_gpu_device
+
 
 def test_generate_heston_repr():
     torch.manual_seed(42)
@@ -29,7 +31,9 @@ def test_generate_heston_volatility(device: str = "cpu"):
 
 @pytest.mark.gpu
 def test_generate_heston_volatility_gpu():
-    test_generate_heston_volatility(device="cuda")
+    test_generate_heston_volatility(device=select_most_accurate_gpu_device())
+
+
 
 
 def test_generate_rough_bergomi(device: str = "cpu") -> None:
@@ -37,6 +41,7 @@ def test_generate_rough_bergomi(device: str = "cpu") -> None:
     import numpy as np
     from scipy.optimize import brentq  # type: ignore # mypy ignore
     from scipy.stats import norm  # type: ignore # mypy ignore
+    from tests._utils import select_most_accurate_gpu_device
 
     torch.manual_seed(42)
 
@@ -91,7 +96,7 @@ def test_generate_rough_bergomi(device: str = "cpu") -> None:
         eta=1.9,
         xi=0.235 ** 2,
         dt=1 / 100,
-        dtype=torch.float64,
+        dtype=torch.float64 if select_most_accurate_gpu_device() == "cuda" else torch.float32,
         device=torch.device(device),
     )
     k = np.arange(-0.5, 0.51, 0.01)
@@ -214,4 +219,4 @@ def test_generate_rough_bergomi(device: str = "cpu") -> None:
 
 @pytest.mark.gpu
 def test_generate_rough_bergomi_gpu():
-    test_generate_rough_bergomi(device="cuda")
+    test_generate_rough_bergomi(device=select_most_accurate_gpu_device())

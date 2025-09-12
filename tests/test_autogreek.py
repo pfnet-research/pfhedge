@@ -4,6 +4,7 @@ from torch import Tensor
 from torch.testing import assert_close
 
 import pfhedge.autogreek as autogreek
+from tests._utils import select_most_accurate_gpu_device
 
 
 def test_gamma_from_delta(device: str = "cpu"):
@@ -23,7 +24,7 @@ def test_gamma_from_delta(device: str = "cpu"):
 
 @pytest.mark.gpu
 def test_gamma_from_delta_gpu():
-    test_gamma_from_delta(device="cuda")
+    test_gamma_from_delta(device=select_most_accurate_gpu_device())
 
 
 def test_vega(device: str = "cpu"):
@@ -47,7 +48,7 @@ def test_vega(device: str = "cpu"):
 
 @pytest.mark.gpu
 def test_vega_gpu():
-    test_vega(device="cuda")
+    test_vega(device=select_most_accurate_gpu_device())
 
 
 def test_theta(device: str = "cpu"):
@@ -64,4 +65,4 @@ def test_theta(device: str = "cpu"):
 
 @pytest.mark.gpu
 def test_theta_gpu():
-    test_vega(device="cuda")
+    test_vega(device=select_most_accurate_gpu_device())

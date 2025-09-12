@@ -2,6 +2,7 @@ import pytest
 import torch
 
 from pfhedge.nn import MultiLayerPerceptron
+from tests._utils import select_most_accurate_gpu_device
 
 
 class TestMultiLayerPerceptron:
@@ -17,7 +18,7 @@ class TestMultiLayerPerceptron:
     @pytest.mark.gpu
     @pytest.mark.parametrize("out_features", [1, 2])
     def test_out_features_gpu(self, out_features):
-        self.test_out_features(out_features, device="cuda")
+        self.test_out_features(out_features, device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("n_layers", [1, 4, 10])
     def test_n_layers(self, n_layers, device: str = "cpu"):
@@ -27,7 +28,7 @@ class TestMultiLayerPerceptron:
     @pytest.mark.gpu
     @pytest.mark.parametrize("n_layers", [1, 4, 10])
     def test_n_layers_gpu(self, n_layers):
-        self.test_n_layers(n_layers, device="cuda")
+        self.test_n_layers(n_layers, device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("n_units", [2, 8, 32])
     @pytest.mark.parametrize("in_features", [1, 2])
@@ -51,7 +52,7 @@ class TestMultiLayerPerceptron:
     @pytest.mark.parametrize("in_features", [1, 2])
     @pytest.mark.parametrize("out_features", [1, 2])
     def test_n_units_gpu(self, n_units, in_features, out_features):
-        self.test_n_units(n_units, in_features, out_features, device="cuda")
+        self.test_n_units(n_units, in_features, out_features, device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("activation", [torch.nn.ELU(), torch.nn.CELU()])
     @pytest.mark.parametrize("out_activation", [torch.nn.ELU(), torch.nn.CELU()])
@@ -70,7 +71,7 @@ class TestMultiLayerPerceptron:
     @pytest.mark.parametrize("activation", [torch.nn.ELU(), torch.nn.CELU()])
     @pytest.mark.parametrize("out_activation", [torch.nn.ELU(), torch.nn.CELU()])
     def test_activation_gpu(self, activation, out_activation):
-        self.test_activation(activation, out_activation, device="cuda")
+        self.test_activation(activation, out_activation, device=select_most_accurate_gpu_device())
 
     def test_shape(self, device: str = "cpu"):
         N = 10

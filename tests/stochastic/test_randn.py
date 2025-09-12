@@ -3,6 +3,7 @@ import torch
 from torch.testing import assert_close
 
 from pfhedge.stochastic import randn_antithetic
+from tests._utils import select_most_accurate_gpu_device
 
 
 def test_randn_antithetic(device: str = "cpu"):
@@ -18,4 +19,4 @@ def test_randn_antithetic(device: str = "cpu"):
 
 @pytest.mark.gpu
 def test_randn_antithetic_gpu():
-    test_randn_antithetic(device="cuda")
+    test_randn_antithetic(device=select_most_accurate_gpu_device())

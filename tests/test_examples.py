@@ -6,6 +6,7 @@ from pfhedge.nn import BlackScholes
 from pfhedge.nn import Hedger
 from pfhedge.nn import MultiLayerPerceptron
 from pfhedge.nn import WhalleyWilmott
+from tests._utils import select_most_accurate_gpu_device
 
 
 def test_net(device: str = "cpu"):
@@ -24,7 +25,7 @@ def test_net(device: str = "cpu"):
 
 @pytest.mark.gpu
 def test_net_gpu():
-    test_net(device="cuda")
+    test_net(device=select_most_accurate_gpu_device())
 
 
 def test_bs(device: str = "cpu"):
@@ -36,7 +37,7 @@ def test_bs(device: str = "cpu"):
 
 @pytest.mark.gpu
 def test_bs_gpu():
-    test_bs(device="cuda")
+    test_bs(device=select_most_accurate_gpu_device())
 
 
 def test_ww(device: str = "cpu"):
@@ -48,4 +49,4 @@ def test_ww(device: str = "cpu"):
 
 @pytest.mark.gpu
 def test_ww_gpu():
-    test_ww(device="cuda")
+    test_ww(device=select_most_accurate_gpu_device())

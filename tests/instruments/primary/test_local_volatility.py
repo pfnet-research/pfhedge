@@ -3,6 +3,7 @@ import torch
 from torch.testing import assert_close
 
 from pfhedge.instruments import LocalVolatilityStock
+from tests._utils import select_most_accurate_gpu_device
 
 
 def test_local_volatility_zero_volatility(device: str = "cpu"):
@@ -18,7 +19,7 @@ def test_local_volatility_zero_volatility(device: str = "cpu"):
 
 @pytest.mark.gpu
 def test_local_volatility_zero_volatility_gpu():
-    test_local_volatility_zero_volatility(device="cuda")
+    test_local_volatility_zero_volatility(device=select_most_accurate_gpu_device())
 
 
 def test_local_volatility(device: str = "cpu"):
@@ -44,4 +45,4 @@ def test_local_volatility(device: str = "cpu"):
 
 @pytest.mark.gpu
 def test_local_volatility_gpu():
-    test_local_volatility(device="cuda")
+    test_local_volatility(device=select_most_accurate_gpu_device())

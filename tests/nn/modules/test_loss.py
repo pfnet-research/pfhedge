@@ -12,6 +12,7 @@ from pfhedge.nn import ExpectedShortfall
 from pfhedge.nn import IsoelasticLoss
 from pfhedge.nn.modules.loss import OCE
 from pfhedge.nn.modules.loss import QuadraticCVaR
+from tests._utils import select_most_accurate_gpu_device
 
 
 def assert_loss_shape(loss, device: str = "cpu"):
@@ -57,7 +58,7 @@ class TestEntropicRiskMeasure:
     @pytest.mark.parametrize("risk", [1.0, 2.0, 10.0])
     @pytest.mark.parametrize("a", [0.001, 1, 2])
     def test_nonincreasing_gpu(self, n_paths, risk, a):
-        self.test_nonincreasing(n_paths, risk, a, device="cuda")
+        self.test_nonincreasing(n_paths, risk, a, device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("n_paths", [10, 100])
     @pytest.mark.parametrize("risk", [1.0, 2.0, 3.0])
@@ -75,7 +76,7 @@ class TestEntropicRiskMeasure:
     @pytest.mark.parametrize("risk", [1.0, 2.0, 3.0])
     @pytest.mark.parametrize("a", [0.1, 0.5])
     def test_convex_gpu(self, n_paths, risk, a):
-        self.test_convex(n_paths, risk, a, device="cuda")
+        self.test_convex(n_paths, risk, a, device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("n_paths", [10, 100])
     @pytest.mark.parametrize("a", [1.0, 2.0, 3.0])
@@ -90,7 +91,7 @@ class TestEntropicRiskMeasure:
     @pytest.mark.parametrize("n_paths", [10, 100])
     @pytest.mark.parametrize("a", [1.0, 2.0, 3.0])
     def test_cash_gpu(self, n_paths, a):
-        self.test_cash(n_paths, a, device="cuda")
+        self.test_cash(n_paths, a, device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("n_paths", [10, 100])
     @pytest.mark.parametrize("risk", [1.0, 2.0, 3.0])
@@ -106,7 +107,7 @@ class TestEntropicRiskMeasure:
     @pytest.mark.parametrize("risk", [1.0, 2.0, 3.0])
     @pytest.mark.parametrize("c", [0.001, 1, 2])
     def test_cash_equivalent_gpu(self, n_paths, risk, c):
-        self.test_cash_equivalent(n_paths, risk, c, device="cuda")
+        self.test_cash_equivalent(n_paths, risk, c, device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("n_paths", [10, 100])
     @pytest.mark.parametrize("a", [1.0, 2.0, 3.0])
@@ -123,7 +124,7 @@ class TestEntropicRiskMeasure:
     @pytest.mark.parametrize("n_paths", [10, 100])
     @pytest.mark.parametrize("a", [1.0, 2.0, 3.0])
     def test_value_gpu(self, n_paths, a):
-        self.test_value(n_paths, a, device="cuda")
+        self.test_value(n_paths, a, device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("n_paths", [10, 100])
     @pytest.mark.parametrize("a", [1.0, 2.0, 3.0])
@@ -140,7 +141,7 @@ class TestEntropicRiskMeasure:
     @pytest.mark.parametrize("a", [1.0, 2.0, 3.0])
     @pytest.mark.parametrize("value", [100.0, -100.0])
     def test_extreme_gpu(self, n_paths, a, value):
-        self.test_extreme(n_paths=n_paths, a=a, value=value, device="cuda")
+        self.test_extreme(n_paths=n_paths, a=a, value=value, device=select_most_accurate_gpu_device())
 
     def test_extreme2(self, device: str = "cpu"):
         torch.manual_seed(42)
@@ -154,7 +155,7 @@ class TestEntropicRiskMeasure:
 
     @pytest.mark.gpu
     def test_extreme2_gpu(self):
-        self.test_extreme2(device="cuda")
+        self.test_extreme2(device=select_most_accurate_gpu_device())
 
     def test_error_a(self):
         with pytest.raises(ValueError):
@@ -176,7 +177,7 @@ class TestEntropicRiskMeasure:
 
     @pytest.mark.gpu
     def test_shape_gpu(self):
-        self.test_shape(device="cuda")
+        self.test_shape(device=select_most_accurate_gpu_device())
 
 
 class TestEntropicLoss:
@@ -196,7 +197,7 @@ class TestEntropicLoss:
     @pytest.mark.parametrize("risk", [1.0, 2.0, 10.0])
     @pytest.mark.parametrize("a", [0.001, 1, 2])
     def test_nonincreasing_gpu(self, n_paths, risk, a):
-        self.test_nonincreasing(n_paths, risk, a, device="cuda")
+        self.test_nonincreasing(n_paths, risk, a, device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("n_paths", [1, 10, 100])
     @pytest.mark.parametrize("risk", [1.0, 2.0, 3.0])
@@ -214,7 +215,7 @@ class TestEntropicLoss:
     @pytest.mark.parametrize("risk", [1.0, 2.0, 3.0])
     @pytest.mark.parametrize("a", [0.1, 0.5])
     def test_convex_gpu(self, n_paths, risk, a):
-        self.test_convex(n_paths, risk, a, device="cuda")
+        self.test_convex(n_paths, risk, a, device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("n_paths", [10, 100])
     @pytest.mark.parametrize("a", [1.0, 2.0, 3.0])
@@ -229,7 +230,7 @@ class TestEntropicLoss:
     @pytest.mark.parametrize("n_paths", [10, 100])
     @pytest.mark.parametrize("a", [1.0, 2.0, 3.0])
     def test_cash_gpu(self, n_paths, a):
-        self.test_cash(n_paths, a, device="cuda")
+        self.test_cash(n_paths, a, device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("n_paths", [10, 100])
     @pytest.mark.parametrize("a", [1.0, 2.0, 3.0])
@@ -244,7 +245,7 @@ class TestEntropicLoss:
     @pytest.mark.parametrize("n_paths", [10, 100])
     @pytest.mark.parametrize("a", [1.0, 2.0, 3.0])
     def test_value_gpu(self, n_paths, a):
-        self.test_value(n_paths, a, device="cuda")
+        self.test_value(n_paths, a, device=select_most_accurate_gpu_device())
 
     def test_error_a(self):
         with pytest.raises(ValueError):
@@ -266,7 +267,7 @@ class TestEntropicLoss:
 
     @pytest.mark.gpu
     def test_shape_gpu(self):
-        self.test_shape(device="cuda")
+        self.test_shape(device=select_most_accurate_gpu_device())
 
 
 class TestIsoelasticLoss:
@@ -287,7 +288,7 @@ class TestIsoelasticLoss:
     @pytest.mark.parametrize("risk", [0.1, 0.5, 1.0])
     @pytest.mark.parametrize("a", [0.001, 1, 2])
     def test_nonincreasing_gpu(self, n_paths, risk, a):
-        self.test_nonincreasing(n_paths, risk, a, device="cuda")
+        self.test_nonincreasing(n_paths, risk, a, device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("n_paths", [1, 10, 100])
     @pytest.mark.parametrize("risk", [0.1, 0.5, 1.0])
@@ -305,7 +306,7 @@ class TestIsoelasticLoss:
     @pytest.mark.parametrize("risk", [0.1, 0.5, 1.0])
     @pytest.mark.parametrize("a", [0.1, 0.5])
     def test_convex_gpu(self, n_paths, risk, a):
-        self.test_convex(n_paths, risk, a, device="cuda")
+        self.test_convex(n_paths, risk, a, device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("n_paths", [10, 100])
     @pytest.mark.parametrize("risk", [0.1, 0.5, 1.0])
@@ -320,7 +321,7 @@ class TestIsoelasticLoss:
     @pytest.mark.parametrize("n_paths", [10, 100])
     @pytest.mark.parametrize("risk", [0.1, 0.5, 1.0])
     def test_cash_gpu(self, n_paths, risk):
-        self.test_cash(n_paths, risk, device="cuda")
+        self.test_cash(n_paths, risk, device=select_most_accurate_gpu_device())
 
     def test_error_a(self):
         with pytest.raises(ValueError):
@@ -345,7 +346,7 @@ class TestIsoelasticLoss:
 
     @pytest.mark.gpu
     def test_shape_gpu(self):
-        self.test_shape(device="cuda")
+        self.test_shape(device=select_most_accurate_gpu_device())
 
 
 class TestExpectedShortFall:
@@ -365,7 +366,7 @@ class TestExpectedShortFall:
     @pytest.mark.parametrize("p", [0.5])
     @pytest.mark.parametrize("a", [0.001, 1, 2])
     def test_nonincreasing_gpu(self, n_paths, p, a):
-        self.test_nonincreasing(n_paths, p, a, device="cuda")
+        self.test_nonincreasing(n_paths, p, a, device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("n_paths", [100, 1000])
     @pytest.mark.parametrize("p", [0.1, 0.5, 0.9])
@@ -383,7 +384,7 @@ class TestExpectedShortFall:
     @pytest.mark.parametrize("p", [0.1, 0.5, 0.9])
     @pytest.mark.parametrize("a", [0.1, 0.5])
     def test_convex_gpu(self, n_paths, p, a):
-        self.test_convex(n_paths, p, a, device="cuda")
+        self.test_convex(n_paths, p, a, device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("n_paths", [100, 1000])
     @pytest.mark.parametrize("p", [0.1, 0.5, 0.9])
@@ -398,7 +399,7 @@ class TestExpectedShortFall:
     @pytest.mark.parametrize("n_paths", [100, 1000])
     @pytest.mark.parametrize("p", [0.1, 0.5, 0.9])
     def test_cash_gpu(self, n_paths, p):
-        self.test_cash(n_paths, p, device="cuda")
+        self.test_cash(n_paths, p, device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("n_paths", [10, 100])
     @pytest.mark.parametrize("p", [0.1, 0.5, 0.9])
@@ -412,7 +413,7 @@ class TestExpectedShortFall:
     @pytest.mark.parametrize("p", [0.1, 0.5, 0.9])
     @pytest.mark.parametrize("eta", [0.001, 1, 2])
     def test_cash_equivalent_gpu(self, n_paths, p, eta):
-        self.test_cash_equivalent(n_paths, p, eta, device="cuda")
+        self.test_cash_equivalent(n_paths, p, eta, device=select_most_accurate_gpu_device())
 
     def test_error_percentile(self):
         # 1 is allowed
@@ -442,7 +443,7 @@ class TestExpectedShortFall:
     @pytest.mark.gpu
     @pytest.mark.parametrize("percentile", [0.1, 0.5, 0.9])
     def test_value_gpu(self, percentile):
-        self.test_value(percentile, device="cuda")
+        self.test_value(percentile, device=select_most_accurate_gpu_device())
 
     def test_repr(self):
         loss = ExpectedShortfall(0.1)
@@ -458,7 +459,7 @@ class TestExpectedShortFall:
 
     @pytest.mark.gpu
     def test_shape_gpu(self):
-        self.test_shape(device="cuda")
+        self.test_shape(device=select_most_accurate_gpu_device())
 
 
 class TestQuadraticCVaR:
@@ -478,7 +479,7 @@ class TestQuadraticCVaR:
     @pytest.mark.parametrize("lam", [1.0, 2.0])
     @pytest.mark.parametrize("a", [0.001, 1, 2])
     def test_nonincreasing_gpu(self, n_paths, lam, a):
-        self.test_nonincreasing(n_paths, lam, a, device="cuda")
+        self.test_nonincreasing(n_paths, lam, a, device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("n_paths", [100, 1000])
     @pytest.mark.parametrize("lam", [1.0, 2.0, 10.0])
@@ -496,7 +497,7 @@ class TestQuadraticCVaR:
     @pytest.mark.parametrize("lam", [1.0, 2.0, 10.0])
     @pytest.mark.parametrize("a", [0.1, 0.5])
     def test_convex_gpu(self, n_paths, lam, a):
-        self.test_convex(n_paths, lam, a, device="cuda")
+        self.test_convex(n_paths, lam, a, device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("n_paths", [100, 1000])
     @pytest.mark.parametrize("lam", [1.0, 2.0, 10.0])
@@ -511,7 +512,7 @@ class TestQuadraticCVaR:
     @pytest.mark.parametrize("n_paths", [100, 1000])
     @pytest.mark.parametrize("lam", [1.0, 2.0, 10.0])
     def test_cash_gpu(self, n_paths, lam):
-        self.test_cash(n_paths, lam, device="cuda")
+        self.test_cash(n_paths, lam, device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("n_paths", [10, 100])
     @pytest.mark.parametrize("lam", [1.0, 2.0, 10.0])
@@ -525,7 +526,7 @@ class TestQuadraticCVaR:
     @pytest.mark.parametrize("lam", [1.0, 2.0, 10.0])
     @pytest.mark.parametrize("eta", [0.001, 1, 2])
     def test_cash_equivalent_gpu(self, n_paths, lam, eta):
-        self.test_cash_equivalent(n_paths, lam, eta, device="cuda")
+        self.test_cash_equivalent(n_paths, lam, eta, device=select_most_accurate_gpu_device())
 
     def test_error_percentile(self):
         # 1 is allowed
@@ -555,7 +556,7 @@ class TestQuadraticCVaR:
     @pytest.mark.gpu
     @pytest.mark.parametrize("percentile", [0.1, 0.5, 0.9])
     def test_value_gpu(self, percentile):
-        self.test_value(percentile, device="cuda")
+        self.test_value(percentile, device=select_most_accurate_gpu_device())
 
     def test_repr(self):
         loss = QuadraticCVaR(1.0)
@@ -571,7 +572,7 @@ class TestQuadraticCVaR:
 
     @pytest.mark.gpu
     def test_shape_gpu(self):
-        self.test_shape(device="cuda")
+        self.test_shape(device=select_most_accurate_gpu_device())
 
 
 class TestOCE:
@@ -601,7 +602,7 @@ class TestOCE:
 
     @pytest.mark.gpu
     def test_fit_gpu(self):
-        self.test_fit(device="cuda")
+        self.test_fit(device=select_most_accurate_gpu_device())
 
     def test_repr(self):
         def exp_utility(input):
@@ -618,4 +619,4 @@ class TestOCE:
 
     @pytest.mark.gpu
     def test_shape_gpu(self):
-        self.test_shape(device="cuda")
+        self.test_shape(device=select_most_accurate_gpu_device())

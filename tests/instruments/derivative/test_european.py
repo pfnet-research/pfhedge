@@ -6,6 +6,7 @@ from torch.testing import assert_close
 from pfhedge.instruments import BaseDerivative
 from pfhedge.instruments import BrownianStock
 from pfhedge.instruments import EuropeanOption
+from tests._utils import select_most_accurate_gpu_device, get_available_dtypes
 
 cls = EuropeanOption
 
@@ -27,7 +28,7 @@ class TestEuropeanOption:
 
     @pytest.mark.gpu
     def test_payoff_gpu(self):
-        self.test_payoff(device="cuda")
+        self.test_payoff(device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("volatility", [0.20, 0.10])
     @pytest.mark.parametrize("strike", [1.0, 0.5, 2.0])
@@ -63,7 +64,7 @@ class TestEuropeanOption:
         self, volatility, strike, maturity, n_paths, init_spot
     ):
         self.test_put_call_parity(
-            volatility, strike, maturity, n_paths, init_spot, device="cuda"
+            volatility, strike, maturity, n_paths, init_spot, device=select_most_accurate_gpu_device()
         )
 
     @pytest.mark.parametrize("strike", [1.0, 2.0])
@@ -91,7 +92,7 @@ class TestEuropeanOption:
     @pytest.mark.gpu
     @pytest.mark.parametrize("strike", [1.0, 2.0])
     def test_moneyness_gpu(self, strike):
-        self.test_moneyness(strike, device="cuda")
+        self.test_moneyness(strike, device=select_most_accurate_gpu_device())
 
     def test_max_log_moneyness(self, device: str = "cpu"):
         derivative = EuropeanOption(BrownianStock()).to(device)
@@ -103,7 +104,7 @@ class TestEuropeanOption:
 
     @pytest.mark.gpu
     def test_max_log_moneyness_gpu(self):
-        self.test_max_log_moneyness(device="cuda")
+        self.test_max_log_moneyness(device=select_most_accurate_gpu_device())
 
     def test_time_to_maturity(self, device: str = "cpu"):
         stock = BrownianStock(dt=0.1).to(device)
@@ -128,7 +129,7 @@ class TestEuropeanOption:
 
     @pytest.mark.gpu
     def test_time_to_maturity_gpu(self):
-        self.test_time_to_maturity(device="cuda")
+        self.test_time_to_maturity(device=select_most_accurate_gpu_device())
 
     def test_time_to_maturity_2(self, device: str = "cpu"):
         stock = BrownianStock(dt=0.1).to(device)
@@ -153,9 +154,9 @@ class TestEuropeanOption:
 
     @pytest.mark.gpu
     def test_time_to_maturity_2_gpu(self):
-        self.test_time_to_maturity_2(device="cuda")
+        self.test_time_to_maturity_2(device=select_most_accurate_gpu_device())
 
-    @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
+    @pytest.mark.parametrize("dtype", get_available_dtypes())
     def test_init_dtype(self, dtype, device: str = "cpu"):
         derivative = EuropeanOption(BrownianStock(dtype=dtype, device=device))
         assert derivative.dtype == dtype
@@ -164,11 +165,11 @@ class TestEuropeanOption:
         assert derivative.payoff().dtype == dtype
 
     @pytest.mark.gpu
-    @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
+    @pytest.mark.parametrize("dtype", get_available_dtypes())
     def test_init_dtype_gpu(self, dtype):
-        self.test_init_dtype(dtype, device="cuda")
+        self.test_init_dtype(dtype, device=select_most_accurate_gpu_device())
 
-    @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
+    @pytest.mark.parametrize("dtype", get_available_dtypes())
     def test_to_dtype(self, dtype, device: str = "cpu"):
         # to(dtype)
         derivative = EuropeanOption(BrownianStock()).to(dtype).to(device)
@@ -188,9 +189,9 @@ class TestEuropeanOption:
         assert derivative.payoff().dtype == dtype
 
     @pytest.mark.gpu
-    @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
+    @pytest.mark.parametrize("dtype", get_available_dtypes())
     def test_to_dtype_gpu(self, dtype):
-        self.test_to_dtype(dtype, device="cuda")
+        self.test_to_dtype(dtype, device=select_most_accurate_gpu_device())
 
     @pytest.mark.parametrize("device", ["cpu", "cuda:0", "cuda:1"])
     def test_init_device(self, device):
@@ -272,7 +273,7 @@ EuropeanOption(
 
     @pytest.mark.gpu
     def test_spot_not_listed_gpu(self):
-        self.test_spot_not_listed(device="cuda")
+        self.test_spot_not_listed(device=select_most_accurate_gpu_device())
 
     def test_us_listed(self, device: str = "cpu"):
         derivative = EuropeanOption(BrownianStock(device=device))
@@ -281,9 +282,9 @@ EuropeanOption(
         assert derivative.is_listed
 
     @pytest.mark.gpu
-    @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
+    @pytest.mark.parametrize("dtype", get_available_dtypes())
     def test_us_listed_gpu(self, dtype):
-        self.test_us_listed(device="cuda")
+        self.test_us_listed(device=select_most_accurate_gpu_device())
 
     def test_init_dtype_deprecated(self):
         with pytest.raises(DeprecationWarning):
@@ -309,7 +310,7 @@ EuropeanOption(
 
     @pytest.mark.gpu
     def test_clause_gpu(self):
-        self.test_clause(device="cuda")
+        self.test_clause(device=select_most_accurate_gpu_device())
 
     def test_add_clause_error(self, device: str = "cpu"):
         derivative = cls(BrownianStock()).to(device)
@@ -329,4 +330,4 @@ EuropeanOption(
 
     @pytest.mark.gpu
     def test_add_clause_error_gpu(self):
-        self.test_add_clause_error(device="cuda")
+        self.test_add_clause_error(device=select_most_accurate_gpu_device())

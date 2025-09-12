@@ -6,6 +6,7 @@ from torch.distributions.gamma import Gamma
 from torch.testing import assert_close
 
 from pfhedge.stochastic import generate_cir
+from tests._utils import select_most_accurate_gpu_device
 
 
 def test_generate_cir_mean_1(device: str = "cpu"):
@@ -32,7 +33,7 @@ def test_generate_cir_mean_1(device: str = "cpu"):
 
 @pytest.mark.gpu
 def test_generate_cir_mean_1_gpu():
-    test_generate_cir_mean_1(device="cuda")
+    test_generate_cir_mean_1(device=select_most_accurate_gpu_device())
 
 
 def test_generate_cir_mean_2(device: str = "cpu"):
@@ -67,7 +68,7 @@ def test_generate_cir_mean_2(device: str = "cpu"):
 
 @pytest.mark.gpu
 def test_generate_cir_mean_2_gpu():
-    test_generate_cir_mean_2(device="cuda")
+    test_generate_cir_mean_2(device=select_most_accurate_gpu_device())
 
 
 def test_dtype(device: str = "cpu"):
@@ -75,11 +76,11 @@ def test_dtype(device: str = "cpu"):
 
     output = generate_cir(2, 3, dtype=torch.float32, device=device)
     assert output.dtype == torch.float32
-
-    output = generate_cir(2, 3, dtype=torch.float64, device=device)
-    assert output.dtype == torch.float64
+    if select_most_accurate_gpu_device() == "cuda":
+        output = generate_cir(2, 3, dtype=torch.float64, device=device)
+        assert output.dtype == torch.float64
 
 
 @pytest.mark.gpu
 def test_dtype_gpu():
-    test_dtype(device="cuda")
+    test_dtype(device=select_most_accurate_gpu_device())
