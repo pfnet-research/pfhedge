@@ -144,3 +144,7 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+# Project specific ignores
+models/
+bctprice/data/output/
