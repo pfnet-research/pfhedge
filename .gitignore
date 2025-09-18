@@ -148,3 +148,18 @@ cython_debug/
 # Project specific ignores
 models/
 bctprice/data/output/
+
+# Crypto project specific files
+crypto/data/sample_data/
+crypto/data/fresh_data/
+crypto/data/data/
+crypto/data/*.parquet
+crypto/data/*.csv
+
+# API keys and sensitive config
+config/secrets.yaml
+config/api_keys.json
+
+# Temporary test data
+**/test_data/
+**/temp_data/
