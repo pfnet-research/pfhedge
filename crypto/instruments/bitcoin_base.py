@@ -128,53 +128,24 @@ class BitcoinBase(BasePrimary):
             mid_prices = (self.get_buffer("bid") + self.get_buffer("ask")) / 2
             self.register_buffer("mid", mid_prices)
 
+    @abstractmethod
     def simulate(
         self,
         n_paths: int = 1,
         time_horizon: float = 20 / 250,
         init_state: Optional[Tuple[TensorOrScalar, ...]] = None,
     ) -> None:
-        """Simulate (load historical) price paths.
+        """Simulate price paths for the instrument.
 
-        This method loads historical data instead of generating synthetic paths.
+        This method must be implemented by subclasses according to their
+        specific simulation model (Brownian motion, historical replay, etc.).
 
         Args:
-            n_paths: Number of paths (usually 1 for historical data)
-            time_horizon: Time period to simulate/load
-            init_state: Initial state (used for scaling if provided)
+            n_paths: Number of paths to simulate
+            time_horizon: Time period to simulate
+            init_state: Initial state
         """
-        if self.data_loader is None:
-            raise ValueError("No data_loader provided. Cannot load historical data.")
-
-        # Calculate number of steps needed
-        n_steps = ceil(time_horizon / self.dt + 1)
-
-        # Load data if not cached or if time horizon changed
-        if self._cached_data is None or self._time_horizon != time_horizon:
-            # Load perpetual or spot data (depending on subclass)
-            self._cached_data = self._load_data_for_simulation(time_horizon)
-            self._time_horizon = time_horizon
-
-        # Ensure we have enough data points
-        if len(self._cached_data) < n_steps:
-            raise ValueError(
-                f"Not enough historical data. Need {n_steps} steps but have {len(self._cached_data)}"
-            )
-
-        # Trim data to required length
-        data_subset = self._cached_data.iloc[:n_steps]
-
-        # Load into buffers
-        self.load_historical_data(data_subset, n_paths)
-
-        # Scale by initial state if provided
-        if init_state is not None:
-            init_value = init_state[0] if isinstance(init_state, tuple) else init_state
-            if init_value != 1.0:
-                # Scale all price buffers
-                for name in ["spot", "bid", "ask", "mid"]:
-                    if name in self._buffers:
-                        self._buffers[name] *= init_value
+        pass
 
     @abstractmethod
     def _load_data_for_simulation(self, time_horizon: float) -> pd.DataFrame:

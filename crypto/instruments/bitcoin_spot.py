@@ -1,10 +1,11 @@
 """
 Bitcoin spot instrument for PFHedge.
 """
-from typing import Optional
+from typing import Optional, Tuple
 import pandas as pd
 import torch
 
+from pfhedge._utils.typing import TensorOrScalar
 from .bitcoin_base import BitcoinBase
 
 
@@ -125,6 +126,49 @@ class BitcoinSpot(BitcoinBase):
         """
         current_price = self.spot[:, -1].mean().item() if self.buffers() else 50000.0
         return abs(position_size * current_price)
+
+    def simulate(
+        self,
+        n_paths: int = 1,
+        time_horizon: float = 20 / 250,
+        init_state: Optional[Tuple[TensorOrScalar, ...]] = None,
+    ) -> None:
+        """Load historical spot price data.
+
+        For spot, we typically use historical data rather than
+        synthetic generation. If n_paths > 1, the same historical
+        path is replicated.
+
+        Args:
+            n_paths: Number of paths (typically 1 for spot)
+            time_horizon: Time period to load
+            init_state: Not used for historical data
+        """
+        from math import ceil
+
+        if self.data_loader is None:
+            raise ValueError("No data_loader provided. Cannot load historical data.")
+
+        # Calculate number of steps needed
+        n_steps = ceil(time_horizon / self.dt + 1)
+
+        # Load spot data
+        spot_data = self._load_data_for_simulation(time_horizon)
+
+        # Ensure we have enough data
+        if len(spot_data) < n_steps:
+            import warnings
+            warnings.warn(
+                f"Requested {n_steps} steps but only {len(spot_data)} available. "
+                f"Using all available data."
+            )
+            n_steps = len(spot_data)
+
+        # Take only needed data
+        data = spot_data.iloc[:n_steps].copy()
+
+        # Load into buffers
+        self.load_historical_data(data, n_paths)
 
     def __repr__(self) -> str:
         """String representation of BitcoinSpot."""
