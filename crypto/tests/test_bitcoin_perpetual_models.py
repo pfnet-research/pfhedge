@@ -61,6 +61,38 @@ class TestBitcoinPerpetualBase(unittest.TestCase):
         self.assertEqual(btc.max_leverage, 20.0)
         self.assertEqual(btc.funding_interval, 8/24)
 
+    def test_margin_requirement(self):
+        """Test margin requirement calculation with leverage."""
+        btc = BitcoinPerpetualBrownian()
+        btc.simulate(n_paths=1, time_horizon=1/24)
+
+        position_size = 2.0  # 2 BTC
+        margin = btc.margin_requirement(position_size)
+
+        current_price = btc.spot[0, -1].item()
+        expected_margin = (position_size * current_price) / btc.leverage
+
+        self.assertAlmostEqual(margin, expected_margin, places=2)
+
+    def test_funding_payment_times(self):
+        """Test funding payment time identification."""
+        btc = BitcoinPerpetualBrownian()
+        btc.simulate(n_paths=1, time_horizon=8/24)  # 8 hours
+
+        funding_times = btc.funding_payment_times()
+
+        # Should be boolean tensor
+        self.assertEqual(funding_times.dtype, torch.bool)
+
+        # First element should be True (payment at start)
+        self.assertTrue(funding_times[0])
+
+        # Should have payments every 8 hours
+        steps_per_funding = int(8 / 24 / btc.dt)
+        for i in range(0, len(funding_times), steps_per_funding):
+            if i < len(funding_times):
+                self.assertTrue(funding_times[i])
+
 
 class TestBitcoinPerpetualBrownian(unittest.TestCase):
     """Test cases for BitcoinPerpetualBrownian model."""

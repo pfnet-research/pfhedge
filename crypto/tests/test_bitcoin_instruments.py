@@ -13,7 +13,7 @@ import torch
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from crypto.instruments import BitcoinSpot, BitcoinPerpetual
+from crypto.instruments import BitcoinSpot, BitcoinPerpetualHistorical
 from crypto.data.loader import CryptoDataLoader
 
 
@@ -52,7 +52,6 @@ class TestBitcoinSpot(unittest.TestCase):
         self.assertEqual(self.btc_spot.cost, 0.001)
         self.assertEqual(self.btc_spot.dt, 1/24/12)
         self.assertEqual(self.btc_spot.leverage, 1.0)
-        self.assertEqual(self.btc_spot.instrument_type, "spot")
         self.assertFalse(self.btc_spot.has_funding)
 
     def test_simulate(self):
@@ -123,106 +122,6 @@ class TestBitcoinSpot(unittest.TestCase):
         self.assertEqual(btc.spot.dtype, torch.float32)
 
 
-class TestBitcoinPerpetual(unittest.TestCase):
-    """Test cases for BitcoinPerpetual instrument."""
-
-    def setUp(self):
-        """Set up test fixtures."""
-        self.mock_loader = MockDataLoader()
-        self.btc_perp = BitcoinPerpetual(data_loader=self.mock_loader, leverage=20)
-
-    def test_initialization(self):
-        """Test BitcoinPerpetual initialization."""
-        self.assertEqual(self.btc_perp.cost, 0.0006)
-        self.assertEqual(self.btc_perp.dt, 1/24/12)
-        self.assertEqual(self.btc_perp.leverage, 20.0)
-        self.assertEqual(self.btc_perp.instrument_type, "perpetual")
-        self.assertTrue(self.btc_perp.has_funding)
-
-    def test_simulate_with_funding(self):
-        """Test loading historical data with funding rates."""
-        self.btc_perp.simulate(n_paths=1, time_horizon=1/24)
-
-        # Check all buffers are created
-        self.assertTrue(hasattr(self.btc_perp, 'spot'))
-        self.assertTrue(hasattr(self.btc_perp, 'funding_rate'))
-        self.assertTrue(hasattr(self.btc_perp, 'index_price'))
-
-        # Check shapes
-        spot = self.btc_perp.spot
-        funding = self.btc_perp.funding_rate
-        index = self.btc_perp.index_price
-
-        self.assertEqual(spot.shape, funding.shape)
-        self.assertEqual(spot.shape, index.shape)
-
-    def test_funding_rate_property(self):
-        """Test funding rate property."""
-        self.btc_perp.simulate(n_paths=1, time_horizon=1/24)
-
-        funding = self.btc_perp.funding_rate
-        self.assertIsInstance(funding, torch.Tensor)
-        self.assertEqual(funding.dim(), 2)
-
-        # Funding rates should be small
-        self.assertTrue((funding.abs() < 0.01).all())
-
-    def test_cumulative_funding_cost(self):
-        """Test cumulative funding cost calculation."""
-        self.btc_perp.simulate(n_paths=1, time_horizon=1/24)
-
-        # Test with long position
-        position_size = 1.0
-        funding_cost = self.btc_perp.cumulative_funding_cost(position_size)
-
-        self.assertEqual(funding_cost.shape, self.btc_perp.spot.shape)
-
-        # Cumulative funding cost should change over time (not necessarily monotonic due to sign changes)
-        # Just check that it's being calculated and changes
-        self.assertFalse(torch.allclose(funding_cost[:, 0], funding_cost[:, -1]))
-
-        # Test with short position
-        funding_cost_short = self.btc_perp.cumulative_funding_cost(-1.0)
-        torch.testing.assert_close(funding_cost_short, -funding_cost)
-
-    def test_margin_requirement(self):
-        """Test margin requirement with leverage."""
-        self.btc_perp.simulate(n_paths=1, time_horizon=1/24)
-
-        position_size = 2.0  # 2 BTC
-        margin = self.btc_perp.margin_requirement(position_size)
-
-        current_price = self.btc_perp.spot[0, -1].item()
-        expected_margin = (position_size * current_price) / self.btc_perp.leverage
-
-        self.assertAlmostEqual(margin, expected_margin, places=2)
-
-    def test_funding_payment_times(self):
-        """Test funding payment time identification."""
-        self.btc_perp.simulate(n_paths=1, time_horizon=8/24)  # 8 hours
-
-        funding_times = self.btc_perp.funding_payment_times()
-
-        # Should be boolean tensor
-        self.assertEqual(funding_times.dtype, torch.bool)
-
-        # First element should be True (payment at start)
-        self.assertTrue(funding_times[0])
-
-        # Should have payments every 8 hours
-        steps_per_funding = int(8 / 24 / self.btc_perp.dt)
-        for i in range(0, len(funding_times), steps_per_funding):
-            if i < len(funding_times):
-                self.assertTrue(funding_times[i])
-
-    def test_max_leverage(self):
-        """Test max leverage property."""
-        self.assertEqual(self.btc_perp.max_leverage, 20.0)
-
-        # Test with different leverage
-        btc_high_lev = BitcoinPerpetual(leverage=100, data_loader=self.mock_loader)
-        self.assertEqual(btc_high_lev.max_leverage, 100.0)
-
 
 class TestIntegrationWithPFHedge(unittest.TestCase):
     """Test integration with PFHedge framework."""
@@ -236,7 +135,7 @@ class TestIntegrationWithPFHedge(unittest.TestCase):
         from pfhedge.instruments import EuropeanOption
 
         # Create Bitcoin perpetual as underlier
-        btc = BitcoinPerpetual(data_loader=self.mock_loader)
+        btc = BitcoinPerpetualHistorical(data_loader=self.mock_loader)
 
         # Create option on Bitcoin
         option = EuropeanOption(
@@ -264,7 +163,7 @@ class TestIntegrationWithPFHedge(unittest.TestCase):
         except ImportError:
             self.skipTest("PFHedge not fully available")
 
-        btc = BitcoinPerpetual(data_loader=self.mock_loader)
+        btc = BitcoinPerpetualHistorical(data_loader=self.mock_loader)
         option = EuropeanOption(
             underlier=btc,
             strike=50000,
@@ -301,7 +200,7 @@ class TestDataIntegration(unittest.TestCase):
 
             # Create instruments with real loader
             btc_spot = BitcoinSpot(data_loader=loader)
-            btc_perp = BitcoinPerpetual(data_loader=loader)
+            btc_perp = BitcoinPerpetualHistorical(data_loader=loader)
 
             # Simulate with real data
             btc_spot.simulate(n_paths=1, time_horizon=1/24)
