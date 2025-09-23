@@ -158,7 +158,7 @@ class TestIntegrationWithPFHedge(unittest.TestCase):
     def test_with_hedger(self):
         """Test basic compatibility with PFHedge Hedger."""
         try:
-            from pfhedge.nn import Hedger, MLP
+            from pfhedge.nn import Hedger, MultiLayerPerceptron
             from pfhedge.instruments import EuropeanOption
         except ImportError:
             self.skipTest("PFHedge not fully available")
@@ -171,7 +171,7 @@ class TestIntegrationWithPFHedge(unittest.TestCase):
         )
 
         # Create a simple hedger
-        model = MLP(in_features=3, out_features=1, n_layers=2, n_units=32)
+        model = MultiLayerPerceptron(in_features=3, out_features=1, n_layers=2, n_units=32)
         hedger = Hedger(
             model=model,
             inputs=["log_moneyness", "time_to_maturity", "volatility"],
@@ -191,7 +191,7 @@ class TestDataIntegration(unittest.TestCase):
         """Test with actual CryptoDataLoader if sample data exists."""
         try:
             # Try to use real data loader
-            loader = CryptoDataLoader("sample_data")
+            loader = CryptoDataLoader("../data/sample_data")
 
             # Try to load data
             perp_data = loader.load_perpetual_data()
