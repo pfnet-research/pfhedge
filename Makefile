@@ -19,6 +19,28 @@ doctest:
 pytest:
 	$(RUN) pytest --doctest-modules tests -m "not gpu"
 
+.PHONY: test-crypto
+test-crypto:
+	cd crypto/tests && python -m pytest -v --tb=short
+
+.PHONY: test-crypto-quiet
+test-crypto-quiet:
+	cd crypto/tests && python -m pytest -q --tb=no
+
+.PHONY: test-crypto-instruments
+test-crypto-instruments:
+	cd crypto/tests && python -m pytest test_bitcoin_instruments.py test_bitcoin_perpetual_models.py -v
+
+.PHONY: test-crypto-data
+test-crypto-data:
+	cd crypto/tests && python -m pytest test_deribit_client.py test_downloader.py test_data_loader.py -v
+
+.PHONY: test-all
+test-all: test test-crypto
+
+.PHONY: tests
+tests: test-crypto
+
 .PHONY: test-cov
 test-cov:
 	$(RUN) pytest --cov=$(PROJECT_NAME) --cov-report=xml -m "not gpu"
@@ -62,3 +84,13 @@ publish:
 	@git checkout main
 	@gh repo sync simaki/$(PROJECT_NAME)
 	@gh workflow run publish.yml --repo simaki/$(PROJECT_NAME)
+
+.PHONY: download-crypto-data
+download-crypto-data:
+	cd crypto/data && python download_historical.py --sample
+
+.PHONY: clean-crypto
+clean-crypto:
+	find crypto -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+	find crypto -type d -name ".pytest_cache" -exec rm -rf {} + 2>/dev/null || true
+	find crypto -type f -name "*.pyc" -delete
