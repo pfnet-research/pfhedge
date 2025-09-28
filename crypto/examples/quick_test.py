@@ -15,6 +15,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 import torch
 import numpy as np
 from crypto.instruments import BitcoinPerpetualBrownian
+from crypto.utils.visualization import plot_price_paths, plot_option_analysis, plot_hedging_performance
+from crypto.features.volatility import calculate_realized_volatility, create_volatility_features
 
 def test_bitcoin_instruments():
     """Test our Bitcoin instruments work correctly."""
@@ -40,6 +42,21 @@ def test_bitcoin_instruments():
     vol = btc.volatility
     print(f"   ✅ Volatility shape: {vol.shape}")
     print(f"   ✅ Mean volatility: {vol.mean():.2%}")
+
+    # Test 2b: Realized volatility
+    print("\n2b. Testing Realized Volatility...")
+    realized_vol = calculate_realized_volatility(
+        btc.spot,
+        window=20,
+        annualization_factor=np.sqrt(252 * 24 * 12)  # 5-min data
+    )
+    print(f"   ✅ Realized vol shape: {realized_vol.shape}")
+    print(f"   ✅ Mean realized vol: {realized_vol.nanmean():.2%}")
+
+    # Test volatility features for deep hedging
+    vol_features = create_volatility_features(btc, windows=[10, 20])
+    print(f"   ✅ Volatility features shape: {vol_features.shape}")
+    print(f"   ✅ Features: 10-day vol, 20-day vol")
 
     # Test 3: Returns calculation
     print("\n3. Testing Returns...")
@@ -89,6 +106,7 @@ def test_bitcoin_instruments():
     # Baseline metrics for improvement tracking
     baseline_metrics = {
         'volatility': vol.mean().item(),
+        'realized_vol': realized_vol.nanmean().item(),
         'option_value': call_payoff.mean().item(),
         'hedge_std': hedge_pnl.std().item(),
         'itm_ratio': (call_payoff > 0).float().mean().item()
@@ -134,11 +152,52 @@ def test_improvements():
     print(f"  Improvement: {(high_vol_metric - 0.8) / 0.8 * 100:+.1f}%")
 
 
+def demo_visualization_utilities():
+    """Demonstrate the visualization utilities."""
+    print("\n" + "=" * 50)
+    print("VISUALIZATION UTILITIES DEMO")
+    print("=" * 50)
+
+    print("\n🎨 Our visualization utilities work with ANY instrument:")
+    print("- plot_price_paths(instrument)")
+    print("- plot_option_analysis(instrument, strike)")
+    print("- plot_hedging_performance(pnl)")
+
+    # Create example instrument
+    btc = BitcoinPerpetualBrownian(sigma=0.8, mu=0.1, cost=0.001)
+    btc.simulate(n_paths=200, time_horizon=14/365)
+
+    print(f"\n📊 Example: Created {btc.spot.shape[0]} paths for visualization")
+
+    print("\n💡 To use the visualization utilities:")
+    print("```python")
+    print("from crypto.utils.visualization import plot_price_paths")
+    print("fig = plot_price_paths(btc, n_paths_to_show=20)")
+    print("plt.show()")
+    print("```")
+
+    print("\n🚀 Available functions:")
+    print("- plot_price_paths: Price evolution and distribution")
+    print("- plot_option_analysis: Payoff diagrams and moneyness")
+    print("- plot_hedging_performance: PnL analysis and risk metrics")
+    print("- plot_volatility_analysis: Volatility patterns")
+    print("- quick_instrument_analysis: Complete analysis suite")
+
+    print("\n📈 Volatility Features for Deep Hedging:")
+    print("- calculate_realized_volatility: Historical volatility calculation")
+    print("- create_volatility_features: Multiple time windows for ML models")
+    print("- RealizedVolatilityCalculator: Real-time volatility estimation")
+
+    return btc
+
+
 if __name__ == "__main__":
     baseline, success = test_bitcoin_instruments()
 
     if success:
         test_improvements()
+        demo_visualization_utilities()
         print(f"\n✅ Quick test complete! Your deep hedging infrastructure is working.")
+        print(f"\n🎨 Visualization utilities are ready for use with any instrument!")
     else:
         print(f"\n❌ Infrastructure needs debugging before proceeding.")
