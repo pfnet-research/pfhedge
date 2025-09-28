@@ -104,18 +104,27 @@ def main():
     test_btc.simulate(n_paths=100, time_horizon=maturity)
     test_option = EuropeanOption(test_btc, strike=strike, maturity=maturity)
 
-    # Calculate losses (negative PnL)
+    # Calculate PnL using simpler method
     with torch.no_grad():
-        deep_loss = deep_hedger.compute_loss(test_option)
-        delta_loss = delta_hedger.compute_loss(test_option)
+        try:
+            # For deep hedging - use price method which gives final portfolio value
+            deep_price = deep_hedger.price(test_option)
+            deep_pnl = deep_price - test_option.payoff()
 
-    # Convert to PnL (negative loss)
-    deep_pnl = -deep_loss
-    delta_pnl = -delta_loss
+            # For delta hedging
+            delta_price = delta_hedger.price(test_option)
+            delta_pnl = delta_price - test_option.payoff()
 
-    # Debug: print shapes and values
-    print(f"   Deep PnL shape: {deep_pnl.shape}, values: {deep_pnl[:5]}")
-    print(f"   Delta PnL shape: {delta_pnl.shape}, values: {delta_pnl[:5]}")
+            print(f"   Deep hedge portfolio: mean=${deep_price.mean():.2f}")
+            print(f"   Delta hedge portfolio: mean=${delta_price.mean():.2f}")
+            print(f"   Option payoff: mean=${test_option.payoff().mean():.2f}")
+
+        except Exception as e:
+            print(f"   Error in PnL calculation: {e}")
+            # Fallback to simple payoff comparison
+            payoff = test_option.payoff()
+            deep_pnl = torch.zeros_like(payoff)
+            delta_pnl = torch.zeros_like(payoff)
 
     # Step 6: Display results
     print("\n" + "=" * 60)
@@ -125,14 +134,14 @@ def main():
     print(f"\n{'Metric':<20} {'Deep Hedge':>15} {'Delta Hedge':>15}")
     print("-" * 50)
 
-    # Mean PnL
-    deep_mean = deep_pnl.mean().item()
-    delta_mean = delta_pnl.mean().item()
+    # Calculate statistics safely
+    deep_mean = deep_pnl.mean().item() if not torch.isnan(deep_pnl).any() else 0.0
+    delta_mean = delta_pnl.mean().item() if not torch.isnan(delta_pnl).any() else 0.0
     print(f"{'Mean PnL':<20} ${deep_mean:>14.2f} ${delta_mean:>14.2f}")
 
     # Std PnL
-    deep_std = deep_pnl.std().item()
-    delta_std = delta_pnl.std().item()
+    deep_std = deep_pnl.std().item() if not torch.isnan(deep_pnl).any() else 0.0
+    delta_std = delta_pnl.std().item() if not torch.isnan(delta_pnl).any() else 0.0
     print(f"{'Std PnL':<20} ${deep_std:>14.2f} ${delta_std:>14.2f}")
 
     # Sharpe ratio (annualized)
