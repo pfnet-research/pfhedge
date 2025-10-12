@@ -3,6 +3,7 @@
 import pytest
 import torch
 from crypto.backtest.config import BacktestConfig
+from crypto.backtest.backtester import Backtester
 from crypto.backtest.metrics import (
     calculate_sharpe_ratio,
     calculate_sortino_ratio,
@@ -573,3 +574,124 @@ class TestMetrics:
             assert "Win Rate" in output
         finally:
             sys.stdout = sys.__stdout__
+
+
+class TestBacktester:
+    """Tests for Backtester class."""
+
+    def test_create_backtester(self):
+        """Test creating a Backtester instance."""
+        config = BacktestConfig(
+            start_date="2024-01-01",
+            end_date="2024-01-31",
+            strike=50000,
+            maturity_days=14,
+            model_path="models/test.pth"
+        )
+
+        backtester = Backtester(config)
+
+        assert backtester.config == config
+        assert backtester.model is None
+        assert backtester.data_loader is None
+        assert backtester.option is None
+
+    def test_load_model_not_implemented(self):
+        """Test that load_model raises NotImplementedError."""
+        config = BacktestConfig(
+            start_date="2024-01-01",
+            end_date="2024-01-31",
+            strike=50000,
+            maturity_days=14,
+            model_path="models/test.pth"
+        )
+        backtester = Backtester(config)
+
+        with pytest.raises(NotImplementedError, match="Step 1.4"):
+            backtester.load_model()
+
+    def test_load_data_not_implemented(self):
+        """Test that load_data raises NotImplementedError."""
+        config = BacktestConfig(
+            start_date="2024-01-01",
+            end_date="2024-01-31",
+            strike=50000,
+            maturity_days=14,
+            model_path="models/test.pth"
+        )
+        backtester = Backtester(config)
+
+        with pytest.raises(NotImplementedError, match="Step 1.5"):
+            backtester.load_data()
+
+    def test_create_bootstrap_option_not_implemented(self):
+        """Test that create_bootstrap_option raises NotImplementedError."""
+        config = BacktestConfig(
+            start_date="2024-01-01",
+            end_date="2024-01-31",
+            strike=50000,
+            maturity_days=14,
+            model_path="models/test.pth"
+        )
+        backtester = Backtester(config)
+
+        with pytest.raises(NotImplementedError, match="Step 1.6"):
+            backtester.create_bootstrap_option(None)
+
+    def test_run_deep_hedge_not_implemented(self):
+        """Test that run_deep_hedge raises NotImplementedError."""
+        config = BacktestConfig(
+            start_date="2024-01-01",
+            end_date="2024-01-31",
+            strike=50000,
+            maturity_days=14,
+            model_path="models/test.pth"
+        )
+        backtester = Backtester(config)
+
+        with pytest.raises(NotImplementedError, match="Step 1.7"):
+            backtester.run_deep_hedge(None, None)
+
+    def test_run_bs_baseline_not_implemented(self):
+        """Test that run_bs_baseline raises NotImplementedError."""
+        config = BacktestConfig(
+            start_date="2024-01-01",
+            end_date="2024-01-31",
+            strike=50000,
+            maturity_days=14,
+            model_path="models/test.pth"
+        )
+        backtester = Backtester(config)
+
+        with pytest.raises(NotImplementedError, match="Step 1.8"):
+            backtester.run_bs_baseline(None)
+
+    def test_run_not_implemented(self):
+        """Test that run raises NotImplementedError."""
+        config = BacktestConfig(
+            start_date="2024-01-01",
+            end_date="2024-01-31",
+            strike=50000,
+            maturity_days=14,
+            model_path="models/test.pth"
+        )
+        backtester = Backtester(config)
+
+        with pytest.raises(NotImplementedError, match="Step 1.10"):
+            backtester.run()
+
+    def test_repr(self):
+        """Test string representation."""
+        config = BacktestConfig(
+            start_date="2024-01-01",
+            end_date="2024-01-31",
+            strike=50000,
+            maturity_days=14,
+            model_path="models/test.pth"
+        )
+        backtester = Backtester(config)
+
+        repr_str = repr(backtester)
+
+        assert "Backtester" in repr_str
+        assert "config=" in repr_str
