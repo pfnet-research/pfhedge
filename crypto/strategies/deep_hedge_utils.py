@@ -5,7 +5,7 @@ calculating baseline PnL, and comparing performance.
 """
 
 import torch
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Optional
 from pfhedge.nn import Hedger, MultiLayerPerceptron, ExpectedShortfall, EntropicRiskMeasure, QuadraticCVaR
 from pfhedge.nn.modules.loss import EntropicLoss
 
@@ -81,6 +81,8 @@ def calculate_bs_hedge_pnl(
     bs_delta: torch.Tensor,
     payoffs: torch.Tensor,
     cost: float,
+    funding_rate: Optional[torch.Tensor] = None,
+    funding_times: Optional[torch.Tensor] = None,
 ) -> torch.Tensor:
     """Calculate Black-Scholes hedge PnL with transaction costs.
 
@@ -129,7 +131,48 @@ def calculate_bs_hedge_pnl(
         # Subtract costs from PnL
         cumulative_pnl -= cumulative_costs
 
+    # Subtract funding costs if provided
+    if funding_rate is not None and funding_times is not None:
+        cumulative_funding = compute_funding_cum_cost(
+            spots=spots,
+            positions=bs_delta,
+            funding_rate=funding_rate,
+            funding_times=funding_times,
+        )
+        cumulative_pnl = cumulative_pnl - cumulative_funding
+
     return cumulative_pnl
+
+
+def compute_funding_cum_cost(
+    spots: torch.Tensor,
+    positions: torch.Tensor,
+    funding_rate: torch.Tensor,
+    funding_times: torch.Tensor,
+) -> torch.Tensor:
+    """Compute cumulative funding cost for positions.
+
+    Args:
+        spots: Spot prices, shape (n_paths, n_steps)
+        positions: Hedge positions, shape (n_paths, n_steps)
+        funding_rate: Funding rates, shape (n_paths, n_steps)
+        funding_times: Boolean mask of payment times, shape (n_steps,) or (n_paths, n_steps)
+
+    Returns:
+        Cumulative funding cost (positive = cost), shape (n_paths, n_steps)
+    """
+    if funding_times.dim() == 1:
+        funding_times = funding_times.unsqueeze(0).expand_as(spots)
+
+    # Do not charge funding at t=0
+    funding_times = funding_times.clone()
+    funding_times[..., 0] = False
+
+    payments = positions * funding_rate * spots
+    payments = payments * funding_times.to(spots.dtype)
+
+    cumulative_funding = payments.cumsum(dim=1)
+    return cumulative_funding
 
 
 def compare_hedge_performance(

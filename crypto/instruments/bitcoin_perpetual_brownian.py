@@ -57,7 +57,7 @@ class BitcoinPerpetualBrownian(BitcoinPerpetualBase):
         funding_mean: float = 0.0001,  # Average funding rate
         funding_std: float = 0.0002,   # Funding volatility
         cost: float = 0.0006,
-        dt: float = 1 / 24 / 12,
+        dt: float = 8 / 24 / 365,  # 8-hour bars (matches funding interval)
         leverage: float = 20.0,
         dtype: Optional[torch.dtype] = None,
         device: Optional[torch.device] = None,

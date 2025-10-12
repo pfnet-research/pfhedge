@@ -45,7 +45,8 @@ class BitcoinPerpetualBase(BasePrimary):
         self.cost = cost
         self.dt = dt
         self.leverage = leverage
-        self.funding_interval = 8 / 24  # Funding every 8 hours
+        # Funding every 8 hours (expressed in years to match dt units)
+        self.funding_interval = (8 / 24) / 365
 
         self.to(dtype=dtype, device=device)
 

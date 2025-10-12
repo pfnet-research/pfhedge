@@ -117,10 +117,24 @@ def main():
     with torch.no_grad():
         # Compute deep hedging strategy
         deep_hedge_positions = deep_hedger.compute_hedge(option_test).squeeze()
-        deep_hedge_pnl = deep_hedger.compute_cum_pl(option_test).squeeze()
 
-        # Get spot prices for visualization
+        # Get spot prices and funding
         spots = option_test.underlier.spot
+        # Funding tensors
+        funding_rate = option_test.underlier.funding_rate  # (n_paths, n_steps)
+        funding_times = option_test.underlier.funding_payment_times()  # (n_steps,)
+
+        # Deep hedger PnL including funding
+        deep_hedge_pnl = deep_hedger.compute_cum_pl(option_test).squeeze()
+        # Subtract funding for the deep hedger positions
+        from crypto.strategies.deep_hedge_utils import compute_funding_cum_cost
+        deep_funding = compute_funding_cum_cost(
+            spots=spots,
+            positions=deep_hedge_positions,
+            funding_rate=funding_rate,
+            funding_times=funding_times,
+        )
+        deep_hedge_pnl = deep_hedge_pnl - deep_funding
 
     print(f"✅ Deep hedge positions shape: {deep_hedge_positions.shape}")
     print(f"✅ Deep hedge PnL shape: {deep_hedge_pnl.shape}")
@@ -137,7 +151,12 @@ def main():
     payoffs = option_test.payoff()
 
     # Use utility function for PnL calculation
-    bs_hedge_pnl = calculate_bs_hedge_pnl(spots, bs_delta, payoffs, cost)
+    # Include funding in BS baseline as well
+    bs_hedge_pnl = calculate_bs_hedge_pnl(
+        spots, bs_delta, payoffs, cost,
+        funding_rate=funding_rate,
+        funding_times=funding_times,
+    )
 
     print(f"\n✅ BS delta shape: {bs_delta.shape}")
     print(f"✅ BS hedge PnL shape: {bs_hedge_pnl.shape}")
