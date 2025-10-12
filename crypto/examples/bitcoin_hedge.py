@@ -40,7 +40,7 @@ def main():
     volatility = 0.8
     drift = 0.0
     cost = 0.0005  # 0.05% transaction cost (Deribit taker fee)
-    dt = 4 / 24 / 365  # 4-hour time steps
+    dt = 8 / 24 / 365  # 8-hour time steps (matches funding interval)
 
     print("="*60)
     print("BITCOIN DEEP HEDGING - Training and Evaluation")
@@ -163,6 +163,34 @@ def main():
 
     print(f"\n✅ BS delta shape: {bs_delta.shape}")
     print(f"✅ BS hedge PnL shape: {bs_hedge_pnl.shape}")
+
+    # ========== Option Premium and Total PnL ==========
+
+    print("\n" + "="*60)
+    print("TOTAL PNL CALCULATION (Premium + Hedging)")
+    print("="*60)
+
+    # Calculate option premium (Black-Scholes price at t=0)
+    from pfhedge.nn.functional import bs_european_price
+    initial_spot = option_test.underlier.spot[:, 0]
+    option_premium = bs_european_price(
+        log_moneyness=torch.log(initial_spot / strike),
+        time_to_maturity=torch.tensor(maturity_days / 365),
+        volatility=torch.tensor(volatility),
+        strike=strike,
+        call=True
+    ).mean().item()
+    print(f"\nOption premium (BS price at t=0): ${option_premium:.2f}")
+
+    # Total PnL = Premium received - Payoff paid + Hedging gains/losses
+    # Note: Hedging PnL already includes -payoff at maturity
+    # So: Total PnL = Premium + Hedging PnL
+    deep_total_pnl = option_premium + deep_hedge_pnl[:, -1]
+    bs_total_pnl = option_premium + bs_hedge_pnl[:, -1]
+
+    print(f"\nDeep hedge total PnL: ${deep_total_pnl.mean().item():.2f} ± ${deep_total_pnl.std().item():.2f}")
+    print(f"BS total PnL: ${bs_total_pnl.mean().item():.2f} ± ${bs_total_pnl.std().item():.2f}")
+    print(f"Difference: ${(deep_total_pnl.mean() - bs_total_pnl.mean()).item():.2f}")
 
     # ========== Performance Comparison ==========
 
