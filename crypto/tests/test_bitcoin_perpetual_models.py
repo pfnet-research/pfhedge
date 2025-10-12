@@ -59,12 +59,13 @@ class TestBitcoinPerpetualBase(unittest.TestCase):
         self.assertTrue(btc.is_listed)
         self.assertTrue(btc.has_funding)
         self.assertEqual(btc.max_leverage, 20.0)
-        self.assertEqual(btc.funding_interval, 8/24)
+        # Funding interval is now in years (8 hours / 24 hours / 365 days)
+        self.assertAlmostEqual(btc.funding_interval, (8/24)/365, places=10)
 
     def test_margin_requirement(self):
         """Test margin requirement calculation with leverage."""
         btc = BitcoinPerpetualBrownian()
-        btc.simulate(n_paths=1, time_horizon=1/24)
+        btc.simulate(n_paths=1, time_horizon=1/24/365)  # 1 hour in years
 
         position_size = 2.0  # 2 BTC
         margin = btc.margin_requirement(position_size)
@@ -77,7 +78,7 @@ class TestBitcoinPerpetualBase(unittest.TestCase):
     def test_funding_payment_times(self):
         """Test funding payment time identification."""
         btc = BitcoinPerpetualBrownian()
-        btc.simulate(n_paths=1, time_horizon=8/24)  # 8 hours
+        btc.simulate(n_paths=1, time_horizon=8/24/365)  # 8 hours in years
 
         funding_times = btc.funding_payment_times()
 
@@ -88,7 +89,8 @@ class TestBitcoinPerpetualBase(unittest.TestCase):
         self.assertTrue(funding_times[0])
 
         # Should have payments every 8 hours
-        steps_per_funding = int(8 / 24 / btc.dt)
+        # funding_interval and dt are both in years now
+        steps_per_funding = int(btc.funding_interval / btc.dt)
         for i in range(0, len(funding_times), steps_per_funding):
             if i < len(funding_times):
                 self.assertTrue(funding_times[i])
@@ -207,7 +209,7 @@ class TestBitcoinPerpetualHistorical(unittest.TestCase):
         """Test loading historical data for backtesting."""
         btc = BitcoinPerpetualHistorical(data_loader=self.mock_loader)
 
-        btc.simulate(n_paths=1, time_horizon=1/24)  # 1 hour
+        btc.simulate(n_paths=1, time_horizon=1/24/365)  # 1 hour in years
 
         # Should load actual data
         self.assertEqual(btc.spot.shape[0], 1)
@@ -224,7 +226,7 @@ class TestBitcoinPerpetualHistorical(unittest.TestCase):
         btc = BitcoinPerpetualHistorical(data_loader=self.mock_loader)
 
         n_paths = 10
-        btc.simulate(n_paths=n_paths, time_horizon=1/24)
+        btc.simulate(n_paths=n_paths, time_horizon=1/24/365)  # 1 hour in years
 
         # Should have n_paths identical copies
         self.assertEqual(btc.spot.shape[0], n_paths)
@@ -236,7 +238,7 @@ class TestBitcoinPerpetualHistorical(unittest.TestCase):
     def test_historical_volatility(self):
         """Test historical volatility calculation."""
         btc = BitcoinPerpetualHistorical(data_loader=self.mock_loader)
-        btc.simulate(n_paths=1, time_horizon=5/24)  # 5 hours
+        btc.simulate(n_paths=1, time_horizon=30/365)  # 30 days in years (more data for volatility)
 
         vol = btc.volatility
 
@@ -248,6 +250,7 @@ class TestBitcoinPerpetualHistorical(unittest.TestCase):
 
         # Volatility should change over time (expanding window)
         # Later volatilities incorporate more data
+        # With 30 days of data, volatility should evolve
         self.assertFalse(torch.allclose(vol[:, 0], vol[:, -1]))
 
     def test_bootstrap_simulation(self):
@@ -255,7 +258,7 @@ class TestBitcoinPerpetualHistorical(unittest.TestCase):
         btc = BitcoinPerpetualHistorical(data_loader=self.mock_loader)
 
         n_paths = 20
-        btc.simulate_bootstrap(n_paths=n_paths, time_horizon=1/24)
+        btc.simulate_bootstrap(n_paths=n_paths, time_horizon=1/24/365)  # 1 hour in years
 
         # Should have n_paths
         self.assertEqual(btc.spot.shape[0], n_paths)
@@ -273,7 +276,7 @@ class TestBitcoinPerpetualHistorical(unittest.TestCase):
     def test_cumulative_funding_cost(self):
         """Test funding cost calculation with historical data."""
         btc = BitcoinPerpetualHistorical(data_loader=self.mock_loader)
-        btc.simulate(n_paths=1, time_horizon=8/24)  # 8 hours
+        btc.simulate(n_paths=1, time_horizon=8/24/365)  # 8 hours in years
 
         # Long position
         funding_cost_long = btc.cumulative_funding_cost(1.0)
