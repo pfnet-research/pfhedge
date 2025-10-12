@@ -163,3 +163,4 @@ config/api_keys.json
 # Temporary test data
 **/test_data/
 **/temp_data/
+/crypto/examples/output/

@@ -1,0 +1,20 @@
+{
+  "mcpServers": {
+    "telegram-bridge": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-v",
+        "/Users/shaobaolin/Documents/repo/code_chat_mcp/telegram.txt:/app/telegram.txt:ro",
+        "telegram-mcp-server:latest",
+        "python",
+        "-m",
+        "src.mcp_server",
+        "--mode",
+        "stdio"
+      ]
+    }
+  }
+}

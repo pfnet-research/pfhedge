@@ -94,48 +94,10 @@ class BitcoinEuropeanOption(EuropeanOption):
         else:
             return base_payoff
 
-    def moneyness(self, spot: Optional[torch.Tensor] = None) -> torch.Tensor:
-        """
-        Calculate log-moneyness (log(S/K)) for deep hedging features.
-
-        Args:
-            spot: Current spot prices. If None, uses all prices from simulation.
-
-        Returns:
-            Log-moneyness tensor of shape (n_paths, n_steps) or (n_paths,)
-        """
-        if spot is None:
-            if not hasattr(self.underlier, 'spot'):
-                raise ValueError("Underlier must be simulated first or spot prices provided")
-            spot = self.underlier.spot
-
-        # Ensure spot is at least 2D for consistent output
-        if spot.dim() == 1:
-            spot = spot.unsqueeze(0)
-
-        log_moneyness = torch.log(spot / self.strike)
-        return log_moneyness
-
-    def time_to_maturity(self, current_time: Optional[torch.Tensor] = None) -> torch.Tensor:
-        """
-        Calculate time to maturity for deep hedging features.
-
-        Args:
-            current_time: Current time (0 to maturity). If None, creates time grid.
-
-        Returns:
-            Time to maturity tensor
-        """
-        if current_time is None:
-            if not hasattr(self.underlier, 'spot'):
-                raise ValueError("Underlier must be simulated first")
-
-            n_steps = self.underlier.spot.shape[1]
-            dt = self.maturity / (n_steps - 1)
-            current_time = torch.arange(0, self.maturity + dt/2, dt)[:n_steps]
-
-        time_to_maturity = self.maturity - current_time
-        return torch.clamp(time_to_maturity, min=0)  # Never negative
+    # Note: We don't override moneyness() or time_to_maturity()
+    # Use parent EuropeanOption implementations which have correct signatures:
+    # - moneyness(time_step=None, log=False)
+    # - time_to_maturity(time_step=None)
 
     def realized_volatility(
         self,
@@ -211,7 +173,8 @@ class BitcoinEuropeanOption(EuropeanOption):
         n_paths, n_steps = self.underlier.spot.shape
 
         if include_moneyness:
-            features['log_moneyness'] = self.moneyness()
+            # Use parent's moneyness() with log=True for log-moneyness
+            features['log_moneyness'] = self.moneyness(log=True)
 
         if include_time:
             ttm = self.time_to_maturity()
@@ -237,48 +200,70 @@ class BitcoinEuropeanOption(EuropeanOption):
         """
         Calculate Black-Scholes delta for comparison with deep hedging.
 
+        This computes the optimal hedge ratio at each time step for each simulated path.
+        For example, if n_steps represents daily observations, delta[i, j] tells you
+        how many units of the underlying to hold on day j for path i.
+
         Args:
-            volatility: Volatility to use. If None, uses realized volatility.
+            volatility: Volatility to use. If None, uses underlier's constant volatility.
             risk_free_rate: Risk-free rate
 
         Returns:
-            Black-Scholes delta values
+            Black-Scholes delta values of shape (n_paths, n_steps).
+            Each delta[i, j] is the hedge ratio for path i at time step j.
         """
         if volatility is None:
-            # Use average realized volatility
-            realized_vol = self.realized_volatility(windows=[20])
-            volatility = realized_vol[:, :, 0]  # 20-period volatility
+            # Use underlier's constant volatility instead of realized vol
+            # to avoid NaN issues with short time series
+            volatility = self.underlier.volatility
 
+        # Get spot prices: shape (n_paths, n_steps)
         spot = self.underlier.spot
+        # Strike is scalar
         strike = self.strike
+        # Time to maturity: shape (n_steps,)
         ttm = self.time_to_maturity()
 
         # Broadcast time to match spot shape
         n_paths, n_steps = spot.shape
+        # ttm after expand: (n_paths, n_steps)
         ttm = ttm.expand(n_paths, n_steps)
 
         # Black-Scholes delta calculation
-        # Handle edge cases
+        # All tensors below have shape (n_paths, n_steps)
+
+        # Handle edge cases: add small epsilon to avoid sqrt(0)
+        # sqrt_ttm: (n_paths, n_steps)
         sqrt_ttm = torch.sqrt(ttm + 1e-8)
+        # vol_sqrt_ttm: (n_paths, n_steps)
         vol_sqrt_ttm = volatility * sqrt_ttm
 
         # Avoid division by zero or very small numbers
+        # vol_sqrt_ttm: (n_paths, n_steps)
         vol_sqrt_ttm = torch.clamp(vol_sqrt_ttm, min=1e-6)
 
+        # Calculate d1 from Black-Scholes formula
+        # d1: (n_paths, n_steps)
         d1 = (torch.log(spot / strike) + (risk_free_rate + 0.5 * volatility**2) * ttm) / vol_sqrt_ttm
 
         # Handle NaN values by replacing with 0
+        # d1: (n_paths, n_steps)
         d1 = torch.where(torch.isnan(d1) | torch.isinf(d1), torch.zeros_like(d1), d1)
 
         # Clamp d1 to reasonable range to avoid overflow in normal.cdf
+        # d1: (n_paths, n_steps)
         d1 = torch.clamp(d1, min=-10, max=10)
 
         from torch.distributions import Normal
         normal = Normal(0, 1)
 
         if self.call:
+            # Delta for call option: N(d1)
+            # delta: (n_paths, n_steps)
             delta = normal.cdf(d1)
         else:
+            # Delta for put option: N(d1) - 1
+            # delta: (n_paths, n_steps)
             delta = normal.cdf(d1) - 1
 
         return delta
