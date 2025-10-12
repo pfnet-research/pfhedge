@@ -1,0 +1,350 @@
+[
+  {
+    "scenario": {
+      "name": "Deep ITM",
+      "category": "Strike",
+      "strike": 42500,
+      "maturity_days": 14,
+      "volatility": 0.8,
+      "drift": 0.0,
+      "cost": 0.0005
+    },
+    "deep": {
+      "mean": -8285.29296875,
+      "std": 1762.6348876953125,
+      "min": -16848.185546875,
+      "max": -7486.109375,
+      "sharpe": -4.700515703273762
+    },
+    "bs": {
+      "mean": -8144.875,
+      "std": 482.3228454589844,
+      "min": -10683.125,
+      "max": -6888.66650390625,
+      "sharpe": -16.88677008912824
+    },
+    "improvement": -140.41796875,
+    "rel_improvement": -1.7240039748921867,
+    "beats_bs": false,
+    "training_improvement": 9.144628412788627
+  },
+  {
+    "scenario": {
+      "name": "ATM (baseline)",
+      "category": "Strike",
+      "strike": 50000,
+      "maturity_days": 14,
+      "volatility": 0.8,
+      "drift": 0.0,
+      "cost": 0.0005
+    },
+    "deep": {
+      "mean": -3218.841796875,
+      "std": 996.1959228515625,
+      "min": -7608.7568359375,
+      "max": -1613.2999267578125,
+      "sharpe": -3.231133277138117
+    },
+    "bs": {
+      "mean": -3285.445556640625,
+      "std": 753.26171875,
+      "min": -5703.89453125,
+      "max": -1391.627197265625,
+      "sharpe": -4.3616255477480745
+    },
+    "improvement": 66.603759765625,
+    "rel_improvement": 2.0272367512224885,
+    "beats_bs": true,
+    "training_improvement": 5.020581023830205
+  },
+  {
+    "scenario": {
+      "name": "OTM",
+      "category": "Strike",
+      "strike": 57499,
+      "maturity_days": 14,
+      "volatility": 0.8,
+      "drift": 0.0,
+      "cost": 0.0005
+    },
+    "deep": {
+      "mean": -1206.8720703125,
+      "std": 3282.9013671875,
+      "min": -22392.3828125,
+      "max": 4.583034515380859,
+      "sharpe": -0.36762361561487955
+    },
+    "bs": {
+      "mean": -997.9053344726562,
+      "std": 738.6055297851562,
+      "min": -4122.13671875,
+      "max": 1081.5377197265625,
+      "sharpe": -1.3510666982995978
+    },
+    "improvement": -208.96673583984375,
+    "rel_improvement": -20.940537004972757,
+    "beats_bs": false,
+    "training_improvement": 5.00479845502246
+  },
+  {
+    "scenario": {
+      "name": "Deep OTM",
+      "category": "Strike",
+      "strike": 65000,
+      "maturity_days": 14,
+      "volatility": 0.8,
+      "drift": 0.0,
+      "cost": 0.0005
+    },
+    "deep": {
+      "mean": -290.7791442871094,
+      "std": 1438.52099609375,
+      "min": -14942.7001953125,
+      "max": 4.604371547698975,
+      "sharpe": -0.20213757399211363
+    },
+    "bs": {
+      "mean": -234.5614776611328,
+      "std": 469.6634216308594,
+      "min": -3529.0791015625,
+      "max": 1099.1370849609375,
+      "sharpe": -0.49942462380110736
+    },
+    "improvement": -56.21766662597656,
+    "rel_improvement": -23.96713526301762,
+    "beats_bs": false,
+    "training_improvement": 11.128601339685321
+  },
+  {
+    "scenario": {
+      "name": "1 week",
+      "category": "Maturity",
+      "strike": 50000,
+      "maturity_days": 7,
+      "volatility": 0.8,
+      "drift": 0.0,
+      "cost": 0.0005
+    },
+    "deep": {
+      "mean": -2487.535400390625,
+      "std": 1026.205810546875,
+      "min": -6152.140625,
+      "max": -704.6402587890625,
+      "sharpe": -2.424012196018451
+    },
+    "bs": {
+      "mean": -2455.71533203125,
+      "std": 704.0178833007812,
+      "min": -5269.25732421875,
+      "max": -762.0826416015625,
+      "sharpe": -3.488143398456942
+    },
+    "improvement": -31.820068359375,
+    "rel_improvement": -1.295755576565748,
+    "beats_bs": false,
+    "training_improvement": 4.797598329550149
+  },
+  {
+    "scenario": {
+      "name": "2 weeks (baseline)",
+      "category": "Maturity",
+      "strike": 50000,
+      "maturity_days": 14,
+      "volatility": 0.8,
+      "drift": 0.0,
+      "cost": 0.0005
+    },
+    "deep": {
+      "mean": -3218.841796875,
+      "std": 996.1959228515625,
+      "min": -7608.7568359375,
+      "max": -1613.2999267578125,
+      "sharpe": -3.231133277138117
+    },
+    "bs": {
+      "mean": -3285.445556640625,
+      "std": 753.26171875,
+      "min": -5703.89453125,
+      "max": -1391.627197265625,
+      "sharpe": -4.3616255477480745
+    },
+    "improvement": 66.603759765625,
+    "rel_improvement": 2.0272367512224885,
+    "beats_bs": true,
+    "training_improvement": 5.020581023830205
+  },
+  {
+    "scenario": {
+      "name": "3 weeks",
+      "category": "Maturity",
+      "strike": 50000,
+      "maturity_days": 21,
+      "volatility": 0.8,
+      "drift": 0.0,
+      "cost": 0.0005
+    },
+    "deep": {
+      "mean": -3845.4521484375,
+      "std": 1188.1964111328125,
+      "min": -8230.3427734375,
+      "max": -1768.69189453125,
+      "sharpe": -3.236377515036669
+    },
+    "bs": {
+      "mean": -3900.883544921875,
+      "std": 714.051513671875,
+      "min": -5999.63720703125,
+      "max": -1868.6455078125,
+      "sharpe": -5.463028185266801
+    },
+    "improvement": 55.431396484375,
+    "rel_improvement": 1.4209959319737948,
+    "beats_bs": true,
+    "training_improvement": 5.813895053854261
+  },
+  {
+    "scenario": {
+      "name": "1 month",
+      "category": "Maturity",
+      "strike": 50000,
+      "maturity_days": 30,
+      "volatility": 0.8,
+      "drift": 0.0,
+      "cost": 0.0005
+    },
+    "deep": {
+      "mean": -4671.42138671875,
+      "std": 1158.85595703125,
+      "min": -8169.6416015625,
+      "max": -2096.792724609375,
+      "sharpe": -4.031063013807142
+    },
+    "bs": {
+      "mean": -4686.998046875,
+      "std": 738.8943481445312,
+      "min": -7674.669921875,
+      "max": -2460.480712890625,
+      "sharpe": -6.343258760396149
+    },
+    "improvement": 15.57666015625,
+    "rel_improvement": 0.3323376711589533,
+    "beats_bs": true,
+    "training_improvement": 1.0085092313018087
+  },
+  {
+    "scenario": {
+      "name": "Low vol (40%)",
+      "category": "Volatility",
+      "strike": 50000,
+      "maturity_days": 14,
+      "volatility": 0.4,
+      "drift": 0.0,
+      "cost": 0.0005
+    },
+    "deep": {
+      "mean": -1631.9027099609375,
+      "std": 669.5706787109375,
+      "min": -3822.510498046875,
+      "max": -624.2086181640625,
+      "sharpe": -2.437237414730718
+    },
+    "bs": {
+      "mean": -1662.4671630859375,
+      "std": 375.9765625,
+      "min": -2894.41748046875,
+      "max": -748.7605590820312,
+      "sharpe": -4.421730844155844
+    },
+    "improvement": 30.564453125,
+    "rel_improvement": 1.8384996590407865,
+    "beats_bs": true,
+    "training_improvement": 3.124193998674744
+  },
+  {
+    "scenario": {
+      "name": "Medium vol (80%, baseline)",
+      "category": "Volatility",
+      "strike": 50000,
+      "maturity_days": 14,
+      "volatility": 0.8,
+      "drift": 0.0,
+      "cost": 0.0005
+    },
+    "deep": {
+      "mean": -3218.841796875,
+      "std": 996.1959228515625,
+      "min": -7608.7568359375,
+      "max": -1613.2999267578125,
+      "sharpe": -3.231133277138117
+    },
+    "bs": {
+      "mean": -3285.445556640625,
+      "std": 753.26171875,
+      "min": -5703.89453125,
+      "max": -1391.627197265625,
+      "sharpe": -4.3616255477480745
+    },
+    "improvement": 66.603759765625,
+    "rel_improvement": 2.0272367512224885,
+    "beats_bs": true,
+    "training_improvement": 5.020581023830205
+  },
+  {
+    "scenario": {
+      "name": "High vol (120%)",
+      "category": "Volatility",
+      "strike": 50000,
+      "maturity_days": 14,
+      "volatility": 1.2,
+      "drift": 0.0,
+      "cost": 0.0005
+    },
+    "deep": {
+      "mean": -4801.99951171875,
+      "std": 1517.8082275390625,
+      "min": -10768.2138671875,
+      "max": -2076.54638671875,
+      "sharpe": -3.1637722240474315
+    },
+    "bs": {
+      "mean": -4904.642578125,
+      "std": 1136.657958984375,
+      "min": -8769.5244140625,
+      "max": -1849.1871337890625,
+      "sharpe": -4.314967875214976
+    },
+    "improvement": 102.64306640625,
+    "rel_improvement": 2.092773627665433,
+    "beats_bs": true,
+    "training_improvement": 5.278942405615729
+  },
+  {
+    "scenario": {
+      "name": "Very high vol (160%)",
+      "category": "Volatility",
+      "strike": 50000,
+      "maturity_days": 14,
+      "volatility": 1.6,
+      "drift": 0.0,
+      "cost": 0.0005
+    },
+    "deep": {
+      "mean": -6377.83251953125,
+      "std": 1988.0908203125,
+      "min": -13051.3544921875,
+      "max": -2569.75,
+      "sharpe": -3.2080186953072616
+    },
+    "bs": {
+      "mean": -6522.17919921875,
+      "std": 1509.83447265625,
+      "min": -11920.9140625,
+      "max": -2590.147705078125,
+      "sharpe": -4.319797512467899
+    },
+    "improvement": 144.3466796875,
+    "rel_improvement": 2.2131664169054166,
+    "beats_bs": true,
+    "training_improvement": 5.671123341548803
+  }
+]

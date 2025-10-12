@@ -74,8 +74,8 @@ def main():
     }
     option_train, _ = create_bitcoin_option_from_config(train_config)
 
-    # Create and train hedger using utility function (optimal: 4 layers x 128 units)
-    deep_hedger = create_deep_hedger(n_layers=4, n_units=128, risk_param=0.5)
+    # Create and train hedger using utility function (optimal: 4 layers x 128 units, ES p=0.9)
+    deep_hedger = create_deep_hedger(n_layers=4, n_units=128, risk_param=0.9)
 
     print(f"\nTraining for {n_epochs} epochs...")
     history = deep_hedger.fit(

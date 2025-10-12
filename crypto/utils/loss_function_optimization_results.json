@@ -1,0 +1,427 @@
+[
+  {
+    "name": "ES (p=0.1) - Extreme tail",
+    "config": {
+      "name": "ES (p=0.1) - Extreme tail",
+      "loss": "expected_shortfall",
+      "loss_param": 0.1
+    },
+    "deep": {
+      "mean": -3295.489990234375,
+      "std": 1138.3294677734375,
+      "min": -6340.3916015625,
+      "max": -43.98381805419922,
+      "sharpe": -2.895022999519045
+    },
+    "bs": {
+      "mean": -3285.445556640625,
+      "std": 753.26171875,
+      "min": -5703.89453125,
+      "max": -1391.627197265625,
+      "sharpe": -4.3616255477480745
+    },
+    "improvement": -10.04443359375,
+    "beats_bs": false,
+    "training_improvement": 66.72125452547269
+  },
+  {
+    "name": "ES (p=0.3) - Upper tail",
+    "config": {
+      "name": "ES (p=0.3) - Upper tail",
+      "loss": "expected_shortfall",
+      "loss_param": 0.3
+    },
+    "deep": {
+      "mean": -3252.547119140625,
+      "std": 1162.708740234375,
+      "min": -7028.0888671875,
+      "max": 1517.657470703125,
+      "sharpe": -2.7973876918522063
+    },
+    "bs": {
+      "mean": -3285.445556640625,
+      "std": 753.26171875,
+      "min": -5703.89453125,
+      "max": -1391.627197265625,
+      "sharpe": -4.3616255477480745
+    },
+    "improvement": 32.8984375,
+    "beats_bs": true,
+    "training_improvement": 51.907634033349126
+  },
+  {
+    "name": "ES (p=0.5) - Median (CURRENT BEST)",
+    "config": {
+      "name": "ES (p=0.5) - Median (CURRENT BEST)",
+      "loss": "expected_shortfall",
+      "loss_param": 0.5
+    },
+    "deep": {
+      "mean": -3236.42431640625,
+      "std": 976.596435546875,
+      "min": -6315.79150390625,
+      "max": -127.08343505859375,
+      "sharpe": -3.313983339078967
+    },
+    "bs": {
+      "mean": -3285.445556640625,
+      "std": 753.26171875,
+      "min": -5703.89453125,
+      "max": -1391.627197265625,
+      "sharpe": -4.3616255477480745
+    },
+    "improvement": 49.021240234375,
+    "beats_bs": true,
+    "training_improvement": 36.634452706150384
+  },
+  {
+    "name": "ES (p=0.7) - Lower tail",
+    "config": {
+      "name": "ES (p=0.7) - Lower tail",
+      "loss": "expected_shortfall",
+      "loss_param": 0.7
+    },
+    "deep": {
+      "mean": -3222.25244140625,
+      "std": 964.0797729492188,
+      "min": -6695.62744140625,
+      "max": -1230.2750244140625,
+      "sharpe": -3.3423089373082164
+    },
+    "bs": {
+      "mean": -3285.445556640625,
+      "std": 753.26171875,
+      "min": -5703.89453125,
+      "max": -1391.627197265625,
+      "sharpe": -4.3616255477480745
+    },
+    "improvement": 63.193115234375,
+    "beats_bs": true,
+    "training_improvement": 19.49059208546375
+  },
+  {
+    "name": "ES (p=0.9) - Near mean",
+    "config": {
+      "name": "ES (p=0.9) - Near mean",
+      "loss": "expected_shortfall",
+      "loss_param": 0.9
+    },
+    "deep": {
+      "mean": -3218.841796875,
+      "std": 996.1959228515625,
+      "min": -7608.7568359375,
+      "max": -1613.2999267578125,
+      "sharpe": -3.231133277138117
+    },
+    "bs": {
+      "mean": -3285.445556640625,
+      "std": 753.26171875,
+      "min": -5703.89453125,
+      "max": -1391.627197265625,
+      "sharpe": -4.3616255477480745
+    },
+    "improvement": 66.603759765625,
+    "beats_bs": true,
+    "training_improvement": 5.020581023830205
+  },
+  {
+    "name": "Entropic (a=0.1) - Low aversion",
+    "config": {
+      "name": "Entropic (a=0.1) - Low aversion",
+      "loss": "entropic",
+      "loss_param": 0.1
+    },
+    "deep": {
+      "mean": -3354.3818359375,
+      "std": 1403.5150146484375,
+      "min": -6436.8837890625,
+      "max": -720.4058227539062,
+      "sharpe": -2.38998642759638
+    },
+    "bs": {
+      "mean": -3285.445556640625,
+      "std": 753.26171875,
+      "min": -5703.89453125,
+      "max": -1391.627197265625,
+      "sharpe": -4.3616255477480745
+    },
+    "improvement": -68.936279296875,
+    "beats_bs": false,
+    "training_improvement": 82.86025612238407
+  },
+  {
+    "name": "Entropic (a=0.5) - Medium-low",
+    "config": {
+      "name": "Entropic (a=0.5) - Medium-low",
+      "loss": "entropic",
+      "loss_param": 0.5
+    },
+    "deep": {
+      "mean": -3354.5556640625,
+      "std": 1335.761962890625,
+      "min": -6358.05078125,
+      "max": -785.5628662109375,
+      "sharpe": -2.511342407746924
+    },
+    "bs": {
+      "mean": -3285.445556640625,
+      "std": 753.26171875,
+      "min": -5703.89453125,
+      "max": -1391.627197265625,
+      "sharpe": -4.3616255477480745
+    },
+    "improvement": -69.110107421875,
+    "beats_bs": false,
+    "training_improvement": 83.29622119527406
+  },
+  {
+    "name": "Entropic (a=1.0) - Medium",
+    "config": {
+      "name": "Entropic (a=1.0) - Medium",
+      "loss": "entropic",
+      "loss_param": 1.0
+    },
+    "deep": {
+      "mean": -3353.96728515625,
+      "std": 1359.886474609375,
+      "min": -6529.10302734375,
+      "max": -770.9378051757812,
+      "sharpe": -2.4663582937095327
+    },
+    "bs": {
+      "mean": -3285.445556640625,
+      "std": 753.26171875,
+      "min": -5703.89453125,
+      "max": -1391.627197265625,
+      "sharpe": -4.3616255477480745
+    },
+    "improvement": -68.521728515625,
+    "beats_bs": false,
+    "training_improvement": 83.01176198566574
+  },
+  {
+    "name": "Entropic (a=2.0) - High aversion",
+    "config": {
+      "name": "Entropic (a=2.0) - High aversion",
+      "loss": "entropic",
+      "loss_param": 2.0
+    },
+    "deep": {
+      "mean": -3352.4541015625,
+      "std": 1352.4813232421875,
+      "min": -6508.36279296875,
+      "max": -781.7046508789062,
+      "sharpe": -2.478743361517148
+    },
+    "bs": {
+      "mean": -3285.445556640625,
+      "std": 753.26171875,
+      "min": -5703.89453125,
+      "max": -1391.627197265625,
+      "sharpe": -4.3616255477480745
+    },
+    "improvement": -67.008544921875,
+    "beats_bs": false,
+    "training_improvement": 83.04785461524136
+  },
+  {
+    "name": "EntropicLoss (a=0.1)",
+    "config": {
+      "name": "EntropicLoss (a=0.1)",
+      "loss": "entropic_loss",
+      "loss_param": 0.1
+    },
+    "deep": {
+      "mean": NaN,
+      "std": NaN,
+      "min": NaN,
+      "max": NaN,
+      "sharpe": 0.0
+    },
+    "bs": {
+      "mean": -3285.445556640625,
+      "std": 753.26171875,
+      "min": -5703.89453125,
+      "max": -1391.627197265625,
+      "sharpe": -4.3616255477480745
+    },
+    "improvement": NaN,
+    "beats_bs": false,
+    "training_improvement": NaN
+  },
+  {
+    "name": "EntropicLoss (a=0.5)",
+    "config": {
+      "name": "EntropicLoss (a=0.5)",
+      "loss": "entropic_loss",
+      "loss_param": 0.5
+    },
+    "deep": {
+      "mean": NaN,
+      "std": NaN,
+      "min": NaN,
+      "max": NaN,
+      "sharpe": 0.0
+    },
+    "bs": {
+      "mean": -3285.445556640625,
+      "std": 753.26171875,
+      "min": -5703.89453125,
+      "max": -1391.627197265625,
+      "sharpe": -4.3616255477480745
+    },
+    "improvement": NaN,
+    "beats_bs": false,
+    "training_improvement": NaN
+  },
+  {
+    "name": "EntropicLoss (a=1.0)",
+    "config": {
+      "name": "EntropicLoss (a=1.0)",
+      "loss": "entropic_loss",
+      "loss_param": 1.0
+    },
+    "deep": {
+      "mean": NaN,
+      "std": NaN,
+      "min": NaN,
+      "max": NaN,
+      "sharpe": 0.0
+    },
+    "bs": {
+      "mean": -3285.445556640625,
+      "std": 753.26171875,
+      "min": -5703.89453125,
+      "max": -1391.627197265625,
+      "sharpe": -4.3616255477480745
+    },
+    "improvement": NaN,
+    "beats_bs": false,
+    "training_improvement": NaN
+  },
+  {
+    "name": "EntropicLoss (a=2.0)",
+    "config": {
+      "name": "EntropicLoss (a=2.0)",
+      "loss": "entropic_loss",
+      "loss_param": 2.0
+    },
+    "deep": {
+      "mean": NaN,
+      "std": NaN,
+      "min": NaN,
+      "max": NaN,
+      "sharpe": 0.0
+    },
+    "bs": {
+      "mean": -3285.445556640625,
+      "std": 753.26171875,
+      "min": -5703.89453125,
+      "max": -1391.627197265625,
+      "sharpe": -4.3616255477480745
+    },
+    "improvement": NaN,
+    "beats_bs": false,
+    "training_improvement": NaN
+  },
+  {
+    "name": "QuadCVaR (lam=1.5) - Mild",
+    "config": {
+      "name": "QuadCVaR (lam=1.5) - Mild",
+      "loss": "quadratic_cvar",
+      "loss_param": 1.5
+    },
+    "deep": {
+      "mean": -3341.77783203125,
+      "std": 1314.26708984375,
+      "min": -6484.7490234375,
+      "max": -772.5663452148438,
+      "sharpe": -2.542693078032218
+    },
+    "bs": {
+      "mean": -3285.445556640625,
+      "std": 753.26171875,
+      "min": -5703.89453125,
+      "max": -1391.627197265625,
+      "sharpe": -4.3616255477480745
+    },
+    "improvement": -56.332275390625,
+    "beats_bs": false,
+    "training_improvement": 83.85965864885748
+  },
+  {
+    "name": "QuadCVaR (lam=2.0) - Medium",
+    "config": {
+      "name": "QuadCVaR (lam=2.0) - Medium",
+      "loss": "quadratic_cvar",
+      "loss_param": 2.0
+    },
+    "deep": {
+      "mean": -3335.925537109375,
+      "std": 1253.537353515625,
+      "min": -6158.46044921875,
+      "max": -855.7969970703125,
+      "sharpe": -2.661209518610323
+    },
+    "bs": {
+      "mean": -3285.445556640625,
+      "std": 753.26171875,
+      "min": -5703.89453125,
+      "max": -1391.627197265625,
+      "sharpe": -4.3616255477480745
+    },
+    "improvement": -50.47998046875,
+    "beats_bs": false,
+    "training_improvement": 84.50386302586514
+  },
+  {
+    "name": "QuadCVaR (lam=5.0) - Strong",
+    "config": {
+      "name": "QuadCVaR (lam=5.0) - Strong",
+      "loss": "quadratic_cvar",
+      "loss_param": 5.0
+    },
+    "deep": {
+      "mean": -3346.943115234375,
+      "std": 1332.8536376953125,
+      "min": -6527.5009765625,
+      "max": -822.2380981445312,
+      "sharpe": -2.5111107630855107
+    },
+    "bs": {
+      "mean": -3285.445556640625,
+      "std": 753.26171875,
+      "min": -5703.89453125,
+      "max": -1391.627197265625,
+      "sharpe": -4.3616255477480745
+    },
+    "improvement": -61.49755859375,
+    "beats_bs": false,
+    "training_improvement": 83.3857359369074
+  },
+  {
+    "name": "QuadCVaR (lam=10.0) - Very strong",
+    "config": {
+      "name": "QuadCVaR (lam=10.0) - Very strong",
+      "loss": "quadratic_cvar",
+      "loss_param": 10.0
+    },
+    "deep": {
+      "mean": -3346.388671875,
+      "std": 1303.64306640625,
+      "min": -6316.58740234375,
+      "max": -831.6934814453125,
+      "sharpe": -2.5669516128367733
+    },
+    "bs": {
+      "mean": -3285.445556640625,
+      "std": 753.26171875,
+      "min": -5703.89453125,
+      "max": -1391.627197265625,
+      "sharpe": -4.3616255477480745
+    },
+    "improvement": -60.943115234375,
+    "beats_bs": false,
+    "training_improvement": 83.52722112877412
+  }
+]
