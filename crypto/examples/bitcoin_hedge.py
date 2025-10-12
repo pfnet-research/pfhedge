@@ -37,10 +37,10 @@ def main():
     # Bitcoin option parameters
     strike = 50000
     maturity_days = 14
-    maturity = maturity_days / 365
     volatility = 0.8
     drift = 0.0
     cost = 0.0005  # 0.05% transaction cost (Deribit taker fee)
+    dt = 4 / 24 / 365  # 4-hour time steps
 
     print("="*60)
     print("BITCOIN DEEP HEDGING - Training and Evaluation")
@@ -50,6 +50,7 @@ def main():
     print(f"  Maturity: {maturity_days} days")
     print(f"  Volatility: {volatility:.1%}")
     print(f"  Transaction cost: {cost:.2%}")
+    print(f"  Time step (dt): {dt*365*24:.1f} hours")
     print(f"  Training paths: {n_paths}")
     print(f"  Training epochs: {n_epochs}")
     print(f"  Test paths: {test_n_paths}")
@@ -69,6 +70,7 @@ def main():
         'sigma': volatility,
         'mu': drift,
         'underlier_cost': cost,
+        'dt': dt,
         'n_paths': n_paths,
         'seed': train_seed
     }
@@ -107,6 +109,7 @@ def main():
         'sigma': volatility,
         'mu': drift,
         'underlier_cost': cost,
+        'dt': dt,
         'n_paths': test_n_paths,
         'seed': test_seed
     }

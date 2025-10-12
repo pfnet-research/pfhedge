@@ -356,7 +356,8 @@ def create_bitcoin_option_from_config(
     underlier = underlier_class(
         sigma=config.get('sigma', 0.8),
         mu=config.get('mu', 0.0),
-        cost=config.get('underlier_cost', 0.001)
+        cost=config.get('underlier_cost', 0.001),
+        dt=config.get('dt', 8 / 24 / 365)  # Default 8-hour bars
     )
 
     # Simulate underlying
