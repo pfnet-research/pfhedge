@@ -1,0 +1,292 @@
+[
+  {
+    "name": "Baseline (20 epochs)",
+    "config": {
+      "name": "Baseline (20 epochs)",
+      "n_epochs": 20,
+      "n_paths": 1000,
+      "n_layers": 3,
+      "n_units": 64,
+      "loss": "expected_shortfall",
+      "loss_param": 0.5
+    },
+    "deep": {
+      "mean": -3501.048828125,
+      "std": 3321.5556640625,
+      "min": -19580.642578125,
+      "max": -32.603118896484375,
+      "sharpe": -1.0540388848528184
+    },
+    "bs": {
+      "mean": -3285.445556640625,
+      "std": 753.26171875,
+      "min": -5703.89453125,
+      "max": -1391.627197265625,
+      "sharpe": -4.3616255477480745
+    },
+    "improvement": -215.603271484375,
+    "beats_bs": false,
+    "training_improvement": 17.672829384089145
+  },
+  {
+    "name": "More epochs (50)",
+    "config": {
+      "name": "More epochs (50)",
+      "n_epochs": 50,
+      "n_paths": 2000,
+      "n_layers": 3,
+      "n_units": 64,
+      "loss": "expected_shortfall",
+      "loss_param": 0.5
+    },
+    "deep": {
+      "mean": -3493.889892578125,
+      "std": 2310.279296875,
+      "min": -12052.4853515625,
+      "max": -274.4821472167969,
+      "sharpe": -1.512323595378332
+    },
+    "bs": {
+      "mean": -3285.445556640625,
+      "std": 753.26171875,
+      "min": -5703.89453125,
+      "max": -1391.627197265625,
+      "sharpe": -4.3616255477480745
+    },
+    "improvement": -208.4443359375,
+    "beats_bs": false,
+    "training_improvement": 16.362415509804315
+  },
+  {
+    "name": "Even more (80)",
+    "config": {
+      "name": "Even more (80)",
+      "n_epochs": 80,
+      "n_paths": 2000,
+      "n_layers": 3,
+      "n_units": 64,
+      "loss": "expected_shortfall",
+      "loss_param": 0.5
+    },
+    "deep": {
+      "mean": -3319.727783203125,
+      "std": 1246.9864501953125,
+      "min": -6849.0263671875,
+      "max": -792.270751953125,
+      "sharpe": -2.6622003652751514
+    },
+    "bs": {
+      "mean": -3285.445556640625,
+      "std": 753.26171875,
+      "min": -5703.89453125,
+      "max": -1391.627197265625,
+      "sharpe": -4.3616255477480745
+    },
+    "improvement": -34.2822265625,
+    "beats_bs": false,
+    "training_improvement": 28.574707733050804
+  },
+  {
+    "name": "Deeper (5 layers)",
+    "config": {
+      "name": "Deeper (5 layers)",
+      "n_epochs": 50,
+      "n_paths": 2000,
+      "n_layers": 5,
+      "n_units": 64,
+      "loss": "expected_shortfall",
+      "loss_param": 0.5
+    },
+    "deep": {
+      "mean": -3491.685302734375,
+      "std": 2339.59814453125,
+      "min": -10361.12109375,
+      "max": -29.26675796508789,
+      "sharpe": -1.4924295058517203
+    },
+    "bs": {
+      "mean": -3285.445556640625,
+      "std": 753.26171875,
+      "min": -5703.89453125,
+      "max": -1391.627197265625,
+      "sharpe": -4.3616255477480745
+    },
+    "improvement": -206.23974609375,
+    "beats_bs": false,
+    "training_improvement": 23.60514423299914
+  },
+  {
+    "name": "Wider (128 units)",
+    "config": {
+      "name": "Wider (128 units)",
+      "n_epochs": 50,
+      "n_paths": 2000,
+      "n_layers": 3,
+      "n_units": 128,
+      "loss": "expected_shortfall",
+      "loss_param": 0.5
+    },
+    "deep": {
+      "mean": -3314.2646484375,
+      "std": 1338.6395263671875,
+      "min": -7730.0166015625,
+      "max": -860.0794677734375,
+      "sharpe": -2.4758455007165243
+    },
+    "bs": {
+      "mean": -3285.445556640625,
+      "std": 753.26171875,
+      "min": -5703.89453125,
+      "max": -1391.627197265625,
+      "sharpe": -4.3616255477480745
+    },
+    "improvement": -28.819091796875,
+    "beats_bs": false,
+    "training_improvement": 31.88721942201706
+  },
+  {
+    "name": "Deep+Wide",
+    "config": {
+      "name": "Deep+Wide",
+      "n_epochs": 60,
+      "n_paths": 3000,
+      "n_layers": 4,
+      "n_units": 128,
+      "loss": "expected_shortfall",
+      "loss_param": 0.5
+    },
+    "deep": {
+      "mean": -3279.2275390625,
+      "std": 1062.59033203125,
+      "min": -6340.0693359375,
+      "max": -722.3511352539062,
+      "sharpe": -3.0860694288399193
+    },
+    "bs": {
+      "mean": -3285.445556640625,
+      "std": 753.26171875,
+      "min": -5703.89453125,
+      "max": -1391.627197265625,
+      "sharpe": -4.3616255477480745
+    },
+    "improvement": 6.218017578125,
+    "beats_bs": true,
+    "training_improvement": 30.065935057158445
+  },
+  {
+    "name": "Tail risk (p=0.1)",
+    "config": {
+      "name": "Tail risk (p=0.1)",
+      "n_epochs": 50,
+      "n_paths": 2000,
+      "n_layers": 3,
+      "n_units": 64,
+      "loss": "expected_shortfall",
+      "loss_param": 0.1
+    },
+    "deep": {
+      "mean": -3512.6650390625,
+      "std": 2359.027099609375,
+      "min": -11715.4091796875,
+      "max": -113.28868103027344,
+      "sharpe": -1.4890312364975176
+    },
+    "bs": {
+      "mean": -3285.445556640625,
+      "std": 753.26171875,
+      "min": -5703.89453125,
+      "max": -1391.627197265625,
+      "sharpe": -4.3616255477480745
+    },
+    "improvement": -227.219482421875,
+    "beats_bs": false,
+    "training_improvement": 44.819506933685496
+  },
+  {
+    "name": "Entropic (a=1.0)",
+    "config": {
+      "name": "Entropic (a=1.0)",
+      "n_epochs": 50,
+      "n_paths": 2000,
+      "n_layers": 3,
+      "n_units": 64,
+      "loss": "entropic",
+      "loss_param": 1.0
+    },
+    "deep": {
+      "mean": -3524.6943359375,
+      "std": 2435.723876953125,
+      "min": -10294.81640625,
+      "max": -69.71119689941406,
+      "sharpe": -1.4470828854158053
+    },
+    "bs": {
+      "mean": -3285.445556640625,
+      "std": 753.26171875,
+      "min": -5703.89453125,
+      "max": -1391.627197265625,
+      "sharpe": -4.3616255477480745
+    },
+    "improvement": -239.248779296875,
+    "beats_bs": false,
+    "training_improvement": 59.38095645342095
+  },
+  {
+    "name": "QuadCVaR (lam=2)",
+    "config": {
+      "name": "QuadCVaR (lam=2)",
+      "n_epochs": 50,
+      "n_paths": 2000,
+      "n_layers": 3,
+      "n_units": 64,
+      "loss": "quadratic_cvar",
+      "loss_param": 2.0
+    },
+    "deep": {
+      "mean": -3524.4130859375,
+      "std": 2435.3349609375,
+      "min": -10288.1728515625,
+      "max": -76.15641784667969,
+      "sharpe": -1.4471984932129218
+    },
+    "bs": {
+      "mean": -3285.445556640625,
+      "std": 753.26171875,
+      "min": -5703.89453125,
+      "max": -1391.627197265625,
+      "sharpe": -4.3616255477480745
+    },
+    "improvement": -238.967529296875,
+    "beats_bs": false,
+    "training_improvement": 59.86267140767573
+  },
+  {
+    "name": "BEST COMBO",
+    "config": {
+      "name": "BEST COMBO",
+      "n_epochs": 80,
+      "n_paths": 3000,
+      "n_layers": 4,
+      "n_units": 128,
+      "loss": "expected_shortfall",
+      "loss_param": 0.1
+    },
+    "deep": {
+      "mean": -3313.3798828125,
+      "std": 1131.944091796875,
+      "min": -6150.8359375,
+      "max": -976.775146484375,
+      "sharpe": -2.927158599814556
+    },
+    "bs": {
+      "mean": -3285.445556640625,
+      "std": 753.26171875,
+      "min": -5703.89453125,
+      "max": -1391.627197265625,
+      "sharpe": -4.3616255477480745
+    },
+    "improvement": -27.934326171875,
+    "beats_bs": false,
+    "training_improvement": 63.667546739015776
+  }
+]

@@ -1,0 +1,247 @@
+[
+  {
+    "name": "ExpectedShortfall (p=0.5)",
+    "config": {
+      "name": "ExpectedShortfall (p=0.5)",
+      "risk_measure": "expected_shortfall",
+      "risk_param": 0.5,
+      "n_epochs": 40,
+      "n_paths": 2000
+    },
+    "training": {
+      "initial_loss": 5977.44384765625,
+      "final_loss": 4952.62109375,
+      "improvement": 17.144832808560505
+    },
+    "deep_hedge": {
+      "mean": -3282.526611328125,
+      "std": 2358.013916015625,
+      "min": -10977.2333984375,
+      "max": -206.8331298828125,
+      "sharpe": -1.392072620535957
+    },
+    "black_scholes": {
+      "mean": -68.9285888671875,
+      "std": 1405.94775390625,
+      "min": -2052.588623046875,
+      "max": 4153.3017578125,
+      "sharpe": -0.04902642269293296
+    },
+    "improvements": {
+      "mean": -4662.213568092828,
+      "std": -67.71703709929322,
+      "sharpe": -2739.43339952605
+    },
+    "success": false
+  },
+  {
+    "name": "ExpectedShortfall (p=0.1) - Tail",
+    "config": {
+      "name": "ExpectedShortfall (p=0.1) - Tail",
+      "risk_measure": "expected_shortfall",
+      "risk_param": 0.1,
+      "n_epochs": 40,
+      "n_paths": 2000
+    },
+    "training": {
+      "initial_loss": 14348.82421875,
+      "final_loss": 7789.3251953125,
+      "improvement": 45.714540253869885
+    },
+    "deep_hedge": {
+      "mean": -3288.1044921875,
+      "std": 2424.77587890625,
+      "min": -11928.3623046875,
+      "max": -193.25318908691406,
+      "sharpe": -1.3560447053237241
+    },
+    "black_scholes": {
+      "mean": -68.9285888671875,
+      "std": 1405.94775390625,
+      "min": -2052.588623046875,
+      "max": 4153.3017578125,
+      "sharpe": -0.04902642269293296
+    },
+    "improvements": {
+      "mean": -4670.30582843218,
+      "std": -72.46557506630765,
+      "sharpe": -2665.94666883414
+    },
+    "success": false
+  },
+  {
+    "name": "EntropicRiskMeasure (a=1.0)",
+    "config": {
+      "name": "EntropicRiskMeasure (a=1.0)",
+      "risk_measure": "entropic",
+      "risk_param": 1.0,
+      "n_epochs": 40,
+      "n_paths": 2000
+    },
+    "training": {
+      "initial_loss": 33525.79296875,
+      "final_loss": 12417.955078125,
+      "improvement": 62.95999593596488
+    },
+    "deep_hedge": {
+      "mean": -3289.19384765625,
+      "std": 2435.66064453125,
+      "min": -10452.7392578125,
+      "max": -187.78024291992188,
+      "sharpe": -1.3504319064486363
+    },
+    "black_scholes": {
+      "mean": -68.9285888671875,
+      "std": 1405.94775390625,
+      "min": -2052.588623046875,
+      "max": 4153.3017578125,
+      "sharpe": -0.04902642269293296
+    },
+    "improvements": {
+      "mean": -4671.886240111358,
+      "std": -73.23976924206974,
+      "sharpe": -2654.498150735558
+    },
+    "success": false
+  },
+  {
+    "name": "EntropicRiskMeasure (a=0.1)",
+    "config": {
+      "name": "EntropicRiskMeasure (a=0.1)",
+      "risk_measure": "entropic",
+      "risk_param": 0.1,
+      "n_epochs": 40,
+      "n_paths": 2000
+    },
+    "training": {
+      "initial_loss": 33457.38671875,
+      "final_loss": 12349.107421875,
+      "improvement": 63.090041892141016
+    },
+    "deep_hedge": {
+      "mean": -3289.254150390625,
+      "std": 2435.641845703125,
+      "min": -10454.1826171875,
+      "max": -188.06887817382812,
+      "sharpe": -1.3504670878411016
+    },
+    "black_scholes": {
+      "mean": -68.9285888671875,
+      "std": 1405.94775390625,
+      "min": -2052.588623046875,
+      "max": 4153.3017578125,
+      "sharpe": -0.04902642269293296
+    },
+    "improvements": {
+      "mean": -4671.973725921479,
+      "std": -73.23843214913205,
+      "sharpe": -2654.5699107998926
+    },
+    "success": false
+  },
+  {
+    "name": "EntropicLoss (a=1.0)",
+    "config": {
+      "name": "EntropicLoss (a=1.0)",
+      "risk_measure": "entropic_loss",
+      "risk_param": 1.0,
+      "n_epochs": 40,
+      "n_paths": 2000
+    },
+    "training": {
+      "initial_loss": NaN,
+      "final_loss": NaN,
+      "improvement": NaN
+    },
+    "deep_hedge": {
+      "mean": NaN,
+      "std": NaN,
+      "min": NaN,
+      "max": NaN,
+      "sharpe": 0.0
+    },
+    "black_scholes": {
+      "mean": -68.9285888671875,
+      "std": 1405.94775390625,
+      "min": -2052.588623046875,
+      "max": 4153.3017578125,
+      "sharpe": -0.04902642269293296
+    },
+    "improvements": {
+      "mean": NaN,
+      "std": NaN,
+      "sharpe": 100.0
+    },
+    "success": true
+  },
+  {
+    "name": "QuadraticCVaR (lam=2.0)",
+    "config": {
+      "name": "QuadraticCVaR (lam=2.0)",
+      "risk_measure": "quadratic_cvar",
+      "risk_param": 2.0,
+      "n_epochs": 40,
+      "n_paths": 2000
+    },
+    "training": {
+      "initial_loss": 33283.39453125,
+      "final_loss": 12153.96484375,
+      "improvement": 63.48339760736075
+    },
+    "deep_hedge": {
+      "mean": -3289.3291015625,
+      "std": 2435.289306640625,
+      "min": -10494.384765625,
+      "max": -188.5419921875,
+      "sharpe": -1.3506933622190398
+    },
+    "black_scholes": {
+      "mean": -68.9285888671875,
+      "std": 1405.94775390625,
+      "min": -2052.588623046875,
+      "max": 4153.3017578125,
+      "sharpe": -0.04902642269293296
+    },
+    "improvements": {
+      "mean": -4672.082463345394,
+      "std": -73.21335731533965,
+      "sharpe": -2655.0314463668565
+    },
+    "success": false
+  },
+  {
+    "name": "QuadraticCVaR (lam=10.0)",
+    "config": {
+      "name": "QuadraticCVaR (lam=10.0)",
+      "risk_measure": "quadratic_cvar",
+      "risk_param": 10.0,
+      "n_epochs": 40,
+      "n_paths": 2000
+    },
+    "training": {
+      "initial_loss": 33483.39453125,
+      "final_loss": 12358.197265625,
+      "improvement": 63.091563927035196
+    },
+    "deep_hedge": {
+      "mean": -3289.612548828125,
+      "std": 2435.677490234375,
+      "min": -10490.91015625,
+      "max": -189.36463928222656,
+      "sharpe": -1.3505944699236758
+    },
+    "black_scholes": {
+      "mean": -68.9285888671875,
+      "std": 1405.94775390625,
+      "min": -2052.588623046875,
+      "max": 4153.3017578125,
+      "sharpe": -0.04902642269293296
+    },
+    "improvements": {
+      "mean": -4672.493682072316,
+      "std": -73.24096741626064,
+      "sharpe": -2654.829734126942
+    },
+    "success": false
+  }
+]

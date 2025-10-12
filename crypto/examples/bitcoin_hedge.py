@@ -30,9 +30,9 @@ def main():
     # ========== Parameters ==========
     train_seed = 42
     test_seed = 888
-    n_paths = 1000
-    n_epochs = 20
-    test_n_paths = 10
+    n_paths = 10000
+    n_epochs = 80
+    test_n_paths = 200
 
     # Bitcoin option parameters
     strike = 50000
@@ -40,7 +40,7 @@ def main():
     maturity = maturity_days / 365
     volatility = 0.8
     drift = 0.0
-    cost = 0.001  # 0.1% transaction cost
+    cost = 0.0005  # 0.05% transaction cost (Deribit taker fee)
 
     print("="*60)
     print("BITCOIN DEEP HEDGING - Training and Evaluation")
@@ -74,8 +74,8 @@ def main():
     }
     option_train, _ = create_bitcoin_option_from_config(train_config)
 
-    # Create and train hedger using utility function
-    deep_hedger = create_deep_hedger(n_layers=3, n_units=64, risk_param=0.5)
+    # Create and train hedger using utility function (optimal: 4 layers x 128 units)
+    deep_hedger = create_deep_hedger(n_layers=4, n_units=128, risk_param=0.5)
 
     print(f"\nTraining for {n_epochs} epochs...")
     history = deep_hedger.fit(

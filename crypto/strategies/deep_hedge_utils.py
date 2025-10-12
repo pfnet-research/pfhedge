@@ -6,13 +6,15 @@ calculating baseline PnL, and comparing performance.
 
 import torch
 from typing import Dict, Tuple
-from pfhedge.nn import Hedger, MultiLayerPerceptron, ExpectedShortfall
+from pfhedge.nn import Hedger, MultiLayerPerceptron, ExpectedShortfall, EntropicRiskMeasure, QuadraticCVaR
+from pfhedge.nn.modules.loss import EntropicLoss
 
 
-# Default features for deep hedging (following snowball_hedge.py pattern)
+# Default features for deep hedging
+# Note: Use "time_to_maturity" (standard PFHedge feature) not "expiry_time"
 DEFAULT_FEATURES = [
     "log_moneyness",
-    "expiry_time",
+    "time_to_maturity",
     "volatility",
     "prev_hedge",
 ]
@@ -30,9 +32,16 @@ def create_deep_hedger(
     Args:
         n_layers: Number of hidden layers
         n_units: Number of units per layer
-        risk_measure: Risk measure type ('expected_shortfall' only for now)
-        risk_param: Risk parameter (p for ExpectedShortfall)
-        features: List of feature names (defaults to log_moneyness, expiry_time, volatility, prev_hedge)
+        risk_measure: Risk measure type
+            - 'expected_shortfall': ExpectedShortfall (CVaR)
+            - 'entropic': EntropicRiskMeasure (exponential utility risk measure)
+            - 'entropic_loss': EntropicLoss (expected exponential utility)
+            - 'quadratic_cvar': QuadraticCVaR (Buehler 2019)
+        risk_param: Risk parameter
+            - For ExpectedShortfall: p (quantile level, 0 < p <= 1)
+            - For EntropicRiskMeasure/EntropicLoss: a (risk aversion, a > 0)
+            - For QuadraticCVaR: lam (lambda, lam >= 1)
+        features: List of feature names (defaults to log_moneyness, time_to_maturity, volatility, prev_hedge)
 
     Returns:
         Configured Hedger instance
@@ -46,11 +55,18 @@ def create_deep_hedger(
         n_units=[n_units] * n_layers
     )
 
-    # Create criterion (only ExpectedShortfall for now)
+    # Create criterion based on risk measure
     if risk_measure == "expected_shortfall":
         criterion = ExpectedShortfall(p=risk_param)
+    elif risk_measure == "entropic":
+        criterion = EntropicRiskMeasure(a=risk_param)
+    elif risk_measure == "entropic_loss":
+        criterion = EntropicLoss(a=risk_param)
+    elif risk_measure == "quadratic_cvar":
+        criterion = QuadraticCVaR(lam=risk_param)
     else:
-        raise ValueError(f"Unsupported risk measure: {risk_measure}")
+        raise ValueError(f"Unsupported risk measure: {risk_measure}. "
+                        f"Choose from: expected_shortfall, entropic, entropic_loss, quadratic_cvar")
 
     # Create hedger
     return Hedger(
@@ -68,10 +84,10 @@ def calculate_bs_hedge_pnl(
 ) -> torch.Tensor:
     """Calculate Black-Scholes hedge PnL with transaction costs.
 
-    This implements the manual PnL calculation accounting for:
-    - Position changes (rebalancing)
-    - Transaction costs from rebalancing
-    - Final payoff at maturity
+    This implements PnL calculation following PFHedge's cum_pl logic:
+    - Capital gains: δ_{i-1} * (S_i - S_{i-1}) using PREVIOUS position
+    - Transaction costs: applied to new spot prices after trades
+    - Final payoff subtracted at maturity
 
     Args:
         spots: Spot prices, shape (n_paths, n_steps)
@@ -82,28 +98,38 @@ def calculate_bs_hedge_pnl(
     Returns:
         Cumulative PnL tensor, shape (n_paths, n_steps)
     """
-    # Calculate position changes
-    delta_diff = torch.zeros_like(bs_delta)
-    delta_diff[:, 0] = bs_delta[:, 0]  # Initial position
-    delta_diff[:, 1:] = bs_delta[:, 1:] - bs_delta[:, :-1]  # Rebalancing
+    # Capital gains: δ_{i-1} * (S_i - S_{i-1})
+    # Use PREVIOUS position (not current) for price changes
+    capital_gains = torch.cat([
+        torch.zeros_like(spots[:, [0]]),  # No gain at first step
+        bs_delta[:, :-1] * (spots[:, 1:] - spots[:, :-1])  # Previous delta * price change
+    ], dim=1)
 
-    # Transaction costs from rebalancing
-    transaction_costs = cost * torch.abs(delta_diff * spots)
+    # Cumulative capital gains
+    cumulative_pnl = capital_gains.cumsum(dim=1)
 
-    # PnL from holding delta positions
-    spot_diff = torch.zeros_like(spots)
-    spot_diff[:, 1:] = spots[:, 1:] - spots[:, :-1]
-    position_pnl = bs_delta * spot_diff
+    # Subtract payoff at maturity
+    cumulative_pnl[:, -1] -= payoffs
 
-    # Cumulative PnL
-    cumulative_position_pnl = torch.cumsum(position_pnl, dim=1)
-    cumulative_costs = torch.cumsum(transaction_costs, dim=1)
+    # Transaction costs
+    if cost > 0:
+        # Position changes: |δ_i - δ_{i-1}|
+        delta_changes = torch.cat([
+            bs_delta[:, [0]],  # Initial position
+            bs_delta[:, 1:] - bs_delta[:, :-1]  # Rebalancing
+        ], dim=1)
 
-    # Final PnL = cumulative gains - costs - payoff at maturity
-    bs_hedge_pnl = cumulative_position_pnl - cumulative_costs
-    bs_hedge_pnl[:, -1] -= payoffs
+        # Transaction costs applied to spot prices AFTER trade
+        # First cost uses initial spot, subsequent costs use new spots
+        transaction_costs = cost * torch.abs(delta_changes * spots)
 
-    return bs_hedge_pnl
+        # Cumulative transaction costs
+        cumulative_costs = transaction_costs.cumsum(dim=1)
+
+        # Subtract costs from PnL
+        cumulative_pnl -= cumulative_costs
+
+    return cumulative_pnl
 
 
 def compare_hedge_performance(

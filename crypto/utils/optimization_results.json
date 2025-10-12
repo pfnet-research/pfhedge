@@ -1,0 +1,310 @@
+[
+  {
+    "name": "Baseline (fixed cost)",
+    "config": {
+      "strike": 50000,
+      "maturity_days": 14,
+      "volatility": 0.8,
+      "drift": 0.0,
+      "cost": 0.0005,
+      "train_seed": 42,
+      "test_seed": 888,
+      "test_n_paths": 100,
+      "name": "Baseline (fixed cost)",
+      "loss_name": "expected_shortfall",
+      "risk_param": 0.5,
+      "n_layers": 3,
+      "n_units": 64,
+      "n_paths": 1000,
+      "n_epochs": 20
+    },
+    "training": {
+      "initial_loss": 6683.8095703125,
+      "final_loss": 5502.59130859375,
+      "improvement": 17.672829384089145
+    },
+    "deep_hedge": {
+      "mean": -3262.60009765625,
+      "std": 3276.928955078125,
+      "min": -19580.642578125,
+      "max": -32.603118896484375,
+      "sharpe": -0.9956273518229103
+    },
+    "black_scholes": {
+      "mean": -68.9285888671875,
+      "std": 1405.94775390625,
+      "min": -2052.588623046875,
+      "max": 4153.3017578125,
+      "sharpe": -0.04902642269293296
+    },
+    "improvements": {
+      "mean": -4633.304643654711,
+      "std": -133.07615421508999,
+      "sharpe": -1930.7974702923361
+    }
+  },
+  {
+    "name": "More epochs (50)",
+    "config": {
+      "strike": 50000,
+      "maturity_days": 14,
+      "volatility": 0.8,
+      "drift": 0.0,
+      "cost": 0.0005,
+      "train_seed": 42,
+      "test_seed": 888,
+      "test_n_paths": 100,
+      "name": "More epochs (50)",
+      "loss_name": "expected_shortfall",
+      "risk_param": 0.5,
+      "n_layers": 3,
+      "n_units": 64,
+      "n_paths": 1000,
+      "n_epochs": 50
+    },
+    "training": {
+      "initial_loss": 6683.8095703125,
+      "final_loss": 4898.94482421875,
+      "improvement": 26.704302797937117
+    },
+    "deep_hedge": {
+      "mean": -3274.93994140625,
+      "std": 2259.7919921875,
+      "min": -10853.5712890625,
+      "max": -271.154052734375,
+      "sharpe": -1.4492218543690285
+    },
+    "black_scholes": {
+      "mean": -68.9285888671875,
+      "std": 1405.94775390625,
+      "min": -2052.588623046875,
+      "max": 4153.3017578125,
+      "sharpe": -0.04902642269293296
+    },
+    "improvements": {
+      "mean": -4651.2070031151325,
+      "std": -60.730865418643795,
+      "sharpe": -2856.0016308877666
+    }
+  },
+  {
+    "name": "More paths (3000)",
+    "config": {
+      "strike": 50000,
+      "maturity_days": 14,
+      "volatility": 0.8,
+      "drift": 0.0,
+      "cost": 0.0005,
+      "train_seed": 42,
+      "test_seed": 888,
+      "test_n_paths": 100,
+      "name": "More paths (3000)",
+      "loss_name": "expected_shortfall",
+      "risk_param": 0.5,
+      "n_layers": 3,
+      "n_units": 64,
+      "n_paths": 3000,
+      "n_epochs": 30
+    },
+    "training": {
+      "initial_loss": 6036.6865234375,
+      "final_loss": 5224.18212890625,
+      "improvement": 13.45944321237641
+    },
+    "deep_hedge": {
+      "mean": -3259.6337890625,
+      "std": 2462.01611328125,
+      "min": -11257.2236328125,
+      "max": -26.723209381103516,
+      "sharpe": -1.3239693158296295
+    },
+    "black_scholes": {
+      "mean": -68.9285888671875,
+      "std": 1405.94775390625,
+      "min": -2052.588623046875,
+      "max": 4153.3017578125,
+      "sharpe": -0.04902642269293296
+    },
+    "improvements": {
+      "mean": -4629.00119186134,
+      "std": -75.11433881101527,
+      "sharpe": -2600.5219697999228
+    }
+  },
+  {
+    "name": "Deeper network (5 layers)",
+    "config": {
+      "strike": 50000,
+      "maturity_days": 14,
+      "volatility": 0.8,
+      "drift": 0.0,
+      "cost": 0.0005,
+      "train_seed": 42,
+      "test_seed": 888,
+      "test_n_paths": 100,
+      "name": "Deeper network (5 layers)",
+      "loss_name": "expected_shortfall",
+      "risk_param": 0.5,
+      "n_layers": 5,
+      "n_units": 64,
+      "n_paths": 2000,
+      "n_epochs": 40
+    },
+    "training": {
+      "initial_loss": 6516.43701171875,
+      "final_loss": 4959.82568359375,
+      "improvement": 23.887460667933844
+    },
+    "deep_hedge": {
+      "mean": -3260.894287109375,
+      "std": 2575.75439453125,
+      "min": -14387.5224609375,
+      "max": -98.622802734375,
+      "sharpe": -1.2659958162287481
+    },
+    "black_scholes": {
+      "mean": -68.9285888671875,
+      "std": 1405.94775390625,
+      "min": -2052.588623046875,
+      "max": 4153.3017578125,
+      "sharpe": -0.04902642269293296
+    },
+    "improvements": {
+      "mean": -4630.829893228351,
+      "std": -83.20413311055397,
+      "sharpe": -2482.272470006747
+    }
+  },
+  {
+    "name": "Wider network (128 units)",
+    "config": {
+      "strike": 50000,
+      "maturity_days": 14,
+      "volatility": 0.8,
+      "drift": 0.0,
+      "cost": 0.0005,
+      "train_seed": 42,
+      "test_seed": 888,
+      "test_n_paths": 100,
+      "name": "Wider network (128 units)",
+      "loss_name": "expected_shortfall",
+      "risk_param": 0.5,
+      "n_layers": 3,
+      "n_units": 128,
+      "n_paths": 2000,
+      "n_epochs": 40
+    },
+    "training": {
+      "initial_loss": 6353.87548828125,
+      "final_loss": 4693.9296875,
+      "improvement": 26.124934362386636
+    },
+    "deep_hedge": {
+      "mean": -3265.339111328125,
+      "std": 1775.7109375,
+      "min": -8166.7783203125,
+      "max": -511.952880859375,
+      "sharpe": -1.8388911406522916
+    },
+    "black_scholes": {
+      "mean": -68.9285888671875,
+      "std": 1405.94775390625,
+      "min": -2052.588623046875,
+      "max": 4153.3017578125,
+      "sharpe": -0.04902642269293296
+    },
+    "improvements": {
+      "mean": -4637.278341240704,
+      "std": -26.299923490500216,
+      "sharpe": -3650.8164774122165
+    }
+  },
+  {
+    "name": "Tail risk (p=0.1)",
+    "config": {
+      "strike": 50000,
+      "maturity_days": 14,
+      "volatility": 0.8,
+      "drift": 0.0,
+      "cost": 0.0005,
+      "train_seed": 42,
+      "test_seed": 888,
+      "test_n_paths": 100,
+      "name": "Tail risk (p=0.1)",
+      "loss_name": "expected_shortfall",
+      "risk_param": 0.1,
+      "n_layers": 3,
+      "n_units": 64,
+      "n_paths": 2000,
+      "n_epochs": 40
+    },
+    "training": {
+      "initial_loss": 14348.82421875,
+      "final_loss": 7789.3251953125,
+      "improvement": 45.714540253869885
+    },
+    "deep_hedge": {
+      "mean": -3288.1044921875,
+      "std": 2424.77587890625,
+      "min": -11928.3623046875,
+      "max": -193.25318908691406,
+      "sharpe": -1.3560447053237241
+    },
+    "black_scholes": {
+      "mean": -68.9285888671875,
+      "std": 1405.94775390625,
+      "min": -2052.588623046875,
+      "max": 4153.3017578125,
+      "sharpe": -0.04902642269293296
+    },
+    "improvements": {
+      "mean": -4670.30582843218,
+      "std": -72.46557506630765,
+      "sharpe": -2665.94666883414
+    }
+  },
+  {
+    "name": "Best combination",
+    "config": {
+      "strike": 50000,
+      "maturity_days": 14,
+      "volatility": 0.8,
+      "drift": 0.0,
+      "cost": 0.0005,
+      "train_seed": 42,
+      "test_seed": 888,
+      "test_n_paths": 100,
+      "name": "Best combination",
+      "loss_name": "expected_shortfall",
+      "risk_param": 0.1,
+      "n_layers": 4,
+      "n_units": 128,
+      "n_paths": 3000,
+      "n_epochs": 60
+    },
+    "training": {
+      "initial_loss": 13775.796875,
+      "final_loss": 5923.2373046875,
+      "improvement": 57.00257953543976
+    },
+    "deep_hedge": {
+      "mean": -3258.237548828125,
+      "std": 1531.1610107421875,
+      "min": -6832.501953125,
+      "max": -428.6229248046875,
+      "sharpe": -2.127952270185345
+    },
+    "black_scholes": {
+      "mean": -68.9285888671875,
+      "std": 1405.94775390625,
+      "min": -2052.588623046875,
+      "max": 4153.3017578125,
+      "sharpe": -0.04902642269293296
+    },
+    "improvements": {
+      "mean": -4626.975558873169,
+      "std": -8.905967984091024,
+      "sharpe": -4240.419213356319
+    }
+  }
+]

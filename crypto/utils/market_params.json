@@ -1,0 +1,6 @@
+{
+  "spot_price": 50000,
+  "volatility": 0.8,
+  "drift": 0.0,
+  "cost": 0.0005
+}
