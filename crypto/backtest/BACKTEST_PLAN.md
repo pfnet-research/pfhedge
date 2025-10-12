@@ -54,10 +54,11 @@ class BacktestConfig:
 
 ---
 
-### Step 1.2: Create Metrics Calculator
+### Step 1.2: Create Metrics Calculator ✅
 **File:** `crypto/backtest/metrics.py`
 **What:** Functions to calculate individual metrics
 **Test:** Test each metric function independently
+**Status:** COMPLETED - All 24 tests passing
 
 ```python
 def calculate_sharpe_ratio(pnl: Tensor) -> float
@@ -267,7 +268,7 @@ class BacktestResults:
 ## Current Status
 - [ ] Phase 1: Foundation (Steps 1.1 - 1.10)
   - [x] Step 1.1: Create BacktestConfig
-  - [ ] Step 1.2: Create Metrics Calculator
+  - [x] Step 1.2: Create Metrics Calculator
   - [ ] Step 1.3: Create Simple Backtester Shell
   - [ ] Step 1.4: Implement Model Loading
   - [ ] Step 1.5: Implement Data Loading
@@ -281,4 +282,4 @@ class BacktestResults:
 - [ ] Phase 4: Polish & CLI
 
 ## Next Step
-Step 1.2: Create Metrics Calculator
+Step 1.3: Create Simple Backtester Shell

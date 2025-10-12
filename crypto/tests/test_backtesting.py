@@ -1,7 +1,19 @@
 """Tests for backtesting framework."""
 
 import pytest
+import torch
 from crypto.backtest.config import BacktestConfig
+from crypto.backtest.metrics import (
+    calculate_sharpe_ratio,
+    calculate_sortino_ratio,
+    calculate_max_drawdown,
+    calculate_cvar,
+    calculate_var,
+    calculate_win_rate,
+    calculate_calmar_ratio,
+    calculate_all_metrics,
+    print_metrics,
+)
 
 
 class TestBacktestConfig:
@@ -301,3 +313,263 @@ class TestBacktestConfig:
 
         repr_str = repr(config)
         assert "Put" in repr_str
+
+
+class TestMetrics:
+    """Tests for metrics module."""
+
+    def test_sharpe_ratio_basic(self):
+        """Test basic Sharpe ratio calculation."""
+        pnl = torch.tensor([100.0, 150.0, 80.0, 120.0, 110.0])
+        sharpe = calculate_sharpe_ratio(pnl)
+
+        # Manual calculation
+        mean = pnl.mean().item()
+        std = pnl.std().item()
+        expected_sharpe = mean / std
+
+        assert abs(sharpe - expected_sharpe) < 1e-6
+
+    def test_sharpe_ratio_zero_std(self):
+        """Test Sharpe ratio with zero standard deviation."""
+        pnl = torch.tensor([100.0, 100.0, 100.0, 100.0])
+        sharpe = calculate_sharpe_ratio(pnl)
+        assert sharpe == 0.0
+
+    def test_sharpe_ratio_2d_input(self):
+        """Test Sharpe ratio with 2D cumulative PnL."""
+        cum_pnl = torch.tensor([
+            [0., 10., 20., 30., 100.],
+            [0., -5., 10., 20., 150.],
+            [0., 5., 15., 25., 80.]
+        ])
+        sharpe = calculate_sharpe_ratio(cum_pnl)
+
+        # Should use final values
+        final_pnl = cum_pnl[:, -1]
+        expected_sharpe = calculate_sharpe_ratio(final_pnl)
+
+        assert abs(sharpe - expected_sharpe) < 1e-6
+
+    def test_sortino_ratio_basic(self):
+        """Test basic Sortino ratio calculation."""
+        pnl = torch.tensor([100.0, 150.0, -50.0, 120.0, -20.0])
+        sortino = calculate_sortino_ratio(pnl)
+
+        # Manual calculation
+        mean = pnl.mean().item()
+        downside = torch.clamp(pnl - 0.0, max=0.0)
+        downside_dev = torch.sqrt(torch.mean(downside ** 2)).item()
+        expected_sortino = mean / downside_dev
+
+        assert abs(sortino - expected_sortino) < 1e-6
+
+    def test_sortino_ratio_no_losses(self):
+        """Test Sortino ratio with no losses."""
+        pnl = torch.tensor([100.0, 150.0, 200.0, 120.0])
+        sortino = calculate_sortino_ratio(pnl)
+        assert sortino == 0.0  # No downside deviation
+
+    def test_max_drawdown_simple(self):
+        """Test max drawdown with known sequence."""
+        cum_pnl = torch.tensor([[0., 10., 15., 8., 12., 5.]])
+        max_dd = calculate_max_drawdown(cum_pnl)
+
+        # Max is 15, then drops to 5, so max drawdown is 10
+        assert abs(max_dd - 10.0) < 1e-6
+
+    def test_max_drawdown_no_drawdown(self):
+        """Test max drawdown when PnL only increases."""
+        cum_pnl = torch.tensor([[0., 10., 20., 30., 40.]])
+        max_dd = calculate_max_drawdown(cum_pnl)
+        assert max_dd == 0.0
+
+    def test_max_drawdown_1d_input(self):
+        """Test max drawdown with 1D input."""
+        cum_pnl = torch.tensor([0., 10., 15., 8., 12., 5.])
+        max_dd = calculate_max_drawdown(cum_pnl)
+        assert abs(max_dd - 10.0) < 1e-6
+
+    def test_max_drawdown_multiple_paths(self):
+        """Test max drawdown averages across paths."""
+        cum_pnl = torch.tensor([
+            [0., 10., 15., 8.],   # max dd = 7
+            [0., 5., 10., 3.]     # max dd = 7
+        ])
+        max_dd = calculate_max_drawdown(cum_pnl)
+        assert abs(max_dd - 7.0) < 1e-6
+
+    def test_cvar_basic(self):
+        """Test CVaR calculation."""
+        torch.manual_seed(42)
+        pnl = torch.randn(1000) * 100
+        cvar_5 = calculate_cvar(pnl, alpha=0.05)
+
+        # CVaR should be in the left tail
+        sorted_pnl = torch.sort(pnl)[0]
+        n_tail = int(0.05 * 1000)
+        expected_cvar = sorted_pnl[:n_tail].mean().item()
+
+        assert abs(cvar_5 - expected_cvar) < 1e-4
+
+    def test_cvar_alpha_levels(self):
+        """Test CVaR at different alpha levels."""
+        torch.manual_seed(42)
+        pnl = torch.randn(1000) * 100
+
+        cvar_1 = calculate_cvar(pnl, alpha=0.01)
+        cvar_5 = calculate_cvar(pnl, alpha=0.05)
+        cvar_10 = calculate_cvar(pnl, alpha=0.10)
+
+        # Lower alpha (more extreme) should give more extreme CVaR
+        assert cvar_1 < cvar_5 < cvar_10
+
+    def test_var_basic(self):
+        """Test VaR calculation."""
+        torch.manual_seed(42)
+        pnl = torch.randn(1000) * 100
+        var_5 = calculate_var(pnl, alpha=0.05)
+
+        # VaR should be the 5th percentile
+        expected_var = torch.quantile(pnl, 0.05).item()
+
+        assert abs(var_5 - expected_var) < 1e-4
+
+    def test_var_alpha_levels(self):
+        """Test VaR at different alpha levels."""
+        torch.manual_seed(42)
+        pnl = torch.randn(1000) * 100
+
+        var_1 = calculate_var(pnl, alpha=0.01)
+        var_5 = calculate_var(pnl, alpha=0.05)
+        var_10 = calculate_var(pnl, alpha=0.10)
+
+        # Lower alpha (more extreme) should give more extreme VaR
+        assert var_1 < var_5 < var_10
+
+    def test_win_rate_basic(self):
+        """Test win rate calculation."""
+        pnl = torch.tensor([100., -50., 30., 80., -20., 60.])
+        win_rate = calculate_win_rate(pnl)
+
+        # 4 out of 6 are positive
+        assert abs(win_rate - 4/6) < 1e-6
+
+    def test_win_rate_all_wins(self):
+        """Test win rate with all positive."""
+        pnl = torch.tensor([100., 50., 30., 80.])
+        win_rate = calculate_win_rate(pnl)
+        assert win_rate == 1.0
+
+    def test_win_rate_all_losses(self):
+        """Test win rate with all negative."""
+        pnl = torch.tensor([-100., -50., -30., -80.])
+        win_rate = calculate_win_rate(pnl)
+        assert win_rate == 0.0
+
+    def test_win_rate_2d_input(self):
+        """Test win rate with 2D cumulative PnL."""
+        cum_pnl = torch.tensor([
+            [0., 10., 20., 100.],
+            [0., -5., -10., -50.],
+            [0., 5., 10., 30.]
+        ])
+        win_rate = calculate_win_rate(cum_pnl)
+
+        # 2 out of 3 final values are positive
+        assert abs(win_rate - 2/3) < 1e-6
+
+    def test_calmar_ratio_basic(self):
+        """Test Calmar ratio calculation."""
+        cum_pnl = torch.tensor([
+            [0., 10., 15., 8., 20.],
+            [0., 5., 10., 3., 18.]
+        ])
+        calmar = calculate_calmar_ratio(cum_pnl)
+
+        # Mean final return is (20 + 18) / 2 = 19
+        # Max drawdown is (15-8 + 10-3) / 2 = 7
+        expected_calmar = 19.0 / 7.0
+
+        assert abs(calmar - expected_calmar) < 1e-6
+
+    def test_calmar_ratio_requires_2d(self):
+        """Test Calmar ratio requires cumulative PnL."""
+        pnl = torch.tensor([100., 150., 80.])
+        with pytest.raises(ValueError, match="requires cumulative PnL"):
+            calculate_calmar_ratio(pnl)
+
+    def test_calmar_ratio_zero_drawdown(self):
+        """Test Calmar ratio with no drawdown."""
+        cum_pnl = torch.tensor([[0., 10., 20., 30.]])
+        calmar = calculate_calmar_ratio(cum_pnl)
+        assert calmar == 0.0
+
+    def test_calculate_all_metrics_basic(self):
+        """Test calculating all metrics at once."""
+        pnl = torch.randn(1000) * 100
+        cum_pnl = torch.randn(1000, 50).cumsum(dim=1)
+
+        metrics = calculate_all_metrics(pnl, cum_pnl)
+
+        # Check all expected keys exist
+        assert 'mean' in metrics
+        assert 'std' in metrics
+        assert 'min' in metrics
+        assert 'max' in metrics
+        assert 'median' in metrics
+        assert 'sharpe_ratio' in metrics
+        assert 'sortino_ratio' in metrics
+        assert 'cvar_95' in metrics
+        assert 'var_95' in metrics
+        assert 'win_rate' in metrics
+        assert 'max_drawdown' in metrics
+        assert 'calmar_ratio' in metrics
+
+    def test_calculate_all_metrics_without_cumulative(self):
+        """Test calculating metrics without cumulative PnL."""
+        pnl = torch.randn(1000) * 100
+
+        metrics = calculate_all_metrics(pnl)
+
+        # Check basic metrics exist
+        assert 'mean' in metrics
+        assert 'sharpe_ratio' in metrics
+
+        # Check cumulative-dependent metrics don't exist
+        assert 'max_drawdown' not in metrics
+        assert 'calmar_ratio' not in metrics
+
+    def test_calculate_all_metrics_custom_alpha(self):
+        """Test calculating metrics with custom alpha."""
+        pnl = torch.randn(1000) * 100
+
+        metrics = calculate_all_metrics(pnl, alpha_cvar=0.01, alpha_var=0.01)
+
+        # Check correct alpha levels used
+        assert 'cvar_99' in metrics
+        assert 'var_99' in metrics
+
+    def test_print_metrics_runs(self):
+        """Test print_metrics doesn't crash."""
+        pnl = torch.randn(100) * 100
+        cum_pnl = torch.randn(100, 50).cumsum(dim=1)
+
+        metrics = calculate_all_metrics(pnl, cum_pnl)
+
+        # Should not raise
+        import io
+        import sys
+        captured_output = io.StringIO()
+        sys.stdout = captured_output
+
+        try:
+            print_metrics(metrics, name="Test Strategy")
+            output = captured_output.getvalue()
+
+            # Check some expected content
+            assert "Test Strategy" in output
+            assert "Sharpe Ratio" in output
+            assert "Win Rate" in output
+        finally:
+            sys.stdout = sys.__stdout__
