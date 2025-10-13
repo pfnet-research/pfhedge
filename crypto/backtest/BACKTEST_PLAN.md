@@ -116,12 +116,28 @@ class Backtester:
 
 ---
 
-### Step 1.5: Implement Data Loading
+### Step 1.5: Implement Data Loading ✅
 **File:** `crypto/backtest/backtester.py` (update)
 **What:** Implement `load_data()` method using existing `CryptoDataLoader`
 **Test:** Can load sample historical data
+**Status:** COMPLETED - All 5 tests passing
 
-**Review point:** Data loading works with sample data
+**Features Implemented:**
+- ✅ Load perpetual and options data from parquet files
+- ✅ Verify data directory exists
+- ✅ Handle missing options data gracefully (warning only)
+- ✅ Validate perpetual data is not empty
+- ✅ Print comprehensive data summary (records, date ranges, price ranges, spreads)
+- ✅ Verify real market data properties (timestamps, prices, etc.)
+
+**Tests Added:**
+1. `test_load_data_success` - Verifies successful data loading
+2. `test_load_data_directory_not_found` - Error when directory missing
+3. `test_load_data_no_perpetual_files` - Error when no data files
+4. `test_load_data_missing_options_is_ok` - Options data optional
+5. `test_load_data_verifies_real_market_data` - Validates data properties
+
+**Review point:** Data loading works with real market data, comprehensive error handling
 
 ---
 
@@ -280,7 +296,7 @@ class BacktestResults:
   - [x] Step 1.2: Create Metrics Calculator
   - [x] Step 1.3: Create Simple Backtester Shell
   - [x] Step 1.4: Implement Model Loading
-  - [ ] Step 1.5: Implement Data Loading
+  - [x] Step 1.5: Implement Data Loading
   - [ ] Step 1.6: Create Bootstrap Path Generator
   - [ ] Step 1.7: Implement Deep Hedge Evaluation
   - [ ] Step 1.8: Implement BS Baseline Evaluation
@@ -291,4 +307,4 @@ class BacktestResults:
 - [ ] Phase 4: Polish & CLI
 
 ## Next Step
-Step 1.5: Implement Data Loading
+Step 1.6: Create Bootstrap Path Generator

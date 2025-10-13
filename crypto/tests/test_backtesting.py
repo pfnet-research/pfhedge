@@ -4,6 +4,8 @@ import pytest
 import torch
 import tempfile
 import os
+import pandas as pd
+import numpy as np
 from crypto.backtest.config import BacktestConfig
 from crypto.backtest.backtester import Backtester
 from crypto.backtest.metrics import (
@@ -964,19 +966,294 @@ class TestBacktester:
             if os.path.exists(temp_path):
                 os.unlink(temp_path)
 
-    def test_load_data_not_implemented(self):
-        """Test that load_data raises NotImplementedError."""
+    @staticmethod
+    def create_dummy_parquet_data(data_dir: str, n_days: int = 10):
+        """Helper to create dummy parquet data files for testing.
+
+        Args:
+            data_dir: Directory to create data files in
+            n_days: Number of days of data to generate
+        """
+        from datetime import datetime, timedelta
+
+        os.makedirs(data_dir, exist_ok=True)
+
+        # Create perpetual data spanning n_days with 5-minute intervals
+        records_per_day = 288  # 24 * 60 / 5
+        n_records = n_days * records_per_day
+        start_time = datetime(2024, 1, 1)
+        timestamps = [start_time + timedelta(minutes=5 * i) for i in range(n_records)]
+
+        perpetual_data = {
+            "timestamp": timestamps,
+            "last_price": np.random.uniform(45000, 55000, n_records),
+            "bid_price": np.random.uniform(44900, 54900, n_records),
+            "ask_price": np.random.uniform(45100, 55100, n_records),
+            "funding_8h": np.random.uniform(-0.001, 0.001, n_records),
+            "index_price": np.random.uniform(45000, 55000, n_records),
+        }
+        perpetual_df = pd.DataFrame(perpetual_data)
+        perpetual_path = os.path.join(data_dir, "btc_perpetual.parquet")
+        perpetual_df.to_parquet(perpetual_path)
+
+        # Create options data
+        n_options = min(100, n_records // 10)
+        options_data = {
+            "timestamp": timestamps[:n_options],
+            "strike": [50000] * n_options,
+            "expiration": [datetime(2024, 1, 15).timestamp() * 1000] * n_options,
+            "option_type": ["call"] * (n_options // 2) + ["put"] * (n_options // 2),
+            "last_price": np.random.uniform(100, 5000, n_options),
+            "bid_price": np.random.uniform(100, 4900, n_options),
+            "ask_price": np.random.uniform(100, 5100, n_options),
+            "mark_iv": np.random.uniform(0.5, 1.0, n_options),
+        }
+        options_df = pd.DataFrame(options_data)
+        options_path = os.path.join(data_dir, "btc_options.parquet")
+        options_df.to_parquet(options_path)
+
+    def test_load_data_success(self):
+        """Test successful data loading."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            # Create dummy parquet files
+            self.create_dummy_parquet_data(temp_dir)
+
+            # Create config and backtester
+            config = BacktestConfig(
+                start_date="2024-01-01",
+                end_date="2024-01-31",
+                strike=50000,
+                maturity_days=14,
+                model_path="models/test.pth",
+                data_dir=temp_dir,
+            )
+            backtester = Backtester(config)
+
+            # Load data
+            loader = backtester.load_data()
+
+            # Verify loader returned and stored
+            assert loader is not None
+            assert backtester.data_loader is loader
+
+            # Verify data was actually loaded
+            assert loader.perpetual_data is not None
+            assert not loader.perpetual_data.empty
+            assert len(loader.perpetual_data) > 0
+
+            # Verify data columns exist
+            assert "timestamp" in loader.perpetual_data.columns
+            assert "last_price" in loader.perpetual_data.columns
+
+    def test_load_data_directory_not_found(self):
+        """Test error when data directory doesn't exist."""
         config = BacktestConfig(
             start_date="2024-01-01",
             end_date="2024-01-31",
             strike=50000,
             maturity_days=14,
             model_path="models/test.pth",
+            data_dir="nonexistent_directory_12345",
         )
         backtester = Backtester(config)
 
-        with pytest.raises(NotImplementedError, match="Step 1.5"):
+        with pytest.raises(FileNotFoundError, match="Data directory not found"):
             backtester.load_data()
+
+    def test_load_data_no_perpetual_files(self):
+        """Test error when no perpetual data files found."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            # Create empty directory (no parquet files)
+            config = BacktestConfig(
+                start_date="2024-01-01",
+                end_date="2024-01-31",
+                strike=50000,
+                maturity_days=14,
+                model_path="models/test.pth",
+                data_dir=temp_dir,
+            )
+            backtester = Backtester(config)
+
+            with pytest.raises(
+                FileNotFoundError, match="No perpetual data found.*perpetual.*parquet"
+            ):
+                backtester.load_data()
+
+    def test_load_data_missing_options_is_ok(self):
+        """Test that missing options data is handled gracefully."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            # Create only perpetual data (no options)
+            import pandas as pd
+            import numpy as np
+            from datetime import datetime, timedelta
+
+            n_records = 100
+            start_time = datetime(2024, 1, 1)
+            timestamps = [
+                start_time + timedelta(minutes=5 * i) for i in range(n_records)
+            ]
+
+            perpetual_data = {
+                "timestamp": timestamps,
+                "last_price": np.random.uniform(45000, 55000, n_records),
+                "bid_price": np.random.uniform(44900, 54900, n_records),
+                "ask_price": np.random.uniform(45100, 55100, n_records),
+            }
+            perpetual_df = pd.DataFrame(perpetual_data)
+            perpetual_path = os.path.join(temp_dir, "btc_perpetual.parquet")
+            perpetual_df.to_parquet(perpetual_path)
+
+            # Create config and backtester
+            config = BacktestConfig(
+                start_date="2024-01-01",
+                end_date="2024-01-31",
+                strike=50000,
+                maturity_days=14,
+                model_path="models/test.pth",
+                data_dir=temp_dir,
+            )
+            backtester = Backtester(config)
+
+            # Should load successfully despite missing options data
+            loader = backtester.load_data()
+
+            assert loader is not None
+            assert loader.perpetual_data is not None
+            assert not loader.perpetual_data.empty
+
+    def test_load_data_verifies_real_market_data(self):
+        """Test that loaded data has expected properties of real market data."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            self.create_dummy_parquet_data(temp_dir)
+
+            config = BacktestConfig(
+                start_date="2024-01-01",
+                end_date="2024-01-10",  # Within generated range
+                strike=50000,
+                maturity_days=14,
+                model_path="models/test.pth",
+                data_dir=temp_dir,
+            )
+            backtester = Backtester(config)
+
+            loader = backtester.load_data()
+
+            # Verify perpetual data properties
+            perp_df = loader.perpetual_data
+            assert len(perp_df) > 0
+
+            # Verify timestamp column exists and is datetime
+            assert "timestamp" in perp_df.columns
+            assert pd.api.types.is_datetime64_any_dtype(perp_df["timestamp"])
+
+            # Verify price columns exist and are numeric
+            assert "last_price" in perp_df.columns
+            assert pd.api.types.is_numeric_dtype(perp_df["last_price"])
+
+            # Verify prices are in reasonable range (Bitcoin)
+            assert perp_df["last_price"].min() > 1000  # Sanity check
+            assert perp_df["last_price"].max() < 1000000  # Sanity check
+
+            # Verify summary statistics are generated
+            summary = loader.summary()
+            assert "perpetual" in summary
+            assert summary["perpetual"]["records"] > 0
+            assert "date_range" in summary["perpetual"]
+            assert "price_range" in summary["perpetual"]
+
+    def test_load_data_with_resampling(self):
+        """Test data loading with resampling to different frequencies."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            self.create_dummy_parquet_data(temp_dir, n_days=5)
+
+            # Test with integer hours (8 hours)
+            config = BacktestConfig(
+                start_date="2024-01-01",
+                end_date="2024-01-05",
+                strike=50000,
+                maturity_days=14,
+                model_path="models/test.pth",
+                data_dir=temp_dir,
+                dt_hours=8.0,  # Should resample to 8H
+            )
+            backtester = Backtester(config)
+            loader = backtester.load_data()
+
+            # Verify resampling occurred
+            perp_df = loader.perpetual_data
+            assert len(perp_df) > 0
+            # With 8H resampling over 5 days: ~15 records (5 days * 24 hours / 8)
+            assert len(perp_df) <= 20  # Allow some margin
+
+    def test_load_data_with_non_integer_hours(self):
+        """Test resampling with non-integer hours (converted to minutes)."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            self.create_dummy_parquet_data(temp_dir, n_days=3)
+
+            # Test with 0.5 hours = 30 minutes
+            config = BacktestConfig(
+                start_date="2024-01-01",
+                end_date="2024-01-03",
+                strike=50000,
+                maturity_days=14,
+                model_path="models/test.pth",
+                data_dir=temp_dir,
+                dt_hours=0.5,  # Should resample to 30T
+            )
+            backtester = Backtester(config)
+            loader = backtester.load_data()
+
+            perp_df = loader.perpetual_data
+            assert len(perp_df) > 0
+            # With 30T resampling over 3 days: ~97-144 records (depends on exact date boundaries)
+            assert len(perp_df) >= 90  # Should have many records
+
+    def test_load_data_date_filtering(self):
+        """Test that date filtering works correctly."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            self.create_dummy_parquet_data(temp_dir, n_days=10)
+
+            # Filter to first 3 days only
+            config = BacktestConfig(
+                start_date="2024-01-01",
+                end_date="2024-01-03",
+                strike=50000,
+                maturity_days=14,
+                model_path="models/test.pth",
+                data_dir=temp_dir,
+                dt_hours=1.0,  # 1 hour resampling
+            )
+            backtester = Backtester(config)
+            loader = backtester.load_data()
+
+            perp_df = loader.perpetual_data
+            assert len(perp_df) > 0
+
+            # Verify date range
+            min_date = perp_df["timestamp"].min()
+            max_date = perp_df["timestamp"].max()
+
+            assert min_date >= pd.to_datetime("2024-01-01")
+            assert max_date <= pd.to_datetime("2024-01-04")  # Allow end of day
+
+    def test_load_data_invalid_date_range(self):
+        """Test error when requested date range has no data."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            self.create_dummy_parquet_data(temp_dir, n_days=5)  # 2024-01-01 to 01-05
+
+            # Request data from 2025 (out of range)
+            config = BacktestConfig(
+                start_date="2025-01-01",
+                end_date="2025-01-31",
+                strike=50000,
+                maturity_days=14,
+                model_path="models/test.pth",
+                data_dir=temp_dir,
+            )
+            backtester = Backtester(config)
+
+            with pytest.raises(ValueError, match="No data found in date range"):
+                backtester.load_data()
 
     def test_create_bootstrap_option_not_implemented(self):
         """Test that create_bootstrap_option raises NotImplementedError."""

@@ -169,13 +169,168 @@ class Backtester:
     def load_data(self):
         """Load historical data for backtesting.
 
+        Loads perpetual and options data from parquet files using CryptoDataLoader,
+        resamples to the configured frequency (dt_hours), and filters by date range.
+
         Returns:
-            CryptoDataLoader with historical data
+            CryptoDataLoader with historical data loaded and prepared
 
         Raises:
-            NotImplementedError: To be implemented in Step 1.5
+            FileNotFoundError: If data directory doesn't exist or no data files found
+            ValueError: If data loading fails, data is empty, or date filtering results in no data
+
+        Examples:
+            >>> backtester = Backtester(config)
+            >>> loader = backtester.load_data()
+            >>> print(loader.summary())  # Verify data loaded
         """
-        raise NotImplementedError("load_data() will be implemented in Step 1.5")
+        # Import CryptoDataLoader and pandas
+        from crypto.data.loader import CryptoDataLoader
+        import pandas as pd
+        from datetime import datetime
+
+        data_dir = self.config.data_dir
+
+        # Convert relative path to absolute if needed
+        if not os.path.isabs(data_dir):
+            # Assume relative to crypto/data directory
+            base_dir = os.path.dirname(os.path.dirname(__file__))
+            data_dir = os.path.join(base_dir, "crypto", "data", data_dir)
+
+        # Check if data directory exists
+        if not os.path.exists(data_dir):
+            raise FileNotFoundError(
+                f"Data directory not found: {data_dir}\n"
+                f"(original path: {self.config.data_dir})"
+            )
+
+        print(f"Loading historical data from {data_dir}...")
+
+        # Create data loader
+        loader = CryptoDataLoader(data_dir)
+
+        # Load perpetual data (required for bootstrapping)
+        try:
+            perpetual_df = loader.load_perpetual_data()
+            print(f"✅ Loaded {len(perpetual_df)} raw perpetual records")
+        except FileNotFoundError as e:
+            raise FileNotFoundError(
+                f"No perpetual data found in {data_dir}. "
+                f"Expected files matching '*perpetual*.parquet'. Error: {e}"
+            )
+
+        if perpetual_df.empty:
+            raise ValueError("Perpetual data is empty")
+
+        # Derive resampling frequency from dt_hours
+        dt_hours = self.config.dt_hours
+        if dt_hours == int(dt_hours):
+            # Integer hours
+            frequency = f"{int(dt_hours)}H"
+        else:
+            # Convert to minutes
+            dt_minutes = int(round(dt_hours * 60))
+            frequency = f"{dt_minutes}T"
+
+        print(f"Resampling to {frequency} frequency...")
+
+        # Resample perpetual data using get_price_series
+        try:
+            resampled_df = loader.get_price_series(frequency=frequency)
+            print(
+                f"✅ Resampled to {len(resampled_df)} records at {frequency} intervals"
+            )
+        except Exception as e:
+            raise ValueError(f"Failed to resample data at frequency '{frequency}': {e}")
+
+        # Parse date range (keep as timezone-naive for perpetual data)
+        try:
+            start_date_naive = pd.to_datetime(self.config.start_date)
+            end_date_naive = pd.to_datetime(self.config.end_date)
+        except Exception as e:
+            raise ValueError(f"Failed to parse dates: {e}")
+
+        # Filter by date range
+        print(
+            f"Filtering data from {self.config.start_date} to {self.config.end_date}..."
+        )
+        mask = (resampled_df["timestamp"] >= start_date_naive) & (
+            resampled_df["timestamp"] <= end_date_naive
+        )
+        filtered_df = resampled_df[mask].reset_index(drop=True)
+
+        if filtered_df.empty:
+            raise ValueError(
+                f"No data found in date range [{self.config.start_date}, {self.config.end_date}]. "
+                f"Available data range: [{resampled_df['timestamp'].min()}, {resampled_df['timestamp'].max()}]"
+            )
+
+        print(f"✅ Filtered to {len(filtered_df)} records in date range")
+
+        # Update loader's perpetual_data with filtered data
+        loader.perpetual_data = filtered_df
+
+        # Load options data (optional, for real option price comparison)
+        try:
+            options_df = loader.load_options_data()
+
+            # Filter options by date range too
+            if not options_df.empty and "timestamp" in options_df.columns:
+                # Options timestamps are timezone-aware (UTC), so make dates tz-aware for comparison
+                if options_df["timestamp"].dt.tz is not None:
+                    start_date_aware = start_date_naive.tz_localize("UTC")
+                    end_date_aware = end_date_naive.tz_localize("UTC")
+                    opts_mask = (options_df["timestamp"] >= start_date_aware) & (
+                        options_df["timestamp"] <= end_date_aware
+                    )
+                else:
+                    # Options timestamps are naive, use naive dates
+                    opts_mask = (options_df["timestamp"] >= start_date_naive) & (
+                        options_df["timestamp"] <= end_date_naive
+                    )
+                options_df = options_df[opts_mask].reset_index(drop=True)
+                loader.options_data = options_df
+
+            print(f"✅ Loaded {len(options_df)} options records in date range")
+        except FileNotFoundError:
+            print(f"⚠️  No options data found (this is okay for basic backtesting)")
+            options_df = None
+
+        # Print summary statistics to verify real market data
+        summary = loader.summary()
+        print("\n" + "=" * 60)
+        print("DATA SUMMARY (After Filtering & Resampling)")
+        print("=" * 60)
+
+        if "perpetual" in summary:
+            perp = summary["perpetual"]
+            print(f"\nPerpetual data:")
+            print(f"  Records: {perp['records']:,}")
+            print(f"  Frequency: {frequency}")
+            print(f"  Date range: {perp['date_range'][0]} to {perp['date_range'][1]}")
+            print(
+                f"  Price range: ${perp['price_range'][0]:.2f} - ${perp['price_range'][1]:.2f}"
+            )
+            if perp.get("avg_spread_pct"):
+                print(f"  Avg spread: {perp['avg_spread_pct']*100:.4f}%")
+
+        if "options" in summary:
+            opts = summary["options"]
+            print(f"\nOptions data:")
+            print(f"  Records: {opts['records']:,}")
+            print(f"  Unique strikes: {opts['unique_strikes']}")
+            print(f"  Calls: {opts['call_count']:,}")
+            print(f"  Puts: {opts['put_count']:,}")
+            if opts.get("avg_iv"):
+                print(f"  Avg IV: {opts['avg_iv']:.2%}")
+
+        print("=" * 60 + "\n")
+
+        # Store and return
+        self.data_loader = loader
+        print("✅ Data loading complete\n")
+
+        return loader
 
     def create_bootstrap_option(self, data_loader):
         """Create option with bootstrap paths from historical data.
