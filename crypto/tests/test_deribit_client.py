@@ -8,7 +8,7 @@ import sys
 import os
 
 # Add the crypto directory to the path so we can import our modules
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from data.deribit_client import DeribitClient, timestamp_to_ms, ms_to_timestamp
 
@@ -30,7 +30,7 @@ class TestDeribitClient(unittest.TestCase):
         client = DeribitClient(testnet=False)
         self.assertIn("www.deribit.com", client.base_url)
 
-    @patch('data.deribit_client.requests.Session.get')
+    @patch("data.deribit_client.requests.Session.get")
     def test_make_request_success(self, mock_get):
         """Test successful API request."""
         # Mock successful response
@@ -44,7 +44,7 @@ class TestDeribitClient(unittest.TestCase):
         self.assertEqual(result, {"test": "data"})
         mock_get.assert_called_once()
 
-    @patch('data.deribit_client.requests.Session.get')
+    @patch("data.deribit_client.requests.Session.get")
     def test_make_request_api_error(self, mock_get):
         """Test API error handling."""
         # Mock API error response
@@ -58,7 +58,7 @@ class TestDeribitClient(unittest.TestCase):
 
         self.assertIn("API Error", str(context.exception))
 
-    @patch('data.deribit_client.requests.Session.get')
+    @patch("data.deribit_client.requests.Session.get")
     def test_get_instruments(self, mock_get):
         """Test get_instruments method."""
         # Mock response with sample instruments
@@ -66,7 +66,7 @@ class TestDeribitClient(unittest.TestCase):
         mock_response.json.return_value = {
             "result": [
                 {"instrument_name": "BTC-PERPETUAL", "kind": "future"},
-                {"instrument_name": "BTC-25DEC23-42000-C", "kind": "option"}
+                {"instrument_name": "BTC-25DEC23-42000-C", "kind": "option"},
             ]
         }
         mock_response.raise_for_status.return_value = None
@@ -77,7 +77,7 @@ class TestDeribitClient(unittest.TestCase):
         self.assertEqual(len(result), 2)
         self.assertIn("instrument_name", result[0])
 
-    @patch('data.deribit_client.requests.Session.get')
+    @patch("data.deribit_client.requests.Session.get")
     def test_get_ticker(self, mock_get):
         """Test get_ticker method."""
         # Mock ticker response
@@ -87,7 +87,7 @@ class TestDeribitClient(unittest.TestCase):
                 "instrument_name": "BTC-PERPETUAL",
                 "last_price": 50000.0,
                 "best_bid_price": 49999.5,
-                "best_ask_price": 50000.5
+                "best_ask_price": 50000.5,
             }
         }
         mock_response.raise_for_status.return_value = None
@@ -98,7 +98,7 @@ class TestDeribitClient(unittest.TestCase):
         self.assertEqual(result["instrument_name"], "BTC-PERPETUAL")
         self.assertEqual(result["last_price"], 50000.0)
 
-    @patch('data.deribit_client.requests.Session.get')
+    @patch("data.deribit_client.requests.Session.get")
     def test_get_order_book(self, mock_get):
         """Test get_order_book method."""
         # Mock order book response
@@ -109,7 +109,7 @@ class TestDeribitClient(unittest.TestCase):
                 "best_bid_price": 49999.5,
                 "best_ask_price": 50000.5,
                 "bids": [[49999.5, 1000]],
-                "asks": [[50000.5, 1000]]
+                "asks": [[50000.5, 1000]],
             }
         }
         mock_response.raise_for_status.return_value = None
@@ -120,7 +120,7 @@ class TestDeribitClient(unittest.TestCase):
         self.assertEqual(result["best_bid_price"], 49999.5)
         self.assertEqual(result["best_ask_price"], 50000.5)
 
-    @patch('data.deribit_client.requests.Session.get')
+    @patch("data.deribit_client.requests.Session.get")
     def test_get_recent_trades(self, mock_get):
         """Test get_recent_trades method."""
         # Mock trades response
@@ -128,7 +128,7 @@ class TestDeribitClient(unittest.TestCase):
         mock_response.json.return_value = {
             "result": [
                 {"trade_id": "123", "price": 50000.0, "amount": 1000},
-                {"trade_id": "124", "price": 50001.0, "amount": 500}
+                {"trade_id": "124", "price": 50001.0, "amount": 500},
             ]
         }
         mock_response.raise_for_status.return_value = None
@@ -148,7 +148,9 @@ class TestUtilityFunctions(unittest.TestCase):
         dt = datetime(2023, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
         ms = timestamp_to_ms(dt)
 
-        self.assertEqual(ms, 1672574400000)  # Known timestamp for 2023-01-01 12:00:00 UTC
+        self.assertEqual(
+            ms, 1672574400000
+        )  # Known timestamp for 2023-01-01 12:00:00 UTC
 
     def test_ms_to_timestamp(self):
         """Test milliseconds to timestamp conversion."""
@@ -167,8 +169,10 @@ class TestUtilityFunctions(unittest.TestCase):
         converted_dt = ms_to_timestamp(ms)
 
         # Should be equal within microsecond precision
-        self.assertEqual(original_dt.replace(microsecond=0), converted_dt.replace(microsecond=0))
+        self.assertEqual(
+            original_dt.replace(microsecond=0), converted_dt.replace(microsecond=0)
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

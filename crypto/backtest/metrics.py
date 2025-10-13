@@ -40,7 +40,9 @@ def calculate_sharpe_ratio(pnl: Tensor, risk_free_rate: float = 0.0) -> float:
     return (mean_pnl - risk_free_rate) / std_pnl
 
 
-def calculate_sortino_ratio(pnl: Tensor, risk_free_rate: float = 0.0, target: float = 0.0) -> float:
+def calculate_sortino_ratio(
+    pnl: Tensor, risk_free_rate: float = 0.0, target: float = 0.0
+) -> float:
     """Calculate Sortino ratio.
 
     The Sortino ratio is similar to Sharpe but only penalizes downside volatility.
@@ -231,7 +233,7 @@ def calculate_all_metrics(
     pnl: Tensor,
     cumulative_pnl: Union[Tensor, None] = None,
     alpha_cvar: float = 0.05,
-    alpha_var: float = 0.05
+    alpha_var: float = 0.05,
 ) -> dict:
     """Calculate all metrics at once.
 
@@ -252,28 +254,25 @@ def calculate_all_metrics(
     """
     metrics = {
         # Basic statistics
-        'mean': pnl.mean().item(),
-        'std': pnl.std().item(),
-        'min': pnl.min().item(),
-        'max': pnl.max().item(),
-        'median': pnl.median().item(),
-
+        "mean": pnl.mean().item(),
+        "std": pnl.std().item(),
+        "min": pnl.min().item(),
+        "max": pnl.max().item(),
+        "median": pnl.median().item(),
         # Risk-adjusted returns
-        'sharpe_ratio': calculate_sharpe_ratio(pnl),
-        'sortino_ratio': calculate_sortino_ratio(pnl),
-
+        "sharpe_ratio": calculate_sharpe_ratio(pnl),
+        "sortino_ratio": calculate_sortino_ratio(pnl),
         # Risk metrics
-        f'cvar_{int((1-alpha_cvar)*100)}': calculate_cvar(pnl, alpha_cvar),
-        f'var_{int((1-alpha_var)*100)}': calculate_var(pnl, alpha_var),
-
+        f"cvar_{int((1-alpha_cvar)*100)}": calculate_cvar(pnl, alpha_cvar),
+        f"var_{int((1-alpha_var)*100)}": calculate_var(pnl, alpha_var),
         # Performance metrics
-        'win_rate': calculate_win_rate(pnl),
+        "win_rate": calculate_win_rate(pnl),
     }
 
     # Add metrics that require cumulative PnL
     if cumulative_pnl is not None:
-        metrics['max_drawdown'] = calculate_max_drawdown(cumulative_pnl)
-        metrics['calmar_ratio'] = calculate_calmar_ratio(cumulative_pnl)
+        metrics["max_drawdown"] = calculate_max_drawdown(cumulative_pnl)
+        metrics["calmar_ratio"] = calculate_calmar_ratio(cumulative_pnl)
 
     return metrics
 
@@ -307,18 +306,18 @@ def print_metrics(metrics: dict, name: str = "Strategy") -> None:
     print(f"{'-'*50}")
     print(f"{'Sharpe Ratio':<30} {metrics['sharpe_ratio']:>18.3f}")
     print(f"{'Sortino Ratio':<30} {metrics['sortino_ratio']:>18.3f}")
-    if 'calmar_ratio' in metrics:
+    if "calmar_ratio" in metrics:
         print(f"{'Calmar Ratio':<30} {metrics['calmar_ratio']:>18.3f}")
 
     # Risk metrics
     print(f"\n{'Risk Metrics':^50}")
     print(f"{'-'*50}")
     for key in metrics:
-        if 'cvar' in key:
+        if "cvar" in key:
             print(f"{key.upper():<30} ${metrics[key]:>15.2f}")
-        elif 'var' in key:
+        elif "var" in key:
             print(f"{key.upper():<30} ${metrics[key]:>15.2f}")
-    if 'max_drawdown' in metrics:
+    if "max_drawdown" in metrics:
         print(f"{'Max Drawdown':<30} ${metrics['max_drawdown']:>15.2f}")
 
     # Performance metrics

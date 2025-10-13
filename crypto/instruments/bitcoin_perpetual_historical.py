@@ -51,11 +51,7 @@ class BitcoinPerpetualHistorical(BitcoinPerpetualBase):
     ) -> None:
         """Initialize historical Bitcoin perpetual."""
         super().__init__(
-            cost=cost,
-            dt=dt,
-            leverage=leverage,
-            dtype=dtype,
-            device=device
+            cost=cost, dt=dt, leverage=leverage, dtype=dtype, device=device
         )
 
         if data_loader is None:
@@ -100,12 +96,13 @@ class BitcoinPerpetualHistorical(BitcoinPerpetualBase):
             raise ValueError("No perpetual data available in data_loader")
 
         # Ensure required columns exist
-        required_cols = ['timestamp', 'last_price']
+        required_cols = ["timestamp", "last_price"]
         if not all(col in perpetual_df.columns for col in required_cols):
             raise ValueError(f"Perpetual data must contain: {required_cols}")
 
         # Calculate number of steps needed
         import math
+
         n_steps = math.ceil(time_horizon / self.dt + 1)
 
         # Limit data to required time horizon
@@ -114,6 +111,7 @@ class BitcoinPerpetualHistorical(BitcoinPerpetualBase):
 
         if actual_steps < n_steps:
             import warnings
+
             warnings.warn(
                 f"Requested {n_steps} steps but only {actual_steps} available in historical data. "
                 f"Using all available data."
@@ -121,10 +119,10 @@ class BitcoinPerpetualHistorical(BitcoinPerpetualBase):
 
         # Extract spot prices
         spot_prices = torch.tensor(
-            data['last_price'].values,
-            dtype=self.dtype,
-            device=self.device
-        ).unsqueeze(0)  # Shape: (1, n_steps)
+            data["last_price"].values, dtype=self.dtype, device=self.device
+        ).unsqueeze(
+            0
+        )  # Shape: (1, n_steps)
 
         # Replicate paths if needed
         if n_paths > 1:
@@ -133,16 +131,12 @@ class BitcoinPerpetualHistorical(BitcoinPerpetualBase):
         self.register_buffer("spot", spot_prices)
 
         # Load bid/ask spreads
-        if 'bid_price' in data.columns and 'ask_price' in data.columns:
+        if "bid_price" in data.columns and "ask_price" in data.columns:
             bid_prices = torch.tensor(
-                data['bid_price'].values,
-                dtype=self.dtype,
-                device=self.device
+                data["bid_price"].values, dtype=self.dtype, device=self.device
             ).unsqueeze(0)
             ask_prices = torch.tensor(
-                data['ask_price'].values,
-                dtype=self.dtype,
-                device=self.device
+                data["ask_price"].values, dtype=self.dtype, device=self.device
             ).unsqueeze(0)
 
             if n_paths > 1:
@@ -159,11 +153,9 @@ class BitcoinPerpetualHistorical(BitcoinPerpetualBase):
         self.register_buffer("mid", (bid_prices + ask_prices) / 2)
 
         # Load funding rates
-        if 'funding_8h' in data.columns:
+        if "funding_8h" in data.columns:
             funding_rates = torch.tensor(
-                data['funding_8h'].values,
-                dtype=self.dtype,
-                device=self.device
+                data["funding_8h"].values, dtype=self.dtype, device=self.device
             ).unsqueeze(0)
             if n_paths > 1:
                 funding_rates = funding_rates.repeat(n_paths, 1)
@@ -174,11 +166,9 @@ class BitcoinPerpetualHistorical(BitcoinPerpetualBase):
         self.register_buffer("_funding_rate", funding_rates)
 
         # Load index price
-        if 'index_price' in data.columns:
+        if "index_price" in data.columns:
             index_prices = torch.tensor(
-                data['index_price'].values,
-                dtype=self.dtype,
-                device=self.device
+                data["index_price"].values, dtype=self.dtype, device=self.device
             ).unsqueeze(0)
             if n_paths > 1:
                 index_prices = index_prices.repeat(n_paths, 1)
@@ -194,7 +184,7 @@ class BitcoinPerpetualHistorical(BitcoinPerpetualBase):
 
         Calculates rolling volatility from actual price movements.
         """
-        if not hasattr(self, 'spot'):
+        if not hasattr(self, "spot"):
             raise ValueError("No data loaded. Call simulate() first.")
 
         spot = self.get_buffer("spot")
@@ -212,17 +202,21 @@ class BitcoinPerpetualHistorical(BitcoinPerpetualBase):
             for i in range(returns.shape[1]):
                 if i == 0:
                     # Use a default volatility for the first period
-                    vol = torch.full((returns.shape[0], 1), 0.8,
-                                   dtype=self.dtype, device=self.device)
+                    vol = torch.full(
+                        (returns.shape[0], 1), 0.8, dtype=self.dtype, device=self.device
+                    )
                 else:
                     # Calculate volatility up to current point
-                    hist_returns = returns[:, :i+1]
-                    vol = torch.std(hist_returns, dim=1, keepdim=True) * (periods_per_year ** 0.5)
+                    hist_returns = returns[:, : i + 1]
+                    vol = torch.std(hist_returns, dim=1, keepdim=True) * (
+                        periods_per_year ** 0.5
+                    )
                 vol_list.append(vol)
 
             # Add initial volatility for time 0
-            initial_vol = torch.full((returns.shape[0], 1), 0.8,
-                                   dtype=self.dtype, device=self.device)
+            initial_vol = torch.full(
+                (returns.shape[0], 1), 0.8, dtype=self.dtype, device=self.device
+            )
             vol_list.insert(0, initial_vol)
 
             volatility = torch.cat(vol_list, dim=1)
@@ -305,23 +299,21 @@ class BitcoinPerpetualHistorical(BitcoinPerpetualBase):
 
             # Extract prices
             spot = torch.tensor(
-                window_data['last_price'].values,
-                dtype=self.dtype,
-                device=self.device
+                window_data["last_price"].values, dtype=self.dtype, device=self.device
             )
             path_list.append(spot)
 
             # Bid/ask
-            if 'bid_price' in window_data.columns:
+            if "bid_price" in window_data.columns:
                 bid = torch.tensor(
-                    window_data['bid_price'].values,
+                    window_data["bid_price"].values,
                     dtype=self.dtype,
-                    device=self.device
+                    device=self.device,
                 )
                 ask = torch.tensor(
-                    window_data['ask_price'].values,
+                    window_data["ask_price"].values,
                     dtype=self.dtype,
-                    device=self.device
+                    device=self.device,
                 )
             else:
                 spread = 0.0002
@@ -332,22 +324,22 @@ class BitcoinPerpetualHistorical(BitcoinPerpetualBase):
             ask_list.append(ask)
 
             # Funding
-            if 'funding_8h' in window_data.columns:
+            if "funding_8h" in window_data.columns:
                 funding = torch.tensor(
-                    window_data['funding_8h'].values,
+                    window_data["funding_8h"].values,
                     dtype=self.dtype,
-                    device=self.device
+                    device=self.device,
                 )
             else:
                 funding = torch.zeros_like(spot)
             funding_list.append(funding)
 
             # Index
-            if 'index_price' in window_data.columns:
+            if "index_price" in window_data.columns:
                 index = torch.tensor(
-                    window_data['index_price'].values,
+                    window_data["index_price"].values,
                     dtype=self.dtype,
-                    device=self.device
+                    device=self.device,
                 )
             else:
                 index = spot.clone()
@@ -369,8 +361,8 @@ class BitcoinPerpetualHistorical(BitcoinPerpetualBase):
             f"leverage={self.leverage}",
             "data_loader=...",
         ]
-        if hasattr(self, 'dtype') and self.dtype is not None:
+        if hasattr(self, "dtype") and self.dtype is not None:
             params.append(f"dtype={self.dtype}")
-        if hasattr(self, 'device') and self.device is not None:
+        if hasattr(self, "device") and self.device is not None:
             params.append(f"device='{self.device}'")
         return f"BitcoinPerpetualHistorical({', '.join(params)})"

@@ -11,7 +11,12 @@ import pandas as pd
 class DeribitClient:
     """Simple Deribit REST API client for historical data."""
 
-    def __init__(self, api_key: Optional[str] = None, api_secret: Optional[str] = None, testnet: bool = True):
+    def __init__(
+        self,
+        api_key: Optional[str] = None,
+        api_secret: Optional[str] = None,
+        testnet: bool = True,
+    ):
         """
         Initialize Deribit client.
 
@@ -22,10 +27,16 @@ class DeribitClient:
         """
         self.api_key = api_key
         self.api_secret = api_secret
-        self.base_url = "https://test.deribit.com/api/v2" if testnet else "https://www.deribit.com/api/v2"
+        self.base_url = (
+            "https://test.deribit.com/api/v2"
+            if testnet
+            else "https://www.deribit.com/api/v2"
+        )
         self.session = requests.Session()
 
-    def _make_request(self, method: str, endpoint: str, params: Optional[Dict] = None) -> Dict:
+    def _make_request(
+        self, method: str, endpoint: str, params: Optional[Dict] = None
+    ) -> Dict:
         """Make HTTP request to Deribit API."""
         url = f"{self.base_url}/{endpoint}"
 
@@ -46,7 +57,9 @@ class DeribitClient:
         except requests.exceptions.RequestException as e:
             raise Exception(f"Request failed: {e}")
 
-    def get_instruments(self, currency: str = "BTC", kind: str = "option") -> List[Dict]:
+    def get_instruments(
+        self, currency: str = "BTC", kind: str = "option"
+    ) -> List[Dict]:
         """
         Get available instruments.
 
@@ -57,10 +70,7 @@ class DeribitClient:
         Returns:
             List of instrument data
         """
-        params = {
-            "currency": currency,
-            "kind": kind
-        }
+        params = {"currency": currency, "kind": kind}
         return self._make_request("GET", "public/get_instruments", params)
 
     def get_historical_trades(
@@ -68,7 +78,7 @@ class DeribitClient:
         instrument_name: str,
         start_timestamp: int,
         end_timestamp: int,
-        count: int = 1000
+        count: int = 1000,
     ) -> List[Dict]:
         """
         Get historical trades for an instrument.
@@ -88,9 +98,11 @@ class DeribitClient:
             "end_timestamp": end_timestamp,
             "count": count,
             "include_old": True,
-            "sorting": "asc"
+            "sorting": "asc",
         }
-        return self._make_request("GET", "public/get_last_trades_by_instrument_and_time", params)
+        return self._make_request(
+            "GET", "public/get_last_trades_by_instrument_and_time", params
+        )
 
     def get_recent_trades(self, instrument_name: str, count: int = 10) -> List[Dict]:
         """
@@ -103,10 +115,7 @@ class DeribitClient:
         Returns:
             List of trade data
         """
-        params = {
-            "instrument_name": instrument_name,
-            "count": count
-        }
+        params = {"instrument_name": instrument_name, "count": count}
         return self._make_request("GET", "public/get_last_trades_by_instrument", params)
 
     def get_historical_volatility(self, currency: str = "BTC") -> List[Dict]:
@@ -146,17 +155,14 @@ class DeribitClient:
         Returns:
             Order book data
         """
-        params = {
-            "instrument_name": instrument_name,
-            "depth": depth
-        }
+        params = {"instrument_name": instrument_name, "depth": depth}
         return self._make_request("GET", "public/get_order_book", params)
 
     def get_funding_rate_history(
         self,
         instrument_name: str = "BTC-PERPETUAL",
         start_timestamp: Optional[int] = None,
-        end_timestamp: Optional[int] = None
+        end_timestamp: Optional[int] = None,
     ) -> List[Dict]:
         """
         Get funding rate history for perpetual contract.

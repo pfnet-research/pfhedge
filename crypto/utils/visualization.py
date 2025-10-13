@@ -19,7 +19,7 @@ def plot_price_paths(
     title: Optional[str] = None,
     figsize: Tuple[int, int] = (12, 6),
     show_stats: bool = True,
-    save_path: Optional[str] = None
+    save_path: Optional[str] = None,
 ) -> plt.Figure:
     """
     Plot price paths for any instrument in our framework.
@@ -47,7 +47,7 @@ def plot_price_paths(
         >>> fig = plot_price_paths(btc_hist, title="Historical Bitcoin Prices")
     """
 
-    if not hasattr(instrument, 'spot'):
+    if not hasattr(instrument, "spot"):
         raise ValueError("Instrument must have a 'spot' attribute with price data")
 
     spot_prices = instrument.spot
@@ -61,7 +61,7 @@ def plot_price_paths(
     prices_np = spot_prices.detach().numpy()
 
     # Create time axis
-    if hasattr(instrument, 'dt'):
+    if hasattr(instrument, "dt"):
         dt = instrument.dt
         if time_unit == "days":
             time_axis = np.linspace(0, dt * (n_steps - 1) * 365, n_steps)
@@ -93,13 +93,14 @@ def plot_price_paths(
     # Add mean path if multiple paths
     if n_paths > 1:
         mean_path = prices_np.mean(axis=0)
-        ax1.plot(time_axis, mean_path, 'r-', linewidth=2,
-                label=f'Mean ({n_paths} paths)')
+        ax1.plot(
+            time_axis, mean_path, "r-", linewidth=2, label=f"Mean ({n_paths} paths)"
+        )
         ax1.legend()
 
-    ax1.set_title(title or f'{instrument.__class__.__name__} Price Paths')
+    ax1.set_title(title or f"{instrument.__class__.__name__} Price Paths")
     ax1.set_xlabel(time_label)
-    ax1.set_ylabel('Price ($)')
+    ax1.set_ylabel("Price ($)")
     ax1.grid(True, alpha=0.3)
 
     # Right plot: Final price distribution
@@ -107,26 +108,34 @@ def plot_price_paths(
     final_prices = prices_np[:, -1]
 
     n_bins = min(30, max(10, n_paths // 10))  # Adaptive bins
-    ax2.hist(final_prices, bins=n_bins, alpha=0.7, edgecolor='black', density=True)
-    ax2.axvline(final_prices.mean(), color='red', linestyle='--',
-               label=f'Mean: ${final_prices.mean():.0f}')
+    ax2.hist(final_prices, bins=n_bins, alpha=0.7, edgecolor="black", density=True)
+    ax2.axvline(
+        final_prices.mean(),
+        color="red",
+        linestyle="--",
+        label=f"Mean: ${final_prices.mean():.0f}",
+    )
 
     if show_stats:
         # Add percentiles
         p5, p95 = np.percentile(final_prices, [5, 95])
-        ax2.axvline(p5, color='orange', linestyle=':', alpha=0.7, label=f'5%: ${p5:.0f}')
-        ax2.axvline(p95, color='orange', linestyle=':', alpha=0.7, label=f'95%: ${p95:.0f}')
+        ax2.axvline(
+            p5, color="orange", linestyle=":", alpha=0.7, label=f"5%: ${p5:.0f}"
+        )
+        ax2.axvline(
+            p95, color="orange", linestyle=":", alpha=0.7, label=f"95%: ${p95:.0f}"
+        )
 
-    ax2.set_title('Final Price Distribution')
-    ax2.set_xlabel('Final Price ($)')
-    ax2.set_ylabel('Density')
+    ax2.set_title("Final Price Distribution")
+    ax2.set_xlabel("Final Price ($)")
+    ax2.set_ylabel("Density")
     ax2.legend()
     ax2.grid(True, alpha=0.3)
 
     plt.tight_layout()
 
     if save_path:
-        fig.savefig(save_path, dpi=300, bbox_inches='tight')
+        fig.savefig(save_path, dpi=300, bbox_inches="tight")
 
     # Print summary statistics
     if show_stats:
@@ -152,7 +161,7 @@ def plot_option_analysis(
     option_type: str = "call",
     title: Optional[str] = None,
     figsize: Tuple[int, int] = (15, 5),
-    save_path: Optional[str] = None
+    save_path: Optional[str] = None,
 ) -> plt.Figure:
     """
     Analyze option payoffs for any instrument.
@@ -169,7 +178,7 @@ def plot_option_analysis(
         matplotlib.Figure: The created figure
     """
 
-    if not hasattr(instrument, 'spot'):
+    if not hasattr(instrument, "spot"):
         raise ValueError("Instrument must have a 'spot' attribute")
 
     final_prices = instrument.spot[:, -1].detach().numpy()
@@ -188,10 +197,10 @@ def plot_option_analysis(
     ax1 = axes[0]
     scatter_alpha = min(1.0, 100 / len(final_prices))
     ax1.scatter(final_prices, payoffs, alpha=scatter_alpha)
-    ax1.axvline(strike, color='red', linestyle='--', label=f'Strike: ${strike:.0f}')
-    ax1.set_title(f'{option_type.title()} Option Payoff')
-    ax1.set_xlabel('Final Price ($)')
-    ax1.set_ylabel('Payoff ($)')
+    ax1.axvline(strike, color="red", linestyle="--", label=f"Strike: ${strike:.0f}")
+    ax1.set_title(f"{option_type.title()} Option Payoff")
+    ax1.set_xlabel("Final Price ($)")
+    ax1.set_ylabel("Payoff ($)")
     ax1.legend()
     ax1.grid(True, alpha=0.3)
 
@@ -199,36 +208,51 @@ def plot_option_analysis(
     ax2 = axes[1]
     itm_payoffs = payoffs[payoffs > 0]
     if len(itm_payoffs) > 0:
-        ax2.hist(itm_payoffs, bins=20, alpha=0.7, edgecolor='black')
-        ax2.axvline(itm_payoffs.mean(), color='red', linestyle='--',
-                   label=f'Mean: ${itm_payoffs.mean():.0f}')
-        ax2.set_title('ITM Payoff Distribution')
-        ax2.set_xlabel('Payoff ($)')
-        ax2.set_ylabel('Frequency')
+        ax2.hist(itm_payoffs, bins=20, alpha=0.7, edgecolor="black")
+        ax2.axvline(
+            itm_payoffs.mean(),
+            color="red",
+            linestyle="--",
+            label=f"Mean: ${itm_payoffs.mean():.0f}",
+        )
+        ax2.set_title("ITM Payoff Distribution")
+        ax2.set_xlabel("Payoff ($)")
+        ax2.set_ylabel("Frequency")
         ax2.legend()
     else:
-        ax2.text(0.5, 0.5, 'No ITM Options', ha='center', va='center',
-                transform=ax2.transAxes, fontsize=14)
-        ax2.set_title('ITM Payoff Distribution')
+        ax2.text(
+            0.5,
+            0.5,
+            "No ITM Options",
+            ha="center",
+            va="center",
+            transform=ax2.transAxes,
+            fontsize=14,
+        )
+        ax2.set_title("ITM Payoff Distribution")
     ax2.grid(True, alpha=0.3)
 
     # Moneyness analysis
     ax3 = axes[2]
     moneyness = final_prices / strike
-    ax3.hist(moneyness, bins=25, alpha=0.7, edgecolor='black')
-    ax3.axvline(1.0, color='red', linestyle='--', label='ATM')
-    ax3.axvline(moneyness.mean(), color='orange', linestyle='--',
-               label=f'Mean: {moneyness.mean():.2f}')
-    ax3.set_title('Moneyness Distribution')
-    ax3.set_xlabel('S/K Ratio')
-    ax3.set_ylabel('Frequency')
+    ax3.hist(moneyness, bins=25, alpha=0.7, edgecolor="black")
+    ax3.axvline(1.0, color="red", linestyle="--", label="ATM")
+    ax3.axvline(
+        moneyness.mean(),
+        color="orange",
+        linestyle="--",
+        label=f"Mean: {moneyness.mean():.2f}",
+    )
+    ax3.set_title("Moneyness Distribution")
+    ax3.set_xlabel("S/K Ratio")
+    ax3.set_ylabel("Frequency")
     ax3.legend()
     ax3.grid(True, alpha=0.3)
 
     plt.tight_layout()
 
     if save_path:
-        fig.savefig(save_path, dpi=300, bbox_inches='tight')
+        fig.savefig(save_path, dpi=300, bbox_inches="tight")
 
     # Print option statistics
     itm_ratio = (payoffs > 0).mean()
@@ -251,7 +275,7 @@ def plot_hedging_performance(
     hedge_name: str = "Hedge Strategy",
     title: Optional[str] = None,
     figsize: Tuple[int, int] = (15, 5),
-    save_path: Optional[str] = None
+    save_path: Optional[str] = None,
 ) -> plt.Figure:
     """
     Analyze hedging strategy performance.
@@ -279,13 +303,17 @@ def plot_hedging_performance(
 
     # PnL distribution
     ax1 = axes[0]
-    ax1.hist(hedge_pnl, bins=25, alpha=0.7, edgecolor='black')
-    ax1.axvline(hedge_pnl.mean(), color='red', linestyle='--',
-               label=f'Mean: ${hedge_pnl.mean():.0f}')
-    ax1.axvline(0, color='black', linestyle='-', alpha=0.5, label='Break-even')
-    ax1.set_title(f'{hedge_name} PnL Distribution')
-    ax1.set_xlabel('PnL ($)')
-    ax1.set_ylabel('Frequency')
+    ax1.hist(hedge_pnl, bins=25, alpha=0.7, edgecolor="black")
+    ax1.axvline(
+        hedge_pnl.mean(),
+        color="red",
+        linestyle="--",
+        label=f"Mean: ${hedge_pnl.mean():.0f}",
+    )
+    ax1.axvline(0, color="black", linestyle="-", alpha=0.5, label="Break-even")
+    ax1.set_title(f"{hedge_name} PnL Distribution")
+    ax1.set_xlabel("PnL ($)")
+    ax1.set_ylabel("Frequency")
     ax1.legend()
     ax1.grid(True, alpha=0.3)
 
@@ -294,19 +322,19 @@ def plot_hedging_performance(
     if underlying_returns is not None:
         scatter_alpha = min(1.0, 100 / len(hedge_pnl))
         ax2.scatter(underlying_returns * 100, hedge_pnl, alpha=scatter_alpha)
-        ax2.axhline(0, color='black', linestyle='-', alpha=0.5)
-        ax2.axvline(0, color='black', linestyle='-', alpha=0.5)
-        ax2.set_title('PnL vs Underlying Return')
-        ax2.set_xlabel('Underlying Return (%)')
-        ax2.set_ylabel('Hedge PnL ($)')
+        ax2.axhline(0, color="black", linestyle="-", alpha=0.5)
+        ax2.axvline(0, color="black", linestyle="-", alpha=0.5)
+        ax2.set_title("PnL vs Underlying Return")
+        ax2.set_xlabel("Underlying Return (%)")
+        ax2.set_ylabel("Hedge PnL ($)")
     else:
         # Show cumulative PnL if no underlying returns
         cumulative_pnl = np.cumsum(hedge_pnl)
         ax2.plot(cumulative_pnl, linewidth=2)
-        ax2.axhline(0, color='black', linestyle='-', alpha=0.5)
-        ax2.set_title('Cumulative PnL')
-        ax2.set_xlabel('Path Index')
-        ax2.set_ylabel('Cumulative PnL ($)')
+        ax2.axhline(0, color="black", linestyle="-", alpha=0.5)
+        ax2.set_title("Cumulative PnL")
+        ax2.set_xlabel("Path Index")
+        ax2.set_ylabel("Cumulative PnL ($)")
     ax2.grid(True, alpha=0.3)
 
     # Risk metrics
@@ -318,16 +346,16 @@ def plot_hedging_performance(
 
     ax3.barh(range(len(percentiles)), pnl_percentiles, alpha=0.7)
     ax3.set_yticks(range(len(percentiles)))
-    ax3.set_yticklabels([f'{p}%' for p in percentiles])
-    ax3.axvline(0, color='black', linestyle='-', alpha=0.5)
-    ax3.set_title('PnL Percentiles (VaR)')
-    ax3.set_xlabel('PnL ($)')
+    ax3.set_yticklabels([f"{p}%" for p in percentiles])
+    ax3.axvline(0, color="black", linestyle="-", alpha=0.5)
+    ax3.set_title("PnL Percentiles (VaR)")
+    ax3.set_xlabel("PnL ($)")
     ax3.grid(True, alpha=0.3)
 
     plt.tight_layout()
 
     if save_path:
-        fig.savefig(save_path, dpi=300, bbox_inches='tight')
+        fig.savefig(save_path, dpi=300, bbox_inches="tight")
 
     # Print performance statistics
     win_rate = (hedge_pnl > 0).mean()
@@ -350,7 +378,7 @@ def plot_volatility_analysis(
     instrument,
     title: Optional[str] = None,
     figsize: Tuple[int, int] = (12, 8),
-    save_path: Optional[str] = None
+    save_path: Optional[str] = None,
 ) -> plt.Figure:
     """
     Analyze volatility patterns for any instrument.
@@ -365,7 +393,7 @@ def plot_volatility_analysis(
         matplotlib.Figure: The created figure
     """
 
-    if not hasattr(instrument, 'volatility'):
+    if not hasattr(instrument, "volatility"):
         raise ValueError("Instrument must have a 'volatility' attribute")
 
     vol = instrument.volatility.detach().numpy()
@@ -376,28 +404,34 @@ def plot_volatility_analysis(
 
     # Volatility over time (first path)
     ax1 = axes[0]
-    if hasattr(instrument, 'dt'):
-        time_axis = np.linspace(0, instrument.dt * (vol.shape[1] - 1) * 365, vol.shape[1])
+    if hasattr(instrument, "dt"):
+        time_axis = np.linspace(
+            0, instrument.dt * (vol.shape[1] - 1) * 365, vol.shape[1]
+        )
         time_label = "Days"
     else:
         time_axis = np.arange(vol.shape[1])
         time_label = "Time Steps"
 
     ax1.plot(time_axis, vol[0] * 100, linewidth=2)
-    ax1.set_title('Volatility Over Time')
+    ax1.set_title("Volatility Over Time")
     ax1.set_xlabel(time_label)
-    ax1.set_ylabel('Volatility (%)')
+    ax1.set_ylabel("Volatility (%)")
     ax1.grid(True, alpha=0.3)
 
     # Volatility distribution
     ax2 = axes[1]
     vol_flat = vol.flatten()
-    ax2.hist(vol_flat * 100, bins=30, alpha=0.7, edgecolor='black')
-    ax2.axvline(vol_flat.mean() * 100, color='red', linestyle='--',
-               label=f'Mean: {vol_flat.mean():.1%}')
-    ax2.set_title('Volatility Distribution')
-    ax2.set_xlabel('Volatility (%)')
-    ax2.set_ylabel('Frequency')
+    ax2.hist(vol_flat * 100, bins=30, alpha=0.7, edgecolor="black")
+    ax2.axvline(
+        vol_flat.mean() * 100,
+        color="red",
+        linestyle="--",
+        label=f"Mean: {vol_flat.mean():.1%}",
+    )
+    ax2.set_title("Volatility Distribution")
+    ax2.set_xlabel("Volatility (%)")
+    ax2.set_ylabel("Frequency")
     ax2.legend()
     ax2.grid(True, alpha=0.3)
 
@@ -408,35 +442,42 @@ def plot_volatility_analysis(
 
     scatter_alpha = min(1.0, 1000 / len(spot_flat))
     ax3.scatter(spot_flat, vol_flat * 100, alpha=scatter_alpha)
-    ax3.set_title('Volatility vs Price Level')
-    ax3.set_xlabel('Spot Price ($)')
-    ax3.set_ylabel('Volatility (%)')
+    ax3.set_title("Volatility vs Price Level")
+    ax3.set_xlabel("Spot Price ($)")
+    ax3.set_ylabel("Volatility (%)")
     ax3.grid(True, alpha=0.3)
 
     # Realized vs Implied (if available)
     ax4 = axes[3]
-    if hasattr(instrument, 'sigma'):  # For Brownian models
+    if hasattr(instrument, "sigma"):  # For Brownian models
         target_vol = instrument.sigma
-        ax4.axhline(target_vol * 100, color='red', linestyle='--',
-                   label=f'Target: {target_vol:.1%}')
-        ax4.plot(time_axis, vol[0] * 100, linewidth=2, label='Realized')
-        ax4.set_title('Realized vs Target Volatility')
+        ax4.axhline(
+            target_vol * 100,
+            color="red",
+            linestyle="--",
+            label=f"Target: {target_vol:.1%}",
+        )
+        ax4.plot(time_axis, vol[0] * 100, linewidth=2, label="Realized")
+        ax4.set_title("Realized vs Target Volatility")
         ax4.set_xlabel(time_label)
-        ax4.set_ylabel('Volatility (%)')
+        ax4.set_ylabel("Volatility (%)")
         ax4.legend()
     else:
         # Show volatility term structure
         mean_vol_path = vol.mean(axis=0)
         std_vol_path = vol.std(axis=0)
 
-        ax4.plot(time_axis, mean_vol_path * 100, linewidth=2, label='Mean')
-        ax4.fill_between(time_axis,
-                        (mean_vol_path - std_vol_path) * 100,
-                        (mean_vol_path + std_vol_path) * 100,
-                        alpha=0.3, label='±1 Std')
-        ax4.set_title('Volatility Term Structure')
+        ax4.plot(time_axis, mean_vol_path * 100, linewidth=2, label="Mean")
+        ax4.fill_between(
+            time_axis,
+            (mean_vol_path - std_vol_path) * 100,
+            (mean_vol_path + std_vol_path) * 100,
+            alpha=0.3,
+            label="±1 Std",
+        )
+        ax4.set_title("Volatility Term Structure")
         ax4.set_xlabel(time_label)
-        ax4.set_ylabel('Volatility (%)')
+        ax4.set_ylabel("Volatility (%)")
         ax4.legend()
 
     ax4.grid(True, alpha=0.3)
@@ -444,7 +485,7 @@ def plot_volatility_analysis(
     plt.tight_layout()
 
     if save_path:
-        fig.savefig(save_path, dpi=300, bbox_inches='tight')
+        fig.savefig(save_path, dpi=300, bbox_inches="tight")
 
     return fig
 
@@ -456,7 +497,7 @@ def quick_instrument_analysis(
     option_type: str = "call",
     n_paths_to_show: int = 10,
     save_plots: bool = False,
-    output_dir: str = "plots"
+    output_dir: str = "plots",
 ) -> None:
     """
     Run complete analysis suite for any instrument.
@@ -474,14 +515,13 @@ def quick_instrument_analysis(
 
     if save_plots:
         import os
+
         os.makedirs(output_dir, exist_ok=True)
 
     # Price path analysis
     print(f"📈 Analyzing {instrument_name}...")
     fig1 = plot_price_paths(
-        instrument,
-        n_paths_to_show=n_paths_to_show,
-        title=f"{instrument_name} Analysis"
+        instrument, n_paths_to_show=n_paths_to_show, title=f"{instrument_name} Analysis"
     )
     if save_plots:
         plt.savefig(f"{output_dir}/{instrument_name}_price_paths.png")
@@ -495,17 +535,16 @@ def quick_instrument_analysis(
         instrument,
         strike=strike,
         option_type=option_type,
-        title=f"{instrument_name} Option Analysis"
+        title=f"{instrument_name} Option Analysis",
     )
     if save_plots:
         plt.savefig(f"{output_dir}/{instrument_name}_option_analysis.png")
     plt.show()
 
     # Volatility analysis (if available)
-    if hasattr(instrument, 'volatility'):
+    if hasattr(instrument, "volatility"):
         fig3 = plot_volatility_analysis(
-            instrument,
-            title=f"{instrument_name} Volatility Analysis"
+            instrument, title=f"{instrument_name} Volatility Analysis"
         )
         if save_plots:
             plt.savefig(f"{output_dir}/{instrument_name}_volatility_analysis.png")
@@ -526,7 +565,7 @@ def plot_hedge_comparison(
     path_idx: int = 0,
     title: Optional[str] = None,
     figsize: Tuple[int, int] = (12, 14),
-    save_path: Optional[str] = None
+    save_path: Optional[str] = None,
 ) -> plt.Figure:
     """
     Create comprehensive hedge comparison visualization.
@@ -590,10 +629,10 @@ def plot_hedge_comparison(
 
     # Plot 1: Training History (if provided)
     if training_history is not None:
-        ax_hist.plot(training_history, label='Deep Hedging Training', linewidth=2)
-        ax_hist.set_title('Training History', fontsize=14, fontweight='bold')
-        ax_hist.set_xlabel('Epoch')
-        ax_hist.set_ylabel('Loss')
+        ax_hist.plot(training_history, label="Deep Hedging Training", linewidth=2)
+        ax_hist.set_title("Training History", fontsize=14, fontweight="bold")
+        ax_hist.set_xlabel("Epoch")
+        ax_hist.set_ylabel("Loss")
         ax_hist.legend()
         ax_hist.grid(True, alpha=0.3)
 
@@ -605,63 +644,108 @@ def plot_hedge_comparison(
 
     # Only plot deep hedge if not NaN
     if not np.isnan(deep_hedge_positions[path_idx]).all():
-        ax_hedge.plot(time_steps, deep_hedge_positions[path_idx],
-                     'b-', linewidth=2, label='Deep Hedge', alpha=0.8)
+        ax_hedge.plot(
+            time_steps,
+            deep_hedge_positions[path_idx],
+            "b-",
+            linewidth=2,
+            label="Deep Hedge",
+            alpha=0.8,
+        )
 
-    ax_hedge.plot(time_steps, bs_delta[path_idx],
-                 'r--', linewidth=2, label='Black-Scholes', alpha=0.8)
-    ax_hedge.set_xlabel('Time Step')
-    ax_hedge.set_ylabel('Hedge Position', color='black')
-    ax_hedge.set_title(f'Dynamic Hedging Strategy Over Time (Path {path_idx})',
-                      fontsize=14, fontweight='bold')
-    ax_hedge.legend(loc='upper left')
+    ax_hedge.plot(
+        time_steps,
+        bs_delta[path_idx],
+        "r--",
+        linewidth=2,
+        label="Black-Scholes",
+        alpha=0.8,
+    )
+    ax_hedge.set_xlabel("Time Step")
+    ax_hedge.set_ylabel("Hedge Position", color="black")
+    ax_hedge.set_title(
+        f"Dynamic Hedging Strategy Over Time (Path {path_idx})",
+        fontsize=14,
+        fontweight="bold",
+    )
+    ax_hedge.legend(loc="upper left")
     ax_hedge.grid(True, alpha=0.3)
 
     # Add spot price on secondary axis
-    ax_spot.plot(time_steps, spots[path_idx],
-                'grey', linestyle=':', linewidth=2, alpha=0.6, label='Spot Price')
-    ax_spot.axhline(strike, color='red', linestyle='--', alpha=0.4, label='Strike')
-    ax_spot.set_ylabel('Price ($)', color='grey')
-    ax_spot.legend(loc='upper right')
+    ax_spot.plot(
+        time_steps,
+        spots[path_idx],
+        "grey",
+        linestyle=":",
+        linewidth=2,
+        alpha=0.6,
+        label="Spot Price",
+    )
+    ax_spot.axhline(strike, color="red", linestyle="--", alpha=0.4, label="Strike")
+    ax_spot.set_ylabel("Price ($)", color="grey")
+    ax_spot.legend(loc="upper right")
 
     # Plot 3: Final PnL Distribution
     # Get final PnL
-    deep_final_pnl = deep_hedge_pnl[:, -1] if deep_hedge_pnl.ndim == 2 else deep_hedge_pnl
+    deep_final_pnl = (
+        deep_hedge_pnl[:, -1] if deep_hedge_pnl.ndim == 2 else deep_hedge_pnl
+    )
     bs_final_pnl = bs_hedge_pnl[:, -1] if bs_hedge_pnl.ndim == 2 else bs_hedge_pnl
 
     # Get means from performance_results if provided, otherwise calculate
     if performance_results:
-        deep_mean = performance_results.get("Deep Hedge", {}).get("mean", deep_final_pnl.mean())
-        bs_mean = performance_results.get("Black-Scholes", {}).get("mean", bs_final_pnl.mean())
+        deep_mean = performance_results.get("Deep Hedge", {}).get(
+            "mean", deep_final_pnl.mean()
+        )
+        bs_mean = performance_results.get("Black-Scholes", {}).get(
+            "mean", bs_final_pnl.mean()
+        )
     else:
         deep_mean = deep_final_pnl.mean()
         bs_mean = bs_final_pnl.mean()
 
     # Only plot if data is valid (not NaN)
     if not np.isnan(deep_final_pnl).all():
-        ax_pnl.hist(deep_final_pnl, bins=30, alpha=0.5,
-                   color='blue', label='Deep Hedge PnL', density=False)
-        ax_pnl.axvline(deep_mean, color='blue', linestyle='--',
-                      linewidth=2, label=f'Deep Mean: ${deep_mean:.2f}')
+        ax_pnl.hist(
+            deep_final_pnl,
+            bins=30,
+            alpha=0.5,
+            color="blue",
+            label="Deep Hedge PnL",
+            density=False,
+        )
+        ax_pnl.axvline(
+            deep_mean,
+            color="blue",
+            linestyle="--",
+            linewidth=2,
+            label=f"Deep Mean: ${deep_mean:.2f}",
+        )
 
     if not np.isnan(bs_final_pnl).all():
-        ax_pnl.hist(bs_final_pnl, bins=30, alpha=0.5,
-                   color='red', label='BS PnL', density=False)
-        ax_pnl.axvline(bs_mean, color='red', linestyle='--',
-                      linewidth=2, label=f'BS Mean: ${bs_mean:.2f}')
+        ax_pnl.hist(
+            bs_final_pnl, bins=30, alpha=0.5, color="red", label="BS PnL", density=False
+        )
+        ax_pnl.axvline(
+            bs_mean,
+            color="red",
+            linestyle="--",
+            linewidth=2,
+            label=f"BS Mean: ${bs_mean:.2f}",
+        )
 
-    ax_pnl.set_xlabel('Final PnL ($)')
-    ax_pnl.set_ylabel('Frequency')
-    pnl_title = title or 'Final PnL Distribution'
+    ax_pnl.set_xlabel("Final PnL ($)")
+    ax_pnl.set_ylabel("Frequency")
+    pnl_title = title or "Final PnL Distribution"
     if np.isnan(deep_final_pnl).all():
-        pnl_title += ' (Deep Hedge: NaN - Training Failed)'
-    ax_pnl.set_title(pnl_title, fontsize=14, fontweight='bold')
+        pnl_title += " (Deep Hedge: NaN - Training Failed)"
+    ax_pnl.set_title(pnl_title, fontsize=14, fontweight="bold")
     ax_pnl.legend()
     ax_pnl.grid(True, alpha=0.3)
 
     plt.tight_layout()
 
     if save_path:
-        fig.savefig(save_path, dpi=150, bbox_inches='tight')
+        fig.savefig(save_path, dpi=150, bbox_inches="tight")
 
     return fig

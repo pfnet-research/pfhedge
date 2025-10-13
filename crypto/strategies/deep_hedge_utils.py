@@ -6,7 +6,13 @@ calculating baseline PnL, and comparing performance.
 
 import torch
 from typing import Dict, Tuple, Optional
-from pfhedge.nn import Hedger, MultiLayerPerceptron, ExpectedShortfall, EntropicRiskMeasure, QuadraticCVaR
+from pfhedge.nn import (
+    Hedger,
+    MultiLayerPerceptron,
+    ExpectedShortfall,
+    EntropicRiskMeasure,
+    QuadraticCVaR,
+)
 from pfhedge.nn.modules.loss import EntropicLoss
 
 
@@ -50,10 +56,7 @@ def create_deep_hedger(
         features = DEFAULT_FEATURES
 
     # Create model
-    model = MultiLayerPerceptron(
-        n_layers=n_layers,
-        n_units=[n_units] * n_layers
-    )
+    model = MultiLayerPerceptron(n_layers=n_layers, n_units=[n_units] * n_layers)
 
     # Create criterion based on risk measure
     if risk_measure == "expected_shortfall":
@@ -65,15 +68,13 @@ def create_deep_hedger(
     elif risk_measure == "quadratic_cvar":
         criterion = QuadraticCVaR(lam=risk_param)
     else:
-        raise ValueError(f"Unsupported risk measure: {risk_measure}. "
-                        f"Choose from: expected_shortfall, entropic, entropic_loss, quadratic_cvar")
+        raise ValueError(
+            f"Unsupported risk measure: {risk_measure}. "
+            f"Choose from: expected_shortfall, entropic, entropic_loss, quadratic_cvar"
+        )
 
     # Create hedger
-    return Hedger(
-        model=model,
-        inputs=features,
-        criterion=criterion
-    )
+    return Hedger(model=model, inputs=features, criterion=criterion)
 
 
 def calculate_bs_hedge_pnl(
@@ -102,10 +103,14 @@ def calculate_bs_hedge_pnl(
     """
     # Capital gains: δ_{i-1} * (S_i - S_{i-1})
     # Use PREVIOUS position (not current) for price changes
-    capital_gains = torch.cat([
-        torch.zeros_like(spots[:, [0]]),  # No gain at first step
-        bs_delta[:, :-1] * (spots[:, 1:] - spots[:, :-1])  # Previous delta * price change
-    ], dim=1)
+    capital_gains = torch.cat(
+        [
+            torch.zeros_like(spots[:, [0]]),  # No gain at first step
+            bs_delta[:, :-1]
+            * (spots[:, 1:] - spots[:, :-1]),  # Previous delta * price change
+        ],
+        dim=1,
+    )
 
     # Cumulative capital gains
     cumulative_pnl = capital_gains.cumsum(dim=1)
@@ -116,10 +121,13 @@ def calculate_bs_hedge_pnl(
     # Transaction costs
     if cost > 0:
         # Position changes: |δ_i - δ_{i-1}|
-        delta_changes = torch.cat([
-            bs_delta[:, [0]],  # Initial position
-            bs_delta[:, 1:] - bs_delta[:, :-1]  # Rebalancing
-        ], dim=1)
+        delta_changes = torch.cat(
+            [
+                bs_delta[:, [0]],  # Initial position
+                bs_delta[:, 1:] - bs_delta[:, :-1],  # Rebalancing
+            ],
+            dim=1,
+        )
 
         # Transaction costs applied to spot prices AFTER trade
         # First cost uses initial spot, subsequent costs use new spots
@@ -207,7 +215,7 @@ def compare_hedge_performance(
             "std": bs_final.std().item(),
             "min": bs_final.min().item(),
             "max": bs_final.max().item(),
-        }
+        },
     }
 
     # Add Sharpe ratios
@@ -227,43 +235,57 @@ def print_performance_comparison(results: Dict[str, Dict[str, float]]) -> None:
     """
     names = list(results.keys())
 
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("PERFORMANCE COMPARISON")
-    print("="*60)
+    print("=" * 60)
     print(f"\n{'Metric':<20} {names[0]:>15} {names[1]:>15}")
     print("-" * 52)
 
-    print(f"{'Mean PnL':<20} ${results[names[0]]['mean']:>14.2f} ${results[names[1]]['mean']:>14.2f}")
-    print(f"{'PnL Std':<20} ${results[names[0]]['std']:>14.2f} ${results[names[1]]['std']:>14.2f}")
-    print(f"{'Sharpe Ratio':<20} {results[names[0]]['sharpe']:>15.3f} {results[names[1]]['sharpe']:>15.3f}")
-    print(f"{'Min PnL':<20} ${results[names[0]]['min']:>14.2f} ${results[names[1]]['min']:>14.2f}")
-    print(f"{'Max PnL':<20} ${results[names[0]]['max']:>14.2f} ${results[names[1]]['max']:>14.2f}")
+    print(
+        f"{'Mean PnL':<20} ${results[names[0]]['mean']:>14.2f} ${results[names[1]]['mean']:>14.2f}"
+    )
+    print(
+        f"{'PnL Std':<20} ${results[names[0]]['std']:>14.2f} ${results[names[1]]['std']:>14.2f}"
+    )
+    print(
+        f"{'Sharpe Ratio':<20} {results[names[0]]['sharpe']:>15.3f} {results[names[1]]['sharpe']:>15.3f}"
+    )
+    print(
+        f"{'Min PnL':<20} ${results[names[0]]['min']:>14.2f} ${results[names[1]]['min']:>14.2f}"
+    )
+    print(
+        f"{'Max PnL':<20} ${results[names[0]]['max']:>14.2f} ${results[names[1]]['max']:>14.2f}"
+    )
 
     # Analysis
     print(f"\n{'='*60}")
     print("ANALYSIS:")
     print(f"{'='*60}")
 
-    deep_std = results[names[0]]['std']
-    bs_std = results[names[1]]['std']
+    deep_std = results[names[0]]["std"]
+    bs_std = results[names[1]]["std"]
 
     if deep_std < bs_std:
         print(f"✅ {names[0]} achieves {(1 - deep_std/bs_std)*100:.1f}% lower risk")
     else:
         print(f"⚠️  {names[1]} has {(1 - bs_std/deep_std)*100:.1f}% lower risk")
 
-    deep_sharpe = results[names[0]]['sharpe']
-    bs_sharpe = results[names[1]]['sharpe']
+    deep_sharpe = results[names[0]]["sharpe"]
+    bs_sharpe = results[names[1]]["sharpe"]
 
     if deep_sharpe > bs_sharpe and bs_sharpe != 0:
-        print(f"✅ {names[0]} has {((deep_sharpe/bs_sharpe - 1)*100):.1f}% better Sharpe ratio")
+        print(
+            f"✅ {names[0]} has {((deep_sharpe/bs_sharpe - 1)*100):.1f}% better Sharpe ratio"
+        )
     elif bs_sharpe > deep_sharpe and deep_sharpe != 0:
-        print(f"⚠️  {names[1]} has {((bs_sharpe/deep_sharpe - 1)*100):.1f}% better Sharpe ratio")
+        print(
+            f"⚠️  {names[1]} has {((bs_sharpe/deep_sharpe - 1)*100):.1f}% better Sharpe ratio"
+        )
     elif bs_sharpe > deep_sharpe:
         print(f"⚠️  {names[1]} has better Sharpe ratio")
 
-    deep_mean = results[names[0]]['mean']
-    bs_mean = results[names[1]]['mean']
+    deep_mean = results[names[0]]["mean"]
+    bs_mean = results[names[1]]["mean"]
 
     if deep_mean > bs_mean:
         print(f"✅ {names[0]} has ${deep_mean - bs_mean:.2f} higher mean PnL")

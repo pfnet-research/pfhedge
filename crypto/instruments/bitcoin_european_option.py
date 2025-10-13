@@ -30,7 +30,10 @@ from typing import Optional, Union, Tuple
 import warnings
 
 from pfhedge.instruments import EuropeanOption
-from crypto.features.volatility import calculate_realized_volatility, create_volatility_features
+from crypto.features.volatility import (
+    calculate_realized_volatility,
+    create_volatility_features,
+)
 
 
 class BitcoinEuropeanOption(EuropeanOption):
@@ -57,13 +60,10 @@ class BitcoinEuropeanOption(EuropeanOption):
         strike: float,
         maturity: float,
         call: bool = True,
-        cost: float = 0.0
+        cost: float = 0.0,
     ):
         super().__init__(
-            underlier=underlier,
-            strike=strike,
-            maturity=maturity,
-            call=call
+            underlier=underlier, strike=strike, maturity=maturity, call=call
         )
 
         self.cost = cost
@@ -100,9 +100,7 @@ class BitcoinEuropeanOption(EuropeanOption):
     # - time_to_maturity(time_step=None)
 
     def realized_volatility(
-        self,
-        windows: Optional[list] = None,
-        recalculate: bool = False
+        self, windows: Optional[list] = None, recalculate: bool = False
     ) -> torch.Tensor:
         """
         Calculate realized volatility from underlying price paths.
@@ -124,7 +122,7 @@ class BitcoinEuropeanOption(EuropeanOption):
             if cache_key in self._realized_vol_cache:
                 return self._realized_vol_cache[cache_key]
 
-        if not hasattr(self.underlier, 'spot'):
+        if not hasattr(self.underlier, "spot"):
             raise ValueError("Underlier must be simulated first")
 
         # Calculate realized volatility for each window
@@ -133,7 +131,7 @@ class BitcoinEuropeanOption(EuropeanOption):
             vol = calculate_realized_volatility(
                 self.underlier.spot,
                 window=window,
-                annualization_factor=np.sqrt(252 * 24 * 12)  # Crypto 24/7, 5-min data
+                annualization_factor=np.sqrt(252 * 24 * 12),  # Crypto 24/7, 5-min data
             )
             vol_tensors.append(vol)
 
@@ -152,7 +150,7 @@ class BitcoinEuropeanOption(EuropeanOption):
         vol_windows: Optional[list] = None,
         include_time: bool = True,
         include_moneyness: bool = True,
-        include_volatility: bool = True
+        include_volatility: bool = True,
     ) -> dict:
         """
         Create feature set for deep hedging neural networks.
@@ -166,7 +164,7 @@ class BitcoinEuropeanOption(EuropeanOption):
         Returns:
             Dictionary of features ready for neural network input
         """
-        if not hasattr(self.underlier, 'spot'):
+        if not hasattr(self.underlier, "spot"):
             raise ValueError("Underlier must be simulated first")
 
         features = {}
@@ -174,12 +172,12 @@ class BitcoinEuropeanOption(EuropeanOption):
 
         if include_moneyness:
             # Use parent's moneyness() with log=True for log-moneyness
-            features['log_moneyness'] = self.moneyness(log=True)
+            features["log_moneyness"] = self.moneyness(log=True)
 
         if include_time:
             ttm = self.time_to_maturity()
             # Broadcast to match spot shape
-            features['time_to_maturity'] = ttm.expand(n_paths, n_steps)
+            features["time_to_maturity"] = ttm.expand(n_paths, n_steps)
 
         if include_volatility:
             if vol_windows is None:
@@ -188,14 +186,12 @@ class BitcoinEuropeanOption(EuropeanOption):
             vol_features = self.realized_volatility(vol_windows)
             # Add each volatility window as separate feature
             for i, window in enumerate(vol_windows):
-                features[f'realized_vol_{window}'] = vol_features[:, :, i]
+                features[f"realized_vol_{window}"] = vol_features[:, :, i]
 
         return features
 
     def black_scholes_delta(
-        self,
-        volatility: Optional[torch.Tensor] = None,
-        risk_free_rate: float = 0.0
+        self, volatility: Optional[torch.Tensor] = None, risk_free_rate: float = 0.0
     ) -> torch.Tensor:
         """
         Calculate Black-Scholes delta for comparison with deep hedging.
@@ -244,7 +240,9 @@ class BitcoinEuropeanOption(EuropeanOption):
 
         # Calculate d1 from Black-Scholes formula
         # d1: (n_paths, n_steps)
-        d1 = (torch.log(spot / strike) + (risk_free_rate + 0.5 * volatility**2) * ttm) / vol_sqrt_ttm
+        d1 = (
+            torch.log(spot / strike) + (risk_free_rate + 0.5 * volatility ** 2) * ttm
+        ) / vol_sqrt_ttm
 
         # Handle NaN values by replacing with 0
         # d1: (n_paths, n_steps)
@@ -255,6 +253,7 @@ class BitcoinEuropeanOption(EuropeanOption):
         d1 = torch.clamp(d1, min=-10, max=10)
 
         from torch.distributions import Normal
+
         normal = Normal(0, 1)
 
         if self.call:
@@ -275,13 +274,13 @@ class BitcoinEuropeanOption(EuropeanOption):
         Returns:
             Dictionary with option summary statistics
         """
-        if not hasattr(self.underlier, 'spot'):
+        if not hasattr(self.underlier, "spot"):
             return {
-                'strike': self.strike,
-                'maturity': self.maturity,
-                'call': self.call,
-                'cost': self.cost,
-                'simulated': False
+                "strike": self.strike,
+                "maturity": self.maturity,
+                "call": self.call,
+                "cost": self.cost,
+                "simulated": False,
             }
 
         # Calculate payoffs and statistics
@@ -289,36 +288,35 @@ class BitcoinEuropeanOption(EuropeanOption):
         spot_final = self.underlier.spot[:, -1]
 
         summary = {
-            'strike': self.strike,
-            'maturity': self.maturity,
-            'call': self.call,
-            'cost': self.cost,
-            'simulated': True,
-            'n_paths': self.underlier.spot.shape[0],
-            'n_steps': self.underlier.spot.shape[1],
-            'spot_initial': self.underlier.spot[:, 0].mean().item(),
-            'spot_final_mean': spot_final.mean().item(),
-            'spot_final_std': spot_final.std().item(),
-            'payoff_mean': payoffs.mean().item(),
-            'payoff_std': payoffs.std().item(),
-            'payoff_max': payoffs.max().item(),
-            'itm_ratio': (payoffs > 0).float().mean().item(),
+            "strike": self.strike,
+            "maturity": self.maturity,
+            "call": self.call,
+            "cost": self.cost,
+            "simulated": True,
+            "n_paths": self.underlier.spot.shape[0],
+            "n_steps": self.underlier.spot.shape[1],
+            "spot_initial": self.underlier.spot[:, 0].mean().item(),
+            "spot_final_mean": spot_final.mean().item(),
+            "spot_final_std": spot_final.std().item(),
+            "payoff_mean": payoffs.mean().item(),
+            "payoff_std": payoffs.std().item(),
+            "payoff_max": payoffs.max().item(),
+            "itm_ratio": (payoffs > 0).float().mean().item(),
         }
 
         # Add moneyness information
         if self.call:
-            summary['otm_ratio'] = (spot_final < self.strike).float().mean().item()
-            summary['atm_ratio'] = 1 - summary['itm_ratio'] - summary['otm_ratio']
+            summary["otm_ratio"] = (spot_final < self.strike).float().mean().item()
+            summary["atm_ratio"] = 1 - summary["itm_ratio"] - summary["otm_ratio"]
         else:
-            summary['otm_ratio'] = (spot_final > self.strike).float().mean().item()
-            summary['atm_ratio'] = 1 - summary['itm_ratio'] - summary['otm_ratio']
+            summary["otm_ratio"] = (spot_final > self.strike).float().mean().item()
+            summary["atm_ratio"] = 1 - summary["itm_ratio"] - summary["otm_ratio"]
 
         return summary
 
 
 def create_bitcoin_option_from_config(
-    config: dict,
-    underlier_class=None
+    config: dict, underlier_class=None
 ) -> Tuple[BitcoinEuropeanOption, dict]:
     """
     Create Bitcoin option and underlying from configuration.
@@ -345,40 +343,38 @@ def create_bitcoin_option_from_config(
     """
     if underlier_class is None:
         from crypto.instruments import BitcoinPerpetualBrownian
+
         underlier_class = BitcoinPerpetualBrownian
 
     # Set random seed if provided
-    if 'seed' in config:
-        torch.manual_seed(config['seed'])
-        np.random.seed(config['seed'])
+    if "seed" in config:
+        torch.manual_seed(config["seed"])
+        np.random.seed(config["seed"])
 
     # Create underlying instrument
     underlier = underlier_class(
-        sigma=config.get('sigma', 0.8),
-        mu=config.get('mu', 0.0),
-        cost=config.get('underlier_cost', 0.001),
-        dt=config.get('dt', 8 / 24 / 365)  # Default 8-hour bars
+        sigma=config.get("sigma", 0.8),
+        mu=config.get("mu", 0.0),
+        cost=config.get("underlier_cost", 0.001),
+        dt=config.get("dt", 8 / 24 / 365),  # Default 8-hour bars
     )
 
     # Simulate underlying
-    maturity = config.get('maturity_days', 30) / 365
-    underlier.simulate(
-        n_paths=config.get('n_paths', 1000),
-        time_horizon=maturity
-    )
+    maturity = config.get("maturity_days", 30) / 365
+    underlier.simulate(n_paths=config.get("n_paths", 1000), time_horizon=maturity)
 
     # Create option
     option = BitcoinEuropeanOption(
         underlier=underlier,
-        strike=config.get('strike', 50000),
+        strike=config.get("strike", 50000),
         maturity=maturity,
-        call=config.get('call', True),
-        cost=config.get('cost', 0.0)
+        call=config.get("call", True),
+        cost=config.get("cost", 0.0),
     )
 
     # Generate summary
     summary = option.summary()
-    summary['config'] = config
+    summary["config"] = config
 
     return option, summary
 
@@ -392,14 +388,14 @@ def _test_bitcoin_european_option():
 
     # Create test configuration
     config = {
-        'strike': 50000,
-        'maturity_days': 30,
-        'call': True,
-        'cost': 0.001,
-        'sigma': 0.8,
-        'mu': 0.0,
-        'n_paths': 100,
-        'seed': 42
+        "strike": 50000,
+        "maturity_days": 30,
+        "call": True,
+        "cost": 0.001,
+        "sigma": 0.8,
+        "mu": 0.0,
+        "n_paths": 100,
+        "seed": 42,
     }
 
     # Create option

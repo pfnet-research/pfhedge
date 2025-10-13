@@ -60,11 +60,7 @@ class BitcoinPerpetual(BitcoinBase):
     ) -> None:
         """Initialize Bitcoin perpetual instrument."""
         super().__init__(
-            cost=cost,
-            dt=dt,
-            data_loader=data_loader,
-            dtype=dtype,
-            device=device
+            cost=cost, dt=dt, data_loader=data_loader, dtype=dtype, device=device
         )
 
         # Perpetual specific attributes
@@ -95,7 +91,7 @@ class BitcoinPerpetual(BitcoinBase):
             raise ValueError("No perpetual data available in data_loader")
 
         # Ensure we have required columns
-        required_cols = ['timestamp', 'last_price']
+        required_cols = ["timestamp", "last_price"]
         if not all(col in perpetual_df.columns for col in required_cols):
             raise ValueError(f"Perpetual data must contain: {required_cols}")
 
@@ -112,11 +108,9 @@ class BitcoinPerpetual(BitcoinBase):
         super().load_historical_data(data, n_paths)
 
         # Load funding rate if available
-        if 'funding_8h' in data.columns:
+        if "funding_8h" in data.columns:
             funding_rates = torch.tensor(
-                data['funding_8h'].values,
-                dtype=self.dtype,
-                device=self.device
+                data["funding_8h"].values, dtype=self.dtype, device=self.device
             ).unsqueeze(0)
             if n_paths > 1:
                 funding_rates = funding_rates.repeat(n_paths, 1)
@@ -127,11 +121,9 @@ class BitcoinPerpetual(BitcoinBase):
             self.register_buffer("_funding_rate", torch.zeros_like(spot))
 
         # Load index price if available
-        if 'index_price' in data.columns:
+        if "index_price" in data.columns:
             index_prices = torch.tensor(
-                data['index_price'].values,
-                dtype=self.dtype,
-                device=self.device
+                data["index_price"].values, dtype=self.dtype, device=self.device
             ).unsqueeze(0)
             if n_paths > 1:
                 index_prices = index_prices.repeat(n_paths, 1)
@@ -147,7 +139,7 @@ class BitcoinPerpetual(BitcoinBase):
         Returns:
             Tensor of funding rates, shape (n_paths, n_steps)
         """
-        if not hasattr(self, '_buffers') or "_funding_rate" not in self._buffers:
+        if not hasattr(self, "_buffers") or "_funding_rate" not in self._buffers:
             raise ValueError("No funding rate data loaded. Call simulate() first.")
         return self.get_buffer("_funding_rate")
 
@@ -186,9 +178,13 @@ class BitcoinPerpetual(BitcoinBase):
         spot = self.get_buffer("spot")
 
         if position_size is None:
-            position_size = torch.ones(funding.shape[0], 1, dtype=self.dtype, device=self.device)
+            position_size = torch.ones(
+                funding.shape[0], 1, dtype=self.dtype, device=self.device
+            )
         elif not isinstance(position_size, Tensor):
-            position_size = torch.tensor(position_size, dtype=self.dtype, device=self.device)
+            position_size = torch.tensor(
+                position_size, dtype=self.dtype, device=self.device
+            )
 
         # Ensure position_size has correct shape
         if position_size.dim() == 0:
@@ -244,10 +240,10 @@ class BitcoinPerpetual(BitcoinBase):
             f"cost={self.cost}",
             f"dt={self.dt}",
             f"leverage={self.leverage}",
-            "type='perpetual'"
+            "type='perpetual'",
         ]
-        if hasattr(self, 'dtype') and self.dtype is not None:
+        if hasattr(self, "dtype") and self.dtype is not None:
             params.append(f"dtype={self.dtype}")
-        if hasattr(self, 'device') and self.device is not None:
+        if hasattr(self, "device") and self.device is not None:
             params.append(f"device='{self.device}'")
         return f"BitcoinPerpetual({', '.join(params)})"

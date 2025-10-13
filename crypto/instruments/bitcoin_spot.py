@@ -52,11 +52,7 @@ class BitcoinSpot(BitcoinBase):
     ) -> None:
         """Initialize Bitcoin spot instrument."""
         super().__init__(
-            cost=cost,
-            dt=dt,
-            data_loader=data_loader,
-            dtype=dtype,
-            device=device
+            cost=cost, dt=dt, data_loader=data_loader, dtype=dtype, device=device
         )
 
         # Spot specific attributes
@@ -88,18 +84,18 @@ class BitcoinSpot(BitcoinBase):
 
         # For spot, we use the perpetual prices but without funding
         # In reality, spot prices might differ slightly from perpetual
-        spot_df = perpetual_df[['timestamp', 'last_price']].copy()
+        spot_df = perpetual_df[["timestamp", "last_price"]].copy()
 
         # Add bid/ask if available
-        if 'bid_price' in perpetual_df.columns:
-            spot_df['bid_price'] = perpetual_df['bid_price']
-        if 'ask_price' in perpetual_df.columns:
-            spot_df['ask_price'] = perpetual_df['ask_price']
+        if "bid_price" in perpetual_df.columns:
+            spot_df["bid_price"] = perpetual_df["bid_price"]
+        if "ask_price" in perpetual_df.columns:
+            spot_df["ask_price"] = perpetual_df["ask_price"]
 
         # Add spread if not present
-        if 'bid_price' in spot_df.columns and 'ask_price' in spot_df.columns:
-            spot_df['spread'] = spot_df['ask_price'] - spot_df['bid_price']
-            spot_df['spread_pct'] = spot_df['spread'] / spot_df['last_price']
+        if "bid_price" in spot_df.columns and "ask_price" in spot_df.columns:
+            spot_df["spread"] = spot_df["ask_price"] - spot_df["bid_price"]
+            spot_df["spread_pct"] = spot_df["spread"] / spot_df["last_price"]
 
         return spot_df
 
@@ -158,6 +154,7 @@ class BitcoinSpot(BitcoinBase):
         # Ensure we have enough data
         if len(spot_data) < n_steps:
             import warnings
+
             warnings.warn(
                 f"Requested {n_steps} steps but only {len(spot_data)} available. "
                 f"Using all available data."
@@ -172,14 +169,9 @@ class BitcoinSpot(BitcoinBase):
 
     def __repr__(self) -> str:
         """String representation of BitcoinSpot."""
-        params = [
-            f"cost={self.cost}",
-            f"dt={self.dt}",
-            "leverage=1.0",
-            "type='spot'"
-        ]
-        if hasattr(self, 'dtype') and self.dtype is not None:
+        params = [f"cost={self.cost}", f"dt={self.dt}", "leverage=1.0", "type='spot'"]
+        if hasattr(self, "dtype") and self.dtype is not None:
             params.append(f"dtype={self.dtype}")
-        if hasattr(self, 'device') and self.device is not None:
+        if hasattr(self, "device") and self.device is not None:
             params.append(f"device='{self.device}'")
         return f"BitcoinSpot({', '.join(params)})"

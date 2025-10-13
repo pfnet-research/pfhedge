@@ -62,10 +62,14 @@ class BacktestConfig:
             start = datetime.strptime(self.start_date, "%Y-%m-%d")
             end = datetime.strptime(self.end_date, "%Y-%m-%d")
             if end <= start:
-                raise ValueError(f"end_date ({self.end_date}) must be after start_date ({self.start_date})")
+                raise ValueError(
+                    f"end_date ({self.end_date}) must be after start_date ({self.start_date})"
+                )
         except ValueError as e:
             if "does not match format" in str(e):
-                raise ValueError(f"Dates must be in YYYY-MM-DD format. Got: {self.start_date}, {self.end_date}")
+                raise ValueError(
+                    f"Dates must be in YYYY-MM-DD format. Got: {self.start_date}, {self.end_date}"
+                )
             raise
 
         # Validate strike
@@ -74,17 +78,25 @@ class BacktestConfig:
 
         # Validate maturity
         if self.maturity_days <= 0:
-            raise ValueError(f"maturity_days must be positive, got {self.maturity_days}")
+            raise ValueError(
+                f"maturity_days must be positive, got {self.maturity_days}"
+            )
 
         # Validate n_bootstrap_paths
         if self.n_bootstrap_paths <= 0:
-            raise ValueError(f"n_bootstrap_paths must be positive, got {self.n_bootstrap_paths}")
+            raise ValueError(
+                f"n_bootstrap_paths must be positive, got {self.n_bootstrap_paths}"
+            )
 
         # Validate transaction_cost
         if self.transaction_cost < 0:
-            raise ValueError(f"transaction_cost must be non-negative, got {self.transaction_cost}")
+            raise ValueError(
+                f"transaction_cost must be non-negative, got {self.transaction_cost}"
+            )
         if self.transaction_cost > 0.1:
-            raise ValueError(f"transaction_cost seems too high: {self.transaction_cost} (10%+). Did you mean {self.transaction_cost/100}?")
+            raise ValueError(
+                f"transaction_cost seems too high: {self.transaction_cost} (10%+). Did you mean {self.transaction_cost/100}?"
+            )
 
         # Validate dt_hours
         if self.dt_hours <= 0:

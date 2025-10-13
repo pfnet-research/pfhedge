@@ -99,10 +99,18 @@ class Backtester:
 
 ---
 
-### Step 1.4: Implement Model Loading
+### Step 1.4: Implement Model Loading ✅
 **File:** `crypto/backtest/backtester.py` (update)
-**What:** Implement `load_model()` method
+**What:** Implement `load_model()` method with hardening improvements
 **Test:** Can load a saved model checkpoint
+**Status:** COMPLETED - All 11 tests passing (5 original + 6 hardening tests)
+
+**Improvements Applied:**
+- ✅ Device parameter for CPU/GPU support
+- ✅ Backward compatibility (accepts both 'criterion' and 'risk_measure')
+- ✅ Safer loading with `weights_only=True` (with fallback)
+- ✅ Strict state dict checking with clear error messages
+- ✅ Default features fallback to DEFAULT_FEATURES
 
 **Review point:** Model loading works with test checkpoint
 
@@ -271,7 +279,7 @@ class BacktestResults:
   - [x] Step 1.1: Create BacktestConfig
   - [x] Step 1.2: Create Metrics Calculator
   - [x] Step 1.3: Create Simple Backtester Shell
-  - [ ] Step 1.4: Implement Model Loading
+  - [x] Step 1.4: Implement Model Loading
   - [ ] Step 1.5: Implement Data Loading
   - [ ] Step 1.6: Create Bootstrap Path Generator
   - [ ] Step 1.7: Implement Deep Hedge Evaluation
@@ -283,4 +291,4 @@ class BacktestResults:
 - [ ] Phase 4: Polish & CLI
 
 ## Next Step
-Step 1.4: Implement Model Loading
+Step 1.5: Implement Data Loading

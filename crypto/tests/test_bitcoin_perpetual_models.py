@@ -9,13 +9,13 @@ import numpy as np
 import torch
 
 # Add parent directories to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from crypto.instruments import (
     BitcoinPerpetualBase,
     BitcoinPerpetualBrownian,
-    BitcoinPerpetualHistorical
+    BitcoinPerpetualHistorical,
 )
 from crypto.data.loader import CryptoDataLoader
 
@@ -26,17 +26,19 @@ class MockDataLoader:
     def __init__(self):
         # Create sample data
         n_points = 1000
-        dates = pd.date_range('2023-01-01', periods=n_points, freq='5min')
+        dates = pd.date_range("2023-01-01", periods=n_points, freq="5min")
         prices = 50000 + np.cumsum(np.random.randn(n_points) * 100)
 
-        self.perpetual_data = pd.DataFrame({
-            'timestamp': dates,
-            'last_price': prices,
-            'bid_price': prices - 10,
-            'ask_price': prices + 10,
-            'funding_8h': np.random.randn(n_points) * 0.0001,
-            'index_price': prices + np.random.randn(n_points) * 5
-        })
+        self.perpetual_data = pd.DataFrame(
+            {
+                "timestamp": dates,
+                "last_price": prices,
+                "bid_price": prices - 10,
+                "ask_price": prices + 10,
+                "funding_8h": np.random.randn(n_points) * 0.0001,
+                "index_price": prices + np.random.randn(n_points) * 5,
+            }
+        )
 
     def load_perpetual_data(self):
         return self.perpetual_data
@@ -60,12 +62,12 @@ class TestBitcoinPerpetualBase(unittest.TestCase):
         self.assertTrue(btc.has_funding)
         self.assertEqual(btc.max_leverage, 20.0)
         # Funding interval is now in years (8 hours / 24 hours / 365 days)
-        self.assertAlmostEqual(btc.funding_interval, (8/24)/365, places=10)
+        self.assertAlmostEqual(btc.funding_interval, (8 / 24) / 365, places=10)
 
     def test_margin_requirement(self):
         """Test margin requirement calculation with leverage."""
         btc = BitcoinPerpetualBrownian()
-        btc.simulate(n_paths=1, time_horizon=1/24/365)  # 1 hour in years
+        btc.simulate(n_paths=1, time_horizon=1 / 24 / 365)  # 1 hour in years
 
         position_size = 2.0  # 2 BTC
         margin = btc.margin_requirement(position_size)
@@ -78,7 +80,7 @@ class TestBitcoinPerpetualBase(unittest.TestCase):
     def test_funding_payment_times(self):
         """Test funding payment time identification."""
         btc = BitcoinPerpetualBrownian()
-        btc.simulate(n_paths=1, time_horizon=8/24/365)  # 8 hours in years
+        btc.simulate(n_paths=1, time_horizon=8 / 24 / 365)  # 8 hours in years
 
         funding_times = btc.funding_payment_times()
 
@@ -113,7 +115,7 @@ class TestBitcoinPerpetualBrownian(unittest.TestCase):
         btc = BitcoinPerpetualBrownian(sigma=0.8)
 
         n_paths = 100
-        time_horizon = 30/365  # 30 days
+        time_horizon = 30 / 365  # 30 days
         btc.simulate(n_paths=n_paths, time_horizon=time_horizon)
 
         # Check shape
@@ -132,7 +134,7 @@ class TestBitcoinPerpetualBrownian(unittest.TestCase):
     def test_volatility_property(self):
         """Test volatility property returns constant sigma."""
         btc = BitcoinPerpetualBrownian(sigma=0.75)
-        btc.simulate(n_paths=10, time_horizon=5/365)
+        btc.simulate(n_paths=10, time_horizon=5 / 365)
 
         vol = btc.volatility
         self.assertEqual(vol.shape, btc.spot.shape)
@@ -143,7 +145,7 @@ class TestBitcoinPerpetualBrownian(unittest.TestCase):
         btc = BitcoinPerpetualBrownian()
 
         init_price = 60000.0
-        btc.simulate(n_paths=5, time_horizon=1/365, init_state=(init_price,))
+        btc.simulate(n_paths=5, time_horizon=1 / 365, init_state=(init_price,))
 
         # All paths should start at init_price
         self.assertTrue(torch.allclose(btc.spot[:, 0], torch.full((5,), init_price)))
@@ -151,7 +153,7 @@ class TestBitcoinPerpetualBrownian(unittest.TestCase):
     def test_funding_rate_correlation(self):
         """Test that funding rates correlate with momentum."""
         btc = BitcoinPerpetualBrownian(mu=0.5)  # Strong upward drift
-        btc.simulate(n_paths=100, time_horizon=10/365)
+        btc.simulate(n_paths=100, time_horizon=10 / 365)
 
         # With positive drift, funding should tend to be positive
         # (longs pay shorts in bull markets)
@@ -166,17 +168,15 @@ class TestBitcoinPerpetualBrownian(unittest.TestCase):
         btc = BitcoinPerpetualBrownian()
 
         hist_params = {
-            'volatility': 0.65,
-            'drift': 0.20,
-            'funding_mean': 0.0003,
-            'funding_std': 0.0001,
-            'init_price': 55000
+            "volatility": 0.65,
+            "drift": 0.20,
+            "funding_mean": 0.0003,
+            "funding_std": 0.0001,
+            "init_price": 55000,
         }
 
         btc.simulate_with_historical_parameters(
-            n_paths=50,
-            time_horizon=30/365,
-            historical_data=hist_params
+            n_paths=50, time_horizon=30 / 365, historical_data=hist_params
         )
 
         # Check parameters were updated
@@ -209,24 +209,24 @@ class TestBitcoinPerpetualHistorical(unittest.TestCase):
         """Test loading historical data for backtesting."""
         btc = BitcoinPerpetualHistorical(data_loader=self.mock_loader)
 
-        btc.simulate(n_paths=1, time_horizon=1/24/365)  # 1 hour in years
+        btc.simulate(n_paths=1, time_horizon=1 / 24 / 365)  # 1 hour in years
 
         # Should load actual data
         self.assertEqual(btc.spot.shape[0], 1)
         self.assertGreater(btc.spot.shape[1], 0)
 
         # Check all buffers loaded
-        self.assertTrue(hasattr(btc, 'bid'))
-        self.assertTrue(hasattr(btc, 'ask'))
-        self.assertTrue(hasattr(btc, 'funding_rate'))
-        self.assertTrue(hasattr(btc, 'index_price'))
+        self.assertTrue(hasattr(btc, "bid"))
+        self.assertTrue(hasattr(btc, "ask"))
+        self.assertTrue(hasattr(btc, "funding_rate"))
+        self.assertTrue(hasattr(btc, "index_price"))
 
     def test_replicate_paths(self):
         """Test replicating historical path for Monte Carlo with costs."""
         btc = BitcoinPerpetualHistorical(data_loader=self.mock_loader)
 
         n_paths = 10
-        btc.simulate(n_paths=n_paths, time_horizon=1/24/365)  # 1 hour in years
+        btc.simulate(n_paths=n_paths, time_horizon=1 / 24 / 365)  # 1 hour in years
 
         # Should have n_paths identical copies
         self.assertEqual(btc.spot.shape[0], n_paths)
@@ -238,7 +238,9 @@ class TestBitcoinPerpetualHistorical(unittest.TestCase):
     def test_historical_volatility(self):
         """Test historical volatility calculation."""
         btc = BitcoinPerpetualHistorical(data_loader=self.mock_loader)
-        btc.simulate(n_paths=1, time_horizon=30/365)  # 30 days in years (more data for volatility)
+        btc.simulate(
+            n_paths=1, time_horizon=30 / 365
+        )  # 30 days in years (more data for volatility)
 
         vol = btc.volatility
 
@@ -258,7 +260,9 @@ class TestBitcoinPerpetualHistorical(unittest.TestCase):
         btc = BitcoinPerpetualHistorical(data_loader=self.mock_loader)
 
         n_paths = 20
-        btc.simulate_bootstrap(n_paths=n_paths, time_horizon=1/24/365)  # 1 hour in years
+        btc.simulate_bootstrap(
+            n_paths=n_paths, time_horizon=1 / 24 / 365
+        )  # 1 hour in years
 
         # Should have n_paths
         self.assertEqual(btc.spot.shape[0], n_paths)
@@ -276,7 +280,7 @@ class TestBitcoinPerpetualHistorical(unittest.TestCase):
     def test_cumulative_funding_cost(self):
         """Test funding cost calculation with historical data."""
         btc = BitcoinPerpetualHistorical(data_loader=self.mock_loader)
-        btc.simulate(n_paths=1, time_horizon=8/24/365)  # 8 hours in years
+        btc.simulate(n_paths=1, time_horizon=8 / 24 / 365)  # 8 hours in years
 
         # Long position
         funding_cost_long = btc.cumulative_funding_cost(1.0)
@@ -298,11 +302,11 @@ class TestModelComparison(unittest.TestCase):
         """Test that models are used for different purposes."""
         # Brownian for training (many paths)
         btc_train = BitcoinPerpetualBrownian(sigma=0.8)
-        btc_train.simulate(n_paths=1000, time_horizon=30/365)
+        btc_train.simulate(n_paths=1000, time_horizon=30 / 365)
 
         # Historical for backtesting (single path)
         btc_backtest = BitcoinPerpetualHistorical(data_loader=self.mock_loader)
-        btc_backtest.simulate(n_paths=1, time_horizon=30/365)
+        btc_backtest.simulate(n_paths=1, time_horizon=30 / 365)
 
         # Training should have many different paths
         self.assertEqual(btc_train.spot.shape[0], 1000)
@@ -321,9 +325,7 @@ class TestModelComparison(unittest.TestCase):
         # Brownian model for training
         btc_brownian = BitcoinPerpetualBrownian()
         option_train = EuropeanOption(
-            underlier=btc_brownian,
-            strike=50000,
-            maturity=30/365
+            underlier=btc_brownian, strike=50000, maturity=30 / 365
         )
         option_train.simulate(n_paths=100)
 
@@ -333,9 +335,7 @@ class TestModelComparison(unittest.TestCase):
         # Historical model for backtesting
         btc_hist = BitcoinPerpetualHistorical(data_loader=self.mock_loader)
         option_backtest = EuropeanOption(
-            underlier=btc_hist,
-            strike=50000,
-            maturity=30/365
+            underlier=btc_hist, strike=50000, maturity=30 / 365
         )
         option_backtest.simulate(n_paths=1)
 
@@ -350,5 +350,5 @@ class TestModelComparison(unittest.TestCase):
         self.assertEqual(payoff_backtest.shape[0], 1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

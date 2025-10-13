@@ -55,7 +55,7 @@ class BitcoinPerpetualBrownian(BitcoinPerpetualBase):
         sigma: float = 0.8,  # Higher volatility for crypto
         mu: float = 0.0,
         funding_mean: float = 0.0001,  # Average funding rate
-        funding_std: float = 0.0002,   # Funding volatility
+        funding_std: float = 0.0002,  # Funding volatility
         cost: float = 0.0006,
         dt: float = 8 / 24 / 365,  # 8-hour bars (matches funding interval)
         leverage: float = 20.0,
@@ -64,11 +64,7 @@ class BitcoinPerpetualBrownian(BitcoinPerpetualBase):
     ) -> None:
         """Initialize Brownian Bitcoin perpetual."""
         super().__init__(
-            cost=cost,
-            dt=dt,
-            leverage=leverage,
-            dtype=dtype,
-            device=device
+            cost=cost, dt=dt, leverage=leverage, dtype=dtype, device=device
         )
 
         self.sigma = sigma
@@ -151,17 +147,23 @@ class BitcoinPerpetualBrownian(BitcoinPerpetualBase):
 
         # Calculate price momentum
         returns = torch.log(spot[:, 1:] / spot[:, :-1])
-        momentum = torch.cat([
-            torch.zeros(n_paths, 1, dtype=self.dtype, device=self.device),
-            returns.cumsum(dim=1) / (torch.arange(1, n_steps, dtype=self.dtype, device=self.device) + 1)
-        ], dim=1)
+        momentum = torch.cat(
+            [
+                torch.zeros(n_paths, 1, dtype=self.dtype, device=self.device),
+                returns.cumsum(dim=1)
+                / (torch.arange(1, n_steps, dtype=self.dtype, device=self.device) + 1),
+            ],
+            dim=1,
+        )
 
         # Funding correlates with momentum (positive momentum -> positive funding)
-        funding_base = torch.randn(n_paths, n_steps, dtype=self.dtype, device=self.device)
+        funding_base = torch.randn(
+            n_paths, n_steps, dtype=self.dtype, device=self.device
+        )
         funding_rates = (
             self.funding_mean
             + momentum * self.funding_mean * 2  # Momentum effect
-            + funding_base * self.funding_std     # Random component
+            + funding_base * self.funding_std  # Random component
         )
 
         # Clip extreme funding rates
@@ -209,16 +211,16 @@ class BitcoinPerpetualBrownian(BitcoinPerpetualBase):
         """
         if historical_data:
             # Override parameters with historical values
-            if 'volatility' in historical_data:
-                self.sigma = historical_data['volatility']
-            if 'drift' in historical_data:
-                self.mu = historical_data['drift']
-            if 'funding_mean' in historical_data:
-                self.funding_mean = historical_data['funding_mean']
-            if 'funding_std' in historical_data:
-                self.funding_std = historical_data['funding_std']
+            if "volatility" in historical_data:
+                self.sigma = historical_data["volatility"]
+            if "drift" in historical_data:
+                self.mu = historical_data["drift"]
+            if "funding_mean" in historical_data:
+                self.funding_mean = historical_data["funding_mean"]
+            if "funding_std" in historical_data:
+                self.funding_std = historical_data["funding_std"]
 
-            init_state = (historical_data.get('init_price', 50000.0),)
+            init_state = (historical_data.get("init_price", 50000.0),)
         else:
             init_state = None
 
@@ -234,8 +236,8 @@ class BitcoinPerpetualBrownian(BitcoinPerpetualBase):
             f"dt={self.dt}",
             f"leverage={self.leverage}",
         ]
-        if hasattr(self, 'dtype') and self.dtype is not None:
+        if hasattr(self, "dtype") and self.dtype is not None:
             params.append(f"dtype={self.dtype}")
-        if hasattr(self, 'device') and self.device is not None:
+        if hasattr(self, "device") and self.device is not None:
             params.append(f"device='{self.device}'")
         return f"BitcoinPerpetualBrownian({', '.join(params)})"

@@ -6,7 +6,8 @@ import sys
 import os
 
 # Add the crypto directory to the path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+
 
 def show_test_coverage():
     """Show what components have test coverage."""
@@ -24,9 +25,9 @@ def show_test_coverage():
                 "✅ get_ticker() method",
                 "✅ get_order_book() method",
                 "✅ get_recent_trades() method",
-                "✅ Utility functions (timestamp conversion)"
+                "✅ Utility functions (timestamp conversion)",
             ],
-            "test_count": 8
+            "test_count": 8,
         },
         "CryptoDataLoader": {
             "module": "data.loader",
@@ -40,9 +41,9 @@ def show_test_coverage():
                 "✅ Data summary generation",
                 "✅ Empty data handling",
                 "✅ File not found error handling",
-                "✅ Timezone handling"
+                "✅ Timezone handling",
             ],
-            "test_count": 10
+            "test_count": 10,
         },
         "HistoricalDataDownloader": {
             "module": "data.download_historical",
@@ -52,19 +53,19 @@ def show_test_coverage():
                 "✅ Options data downloading",
                 "✅ Sample dataset creation",
                 "✅ Error handling during download",
-                "✅ File saving functionality"
+                "✅ File saving functionality",
             ],
-            "test_count": 6
-        }
+            "test_count": 6,
+        },
     }
 
     total_tests = 0
     for component, info in coverage_report.items():
         print(f"\n📦 {component} ({info['module']})")
         print(f"   Tests: {info['test_count']}")
-        for test in info['tests']:
+        for test in info["tests"]:
             print(f"   {test}")
-        total_tests += info['test_count']
+        total_tests += info["test_count"]
 
     print(f"\n📊 Total Test Coverage: {total_tests} tests across 3 core components")
     print("\n🎯 What's Tested:")
@@ -77,5 +78,6 @@ def show_test_coverage():
 
     print("\n✅ All tests passing - robust foundation for crypto deep hedging!")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     show_test_coverage()

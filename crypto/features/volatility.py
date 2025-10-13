@@ -30,7 +30,7 @@ def calculate_realized_volatility(
     window: int = 20,
     annualization_factor: Optional[float] = None,
     min_periods: Optional[int] = None,
-    center: bool = False
+    center: bool = False,
 ) -> torch.Tensor:
     """
     Calculate rolling realized volatility from price series.
@@ -73,7 +73,7 @@ def calculate_realized_volatility(
     log_returns = torch.log(prices[:, 1:] / prices[:, :-1])
 
     # Initialize output tensor
-    volatility = torch.full_like(prices, float('nan'))
+    volatility = torch.full_like(prices, float("nan"))
 
     # Calculate rolling volatility for each path
     for path_idx in range(n_paths):
@@ -131,7 +131,7 @@ class RealizedVolatilityCalculator:
         self,
         windows: Union[int, list] = [10, 20, 50],
         annualization_factor: float = np.sqrt(252 * 24 * 12),
-        min_periods_ratio: float = 0.5
+        min_periods_ratio: float = 0.5,
     ):
         """
         Initialize calculator.
@@ -184,11 +184,15 @@ class RealizedVolatilityCalculator:
         for window, min_periods in zip(self.windows, self.min_periods):
             if len(self.returns) >= min_periods:
                 # Use last 'window' returns
-                window_returns = self.returns[-window:] if len(self.returns) >= window else self.returns
+                window_returns = (
+                    self.returns[-window:]
+                    if len(self.returns) >= window
+                    else self.returns
+                )
                 vol = np.std(window_returns) * self.annualization_factor
                 volatilities.append(vol)
             else:
-                volatilities.append(float('nan'))
+                volatilities.append(float("nan"))
 
         return volatilities
 
@@ -229,9 +233,7 @@ def estimate_annualization_factor(time_delta_seconds: float) -> float:
 
 
 def create_volatility_features(
-    instrument,
-    windows: list = [10, 20, 50],
-    feature_names: Optional[list] = None
+    instrument, windows: list = [10, 20, 50], feature_names: Optional[list] = None
 ) -> torch.Tensor:
     """
     Create volatility features for deep hedging models.
@@ -253,7 +255,7 @@ def create_volatility_features(
         >>> vol_features = create_volatility_features(btc, windows=[10, 20])
         >>> print(vol_features.shape)  # torch.Size([100, n_steps, 2])
     """
-    if not hasattr(instrument, 'spot'):
+    if not hasattr(instrument, "spot"):
         raise ValueError("Instrument must have 'spot' attribute with price data")
 
     prices = instrument.spot
@@ -281,34 +283,35 @@ def _test_volatility_calculation():
     n_paths, n_steps = 10, 100
 
     # Generate geometric Brownian motion
-    dt = 1/252  # Daily data
+    dt = 1 / 252  # Daily data
     sigma = 0.2  # 20% annual volatility
-    mu = 0.05   # 5% annual drift
+    mu = 0.05  # 5% annual drift
 
     prices = torch.zeros(n_paths, n_steps)
     prices[:, 0] = 100.0  # Starting price
 
     for t in range(1, n_steps):
         dW = torch.randn(n_paths) * np.sqrt(dt)
-        prices[:, t] = prices[:, t-1] * torch.exp((mu - 0.5 * sigma**2) * dt + sigma * dW)
+        prices[:, t] = prices[:, t - 1] * torch.exp(
+            (mu - 0.5 * sigma ** 2) * dt + sigma * dW
+        )
 
     # Calculate realized volatility
     realized_vol = calculate_realized_volatility(
-        prices,
-        window=20,
-        annualization_factor=np.sqrt(252)  # Daily data annualization
+        prices, window=20, annualization_factor=np.sqrt(252)  # Daily data annualization
     )
 
     print(f"✅ Price shape: {prices.shape}")
     print(f"✅ Realized vol shape: {realized_vol.shape}")
     print(f"✅ Target volatility: {sigma:.2%}")
     print(f"✅ Realized volatility (mean): {realized_vol.nanmean():.2%}")
-    print(f"✅ Realized volatility (std): {realized_vol[~torch.isnan(realized_vol)].std():.2%}")
+    print(
+        f"✅ Realized volatility (std): {realized_vol[~torch.isnan(realized_vol)].std():.2%}"
+    )
 
     # Test calculator
     calc = RealizedVolatilityCalculator(
-        windows=[10, 20],
-        annualization_factor=np.sqrt(252)  # Daily data
+        windows=[10, 20], annualization_factor=np.sqrt(252)  # Daily data
     )
 
     # Feed prices one by one

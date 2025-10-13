@@ -11,7 +11,8 @@ This script fetches recent Bitcoin data from Deribit and computes:
 
 import sys
 import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 import numpy as np
 import pandas as pd
@@ -50,23 +51,25 @@ def fetch_recent_btc_data(days=30):
                 instrument_name="BTC-PERPETUAL",
                 start_timestamp=current_ms,
                 end_timestamp=min(current_ms + 3600000 * 24, end_ms),  # 24 hours
-                count=10000
+                count=10000,
             )
 
-            if not response or 'trades' not in response:
+            if not response or "trades" not in response:
                 break
 
-            batch = response['trades']
+            batch = response["trades"]
             if not batch:
                 break
 
             trades.extend(batch)
 
             # Update timestamp
-            last_timestamp = batch[-1]['timestamp']
+            last_timestamp = batch[-1]["timestamp"]
             current_ms = last_timestamp + 1
 
-            print(f"  Fetched {len(batch)} trades (up to {datetime.fromtimestamp(last_timestamp/1000)})")
+            print(
+                f"  Fetched {len(batch)} trades (up to {datetime.fromtimestamp(last_timestamp/1000)})"
+            )
 
         except Exception as e:
             print(f"  Error fetching data: {e}")
@@ -78,15 +81,17 @@ def fetch_recent_btc_data(days=30):
 
     # Convert to DataFrame
     df = pd.DataFrame(trades)
-    df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms', utc=True)
-    df = df.sort_values('timestamp')
+    df["timestamp"] = pd.to_datetime(df["timestamp"], unit="ms", utc=True)
+    df = df.sort_values("timestamp")
 
-    print(f"\n✅ Fetched {len(df)} trades from {df['timestamp'].min()} to {df['timestamp'].max()}")
+    print(
+        f"\n✅ Fetched {len(df)} trades from {df['timestamp'].min()} to {df['timestamp'].max()}"
+    )
 
     return df
 
 
-def compute_realized_volatility(prices, window_hours=24, frequency='1h'):
+def compute_realized_volatility(prices, window_hours=24, frequency="1h"):
     """Compute realized volatility from price series.
 
     Args:
@@ -116,7 +121,7 @@ def compute_realized_volatility(prices, window_hours=24, frequency='1h'):
     return recent_vol
 
 
-def compute_drift(prices, frequency='1h'):
+def compute_drift(prices, frequency="1h"):
     """Compute drift (mu) from price series.
 
     Args:
@@ -157,15 +162,15 @@ def get_current_market_params(days=30):
     if df is None or len(df) == 0:
         print("Failed to fetch data, using default parameters")
         return {
-            'spot_price': 50000,
-            'volatility': 0.8,
-            'drift': 0.0,
-            'cost': 0.0005,  # 0.05% from Deribit taker fee
+            "spot_price": 50000,
+            "volatility": 0.8,
+            "drift": 0.0,
+            "cost": 0.0005,  # 0.05% from Deribit taker fee
         }
 
     # Create price series
-    df = df.set_index('timestamp')
-    prices = df['price']
+    df = df.set_index("timestamp")
+    prices = df["price"]
 
     # Compute parameters
     current_price = prices.iloc[-1]
@@ -176,13 +181,13 @@ def get_current_market_params(days=30):
     cost = 0.0005  # 0.05% = 5 basis points
 
     params = {
-        'spot_price': float(current_price),
-        'volatility': float(volatility),
-        'drift': float(drift),
-        'cost': cost,
-        'data_start': df.index[0],
-        'data_end': df.index[-1],
-        'n_trades': len(df),
+        "spot_price": float(current_price),
+        "volatility": float(volatility),
+        "drift": float(drift),
+        "cost": cost,
+        "data_start": df.index[0],
+        "data_end": df.index[-1],
+        "n_trades": len(df),
     }
 
     return params
@@ -190,21 +195,21 @@ def get_current_market_params(days=30):
 
 def print_market_params(params):
     """Pretty print market parameters."""
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("CURRENT BITCOIN MARKET PARAMETERS")
-    print("="*60)
+    print("=" * 60)
     print(f"Spot Price:        ${params['spot_price']:,.2f}")
     print(f"Realized Vol:      {params['volatility']:.2%} annualized")
     print(f"Drift (mu):        {params['drift']:.2%} annualized")
     print(f"Transaction Cost:  {params['cost']:.2%} (Deribit taker fee)")
 
-    if 'data_start' in params:
+    if "data_start" in params:
         print(f"\nData Period:")
         print(f"  Start: {params['data_start']}")
         print(f"  End:   {params['data_end']}")
         print(f"  Trades: {params['n_trades']:,}")
 
-    print("="*60)
+    print("=" * 60)
 
 
 if __name__ == "__main__":
@@ -214,16 +219,17 @@ if __name__ == "__main__":
 
     # Save to file for use in bitcoin_hedge.py
     import json
-    output_file = os.path.join(os.path.dirname(__file__), 'market_params.json')
+
+    output_file = os.path.join(os.path.dirname(__file__), "market_params.json")
 
     # Convert datetime to string for JSON serialization
     params_json = params.copy()
-    if 'data_start' in params_json:
-        params_json['data_start'] = str(params_json['data_start'])
-    if 'data_end' in params_json:
-        params_json['data_end'] = str(params_json['data_end'])
+    if "data_start" in params_json:
+        params_json["data_start"] = str(params_json["data_start"])
+    if "data_end" in params_json:
+        params_json["data_end"] = str(params_json["data_end"])
 
-    with open(output_file, 'w') as f:
+    with open(output_file, "w") as f:
         json.dump(params_json, f, indent=2)
 
     print(f"\n✅ Saved parameters to {output_file}")

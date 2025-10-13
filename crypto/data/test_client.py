@@ -28,7 +28,9 @@ def test_deribit_client():
         # Test 3: Get order book
         print("\n3. Testing get_order_book...")
         order_book = client.get_order_book("BTC-PERPETUAL", depth=3)
-        print(f"Best bid: ${order_book['best_bid_price']}, Best ask: ${order_book['best_ask_price']}")
+        print(
+            f"Best bid: ${order_book['best_bid_price']}, Best ask: ${order_book['best_ask_price']}"
+        )
 
         # Test 4: Get recent trades (last hour)
         print("\n4. Testing get_historical_trades...")
@@ -40,7 +42,9 @@ def test_deribit_client():
             recent_trades = client.get_recent_trades("BTC-PERPETUAL", count=5)
             print(f"Retrieved {len(recent_trades)} recent trades")
             if recent_trades:
-                print(f"Latest trade: ${recent_trades[-1]['price']} at {recent_trades[-1]['timestamp']}")
+                print(
+                    f"Latest trade: ${recent_trades[-1]['price']} at {recent_trades[-1]['timestamp']}"
+                )
         except Exception as e:
             print(f"Recent trades failed: {e}")
 

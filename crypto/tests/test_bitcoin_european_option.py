@@ -5,12 +5,17 @@ Tests for Bitcoin European Option instrument.
 
 import sys
 import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 import unittest
 import torch
 import numpy as np
-from crypto.instruments import BitcoinPerpetualBrownian, BitcoinEuropeanOption, create_bitcoin_option_from_config
+from crypto.instruments import (
+    BitcoinPerpetualBrownian,
+    BitcoinEuropeanOption,
+    create_bitcoin_option_from_config,
+)
 
 
 class TestBitcoinEuropeanOption(unittest.TestCase):
@@ -23,21 +28,17 @@ class TestBitcoinEuropeanOption(unittest.TestCase):
 
         # Create underlying
         self.btc = BitcoinPerpetualBrownian(sigma=0.8, mu=0.0, cost=0.001)
-        self.btc.simulate(n_paths=10, time_horizon=30/365)
+        self.btc.simulate(n_paths=10, time_horizon=30 / 365)
 
         # Create option
         self.option = BitcoinEuropeanOption(
-            underlier=self.btc,
-            strike=50000,
-            maturity=30/365,
-            call=True,
-            cost=0.001
+            underlier=self.btc, strike=50000, maturity=30 / 365, call=True, cost=0.001
         )
 
     def test_initialization(self):
         """Test option initialization."""
         self.assertEqual(self.option.strike, 50000)
-        self.assertAlmostEqual(self.option.maturity, 30/365, places=6)
+        self.assertAlmostEqual(self.option.maturity, 30 / 365, places=6)
         self.assertTrue(self.option.call)
         self.assertEqual(self.option.cost, 0.001)
         self.assertEqual(self.option.transaction_cost, 0.001)
@@ -59,11 +60,7 @@ class TestBitcoinEuropeanOption(unittest.TestCase):
     def test_payoff_without_transaction_costs(self):
         """Test payoff calculation without transaction costs."""
         option_no_cost = BitcoinEuropeanOption(
-            underlier=self.btc,
-            strike=50000,
-            maturity=30/365,
-            call=True,
-            cost=0.0
+            underlier=self.btc, strike=50000, maturity=30 / 365, call=True, cost=0.0
         )
 
         payoffs = option_no_cost.payoff()
@@ -75,11 +72,7 @@ class TestBitcoinEuropeanOption(unittest.TestCase):
     def test_put_option(self):
         """Test put option payoff."""
         put_option = BitcoinEuropeanOption(
-            underlier=self.btc,
-            strike=50000,
-            maturity=30/365,
-            call=False,
-            cost=0.0
+            underlier=self.btc, strike=50000, maturity=30 / 365, call=False, cost=0.0
         )
 
         payoffs = put_option.payoff()
@@ -121,11 +114,13 @@ class TestBitcoinEuropeanOption(unittest.TestCase):
         self.assertTrue(torch.all(ttm_values >= 0))  # Never negative
         # Add tolerance for time discretization differences (simulation uses monthly steps)
         # TTM can be slightly larger than maturity due to time_horizon rounding
-        self.assertTrue(torch.all(ttm_values <= self.option.maturity + 0.002))  # Allow for discretization
+        self.assertTrue(
+            torch.all(ttm_values <= self.option.maturity + 0.002)
+        )  # Allow for discretization
 
         # Should be non-increasing (allow equal values for numerical stability)
         for i in range(1, len(ttm_values)):
-            self.assertLessEqual(ttm_values[i].item(), ttm_values[i-1].item() + 1e-9)
+            self.assertLessEqual(ttm_values[i].item(), ttm_values[i - 1].item() + 1e-9)
 
     def test_realized_volatility(self):
         """Test realized volatility calculation."""
@@ -143,22 +138,31 @@ class TestBitcoinEuropeanOption(unittest.TestCase):
         """Test deep hedging feature creation."""
         features = self.option.deep_hedging_features()
 
-        expected_features = ['log_moneyness', 'time_to_maturity', 'realized_vol_5', 'realized_vol_10', 'realized_vol_20']
+        expected_features = [
+            "log_moneyness",
+            "time_to_maturity",
+            "realized_vol_5",
+            "realized_vol_10",
+            "realized_vol_20",
+        ]
         self.assertEqual(set(features.keys()), set(expected_features))
 
         # Check shapes
         expected_shape = self.btc.spot.shape
         for feature_name, feature_tensor in features.items():
-            self.assertEqual(feature_tensor.shape, expected_shape, f"Feature {feature_name} has wrong shape")
+            self.assertEqual(
+                feature_tensor.shape,
+                expected_shape,
+                f"Feature {feature_name} has wrong shape",
+            )
 
     def test_deep_hedging_features_selective(self):
         """Test selective feature creation."""
         features = self.option.deep_hedging_features(
-            include_time=False,
-            include_volatility=False
+            include_time=False, include_volatility=False
         )
 
-        self.assertEqual(list(features.keys()), ['log_moneyness'])
+        self.assertEqual(list(features.keys()), ["log_moneyness"])
 
     def test_black_scholes_delta(self):
         """Test Black-Scholes delta calculation."""
@@ -177,10 +181,7 @@ class TestBitcoinEuropeanOption(unittest.TestCase):
     def test_black_scholes_delta_put(self):
         """Test Black-Scholes delta for put option."""
         put_option = BitcoinEuropeanOption(
-            underlier=self.btc,
-            strike=50000,
-            maturity=30/365,
-            call=False
+            underlier=self.btc, strike=50000, maturity=30 / 365, call=False
         )
 
         delta = put_option.black_scholes_delta()
@@ -194,28 +195,37 @@ class TestBitcoinEuropeanOption(unittest.TestCase):
         summary = self.option.summary()
 
         required_keys = [
-            'strike', 'maturity', 'call', 'cost', 'simulated',
-            'n_paths', 'n_steps', 'payoff_mean', 'itm_ratio'
+            "strike",
+            "maturity",
+            "call",
+            "cost",
+            "simulated",
+            "n_paths",
+            "n_steps",
+            "payoff_mean",
+            "itm_ratio",
         ]
 
         for key in required_keys:
             self.assertIn(key, summary)
 
-        self.assertTrue(summary['simulated'])
-        self.assertEqual(summary['n_paths'], self.btc.spot.shape[0])
-        self.assertEqual(summary['n_steps'], self.btc.spot.shape[1])
-        self.assertGreaterEqual(summary['itm_ratio'], 0)
-        self.assertLessEqual(summary['itm_ratio'], 1)
+        self.assertTrue(summary["simulated"])
+        self.assertEqual(summary["n_paths"], self.btc.spot.shape[0])
+        self.assertEqual(summary["n_steps"], self.btc.spot.shape[1])
+        self.assertGreaterEqual(summary["itm_ratio"], 0)
+        self.assertLessEqual(summary["itm_ratio"], 1)
 
     def test_summary_without_simulation(self):
         """Test summary when underlying is not simulated."""
         btc_no_sim = BitcoinPerpetualBrownian()
-        option_no_sim = BitcoinEuropeanOption(btc_no_sim, strike=50000, maturity=30/365)
+        option_no_sim = BitcoinEuropeanOption(
+            btc_no_sim, strike=50000, maturity=30 / 365
+        )
 
         summary = option_no_sim.summary()
-        self.assertFalse(summary['simulated'])
-        self.assertIn('strike', summary)
-        self.assertIn('maturity', summary)
+        self.assertFalse(summary["simulated"])
+        self.assertIn("strike", summary)
+        self.assertIn("maturity", summary)
 
 
 class TestCreateBitcoinOptionFromConfig(unittest.TestCase):
@@ -224,14 +234,14 @@ class TestCreateBitcoinOptionFromConfig(unittest.TestCase):
     def setUp(self):
         """Set up test configuration."""
         self.config = {
-            'strike': 50000,
-            'maturity_days': 30,
-            'call': True,
-            'cost': 0.001,
-            'sigma': 0.8,
-            'mu': 0.0,
-            'n_paths': 50,
-            'seed': 42
+            "strike": 50000,
+            "maturity_days": 30,
+            "call": True,
+            "cost": 0.001,
+            "sigma": 0.8,
+            "mu": 0.0,
+            "n_paths": 50,
+            "seed": 42,
         }
 
     def test_create_from_config(self):
@@ -239,38 +249,35 @@ class TestCreateBitcoinOptionFromConfig(unittest.TestCase):
         option, summary = create_bitcoin_option_from_config(self.config)
 
         self.assertIsInstance(option, BitcoinEuropeanOption)
-        self.assertEqual(option.strike, self.config['strike'])
-        self.assertEqual(option.cost, self.config['cost'])
+        self.assertEqual(option.strike, self.config["strike"])
+        self.assertEqual(option.cost, self.config["cost"])
         self.assertTrue(option.call)
 
         # Check summary
-        self.assertEqual(summary['n_paths'], self.config['n_paths'])
-        self.assertTrue(summary['simulated'])
-        self.assertEqual(summary['config'], self.config)
+        self.assertEqual(summary["n_paths"], self.config["n_paths"])
+        self.assertTrue(summary["simulated"])
+        self.assertEqual(summary["config"], self.config)
 
     def test_create_with_defaults(self):
         """Test creating option with default values."""
-        minimal_config = {
-            'strike': 45000,
-            'maturity_days': 7
-        }
+        minimal_config = {"strike": 45000, "maturity_days": 7}
 
         option, summary = create_bitcoin_option_from_config(minimal_config)
 
         self.assertEqual(option.strike, 45000)
-        self.assertAlmostEqual(option.maturity, 7/365, places=6)
+        self.assertAlmostEqual(option.maturity, 7 / 365, places=6)
         self.assertTrue(option.call)  # Default
         self.assertEqual(option.cost, 0.0)  # Default
 
     def test_put_option_creation(self):
         """Test creating put option from config."""
         put_config = self.config.copy()
-        put_config['call'] = False
+        put_config["call"] = False
 
         option, summary = create_bitcoin_option_from_config(put_config)
 
         self.assertFalse(option.call)
-        self.assertFalse(summary['call'])
+        self.assertFalse(summary["call"])
 
 
 class TestIntegrationWithVisualization(unittest.TestCase):
@@ -280,12 +287,7 @@ class TestIntegrationWithVisualization(unittest.TestCase):
         """Set up test data."""
         torch.manual_seed(42)
 
-        config = {
-            'strike': 50000,
-            'maturity_days': 14,
-            'n_paths': 20,
-            'seed': 42
-        }
+        config = {"strike": 50000, "maturity_days": 14, "n_paths": 20, "seed": 42}
 
         self.option, self.summary = create_bitcoin_option_from_config(config)
 
@@ -294,7 +296,7 @@ class TestIntegrationWithVisualization(unittest.TestCase):
         # Test that we can extract the data needed for option analysis
 
         # Should have underlying with spot prices
-        self.assertTrue(hasattr(self.option.underlier, 'spot'))
+        self.assertTrue(hasattr(self.option.underlier, "spot"))
         self.assertEqual(len(self.option.underlier.spot.shape), 2)
 
         # Should be able to calculate payoffs
@@ -303,8 +305,8 @@ class TestIntegrationWithVisualization(unittest.TestCase):
 
         # Should work with our analysis functions
         features = self.option.deep_hedging_features()
-        self.assertIn('log_moneyness', features)
-        self.assertIn('time_to_maturity', features)
+        self.assertIn("log_moneyness", features)
+        self.assertIn("time_to_maturity", features)
 
     def test_hedging_performance_compatibility(self):
         """Test compatibility with hedging performance analysis."""

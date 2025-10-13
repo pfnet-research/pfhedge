@@ -35,7 +35,7 @@ class HistoricalDataDownloader:
         start_date: datetime,
         end_date: datetime,
         instrument: str = "BTC-PERPETUAL",
-        save_to_parquet: bool = True
+        save_to_parquet: bool = True,
     ) -> pd.DataFrame:
         """
         Download perpetual contract data (tickers and simple trades).
@@ -49,7 +49,9 @@ class HistoricalDataDownloader:
         Returns:
             DataFrame with perpetual data
         """
-        print(f"Downloading {instrument} data from {start_date.date()} to {end_date.date()}")
+        print(
+            f"Downloading {instrument} data from {start_date.date()} to {end_date.date()}"
+        )
 
         # For this POC, we'll collect hourly snapshots of ticker data
         data_points = []
@@ -62,19 +64,21 @@ class HistoricalDataDownloader:
                     ticker = self.client.get_ticker(instrument)
 
                     data_point = {
-                        'timestamp': current_time,
-                        'instrument': instrument,
-                        'last_price': ticker.get('last_price'),
-                        'bid_price': ticker.get('best_bid_price'),
-                        'ask_price': ticker.get('best_ask_price'),
-                        'bid_size': ticker.get('best_bid_amount'),
-                        'ask_size': ticker.get('best_ask_amount'),
-                        'mark_price': ticker.get('mark_price'),
-                        'index_price': ticker.get('index_price'),
-                        'funding_8h': ticker.get('funding_8h', 0),
-                        'open_interest': ticker.get('open_interest', 0),
-                        'volume_24h': ticker.get('stats', {}).get('volume', 0),
-                        'price_change_24h': ticker.get('stats', {}).get('price_change', 0)
+                        "timestamp": current_time,
+                        "instrument": instrument,
+                        "last_price": ticker.get("last_price"),
+                        "bid_price": ticker.get("best_bid_price"),
+                        "ask_price": ticker.get("best_ask_price"),
+                        "bid_size": ticker.get("best_bid_amount"),
+                        "ask_size": ticker.get("best_ask_amount"),
+                        "mark_price": ticker.get("mark_price"),
+                        "index_price": ticker.get("index_price"),
+                        "funding_8h": ticker.get("funding_8h", 0),
+                        "open_interest": ticker.get("open_interest", 0),
+                        "volume_24h": ticker.get("stats", {}).get("volume", 0),
+                        "price_change_24h": ticker.get("stats", {}).get(
+                            "price_change", 0
+                        ),
                     }
                     data_points.append(data_point)
 
@@ -102,7 +106,7 @@ class HistoricalDataDownloader:
         end_date: datetime,
         currency: str = "BTC",
         maturity_filter: Optional[str] = None,
-        save_to_parquet: bool = True
+        save_to_parquet: bool = True,
     ) -> pd.DataFrame:
         """
         Download options data for specified period.
@@ -117,22 +121,30 @@ class HistoricalDataDownloader:
         Returns:
             DataFrame with options data
         """
-        print(f"Downloading {currency} options data from {start_date.date()} to {end_date.date()}")
+        print(
+            f"Downloading {currency} options data from {start_date.date()} to {end_date.date()}"
+        )
 
         # Get available option instruments
         instruments = self.client.get_instruments(currency=currency, kind="option")
 
         # Filter instruments if needed
         if maturity_filter:
-            instruments = [inst for inst in instruments if maturity_filter in inst['instrument_name']]
+            instruments = [
+                inst
+                for inst in instruments
+                if maturity_filter in inst["instrument_name"]
+            ]
 
         # Focus on ATM options for POC
         atm_instruments = []
-        spot_price = self.client.get_ticker(f"{currency}-PERPETUAL")['last_price']
+        spot_price = self.client.get_ticker(f"{currency}-PERPETUAL")["last_price"]
 
         for inst in instruments:
-            strike = inst.get('strike')
-            if strike and abs(strike - spot_price) / spot_price < 0.1:  # Within 10% of spot
+            strike = inst.get("strike")
+            if (
+                strike and abs(strike - spot_price) / spot_price < 0.1
+            ):  # Within 10% of spot
                 atm_instruments.append(inst)
 
         print(f"Found {len(atm_instruments)} ATM options to download")
@@ -143,31 +155,31 @@ class HistoricalDataDownloader:
         selected_instruments = atm_instruments[:5]  # Limit to 5 for POC
 
         for inst in tqdm(selected_instruments, desc="Options"):
-            instrument_name = inst['instrument_name']
+            instrument_name = inst["instrument_name"]
 
             try:
                 # Get current ticker data
                 ticker = self.client.get_ticker(instrument_name)
 
                 option_data = {
-                    'timestamp': end_date,  # Using end_date as snapshot time
-                    'instrument': instrument_name,
-                    'strike': inst.get('strike'),
-                    'option_type': inst.get('option_type'),
-                    'expiration': inst.get('expiration_timestamp'),
-                    'last_price': ticker.get('last_price'),
-                    'bid_price': ticker.get('best_bid_price'),
-                    'ask_price': ticker.get('best_ask_price'),
-                    'bid_iv': ticker.get('bid_iv'),
-                    'ask_iv': ticker.get('ask_iv'),
-                    'mark_iv': ticker.get('mark_iv'),
-                    'mark_price': ticker.get('mark_price'),
-                    'delta': ticker.get('greeks', {}).get('delta'),
-                    'gamma': ticker.get('greeks', {}).get('gamma'),
-                    'theta': ticker.get('greeks', {}).get('theta'),
-                    'vega': ticker.get('greeks', {}).get('vega'),
-                    'open_interest': ticker.get('open_interest', 0),
-                    'volume_24h': ticker.get('stats', {}).get('volume', 0)
+                    "timestamp": end_date,  # Using end_date as snapshot time
+                    "instrument": instrument_name,
+                    "strike": inst.get("strike"),
+                    "option_type": inst.get("option_type"),
+                    "expiration": inst.get("expiration_timestamp"),
+                    "last_price": ticker.get("last_price"),
+                    "bid_price": ticker.get("best_bid_price"),
+                    "ask_price": ticker.get("best_ask_price"),
+                    "bid_iv": ticker.get("bid_iv"),
+                    "ask_iv": ticker.get("ask_iv"),
+                    "mark_iv": ticker.get("mark_iv"),
+                    "mark_price": ticker.get("mark_price"),
+                    "delta": ticker.get("greeks", {}).get("delta"),
+                    "gamma": ticker.get("greeks", {}).get("gamma"),
+                    "theta": ticker.get("greeks", {}).get("theta"),
+                    "vega": ticker.get("greeks", {}).get("vega"),
+                    "open_interest": ticker.get("open_interest", 0),
+                    "volume_24h": ticker.get("stats", {}).get("volume", 0),
                 }
                 options_data.append(option_data)
 
@@ -204,20 +216,20 @@ class HistoricalDataDownloader:
         print("\n1. Downloading BTC perpetual data...")
         # For testing, just get a few snapshots instead of hourly
         perpetual_data = []
-        sample_times = pd.date_range(start_date, end_date, freq='6H')  # Every 6 hours
+        sample_times = pd.date_range(start_date, end_date, freq="6H")  # Every 6 hours
 
         for timestamp in tqdm(sample_times, desc="Perpetual snapshots"):
             try:
                 ticker = self.client.get_ticker("BTC-PERPETUAL")
                 data_point = {
-                    'timestamp': timestamp,
-                    'instrument': 'BTC-PERPETUAL',
-                    'last_price': ticker.get('last_price'),
-                    'bid_price': ticker.get('best_bid_price'),
-                    'ask_price': ticker.get('best_ask_price'),
-                    'mark_price': ticker.get('mark_price'),
-                    'index_price': ticker.get('index_price'),
-                    'funding_8h': ticker.get('funding_8h', 0),
+                    "timestamp": timestamp,
+                    "instrument": "BTC-PERPETUAL",
+                    "last_price": ticker.get("last_price"),
+                    "bid_price": ticker.get("best_bid_price"),
+                    "ask_price": ticker.get("best_ask_price"),
+                    "mark_price": ticker.get("mark_price"),
+                    "index_price": ticker.get("index_price"),
+                    "funding_8h": ticker.get("funding_8h", 0),
                 }
                 perpetual_data.append(data_point)
                 time.sleep(1)
@@ -228,18 +240,21 @@ class HistoricalDataDownloader:
 
         # Download options data (current snapshot)
         print("\n2. Downloading BTC options data...")
-        options_df = self.download_options_data(start_date, end_date, save_to_parquet=False)
+        options_df = self.download_options_data(
+            start_date, end_date, save_to_parquet=False
+        )
 
         # Save combined dataset
         if not perpetual_df.empty:
-            perpetual_df.to_parquet(f"{self.data_dir}/sample_perpetual.parquet", index=False)
+            perpetual_df.to_parquet(
+                f"{self.data_dir}/sample_perpetual.parquet", index=False
+            )
         if not options_df.empty:
-            options_df.to_parquet(f"{self.data_dir}/sample_options.parquet", index=False)
+            options_df.to_parquet(
+                f"{self.data_dir}/sample_options.parquet", index=False
+            )
 
-        return {
-            'perpetual': perpetual_df,
-            'options': options_df
-        }
+        return {"perpetual": perpetual_df, "options": options_df}
 
 
 def main():
@@ -255,13 +270,13 @@ def main():
         print(f"Options data: {len(data['options'])} records")
 
         # Display sample data
-        if not data['perpetual'].empty:
+        if not data["perpetual"].empty:
             print(f"\nPerpetual data sample:")
-            print(data['perpetual'].head())
+            print(data["perpetual"].head())
 
-        if not data['options'].empty:
+        if not data["options"].empty:
             print(f"\nOptions data sample:")
-            print(data['options'].head())
+            print(data["options"].head())
 
     except Exception as e:
         print(f"❌ Download failed: {e}")

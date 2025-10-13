@@ -10,8 +10,8 @@ import numpy as np
 import torch
 
 # Add parent directories to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from crypto.instruments import BitcoinSpot, BitcoinPerpetualHistorical
 from crypto.data.loader import CryptoDataLoader
@@ -23,17 +23,19 @@ class MockDataLoader:
     def __init__(self):
         # Create sample data
         n_points = 100
-        dates = pd.date_range('2023-01-01', periods=n_points, freq='5min')
+        dates = pd.date_range("2023-01-01", periods=n_points, freq="5min")
         prices = 50000 + np.random.randn(n_points) * 1000
 
-        self.perpetual_data = pd.DataFrame({
-            'timestamp': dates,
-            'last_price': prices,
-            'bid_price': prices - 10,
-            'ask_price': prices + 10,
-            'funding_8h': np.random.randn(n_points) * 0.0001,
-            'index_price': prices + np.random.randn(n_points) * 5
-        })
+        self.perpetual_data = pd.DataFrame(
+            {
+                "timestamp": dates,
+                "last_price": prices,
+                "bid_price": prices - 10,
+                "ask_price": prices + 10,
+                "funding_8h": np.random.randn(n_points) * 0.0001,
+                "index_price": prices + np.random.randn(n_points) * 5,
+            }
+        )
 
     def load_perpetual_data(self):
         return self.perpetual_data
@@ -50,7 +52,7 @@ class TestBitcoinSpot(unittest.TestCase):
     def test_initialization(self):
         """Test BitcoinSpot initialization."""
         self.assertEqual(self.btc_spot.cost, 0.001)
-        self.assertEqual(self.btc_spot.dt, 1/24/12)
+        self.assertEqual(self.btc_spot.dt, 1 / 24 / 12)
         self.assertEqual(self.btc_spot.leverage, 1.0)
         self.assertFalse(self.btc_spot.has_funding)
 
@@ -61,7 +63,7 @@ class TestBitcoinSpot(unittest.TestCase):
         self.btc_spot.simulate(n_paths=1, time_horizon=time_horizon)
 
         # Check buffers are created
-        self.assertTrue(hasattr(self.btc_spot, 'spot'))
+        self.assertTrue(hasattr(self.btc_spot, "spot"))
         spot = self.btc_spot.spot
 
         # Check shape
@@ -70,13 +72,13 @@ class TestBitcoinSpot(unittest.TestCase):
         self.assertGreaterEqual(spot.shape[1], 12)  # at least 12 time steps
 
         # Check other buffers
-        self.assertTrue(hasattr(self.btc_spot, 'bid'))
-        self.assertTrue(hasattr(self.btc_spot, 'ask'))
-        self.assertTrue(hasattr(self.btc_spot, 'mid'))
+        self.assertTrue(hasattr(self.btc_spot, "bid"))
+        self.assertTrue(hasattr(self.btc_spot, "ask"))
+        self.assertTrue(hasattr(self.btc_spot, "mid"))
 
     def test_multiple_paths(self):
         """Test simulating multiple paths."""
-        self.btc_spot.simulate(n_paths=3, time_horizon=1/24)
+        self.btc_spot.simulate(n_paths=3, time_horizon=1 / 24)
 
         spot = self.btc_spot.spot
         self.assertEqual(spot.shape[0], 3)
@@ -87,7 +89,7 @@ class TestBitcoinSpot(unittest.TestCase):
 
     def test_margin_requirement(self):
         """Test margin requirement calculation."""
-        self.btc_spot.simulate(n_paths=1, time_horizon=1/24)
+        self.btc_spot.simulate(n_paths=1, time_horizon=1 / 24)
 
         # For spot, margin = full notional
         position_size = 2.0  # 2 BTC
@@ -100,7 +102,7 @@ class TestBitcoinSpot(unittest.TestCase):
 
     def test_volatility(self):
         """Test volatility calculation."""
-        self.btc_spot.simulate(n_paths=1, time_horizon=1/24)
+        self.btc_spot.simulate(n_paths=1, time_horizon=1 / 24)
 
         vol = self.btc_spot.volatility
         self.assertEqual(vol.shape, self.btc_spot.spot.shape)
@@ -113,14 +115,13 @@ class TestBitcoinSpot(unittest.TestCase):
     def test_device_dtype(self):
         """Test moving to different device/dtype."""
         btc = BitcoinSpot(data_loader=self.mock_loader, dtype=torch.float64)
-        btc.simulate(n_paths=1, time_horizon=1/24)
+        btc.simulate(n_paths=1, time_horizon=1 / 24)
 
         self.assertEqual(btc.spot.dtype, torch.float64)
 
         # Test moving to float32
         btc.to(dtype=torch.float32)
         self.assertEqual(btc.spot.dtype, torch.float32)
-
 
 
 class TestIntegrationWithPFHedge(unittest.TestCase):
@@ -138,17 +139,13 @@ class TestIntegrationWithPFHedge(unittest.TestCase):
         btc = BitcoinPerpetualHistorical(data_loader=self.mock_loader)
 
         # Create option on Bitcoin
-        option = EuropeanOption(
-            underlier=btc,
-            strike=50000,
-            maturity=5/250
-        )
+        option = EuropeanOption(underlier=btc, strike=50000, maturity=5 / 250)
 
         # Simulate - derivatives use different signature
         option.simulate(n_paths=2)
 
         # Check that underlier has spot prices
-        self.assertTrue(hasattr(option.underlier, 'spot'))
+        self.assertTrue(hasattr(option.underlier, "spot"))
         self.assertEqual(option.underlier.spot.shape[0], 2)
 
         # Calculate payoff
@@ -164,18 +161,16 @@ class TestIntegrationWithPFHedge(unittest.TestCase):
             self.skipTest("PFHedge not fully available")
 
         btc = BitcoinPerpetualHistorical(data_loader=self.mock_loader)
-        option = EuropeanOption(
-            underlier=btc,
-            strike=50000,
-            maturity=5/250
-        )
+        option = EuropeanOption(underlier=btc, strike=50000, maturity=5 / 250)
 
         # Create a simple hedger
-        model = MultiLayerPerceptron(in_features=3, out_features=1, n_layers=2, n_units=32)
+        model = MultiLayerPerceptron(
+            in_features=3, out_features=1, n_layers=2, n_units=32
+        )
         hedger = Hedger(
             model=model,
             inputs=["log_moneyness", "time_to_maturity", "volatility"],
-            criterion="mean_variance"
+            criterion="mean_variance",
         )
 
         # This should not raise errors
@@ -203,19 +198,19 @@ class TestDataIntegration(unittest.TestCase):
             btc_perp = BitcoinPerpetualHistorical(data_loader=loader)
 
             # Simulate with real data
-            btc_spot.simulate(n_paths=1, time_horizon=1/24)
-            btc_perp.simulate(n_paths=1, time_horizon=1/24)
+            btc_spot.simulate(n_paths=1, time_horizon=1 / 24)
+            btc_perp.simulate(n_paths=1, time_horizon=1 / 24)
 
             # Check we have real data
             self.assertGreater(btc_spot.spot.shape[1], 0)
             self.assertGreater(btc_perp.spot.shape[1], 0)
 
             # Perpetual should have funding
-            self.assertTrue(hasattr(btc_perp, 'funding_rate'))
+            self.assertTrue(hasattr(btc_perp, "funding_rate"))
 
         except Exception as e:
             self.skipTest(f"Could not test with real data: {e}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

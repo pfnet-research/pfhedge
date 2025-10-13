@@ -1,6 +1,8 @@
 """Backtesting framework for deep hedging strategies."""
 
 from typing import Optional
+import os
+import pickle
 import torch
 from torch import Tensor
 
@@ -47,16 +49,122 @@ class Backtester:
         self.data_loader = None
         self.option = None
 
-    def load_model(self):
+    def load_model(self, device: Optional[str] = None):
         """Load pre-trained model from checkpoint.
+
+        The checkpoint should contain:
+        - 'model_state_dict': The model's state dictionary
+        - 'model_config': Dict with n_layers, n_units, criterion/risk_measure, risk_param
+        - 'features' (optional): Falls back to DEFAULT_FEATURES if missing
+
+        Args:
+            device: Target device ('cpu', 'cuda', etc.). If None, uses 'cpu'.
 
         Returns:
             Loaded Hedger model
 
         Raises:
-            NotImplementedError: To be implemented in Step 1.4
+            FileNotFoundError: If checkpoint file doesn't exist
+            KeyError: If checkpoint is missing required keys
+            RuntimeError: If state dict doesn't match model architecture
+
+        Examples:
+            >>> backtester = Backtester(config)
+            >>> model = backtester.load_model()  # Load to CPU
+            >>> model = backtester.load_model(device='cuda')  # Load to GPU
         """
-        raise NotImplementedError("load_model() will be implemented in Step 1.4")
+        # Import here to avoid circular dependency
+        from crypto.strategies.deep_hedge_utils import (
+            create_deep_hedger,
+            DEFAULT_FEATURES,
+        )
+        from pfhedge.nn import Hedger
+
+        model_path = self.config.model_path
+
+        # Determine device
+        if device is None:
+            device = "cpu"
+
+        # Check if file exists
+        if not os.path.exists(model_path):
+            raise FileNotFoundError(f"Model checkpoint not found: {model_path}")
+
+        # Load checkpoint with safety measures
+        print(f"Loading model from {model_path}...")
+
+        # Try safer loading first (PyTorch >= 2.4)
+        try:
+            checkpoint = torch.load(model_path, map_location=device, weights_only=True)
+        except (TypeError, RuntimeError, pickle.UnpicklingError):
+            # Fall back to unsafe loading for older PyTorch or complex objects
+            # (catches UnpicklingError when checkpoint contains non-allowlisted types)
+            checkpoint = torch.load(model_path, map_location=device)
+
+        # Validate checkpoint structure
+        if "model_state_dict" not in checkpoint:
+            raise KeyError("Checkpoint missing 'model_state_dict'")
+        if "model_config" not in checkpoint:
+            raise KeyError("Checkpoint missing 'model_config'")
+
+        # Extract model configuration
+        model_config = checkpoint["model_config"]
+
+        # Check required keys (with backward compatibility)
+        required_keys = ["n_layers", "n_units", "risk_param"]
+        for key in required_keys:
+            if key not in model_config:
+                raise KeyError(f"Model config missing required key: '{key}'")
+
+        # Handle backward compatibility for criterion/risk_measure
+        if "criterion" in model_config:
+            criterion = model_config["criterion"]
+        elif "risk_measure" in model_config:
+            criterion = model_config["risk_measure"]
+        else:
+            raise KeyError("Model config missing 'criterion' or 'risk_measure'")
+
+        # Handle features with default fallback
+        if "features" in model_config:
+            features = model_config["features"]
+        else:
+            features = DEFAULT_FEATURES
+            print(
+                f"⚠️  Warning: 'features' not found in checkpoint, using DEFAULT_FEATURES"
+            )
+
+        # Create model with same architecture
+        model = create_deep_hedger(
+            n_layers=model_config["n_layers"],
+            n_units=model_config["n_units"],
+            risk_measure=criterion,
+            risk_param=model_config["risk_param"],
+            features=features,
+        )
+
+        # Load trained weights with strict checking
+        try:
+            model.load_state_dict(checkpoint["model_state_dict"], strict=True)
+        except RuntimeError as e:
+            raise RuntimeError(
+                f"Failed to load model weights. State dict mismatch: {e}\n"
+                f"This usually means the checkpoint was saved with a different model architecture."
+            )
+
+        # Set to evaluation mode
+        model.eval()
+
+        # Store and return
+        self.model = model
+        print(f"✅ Model loaded successfully")
+        print(f"   Device: {device}")
+        print(
+            f"   Architecture: {model_config['n_layers']} layers × {model_config['n_units']} units"
+        )
+        print(f"   Features: {features}")
+        print(f"   Criterion: {criterion} (param={model_config['risk_param']})")
+
+        return model
 
     def load_data(self):
         """Load historical data for backtesting.

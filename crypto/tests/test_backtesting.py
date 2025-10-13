@@ -2,6 +2,8 @@
 
 import pytest
 import torch
+import tempfile
+import os
 from crypto.backtest.config import BacktestConfig
 from crypto.backtest.backtester import Backtester
 from crypto.backtest.metrics import (
@@ -27,7 +29,7 @@ class TestBacktestConfig:
             end_date="2024-01-31",
             strike=50000,
             maturity_days=14,
-            model_path="models/test_model.pth"
+            model_path="models/test_model.pth",
         )
 
         assert config.start_date == "2024-01-01"
@@ -57,7 +59,7 @@ class TestBacktestConfig:
             transaction_cost=0.001,
             dt_hours=4.0,
             data_dir="custom_data",
-            output_dir="custom_results"
+            output_dir="custom_results",
         )
 
         assert config.call is False
@@ -74,7 +76,7 @@ class TestBacktestConfig:
             end_date="2024-01-31",
             strike=50000,
             maturity_days=14,
-            model_path="models/test.pth"
+            model_path="models/test.pth",
         )
         config.validate()  # Should not raise
 
@@ -85,7 +87,7 @@ class TestBacktestConfig:
             end_date="2024-01-31",
             strike=50000,
             maturity_days=14,
-            model_path="models/test.pth"
+            model_path="models/test.pth",
         )
 
         with pytest.raises(ValueError, match="must be in YYYY-MM-DD format"):
@@ -98,7 +100,7 @@ class TestBacktestConfig:
             end_date="2024-01-01",  # Before start
             strike=50000,
             maturity_days=14,
-            model_path="models/test.pth"
+            model_path="models/test.pth",
         )
 
         with pytest.raises(ValueError, match="must be after start_date"):
@@ -111,7 +113,7 @@ class TestBacktestConfig:
             end_date="2024-01-31",
             strike=-1000,  # Invalid
             maturity_days=14,
-            model_path="models/test.pth"
+            model_path="models/test.pth",
         )
 
         with pytest.raises(ValueError, match="strike must be positive"):
@@ -124,7 +126,7 @@ class TestBacktestConfig:
             end_date="2024-01-31",
             strike=50000,
             maturity_days=0,  # Invalid
-            model_path="models/test.pth"
+            model_path="models/test.pth",
         )
 
         with pytest.raises(ValueError, match="maturity_days must be positive"):
@@ -138,7 +140,7 @@ class TestBacktestConfig:
             strike=50000,
             maturity_days=14,
             model_path="models/test.pth",
-            n_bootstrap_paths=-10  # Invalid
+            n_bootstrap_paths=-10,  # Invalid
         )
 
         with pytest.raises(ValueError, match="n_bootstrap_paths must be positive"):
@@ -152,7 +154,7 @@ class TestBacktestConfig:
             strike=50000,
             maturity_days=14,
             model_path="models/test.pth",
-            transaction_cost=-0.001  # Invalid
+            transaction_cost=-0.001,  # Invalid
         )
 
         with pytest.raises(ValueError, match="transaction_cost must be non-negative"):
@@ -166,7 +168,7 @@ class TestBacktestConfig:
             strike=50000,
             maturity_days=14,
             model_path="models/test.pth",
-            transaction_cost=0.15  # 15% seems wrong
+            transaction_cost=0.15,  # 15% seems wrong
         )
 
         with pytest.raises(ValueError, match="transaction_cost seems too high"):
@@ -180,7 +182,7 @@ class TestBacktestConfig:
             strike=50000,
             maturity_days=14,
             model_path="models/test.pth",
-            dt_hours=0  # Invalid
+            dt_hours=0,  # Invalid
         )
 
         with pytest.raises(ValueError, match="dt_hours must be positive"):
@@ -194,7 +196,7 @@ class TestBacktestConfig:
             strike=50000,
             maturity_days=14,
             model_path="models/test.pth",
-            dt_hours=48  # Invalid
+            dt_hours=48,  # Invalid
         )
 
         with pytest.raises(ValueError, match="dt_hours must be <= 24"):
@@ -209,7 +211,7 @@ class TestBacktestConfig:
             maturity_days=14,
             model_path="models/test.pth",
             call=False,
-            n_bootstrap_paths=200
+            n_bootstrap_paths=200,
         )
 
         config_dict = config.to_dict()
@@ -232,7 +234,7 @@ class TestBacktestConfig:
             "maturity_days": 14,
             "model_path": "models/test.pth",
             "call": False,
-            "n_bootstrap_paths": 200
+            "n_bootstrap_paths": 200,
         }
 
         config = BacktestConfig.from_dict(config_dict)
@@ -254,7 +256,7 @@ class TestBacktestConfig:
             maturity_days=14,
             model_path="models/test.pth",
             transaction_cost=0.001,
-            dt_hours=4.0
+            dt_hours=4.0,
         )
 
         config_dict = original.to_dict()
@@ -276,7 +278,7 @@ class TestBacktestConfig:
             strike=50000,
             maturity_days=14,
             model_path="models/test.pth",
-            dt_hours=8.0
+            dt_hours=8.0,
         )
 
         expected_dt = 8.0 / 24 / 365
@@ -289,7 +291,7 @@ class TestBacktestConfig:
             end_date="2024-01-31",
             strike=50000,
             maturity_days=14,
-            model_path="models/test.pth"
+            model_path="models/test.pth",
         )
 
         repr_str = repr(config)
@@ -309,7 +311,7 @@ class TestBacktestConfig:
             strike=50000,
             maturity_days=14,
             model_path="models/test.pth",
-            call=False
+            call=False,
         )
 
         repr_str = repr(config)
@@ -339,11 +341,13 @@ class TestMetrics:
 
     def test_sharpe_ratio_2d_input(self):
         """Test Sharpe ratio with 2D cumulative PnL."""
-        cum_pnl = torch.tensor([
-            [0., 10., 20., 30., 100.],
-            [0., -5., 10., 20., 150.],
-            [0., 5., 15., 25., 80.]
-        ])
+        cum_pnl = torch.tensor(
+            [
+                [0.0, 10.0, 20.0, 30.0, 100.0],
+                [0.0, -5.0, 10.0, 20.0, 150.0],
+                [0.0, 5.0, 15.0, 25.0, 80.0],
+            ]
+        )
         sharpe = calculate_sharpe_ratio(cum_pnl)
 
         # Should use final values
@@ -373,7 +377,7 @@ class TestMetrics:
 
     def test_max_drawdown_simple(self):
         """Test max drawdown with known sequence."""
-        cum_pnl = torch.tensor([[0., 10., 15., 8., 12., 5.]])
+        cum_pnl = torch.tensor([[0.0, 10.0, 15.0, 8.0, 12.0, 5.0]])
         max_dd = calculate_max_drawdown(cum_pnl)
 
         # Max is 15, then drops to 5, so max drawdown is 10
@@ -381,22 +385,21 @@ class TestMetrics:
 
     def test_max_drawdown_no_drawdown(self):
         """Test max drawdown when PnL only increases."""
-        cum_pnl = torch.tensor([[0., 10., 20., 30., 40.]])
+        cum_pnl = torch.tensor([[0.0, 10.0, 20.0, 30.0, 40.0]])
         max_dd = calculate_max_drawdown(cum_pnl)
         assert max_dd == 0.0
 
     def test_max_drawdown_1d_input(self):
         """Test max drawdown with 1D input."""
-        cum_pnl = torch.tensor([0., 10., 15., 8., 12., 5.])
+        cum_pnl = torch.tensor([0.0, 10.0, 15.0, 8.0, 12.0, 5.0])
         max_dd = calculate_max_drawdown(cum_pnl)
         assert abs(max_dd - 10.0) < 1e-6
 
     def test_max_drawdown_multiple_paths(self):
         """Test max drawdown averages across paths."""
-        cum_pnl = torch.tensor([
-            [0., 10., 15., 8.],   # max dd = 7
-            [0., 5., 10., 3.]     # max dd = 7
-        ])
+        cum_pnl = torch.tensor(
+            [[0.0, 10.0, 15.0, 8.0], [0.0, 5.0, 10.0, 3.0]]  # max dd = 7  # max dd = 7
+        )
         max_dd = calculate_max_drawdown(cum_pnl)
         assert abs(max_dd - 7.0) < 1e-6
 
@@ -450,42 +453,43 @@ class TestMetrics:
 
     def test_win_rate_basic(self):
         """Test win rate calculation."""
-        pnl = torch.tensor([100., -50., 30., 80., -20., 60.])
+        pnl = torch.tensor([100.0, -50.0, 30.0, 80.0, -20.0, 60.0])
         win_rate = calculate_win_rate(pnl)
 
         # 4 out of 6 are positive
-        assert abs(win_rate - 4/6) < 1e-6
+        assert abs(win_rate - 4 / 6) < 1e-6
 
     def test_win_rate_all_wins(self):
         """Test win rate with all positive."""
-        pnl = torch.tensor([100., 50., 30., 80.])
+        pnl = torch.tensor([100.0, 50.0, 30.0, 80.0])
         win_rate = calculate_win_rate(pnl)
         assert win_rate == 1.0
 
     def test_win_rate_all_losses(self):
         """Test win rate with all negative."""
-        pnl = torch.tensor([-100., -50., -30., -80.])
+        pnl = torch.tensor([-100.0, -50.0, -30.0, -80.0])
         win_rate = calculate_win_rate(pnl)
         assert win_rate == 0.0
 
     def test_win_rate_2d_input(self):
         """Test win rate with 2D cumulative PnL."""
-        cum_pnl = torch.tensor([
-            [0., 10., 20., 100.],
-            [0., -5., -10., -50.],
-            [0., 5., 10., 30.]
-        ])
+        cum_pnl = torch.tensor(
+            [
+                [0.0, 10.0, 20.0, 100.0],
+                [0.0, -5.0, -10.0, -50.0],
+                [0.0, 5.0, 10.0, 30.0],
+            ]
+        )
         win_rate = calculate_win_rate(cum_pnl)
 
         # 2 out of 3 final values are positive
-        assert abs(win_rate - 2/3) < 1e-6
+        assert abs(win_rate - 2 / 3) < 1e-6
 
     def test_calmar_ratio_basic(self):
         """Test Calmar ratio calculation."""
-        cum_pnl = torch.tensor([
-            [0., 10., 15., 8., 20.],
-            [0., 5., 10., 3., 18.]
-        ])
+        cum_pnl = torch.tensor(
+            [[0.0, 10.0, 15.0, 8.0, 20.0], [0.0, 5.0, 10.0, 3.0, 18.0]]
+        )
         calmar = calculate_calmar_ratio(cum_pnl)
 
         # Mean final return is (20 + 18) / 2 = 19
@@ -496,13 +500,13 @@ class TestMetrics:
 
     def test_calmar_ratio_requires_2d(self):
         """Test Calmar ratio requires cumulative PnL."""
-        pnl = torch.tensor([100., 150., 80.])
+        pnl = torch.tensor([100.0, 150.0, 80.0])
         with pytest.raises(ValueError, match="requires cumulative PnL"):
             calculate_calmar_ratio(pnl)
 
     def test_calmar_ratio_zero_drawdown(self):
         """Test Calmar ratio with no drawdown."""
-        cum_pnl = torch.tensor([[0., 10., 20., 30.]])
+        cum_pnl = torch.tensor([[0.0, 10.0, 20.0, 30.0]])
         calmar = calculate_calmar_ratio(cum_pnl)
         assert calmar == 0.0
 
@@ -514,18 +518,18 @@ class TestMetrics:
         metrics = calculate_all_metrics(pnl, cum_pnl)
 
         # Check all expected keys exist
-        assert 'mean' in metrics
-        assert 'std' in metrics
-        assert 'min' in metrics
-        assert 'max' in metrics
-        assert 'median' in metrics
-        assert 'sharpe_ratio' in metrics
-        assert 'sortino_ratio' in metrics
-        assert 'cvar_95' in metrics
-        assert 'var_95' in metrics
-        assert 'win_rate' in metrics
-        assert 'max_drawdown' in metrics
-        assert 'calmar_ratio' in metrics
+        assert "mean" in metrics
+        assert "std" in metrics
+        assert "min" in metrics
+        assert "max" in metrics
+        assert "median" in metrics
+        assert "sharpe_ratio" in metrics
+        assert "sortino_ratio" in metrics
+        assert "cvar_95" in metrics
+        assert "var_95" in metrics
+        assert "win_rate" in metrics
+        assert "max_drawdown" in metrics
+        assert "calmar_ratio" in metrics
 
     def test_calculate_all_metrics_without_cumulative(self):
         """Test calculating metrics without cumulative PnL."""
@@ -534,12 +538,12 @@ class TestMetrics:
         metrics = calculate_all_metrics(pnl)
 
         # Check basic metrics exist
-        assert 'mean' in metrics
-        assert 'sharpe_ratio' in metrics
+        assert "mean" in metrics
+        assert "sharpe_ratio" in metrics
 
         # Check cumulative-dependent metrics don't exist
-        assert 'max_drawdown' not in metrics
-        assert 'calmar_ratio' not in metrics
+        assert "max_drawdown" not in metrics
+        assert "calmar_ratio" not in metrics
 
     def test_calculate_all_metrics_custom_alpha(self):
         """Test calculating metrics with custom alpha."""
@@ -548,8 +552,8 @@ class TestMetrics:
         metrics = calculate_all_metrics(pnl, alpha_cvar=0.01, alpha_var=0.01)
 
         # Check correct alpha levels used
-        assert 'cvar_99' in metrics
-        assert 'var_99' in metrics
+        assert "cvar_99" in metrics
+        assert "var_99" in metrics
 
     def test_print_metrics_runs(self):
         """Test print_metrics doesn't crash."""
@@ -561,6 +565,7 @@ class TestMetrics:
         # Should not raise
         import io
         import sys
+
         captured_output = io.StringIO()
         sys.stdout = captured_output
 
@@ -579,6 +584,38 @@ class TestMetrics:
 class TestBacktester:
     """Tests for Backtester class."""
 
+    @staticmethod
+    def create_dummy_checkpoint(path: str):
+        """Helper to create a dummy model checkpoint for testing."""
+        from crypto.strategies.deep_hedge_utils import create_deep_hedger
+
+        # Create a simple model
+        model = create_deep_hedger(
+            n_layers=2,
+            n_units=32,
+            risk_measure="expected_shortfall",
+            risk_param=0.5,
+            features=["log_moneyness", "time_to_maturity", "volatility", "prev_hedge"],
+        )
+
+        # Save checkpoint
+        checkpoint = {
+            "model_state_dict": model.state_dict(),
+            "model_config": {
+                "n_layers": 2,
+                "n_units": 32,
+                "criterion": "expected_shortfall",
+                "risk_param": 0.5,
+                "features": [
+                    "log_moneyness",
+                    "time_to_maturity",
+                    "volatility",
+                    "prev_hedge",
+                ],
+            },
+        }
+        torch.save(checkpoint, path)
+
     def test_create_backtester(self):
         """Test creating a Backtester instance."""
         config = BacktestConfig(
@@ -586,7 +623,7 @@ class TestBacktester:
             end_date="2024-01-31",
             strike=50000,
             maturity_days=14,
-            model_path="models/test.pth"
+            model_path="models/test.pth",
         )
 
         backtester = Backtester(config)
@@ -596,19 +633,336 @@ class TestBacktester:
         assert backtester.data_loader is None
         assert backtester.option is None
 
-    def test_load_model_not_implemented(self):
-        """Test that load_model raises NotImplementedError."""
+    def test_load_model_success(self):
+        """Test successful model loading."""
+        # Create temporary checkpoint
+        with tempfile.NamedTemporaryFile(mode="wb", suffix=".pth", delete=False) as f:
+            temp_path = f.name
+
+        try:
+            # Create dummy checkpoint
+            self.create_dummy_checkpoint(temp_path)
+
+            # Create config and backtester
+            config = BacktestConfig(
+                start_date="2024-01-01",
+                end_date="2024-01-31",
+                strike=50000,
+                maturity_days=14,
+                model_path=temp_path,
+            )
+            backtester = Backtester(config)
+
+            # Load model
+            model = backtester.load_model()
+
+            # Verify model loaded
+            assert model is not None
+            assert backtester.model is model
+            assert not model.training  # Should be in eval mode
+
+        finally:
+            # Clean up
+            if os.path.exists(temp_path):
+                os.unlink(temp_path)
+
+    def test_load_model_file_not_found(self):
+        """Test that load_model raises FileNotFoundError for missing file."""
         config = BacktestConfig(
             start_date="2024-01-01",
             end_date="2024-01-31",
             strike=50000,
             maturity_days=14,
-            model_path="models/test.pth"
+            model_path="nonexistent/model.pth",
         )
         backtester = Backtester(config)
 
-        with pytest.raises(NotImplementedError, match="Step 1.4"):
+        with pytest.raises(FileNotFoundError, match="Model checkpoint not found"):
             backtester.load_model()
+
+    def test_load_model_missing_state_dict(self):
+        """Test that load_model raises KeyError for missing model_state_dict."""
+        with tempfile.NamedTemporaryFile(mode="wb", suffix=".pth", delete=False) as f:
+            temp_path = f.name
+
+        try:
+            # Create checkpoint without model_state_dict
+            checkpoint = {
+                "model_config": {
+                    "n_layers": 2,
+                    "n_units": 32,
+                    "criterion": "expected_shortfall",
+                    "risk_param": 0.5,
+                    "features": ["log_moneyness"],
+                }
+            }
+            torch.save(checkpoint, temp_path)
+
+            config = BacktestConfig(
+                start_date="2024-01-01",
+                end_date="2024-01-31",
+                strike=50000,
+                maturity_days=14,
+                model_path=temp_path,
+            )
+            backtester = Backtester(config)
+
+            with pytest.raises(KeyError, match="model_state_dict"):
+                backtester.load_model()
+
+        finally:
+            if os.path.exists(temp_path):
+                os.unlink(temp_path)
+
+    def test_load_model_missing_config(self):
+        """Test that load_model raises KeyError for missing model_config."""
+        with tempfile.NamedTemporaryFile(mode="wb", suffix=".pth", delete=False) as f:
+            temp_path = f.name
+
+        try:
+            # Create checkpoint without model_config
+            from crypto.strategies.deep_hedge_utils import create_deep_hedger
+
+            model = create_deep_hedger(n_layers=2, n_units=32)
+
+            checkpoint = {"model_state_dict": model.state_dict()}
+            torch.save(checkpoint, temp_path)
+
+            config = BacktestConfig(
+                start_date="2024-01-01",
+                end_date="2024-01-31",
+                strike=50000,
+                maturity_days=14,
+                model_path=temp_path,
+            )
+            backtester = Backtester(config)
+
+            with pytest.raises(KeyError, match="model_config"):
+                backtester.load_model()
+
+        finally:
+            if os.path.exists(temp_path):
+                os.unlink(temp_path)
+
+    def test_load_model_missing_config_key(self):
+        """Test that load_model raises KeyError for missing config keys."""
+        with tempfile.NamedTemporaryFile(mode="wb", suffix=".pth", delete=False) as f:
+            temp_path = f.name
+
+        try:
+            # Create checkpoint with incomplete model_config
+            from crypto.strategies.deep_hedge_utils import create_deep_hedger
+
+            model = create_deep_hedger(n_layers=2, n_units=32)
+
+            checkpoint = {
+                "model_state_dict": model.state_dict(),
+                "model_config": {
+                    "n_layers": 2,
+                    # Missing n_units, features, criterion, risk_param
+                },
+            }
+            torch.save(checkpoint, temp_path)
+
+            config = BacktestConfig(
+                start_date="2024-01-01",
+                end_date="2024-01-31",
+                strike=50000,
+                maturity_days=14,
+                model_path=temp_path,
+            )
+            backtester = Backtester(config)
+
+            with pytest.raises(KeyError, match="Model config missing required key"):
+                backtester.load_model()
+
+        finally:
+            if os.path.exists(temp_path):
+                os.unlink(temp_path)
+
+    def test_load_model_with_device(self):
+        """Test loading model to specific device."""
+        with tempfile.NamedTemporaryFile(mode="wb", suffix=".pth", delete=False) as f:
+            temp_path = f.name
+
+        try:
+            self.create_dummy_checkpoint(temp_path)
+
+            config = BacktestConfig(
+                start_date="2024-01-01",
+                end_date="2024-01-31",
+                strike=50000,
+                maturity_days=14,
+                model_path=temp_path,
+            )
+            backtester = Backtester(config)
+
+            # Load to CPU explicitly
+            model = backtester.load_model(device="cpu")
+            assert model is not None
+
+        finally:
+            if os.path.exists(temp_path):
+                os.unlink(temp_path)
+
+    def test_load_model_backward_compat_risk_measure(self):
+        """Test backward compatibility with 'risk_measure' key."""
+        with tempfile.NamedTemporaryFile(mode="wb", suffix=".pth", delete=False) as f:
+            temp_path = f.name
+
+        try:
+            # Create checkpoint with 'risk_measure' instead of 'criterion'
+            from crypto.strategies.deep_hedge_utils import create_deep_hedger
+
+            model = create_deep_hedger(n_layers=2, n_units=32)
+
+            checkpoint = {
+                "model_state_dict": model.state_dict(),
+                "model_config": {
+                    "n_layers": 2,
+                    "n_units": 32,
+                    "risk_measure": "expected_shortfall",  # Old name
+                    "risk_param": 0.5,
+                    "features": ["log_moneyness", "time_to_maturity"],
+                },
+            }
+            torch.save(checkpoint, temp_path)
+
+            config = BacktestConfig(
+                start_date="2024-01-01",
+                end_date="2024-01-31",
+                strike=50000,
+                maturity_days=14,
+                model_path=temp_path,
+            )
+            backtester = Backtester(config)
+
+            # Should load successfully
+            model = backtester.load_model()
+            assert model is not None
+
+        finally:
+            if os.path.exists(temp_path):
+                os.unlink(temp_path)
+
+    def test_load_model_missing_features_fallback(self):
+        """Test default features fallback when 'features' key missing."""
+        with tempfile.NamedTemporaryFile(mode="wb", suffix=".pth", delete=False) as f:
+            temp_path = f.name
+
+        try:
+            # Create checkpoint without 'features'
+            from crypto.strategies.deep_hedge_utils import create_deep_hedger
+
+            model = create_deep_hedger(n_layers=2, n_units=32)
+
+            checkpoint = {
+                "model_state_dict": model.state_dict(),
+                "model_config": {
+                    "n_layers": 2,
+                    "n_units": 32,
+                    "criterion": "expected_shortfall",
+                    "risk_param": 0.5,
+                    # Missing 'features' - should fallback to DEFAULT_FEATURES
+                },
+            }
+            torch.save(checkpoint, temp_path)
+
+            config = BacktestConfig(
+                start_date="2024-01-01",
+                end_date="2024-01-31",
+                strike=50000,
+                maturity_days=14,
+                model_path=temp_path,
+            )
+            backtester = Backtester(config)
+
+            # Should load successfully with default features
+            model = backtester.load_model()
+            assert model is not None
+
+        finally:
+            if os.path.exists(temp_path):
+                os.unlink(temp_path)
+
+    def test_load_model_missing_criterion_and_risk_measure(self):
+        """Test error when both 'criterion' and 'risk_measure' missing."""
+        with tempfile.NamedTemporaryFile(mode="wb", suffix=".pth", delete=False) as f:
+            temp_path = f.name
+
+        try:
+            from crypto.strategies.deep_hedge_utils import create_deep_hedger
+
+            model = create_deep_hedger(n_layers=2, n_units=32)
+
+            checkpoint = {
+                "model_state_dict": model.state_dict(),
+                "model_config": {
+                    "n_layers": 2,
+                    "n_units": 32,
+                    "risk_param": 0.5,
+                    "features": ["log_moneyness"]
+                    # Missing both 'criterion' and 'risk_measure'
+                },
+            }
+            torch.save(checkpoint, temp_path)
+
+            config = BacktestConfig(
+                start_date="2024-01-01",
+                end_date="2024-01-31",
+                strike=50000,
+                maturity_days=14,
+                model_path=temp_path,
+            )
+            backtester = Backtester(config)
+
+            with pytest.raises(KeyError, match="criterion.*risk_measure"):
+                backtester.load_model()
+
+        finally:
+            if os.path.exists(temp_path):
+                os.unlink(temp_path)
+
+    def test_load_model_state_dict_mismatch(self):
+        """Test error handling for state dict mismatch."""
+        with tempfile.NamedTemporaryFile(mode="wb", suffix=".pth", delete=False) as f:
+            temp_path = f.name
+
+        try:
+            # Create checkpoint with different architecture than config
+            from crypto.strategies.deep_hedge_utils import create_deep_hedger
+
+            # Create model with 3 layers
+            model_3layers = create_deep_hedger(n_layers=3, n_units=32)
+
+            # But save config for 2 layers (mismatch)
+            checkpoint = {
+                "model_state_dict": model_3layers.state_dict(),
+                "model_config": {
+                    "n_layers": 2,  # Mismatch!
+                    "n_units": 32,
+                    "criterion": "expected_shortfall",
+                    "risk_param": 0.5,
+                    "features": ["log_moneyness", "time_to_maturity"],
+                },
+            }
+            torch.save(checkpoint, temp_path)
+
+            config = BacktestConfig(
+                start_date="2024-01-01",
+                end_date="2024-01-31",
+                strike=50000,
+                maturity_days=14,
+                model_path=temp_path,
+            )
+            backtester = Backtester(config)
+
+            with pytest.raises(RuntimeError, match="State dict mismatch"):
+                backtester.load_model()
+
+        finally:
+            if os.path.exists(temp_path):
+                os.unlink(temp_path)
 
     def test_load_data_not_implemented(self):
         """Test that load_data raises NotImplementedError."""
@@ -617,7 +971,7 @@ class TestBacktester:
             end_date="2024-01-31",
             strike=50000,
             maturity_days=14,
-            model_path="models/test.pth"
+            model_path="models/test.pth",
         )
         backtester = Backtester(config)
 
@@ -631,7 +985,7 @@ class TestBacktester:
             end_date="2024-01-31",
             strike=50000,
             maturity_days=14,
-            model_path="models/test.pth"
+            model_path="models/test.pth",
         )
         backtester = Backtester(config)
 
@@ -645,7 +999,7 @@ class TestBacktester:
             end_date="2024-01-31",
             strike=50000,
             maturity_days=14,
-            model_path="models/test.pth"
+            model_path="models/test.pth",
         )
         backtester = Backtester(config)
 
@@ -659,7 +1013,7 @@ class TestBacktester:
             end_date="2024-01-31",
             strike=50000,
             maturity_days=14,
-            model_path="models/test.pth"
+            model_path="models/test.pth",
         )
         backtester = Backtester(config)
 
@@ -673,7 +1027,7 @@ class TestBacktester:
             end_date="2024-01-31",
             strike=50000,
             maturity_days=14,
-            model_path="models/test.pth"
+            model_path="models/test.pth",
         )
         backtester = Backtester(config)
 
@@ -687,7 +1041,7 @@ class TestBacktester:
             end_date="2024-01-31",
             strike=50000,
             maturity_days=14,
-            model_path="models/test.pth"
+            model_path="models/test.pth",
         )
         backtester = Backtester(config)
 

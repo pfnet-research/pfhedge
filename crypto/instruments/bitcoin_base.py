@@ -84,16 +84,16 @@ class BitcoinBase(BasePrimary):
             raise ValueError("No data provided")
 
         # Ensure we have required columns
-        required_cols = ['last_price']
+        required_cols = ["last_price"]
         if not all(col in data.columns for col in required_cols):
             raise ValueError(f"Data must contain columns: {required_cols}")
 
         # Convert to tensors
         spot_prices = torch.tensor(
-            data['last_price'].values,
-            dtype=self.dtype,
-            device=self.device
-        ).unsqueeze(0)  # Shape: (1, n_steps)
+            data["last_price"].values, dtype=self.dtype, device=self.device
+        ).unsqueeze(
+            0
+        )  # Shape: (1, n_steps)
 
         # Replicate for n_paths if needed
         if n_paths > 1:
@@ -103,28 +103,24 @@ class BitcoinBase(BasePrimary):
         self.register_buffer("spot", spot_prices)
 
         # Add bid/ask if available
-        if 'bid_price' in data.columns:
+        if "bid_price" in data.columns:
             bid_prices = torch.tensor(
-                data['bid_price'].values,
-                dtype=self.dtype,
-                device=self.device
+                data["bid_price"].values, dtype=self.dtype, device=self.device
             ).unsqueeze(0)
             if n_paths > 1:
                 bid_prices = bid_prices.repeat(n_paths, 1)
             self.register_buffer("bid", bid_prices)
 
-        if 'ask_price' in data.columns:
+        if "ask_price" in data.columns:
             ask_prices = torch.tensor(
-                data['ask_price'].values,
-                dtype=self.dtype,
-                device=self.device
+                data["ask_price"].values, dtype=self.dtype, device=self.device
             ).unsqueeze(0)
             if n_paths > 1:
                 ask_prices = ask_prices.repeat(n_paths, 1)
             self.register_buffer("ask", ask_prices)
 
         # Calculate and store mid price
-        if 'bid_price' in data.columns and 'ask_price' in data.columns:
+        if "bid_price" in data.columns and "ask_price" in data.columns:
             mid_prices = (self.get_buffer("bid") + self.get_buffer("ask")) / 2
             self.register_buffer("mid", mid_prices)
 
@@ -173,10 +169,10 @@ class BitcoinBase(BasePrimary):
         super().to(*args, **kwargs)
 
         # Update dtype and device attributes
-        if 'dtype' in kwargs:
-            self.dtype = kwargs['dtype']
-        if 'device' in kwargs:
-            self.device = kwargs['device']
+        if "dtype" in kwargs:
+            self.dtype = kwargs["dtype"]
+        if "device" in kwargs:
+            self.device = kwargs["device"]
 
         # Move all buffers
         for name, buffer in list(self._buffers.items()):
@@ -190,8 +186,8 @@ class BitcoinBase(BasePrimary):
             f"cost={self.cost}",
             f"dt={self.dt}",
         ]
-        if hasattr(self, 'dtype') and self.dtype is not None:
+        if hasattr(self, "dtype") and self.dtype is not None:
             params.append(f"dtype={self.dtype}")
-        if hasattr(self, 'device') and self.device is not None:
+        if hasattr(self, "device") and self.device is not None:
             params.append(f"device='{self.device}'")
         return f"{self.__class__.__name__}({', '.join(params)})"
