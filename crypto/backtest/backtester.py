@@ -1,12 +1,17 @@
 """Backtesting framework for deep hedging strategies."""
 
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 import os
 import pickle
 import torch
 from torch import Tensor
 
 from .config import BacktestConfig
+
+if TYPE_CHECKING:
+    from pfhedge.nn import Hedger
+    from crypto.data.loader import CryptoDataLoader
+    from crypto.instruments import BitcoinEuropeanOption
 
 
 class Backtester:
@@ -49,7 +54,7 @@ class Backtester:
         self.data_loader = None
         self.option = None
 
-    def load_model(self, device: Optional[str] = None):
+    def load_model(self, device: Optional[str] = None) -> "Hedger":
         """Load pre-trained model from checkpoint.
 
         The checkpoint should contain:
@@ -166,7 +171,7 @@ class Backtester:
 
         return model
 
-    def load_data(self):
+    def load_data(self) -> "CryptoDataLoader":
         """Load historical data for backtesting.
 
         Loads perpetual and options data from parquet files using CryptoDataLoader,
@@ -332,7 +337,9 @@ class Backtester:
 
         return loader
 
-    def create_bootstrap_option(self, data_loader=None):
+    def create_bootstrap_option(
+        self, data_loader: Optional["CryptoDataLoader"] = None
+    ) -> "BitcoinEuropeanOption":
         """Create option with bootstrap paths from historical data.
 
         Uses BitcoinPerpetualHistorical to generate multiple bootstrap paths
@@ -446,34 +453,190 @@ class Backtester:
 
         return option
 
-    def run_deep_hedge(self, option, model) -> Tensor:
+    def run_deep_hedge(self, option=None, model=None) -> Tensor:
         """Run deep hedging strategy on option.
 
+        Uses the pre-trained neural network to compute optimal hedge positions
+        at each time step, then calculates the resulting PnL including transaction
+        costs and funding costs.
+
         Args:
-            option: Option to hedge
-            model: Pre-trained Hedger model
+            option: Option to hedge. If None, uses self.option.
+            model: Pre-trained Hedger model. If None, uses self.model.
 
         Returns:
             Cumulative PnL tensor, shape (n_paths, n_steps)
 
         Raises:
-            NotImplementedError: To be implemented in Step 1.7
-        """
-        raise NotImplementedError("run_deep_hedge() will be implemented in Step 1.7")
+            ValueError: If option or model is None and not previously loaded
 
-    def run_bs_baseline(self, option) -> Tensor:
+        Examples:
+            >>> backtester = Backtester(config)
+            >>> backtester.load_model()
+            >>> loader = backtester.load_data()
+            >>> option = backtester.create_bootstrap_option(loader)
+            >>> deep_pnl = backtester.run_deep_hedge(option, backtester.model)
+            >>> print(deep_pnl.shape)  # (n_paths, n_steps)
+        """
+        # Import utilities
+        from crypto.strategies.deep_hedge_utils import compute_funding_cum_cost
+
+        # Use provided option/model or fall back to stored ones
+        if option is None:
+            option = self.option
+        if model is None:
+            model = self.model
+
+        if option is None:
+            raise ValueError(
+                "No option provided. Call create_bootstrap_option() first or provide an option."
+            )
+        if model is None:
+            raise ValueError(
+                "No model loaded. Call load_model() first or provide a model."
+            )
+
+        print("Running deep hedging strategy...")
+
+        # Set model to eval mode (should already be, but make sure)
+        model.eval()
+
+        # Ensure option tensors are on same device as model
+        # This handles case where model is on CUDA but option was created on CPU
+        model_device = next(model.parameters()).device
+        if hasattr(option.underlier, "spot"):
+            if option.underlier.spot.device != model_device:
+                print(
+                    f"   Moving option tensors from {option.underlier.spot.device} to {model_device}"
+                )
+                option.underlier.to(model_device)
+
+        with torch.no_grad():
+            # Compute hedge positions using the neural network
+            # model.compute_hedge() returns shape (n_paths, n_instruments, n_steps)
+            # We only hedge with one underlier, so squeeze dimension 1 (n_instruments)
+            # Using squeeze(1) ensures we preserve (n_paths, n_steps) even when n_paths=1
+            hedge_positions = model.compute_hedge(option).squeeze(1)
+
+            # Compute cumulative PnL using the model's built-in method
+            # This already includes transaction costs from the underlier
+            # model.compute_cum_pl() already returns shape (n_paths, n_steps), no squeezing needed
+            cum_pnl = model.compute_cum_pl(option)
+
+            # Add funding costs for perpetual futures
+            if hasattr(option.underlier, "funding_rate") and hasattr(
+                option.underlier, "funding_payment_times"
+            ):
+                spots = option.underlier.spot
+                funding_rate = option.underlier.funding_rate
+                funding_times = option.underlier.funding_payment_times()
+
+                # Calculate cumulative funding costs
+                funding_costs = compute_funding_cum_cost(
+                    spots=spots,
+                    positions=hedge_positions,
+                    funding_rate=funding_rate,
+                    funding_times=funding_times,
+                )
+
+                # Subtract funding costs from PnL (costs reduce profit)
+                cum_pnl = cum_pnl - funding_costs
+
+                print(
+                    f"   Applied funding costs: ${funding_costs[:, -1].mean().item():.2f} avg per path"
+                )
+
+        print(f"✅ Deep hedge strategy computed")
+        print(f"   Positions shape: {hedge_positions.shape}")
+        print(f"   PnL shape: {cum_pnl.shape}")
+        print(
+            f"   Final PnL: ${cum_pnl[:, -1].mean().item():.2f} ± ${cum_pnl[:, -1].std().item():.2f}"
+        )
+
+        return cum_pnl
+
+    def run_bs_baseline(self, option=None) -> Tensor:
         """Run Black-Scholes delta hedge baseline.
 
+        Uses Black-Scholes delta formula to compute hedge positions at each
+        time step, then calculates the resulting PnL including transaction
+        costs and funding costs (matching deep hedge calculation).
+
+        Note: Transaction cost (`cost`) comes from the underlier (perpetual
+        futures transaction fee), not the option itself. This reflects the
+        cost of rebalancing the hedge position in the spot/perpetual market.
+
         Args:
-            option: Option to hedge
+            option: Option to hedge. If None, uses self.option.
 
         Returns:
             Cumulative PnL tensor, shape (n_paths, n_steps)
 
         Raises:
-            NotImplementedError: To be implemented in Step 1.8
+            ValueError: If option is None and not previously created
+
+        Examples:
+            >>> backtester = Backtester(config)
+            >>> loader = backtester.load_data()
+            >>> option = backtester.create_bootstrap_option(loader)
+            >>> bs_pnl = backtester.run_bs_baseline(option)
+            >>> print(bs_pnl.shape)  # (n_paths, n_steps)
         """
-        raise NotImplementedError("run_bs_baseline() will be implemented in Step 1.8")
+        # Import utilities
+        from crypto.strategies.deep_hedge_utils import calculate_bs_hedge_pnl
+
+        # Use provided option or fall back to stored one
+        if option is None:
+            option = self.option
+
+        if option is None:
+            raise ValueError(
+                "No option provided. Call create_bootstrap_option() first or provide an option."
+            )
+
+        print("Running Black-Scholes delta hedge baseline...")
+
+        # Calculate Black-Scholes delta positions
+        # Shape: (n_paths, n_steps)
+        bs_delta = option.black_scholes_delta()
+
+        # Get spot prices
+        spots = option.underlier.spot
+
+        # Get option payoffs
+        payoffs = option.payoff()
+
+        # Get transaction cost from underlier
+        cost = option.underlier.cost
+
+        # Get funding rate and funding times if available
+        funding_rate = None
+        funding_times = None
+
+        if hasattr(option.underlier, "funding_rate") and hasattr(
+            option.underlier, "funding_payment_times"
+        ):
+            funding_rate = option.underlier.funding_rate
+            funding_times = option.underlier.funding_payment_times()
+
+        # Calculate cumulative PnL with all costs
+        cum_pnl = calculate_bs_hedge_pnl(
+            spots=spots,
+            bs_delta=bs_delta,
+            payoffs=payoffs,
+            cost=cost,
+            funding_rate=funding_rate,
+            funding_times=funding_times,
+        )
+
+        print(f"✅ Black-Scholes baseline computed")
+        print(f"   Delta shape: {bs_delta.shape}")
+        print(f"   PnL shape: {cum_pnl.shape}")
+        print(
+            f"   Final PnL: ${cum_pnl[:, -1].mean().item():.2f} ± ${cum_pnl[:, -1].std().item():.2f}"
+        )
+
+        return cum_pnl
 
     def run(self):
         """Run full backtest.

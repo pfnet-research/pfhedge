@@ -167,31 +167,70 @@ class Backtester:
 
 ---
 
-### Step 1.7: Implement Deep Hedge Evaluation
+### Step 1.7: Implement Deep Hedge Evaluation ✅
 **File:** `crypto/backtest/backtester.py` (update)
 **What:** Run deep hedge strategy on bootstrap paths
 **Test:** Produces PnL tensor with correct shape
+**Status:** COMPLETED - All 5 tests passing
 
 ```python
-def run_deep_hedge(self, option, model) -> Tensor:
-    """Run deep hedging strategy."""
+def run_deep_hedge(self, option=None, model=None) -> Tensor:
+    """Run deep hedging strategy.
+
+    Uses pre-trained neural network to compute optimal hedge positions,
+    calculates cumulative PnL including transaction costs and funding costs.
+    """
 ```
 
-**Review point:** Deep hedge runs and produces results
+**Features Implemented:**
+- ✅ Compute hedge positions using `model.compute_hedge()`
+- ✅ Calculate cumulative PnL using `model.compute_cum_pl()`
+- ✅ Apply perpetual futures funding costs
+- ✅ Falls back to `self.option` and `self.model` if not provided
+- ✅ Returns tensor shape (n_paths, n_steps)
+
+**Tests Added:**
+1. `test_run_deep_hedge_success` - Basic successful execution
+2. `test_run_deep_hedge_uses_stored_option_and_model` - Uses self references
+3. `test_run_deep_hedge_no_model_loaded` - Error handling
+4. `test_run_deep_hedge_no_option_created` - Error handling
+5. `test_run_deep_hedge_correct_pnl_shape` - Shape validation
+
+**Review point:** Deep hedge runs and produces results ✅
 
 ---
 
-### Step 1.8: Implement BS Baseline Evaluation
+### Step 1.8: Implement BS Baseline Evaluation ✅
 **File:** `crypto/backtest/backtester.py` (update)
 **What:** Run BS delta hedge (reuse `calculate_bs_hedge_pnl`)
 **Test:** Produces PnL tensor matching deep hedge shape
+**Status:** COMPLETED - All 5 tests passing
 
 ```python
-def run_bs_baseline(self, option) -> Tensor:
-    """Run Black-Scholes delta hedge."""
+def run_bs_baseline(self, option=None) -> Tensor:
+    """Run Black-Scholes delta hedge baseline.
+
+    Uses Black-Scholes delta formula to compute hedge positions,
+    calculates cumulative PnL including transaction costs and funding costs
+    (matching deep hedge calculation for fair comparison).
+    """
 ```
 
-**Review point:** BS baseline runs and produces results
+**Features Implemented:**
+- ✅ Calculate BS delta using `option.black_scholes_delta()`
+- ✅ Extract spots, payoffs, and cost from option
+- ✅ Handle funding rate and funding times if available
+- ✅ Call `calculate_bs_hedge_pnl()` with all parameters
+- ✅ Returns tensor shape (n_paths, n_steps) matching deep hedge
+
+**Tests Added:**
+1. `test_run_bs_baseline_success` - Basic successful execution
+2. `test_run_bs_baseline_uses_stored_option` - Uses self.option fallback
+3. `test_run_bs_baseline_no_option_created` - Error handling
+4. `test_run_bs_baseline_correct_pnl_shape` - Shape validation
+5. `test_run_bs_baseline_matches_deep_hedge_shape` - Cross-validation with deep hedge
+
+**Review point:** BS baseline runs and produces results ✅
 
 ---
 
@@ -307,8 +346,8 @@ class BacktestResults:
   - [x] Step 1.4: Implement Model Loading
   - [x] Step 1.5: Implement Data Loading
   - [x] Step 1.6: Create Bootstrap Path Generator
-  - [ ] Step 1.7: Implement Deep Hedge Evaluation
-  - [ ] Step 1.8: Implement BS Baseline Evaluation
+  - [x] Step 1.7: Implement Deep Hedge Evaluation
+  - [x] Step 1.8: Implement BS Baseline Evaluation
   - [ ] Step 1.9: Create Results Container
   - [ ] Step 1.10: Connect Everything (MVP)
 - [ ] Phase 2: Reporting & Visualization
@@ -316,4 +355,6 @@ class BacktestResults:
 - [ ] Phase 4: Polish & CLI
 
 ## Next Step
-Step 1.7: Implement Deep Hedge Evaluation
+Step 1.9: Create Results Container
+
+**Progress:** 8/10 steps complete in Phase 1 (80%)

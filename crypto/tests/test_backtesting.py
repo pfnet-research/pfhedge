@@ -1385,33 +1385,315 @@ class TestBacktester:
             assert option.call is False
             assert option.strike == 50000
 
-    def test_run_deep_hedge_not_implemented(self):
-        """Test that run_deep_hedge raises NotImplementedError."""
+    def test_run_deep_hedge_success(self):
+        """Test successful deep hedge evaluation."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            # Create dummy data
+            self.create_dummy_parquet_data(temp_dir, n_days=10)
+
+            # Create model checkpoint
+            model_path = os.path.join(temp_dir, "test_model.pth")
+            self.create_dummy_checkpoint(model_path)
+
+            config = BacktestConfig(
+                start_date="2024-01-01",
+                end_date="2024-01-05",
+                strike=50000,
+                maturity_days=3,
+                model_path=model_path,
+                data_dir=temp_dir,
+                n_bootstrap_paths=5,
+            )
+            backtester = Backtester(config)
+
+            # Load model, data, create option
+            model = backtester.load_model()
+            loader = backtester.load_data()
+            option = backtester.create_bootstrap_option(loader)
+
+            # Run deep hedge
+            pnl = backtester.run_deep_hedge(option, model)
+
+            # Verify output
+            assert pnl is not None
+            assert pnl.shape[0] == 5  # n_bootstrap_paths
+            assert pnl.shape[1] > 0  # n_steps
+            assert isinstance(pnl, torch.Tensor)
+
+    def test_run_deep_hedge_uses_stored_option_and_model(self):
+        """Test that run_deep_hedge can use stored option and model."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            self.create_dummy_parquet_data(temp_dir, n_days=10)
+            model_path = os.path.join(temp_dir, "test_model.pth")
+            self.create_dummy_checkpoint(model_path)
+
+            config = BacktestConfig(
+                start_date="2024-01-01",
+                end_date="2024-01-05",
+                strike=50000,
+                maturity_days=3,
+                model_path=model_path,
+                data_dir=temp_dir,
+                n_bootstrap_paths=3,
+            )
+            backtester = Backtester(config)
+
+            # Load and store
+            backtester.load_model()
+            backtester.load_data()
+            backtester.create_bootstrap_option()
+
+            # Run without passing arguments
+            pnl = backtester.run_deep_hedge()  # Uses self.option and self.model
+
+            # Verify
+            assert pnl is not None
+            assert pnl.shape[0] == 3
+
+    def test_run_deep_hedge_no_model_loaded(self):
+        """Test error when run_deep_hedge called without model."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            self.create_dummy_parquet_data(temp_dir, n_days=10)
+
+            config = BacktestConfig(
+                start_date="2024-01-01",
+                end_date="2024-01-05",
+                strike=50000,
+                maturity_days=3,
+                model_path="models/test.pth",
+                data_dir=temp_dir,
+            )
+            backtester = Backtester(config)
+
+            # Create option but don't load model
+            loader = backtester.load_data()
+            option = backtester.create_bootstrap_option(loader)
+
+            # Try to run deep hedge without model
+            with pytest.raises(ValueError, match="No model loaded"):
+                backtester.run_deep_hedge(option, None)
+
+    def test_run_deep_hedge_no_option_created(self):
+        """Test error when run_deep_hedge called without option."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            model_path = os.path.join(temp_dir, "test_model.pth")
+            self.create_dummy_checkpoint(model_path)
+
+            config = BacktestConfig(
+                start_date="2024-01-01",
+                end_date="2024-01-05",
+                strike=50000,
+                maturity_days=3,
+                model_path=model_path,
+                data_dir=temp_dir,
+            )
+            backtester = Backtester(config)
+
+            # Load model but don't create option
+            model = backtester.load_model()
+
+            # Try to run deep hedge without option
+            with pytest.raises(ValueError, match="No option provided"):
+                backtester.run_deep_hedge(None, model)
+
+    def test_run_deep_hedge_correct_pnl_shape(self):
+        """Test that deep hedge PnL has correct shape matching option paths."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            self.create_dummy_parquet_data(temp_dir, n_days=10)
+            model_path = os.path.join(temp_dir, "test_model.pth")
+            self.create_dummy_checkpoint(model_path)
+
+            n_paths = 7
+            config = BacktestConfig(
+                start_date="2024-01-01",
+                end_date="2024-01-05",
+                strike=50000,
+                maturity_days=3,
+                model_path=model_path,
+                data_dir=temp_dir,
+                n_bootstrap_paths=n_paths,
+            )
+            backtester = Backtester(config)
+
+            backtester.load_model()
+            backtester.load_data()
+            backtester.create_bootstrap_option()
+
+            pnl = backtester.run_deep_hedge()
+
+            # Verify shape matches option
+            option = backtester.option
+            assert pnl.shape[0] == option.underlier.spot.shape[0]  # Same n_paths
+            assert pnl.shape[1] == option.underlier.spot.shape[1]  # Same n_steps
+
+    def test_run_bs_baseline_success(self):
+        """Test successful BS baseline evaluation."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            # Create dummy data
+            self.create_dummy_parquet_data(temp_dir, n_days=10)
+
+            config = BacktestConfig(
+                start_date="2024-01-01",
+                end_date="2024-01-05",
+                strike=50000,
+                maturity_days=3,
+                model_path="models/test.pth",
+                data_dir=temp_dir,
+                n_bootstrap_paths=5,
+            )
+            backtester = Backtester(config)
+
+            # Load data and create option
+            loader = backtester.load_data()
+            option = backtester.create_bootstrap_option(loader)
+
+            # Run BS baseline
+            pnl = backtester.run_bs_baseline(option)
+
+            # Verify output
+            assert pnl is not None
+            assert pnl.shape[0] == 5  # n_bootstrap_paths
+            assert pnl.shape[1] > 0  # n_steps
+            assert isinstance(pnl, torch.Tensor)
+
+    def test_run_bs_baseline_uses_stored_option(self):
+        """Test that run_bs_baseline can use stored option."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            self.create_dummy_parquet_data(temp_dir, n_days=10)
+
+            config = BacktestConfig(
+                start_date="2024-01-01",
+                end_date="2024-01-05",
+                strike=50000,
+                maturity_days=3,
+                model_path="models/test.pth",
+                data_dir=temp_dir,
+                n_bootstrap_paths=3,
+            )
+            backtester = Backtester(config)
+
+            # Load data and create option (stores in self.option)
+            backtester.load_data()
+            backtester.create_bootstrap_option()
+
+            # Run without passing argument
+            pnl = backtester.run_bs_baseline()  # Uses self.option
+
+            # Verify
+            assert pnl is not None
+            assert pnl.shape[0] == 3
+
+    def test_run_bs_baseline_no_option_created(self):
+        """Test error when run_bs_baseline called without option."""
         config = BacktestConfig(
             start_date="2024-01-01",
-            end_date="2024-01-31",
+            end_date="2024-01-05",
             strike=50000,
-            maturity_days=14,
+            maturity_days=3,
             model_path="models/test.pth",
         )
         backtester = Backtester(config)
 
-        with pytest.raises(NotImplementedError, match="Step 1.7"):
-            backtester.run_deep_hedge(None, None)
-
-    def test_run_bs_baseline_not_implemented(self):
-        """Test that run_bs_baseline raises NotImplementedError."""
-        config = BacktestConfig(
-            start_date="2024-01-01",
-            end_date="2024-01-31",
-            strike=50000,
-            maturity_days=14,
-            model_path="models/test.pth",
-        )
-        backtester = Backtester(config)
-
-        with pytest.raises(NotImplementedError, match="Step 1.8"):
+        # Try to run BS baseline without option
+        with pytest.raises(ValueError, match="No option provided"):
             backtester.run_bs_baseline(None)
+
+    def test_run_bs_baseline_correct_pnl_shape(self):
+        """Test that BS baseline PnL has correct shape matching option paths."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            self.create_dummy_parquet_data(temp_dir, n_days=10)
+
+            n_paths = 7
+            config = BacktestConfig(
+                start_date="2024-01-01",
+                end_date="2024-01-05",
+                strike=50000,
+                maturity_days=3,
+                model_path="models/test.pth",
+                data_dir=temp_dir,
+                n_bootstrap_paths=n_paths,
+            )
+            backtester = Backtester(config)
+
+            backtester.load_data()
+            backtester.create_bootstrap_option()
+
+            pnl = backtester.run_bs_baseline()
+
+            # Verify shape matches option
+            option = backtester.option
+            assert pnl.shape[0] == option.underlier.spot.shape[0]  # Same n_paths
+            assert pnl.shape[1] == option.underlier.spot.shape[1]  # Same n_steps
+
+    def test_run_bs_baseline_matches_deep_hedge_shape(self):
+        """Test that BS baseline and deep hedge produce same shape outputs."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            self.create_dummy_parquet_data(temp_dir, n_days=10)
+            model_path = os.path.join(temp_dir, "test_model.pth")
+            self.create_dummy_checkpoint(model_path)
+
+            config = BacktestConfig(
+                start_date="2024-01-01",
+                end_date="2024-01-05",
+                strike=50000,
+                maturity_days=3,
+                model_path=model_path,
+                data_dir=temp_dir,
+                n_bootstrap_paths=5,
+            )
+            backtester = Backtester(config)
+
+            # Setup
+            backtester.load_model()
+            backtester.load_data()
+            backtester.create_bootstrap_option()
+
+            # Run both strategies
+            deep_pnl = backtester.run_deep_hedge()
+            bs_pnl = backtester.run_bs_baseline()
+
+            # Verify they produce same shape outputs (for fair comparison)
+            assert deep_pnl.shape == bs_pnl.shape
+
+    def test_run_with_single_path(self):
+        """Test that strategies work correctly with n_paths=1 (catches squeeze bugs)."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            self.create_dummy_parquet_data(temp_dir, n_days=10)
+            model_path = os.path.join(temp_dir, "test_model.pth")
+            self.create_dummy_checkpoint(model_path)
+
+            # Use n_paths=1 to test shape handling
+            config = BacktestConfig(
+                start_date="2024-01-01",
+                end_date="2024-01-05",
+                strike=50000,
+                maturity_days=3,
+                model_path=model_path,
+                data_dir=temp_dir,
+                n_bootstrap_paths=1,  # Critical: test with single path
+            )
+            backtester = Backtester(config)
+
+            # Setup
+            backtester.load_model()
+            backtester.load_data()
+            backtester.create_bootstrap_option()
+
+            # Run both strategies with n_paths=1
+            deep_pnl = backtester.run_deep_hedge()
+            bs_pnl = backtester.run_bs_baseline()
+
+            # Verify shapes are preserved even with single path
+            # Should be (1, n_steps), NOT (n_steps,)
+            assert deep_pnl.ndim == 2, f"Expected 2D tensor, got {deep_pnl.ndim}D"
+            assert (
+                deep_pnl.shape[0] == 1
+            ), f"Expected n_paths=1, got {deep_pnl.shape[0]}"
+            assert bs_pnl.ndim == 2, f"Expected 2D tensor, got {bs_pnl.ndim}D"
+            assert bs_pnl.shape[0] == 1, f"Expected n_paths=1, got {bs_pnl.shape[0]}"
+
+            # Verify same shape for both strategies
+            assert deep_pnl.shape == bs_pnl.shape
 
     def test_run_not_implemented(self):
         """Test that run raises NotImplementedError."""
