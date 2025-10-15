@@ -1255,19 +1255,135 @@ class TestBacktester:
             with pytest.raises(ValueError, match="No data found in date range"):
                 backtester.load_data()
 
-    def test_create_bootstrap_option_not_implemented(self):
-        """Test that create_bootstrap_option raises NotImplementedError."""
+    def test_create_bootstrap_option_success(self):
+        """Test successful bootstrap option creation."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            # Create data with enough records for bootstrap
+            self.create_dummy_parquet_data(temp_dir, n_days=10)
+
+            config = BacktestConfig(
+                start_date="2024-01-01",
+                end_date="2024-01-05",
+                strike=50000,
+                maturity_days=3,
+                model_path="models/test.pth",
+                data_dir=temp_dir,
+                n_bootstrap_paths=10,
+                dt_hours=1.0,
+            )
+            backtester = Backtester(config)
+
+            # Load data first
+            loader = backtester.load_data()
+
+            # Create bootstrap option
+            option = backtester.create_bootstrap_option(loader)
+
+            # Verify option was created
+            assert option is not None
+            assert backtester.option is option
+
+            # Verify paths were generated
+            assert hasattr(option.underlier, "spot")
+            assert option.underlier.spot.shape[0] == 10  # n_bootstrap_paths
+
+            # Verify option properties
+            assert option.strike == 50000
+            assert option.call == True  # Default
+            assert option.maturity == pytest.approx(3 / 365.0)
+
+    def test_create_bootstrap_option_uses_self_data_loader(self):
+        """Test that create_bootstrap_option can use self.data_loader."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            self.create_dummy_parquet_data(temp_dir, n_days=10)
+
+            config = BacktestConfig(
+                start_date="2024-01-01",
+                end_date="2024-01-05",
+                strike=50000,
+                maturity_days=3,
+                model_path="models/test.pth",
+                data_dir=temp_dir,
+                n_bootstrap_paths=5,
+            )
+            backtester = Backtester(config)
+
+            # Load data (stores in self.data_loader)
+            backtester.load_data()
+
+            # Create option without passing data_loader
+            option = backtester.create_bootstrap_option()  # No argument
+
+            # Should work and use self.data_loader
+            assert option is not None
+            assert option.underlier.spot.shape[0] == 5
+
+    def test_create_bootstrap_option_no_data_loaded(self):
+        """Test error when create_bootstrap_option called without loading data."""
         config = BacktestConfig(
             start_date="2024-01-01",
-            end_date="2024-01-31",
+            end_date="2024-01-05",
             strike=50000,
-            maturity_days=14,
+            maturity_days=3,
             model_path="models/test.pth",
         )
         backtester = Backtester(config)
 
-        with pytest.raises(NotImplementedError, match="Step 1.6"):
-            backtester.create_bootstrap_option(None)
+        # Don't load data, call create_bootstrap_option directly
+        with pytest.raises(ValueError, match="No data loaded"):
+            backtester.create_bootstrap_option()
+
+    def test_create_bootstrap_option_correct_time_steps(self):
+        """Test that bootstrap paths have correct number of time steps."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            self.create_dummy_parquet_data(temp_dir, n_days=10)
+
+            # 3 days maturity with 8-hour time steps
+            # Expected steps: ceil(3/365 / (8/24/365)) + 1 = ceil(9) + 1 = 10
+            config = BacktestConfig(
+                start_date="2024-01-01",
+                end_date="2024-01-08",
+                strike=50000,
+                maturity_days=3,
+                model_path="models/test.pth",
+                data_dir=temp_dir,
+                n_bootstrap_paths=5,
+                dt_hours=8.0,
+            )
+            backtester = Backtester(config)
+            loader = backtester.load_data()
+            option = backtester.create_bootstrap_option(loader)
+
+            # Verify shape
+            n_paths, n_steps = option.underlier.spot.shape
+            assert n_paths == 5
+
+            # Steps should match maturity / dt
+            # 3 days / (8 hours) = 9 steps + 1 initial = 10
+            assert n_steps >= 9  # At least 9 steps for 3 days
+
+    def test_create_bootstrap_option_put_option(self):
+        """Test creating a put option."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            self.create_dummy_parquet_data(temp_dir, n_days=5)
+
+            config = BacktestConfig(
+                start_date="2024-01-01",
+                end_date="2024-01-03",
+                strike=50000,
+                maturity_days=2,
+                model_path="models/test.pth",
+                data_dir=temp_dir,
+                call=False,  # Put option
+                n_bootstrap_paths=3,
+            )
+            backtester = Backtester(config)
+            loader = backtester.load_data()
+            option = backtester.create_bootstrap_option(loader)
+
+            # Verify it's a put option
+            assert option.call is False
+            assert option.strike == 50000
 
     def test_run_deep_hedge_not_implemented(self):
         """Test that run_deep_hedge raises NotImplementedError."""

@@ -332,21 +332,119 @@ class Backtester:
 
         return loader
 
-    def create_bootstrap_option(self, data_loader):
+    def create_bootstrap_option(self, data_loader=None):
         """Create option with bootstrap paths from historical data.
 
+        Uses BitcoinPerpetualHistorical to generate multiple bootstrap paths
+        from the loaded historical data, then creates a European option on top.
+
         Args:
-            data_loader: CryptoDataLoader with historical data
+            data_loader: CryptoDataLoader with historical data.
+                        If None, uses self.data_loader.
 
         Returns:
-            BitcoinEuropeanOption with bootstrap paths
+            BitcoinEuropeanOption with bootstrap paths from historical data
 
         Raises:
-            NotImplementedError: To be implemented in Step 1.6
+            ValueError: If data_loader is None and no data has been loaded
+            ValueError: If required config parameters are missing
+
+        Examples:
+            >>> backtester = Backtester(config)
+            >>> backtester.load_model()
+            >>> loader = backtester.load_data()
+            >>> option = backtester.create_bootstrap_option(loader)
+            >>> print(option.summary())
         """
-        raise NotImplementedError(
-            "create_bootstrap_option() will be implemented in Step 1.6"
+        # Import necessary classes
+        from crypto.instruments import BitcoinPerpetualHistorical, BitcoinEuropeanOption
+
+        # Use provided data_loader or fall back to self.data_loader
+        if data_loader is None:
+            data_loader = self.data_loader
+
+        if data_loader is None:
+            raise ValueError(
+                "No data loaded. Call load_data() first or provide a data_loader."
+            )
+
+        # Validate that data exists
+        if data_loader.perpetual_data is None or data_loader.perpetual_data.empty:
+            raise ValueError("Data loader has no perpetual data")
+
+        print("Creating bootstrap option from historical data...")
+
+        # Create BitcoinPerpetualHistorical with loaded data
+        underlier = BitcoinPerpetualHistorical(
+            data_loader=data_loader,
+            cost=self.config.transaction_cost,
+            dt=self.config.dt,
+            dtype=torch.float32,
+            device="cpu",
         )
+
+        # Calculate time horizon from maturity_days
+        time_horizon = self.config.maturity_days / 365.0
+
+        # Generate bootstrap paths
+        print(
+            f"Generating {self.config.n_bootstrap_paths} bootstrap paths "
+            f"for {self.config.maturity_days} days..."
+        )
+
+        try:
+            underlier.simulate_bootstrap(
+                n_paths=self.config.n_bootstrap_paths,
+                time_horizon=time_horizon,
+                window_size=None,  # Use all available data
+            )
+        except Exception as e:
+            raise ValueError(f"Failed to generate bootstrap paths: {e}")
+
+        print(f"✅ Generated {underlier.spot.shape[0]} bootstrap paths")
+        print(f"   Each path has {underlier.spot.shape[1]} time steps")
+
+        # Create BitcoinEuropeanOption on top of the underlier
+        option = BitcoinEuropeanOption(
+            underlier=underlier,
+            strike=self.config.strike,
+            maturity=time_horizon,
+            call=self.config.call,
+            cost=0.0,  # Option itself has no transaction cost (only underlier does)
+        )
+
+        # Store for later use
+        self.option = option
+
+        # Print summary
+        summary = option.summary()
+        print("\n" + "=" * 60)
+        print("BOOTSTRAP OPTION SUMMARY")
+        print("=" * 60)
+        print(f"\nOption:")
+        print(f"  Type: {'Call' if self.config.call else 'Put'}")
+        print(f"  Strike: ${self.config.strike:,.2f}")
+        print(f"  Maturity: {self.config.maturity_days} days")
+        print(f"  Paths: {summary['n_paths']:,}")
+        print(f"  Steps per path: {summary['n_steps']}")
+
+        if summary.get("simulated", False):
+            print(f"\nMarket Data:")
+            print(f"  Initial spot (avg): ${summary['spot_initial']:,.2f}")
+            print(
+                f"  Final spot (avg): ${summary['spot_final_mean']:,.2f} ± ${summary['spot_final_std']:,.2f}"
+            )
+            print(f"\nOption Statistics:")
+            print(
+                f"  Payoff (avg): ${summary['payoff_mean']:,.2f} ± ${summary['payoff_std']:,.2f}"
+            )
+            print(f"  ITM ratio: {summary['itm_ratio']:.1%}")
+
+        print("=" * 60 + "\n")
+
+        print("✅ Bootstrap option created successfully\n")
+
+        return option
 
     def run_deep_hedge(self, option, model) -> Tensor:
         """Run deep hedging strategy on option.

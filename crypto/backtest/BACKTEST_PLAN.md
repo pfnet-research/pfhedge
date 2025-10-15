@@ -141,20 +141,29 @@ class Backtester:
 
 ---
 
-### Step 1.6: Create Bootstrap Path Generator
+### Step 1.6: Create Bootstrap Path Generator ✅
 **File:** `crypto/backtest/backtester.py` (update)
 **What:** Method to create option with bootstrap paths
 **Test:** Generates correct number of paths from historical data
+**Status:** COMPLETED - All 5 tests passing
 
-```python
-def create_bootstrap_option(
-    self,
-    data_loader: CryptoDataLoader
-) -> BitcoinEuropeanOption:
-    """Create option with bootstrap historical paths."""
-```
+**Features Implemented:**
+- ✅ Creates `BitcoinPerpetualHistorical` with loaded data
+- ✅ Generates bootstrap paths via `simulate_bootstrap()`
+- ✅ Creates `BitcoinEuropeanOption` on top of bootstrap underlier
+- ✅ Stores option in `self.option` for later use
+- ✅ Prints comprehensive option summary (type, strike, paths, payoffs, ITM ratio)
+- ✅ Handles both call and put options
+- ✅ Falls back to `self.data_loader` if no argument provided
 
-**Review point:** Bootstrap generation working
+**Tests Added:**
+1. `test_create_bootstrap_option_success` - Basic successful creation
+2. `test_create_bootstrap_option_uses_self_data_loader` - Uses stored data loader
+3. `test_create_bootstrap_option_no_data_loaded` - Error without data
+4. `test_create_bootstrap_option_correct_time_steps` - Verifies time step calculation
+5. `test_create_bootstrap_option_put_option` - Creates put options correctly
+
+**Review point:** Bootstrap generation working with multiple paths from historical data
 
 ---
 
@@ -297,7 +306,7 @@ class BacktestResults:
   - [x] Step 1.3: Create Simple Backtester Shell
   - [x] Step 1.4: Implement Model Loading
   - [x] Step 1.5: Implement Data Loading
-  - [ ] Step 1.6: Create Bootstrap Path Generator
+  - [x] Step 1.6: Create Bootstrap Path Generator
   - [ ] Step 1.7: Implement Deep Hedge Evaluation
   - [ ] Step 1.8: Implement BS Baseline Evaluation
   - [ ] Step 1.9: Create Results Container
@@ -307,4 +316,4 @@ class BacktestResults:
 - [ ] Phase 4: Polish & CLI
 
 ## Next Step
-Step 1.6: Create Bootstrap Path Generator
+Step 1.7: Implement Deep Hedge Evaluation
