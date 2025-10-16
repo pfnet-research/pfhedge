@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Bitcoin Deep Hedging - Following snowball_hedge.py pattern
+Bitcoin Deep Hedging - Example Using Training Framework
 
-This script demonstrates deep hedging for Bitcoin European options,
-following the same structure as examples/snowball_hedge.py
+This script demonstrates how to use the training framework to train
+a deep hedging model and visualize the results.
 """
 
 import os
@@ -14,210 +14,144 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 import torch
 import matplotlib.pyplot as plt
 
-from crypto.instruments import create_bitcoin_option_from_config
-from crypto.strategies import (
-    create_deep_hedger,
-    calculate_bs_hedge_pnl,
-    compare_hedge_performance,
-    print_performance_comparison,
-)
+from crypto.training import TrainingConfig, Trainer
 from crypto.utils import plot_hedge_comparison
 
 
 def main():
-    """Main function following snowball_hedge.py pattern."""
+    """Main function demonstrating training framework usage."""
 
-    # ========== Parameters ==========
-    train_seed = 42
-    test_seed = 888
-    n_paths = 10000
-    n_epochs = 80
-    test_n_paths = 200
+    # ========== Configuration ==========
+    print("=" * 70)
+    print("BITCOIN DEEP HEDGING - Training Framework Example")
+    print("=" * 70)
 
-    # Bitcoin option parameters
-    strike = 50000
-    maturity_days = 14
-    volatility = 0.8
-    drift = 0.0
-    cost = 0.0005  # 0.05% transaction cost (Deribit taker fee)
-    dt = 8 / 24 / 365  # 8-hour time steps (matches funding interval)
-
-    print("=" * 60)
-    print("BITCOIN DEEP HEDGING - Training and Evaluation")
-    print("=" * 60)
-    print(f"Configuration:")
-    print(f"  Strike: ${strike}")
-    print(f"  Maturity: {maturity_days} days")
-    print(f"  Volatility: {volatility:.1%}")
-    print(f"  Transaction cost: {cost:.2%}")
-    print(f"  Time step (dt): {dt*365*24:.1f} hours")
-    print(f"  Training paths: {n_paths}")
-    print(f"  Training epochs: {n_epochs}")
-    print(f"  Test paths: {test_n_paths}")
-
-    # ========== Train Deep Hedger ==========
-
-    print("\n" + "=" * 60)
-    print("TRAINING DEEP HEDGER")
-    print("=" * 60)
-
-    # Create training option using config
-    train_config = {
-        "strike": strike,
-        "maturity_days": maturity_days,
-        "call": True,
-        "cost": 0.0,  # No option transaction cost, only underlier cost
-        "sigma": volatility,
-        "mu": drift,
-        "underlier_cost": cost,
-        "dt": dt,
-        "n_paths": n_paths,
-        "seed": train_seed,
-    }
-    option_train, _ = create_bitcoin_option_from_config(train_config)
-
-    # Create and train hedger using utility function (optimal: 4 layers x 128 units, ES p=0.9)
-    deep_hedger = create_deep_hedger(n_layers=4, n_units=128, risk_param=0.9)
-
-    print(f"\nTraining for {n_epochs} epochs...")
-    history = deep_hedger.fit(
-        option_train, n_paths=n_paths, n_epochs=n_epochs, verbose=True
+    # Create training configuration
+    config = TrainingConfig(
+        strike=50000,
+        maturity_days=14,
+        call=True,
+        volatility=0.8,
+        drift=0.0,
+        transaction_cost=0.0005,  # 0.05% (Deribit taker fee)
+        dt_hours=8.0,  # 8-hour time steps (matches funding interval)
+        n_paths=10000,
+        n_epochs=80,
+        n_layers=4,
+        n_units=128,
+        risk_measure="expected_shortfall",
+        risk_param=0.9,
+        model_path="../../models/deep_hedger_trained.pth",
+        test_n_paths=200,
+        test_seed=888,
+        train_seed=42,
+        device="cpu",  # Use "cuda" for GPU training
     )
 
-    print(f"\n✅ Training complete!")
-    if len(history) > 0:
-        print(f"  Initial loss: {history[0]:.6f}")
-        print(f"  Final loss: {history[-1]:.6f}")
-        improvement = (history[0] - history[-1]) / history[0] * 100
-        print(f"  Improvement: {improvement:.1f}%")
+    print(f"\n{config}")
 
-    # ========== Test Deep Hedger ==========
+    # Validate configuration
+    config.validate()
 
-    print("\n" + "=" * 60)
-    print("TESTING DEEP HEDGER")
-    print("=" * 60)
+    # ========== Train Model ==========
 
-    # Create test option using config with fewer paths for visualization
-    test_config = {
-        "strike": strike,
-        "maturity_days": maturity_days,
-        "call": True,
-        "cost": 0.0,  # No option transaction cost, only underlier cost
-        "sigma": volatility,
-        "mu": drift,
-        "underlier_cost": cost,
-        "dt": dt,
-        "n_paths": test_n_paths,
-        "seed": test_seed,
-    }
-    option_test, _ = create_bitcoin_option_from_config(test_config)
+    # Create trainer
+    trainer = Trainer(config)
 
-    print(f"\nGenerating hedging strategies...")
+    # Run full training pipeline
+    results = trainer.train(seed=42)
+
+    # Get training summary
+    summary = results.summary()
+    print(f"\nTraining Summary:")
+    print(f"  Epochs: {summary['n_epochs']}")
+    print(f"  Final loss: {summary['final_loss']:.6f}")
+    print(f"  Improvement: {summary['improvement_pct']:.1f}%")
+
+    # ========== Visualization (Optional) ==========
+
+    print("\n" + "=" * 70)
+    print("CREATING VISUALIZATIONS (using test option)")
+    print("=" * 70)
+
+    # Get model and test option from trainer for visualization
+    model = trainer.model
+    test_option = trainer.test_option
+
+    print(f"\nGenerating hedge positions for visualization...")
 
     with torch.no_grad():
-        # Compute deep hedging strategy
-        deep_hedge_positions = deep_hedger.compute_hedge(option_test).squeeze()
+        # Compute deep hedging strategy on test set
+        deep_hedge_positions = model.compute_hedge(test_option).squeeze(1)
+        deep_hedge_pnl = model.compute_cum_pl(test_option)
 
-        # Get spot prices and funding
-        spots = option_test.underlier.spot
-        # Funding tensors
-        funding_rate = option_test.underlier.funding_rate  # (n_paths, n_steps)
-        funding_times = option_test.underlier.funding_payment_times()  # (n_steps,)
+        # Get spot prices
+        spots = test_option.underlier.spot
 
-        # Deep hedger PnL including funding
-        deep_hedge_pnl = deep_hedger.compute_cum_pl(option_test).squeeze()
-        # Subtract funding for the deep hedger positions
-        from crypto.strategies.deep_hedge_utils import compute_funding_cum_cost
+        # Add funding costs if applicable
+        if hasattr(test_option.underlier, "funding_rate") and hasattr(
+            test_option.underlier, "funding_payment_times"
+        ):
+            from crypto.strategies.deep_hedge_utils import compute_funding_cum_cost
 
-        deep_funding = compute_funding_cum_cost(
+            funding_rate = test_option.underlier.funding_rate
+            funding_times = test_option.underlier.funding_payment_times()
+
+            deep_funding = compute_funding_cum_cost(
+                spots=spots,
+                positions=deep_hedge_positions,
+                funding_rate=funding_rate,
+                funding_times=funding_times,
+            )
+            deep_hedge_pnl = deep_hedge_pnl - deep_funding
+
+        # Compute Black-Scholes baseline
+        from crypto.strategies.deep_hedge_utils import calculate_bs_hedge_pnl
+
+        bs_delta = test_option.black_scholes_delta()
+        payoffs = test_option.payoff()
+        cost = test_option.underlier.cost
+
+        funding_rate = None
+        funding_times = None
+        if hasattr(test_option.underlier, "funding_rate"):
+            funding_rate = test_option.underlier.funding_rate
+            funding_times = test_option.underlier.funding_payment_times()
+
+        bs_hedge_pnl = calculate_bs_hedge_pnl(
             spots=spots,
-            positions=deep_hedge_positions,
+            bs_delta=bs_delta,
+            payoffs=payoffs,
+            cost=cost,
             funding_rate=funding_rate,
             funding_times=funding_times,
         )
-        deep_hedge_pnl = deep_hedge_pnl - deep_funding
 
-    print(f"✅ Deep hedge positions shape: {deep_hedge_positions.shape}")
-    print(f"✅ Deep hedge PnL shape: {deep_hedge_pnl.shape}")
-    print(f"✅ Spot prices shape: {spots.shape}")
-
-    # ========== Black-Scholes Delta Baseline ==========
-
-    print("\n" + "=" * 60)
-    print("BLACK-SCHOLES DELTA BASELINE")
-    print("=" * 60)
-
-    # Calculate BS delta and PnL using utility function
-    bs_delta = option_test.black_scholes_delta()
-    payoffs = option_test.payoff()
-
-    # Use utility function for PnL calculation
-    # Include funding in BS baseline as well
-    bs_hedge_pnl = calculate_bs_hedge_pnl(
-        spots,
-        bs_delta,
-        payoffs,
-        cost,
-        funding_rate=funding_rate,
-        funding_times=funding_times,
-    )
-
-    print(f"\n✅ BS delta shape: {bs_delta.shape}")
-    print(f"✅ BS hedge PnL shape: {bs_hedge_pnl.shape}")
-
-    # ========== Option Premium and Total PnL ==========
-
-    print("\n" + "=" * 60)
-    print("TOTAL PNL CALCULATION (Premium + Hedging)")
-    print("=" * 60)
-
-    # Calculate option premium (Black-Scholes price at t=0)
-    from pfhedge.nn.functional import bs_european_price
-
-    initial_spot = option_test.underlier.spot[:, 0]
-    option_premium = (
-        bs_european_price(
-            log_moneyness=torch.log(initial_spot / strike),
-            time_to_maturity=torch.tensor(maturity_days / 365),
-            volatility=torch.tensor(volatility),
-            strike=strike,
-            call=True,
-        )
-        .mean()
-        .item()
-    )
-    print(f"\nOption premium (BS price at t=0): ${option_premium:.2f}")
-
-    # Total PnL = Premium received - Payoff paid + Hedging gains/losses
-    # Note: Hedging PnL already includes -payoff at maturity
-    # So: Total PnL = Premium + Hedging PnL
-    deep_total_pnl = option_premium + deep_hedge_pnl[:, -1]
-    bs_total_pnl = option_premium + bs_hedge_pnl[:, -1]
-
-    print(
-        f"\nDeep hedge total PnL: ${deep_total_pnl.mean().item():.2f} ± ${deep_total_pnl.std().item():.2f}"
-    )
-    print(
-        f"BS total PnL: ${bs_total_pnl.mean().item():.2f} ± ${bs_total_pnl.std().item():.2f}"
-    )
-    print(f"Difference: ${(deep_total_pnl.mean() - bs_total_pnl.mean()).item():.2f}")
+    print(f"✅ Generated positions for {spots.shape[0]} test paths")
 
     # ========== Performance Comparison ==========
 
-    # Use utility function for comparison
-    results = compare_hedge_performance(deep_hedge_pnl, bs_hedge_pnl)
-    print_performance_comparison(results)
+    from crypto.strategies.deep_hedge_utils import compare_hedge_performance
 
-    # ========== Visualization ==========
+    performance_results = compare_hedge_performance(deep_hedge_pnl, bs_hedge_pnl)
 
-    print("\n" + "=" * 60)
-    print("CREATING VISUALIZATIONS")
-    print("=" * 60)
+    from crypto.strategies.deep_hedge_utils import print_performance_comparison
+
+    print_performance_comparison(performance_results)
+
+    # ========== Plot Results ==========
+
+    print("\n" + "=" * 70)
+    print("CREATING PLOTS")
+    print("=" * 70)
 
     # Use utility function for comprehensive hedge comparison visualization
     output_dir = os.path.join(os.path.dirname(__file__), "output")
     os.makedirs(output_dir, exist_ok=True)
-    output_file = os.path.join(output_dir, f"bitcoin_hedge_{n_epochs}epochs.png")
+    output_file = os.path.join(output_dir, f"bitcoin_hedge_{config.n_epochs}epochs.png")
+
+    # Get training history from results
+    training_history = results.training_history
 
     fig = plot_hedge_comparison(
         deep_hedge_positions=deep_hedge_positions,
@@ -225,68 +159,48 @@ def main():
         deep_hedge_pnl=deep_hedge_pnl,
         bs_hedge_pnl=bs_hedge_pnl,
         spots=spots,
-        strike=strike,
-        training_history=history,
-        performance_results=results,
+        strike=config.strike,
+        training_history=training_history,
+        performance_results=performance_results,
         path_idx=0,
         save_path=output_file,
     )
     plt.close()  # Close instead of show for non-interactive mode
     print(f"\n✅ Saved figure to {output_file}")
 
-    # ========== Save Model Checkpoint ==========
+    # ========== Export Results ==========
 
-    print("\n" + "=" * 60)
-    print("SAVING MODEL CHECKPOINT")
-    print("=" * 60)
+    print("\n" + "=" * 70)
+    print("EXPORTING RESULTS")
+    print("=" * 70)
 
-    # Save model checkpoint for backtesting
-    model_dir = os.path.join(os.path.dirname(__file__), "..", "models")
-    os.makedirs(model_dir, exist_ok=True)
-    model_path = os.path.join(model_dir, "deep_hedger_trained.pth")
+    # Export training results to JSON
+    results_dir = os.path.join(os.path.dirname(__file__), config.output_dir)
+    os.makedirs(results_dir, exist_ok=True)
+    results_file = os.path.join(results_dir, "training_results.json")
 
-    # Save model state and configuration
-    checkpoint = {
-        "model_state_dict": deep_hedger.state_dict(),  # Save full Hedger state, not just MLP
-        "model_config": {
-            "n_layers": 4,
-            "n_units": 128,
-            "in_features": 4,  # log_moneyness, expiry_time, volatility, prev_hedge
-            "out_features": 1,  # hedge ratio
-            "risk_param": 0.9,  # CVaR parameter (p=0.9 for Expected Shortfall)
-            "risk_measure": "expected_shortfall",  # Criterion used for training
-        },
-        "training_config": {
-            "strike": strike,
-            "maturity_days": maturity_days,
-            "volatility": volatility,
-            "cost": cost,
-            "dt": dt,
-            "n_epochs": n_epochs,
-            "train_seed": train_seed,
-        },
-        "training_history": history,
-    }
+    results.to_json(results_file, include_raw=True, indent=2)
+    print(f"\n✅ Training results saved to: {results_file}")
 
-    torch.save(checkpoint, model_path)
-    print(f"\n✅ Model checkpoint saved to: {model_path}")
-    print(f"   Model architecture: 4 layers × 128 units")
-    print(f"   Training epochs: {n_epochs}")
-    print(f"   Final loss: {history[-1]:.6f}")
-
-    print("\n" + "=" * 60)
-    print("✅ Bitcoin deep hedging complete!")
-    print("=" * 60)
+    print("\n" + "=" * 70)
+    print("✅ Bitcoin deep hedging example complete!")
+    print("=" * 70)
+    print(f"\nOutputs:")
+    print(f"  Model: {results.model_path}")
+    print(f"  Results: {results_file}")
+    print(f"  Plot: {output_file}")
+    print("=" * 70 + "\n")
 
     return {
-        "deep_hedger": deep_hedger,
-        "history": history,
+        "trainer": trainer,
+        "results": results,
+        "model": model,
+        "test_option": test_option,
         "deep_hedge_positions": deep_hedge_positions,
         "deep_hedge_pnl": deep_hedge_pnl,
         "bs_delta": bs_delta,
         "bs_hedge_pnl": bs_hedge_pnl,
         "spots": spots,
-        "option_test": option_test,
     }
 
 
