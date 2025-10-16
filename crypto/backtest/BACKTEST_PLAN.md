@@ -234,35 +234,81 @@ def run_bs_baseline(self, option=None) -> Tensor:
 
 ---
 
-### Step 1.9: Create Results Container (Simple)
+### Step 1.9: Create Results Container ✅
 **File:** `crypto/backtest/results.py`
-**What:** Store results and calculate basic metrics
-**Test:** Can store data, calculate mean/std/sharpe
+**What:** Store results and calculate comprehensive metrics
+**Test:** Can store data, validate inputs, calculate metrics
+**Status:** COMPLETED - All 9 tests passing
 
-```python
-class BacktestResults:
-    def __init__(self, deep_pnl, bs_pnl, spots, positions):
-        self.deep_pnl = deep_pnl
-        self.bs_pnl = bs_pnl
-        # ...
+**Features Implemented:**
+- ✅ BacktestResults class with input validation
+- ✅ Stores deep_pnl, bs_pnl, deep_positions, bs_positions, spots, config
+- ✅ Validates all tensors are 2D with matching shapes
+- ✅ summary() method calculating 12 metrics per strategy:
+  - Basic stats: mean, std, min, max, median
+  - Risk-adjusted: Sharpe ratio, Sortino ratio
+  - Risk metrics: CVaR, VaR, max drawdown, Calmar ratio
+  - Win rate
+- ✅ to_dict() method for data export including config
+- ✅ __repr__() for readable string representation
 
-    def summary(self) -> dict:
-        """Calculate summary statistics."""
+**Tests Added:**
+1. `test_create_results_success` - Verifies successful creation
+2. `test_create_results_with_config` - Tests config storage
+3. `test_validate_inputs_wrong_dimension` - Validates 2D requirement
+4. `test_validate_inputs_mismatched_shapes` - Validates shape matching
+5. `test_summary_basic` - Tests summary structure and metrics
+6. `test_summary_values_reasonable` - Tests metric calculation correctness
+7. `test_to_dict_structure` - Tests dictionary export
+8. `test_to_dict_with_config` - Tests config included in export
+9. `test_repr` - Tests string representation
 
-    def to_dict(self) -> dict:
-        """Export to dictionary."""
-```
-
-**Review point:** Results container working
+**Review point:** Results container working with comprehensive metrics ✅
 
 ---
 
-### Step 1.10: Connect Everything (MVP)
+### Step 1.10: Connect Everything (MVP) ✅
 **File:** `crypto/backtest/backtester.py` (update `run()`)
 **What:** Wire all pieces together
 **Test:** End-to-end backtest on 1-day sample data
+**Status:** COMPLETED - All 5 end-to-end tests passing + review improvements applied
 
-**Review point:** MVP backtesting working!
+**Features Implemented:**
+- ✅ Added position storage fields (`self.deep_positions`, `self.bs_positions`)
+- ✅ Modified `run_deep_hedge()` to store hedge positions
+- ✅ Modified `run_bs_baseline()` to store BS delta positions
+- ✅ Implemented complete `run()` method orchestrating all 5 steps:
+  1. Load model from checkpoint
+  2. Load historical data from parquet files
+  3. Create bootstrap option with multiple paths
+  4. Run deep hedge strategy
+  5. Run BS baseline strategy
+- ✅ Creates `BacktestResults` object with all data
+- ✅ Prints comprehensive progress updates at each step
+- ✅ Prints detailed performance summary with metrics for both strategies
+
+**Review Improvements Applied:**
+- ✅ **Error handling**: Wrapped `run()` in try-except with helpful categorized error messages
+  - FileNotFoundError: Missing model/data files
+  - ValueError: Invalid data or configuration
+  - RuntimeError/KeyError: Model or execution errors
+- ✅ **Determinism**: Added `seed` parameter to `run()` for reproducibility
+  - Sets torch.manual_seed() and np.random.seed()
+  - Prints warning if no seed provided
+- ✅ **Config echo**: Added model_path and data_dir to configuration header
+- ✅ **Funding alignment**: Added `_check_funding_alignment()` helper method
+  - Warns if funding payment times don't align with time grid
+  - Non-blocking (warning only, doesn't stop execution)
+  - Suggests adjusting dt_hours to align with funding frequency
+
+**Tests Added:**
+1. `test_run_end_to_end` - Complete backtest pipeline with 5 paths, 10 days data
+2. `test_run_stores_positions` - Verifies positions stored correctly in results
+3. `test_run_with_seed_parameter` - Tests seed parameter functionality
+4. `test_run_error_handling_missing_model` - Tests helpful error for missing model
+5. `test_run_error_handling_missing_data` - Tests helpful error for missing data
+
+**Review point:** MVP backtesting working with robust error handling! ✅
 
 ---
 
@@ -339,7 +385,7 @@ class BacktestResults:
 ---
 
 ## Current Status
-- [ ] Phase 1: Foundation (Steps 1.1 - 1.10)
+- [x] Phase 1: Foundation (Steps 1.1 - 1.10) ✅ **COMPLETE**
   - [x] Step 1.1: Create BacktestConfig
   - [x] Step 1.2: Create Metrics Calculator
   - [x] Step 1.3: Create Simple Backtester Shell
@@ -348,13 +394,14 @@ class BacktestResults:
   - [x] Step 1.6: Create Bootstrap Path Generator
   - [x] Step 1.7: Implement Deep Hedge Evaluation
   - [x] Step 1.8: Implement BS Baseline Evaluation
-  - [ ] Step 1.9: Create Results Container
-  - [ ] Step 1.10: Connect Everything (MVP)
+  - [x] Step 1.9: Create Results Container
+  - [x] Step 1.10: Connect Everything (MVP)
 - [ ] Phase 2: Reporting & Visualization
 - [ ] Phase 3: Real Option Price Comparison
 - [ ] Phase 4: Polish & CLI
 
 ## Next Step
-Step 1.9: Create Results Container
+Step 2.1: Add Plotting - PnL Comparison (Phase 2: Reporting & Visualization)
 
-**Progress:** 8/10 steps complete in Phase 1 (80%)
+**Progress:** Phase 1 complete! 10/10 steps (100%)
+**Total Tests:** 102 tests passing (18 config + 24 metrics + 43 backtester + 17 results)

@@ -54,6 +54,10 @@ class Backtester:
         self.data_loader = None
         self.option = None
 
+        # Placeholders for strategy results (set during run)
+        self.deep_positions = None
+        self.bs_positions = None
+
     def load_model(self, device: Optional[str] = None) -> "Hedger":
         """Load pre-trained model from checkpoint.
 
@@ -199,8 +203,11 @@ class Backtester:
         # Convert relative path to absolute if needed
         if not os.path.isabs(data_dir):
             # Assume relative to crypto/data directory
+            # __file__ is crypto/backtest/backtester.py
+            # dirname(__file__) is crypto/backtest
+            # dirname(dirname(__file__)) is crypto
             base_dir = os.path.dirname(os.path.dirname(__file__))
-            data_dir = os.path.join(base_dir, "crypto", "data", data_dir)
+            data_dir = os.path.join(base_dir, "data", data_dir)
 
         # Check if data directory exists
         if not os.path.exists(data_dir):
@@ -248,19 +255,27 @@ class Backtester:
         except Exception as e:
             raise ValueError(f"Failed to resample data at frequency '{frequency}': {e}")
 
-        # Parse date range (keep as timezone-naive for perpetual data)
+        # Parse date range
         try:
-            start_date_naive = pd.to_datetime(self.config.start_date)
-            end_date_naive = pd.to_datetime(self.config.end_date)
+            start_date = pd.to_datetime(self.config.start_date)
+            end_date = pd.to_datetime(self.config.end_date)
         except Exception as e:
             raise ValueError(f"Failed to parse dates: {e}")
+
+        # Handle timezone: make dates timezone-aware if data has timezone
+        if resampled_df["timestamp"].dt.tz is not None:
+            # Data is timezone-aware, localize dates to UTC for comparison
+            if start_date.tz is None:
+                start_date = start_date.tz_localize("UTC")
+            if end_date.tz is None:
+                end_date = end_date.tz_localize("UTC")
 
         # Filter by date range
         print(
             f"Filtering data from {self.config.start_date} to {self.config.end_date}..."
         )
-        mask = (resampled_df["timestamp"] >= start_date_naive) & (
-            resampled_df["timestamp"] <= end_date_naive
+        mask = (resampled_df["timestamp"] >= start_date) & (
+            resampled_df["timestamp"] <= end_date
         )
         filtered_df = resampled_df[mask].reset_index(drop=True)
 
@@ -281,18 +296,10 @@ class Backtester:
 
             # Filter options by date range too
             if not options_df.empty and "timestamp" in options_df.columns:
-                # Options timestamps are timezone-aware (UTC), so make dates tz-aware for comparison
-                if options_df["timestamp"].dt.tz is not None:
-                    start_date_aware = start_date_naive.tz_localize("UTC")
-                    end_date_aware = end_date_naive.tz_localize("UTC")
-                    opts_mask = (options_df["timestamp"] >= start_date_aware) & (
-                        options_df["timestamp"] <= end_date_aware
-                    )
-                else:
-                    # Options timestamps are naive, use naive dates
-                    opts_mask = (options_df["timestamp"] >= start_date_naive) & (
-                        options_df["timestamp"] <= end_date_naive
-                    )
+                # Use the same date variables as perpetual filtering (already timezone-aware if needed)
+                opts_mask = (options_df["timestamp"] >= start_date) & (
+                    options_df["timestamp"] <= end_date
+                )
                 options_df = options_df[opts_mask].reset_index(drop=True)
                 loader.options_data = options_df
 
@@ -553,6 +560,9 @@ class Backtester:
             f"   Final PnL: ${cum_pnl[:, -1].mean().item():.2f} ± ${cum_pnl[:, -1].std().item():.2f}"
         )
 
+        # Store positions for later use in results
+        self.deep_positions = hedge_positions
+
         return cum_pnl
 
     def run_bs_baseline(self, option=None) -> Tensor:
@@ -636,9 +646,72 @@ class Backtester:
             f"   Final PnL: ${cum_pnl[:, -1].mean().item():.2f} ± ${cum_pnl[:, -1].std().item():.2f}"
         )
 
+        # Store positions for later use in results
+        self.bs_positions = bs_delta
+
         return cum_pnl
 
-    def run(self):
+    def _check_funding_alignment(self) -> None:
+        """Check if funding payment times align with resampled grid.
+
+        This is a helper method that warns if funding payments don't align
+        with the time grid from bootstrap resampling. Misalignment may result
+        in funding costs being applied at slightly different times than intended.
+
+        Note: This is a warning only and doesn't stop execution.
+        """
+        if self.option is None:
+            return
+
+        # Check if underlier has funding payment times
+        if not hasattr(self.option.underlier, "funding_payment_times"):
+            return
+
+        try:
+            funding_times = self.option.underlier.funding_payment_times()
+            if funding_times is None or len(funding_times) == 0:
+                return
+
+            # Get the time grid from option
+            dt = self.config.dt
+            n_steps = self.option.underlier.spot.shape[1]
+            time_grid = torch.arange(0, n_steps) * dt
+
+            # Check if funding times align with grid (within tolerance)
+            tolerance = dt * 0.1  # 10% of time step
+
+            misaligned_times = []
+            for t in funding_times:
+                # Find closest grid point
+                diff = torch.abs(time_grid - float(t))
+                closest_idx = torch.argmin(diff)
+                closest_time = time_grid[closest_idx]
+                if diff[closest_idx] > tolerance:
+                    misaligned_times.append(float(t))
+
+            if misaligned_times:
+                print("\n" + "⚠️  " * 20)
+                print("⚠️  WARNING: Funding Payment Time Alignment Issue")
+                print("⚠️  " * 20)
+                print(
+                    f"\nFound {len(misaligned_times)} funding payment times that don't align"
+                )
+                print(f"with the resampled time grid (dt={dt:.6f} years).")
+                print(f"\nMisaligned times (first 5): {misaligned_times[:5]}")
+                print(
+                    f"\nThis may cause funding costs to be applied at slightly different"
+                )
+                print(
+                    f"times than intended. Consider adjusting dt_hours to align with funding"
+                )
+                print(f"payment frequency (typically 8 hours for perpetual futures).")
+                print("⚠️  " * 20 + "\n")
+
+        except Exception as e:
+            # Don't fail the backtest if alignment check fails
+            print(f"⚠️  Note: Could not check funding alignment: {e}")
+
+    def run(self, seed: Optional[int] = None):
         """Run full backtest.
 
         This orchestrates the entire backtesting process:
@@ -647,16 +720,193 @@ class Backtester:
         3. Create bootstrap option
         4. Run deep hedge strategy
         5. Run BS baseline strategy
-        6. Calculate metrics
-        7. Create results object
+        6. Create results object with metrics
+
+        Args:
+            seed: Random seed for reproducibility. If None, results may vary
+                  between runs due to random bootstrap sampling.
 
         Returns:
-            BacktestResults object with all results
+            BacktestResults object with all results and summary statistics
 
         Raises:
-            NotImplementedError: To be implemented in Step 1.10
+            FileNotFoundError: If model checkpoint or data directory not found
+            ValueError: If data loading fails or configuration is invalid
+            RuntimeError: If model loading or strategy execution fails
+
+        Examples:
+            >>> from crypto.backtest.config import BacktestConfig
+            >>> config = BacktestConfig(
+            ...     start_date="2024-01-01",
+            ...     end_date="2024-01-31",
+            ...     strike=50000,
+            ...     maturity_days=14,
+            ...     model_path="models/deep_hedger.pth"
+            ... )
+            >>> backtester = Backtester(config)
+            >>> results = backtester.run(seed=42)  # Reproducible results
+            >>> summary = results.summary()
+            >>> print(f"Deep Sharpe: {summary['deep_hedge']['sharpe_ratio']:.3f}")
         """
-        raise NotImplementedError("run() will be implemented in Step 1.10")
+        # Import BacktestResults
+        from .results import BacktestResults
+        import numpy as np
+
+        # Set random seeds for reproducibility if requested
+        if seed is not None:
+            torch.manual_seed(seed)
+            np.random.seed(seed)
+            print(f"🔒 Random seed set to {seed} for reproducibility\n")
+        else:
+            print(
+                f"⚠️  No random seed set. Results may vary between runs due to bootstrap sampling.\n"
+            )
+
+        print("\n" + "=" * 60)
+        print("STARTING BACKTEST")
+        print("=" * 60)
+        print(f"\nConfiguration:")
+        print(f"  Date range: {self.config.start_date} to {self.config.end_date}")
+        print(
+            f"  Option: {'Call' if self.config.call else 'Put'} @ ${self.config.strike:,.2f}"
+        )
+        print(f"  Maturity: {self.config.maturity_days} days")
+        print(f"  Bootstrap paths: {self.config.n_bootstrap_paths}")
+        print(f"  Time step: {self.config.dt_hours} hours")
+        print(f"  Transaction cost: {self.config.transaction_cost*100:.3f}%")
+        print(f"  Model: {self.config.model_path}")
+        print(f"  Data directory: {self.config.data_dir}")
+        print("=" * 60 + "\n")
+
+        # Wrap execution in try-except to provide helpful error messages
+        try:
+            # Step 1: Load model
+            print("[Step 1/5] Loading model...")
+            self.load_model()
+
+            # Step 2: Load data
+            print("[Step 2/5] Loading data...")
+            self.load_data()
+
+            # Step 3: Create bootstrap option
+            print("[Step 3/5] Creating bootstrap option...")
+            self.create_bootstrap_option()
+
+            # Check funding alignment (warning only, doesn't stop execution)
+            self._check_funding_alignment()
+
+            # Step 4: Run deep hedge strategy
+            print("[Step 4/5] Running deep hedge strategy...")
+            deep_pnl = self.run_deep_hedge()
+
+            # Step 5: Run BS baseline strategy
+            print("[Step 5/5] Running BS baseline strategy...")
+            bs_pnl = self.run_bs_baseline()
+
+            # Create results object
+            print("\nCreating results object...")
+            results = BacktestResults(
+                deep_pnl=deep_pnl,
+                bs_pnl=bs_pnl,
+                deep_positions=self.deep_positions,
+                bs_positions=self.bs_positions,
+                spots=self.option.underlier.spot,
+                config=self.config,
+            )
+
+        except FileNotFoundError as e:
+            print("\n" + "=" * 60)
+            print("❌ BACKTEST FAILED: File Not Found")
+            print("=" * 60)
+            print(f"\nError: {e}")
+            print("\nCommon causes:")
+            print("  - Model checkpoint path is incorrect")
+            print("  - Data directory doesn't exist or is empty")
+            print("  - Missing perpetual data files (*perpetual*.parquet)")
+            print("\nPlease check your configuration and file paths.")
+            print("=" * 60 + "\n")
+            raise
+
+        except ValueError as e:
+            print("\n" + "=" * 60)
+            print("❌ BACKTEST FAILED: Invalid Data or Configuration")
+            print("=" * 60)
+            print(f"\nError: {e}")
+            print("\nCommon causes:")
+            print("  - Data directory is empty or has no matching files")
+            print("  - Date range doesn't overlap with available data")
+            print("  - Invalid configuration parameters")
+            print("  - Bootstrap path generation failed")
+            print("\nPlease check your data and configuration.")
+            print("=" * 60 + "\n")
+            raise
+
+        except (RuntimeError, KeyError) as e:
+            print("\n" + "=" * 60)
+            print("❌ BACKTEST FAILED: Model or Execution Error")
+            print("=" * 60)
+            print(f"\nError: {e}")
+            print("\nCommon causes:")
+            print("  - Model checkpoint is corrupted or incompatible")
+            print("  - Model architecture doesn't match checkpoint")
+            print("  - CUDA/device mismatch")
+            print("  - Tensor shape mismatch during computation")
+            print("\nPlease check your model checkpoint and device settings.")
+            print("=" * 60 + "\n")
+            raise
+
+        except Exception as e:
+            print("\n" + "=" * 60)
+            print("❌ BACKTEST FAILED: Unexpected Error")
+            print("=" * 60)
+            print(f"\nError type: {type(e).__name__}")
+            print(f"Error message: {e}")
+            print("\nPlease check the full traceback above for details.")
+            print("=" * 60 + "\n")
+            raise
+
+        # Print final summary
+        print("\n" + "=" * 60)
+        print("BACKTEST COMPLETE")
+        print("=" * 60)
+
+        summary = results.summary()
+
+        print("\nPERFORMANCE SUMMARY")
+        print("-" * 60)
+
+        # Deep Hedge metrics
+        deep = summary["deep_hedge"]
+        print(f"\nDeep Hedge:")
+        print(f"  Mean PnL: ${deep['mean']:,.2f}")
+        print(f"  Std PnL: ${deep['std']:,.2f}")
+        print(f"  Sharpe Ratio: {deep['sharpe_ratio']:.3f}")
+        print(f"  Sortino Ratio: {deep['sortino_ratio']:.3f}")
+        print(f"  Max Drawdown: ${deep['max_drawdown']:.2f}")
+        print(f"  CVaR (95%): ${deep['cvar_95']:.2f}")
+        print(f"  Win Rate: {deep['win_rate']:.1%}")
+
+        # BS Baseline metrics
+        bs = summary["bs_baseline"]
+        print(f"\nBlack-Scholes Baseline:")
+        print(f"  Mean PnL: ${bs['mean']:,.2f}")
+        print(f"  Std PnL: ${bs['std']:,.2f}")
+        print(f"  Sharpe Ratio: {bs['sharpe_ratio']:.3f}")
+        print(f"  Sortino Ratio: {bs['sortino_ratio']:.3f}")
+        print(f"  Max Drawdown: ${bs['max_drawdown']:.2f}")
+        print(f"  CVaR (95%): ${bs['cvar_95']:.2f}")
+        print(f"  Win Rate: {bs['win_rate']:.1%}")
+
+        # Comparison
+        print(f"\nComparison (Deep Hedge vs BS):")
+        mean_improvement = deep["mean"] - bs["mean"]
+        sharpe_improvement = deep["sharpe_ratio"] - bs["sharpe_ratio"]
+        print(f"  Mean PnL improvement: ${mean_improvement:+,.2f}")
+        print(f"  Sharpe improvement: {sharpe_improvement:+.3f}")
+
+        print("=" * 60 + "\n")
+
+        return results
 
     def __repr__(self) -> str:
         """String representation."""

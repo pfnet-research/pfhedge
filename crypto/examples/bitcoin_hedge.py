@@ -234,6 +234,46 @@ def main():
     plt.close()  # Close instead of show for non-interactive mode
     print(f"\n✅ Saved figure to {output_file}")
 
+    # ========== Save Model Checkpoint ==========
+
+    print("\n" + "=" * 60)
+    print("SAVING MODEL CHECKPOINT")
+    print("=" * 60)
+
+    # Save model checkpoint for backtesting
+    model_dir = os.path.join(os.path.dirname(__file__), "..", "models")
+    os.makedirs(model_dir, exist_ok=True)
+    model_path = os.path.join(model_dir, "deep_hedger_trained.pth")
+
+    # Save model state and configuration
+    checkpoint = {
+        "model_state_dict": deep_hedger.state_dict(),  # Save full Hedger state, not just MLP
+        "model_config": {
+            "n_layers": 4,
+            "n_units": 128,
+            "in_features": 4,  # log_moneyness, expiry_time, volatility, prev_hedge
+            "out_features": 1,  # hedge ratio
+            "risk_param": 0.9,  # CVaR parameter (p=0.9 for Expected Shortfall)
+            "risk_measure": "expected_shortfall",  # Criterion used for training
+        },
+        "training_config": {
+            "strike": strike,
+            "maturity_days": maturity_days,
+            "volatility": volatility,
+            "cost": cost,
+            "dt": dt,
+            "n_epochs": n_epochs,
+            "train_seed": train_seed,
+        },
+        "training_history": history,
+    }
+
+    torch.save(checkpoint, model_path)
+    print(f"\n✅ Model checkpoint saved to: {model_path}")
+    print(f"   Model architecture: 4 layers × 128 units")
+    print(f"   Training epochs: {n_epochs}")
+    print(f"   Final loss: {history[-1]:.6f}")
+
     print("\n" + "=" * 60)
     print("✅ Bitcoin deep hedging complete!")
     print("=" * 60)

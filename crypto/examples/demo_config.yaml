@@ -1,0 +1,80 @@
+# Bitcoin Options Backtesting - Demo Configuration
+#
+# This configuration file specifies all parameters for running
+# a backtest of deep hedging vs Black-Scholes strategies.
+#
+# Usage:
+#   from crypto.backtest import BacktestConfig
+#   import yaml
+#
+#   with open('demo_config.yaml') as f:
+#       config_dict = yaml.safe_load(f)
+#   config = BacktestConfig.from_dict(config_dict)
+
+# Date Range
+# ----------
+# Historical period to backtest on
+start_date: "2024-01-01"
+end_date: "2024-01-31"
+
+# Option Specification
+# --------------------
+# Strike price in USD
+strike: 50000
+
+# Maturity in days
+maturity_days: 14
+
+# Option type: true = call, false = put
+call: true
+
+# Model Path
+# ----------
+# Path to pre-trained deep hedging model checkpoint
+# The checkpoint should contain:
+#   - model_state_dict: Trained neural network weights
+#   - model_config: Architecture and hyperparameters
+model_path: "crypto/models/deep_hedger_trained.pth"
+
+# Data Directory
+# --------------
+# Directory containing historical Bitcoin data in parquet format
+# Should have files matching patterns:
+#   - *perpetual*.parquet (required)
+#   - *options*.parquet (optional)
+data_dir: "crypto/data/sample_data"
+
+# Output Directory
+# ---------------
+# Where to save backtest results
+output_dir: "backtest_results"
+
+# Execution Parameters
+# --------------------
+# Number of bootstrap Monte Carlo paths to simulate
+# More paths = more accurate statistics but slower
+# Typical: 100-1000
+n_bootstrap_paths: 100
+
+# Time step size in hours
+# Should align with funding payment frequency (typically 8 hours)
+# Smaller = more accurate but slower
+dt_hours: 8.0
+
+# Transaction cost as a fraction (e.g., 0.0005 = 0.05% = 5 basis points)
+# Typical exchange fees:
+#   - Binance: 0.0002 (2 bps)
+#   - Deribit: 0.0005 (5 bps)
+#   - High-fee platforms: 0.001 (10 bps)
+transaction_cost: 0.0005
+
+# Notes
+# -----
+# - Ensure start_date < end_date
+# - Strike should be positive
+# - maturity_days should be positive
+# - transaction_cost should be in range [0, 0.1]
+# - dt_hours should be <= 24
+#
+# For reproducibility, use the same seed when running:
+#   results = backtester.run(seed=42)

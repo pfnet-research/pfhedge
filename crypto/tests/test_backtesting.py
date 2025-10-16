@@ -4,10 +4,12 @@ import pytest
 import torch
 import tempfile
 import os
+import json
 import pandas as pd
 import numpy as np
 from crypto.backtest.config import BacktestConfig
 from crypto.backtest.backtester import Backtester
+from crypto.backtest.results import BacktestResults
 from crypto.backtest.metrics import (
     calculate_sharpe_ratio,
     calculate_sortino_ratio,
@@ -1695,19 +1697,158 @@ class TestBacktester:
             # Verify same shape for both strategies
             assert deep_pnl.shape == bs_pnl.shape
 
-    def test_run_not_implemented(self):
-        """Test that run raises NotImplementedError."""
-        config = BacktestConfig(
-            start_date="2024-01-01",
-            end_date="2024-01-31",
-            strike=50000,
-            maturity_days=14,
-            model_path="models/test.pth",
-        )
-        backtester = Backtester(config)
+    def test_run_end_to_end(self):
+        """Test complete end-to-end backtest."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            # Create dummy data
+            self.create_dummy_parquet_data(temp_dir, n_days=10)
 
-        with pytest.raises(NotImplementedError, match="Step 1.10"):
-            backtester.run()
+            # Create model checkpoint
+            model_path = os.path.join(temp_dir, "test_model.pth")
+            self.create_dummy_checkpoint(model_path)
+
+            config = BacktestConfig(
+                start_date="2024-01-01",
+                end_date="2024-01-05",
+                strike=50000,
+                maturity_days=3,
+                model_path=model_path,
+                data_dir=temp_dir,
+                n_bootstrap_paths=5,
+            )
+            backtester = Backtester(config)
+
+            # Run full backtest
+            results = backtester.run()
+
+            # Verify results object
+            assert results is not None
+            assert isinstance(results, BacktestResults)
+
+            # Verify shapes
+            assert results.n_paths == 5
+            assert results.n_steps > 0
+            assert results.deep_pnl.shape[0] == 5
+            assert results.bs_pnl.shape[0] == 5
+            assert results.deep_positions.shape[0] == 5
+            assert results.bs_positions.shape[0] == 5
+            assert results.spots.shape[0] == 5
+
+            # Verify all shapes match
+            assert results.deep_pnl.shape == results.bs_pnl.shape
+            assert results.deep_pnl.shape == results.deep_positions.shape
+            assert results.deep_pnl.shape == results.bs_positions.shape
+            assert results.deep_pnl.shape == results.spots.shape
+
+            # Verify summary exists
+            summary = results.summary()
+            assert "deep_hedge" in summary
+            assert "bs_baseline" in summary
+            assert "sharpe_ratio" in summary["deep_hedge"]
+            assert "sharpe_ratio" in summary["bs_baseline"]
+
+    def test_run_stores_positions(self):
+        """Test that run() properly stores positions from strategies."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            self.create_dummy_parquet_data(temp_dir, n_days=5)
+            model_path = os.path.join(temp_dir, "test_model.pth")
+            self.create_dummy_checkpoint(model_path)
+
+            config = BacktestConfig(
+                start_date="2024-01-01",
+                end_date="2024-01-03",
+                strike=50000,
+                maturity_days=2,
+                model_path=model_path,
+                data_dir=temp_dir,
+                n_bootstrap_paths=3,
+            )
+            backtester = Backtester(config)
+
+            # Run backtest
+            results = backtester.run()
+
+            # Verify positions were stored in backtester
+            assert backtester.deep_positions is not None
+            assert backtester.bs_positions is not None
+
+            # Verify positions match what's in results
+            assert torch.equal(backtester.deep_positions, results.deep_positions)
+            assert torch.equal(backtester.bs_positions, results.bs_positions)
+
+    def test_run_with_seed_parameter(self):
+        """Test that run() accepts seed parameter without error."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            self.create_dummy_parquet_data(temp_dir, n_days=10)
+            model_path = os.path.join(temp_dir, "test_model.pth")
+            self.create_dummy_checkpoint(model_path)
+
+            config = BacktestConfig(
+                start_date="2024-01-01",
+                end_date="2024-01-05",
+                strike=50000,
+                maturity_days=3,
+                model_path=model_path,
+                data_dir=temp_dir,
+                n_bootstrap_paths=5,
+            )
+            backtester = Backtester(config)
+
+            # Should run without error with seed parameter
+            results = backtester.run(seed=42)
+
+            # Verify results were generated
+            assert results is not None
+            assert isinstance(results, BacktestResults)
+            assert results.n_paths == 5
+
+            # Should also run without seed parameter
+            backtester2 = Backtester(config)
+            results2 = backtester2.run()  # No seed
+
+            assert results2 is not None
+            assert isinstance(results2, BacktestResults)
+
+    def test_run_error_handling_missing_model(self):
+        """Test that run() handles missing model file gracefully."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            self.create_dummy_parquet_data(temp_dir, n_days=5)
+
+            config = BacktestConfig(
+                start_date="2024-01-01",
+                end_date="2024-01-03",
+                strike=50000,
+                maturity_days=2,
+                model_path=os.path.join(temp_dir, "nonexistent_model.pth"),
+                data_dir=temp_dir,
+                n_bootstrap_paths=3,
+            )
+            backtester = Backtester(config)
+
+            # Should raise FileNotFoundError with helpful message
+            with pytest.raises(FileNotFoundError, match="Model checkpoint not found"):
+                backtester.run()
+
+    def test_run_error_handling_missing_data(self):
+        """Test that run() handles missing data directory gracefully."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            model_path = os.path.join(temp_dir, "test_model.pth")
+            self.create_dummy_checkpoint(model_path)
+
+            config = BacktestConfig(
+                start_date="2024-01-01",
+                end_date="2024-01-03",
+                strike=50000,
+                maturity_days=2,
+                model_path=model_path,
+                data_dir="nonexistent_data_dir_12345",
+                n_bootstrap_paths=3,
+            )
+            backtester = Backtester(config)
+
+            # Should raise FileNotFoundError with helpful message
+            with pytest.raises(FileNotFoundError, match="Data directory not found"):
+                backtester.run()
 
     def test_repr(self):
         """Test string representation."""
@@ -1724,3 +1865,515 @@ class TestBacktester:
 
         assert "Backtester" in repr_str
         assert "config=" in repr_str
+
+
+class TestBacktestResults:
+    """Tests for BacktestResults class."""
+
+    def test_create_results_success(self):
+        """Test successful creation of BacktestResults."""
+        # Create dummy data
+        n_paths, n_steps = 10, 20
+        deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        bs_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        deep_positions = torch.randn(n_paths, n_steps)
+        bs_positions = torch.randn(n_paths, n_steps)
+        spots = torch.rand(n_paths, n_steps) * 50000 + 45000
+
+        # Create results
+        results = BacktestResults(
+            deep_pnl=deep_pnl,
+            bs_pnl=bs_pnl,
+            deep_positions=deep_positions,
+            bs_positions=bs_positions,
+            spots=spots,
+        )
+
+        # Verify stored data
+        assert results.deep_pnl is deep_pnl
+        assert results.bs_pnl is bs_pnl
+        assert results.deep_positions is deep_positions
+        assert results.bs_positions is bs_positions
+        assert results.spots is spots
+        assert results.n_paths == n_paths
+        assert results.n_steps == n_steps
+
+    def test_create_results_with_config(self):
+        """Test creating results with config."""
+        n_paths, n_steps = 5, 10
+        deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        bs_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        deep_positions = torch.randn(n_paths, n_steps)
+        bs_positions = torch.randn(n_paths, n_steps)
+        spots = torch.rand(n_paths, n_steps) * 50000
+
+        config = BacktestConfig(
+            start_date="2024-01-01",
+            end_date="2024-01-31",
+            strike=50000,
+            maturity_days=14,
+            model_path="models/test.pth",
+        )
+
+        results = BacktestResults(
+            deep_pnl=deep_pnl,
+            bs_pnl=bs_pnl,
+            deep_positions=deep_positions,
+            bs_positions=bs_positions,
+            spots=spots,
+            config=config,
+        )
+
+        assert results.config is config
+
+    def test_validate_inputs_wrong_dimension(self):
+        """Test validation fails for wrong tensor dimensions."""
+        n_paths, n_steps = 10, 20
+        deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        bs_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        deep_positions = torch.randn(n_paths, n_steps)
+        bs_positions = torch.randn(n_paths, n_steps)
+        spots_1d = torch.rand(n_paths * n_steps)  # Wrong: 1D instead of 2D
+
+        with pytest.raises(ValueError, match="must be 2D tensor"):
+            BacktestResults(
+                deep_pnl=deep_pnl,
+                bs_pnl=bs_pnl,
+                deep_positions=deep_positions,
+                bs_positions=bs_positions,
+                spots=spots_1d,
+            )
+
+    def test_validate_inputs_mismatched_shapes(self):
+        """Test validation fails for mismatched shapes."""
+        n_paths, n_steps = 10, 20
+        deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        bs_pnl = torch.randn(n_paths, n_steps + 5).cumsum(dim=1)  # Wrong shape
+        deep_positions = torch.randn(n_paths, n_steps)
+        bs_positions = torch.randn(n_paths, n_steps)
+        spots = torch.rand(n_paths, n_steps) * 50000
+
+        with pytest.raises(ValueError, match="doesn't match"):
+            BacktestResults(
+                deep_pnl=deep_pnl,
+                bs_pnl=bs_pnl,
+                deep_positions=deep_positions,
+                bs_positions=bs_positions,
+                spots=spots,
+            )
+
+    def test_summary_basic(self):
+        """Test summary statistics calculation."""
+        torch.manual_seed(42)
+        n_paths, n_steps = 100, 50
+        deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        bs_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        deep_positions = torch.randn(n_paths, n_steps)
+        bs_positions = torch.randn(n_paths, n_steps)
+        spots = torch.rand(n_paths, n_steps) * 50000
+
+        results = BacktestResults(
+            deep_pnl=deep_pnl,
+            bs_pnl=bs_pnl,
+            deep_positions=deep_positions,
+            bs_positions=bs_positions,
+            spots=spots,
+        )
+
+        summary = results.summary()
+
+        # Verify structure
+        assert "deep_hedge" in summary
+        assert "bs_baseline" in summary
+
+        # Verify metrics for each strategy
+        for strategy in ["deep_hedge", "bs_baseline"]:
+            assert "mean" in summary[strategy]
+            assert "std" in summary[strategy]
+            assert "min" in summary[strategy]
+            assert "max" in summary[strategy]
+            assert "median" in summary[strategy]
+            assert "sharpe_ratio" in summary[strategy]
+            assert "sortino_ratio" in summary[strategy]
+            assert "cvar_95" in summary[strategy]
+            assert "var_95" in summary[strategy]
+            assert "max_drawdown" in summary[strategy]
+            assert "calmar_ratio" in summary[strategy]
+            assert "win_rate" in summary[strategy]
+
+    def test_summary_values_reasonable(self):
+        """Test that summary values are calculated correctly."""
+        # Create controlled data
+        n_paths, n_steps = 10, 20
+        deep_pnl = torch.ones(n_paths, n_steps).cumsum(dim=1) * 100  # Increasing
+        bs_pnl = torch.ones(n_paths, n_steps).cumsum(dim=1) * 50  # Increasing slower
+        deep_positions = torch.randn(n_paths, n_steps)
+        bs_positions = torch.randn(n_paths, n_steps)
+        spots = torch.rand(n_paths, n_steps) * 50000
+
+        results = BacktestResults(
+            deep_pnl=deep_pnl,
+            bs_pnl=bs_pnl,
+            deep_positions=deep_positions,
+            bs_positions=bs_positions,
+            spots=spots,
+        )
+
+        summary = results.summary()
+
+        # Deep hedge should have higher mean (growing faster)
+        assert summary["deep_hedge"]["mean"] > summary["bs_baseline"]["mean"]
+
+        # Both should have positive final returns
+        assert summary["deep_hedge"]["mean"] > 0
+        assert summary["bs_baseline"]["mean"] > 0
+
+    def test_to_dict_structure(self):
+        """Test to_dict returns proper structure."""
+        n_paths, n_steps = 5, 10
+        deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        bs_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        deep_positions = torch.randn(n_paths, n_steps)
+        bs_positions = torch.randn(n_paths, n_steps)
+        spots = torch.rand(n_paths, n_steps) * 50000
+
+        results = BacktestResults(
+            deep_pnl=deep_pnl,
+            bs_pnl=bs_pnl,
+            deep_positions=deep_positions,
+            bs_positions=bs_positions,
+            spots=spots,
+        )
+
+        data = results.to_dict()
+
+        # Verify structure
+        assert isinstance(data, dict)
+        assert "deep_pnl" in data
+        assert "bs_pnl" in data
+        assert "deep_positions" in data
+        assert "bs_positions" in data
+        assert "spots" in data
+        assert "n_paths" in data
+        assert "n_steps" in data
+        assert "summary" in data
+
+        # Verify data types
+        assert isinstance(data["deep_pnl"], list)
+        assert isinstance(data["bs_pnl"], list)
+        assert isinstance(data["summary"], dict)
+
+        # Verify dimensions
+        assert data["n_paths"] == n_paths
+        assert data["n_steps"] == n_steps
+
+    def test_to_dict_with_config(self):
+        """Test to_dict includes config when provided."""
+        n_paths, n_steps = 5, 10
+        deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        bs_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        deep_positions = torch.randn(n_paths, n_steps)
+        bs_positions = torch.randn(n_paths, n_steps)
+        spots = torch.rand(n_paths, n_steps) * 50000
+
+        config = BacktestConfig(
+            start_date="2024-01-01",
+            end_date="2024-01-31",
+            strike=50000,
+            maturity_days=14,
+            model_path="models/test.pth",
+        )
+
+        results = BacktestResults(
+            deep_pnl=deep_pnl,
+            bs_pnl=bs_pnl,
+            deep_positions=deep_positions,
+            bs_positions=bs_positions,
+            spots=spots,
+            config=config,
+        )
+
+        data = results.to_dict()
+
+        assert "config" in data
+        assert isinstance(data["config"], dict)
+        assert data["config"]["strike"] == 50000
+
+    def test_repr(self):
+        """Test string representation."""
+        n_paths, n_steps = 10, 20
+        deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        bs_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        deep_positions = torch.randn(n_paths, n_steps)
+        bs_positions = torch.randn(n_paths, n_steps)
+        spots = torch.rand(n_paths, n_steps) * 50000
+
+        results = BacktestResults(
+            deep_pnl=deep_pnl,
+            bs_pnl=bs_pnl,
+            deep_positions=deep_positions,
+            bs_positions=bs_positions,
+            spots=spots,
+        )
+
+        repr_str = repr(results)
+
+        assert "BacktestResults" in repr_str
+        assert "n_paths=10" in repr_str
+        assert "n_steps=20" in repr_str
+        assert "deep_sharpe" in repr_str
+        assert "bs_sharpe" in repr_str
+
+    def test_summary_caching(self):
+        """Test that summary is cached and reused on subsequent calls."""
+        torch.manual_seed(42)
+        n_paths, n_steps = 100, 50
+        deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        bs_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        deep_positions = torch.randn(n_paths, n_steps)
+        bs_positions = torch.randn(n_paths, n_steps)
+        spots = torch.rand(n_paths, n_steps) * 50000
+
+        results = BacktestResults(
+            deep_pnl=deep_pnl,
+            bs_pnl=bs_pnl,
+            deep_positions=deep_positions,
+            bs_positions=bs_positions,
+            spots=spots,
+        )
+
+        # First call - should compute and cache
+        summary1 = results.summary()
+        assert results._summary_cache is not None
+
+        # Second call - should return cached version (same object)
+        summary2 = results.summary()
+        assert summary2 is summary1  # Same object reference
+
+        # Call with different alpha - should recompute (not cached)
+        summary3 = results.summary(alpha_cvar=0.01, alpha_var=0.01)
+        assert "cvar_99" in summary3["deep_hedge"]
+        assert summary3 is not summary1  # Different object
+
+    def test_to_dict_include_raw_false(self):
+        """Test to_dict with include_raw=False excludes tensor data."""
+        n_paths, n_steps = 100, 200  # Large dataset
+        deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        bs_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        deep_positions = torch.randn(n_paths, n_steps)
+        bs_positions = torch.randn(n_paths, n_steps)
+        spots = torch.rand(n_paths, n_steps) * 50000
+
+        results = BacktestResults(
+            deep_pnl=deep_pnl,
+            bs_pnl=bs_pnl,
+            deep_positions=deep_positions,
+            bs_positions=bs_positions,
+            spots=spots,
+        )
+
+        # Export without raw data
+        data = results.to_dict(include_raw=False)
+
+        # Verify structure has metadata but not raw arrays
+        assert "n_paths" in data
+        assert "n_steps" in data
+        assert "summary" in data
+        assert data["n_paths"] == n_paths
+        assert data["n_steps"] == n_steps
+
+        # Raw data should NOT be included
+        assert "deep_pnl" not in data
+        assert "bs_pnl" not in data
+        assert "deep_positions" not in data
+        assert "bs_positions" not in data
+        assert "spots" not in data
+
+    def test_to_dict_include_raw_true_default(self):
+        """Test to_dict with include_raw=True (default) includes all data."""
+        n_paths, n_steps = 5, 10
+        deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        bs_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        deep_positions = torch.randn(n_paths, n_steps)
+        bs_positions = torch.randn(n_paths, n_steps)
+        spots = torch.rand(n_paths, n_steps) * 50000
+
+        results = BacktestResults(
+            deep_pnl=deep_pnl,
+            bs_pnl=bs_pnl,
+            deep_positions=deep_positions,
+            bs_positions=bs_positions,
+            spots=spots,
+        )
+
+        # Export with raw data (default)
+        data = results.to_dict()
+
+        # Verify all data is included
+        assert "deep_pnl" in data
+        assert "bs_pnl" in data
+        assert "deep_positions" in data
+        assert "bs_positions" in data
+        assert "spots" in data
+        assert "summary" in data
+        assert "n_paths" in data
+        assert "n_steps" in data
+
+        # Verify raw arrays are lists
+        assert isinstance(data["deep_pnl"], list)
+        assert isinstance(data["bs_pnl"], list)
+        assert len(data["deep_pnl"]) == n_paths
+
+    def test_to_json_returns_valid_json_string(self):
+        """Test to_json returns valid JSON string."""
+        n_paths, n_steps = 5, 10
+        deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        bs_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        deep_positions = torch.randn(n_paths, n_steps)
+        bs_positions = torch.randn(n_paths, n_steps)
+        spots = torch.rand(n_paths, n_steps) * 50000
+
+        results = BacktestResults(
+            deep_pnl=deep_pnl,
+            bs_pnl=bs_pnl,
+            deep_positions=deep_positions,
+            bs_positions=bs_positions,
+            spots=spots,
+        )
+
+        # Get JSON string
+        json_str = results.to_json(include_raw=False)
+
+        # Verify it's valid JSON
+        assert isinstance(json_str, str)
+        parsed = json.loads(json_str)
+        assert isinstance(parsed, dict)
+        assert "summary" in parsed
+        assert "n_paths" in parsed
+        assert "n_steps" in parsed
+
+    def test_to_json_write_to_file(self):
+        """Test to_json writes to file correctly."""
+        import tempfile
+        import os
+
+        n_paths, n_steps = 5, 10
+        deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        bs_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        deep_positions = torch.randn(n_paths, n_steps)
+        bs_positions = torch.randn(n_paths, n_steps)
+        spots = torch.rand(n_paths, n_steps) * 50000
+
+        results = BacktestResults(
+            deep_pnl=deep_pnl,
+            bs_pnl=bs_pnl,
+            deep_positions=deep_positions,
+            bs_positions=bs_positions,
+            spots=spots,
+        )
+
+        # Write to temp file
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+            temp_path = f.name
+
+        try:
+            # Write should return None
+            result = results.to_json(temp_path, include_raw=False)
+            assert result is None
+
+            # Verify file was created and is valid JSON
+            assert os.path.exists(temp_path)
+            with open(temp_path, "r") as f:
+                data = json.load(f)
+            assert isinstance(data, dict)
+            assert "summary" in data
+
+        finally:
+            if os.path.exists(temp_path):
+                os.unlink(temp_path)
+
+    def test_to_json_handles_config_with_dates(self):
+        """Test to_json handles config with date strings correctly."""
+        n_paths, n_steps = 5, 10
+        deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        bs_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        deep_positions = torch.randn(n_paths, n_steps)
+        bs_positions = torch.randn(n_paths, n_steps)
+        spots = torch.rand(n_paths, n_steps) * 50000
+
+        config = BacktestConfig(
+            start_date="2024-01-01",
+            end_date="2024-01-31",
+            strike=50000,
+            maturity_days=14,
+            model_path="models/test.pth",
+        )
+
+        results = BacktestResults(
+            deep_pnl=deep_pnl,
+            bs_pnl=bs_pnl,
+            deep_positions=deep_positions,
+            bs_positions=bs_positions,
+            spots=spots,
+            config=config,
+        )
+
+        # Should not raise even with config
+        json_str = results.to_json(include_raw=False)
+        parsed = json.loads(json_str)
+        assert "config" in parsed
+        assert parsed["config"]["start_date"] == "2024-01-01"
+
+    def test_safe_json_normalize_datetime(self):
+        """Test _safe_json_normalize handles datetime objects."""
+        from datetime import datetime
+
+        dt = datetime(2024, 1, 15, 12, 30, 45)
+        normalized = BacktestResults._safe_json_normalize(dt)
+        assert isinstance(normalized, str)
+        assert "2024-01-15" in normalized
+
+    def test_safe_json_normalize_numpy_types(self):
+        """Test _safe_json_normalize handles numpy types."""
+        import numpy as np
+
+        # Test numpy integer
+        np_int = np.int64(42)
+        normalized = BacktestResults._safe_json_normalize(np_int)
+        assert isinstance(normalized, int)
+        assert normalized == 42
+
+        # Test numpy float
+        np_float = np.float64(3.14)
+        normalized = BacktestResults._safe_json_normalize(np_float)
+        assert isinstance(normalized, float)
+        assert abs(normalized - 3.14) < 0.01
+
+        # Test numpy array
+        np_array = np.array([1, 2, 3])
+        normalized = BacktestResults._safe_json_normalize(np_array)
+        assert isinstance(normalized, list)
+        assert normalized == [1, 2, 3]
+
+    def test_safe_json_normalize_nested_dict(self):
+        """Test _safe_json_normalize handles nested structures."""
+        from datetime import datetime
+        import numpy as np
+
+        nested = {
+            "date": datetime(2024, 1, 1),
+            "value": np.float64(3.14),
+            "nested": {"count": np.int64(42), "items": [np.int32(1), np.int32(2)]},
+        }
+
+        normalized = BacktestResults._safe_json_normalize(nested)
+
+        # Verify all types are JSON-safe
+        assert isinstance(normalized["date"], str)
+        assert isinstance(normalized["value"], float)
+        assert isinstance(normalized["nested"]["count"], int)
+        assert isinstance(normalized["nested"]["items"][0], int)
+
+        # Verify it's JSON-serializable
+        json_str = json.dumps(normalized)
+        assert isinstance(json_str, str)
