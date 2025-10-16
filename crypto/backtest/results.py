@@ -123,6 +123,45 @@ class BacktestResults:
                     f"{name} shape {tensor.shape} doesn't match deep_pnl shape {expected_shape}"
                 )
 
+    def _get_time_axis(self, time_unit: str = "steps") -> tuple:
+        """Get time axis values and label based on config.
+
+        Args:
+            time_unit: One of 'steps', 'hours', 'days' (default: 'steps')
+
+        Returns:
+            Tuple of (time_values, xlabel) where:
+            - time_values: np.ndarray of time axis values
+            - xlabel: str for axis label
+
+        Examples:
+            >>> time_vals, label = results._get_time_axis("days")
+            >>> ax.plot(time_vals, data)
+            >>> ax.set_xlabel(label)
+        """
+        time_steps = np.arange(self.n_steps)
+
+        if time_unit == "steps":
+            return time_steps, "Time Step"
+
+        # For hours/days, we need dt from config
+        if self.config is None or not hasattr(self.config, "dt"):
+            # Fallback to steps if no config available
+            return time_steps, "Time Step"
+
+        dt_years = self.config.dt
+        hours_per_year = 24 * 365.25
+
+        if time_unit == "hours":
+            time_values = time_steps * dt_years * hours_per_year
+            return time_values, "Time (hours)"
+        elif time_unit == "days":
+            time_values = time_steps * dt_years * (hours_per_year / 24)
+            return time_values, "Time (days)"
+        else:
+            raise ValueError(f"Invalid time_unit: {time_unit}. Use 'steps', 'hours', or 'days'")
+
+
     def summary(
         self, alpha_cvar: float = 0.05, alpha_var: float = 0.05
     ) -> Dict[str, Dict[str, float]]:
@@ -343,6 +382,570 @@ class BacktestResults:
             return None
         else:
             return json.dumps(normalized, **kwargs)
+
+    def plot_pnl_comparison(
+        self,
+        path_indices: Optional[list] = None,
+        show_mean: bool = True,
+        time_unit: str = "steps",
+        figsize: tuple = (12, 6),
+        save_path: Optional[str] = None,
+    ):
+        """Plot cumulative PnL comparison between deep hedge and BS baseline.
+
+        Args:
+            path_indices: List of path indices to plot. If None, plots mean only.
+            show_mean: If True, show mean PnL across all paths (default: True)
+            time_unit: Time axis unit - 'steps', 'hours', or 'days' (default: 'steps')
+            figsize: Figure size (width, height) in inches
+            save_path: Optional path to save figure. If None, displays plot.
+
+        Returns:
+            matplotlib Figure object
+
+        Examples:
+            >>> # Plot mean PnL only
+            >>> results.plot_pnl_comparison()
+            >>>
+            >>> # Plot first 5 paths plus mean
+            >>> results.plot_pnl_comparison(path_indices=[0, 1, 2, 3, 4])
+            >>>
+            >>> # Plot with time in days
+            >>> results.plot_pnl_comparison(time_unit="days")
+            >>>
+            >>> # Save to file
+            >>> results.plot_pnl_comparison(save_path="pnl_comparison.png")
+        """
+        import matplotlib.pyplot as plt
+
+        # Validate and limit path_indices
+        if path_indices is not None and len(path_indices) > 50:
+            print(f"⚠️  Warning: Plotting {len(path_indices)} paths may be slow. Consider using fewer paths.")
+
+        fig, ax = plt.subplots(figsize=figsize)
+
+        # Get time axis
+        time_values, time_label = self._get_time_axis(time_unit)
+
+        # Plot individual paths if requested
+        if path_indices is not None:
+            for idx in path_indices:
+                if idx >= self.n_paths:
+                    continue
+                ax.plot(
+                    time_values,
+                    self.deep_pnl[idx].cpu().numpy(),
+                    color="blue",
+                    alpha=0.3,
+                    linewidth=0.5,
+                )
+                ax.plot(
+                    time_values,
+                    self.bs_pnl[idx].cpu().numpy(),
+                    color="orange",
+                    alpha=0.3,
+                    linewidth=0.5,
+                )
+
+        # Plot mean PnL
+        if show_mean:
+            deep_mean = self.deep_pnl.mean(dim=0).cpu().numpy()
+            bs_mean = self.bs_pnl.mean(dim=0).cpu().numpy()
+
+            ax.plot(
+                time_values, deep_mean, color="blue", linewidth=2, label="Deep Hedge (mean)"
+            )
+            ax.plot(
+                time_values, bs_mean, color="orange", linewidth=2, label="BS Baseline (mean)"
+            )
+
+        ax.axhline(y=0, color="gray", linestyle="--", linewidth=0.8, alpha=0.5)
+        ax.set_xlabel(time_label)
+        ax.set_ylabel("Cumulative PnL ($)")
+        ax.set_title("Cumulative PnL Comparison: Deep Hedge vs Black-Scholes")
+        ax.legend()
+        ax.grid(True, alpha=0.3)
+
+        plt.tight_layout()
+
+        if save_path:
+            fig.savefig(save_path, dpi=150, bbox_inches="tight")
+            print(f"✅ Saved PnL comparison plot to: {save_path}")
+
+        return fig
+
+    def plot_pnl_distribution(
+        self, bins: int = 50, figsize: tuple = (12, 6), save_path: Optional[str] = None
+    ):
+        """Plot final PnL distribution for both strategies.
+
+        Args:
+            bins: Number of histogram bins (default: 50)
+            figsize: Figure size (width, height) in inches
+            save_path: Optional path to save figure. If None, displays plot.
+
+        Returns:
+            matplotlib Figure object
+
+        Examples:
+            >>> results.plot_pnl_distribution()
+            >>> results.plot_pnl_distribution(bins=30, save_path="pnl_dist.png")
+        """
+        import matplotlib.pyplot as plt
+
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=figsize)
+
+        # Get final PnL
+        deep_final = self.deep_pnl[:, -1].cpu().numpy()
+        bs_final = self.bs_pnl[:, -1].cpu().numpy()
+
+        # Plot deep hedge distribution
+        ax1.hist(deep_final, bins=bins, alpha=0.7, color="blue", edgecolor="black")
+        ax1.axvline(
+            deep_final.mean(), color="red", linestyle="--", linewidth=2, label="Mean"
+        )
+        ax1.axvline(
+            np.median(deep_final),
+            color="green",
+            linestyle="--",
+            linewidth=2,
+            label="Median",
+        )
+        ax1.set_xlabel("Final PnL ($)")
+        ax1.set_ylabel("Frequency")
+        ax1.set_title("Deep Hedge: Final PnL Distribution")
+        ax1.legend()
+        ax1.grid(True, alpha=0.3)
+
+        # Plot BS baseline distribution
+        ax2.hist(bs_final, bins=bins, alpha=0.7, color="orange", edgecolor="black")
+        ax2.axvline(
+            bs_final.mean(), color="red", linestyle="--", linewidth=2, label="Mean"
+        )
+        ax2.axvline(
+            np.median(bs_final),
+            color="green",
+            linestyle="--",
+            linewidth=2,
+            label="Median",
+        )
+        ax2.set_xlabel("Final PnL ($)")
+        ax2.set_ylabel("Frequency")
+        ax2.set_title("Black-Scholes: Final PnL Distribution")
+        ax2.legend()
+        ax2.grid(True, alpha=0.3)
+
+        plt.tight_layout()
+
+        if save_path:
+            fig.savefig(save_path, dpi=150, bbox_inches="tight")
+            print(f"✅ Saved PnL distribution plot to: {save_path}")
+
+        return fig
+
+    def plot_positions(
+        self,
+        path_indices: Optional[list] = None,
+        show_mean: bool = True,
+        time_unit: str = "steps",
+        figsize: tuple = (12, 6),
+        save_path: Optional[str] = None,
+    ):
+        """Plot hedge positions over time for both strategies.
+
+        Args:
+            path_indices: List of path indices to plot. If None, plots mean only.
+            show_mean: If True, show mean positions across all paths (default: True)
+            time_unit: Time axis unit - 'steps', 'hours', or 'days' (default: 'steps')
+            figsize: Figure size (width, height) in inches
+            save_path: Optional path to save figure. If None, displays plot.
+
+        Returns:
+            matplotlib Figure object
+
+        Examples:
+            >>> results.plot_positions()
+            >>> results.plot_positions(path_indices=[0, 1, 2])
+            >>> results.plot_positions(time_unit="days")
+            >>> results.plot_positions(save_path="positions.png")
+        """
+        import matplotlib.pyplot as plt
+
+        # Validate and limit path_indices
+        if path_indices is not None and len(path_indices) > 50:
+            print(f"⚠️  Warning: Plotting {len(path_indices)} paths may be slow. Consider using fewer paths.")
+
+        fig, ax = plt.subplots(figsize=figsize)
+
+        # Get time axis
+        time_values, time_label = self._get_time_axis(time_unit)
+
+        # Plot individual paths if requested
+        if path_indices is not None:
+            for idx in path_indices:
+                if idx >= self.n_paths:
+                    continue
+                ax.plot(
+                    time_values,
+                    self.deep_positions[idx].cpu().numpy(),
+                    color="blue",
+                    alpha=0.3,
+                    linewidth=0.5,
+                )
+                ax.plot(
+                    time_values,
+                    self.bs_positions[idx].cpu().numpy(),
+                    color="orange",
+                    alpha=0.3,
+                    linewidth=0.5,
+                )
+
+        # Plot mean positions
+        if show_mean:
+            deep_mean = self.deep_positions.mean(dim=0).cpu().numpy()
+            bs_mean = self.bs_positions.mean(dim=0).cpu().numpy()
+
+            ax.plot(
+                time_values, deep_mean, color="blue", linewidth=2, label="Deep Hedge (mean)"
+            )
+            ax.plot(
+                time_values, bs_mean, color="orange", linewidth=2, label="BS Delta (mean)"
+            )
+
+        ax.axhline(y=0, color="gray", linestyle="--", linewidth=0.8, alpha=0.5)
+        ax.set_xlabel(time_label)
+        ax.set_ylabel("Hedge Position (units)")
+        ax.set_title("Hedge Positions Over Time: Deep Hedge vs Black-Scholes Delta")
+        ax.legend()
+        ax.grid(True, alpha=0.3)
+
+        plt.tight_layout()
+
+        if save_path:
+            fig.savefig(save_path, dpi=150, bbox_inches="tight")
+            print(f"✅ Saved positions plot to: {save_path}")
+
+        return fig
+
+    def plot_all(
+        self,
+        path_indices: Optional[list] = None,
+        time_unit: str = "steps",
+        figsize: tuple = (16, 12),
+        save_path: Optional[str] = None,
+    ):
+        """Create comprehensive visualization with all plots.
+
+        Creates a 2x2 grid with:
+        - Top left: PnL comparison
+        - Top right: PnL distribution
+        - Bottom left: Hedge positions
+        - Bottom right: Performance metrics table
+
+        Args:
+            path_indices: List of path indices to plot in line plots
+            time_unit: Time axis unit - 'steps', 'hours', or 'days' (default: 'steps')
+            figsize: Figure size (width, height) in inches
+            save_path: Optional path to save figure. If None, displays plot.
+
+        Returns:
+            matplotlib Figure object
+
+        Examples:
+            >>> results.plot_all()
+            >>> results.plot_all(path_indices=[0, 1, 2], save_path="backtest_summary.png")
+            >>> results.plot_all(time_unit="days")
+        """
+        import matplotlib.pyplot as plt
+
+        # Validate and limit path_indices
+        if path_indices is not None and len(path_indices) > 50:
+            print(f"⚠️  Warning: Plotting {len(path_indices)} paths may be slow. Consider using fewer paths.")
+
+        fig = plt.figure(figsize=figsize)
+        gs = fig.add_gridspec(2, 2, hspace=0.3, wspace=0.3)
+
+        # Get time axis
+        time_values, time_label = self._get_time_axis(time_unit)
+
+        # Top left: PnL comparison
+        ax1 = fig.add_subplot(gs[0, 0])
+        if path_indices is not None:
+            for idx in path_indices:
+                if idx >= self.n_paths:
+                    continue
+                ax1.plot(
+                    time_values,
+                    self.deep_pnl[idx].cpu().numpy(),
+                    color="blue",
+                    alpha=0.3,
+                    linewidth=0.5,
+                )
+                ax1.plot(
+                    time_values,
+                    self.bs_pnl[idx].cpu().numpy(),
+                    color="orange",
+                    alpha=0.3,
+                    linewidth=0.5,
+                )
+
+        deep_mean = self.deep_pnl.mean(dim=0).cpu().numpy()
+        bs_mean = self.bs_pnl.mean(dim=0).cpu().numpy()
+        ax1.plot(time_values, deep_mean, color="blue", linewidth=2, label="Deep Hedge")
+        ax1.plot(time_values, bs_mean, color="orange", linewidth=2, label="BS Baseline")
+        ax1.axhline(y=0, color="gray", linestyle="--", linewidth=0.8, alpha=0.5)
+        ax1.set_xlabel(time_label)
+        ax1.set_ylabel("Cumulative PnL ($)")
+        ax1.set_title("Cumulative PnL Comparison")
+        ax1.legend()
+        ax1.grid(True, alpha=0.3)
+
+        # Top right: PnL distribution (overlay)
+        ax2 = fig.add_subplot(gs[0, 1])
+        deep_final = self.deep_pnl[:, -1].cpu().numpy()
+        bs_final = self.bs_pnl[:, -1].cpu().numpy()
+        ax2.hist(
+            deep_final,
+            bins=30,
+            alpha=0.5,
+            color="blue",
+            label="Deep Hedge",
+            edgecolor="black",
+        )
+        ax2.hist(
+            bs_final,
+            bins=30,
+            alpha=0.5,
+            color="orange",
+            label="BS Baseline",
+            edgecolor="black",
+        )
+        ax2.set_xlabel("Final PnL ($)")
+        ax2.set_ylabel("Frequency")
+        ax2.set_title("Final PnL Distribution")
+        ax2.legend()
+        ax2.grid(True, alpha=0.3)
+
+        # Bottom left: Hedge positions
+        ax3 = fig.add_subplot(gs[1, 0])
+        if path_indices is not None:
+            for idx in path_indices:
+                if idx >= self.n_paths:
+                    continue
+                ax3.plot(
+                    time_values,
+                    self.deep_positions[idx].cpu().numpy(),
+                    color="blue",
+                    alpha=0.3,
+                    linewidth=0.5,
+                )
+                ax3.plot(
+                    time_values,
+                    self.bs_positions[idx].cpu().numpy(),
+                    color="orange",
+                    alpha=0.3,
+                    linewidth=0.5,
+                )
+
+        deep_pos_mean = self.deep_positions.mean(dim=0).cpu().numpy()
+        bs_pos_mean = self.bs_positions.mean(dim=0).cpu().numpy()
+        ax3.plot(time_values, deep_pos_mean, color="blue", linewidth=2, label="Deep Hedge")
+        ax3.plot(time_values, bs_pos_mean, color="orange", linewidth=2, label="BS Delta")
+        ax3.axhline(y=0, color="gray", linestyle="--", linewidth=0.8, alpha=0.5)
+        ax3.set_xlabel(time_label)
+        ax3.set_ylabel("Position (units)")
+        ax3.set_title("Hedge Positions")
+        ax3.legend()
+        ax3.grid(True, alpha=0.3)
+
+        # Bottom right: Performance metrics table
+        ax4 = fig.add_subplot(gs[1, 1])
+        ax4.axis("off")
+
+        summary = self.summary()
+        deep = summary["deep_hedge"]
+        bs = summary["bs_baseline"]
+
+        metrics_data = [
+            ["Metric", "Deep Hedge", "BS Baseline", "Difference"],
+            ["Mean PnL", f"${deep['mean']:.2f}", f"${bs['mean']:.2f}", f"${deep['mean']-bs['mean']:+.2f}"],
+            ["Std PnL", f"${deep['std']:.2f}", f"${bs['std']:.2f}", f"${deep['std']-bs['std']:+.2f}"],
+            ["Sharpe", f"{deep['sharpe_ratio']:.3f}", f"{bs['sharpe_ratio']:.3f}", f"{deep['sharpe_ratio']-bs['sharpe_ratio']:+.3f}"],
+            ["Sortino", f"{deep['sortino_ratio']:.3f}", f"{bs['sortino_ratio']:.3f}", f"{deep['sortino_ratio']-bs['sortino_ratio']:+.3f}"],
+            ["CVaR 95%", f"${deep['cvar_95']:.2f}", f"${bs['cvar_95']:.2f}", f"${deep['cvar_95']-bs['cvar_95']:+.2f}"],
+            ["Max DD", f"${deep['max_drawdown']:.2f}", f"${bs['max_drawdown']:.2f}", f"${deep['max_drawdown']-bs['max_drawdown']:+.2f}"],
+            ["Win Rate", f"{deep['win_rate']:.1%}", f"{bs['win_rate']:.1%}", f"{(deep['win_rate']-bs['win_rate'])*100:+.1f}%"],
+        ]
+
+        table = ax4.table(
+            cellText=metrics_data,
+            cellLoc="center",
+            loc="center",
+            colWidths=[0.3, 0.25, 0.25, 0.2],
+        )
+        table.auto_set_font_size(False)
+        table.set_fontsize(9)
+        table.scale(1, 2)
+
+        # Style header row
+        for i in range(4):
+            table[(0, i)].set_facecolor("#4CAF50")
+            table[(0, i)].set_text_props(weight="bold", color="white")
+
+        ax4.set_title("Performance Metrics", fontsize=12, fontweight="bold", pad=20)
+
+        if save_path:
+            fig.savefig(save_path, dpi=150, bbox_inches="tight")
+            print(f"✅ Saved comprehensive plot to: {save_path}")
+
+        return fig
+
+    def generate_report(
+        self, filepath: str, include_plots: bool = True, plot_dir: Optional[str] = None
+    ) -> dict:
+        """Generate a markdown report with backtest results.
+
+        Args:
+            filepath: Path to save markdown report (.md file)
+            include_plots: If True, generates and embeds plot images
+            plot_dir: Directory to save plots. If None, uses same dir as report.
+
+        Returns:
+            Dictionary containing:
+            - 'report_path': Path to generated report file
+            - 'plot_paths': List of generated plot file paths (if include_plots=True)
+
+        Examples:
+            >>> result = results.generate_report("backtest_report.md")
+            >>> print(result['report_path'])
+            >>> print(result['plot_paths'])
+            >>>
+            >>> results.generate_report("report.md", include_plots=True, plot_dir="plots/")
+        """
+        from pathlib import Path
+
+        # Determine plot directory
+        report_path = Path(filepath)
+        if plot_dir is None:
+            plot_dir = str(report_path.parent / "plots")
+
+        if include_plots:
+            Path(plot_dir).mkdir(parents=True, exist_ok=True)
+
+        # Track generated plot paths
+        generated_plots = []
+
+        # Get summary stats
+        summary = self.summary()
+        deep = summary["deep_hedge"]
+        bs = summary["bs_baseline"]
+
+        # Build markdown report
+        lines = []
+        lines.append("# Backtest Report\n")
+        lines.append(f"**Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+        lines.append(f"**Paths:** {self.n_paths:,} | **Steps:** {self.n_steps}\n")
+
+        # Configuration
+        if self.config is not None:
+            lines.append("\n## Configuration\n")
+            if hasattr(self.config, "to_dict"):
+                config_dict = self.config.to_dict()
+                for key, value in config_dict.items():
+                    lines.append(f"- **{key}**: {value}\n")
+
+        # Performance Summary
+        lines.append("\n## Performance Summary\n")
+
+        lines.append("\n### Deep Hedge\n")
+        lines.append(f"- **Mean PnL**: ${deep['mean']:,.2f}\n")
+        lines.append(f"- **Std PnL**: ${deep['std']:,.2f}\n")
+        lines.append(f"- **Sharpe Ratio**: {deep['sharpe_ratio']:.3f}\n")
+        lines.append(f"- **Sortino Ratio**: {deep['sortino_ratio']:.3f}\n")
+        lines.append(f"- **CVaR (95%)**: ${deep['cvar_95']:,.2f}\n")
+        lines.append(f"- **Max Drawdown**: ${deep['max_drawdown']:,.2f}\n")
+        lines.append(f"- **Win Rate**: {deep['win_rate']:.1%}\n")
+
+        lines.append("\n### Black-Scholes Baseline\n")
+        lines.append(f"- **Mean PnL**: ${bs['mean']:,.2f}\n")
+        lines.append(f"- **Std PnL**: ${bs['std']:,.2f}\n")
+        lines.append(f"- **Sharpe Ratio**: {bs['sharpe_ratio']:.3f}\n")
+        lines.append(f"- **Sortino Ratio**: {bs['sortino_ratio']:.3f}\n")
+        lines.append(f"- **CVaR (95%)**: ${bs['cvar_95']:,.2f}\n")
+        lines.append(f"- **Max Drawdown**: ${bs['max_drawdown']:,.2f}\n")
+        lines.append(f"- **Win Rate**: {bs['win_rate']:.1%}\n")
+
+        # Comparison
+        lines.append("\n### Comparison (Deep - BS)\n")
+        lines.append(f"- **Mean PnL Diff**: ${deep['mean'] - bs['mean']:+,.2f}\n")
+        lines.append(f"- **Sharpe Diff**: {deep['sharpe_ratio'] - bs['sharpe_ratio']:+.3f}\n")
+        lines.append(f"- **CVaR Diff**: ${deep['cvar_95'] - bs['cvar_95']:+,.2f}\n")
+
+        # Include plots if requested
+        if include_plots:
+            lines.append("\n## Visualizations\n")
+
+            # Save plots (absolute paths for saving)
+            plot_dir_path = Path(plot_dir)
+            pnl_plot = str(plot_dir_path / "pnl_comparison.png")
+            dist_plot = str(plot_dir_path / "pnl_distribution.png")
+            pos_plot = str(plot_dir_path / "positions.png")
+            all_plot = str(plot_dir_path / "summary.png")
+
+            import matplotlib.pyplot as plt
+
+            self.plot_pnl_comparison(save_path=pnl_plot)
+            plt.close()
+            generated_plots.append(pnl_plot)
+
+            self.plot_pnl_distribution(save_path=dist_plot)
+            plt.close()
+            generated_plots.append(dist_plot)
+
+            self.plot_positions(save_path=pos_plot)
+            plt.close()
+            generated_plots.append(pos_plot)
+
+            self.plot_all(save_path=all_plot)
+            plt.close()
+            generated_plots.append(all_plot)
+
+            # Create relative paths for markdown links
+            # Make paths relative to the report file location
+            try:
+                pnl_plot_rel = Path(pnl_plot).relative_to(report_path.parent)
+                dist_plot_rel = Path(dist_plot).relative_to(report_path.parent)
+                pos_plot_rel = Path(pos_plot).relative_to(report_path.parent)
+                all_plot_rel = Path(all_plot).relative_to(report_path.parent)
+            except ValueError:
+                # If relative path fails, use absolute paths
+                pnl_plot_rel = pnl_plot
+                dist_plot_rel = dist_plot
+                pos_plot_rel = pos_plot
+                all_plot_rel = all_plot
+
+            # Embed plots in markdown using relative paths
+            lines.append("\n### PnL Comparison\n")
+            lines.append(f"![PnL Comparison]({pnl_plot_rel})\n")
+            lines.append("\n### PnL Distribution\n")
+            lines.append(f"![PnL Distribution]({dist_plot_rel})\n")
+            lines.append("\n### Hedge Positions\n")
+            lines.append(f"![Positions]({pos_plot_rel})\n")
+            lines.append("\n### Summary\n")
+            lines.append(f"![Summary]({all_plot_rel})\n")
+
+        # Write report
+        with open(filepath, "w") as f:
+            f.writelines(lines)
+
+        print(f"✅ Generated report: {filepath}")
+        if include_plots:
+            print(f"   Plots saved to: {plot_dir}/")
+
+        return {
+            "report_path": str(filepath),
+            "plot_paths": generated_plots,
+        }
 
     def __repr__(self) -> str:
         """String representation.

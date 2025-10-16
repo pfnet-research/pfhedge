@@ -256,12 +256,69 @@ def main():
     print("\n🔄 To reproduce these exact results:")
     print(f"   results = Backtester(config).run(seed={seed})")
 
+    wait_for_user("Press ENTER to see visualizations", interactive)
+
+    # ================================================================
+    # PART 6: VISUALIZATIONS
+    # ================================================================
+    print_header("PART 6: VISUALIZATIONS")
+
+    print("Generating plots to visualize backtest results...")
+    print()
+
+    # Create plots directory
+    plots_dir = output_dir / "plots"
+    plots_dir.mkdir(exist_ok=True)
+
+    # Plot 1: PnL Comparison
+    print("[1/4] Creating PnL comparison plot...")
+    pnl_plot_path = plots_dir / "pnl_comparison.png"
+    results.plot_pnl_comparison(save_path=str(pnl_plot_path))
+
+    # Plot 2: PnL Distribution
+    print("[2/4] Creating PnL distribution plot...")
+    dist_plot_path = plots_dir / "pnl_distribution.png"
+    results.plot_pnl_distribution(save_path=str(dist_plot_path))
+
+    # Plot 3: Hedge Positions
+    print("[3/4] Creating hedge positions plot...")
+    pos_plot_path = plots_dir / "positions.png"
+    results.plot_positions(save_path=str(pos_plot_path))
+
+    # Plot 4: Comprehensive Summary
+    print("[4/4] Creating comprehensive summary plot...")
+    summary_plot_path = plots_dir / "summary.png"
+    results.plot_all(path_indices=[0, 1, 2], save_path=str(summary_plot_path))
+
+    print("\n✅ All plots generated successfully!")
+    print(f"   Plots saved to: {plots_dir}/")
+    print()
+    print("📊 Generated plots:")
+    print(f"   • PnL comparison: {pnl_plot_path}")
+    print(f"   • PnL distribution: {dist_plot_path}")
+    print(f"   • Hedge positions: {pos_plot_path}")
+    print(f"   • Comprehensive summary: {summary_plot_path}")
+
+    # Generate markdown report
+    print("\n📝 Generating markdown report...")
+    report_path = output_dir / "backtest_report.md"
+    report_result = results.generate_report(str(report_path), include_plots=True, plot_dir=str(plots_dir))
+
+    print()
+    print(f"✅ Report generated: {report_result['report_path']}")
+    print(f"   {len(report_result['plot_paths'])} plots embedded in report")
+    print()
+    print("💡 Usage:")
+    print("   • View plots: Open PNG files in any image viewer")
+    print("   • View report: Open backtest_report.md in a markdown viewer")
+    print("   • Share results: Send the backtest_results/ folder")
+
     wait_for_user("Press ENTER to see quick sensitivity test", interactive)
 
     # ================================================================
-    # PART 6: QUICK SENSITIVITY TEST (OPTIONAL)
+    # PART 7: QUICK SENSITIVITY TEST (OPTIONAL)
     # ================================================================
-    print_header("PART 6: QUICK SENSITIVITY TEST")
+    print_header("PART 7: QUICK SENSITIVITY TEST")
 
     print("Testing performance with different transaction costs...")
     print("(Running 2 additional backtests...)\n")
