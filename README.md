@@ -162,6 +162,108 @@ Once we have trained the `hedger`, we can evaluate the derivative price as utili
 price = hedger.price(derivative)
 ```
 
+## Bitcoin Deep Hedging Backtest Framework
+
+PFHedge includes a complete framework for backtesting deep hedging strategies on historical Bitcoin options data.
+
+### Installation
+
+```bash
+# Install with backtest dependencies
+pip install pfhedge[backtest]
+
+# Or install from source
+pip install -e .[backtest]
+```
+
+This installs the additional dependencies required for backtesting:
+- `matplotlib` - For plotting and visualization
+- `pandas` - For data manipulation
+- `scipy` - For statistical functions (Black-Scholes calculations)
+- `pyyaml` - For YAML configuration files
+
+### Quick Start
+
+```bash
+# 1. Create a configuration file
+cat > config.yaml <<EOF
+start_date: '2024-01-01'
+end_date: '2024-01-31'
+strike: 50000
+maturity_days: 14
+model_path: models/deep_hedger.pth
+call: true
+n_bootstrap_paths: 100
+data_dir: sample_data
+EOF
+
+# 2. Run backtest (two equivalent ways)
+python -m crypto.backtest.run --config config.yaml --seed 42
+
+# Or use the installed command (after pip install)
+pfhedge-backtest --config config.yaml --seed 42
+```
+
+**Expected Output:**
+```
+==============================================================
+BACKTEST RESULTS
+==============================================================
+
+Deep Hedge:
+  Mean PnL: $1,234.56
+  Std Dev: $567.89
+  Sharpe Ratio: 2.174
+  Max Drawdown: $-89.12
+  CVaR (95%): $-123.45
+
+Black-Scholes:
+  Mean PnL: $987.65
+  Std Dev: $678.90
+  Sharpe Ratio: 1.454
+  Max Drawdown: $-156.78
+  CVaR (95%): $-234.56
+
+Improvement:
+  Mean PnL: $246.91 (25.0%)
+  Sharpe Ratio: 0.720
+==============================================================
+
+✅ Backtest complete!
+```
+
+**For complete documentation**, see [`crypto/backtest/USAGE.md`](crypto/backtest/USAGE.md).
+
+### Features
+
+* **YAML Configuration**: Version-controlled, reproducible backtest configs
+* **CLI Interface**: Run backtests from command line with parameter overrides
+* **Comprehensive Metrics**: Sharpe ratio, CVaR, max drawdown, win rate, and more
+* **Automated Reporting**: Generates markdown reports with plots (PnL comparison, distribution, positions)
+* **Price Comparison**: Compare model-implied prices with real Deribit market prices
+* **Volatility Analysis**: Extract implied volatility and generate volatility smiles
+* **Bootstrap Paths**: Generate realistic scenarios from historical data
+
+### Python API
+
+```python
+from crypto.backtest import BacktestConfig, Backtester
+
+# Load config
+config = BacktestConfig.load_yaml("config.yaml")
+
+# Run backtest
+backtester = Backtester(config)
+results = backtester.run(seed=42)
+
+# Analyze
+summary = results.summary()
+print(f"Deep Hedge Sharpe: {summary['deep']['sharpe']:.3f}")
+
+# Generate report
+results.generate_report("backtest_results")
+```
+
 ## More Examples
 
 ### Use GPU

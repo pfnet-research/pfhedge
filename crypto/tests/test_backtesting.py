@@ -321,6 +321,346 @@ class TestBacktestConfig:
         repr_str = repr(config)
         assert "Put" in repr_str
 
+    def test_save_yaml_success(self, tmp_path):
+        """Test saving config to YAML file."""
+        pytest.importorskip("yaml")
+
+        config = BacktestConfig(
+            start_date="2024-01-01",
+            end_date="2024-01-31",
+            strike=50000,
+            maturity_days=14,
+            model_path="models/test.pth",
+            call=False,
+            n_bootstrap_paths=200,
+            transaction_cost=0.001,
+        )
+
+        yaml_path = tmp_path / "config.yaml"
+        config.save_yaml(str(yaml_path))
+
+        assert yaml_path.exists()
+
+        # Read and verify content
+        import yaml
+
+        with open(yaml_path, "r") as f:
+            loaded_data = yaml.safe_load(f)
+
+        assert loaded_data["start_date"] == "2024-01-01"
+        assert loaded_data["strike"] == 50000
+        assert loaded_data["call"] is False
+        assert loaded_data["n_bootstrap_paths"] == 200
+
+    def test_save_yaml_creates_directories(self, tmp_path):
+        """Test that save_yaml creates parent directories if needed."""
+        pytest.importorskip("yaml")
+
+        config = BacktestConfig(
+            start_date="2024-01-01",
+            end_date="2024-01-31",
+            strike=50000,
+            maturity_days=14,
+            model_path="models/test.pth",
+        )
+
+        # Save to nested path that doesn't exist
+        yaml_path = tmp_path / "configs" / "subdir" / "config.yaml"
+        config.save_yaml(str(yaml_path))
+
+        assert yaml_path.exists()
+        assert yaml_path.parent.exists()
+
+    def test_load_yaml_success(self, tmp_path):
+        """Test loading config from YAML file."""
+        pytest.importorskip("yaml")
+
+        # Create YAML file
+        yaml_content = """
+start_date: '2024-01-01'
+end_date: '2024-01-31'
+strike: 50000
+maturity_days: 14
+model_path: models/test.pth
+call: false
+n_bootstrap_paths: 200
+transaction_cost: 0.001
+dt_hours: 4.0
+data_dir: sample_data
+output_dir: backtest_results
+"""
+
+        yaml_path = tmp_path / "config.yaml"
+        with open(yaml_path, "w") as f:
+            f.write(yaml_content)
+
+        config = BacktestConfig.load_yaml(str(yaml_path), anchor_relative_paths=False)
+
+        assert config.start_date == "2024-01-01"
+        assert config.end_date == "2024-01-31"
+        assert config.strike == 50000
+        assert config.maturity_days == 14
+        assert config.model_path == "models/test.pth"
+        assert config.call is False
+        assert config.n_bootstrap_paths == 200
+        assert config.transaction_cost == 0.001
+        assert config.dt_hours == 4.0
+
+    def test_load_yaml_file_not_found(self):
+        """Test load_yaml raises error for missing file."""
+        pytest.importorskip("yaml")
+
+        with pytest.raises(FileNotFoundError, match="Config file not found"):
+            BacktestConfig.load_yaml("nonexistent.yaml")
+
+    def test_load_yaml_invalid_content(self, tmp_path):
+        """Test load_yaml handles invalid YAML content."""
+        pytest.importorskip("yaml")
+
+        yaml_path = tmp_path / "invalid.yaml"
+        with open(yaml_path, "w") as f:
+            f.write("invalid: yaml: content:")
+
+        with pytest.raises(Exception):  # YAML parsing error
+            BacktestConfig.load_yaml(str(yaml_path))
+
+    def test_load_yaml_empty_file(self, tmp_path):
+        """Test load_yaml handles empty file."""
+        pytest.importorskip("yaml")
+
+        yaml_path = tmp_path / "empty.yaml"
+        yaml_path.touch()
+
+        with pytest.raises(ValueError, match="Empty or invalid YAML"):
+            BacktestConfig.load_yaml(str(yaml_path))
+
+    def test_load_yaml_missing_required_fields(self, tmp_path):
+        """Test load_yaml handles missing required fields."""
+        pytest.importorskip("yaml")
+
+        # Missing 'strike' field
+        yaml_content = """
+start_date: '2024-01-01'
+end_date: '2024-01-31'
+maturity_days: 14
+model_path: models/test.pth
+"""
+
+        yaml_path = tmp_path / "incomplete.yaml"
+        with open(yaml_path, "w") as f:
+            f.write(yaml_content)
+
+        with pytest.raises(ValueError, match="Invalid YAML structure"):
+            BacktestConfig.load_yaml(str(yaml_path))
+
+    def test_load_yaml_validates_config(self, tmp_path):
+        """Test load_yaml validates config after loading."""
+        pytest.importorskip("yaml")
+
+        # Create invalid config (negative strike)
+        yaml_content = """
+start_date: '2024-01-01'
+end_date: '2024-01-31'
+strike: -1000
+maturity_days: 14
+model_path: models/test.pth
+"""
+
+        yaml_path = tmp_path / "invalid_config.yaml"
+        with open(yaml_path, "w") as f:
+            f.write(yaml_content)
+
+        with pytest.raises(ValueError, match="strike must be positive"):
+            BacktestConfig.load_yaml(str(yaml_path))
+
+    def test_yaml_roundtrip(self, tmp_path):
+        """Test saving and loading YAML produces identical config."""
+        pytest.importorskip("yaml")
+
+        original = BacktestConfig(
+            start_date="2024-01-01",
+            end_date="2024-02-29",
+            strike=60000,
+            maturity_days=30,
+            model_path="models/custom.pth",
+            call=False,
+            n_bootstrap_paths=500,
+            transaction_cost=0.002,
+            dt_hours=6.0,
+            data_dir="my_data",
+            output_dir="my_results",
+        )
+
+        yaml_path = tmp_path / "roundtrip.yaml"
+        original.save_yaml(str(yaml_path))
+        loaded = BacktestConfig.load_yaml(str(yaml_path), anchor_relative_paths=False)
+
+        # Check all fields match
+        assert loaded.start_date == original.start_date
+        assert loaded.end_date == original.end_date
+        assert loaded.strike == original.strike
+        assert loaded.maturity_days == original.maturity_days
+        assert loaded.model_path == original.model_path
+        assert loaded.call == original.call
+        assert loaded.n_bootstrap_paths == original.n_bootstrap_paths
+        assert loaded.transaction_cost == original.transaction_cost
+        assert loaded.dt_hours == original.dt_hours
+        assert loaded.data_dir == original.data_dir
+        assert loaded.output_dir == original.output_dir
+
+    def test_load_yaml_unknown_keys(self, tmp_path):
+        """Test load_yaml rejects unknown configuration keys."""
+        pytest.importorskip("yaml")
+
+        yaml_content = """
+start_date: '2024-01-01'
+end_date: '2024-01-31'
+strike: 50000
+maturity_days: 14
+model_path: models/test.pth
+unknown_field: some_value
+another_bad_field: 123
+"""
+
+        yaml_path = tmp_path / "bad_config.yaml"
+        with open(yaml_path, "w") as f:
+            f.write(yaml_content)
+
+        with pytest.raises(ValueError, match="Unknown configuration fields"):
+            BacktestConfig.load_yaml(str(yaml_path))
+
+    def test_load_yaml_env_variable_expansion(self, tmp_path):
+        """Test environment variable expansion in paths."""
+        pytest.importorskip("yaml")
+        import os
+
+        # Set test environment variable
+        os.environ["TEST_MODEL_DIR"] = "my_models"
+
+        yaml_content = """
+start_date: '2024-01-01'
+end_date: '2024-01-31'
+strike: 50000
+maturity_days: 14
+model_path: $TEST_MODEL_DIR/deep_hedger.pth
+data_dir: ${TEST_MODEL_DIR}_data
+"""
+
+        yaml_path = tmp_path / "env_config.yaml"
+        with open(yaml_path, "w") as f:
+            f.write(yaml_content)
+
+        config = BacktestConfig.load_yaml(str(yaml_path))
+
+        # Check environment variables were expanded
+        assert "my_models" in config.model_path
+        assert "my_models_data" in config.data_dir
+
+        # Clean up
+        del os.environ["TEST_MODEL_DIR"]
+
+    def test_load_yaml_tilde_expansion(self, tmp_path):
+        """Test tilde (~) expansion in paths."""
+        pytest.importorskip("yaml")
+        import os
+        from pathlib import Path
+
+        yaml_content = """
+start_date: '2024-01-01'
+end_date: '2024-01-31'
+strike: 50000
+maturity_days: 14
+model_path: ~/models/deep_hedger.pth
+data_dir: ~/data
+"""
+
+        yaml_path = tmp_path / "tilde_config.yaml"
+        with open(yaml_path, "w") as f:
+            f.write(yaml_content)
+
+        config = BacktestConfig.load_yaml(str(yaml_path), anchor_relative_paths=False)
+
+        # Check tilde was expanded to home directory
+        home_dir = str(Path.home())
+        assert config.model_path.startswith(home_dir)
+        assert config.data_dir.startswith(home_dir)
+        assert "models/deep_hedger.pth" in config.model_path
+        assert (
+            "/data" in config.data_dir or "\\data" in config.data_dir
+        )  # Handle Windows paths
+
+    def test_load_yaml_relative_path_anchoring(self, tmp_path):
+        """Test relative paths are resolved relative to config file directory."""
+        pytest.importorskip("yaml")
+
+        # Create nested directory structure
+        config_dir = tmp_path / "configs"
+        config_dir.mkdir()
+
+        yaml_content = """
+start_date: '2024-01-01'
+end_date: '2024-01-31'
+strike: 50000
+maturity_days: 14
+model_path: ../models/deep_hedger.pth
+data_dir: ../data
+output_dir: ../results
+"""
+
+        yaml_path = config_dir / "my_config.yaml"
+        with open(yaml_path, "w") as f:
+            f.write(yaml_content)
+
+        config = BacktestConfig.load_yaml(str(yaml_path))
+
+        # Check paths were resolved relative to config directory
+        # ../models from configs/ should be tmp_path/models (normalized)
+        expected_model = str((tmp_path / "models" / "deep_hedger.pth").resolve())
+        expected_data = str((tmp_path / "data").resolve())
+        expected_output = str((tmp_path / "results").resolve())
+
+        assert config.model_path == expected_model
+        assert config.data_dir == expected_data
+        assert config.output_dir == expected_output
+
+    def test_get_provenance_info(self):
+        """Test provenance information gathering."""
+        config = BacktestConfig(
+            start_date="2024-01-01",
+            end_date="2024-01-31",
+            strike=50000,
+            maturity_days=14,
+            model_path="models/test.pth",
+        )
+
+        provenance = config.get_provenance_info()
+
+        # Check structure
+        assert "config" in provenance
+        assert "resolved_paths" in provenance
+        assert "timestamp" in provenance
+        assert "git_commit" in provenance
+        assert "git_branch" in provenance
+        assert "git_dirty" in provenance
+        assert "python_version" in provenance
+        assert "platform" in provenance
+
+        # Check config is included
+        assert provenance["config"]["strike"] == 50000
+
+        # Check resolved paths
+        assert "model_path" in provenance["resolved_paths"]
+
+        # Check python version and platform are not None
+        assert provenance["python_version"] is not None
+        assert len(provenance["python_version"]) > 0
+        assert provenance["platform"] in ["Darwin", "Linux", "Windows"]
+        assert "data_dir" in provenance["resolved_paths"]
+        assert "output_dir" in provenance["resolved_paths"]
+
+        # Git info may be None or have values (depends on git repo)
+        # Just check it doesn't crash
+
 
 class TestMetrics:
     """Tests for metrics module."""

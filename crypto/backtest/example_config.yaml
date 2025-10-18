@@ -1,0 +1,46 @@
+# Example backtest configuration
+# Save this as config.yaml and run: python -m crypto.backtest.run --config config.yaml
+
+# Date range
+start_date: '2024-01-01'
+end_date: '2024-01-31'
+
+# Option parameters
+strike: 50000
+maturity_days: 14
+model_path: models/deep_hedger.pth
+call: true
+
+# Execution parameters (optional - defaults shown)
+n_bootstrap_paths: 100
+transaction_cost: 0.0005  # 0.05%
+dt_hours: 8.0  # 8-hour rebalancing
+
+# Data directories (optional - defaults shown)
+data_dir: sample_data
+output_dir: backtest_results
+
+# ============================================================================
+# Path Expansion Examples
+# ============================================================================
+# The framework supports flexible path specifications:
+#
+# 1. Tilde expansion (home directory):
+#    model_path: ~/models/deep_hedger.pth
+#    data_dir: ~/data/bitcoin
+#
+# 2. Environment variables:
+#    model_path: $HOME/models/deep_hedger.pth
+#    model_path: ${MODEL_DIR}/deep_hedger.pth
+#    data_dir: $DATA_ROOT/bitcoin
+#
+# 3. Relative paths (resolved from this config file's directory):
+#    model_path: ../models/deep_hedger.pth
+#    data_dir: ../data
+#
+# 4. Absolute paths (used as-is):
+#    model_path: /absolute/path/to/models/deep_hedger.pth
+#    data_dir: /absolute/path/to/data
+#
+# All path types can be mixed and matched as needed!
+# ============================================================================
