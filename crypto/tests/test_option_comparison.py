@@ -931,9 +931,18 @@ class TestConfidenceIntervals:
         assert "lower" in result
         assert "upper" in result
         assert "n_paths" in result
+        assert "distribution" in result  # New field: "t" or "normal"
+        assert "critical_value" in result  # New field: t-score or z-score
 
         # Check default confidence level
         assert result["confidence_level"] == 0.95
+
+        # Check distribution type (should be "t" for n=10 or "normal" for n>=30)
+        assert result["distribution"] in ["t", "normal"]
+        if result["n_paths"] < 30:
+            assert result["distribution"] == "t"
+        else:
+            assert result["distribution"] == "normal"
 
         # Check bounds are ordered correctly
         assert result["lower"] < result["mean"]
@@ -1100,3 +1109,604 @@ class TestSpreadDiagnostics:
                 # Check model_in_spread
                 model_price = comparison["model_price"]
                 assert comparison["model_in_spread"] == (bid <= model_price <= ask)
+
+
+class TestImpliedVolatility:
+    """Tests for implied volatility comparison methods."""
+
+    def test_calculate_model_implied_iv_success(
+        self, sample_backtest_results, loaded_data_loader
+    ):
+        """Test successful model-implied IV calculation."""
+        # Import scipy here so test is skipped if not available
+        pytest.importorskip("scipy")
+
+        matcher = OptionMatcher(loaded_data_loader)
+        comparator = PriceComparator(sample_backtest_results, matcher)
+
+        # Calculate IV for a realistic option
+        model_iv = comparator.calculate_model_implied_iv(
+            strike=50000,
+            maturity_days=30,
+            call=True,
+            spot_price=50000,
+            risk_free_rate=0.0,
+        )
+
+        # Should return a valid IV
+        if model_iv is not None:
+            assert isinstance(model_iv, float)
+            assert 0.01 <= model_iv <= 5.0  # Within search range
+            assert not np.isnan(model_iv)
+            assert not np.isinf(model_iv)
+
+    def test_calculate_model_implied_iv_realistic_scenario(self, loaded_data_loader):
+        """Test IV calculation with realistic option scenario."""
+        pytest.importorskip("scipy")
+
+        # Create results with realistic ITM call
+        n_paths = 100
+        n_steps = 20
+
+        strike = 50000
+        spot = 52000  # 4% ITM
+        maturity_days = 30
+
+        # Create realistic hedging scenario
+        spots = torch.ones(n_paths, n_steps) * strike
+        spots[:, -1] = spot
+
+        # Simulate realistic hedging with small costs
+        expected_payoff = spot - strike  # 2000
+        deep_pnl = torch.ones(n_paths, n_steps) * (-expected_payoff / n_steps)
+        deep_pnl = deep_pnl.cumsum(dim=1)
+        # Add small hedging costs (1% of payoff)
+        deep_pnl = (
+            deep_pnl - torch.randn(n_paths, n_steps).abs() * expected_payoff * 0.01
+        )
+
+        config = BacktestConfig(
+            start_date="2024-01-01",
+            end_date="2024-01-31",
+            strike=strike,
+            maturity_days=maturity_days,
+            call=True,
+            model_path="test_model.pth",
+            data_dir="test_data",
+        )
+
+        results = BacktestResults(
+            deep_pnl=deep_pnl,
+            bs_pnl=torch.zeros(n_paths, n_steps),
+            deep_positions=torch.zeros(n_paths, n_steps),
+            bs_positions=torch.zeros(n_paths, n_steps),
+            spots=spots,
+            config=config,
+        )
+
+        matcher = OptionMatcher(loaded_data_loader)
+        comparator = PriceComparator(results, matcher)
+
+        model_iv = comparator.calculate_model_implied_iv(
+            strike=strike,
+            maturity_days=maturity_days,
+            call=True,
+            spot_price=strike,  # Use initial spot
+            risk_free_rate=0.0,
+        )
+
+        # Should calculate a reasonable IV
+        if model_iv is not None:
+            # Crypto IV typically 50%-150% annualized
+            assert 0.3 <= model_iv <= 2.0, f"IV {model_iv:.2%} outside reasonable range"
+
+    def test_calculate_model_implied_iv_outside_bounds(self, loaded_data_loader):
+        """Test IV calculation fails gracefully when price outside arbitrage bounds."""
+        pytest.importorskip("scipy")
+
+        # Create scenario where model price violates arbitrage bounds
+        n_paths = 10
+        n_steps = 5
+
+        # Create very large negative PnL (unrealistic premium)
+        deep_pnl = torch.ones(n_paths, n_steps) * -10000
+        deep_pnl = deep_pnl.cumsum(dim=1)
+
+        config = BacktestConfig(
+            start_date="2024-01-01",
+            end_date="2024-01-05",
+            strike=50000,
+            maturity_days=1,
+            call=True,
+            model_path="test_model.pth",
+            data_dir="test_data",
+        )
+
+        results = BacktestResults(
+            deep_pnl=deep_pnl,
+            bs_pnl=torch.zeros(n_paths, n_steps),
+            deep_positions=torch.zeros(n_paths, n_steps),
+            bs_positions=torch.zeros(n_paths, n_steps),
+            spots=torch.ones(n_paths, n_steps) * 50000,
+            config=config,
+        )
+
+        matcher = OptionMatcher(loaded_data_loader)
+        comparator = PriceComparator(results, matcher)
+
+        # Should return None for out-of-bounds price
+        # Can emit either bounds warning or solver failure warning
+        with pytest.warns(
+            UserWarning,
+            match="(outside arbitrage bounds|Failed to calculate implied volatility)",
+        ):
+            model_iv = comparator.calculate_model_implied_iv(
+                strike=50000,
+                maturity_days=1,
+                call=True,
+                spot_price=50000,
+            )
+            assert model_iv is None
+
+    def test_calculate_model_implied_iv_no_scipy(self, loaded_data_loader):
+        """Test bisection fallback when scipy not available."""
+        # Create realistic scenario that should work with bisection
+        n_paths = 100
+        n_steps = 20
+
+        strike = 50000
+        spot = 52000
+        maturity_days = 30
+
+        spots = torch.ones(n_paths, n_steps) * strike
+        spots[:, -1] = spot
+
+        expected_payoff = spot - strike  # 2000
+        deep_pnl = torch.ones(n_paths, n_steps) * (-expected_payoff / n_steps)
+        deep_pnl = deep_pnl.cumsum(dim=1)
+        deep_pnl = (
+            deep_pnl - torch.randn(n_paths, n_steps).abs() * expected_payoff * 0.01
+        )
+
+        config = BacktestConfig(
+            start_date="2024-01-01",
+            end_date="2024-01-31",
+            strike=strike,
+            maturity_days=maturity_days,
+            call=True,
+            model_path="test_model.pth",
+            data_dir="test_data",
+        )
+
+        results = BacktestResults(
+            deep_pnl=deep_pnl,
+            bs_pnl=torch.zeros(n_paths, n_steps),
+            deep_positions=torch.zeros(n_paths, n_steps),
+            bs_positions=torch.zeros(n_paths, n_steps),
+            spots=spots,
+            config=config,
+        )
+
+        matcher = OptionMatcher(loaded_data_loader)
+        comparator = PriceComparator(results, matcher)
+
+        # Mock scipy as not available
+        import crypto.backtest.option_comparison as opt_comp
+
+        original_has_scipy = opt_comp.HAS_SCIPY
+        try:
+            opt_comp.HAS_SCIPY = False
+
+            # Should still work with bisection fallback
+            iv, diag = comparator.calculate_model_implied_iv(
+                strike=strike,
+                maturity_days=maturity_days,
+                call=True,
+                spot_price=strike,
+                return_diagnostics=True,
+            )
+
+            # Should succeed with bisection method
+            if iv is not None:
+                assert isinstance(iv, float)
+                assert 0.01 <= iv <= 5.0
+                assert diag["method"] == "bisection"
+                assert diag["status"] == "success"
+                assert diag["iterations"] is not None
+                assert diag["price_error"] is not None
+        finally:
+            opt_comp.HAS_SCIPY = original_has_scipy
+
+    def test_get_market_iv_success(self, loaded_data_loader):
+        """Test getting market IV from matched option."""
+        matcher = OptionMatcher(loaded_data_loader)
+
+        # Just test the matcher has IV data
+        matches = matcher.find_matching_options(
+            strike=50000,
+            maturity_days=7,
+            call=True,
+        )
+
+        if not matches.empty:
+            # Check that mark_iv exists in our sample data
+            assert "mark_iv" in matches.columns
+
+    def test_get_market_iv_with_comparator(
+        self, sample_backtest_results, loaded_data_loader
+    ):
+        """Test get_market_iv method in PriceComparator."""
+        matcher = OptionMatcher(loaded_data_loader)
+        comparator = PriceComparator(sample_backtest_results, matcher)
+
+        market_iv = comparator.get_market_iv(
+            strike=50000,
+            maturity_days=7,
+            call=True,
+            iv_type="mark",
+        )
+
+        # Should either find an IV or return None
+        if market_iv is not None:
+            assert isinstance(market_iv, float)
+            assert market_iv > 0
+            assert not np.isnan(market_iv)
+
+    def test_get_market_iv_fallback(self):
+        """Test IV fallback when preferred type not available."""
+        # Create data with only bid_iv, no mark_iv
+        timestamps = pd.date_range("2024-01-01", periods=5, freq="1H", tz="UTC")
+        data = []
+
+        for ts in timestamps:
+            data.append(
+                {
+                    "timestamp": ts,
+                    "expiration": ts + timedelta(days=7),
+                    "strike": 50000,
+                    "option_type": "call",
+                    "bid_price": 100,
+                    "ask_price": 120,
+                    "mid_price": 110,
+                    "bid_iv": 0.85,  # Only bid_iv available
+                    "ask_iv": 0.90,
+                    "time_to_expiry": 7 / 365.25,
+                }
+            )
+
+        df = pd.DataFrame(data)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            options_path = Path(tmpdir) / "btc_options.parquet"
+            df.to_parquet(options_path)
+
+            loader = CryptoDataLoader(tmpdir)
+            loader.load_options_data()
+            matcher = OptionMatcher(loader)
+
+            # Create minimal backtest results
+            config = BacktestConfig(
+                start_date="2024-01-01",
+                end_date="2024-01-05",
+                strike=50000,
+                maturity_days=7,
+                call=True,
+                model_path="test.pth",
+                data_dir="test",
+            )
+            results = BacktestResults(
+                deep_pnl=torch.zeros(10, 5),
+                bs_pnl=torch.zeros(10, 5),
+                deep_positions=torch.zeros(10, 5),
+                bs_positions=torch.zeros(10, 5),
+                spots=torch.ones(10, 5) * 50000,
+                config=config,
+            )
+
+            comparator = PriceComparator(results, matcher)
+
+            # Request mark_iv, should fallback to bid_iv
+            market_iv = comparator.get_market_iv(
+                strike=50000,
+                maturity_days=7,
+                call=True,
+                iv_type="mark",  # Not available
+            )
+
+            # Should fallback and return bid_iv or ask_iv
+            if market_iv is not None:
+                assert market_iv in [0.85, 0.90]
+
+    def test_compare_implied_volatility_success(self, loaded_data_loader):
+        """Test full IV comparison."""
+        pytest.importorskip("scipy")
+
+        # Create realistic scenario
+        n_paths = 100
+        n_steps = 20
+
+        strike = 50000
+        maturity_days = 30
+
+        # Create realistic hedging scenario
+        spots = torch.ones(n_paths, n_steps) * strike
+        spots[:, -1] = 52000  # ITM
+
+        expected_payoff = 2000
+        deep_pnl = torch.ones(n_paths, n_steps) * (-expected_payoff / n_steps)
+        deep_pnl = deep_pnl.cumsum(dim=1)
+        deep_pnl = (
+            deep_pnl - torch.randn(n_paths, n_steps).abs() * expected_payoff * 0.01
+        )
+
+        config = BacktestConfig(
+            start_date="2024-01-01",
+            end_date="2024-01-31",
+            strike=strike,
+            maturity_days=maturity_days,
+            call=True,
+            model_path="test_model.pth",
+            data_dir="test_data",
+        )
+
+        results = BacktestResults(
+            deep_pnl=deep_pnl,
+            bs_pnl=torch.zeros(n_paths, n_steps),
+            deep_positions=torch.zeros(n_paths, n_steps),
+            bs_positions=torch.zeros(n_paths, n_steps),
+            spots=spots,
+            config=config,
+        )
+
+        matcher = OptionMatcher(loaded_data_loader)
+        comparator = PriceComparator(results, matcher)
+
+        comparison = comparator.compare_implied_volatility(
+            strike=strike,
+            maturity_days=maturity_days,
+            call=True,
+            spot_price=strike,
+        )
+
+        # Check structure
+        assert isinstance(comparison, dict)
+        assert "model_iv" in comparison
+        assert "market_iv" in comparison
+        assert "matched_strike" in comparison
+        assert "matched_maturity" in comparison
+
+        # If both IVs calculated, should have difference
+        if comparison["model_iv"] is not None and comparison["market_iv"] is not None:
+            assert "iv_difference" in comparison
+            assert "iv_difference_pct" in comparison
+            assert isinstance(comparison["iv_difference"], float)
+            assert isinstance(comparison["iv_difference_pct"], float)
+
+    def test_compare_implied_volatility_no_market_match(
+        self, sample_backtest_results, loaded_data_loader
+    ):
+        """Test IV comparison when no market match found."""
+        pytest.importorskip("scipy")
+
+        matcher = OptionMatcher(loaded_data_loader)
+        comparator = PriceComparator(sample_backtest_results, matcher)
+
+        comparison = comparator.compare_implied_volatility(
+            strike=100000,  # No match
+            maturity_days=100,
+            call=True,
+        )
+
+        # Should return None for market_iv
+        assert comparison["market_iv"] is None
+        assert comparison["matched_strike"] is None
+        assert comparison["matched_maturity"] is None
+        assert comparison["iv_difference"] is None
+
+    def test_get_volatility_smile_success(self, loaded_data_loader):
+        """Test volatility smile generation."""
+        pytest.importorskip("scipy")
+
+        # Create realistic scenario
+        n_paths = 100
+        n_steps = 20
+
+        strike = 50000
+        maturity_days = 30
+
+        spots = torch.ones(n_paths, n_steps) * strike
+        spots[:, -1] = 52000
+
+        expected_payoff = 2000
+        deep_pnl = torch.ones(n_paths, n_steps) * (-expected_payoff / n_steps)
+        deep_pnl = deep_pnl.cumsum(dim=1)
+        deep_pnl = (
+            deep_pnl - torch.randn(n_paths, n_steps).abs() * expected_payoff * 0.01
+        )
+
+        config = BacktestConfig(
+            start_date="2024-01-01",
+            end_date="2024-01-31",
+            strike=strike,
+            maturity_days=maturity_days,
+            call=True,
+            model_path="test_model.pth",
+            data_dir="test_data",
+        )
+
+        results = BacktestResults(
+            deep_pnl=deep_pnl,
+            bs_pnl=torch.zeros(n_paths, n_steps),
+            deep_positions=torch.zeros(n_paths, n_steps),
+            bs_positions=torch.zeros(n_paths, n_steps),
+            spots=spots,
+            config=config,
+        )
+
+        matcher = OptionMatcher(loaded_data_loader)
+        comparator = PriceComparator(results, matcher)
+
+        # Get smile across strikes
+        strikes = [48000, 50000, 52000]
+        smile = comparator.get_volatility_smile(
+            strikes=strikes,
+            maturity_days=maturity_days,
+            call=True,
+            spot_price=strike,
+        )
+
+        # Check structure
+        assert isinstance(smile, pd.DataFrame)
+        assert len(smile) == len(strikes)
+        assert "strike" in smile.columns
+        assert "moneyness" in smile.columns
+        assert "model_iv" in smile.columns
+        assert "market_iv" in smile.columns
+        assert "iv_difference" in smile.columns
+        assert "matched_strike" in smile.columns
+        assert "matched_maturity" in smile.columns
+
+        # Check moneyness calculation
+        for i, strike_val in enumerate(strikes):
+            assert abs(smile.iloc[i]["moneyness"] - strike_val / strike) < 1e-6
+
+    def test_get_volatility_smile_empty_strikes(
+        self, sample_backtest_results, loaded_data_loader
+    ):
+        """Test volatility smile with empty strikes list."""
+        pytest.importorskip("scipy")
+
+        matcher = OptionMatcher(loaded_data_loader)
+        comparator = PriceComparator(sample_backtest_results, matcher)
+
+        smile = comparator.get_volatility_smile(
+            strikes=[],
+            maturity_days=30,
+            call=True,
+        )
+
+        # Should return empty DataFrame
+        assert isinstance(smile, pd.DataFrame)
+        assert len(smile) == 0
+
+    def test_get_volatility_smile_moneyness_ordered(self, loaded_data_loader):
+        """Test that volatility smile has ordered moneyness."""
+        pytest.importorskip("scipy")
+
+        # Create realistic scenario
+        n_paths = 100
+        n_steps = 20
+
+        strike = 50000
+        maturity_days = 30
+
+        spots = torch.ones(n_paths, n_steps) * strike
+        spots[:, -1] = 52000
+
+        expected_payoff = 2000
+        deep_pnl = torch.ones(n_paths, n_steps) * (-expected_payoff / n_steps)
+        deep_pnl = deep_pnl.cumsum(dim=1)
+        deep_pnl = (
+            deep_pnl - torch.randn(n_paths, n_steps).abs() * expected_payoff * 0.01
+        )
+
+        config = BacktestConfig(
+            start_date="2024-01-01",
+            end_date="2024-01-31",
+            strike=strike,
+            maturity_days=maturity_days,
+            call=True,
+            model_path="test_model.pth",
+            data_dir="test_data",
+        )
+
+        results = BacktestResults(
+            deep_pnl=deep_pnl,
+            bs_pnl=torch.zeros(n_paths, n_steps),
+            deep_positions=torch.zeros(n_paths, n_steps),
+            bs_positions=torch.zeros(n_paths, n_steps),
+            spots=spots,
+            config=config,
+        )
+
+        matcher = OptionMatcher(loaded_data_loader)
+        comparator = PriceComparator(results, matcher)
+
+        # Get smile with ordered strikes
+        strikes = [46000, 48000, 50000, 52000, 54000]
+        smile = comparator.get_volatility_smile(
+            strikes=strikes,
+            maturity_days=maturity_days,
+            call=True,
+            spot_price=strike,
+        )
+
+        # Moneyness should be in same order as strikes
+        moneyness = smile["moneyness"].tolist()
+        assert moneyness == sorted(moneyness)
+
+    def test_calculate_model_implied_iv_extreme_bounds(self, loaded_data_loader):
+        """Test IV calculation near extreme bounds (very high/low volatility)."""
+        pytest.importorskip("scipy")
+
+        # Test scenario 1: Very high IV case (deep OTM, small price)
+        # This tests the upper bound of IV search range
+        n_paths = 100
+        n_steps = 10
+
+        strike = 150000  # Very high strike (moneyness = 3.0, triggers warning)
+        spot = 50000  # Current spot
+        maturity_days = 30
+
+        spots = torch.ones(n_paths, n_steps) * spot
+        spots[:, -1] = spot  # Stays at spot
+
+        # Very small expected payoff (deep OTM)
+        deep_pnl = torch.ones(n_paths, n_steps) * (-10.0 / n_steps)  # Small price ~$10
+        deep_pnl = deep_pnl.cumsum(dim=1)
+
+        config = BacktestConfig(
+            start_date="2024-01-01",
+            end_date="2024-01-30",
+            strike=strike,
+            maturity_days=maturity_days,
+            call=True,
+            model_path="test_model.pth",
+            data_dir="test_data",
+        )
+
+        results = BacktestResults(
+            deep_pnl=deep_pnl,
+            bs_pnl=torch.zeros(n_paths, n_steps),
+            deep_positions=torch.zeros(n_paths, n_steps),
+            bs_positions=torch.zeros(n_paths, n_steps),
+            spots=spots,
+            config=config,
+        )
+
+        matcher = OptionMatcher(loaded_data_loader)
+        comparator = PriceComparator(results, matcher)
+
+        # This should either succeed or return None with warning
+        # (deep OTM may be ill-conditioned)
+        with pytest.warns(UserWarning):  # Expect warning for deep OTM
+            iv, diag = comparator.calculate_model_implied_iv(
+                strike=strike,
+                maturity_days=maturity_days,
+                call=True,
+                spot_price=spot,
+                return_diagnostics=True,
+            )
+
+        # If it succeeds, IV should be in reasonable range
+        if iv is not None:
+            assert 0.01 <= iv <= 5.0
+            assert diag["status"] in ["success", "ill_conditioned"]
+            assert diag["method"] in ["brentq", "bisection"]
+        else:
+            # Should have a diagnostic reason
+            assert diag["status"] in [
+                "ill_conditioned",
+                "out_of_bounds",
+                "solver_failed",
+            ]
