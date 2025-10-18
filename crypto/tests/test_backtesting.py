@@ -637,6 +637,120 @@ class TestBacktester:
         assert backtester.data_loader is None
         assert backtester.option is None
 
+    def test_normalize_timestamps_to_utc_naive(self):
+        """Test normalizing timezone-naive timestamps to UTC."""
+        config = BacktestConfig(
+            start_date="2024-01-01",
+            end_date="2024-01-31",
+            strike=50000,
+            maturity_days=14,
+            model_path="models/test.pth",
+        )
+        backtester = Backtester(config)
+
+        # Create DataFrame with naive timestamps
+        df = pd.DataFrame(
+            {
+                "timestamp": pd.date_range("2024-01-01", periods=5, freq="1h"),
+                "value": [1, 2, 3, 4, 5],
+            }
+        )
+
+        assert df["timestamp"].dt.tz is None  # Verify naive
+
+        # Normalize to UTC
+        result = backtester._normalize_timestamps_to_utc(df)
+
+        # Should now be UTC-aware
+        assert result["timestamp"].dt.tz is not None
+        assert str(result["timestamp"].dt.tz) == "UTC"
+
+    def test_normalize_timestamps_to_utc_already_utc(self):
+        """Test normalizing already-UTC timestamps (no-op)."""
+        config = BacktestConfig(
+            start_date="2024-01-01",
+            end_date="2024-01-31",
+            strike=50000,
+            maturity_days=14,
+            model_path="models/test.pth",
+        )
+        backtester = Backtester(config)
+
+        # Create DataFrame with UTC timestamps
+        df = pd.DataFrame(
+            {
+                "timestamp": pd.date_range(
+                    "2024-01-01", periods=5, freq="1h", tz="UTC"
+                ),
+                "value": [1, 2, 3, 4, 5],
+            }
+        )
+
+        original_timestamps = df["timestamp"].copy()
+
+        # Normalize (should be no-op)
+        result = backtester._normalize_timestamps_to_utc(df)
+
+        # Should remain UTC
+        assert str(result["timestamp"].dt.tz) == "UTC"
+        # Timestamps should be unchanged
+        assert (result["timestamp"] == original_timestamps).all()
+
+    def test_normalize_timestamps_to_utc_non_utc_aware(self):
+        """Test converting non-UTC timezone-aware timestamps to UTC."""
+        config = BacktestConfig(
+            start_date="2024-01-01",
+            end_date="2024-01-31",
+            strike=50000,
+            maturity_days=14,
+            model_path="models/test.pth",
+        )
+        backtester = Backtester(config)
+
+        # Create DataFrame with US/Eastern timestamps
+        df = pd.DataFrame(
+            {
+                "timestamp": pd.date_range(
+                    "2024-01-01", periods=5, freq="1h", tz="US/Eastern"
+                ),
+                "value": [1, 2, 3, 4, 5],
+            }
+        )
+
+        assert str(df["timestamp"].dt.tz) != "UTC"  # Verify not UTC
+
+        # Normalize to UTC
+        result = backtester._normalize_timestamps_to_utc(df)
+
+        # Should now be UTC
+        assert str(result["timestamp"].dt.tz) == "UTC"
+
+        # Verify conversion is correct (Eastern is UTC-5 or UTC-4 depending on DST)
+        # For Jan 1, 2024 (EST), should be UTC-5
+        # First timestamp: 2024-01-01 00:00:00-05:00 → 2024-01-01 05:00:00+00:00
+        assert result["timestamp"].iloc[0].hour == 5
+
+    def test_normalize_timestamps_to_utc_missing_column(self):
+        """Test normalizing when timestamp column is missing (no-op)."""
+        config = BacktestConfig(
+            start_date="2024-01-01",
+            end_date="2024-01-31",
+            strike=50000,
+            maturity_days=14,
+            model_path="models/test.pth",
+        )
+        backtester = Backtester(config)
+
+        # Create DataFrame without timestamp column
+        df = pd.DataFrame({"value": [1, 2, 3, 4, 5]})
+
+        # Normalize (should be no-op)
+        result = backtester._normalize_timestamps_to_utc(df)
+
+        # Should return unchanged DataFrame
+        assert "timestamp" not in result.columns
+        assert len(result) == 5
+
     def test_load_model_success(self):
         """Test successful model loading."""
         # Create temporary checkpoint
@@ -1231,12 +1345,14 @@ class TestBacktester:
             perp_df = loader.perpetual_data
             assert len(perp_df) > 0
 
-            # Verify date range
+            # Verify date range (timestamps are now UTC-aware)
             min_date = perp_df["timestamp"].min()
             max_date = perp_df["timestamp"].max()
 
-            assert min_date >= pd.to_datetime("2024-01-01")
-            assert max_date <= pd.to_datetime("2024-01-04")  # Allow end of day
+            assert min_date >= pd.to_datetime("2024-01-01", utc=True)
+            assert max_date <= pd.to_datetime(
+                "2024-01-04", utc=True
+            )  # Allow end of day
 
     def test_load_data_invalid_date_range(self):
         """Test error when requested date range has no data."""
@@ -2377,3 +2493,210 @@ class TestBacktestResults:
         # Verify it's JSON-serializable
         json_str = json.dumps(normalized)
         assert isinstance(json_str, str)
+
+    def test_get_time_axis_auto_mode_with_large_dt(self):
+        """Test auto time_unit mode selects 'days' for large dt_hours."""
+        n_paths, n_steps = 10, 20
+        deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        bs_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        deep_positions = torch.randn(n_paths, n_steps)
+        bs_positions = torch.randn(n_paths, n_steps)
+        spots = torch.rand(n_paths, n_steps) * 50000
+
+        config = BacktestConfig(
+            start_date="2024-01-01",
+            end_date="2024-01-31",
+            strike=50000,
+            maturity_days=14,
+            model_path="models/test.pth",
+            dt_hours=24.0,  # Large dt_hours should trigger 'days'
+        )
+
+        results = BacktestResults(
+            deep_pnl=deep_pnl,
+            bs_pnl=bs_pnl,
+            deep_positions=deep_positions,
+            bs_positions=bs_positions,
+            spots=spots,
+            config=config,
+        )
+
+        time_values, time_label = results._get_time_axis(time_unit="auto")
+
+        # Should select 'days' for dt_hours >= 24
+        assert time_label == "Time (days)"
+        # First value should be 0, step should be 1 day
+        assert time_values[0] == 0
+        assert abs(time_values[1] - 1.0) < 0.01  # Should be 1 day
+
+    def test_get_time_axis_auto_mode_with_medium_dt(self):
+        """Test auto time_unit mode selects 'hours' for medium dt_hours."""
+        n_paths, n_steps = 10, 20
+        deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        bs_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        deep_positions = torch.randn(n_paths, n_steps)
+        bs_positions = torch.randn(n_paths, n_steps)
+        spots = torch.rand(n_paths, n_steps) * 50000
+
+        config = BacktestConfig(
+            start_date="2024-01-01",
+            end_date="2024-01-31",
+            strike=50000,
+            maturity_days=14,
+            model_path="models/test.pth",
+            dt_hours=8.0,  # Medium dt_hours should trigger 'hours'
+        )
+
+        results = BacktestResults(
+            deep_pnl=deep_pnl,
+            bs_pnl=bs_pnl,
+            deep_positions=deep_positions,
+            bs_positions=bs_positions,
+            spots=spots,
+            config=config,
+        )
+
+        time_values, time_label = results._get_time_axis(time_unit="auto")
+
+        # Should select 'hours' for 1 <= dt_hours < 24
+        assert time_label == "Time (hours)"
+        # First value should be 0, step should be 8 hours
+        assert time_values[0] == 0
+        assert abs(time_values[1] - 8.0) < 0.01  # Should be 8 hours
+
+    def test_get_time_axis_auto_mode_with_small_dt(self):
+        """Test auto time_unit mode selects 'steps' for small dt_hours."""
+        n_paths, n_steps = 10, 20
+        deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        bs_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        deep_positions = torch.randn(n_paths, n_steps)
+        bs_positions = torch.randn(n_paths, n_steps)
+        spots = torch.rand(n_paths, n_steps) * 50000
+
+        config = BacktestConfig(
+            start_date="2024-01-01",
+            end_date="2024-01-31",
+            strike=50000,
+            maturity_days=14,
+            model_path="models/test.pth",
+            dt_hours=0.5,  # Small dt_hours should trigger 'steps'
+        )
+
+        results = BacktestResults(
+            deep_pnl=deep_pnl,
+            bs_pnl=bs_pnl,
+            deep_positions=deep_positions,
+            bs_positions=bs_positions,
+            spots=spots,
+            config=config,
+        )
+
+        time_values, time_label = results._get_time_axis(time_unit="auto")
+
+        # Should select 'steps' for dt_hours < 1
+        assert time_label == "Time Step"
+        # Should be step indices
+        assert time_values[0] == 0
+        assert time_values[1] == 1
+
+    def test_get_time_axis_auto_mode_without_config(self):
+        """Test auto time_unit mode falls back to 'steps' without config."""
+        n_paths, n_steps = 10, 20
+        deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        bs_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        deep_positions = torch.randn(n_paths, n_steps)
+        bs_positions = torch.randn(n_paths, n_steps)
+        spots = torch.rand(n_paths, n_steps) * 50000
+
+        results = BacktestResults(
+            deep_pnl=deep_pnl,
+            bs_pnl=bs_pnl,
+            deep_positions=deep_positions,
+            bs_positions=bs_positions,
+            spots=spots,
+            config=None,  # No config
+        )
+
+        time_values, time_label = results._get_time_axis(time_unit="auto")
+
+        # Should fall back to 'steps' without config
+        assert time_label == "Time Step"
+        assert time_values[0] == 0
+        assert time_values[1] == 1
+
+    def test_get_time_axis_auto_mode_uses_default_dt_hours(self):
+        """Test auto time_unit mode uses default dt_hours from config."""
+        n_paths, n_steps = 10, 20
+        deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        bs_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        deep_positions = torch.randn(n_paths, n_steps)
+        bs_positions = torch.randn(n_paths, n_steps)
+        spots = torch.rand(n_paths, n_steps) * 50000
+
+        # Create config without explicitly setting dt_hours
+        # BacktestConfig has default dt_hours=8.0
+        config = BacktestConfig(
+            start_date="2024-01-01",
+            end_date="2024-01-31",
+            strike=50000,
+            maturity_days=14,
+            model_path="models/test.pth",
+        )
+
+        results = BacktestResults(
+            deep_pnl=deep_pnl,
+            bs_pnl=bs_pnl,
+            deep_positions=deep_positions,
+            bs_positions=bs_positions,
+            spots=spots,
+            config=config,
+        )
+
+        time_values, time_label = results._get_time_axis(time_unit="auto")
+
+        # Should use default dt_hours=8.0, which triggers 'hours' mode
+        assert time_label == "Time (hours)"
+        assert time_values[0] == 0
+        assert abs(time_values[1] - 8.0) < 0.01  # Should be 8 hours
+
+    def test_get_time_axis_manual_modes_still_work(self):
+        """Test that manual time_unit modes still work with auto mode available."""
+        n_paths, n_steps = 10, 20
+        deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        bs_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        deep_positions = torch.randn(n_paths, n_steps)
+        bs_positions = torch.randn(n_paths, n_steps)
+        spots = torch.rand(n_paths, n_steps) * 50000
+
+        config = BacktestConfig(
+            start_date="2024-01-01",
+            end_date="2024-01-31",
+            strike=50000,
+            maturity_days=14,
+            model_path="models/test.pth",
+            dt_hours=8.0,
+        )
+
+        results = BacktestResults(
+            deep_pnl=deep_pnl,
+            bs_pnl=bs_pnl,
+            deep_positions=deep_positions,
+            bs_positions=bs_positions,
+            spots=spots,
+            config=config,
+        )
+
+        # Test 'steps' mode
+        time_values, time_label = results._get_time_axis(time_unit="steps")
+        assert time_label == "Time Step"
+        assert time_values[1] == 1
+
+        # Test 'hours' mode
+        time_values, time_label = results._get_time_axis(time_unit="hours")
+        assert time_label == "Time (hours)"
+        assert abs(time_values[1] - 8.0) < 0.01
+
+        # Test 'days' mode
+        time_values, time_label = results._get_time_axis(time_unit="days")
+        assert time_label == "Time (days)"
+        assert abs(time_values[1] - 8.0 / 24.0) < 0.01

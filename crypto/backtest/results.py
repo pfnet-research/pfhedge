@@ -127,7 +127,14 @@ class BacktestResults:
         """Get time axis values and label based on config.
 
         Args:
-            time_unit: One of 'steps', 'hours', 'days' (default: 'steps')
+            time_unit: One of 'auto', 'steps', 'hours', 'days' (default: 'steps')
+                - 'auto': Automatically choose based on dt_hours from config
+                    - If dt >= 24 hours: use days
+                    - If dt >= 1 hour: use hours
+                    - Otherwise: use steps
+                - 'steps': Use time step indices
+                - 'hours': Convert to hours using config.dt
+                - 'days': Convert to days using config.dt
 
         Returns:
             Tuple of (time_values, xlabel) where:
@@ -135,11 +142,29 @@ class BacktestResults:
             - xlabel: str for axis label
 
         Examples:
+            >>> # Auto mode selects best unit based on dt
+            >>> time_vals, label = results._get_time_axis("auto")
+            >>>
+            >>> # Explicit unit selection
             >>> time_vals, label = results._get_time_axis("days")
             >>> ax.plot(time_vals, data)
             >>> ax.set_xlabel(label)
         """
         time_steps = np.arange(self.n_steps)
+
+        # Auto mode: choose best unit based on dt_hours
+        if time_unit == "auto":
+            if self.config and hasattr(self.config, "dt_hours"):
+                dt_hours = self.config.dt_hours
+                if dt_hours >= 24:
+                    time_unit = "days"
+                elif dt_hours >= 1:
+                    time_unit = "hours"
+                else:
+                    time_unit = "steps"
+            else:
+                # No config available, fall back to steps
+                time_unit = "steps"
 
         if time_unit == "steps":
             return time_steps, "Time Step"
@@ -159,8 +184,9 @@ class BacktestResults:
             time_values = time_steps * dt_years * (hours_per_year / 24)
             return time_values, "Time (days)"
         else:
-            raise ValueError(f"Invalid time_unit: {time_unit}. Use 'steps', 'hours', or 'days'")
-
+            raise ValueError(
+                f"Invalid time_unit: {time_unit}. Use 'auto', 'steps', 'hours', or 'days'"
+            )
 
     def summary(
         self, alpha_cvar: float = 0.05, alpha_var: float = 0.05
@@ -420,7 +446,9 @@ class BacktestResults:
 
         # Validate and limit path_indices
         if path_indices is not None and len(path_indices) > 50:
-            print(f"⚠️  Warning: Plotting {len(path_indices)} paths may be slow. Consider using fewer paths.")
+            print(
+                f"⚠️  Warning: Plotting {len(path_indices)} paths may be slow. Consider using fewer paths."
+            )
 
         fig, ax = plt.subplots(figsize=figsize)
 
@@ -453,10 +481,18 @@ class BacktestResults:
             bs_mean = self.bs_pnl.mean(dim=0).cpu().numpy()
 
             ax.plot(
-                time_values, deep_mean, color="blue", linewidth=2, label="Deep Hedge (mean)"
+                time_values,
+                deep_mean,
+                color="blue",
+                linewidth=2,
+                label="Deep Hedge (mean)",
             )
             ax.plot(
-                time_values, bs_mean, color="orange", linewidth=2, label="BS Baseline (mean)"
+                time_values,
+                bs_mean,
+                color="orange",
+                linewidth=2,
+                label="BS Baseline (mean)",
             )
 
         ax.axhline(y=0, color="gray", linestyle="--", linewidth=0.8, alpha=0.5)
@@ -573,7 +609,9 @@ class BacktestResults:
 
         # Validate and limit path_indices
         if path_indices is not None and len(path_indices) > 50:
-            print(f"⚠️  Warning: Plotting {len(path_indices)} paths may be slow. Consider using fewer paths.")
+            print(
+                f"⚠️  Warning: Plotting {len(path_indices)} paths may be slow. Consider using fewer paths."
+            )
 
         fig, ax = plt.subplots(figsize=figsize)
 
@@ -606,10 +644,18 @@ class BacktestResults:
             bs_mean = self.bs_positions.mean(dim=0).cpu().numpy()
 
             ax.plot(
-                time_values, deep_mean, color="blue", linewidth=2, label="Deep Hedge (mean)"
+                time_values,
+                deep_mean,
+                color="blue",
+                linewidth=2,
+                label="Deep Hedge (mean)",
             )
             ax.plot(
-                time_values, bs_mean, color="orange", linewidth=2, label="BS Delta (mean)"
+                time_values,
+                bs_mean,
+                color="orange",
+                linewidth=2,
+                label="BS Delta (mean)",
             )
 
         ax.axhline(y=0, color="gray", linestyle="--", linewidth=0.8, alpha=0.5)
@@ -660,7 +706,9 @@ class BacktestResults:
 
         # Validate and limit path_indices
         if path_indices is not None and len(path_indices) > 50:
-            print(f"⚠️  Warning: Plotting {len(path_indices)} paths may be slow. Consider using fewer paths.")
+            print(
+                f"⚠️  Warning: Plotting {len(path_indices)} paths may be slow. Consider using fewer paths."
+            )
 
         fig = plt.figure(figsize=figsize)
         gs = fig.add_gridspec(2, 2, hspace=0.3, wspace=0.3)
@@ -749,8 +797,12 @@ class BacktestResults:
 
         deep_pos_mean = self.deep_positions.mean(dim=0).cpu().numpy()
         bs_pos_mean = self.bs_positions.mean(dim=0).cpu().numpy()
-        ax3.plot(time_values, deep_pos_mean, color="blue", linewidth=2, label="Deep Hedge")
-        ax3.plot(time_values, bs_pos_mean, color="orange", linewidth=2, label="BS Delta")
+        ax3.plot(
+            time_values, deep_pos_mean, color="blue", linewidth=2, label="Deep Hedge"
+        )
+        ax3.plot(
+            time_values, bs_pos_mean, color="orange", linewidth=2, label="BS Delta"
+        )
         ax3.axhline(y=0, color="gray", linestyle="--", linewidth=0.8, alpha=0.5)
         ax3.set_xlabel(time_label)
         ax3.set_ylabel("Position (units)")
@@ -768,13 +820,48 @@ class BacktestResults:
 
         metrics_data = [
             ["Metric", "Deep Hedge", "BS Baseline", "Difference"],
-            ["Mean PnL", f"${deep['mean']:.2f}", f"${bs['mean']:.2f}", f"${deep['mean']-bs['mean']:+.2f}"],
-            ["Std PnL", f"${deep['std']:.2f}", f"${bs['std']:.2f}", f"${deep['std']-bs['std']:+.2f}"],
-            ["Sharpe", f"{deep['sharpe_ratio']:.3f}", f"{bs['sharpe_ratio']:.3f}", f"{deep['sharpe_ratio']-bs['sharpe_ratio']:+.3f}"],
-            ["Sortino", f"{deep['sortino_ratio']:.3f}", f"{bs['sortino_ratio']:.3f}", f"{deep['sortino_ratio']-bs['sortino_ratio']:+.3f}"],
-            ["CVaR 95%", f"${deep['cvar_95']:.2f}", f"${bs['cvar_95']:.2f}", f"${deep['cvar_95']-bs['cvar_95']:+.2f}"],
-            ["Max DD", f"${deep['max_drawdown']:.2f}", f"${bs['max_drawdown']:.2f}", f"${deep['max_drawdown']-bs['max_drawdown']:+.2f}"],
-            ["Win Rate", f"{deep['win_rate']:.1%}", f"{bs['win_rate']:.1%}", f"{(deep['win_rate']-bs['win_rate'])*100:+.1f}%"],
+            [
+                "Mean PnL",
+                f"${deep['mean']:.2f}",
+                f"${bs['mean']:.2f}",
+                f"${deep['mean']-bs['mean']:+.2f}",
+            ],
+            [
+                "Std PnL",
+                f"${deep['std']:.2f}",
+                f"${bs['std']:.2f}",
+                f"${deep['std']-bs['std']:+.2f}",
+            ],
+            [
+                "Sharpe",
+                f"{deep['sharpe_ratio']:.3f}",
+                f"{bs['sharpe_ratio']:.3f}",
+                f"{deep['sharpe_ratio']-bs['sharpe_ratio']:+.3f}",
+            ],
+            [
+                "Sortino",
+                f"{deep['sortino_ratio']:.3f}",
+                f"{bs['sortino_ratio']:.3f}",
+                f"{deep['sortino_ratio']-bs['sortino_ratio']:+.3f}",
+            ],
+            [
+                "CVaR 95%",
+                f"${deep['cvar_95']:.2f}",
+                f"${bs['cvar_95']:.2f}",
+                f"${deep['cvar_95']-bs['cvar_95']:+.2f}",
+            ],
+            [
+                "Max DD",
+                f"${deep['max_drawdown']:.2f}",
+                f"${bs['max_drawdown']:.2f}",
+                f"${deep['max_drawdown']-bs['max_drawdown']:+.2f}",
+            ],
+            [
+                "Win Rate",
+                f"{deep['win_rate']:.1%}",
+                f"{bs['win_rate']:.1%}",
+                f"{(deep['win_rate']-bs['win_rate'])*100:+.1f}%",
+            ],
         ]
 
         table = ax4.table(
@@ -878,7 +965,9 @@ class BacktestResults:
         # Comparison
         lines.append("\n### Comparison (Deep - BS)\n")
         lines.append(f"- **Mean PnL Diff**: ${deep['mean'] - bs['mean']:+,.2f}\n")
-        lines.append(f"- **Sharpe Diff**: {deep['sharpe_ratio'] - bs['sharpe_ratio']:+.3f}\n")
+        lines.append(
+            f"- **Sharpe Diff**: {deep['sharpe_ratio'] - bs['sharpe_ratio']:+.3f}\n"
+        )
         lines.append(f"- **CVaR Diff**: ${deep['cvar_95'] - bs['cvar_95']:+,.2f}\n")
 
         # Include plots if requested

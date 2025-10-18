@@ -302,7 +302,9 @@ def main():
     # Generate markdown report
     print("\n📝 Generating markdown report...")
     report_path = output_dir / "backtest_report.md"
-    report_result = results.generate_report(str(report_path), include_plots=True, plot_dir=str(plots_dir))
+    report_result = results.generate_report(
+        str(report_path), include_plots=True, plot_dir=str(plots_dir)
+    )
 
     print()
     print(f"✅ Report generated: {report_result['report_path']}")

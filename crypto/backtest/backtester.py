@@ -175,11 +175,44 @@ class Backtester:
 
         return model
 
+    def _normalize_timestamps_to_utc(self, df, timestamp_col="timestamp"):
+        """Normalize timestamp column to UTC timezone.
+
+        Handles both timezone-naive and timezone-aware timestamps:
+        - If naive: localize to UTC
+        - If aware but not UTC: convert to UTC
+        - If already UTC: no change
+
+        Args:
+            df: DataFrame with timestamp column
+            timestamp_col: Name of timestamp column (default: "timestamp")
+
+        Returns:
+            DataFrame with timestamps normalized to UTC
+
+        Note:
+            This modifies the DataFrame in-place for efficiency.
+        """
+        if timestamp_col not in df.columns:
+            return df
+
+        if df[timestamp_col].dt.tz is None:
+            # Timezone-naive: localize to UTC
+            df[timestamp_col] = df[timestamp_col].dt.tz_localize("UTC")
+        elif str(df[timestamp_col].dt.tz) != "UTC":
+            # Timezone-aware but not UTC: convert to UTC
+            df[timestamp_col] = df[timestamp_col].dt.tz_convert("UTC")
+        # else: already UTC, no change needed
+
+        return df
+
     def load_data(self) -> "CryptoDataLoader":
         """Load historical data for backtesting.
 
         Loads perpetual and options data from parquet files using CryptoDataLoader,
         resamples to the configured frequency (dt_hours), and filters by date range.
+
+        All timestamps are normalized to UTC for consistent comparison.
 
         Returns:
             CryptoDataLoader with historical data loaded and prepared
@@ -255,6 +288,9 @@ class Backtester:
         except Exception as e:
             raise ValueError(f"Failed to resample data at frequency '{frequency}': {e}")
 
+        # Normalize perpetual timestamps to UTC for consistent comparison
+        resampled_df = self._normalize_timestamps_to_utc(resampled_df)
+
         # Parse date range
         try:
             start_date = pd.to_datetime(self.config.start_date)
@@ -262,13 +298,11 @@ class Backtester:
         except Exception as e:
             raise ValueError(f"Failed to parse dates: {e}")
 
-        # Handle timezone: make dates timezone-aware if data has timezone
-        if resampled_df["timestamp"].dt.tz is not None:
-            # Data is timezone-aware, localize dates to UTC for comparison
-            if start_date.tz is None:
-                start_date = start_date.tz_localize("UTC")
-            if end_date.tz is None:
-                end_date = end_date.tz_localize("UTC")
+        # Ensure comparison dates are UTC-aware to match normalized timestamps
+        if start_date.tz is None:
+            start_date = start_date.tz_localize("UTC")
+        if end_date.tz is None:
+            end_date = end_date.tz_localize("UTC")
 
         # Filter by date range
         print(
@@ -294,9 +328,11 @@ class Backtester:
         try:
             options_df = loader.load_options_data()
 
-            # Filter options by date range too
+            # Normalize options timestamps to UTC (same as perpetual data)
             if not options_df.empty and "timestamp" in options_df.columns:
-                # Use the same date variables as perpetual filtering (already timezone-aware if needed)
+                options_df = self._normalize_timestamps_to_utc(options_df)
+
+                # Filter options by date range (dates already UTC-aware)
                 opts_mask = (options_df["timestamp"] >= start_date) & (
                     options_df["timestamp"] <= end_date
                 )
@@ -756,7 +792,19 @@ class Backtester:
         if seed is not None:
             torch.manual_seed(seed)
             np.random.seed(seed)
-            print(f"🔒 Random seed set to {seed} for reproducibility\n")
+
+            # Set CUDA seeds for GPU reproducibility
+            if torch.cuda.is_available():
+                torch.cuda.manual_seed(seed)
+                torch.cuda.manual_seed_all(seed)  # For multi-GPU setups
+                # Enable deterministic mode for cuDNN
+                torch.backends.cudnn.deterministic = True
+                torch.backends.cudnn.benchmark = False
+                print(
+                    f"🔒 Random seed set to {seed} for reproducibility (including CUDA)\n"
+                )
+            else:
+                print(f"🔒 Random seed set to {seed} for reproducibility\n")
         else:
             print(
                 f"⚠️  No random seed set. Results may vary between runs due to bootstrap sampling.\n"
