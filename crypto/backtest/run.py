@@ -109,6 +109,16 @@ def parse_args() -> argparse.Namespace:
         help="Print a minimal YAML configuration template and exit",
     )
     parser.add_argument("--verbose", "-v", action="store_true", help="Verbose output")
+    parser.add_argument(
+        "--no-insights",
+        action="store_true",
+        help="Skip printing key insights summary",
+    )
+    parser.add_argument(
+        "--no-emoji",
+        action="store_true",
+        help="Use plain text without emoji decorations",
+    )
 
     return parser.parse_args()
 
@@ -291,43 +301,33 @@ def main():
         print("Running backtest...")
         results = backtester.run(seed=args.seed)
 
-        # Print summary
-        print("\n" + "=" * 60)
-        print("BACKTEST RESULTS")
-        print("=" * 60)
-        summary = results.summary()
-        print(f"\nDeep Hedge:")
-        print(f"  Mean PnL: ${summary['deep']['mean']:.2f}")
-        print(f"  Std Dev: ${summary['deep']['std']:.2f}")
-        print(f"  Sharpe Ratio: {summary['deep']['sharpe']:.3f}")
-        print(f"  Max Drawdown: ${summary['deep']['max_drawdown']:.2f}")
-        print(f"  CVaR (95%): ${summary['deep']['cvar_95']:.2f}")
+        # Print summary using new BacktestResults methods
+        use_emoji = not args.no_emoji
+        if args.verbose:
+            # Detailed view with all metrics
+            results.print_summary(detailed=True, emoji=use_emoji)
+        else:
+            # Compact view for quick overview
+            results.print_summary(detailed=False, emoji=use_emoji)
 
-        print(f"\nBlack-Scholes:")
-        print(f"  Mean PnL: ${summary['bs']['mean']:.2f}")
-        print(f"  Std Dev: ${summary['bs']['std']:.2f}")
-        print(f"  Sharpe Ratio: {summary['bs']['sharpe']:.3f}")
-        print(f"  Max Drawdown: ${summary['bs']['max_drawdown']:.2f}")
-        print(f"  CVaR (95%): ${summary['bs']['cvar_95']:.2f}")
-
-        print(f"\nImprovement:")
-        print(
-            f"  Mean PnL: ${summary['deep']['mean'] - summary['bs']['mean']:.2f} "
-            f"({((summary['deep']['mean'] / summary['bs']['mean']) - 1) * 100:.1f}%)"
-        )
-        print(
-            f"  Sharpe Ratio: {summary['deep']['sharpe'] - summary['bs']['sharpe']:.3f}"
-        )
-        print("=" * 60)
+        # Print key insights unless disabled
+        if not args.no_insights:
+            results.print_key_insights(emoji=use_emoji)
 
         # Generate report unless disabled
         if not args.no_report:
             print(f"\nGenerating report in {config.output_dir}...")
-            report_info = results.generate_report(output_dir=config.output_dir)
+            from pathlib import Path
+
+            report_path = Path(config.output_dir) / "backtest_report.md"
+            plot_dir = Path(config.output_dir) / "plots"
+            report_info = results.generate_report(
+                filepath=str(report_path), include_plots=True, plot_dir=str(plot_dir)
+            )
             print(f"✓ Report saved to: {report_info['report_path']}")
             print(f"✓ Plots saved:")
-            for plot_type, plot_path in report_info["plot_paths"].items():
-                print(f"  - {plot_type}: {plot_path}")
+            for plot_path in report_info["plot_paths"]:
+                print(f"  - {plot_path}")
 
         print("\n✅ Backtest complete!")
         return 0

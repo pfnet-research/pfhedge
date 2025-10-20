@@ -200,6 +200,18 @@ class BacktestResults:
         - Risk metrics: CVaR, VaR, max drawdown, Calmar ratio
         - Win rate (percentage of paths with final PnL > 0)
 
+        **Important - Metrics Computation Method**:
+        Sharpe ratio, Sortino ratio, and Calmar ratio are computed CROSS-SECTIONALLY
+        across simulation paths using final PnL values, not time-series returns.
+
+        Specifically:
+        - Sharpe = mean(final_pnl_across_paths) / std(final_pnl_across_paths)
+        - This differs from traditional time-series Sharpe: mean(daily_returns) / std(daily_returns)
+
+        This cross-sectional approach is appropriate for Monte Carlo backtesting where
+        we're assessing performance variability across different market scenarios (paths),
+        rather than temporal return variability.
+
         Note: Results are cached after first computation to avoid expensive
         recomputation on subsequent calls (e.g., in __repr__).
 
@@ -1035,6 +1047,429 @@ class BacktestResults:
             "report_path": str(filepath),
             "plot_paths": generated_plots,
         }
+
+    def compare_strategies(self) -> dict:
+        """Compare strategies and determine winner on each metric.
+
+        Uses epsilon tolerance for tie-handling and neutralizes negative risk ratios
+        from scoring to prevent misleading assessments.
+
+        Returns:
+            Dictionary with comparison results:
+            {
+                'winners': {
+                    'mean': 'deep_hedge' | 'bs_baseline' | 'tie',
+                    'sharpe_ratio': ...,
+                    'cvar_95': ...,
+                    'max_drawdown': ...,
+                },
+                'differences': {
+                    'mean': <float>,
+                    ...
+                },
+                'reductions': {  # For metrics where lower is better
+                    'std': <float>,  # percent reduction
+                    'max_drawdown': <float>,
+                    ...
+                },
+                'summary': {
+                    'deep_wins': <int>,  # out of 4 key metrics
+                    'ties': <int>,  # neutral outcomes
+                    'assessment': 'superior' | 'mixed' | 'underperformed'
+                }
+            }
+
+        Examples:
+            >>> comparison = results.compare_strategies()
+            >>> print(comparison['winners']['sharpe_ratio'])  # 'deep_hedge', 'bs_baseline', or 'tie'
+            >>> print(comparison['summary']['assessment'])  # 'superior'
+        """
+        summary = self.summary()
+        deep = summary["deep_hedge"]
+        bs = summary["bs_baseline"]
+
+        # Epsilon for tie-handling (avoid flapping on numerically equal metrics)
+        EPSILON = 1e-9
+
+        # Determine winners with epsilon tolerance
+        # Higher is better for: mean PnL, CVaR (less negative loss)
+        # Lower is better for: max drawdown (smaller loss)
+        winners = {}
+
+        # Mean PnL
+        if abs(deep["mean"] - bs["mean"]) < EPSILON:
+            winners["mean"] = "tie"
+        else:
+            winners["mean"] = (
+                "deep_hedge" if deep["mean"] > bs["mean"] else "bs_baseline"
+            )
+
+        # Sharpe ratio: neutralize if BOTH are negative (both losing)
+        if deep["sharpe_ratio"] < 0 and bs["sharpe_ratio"] < 0:
+            winners["sharpe_ratio"] = "tie"  # Don't award win for "less negative"
+        elif abs(deep["sharpe_ratio"] - bs["sharpe_ratio"]) < EPSILON:
+            winners["sharpe_ratio"] = "tie"
+        else:
+            winners["sharpe_ratio"] = (
+                "deep_hedge"
+                if deep["sharpe_ratio"] > bs["sharpe_ratio"]
+                else "bs_baseline"
+            )
+
+        # CVaR: less negative (closer to zero) is better, so higher value wins
+        if abs(deep["cvar_95"] - bs["cvar_95"]) < EPSILON:
+            winners["cvar_95"] = "tie"
+        else:
+            winners["cvar_95"] = (
+                "deep_hedge" if deep["cvar_95"] > bs["cvar_95"] else "bs_baseline"
+            )
+
+        # Max DD: positive value = loss, so LOWER is better
+        if abs(deep["max_drawdown"] - bs["max_drawdown"]) < EPSILON:
+            winners["max_drawdown"] = "tie"
+        else:
+            winners["max_drawdown"] = (
+                "deep_hedge"
+                if deep["max_drawdown"] < bs["max_drawdown"]
+                else "bs_baseline"
+            )
+
+        # Calculate differences
+        differences = {
+            "mean": deep["mean"] - bs["mean"],
+            "std": deep["std"] - bs["std"],
+            "sharpe_ratio": deep["sharpe_ratio"] - bs["sharpe_ratio"],
+            "sortino_ratio": deep["sortino_ratio"] - bs["sortino_ratio"],
+            "cvar_95": deep["cvar_95"] - bs["cvar_95"],
+            "max_drawdown": deep["max_drawdown"] - bs["max_drawdown"],
+            "win_rate": deep["win_rate"] - bs["win_rate"],
+        }
+
+        # Calculate reductions for metrics where lower is better (use absolute values)
+        # This gives cleaner "X% reduction in volatility" messaging
+        reductions = {}
+        if bs["std"] != 0:
+            reductions["std"] = (
+                (abs(differences["std"]) / bs["std"]) * 100
+                if differences["std"] < 0
+                else 0.0
+            )
+        else:
+            reductions["std"] = 0.0
+
+        if bs["max_drawdown"] != 0:
+            reductions["max_drawdown"] = (
+                (abs(differences["max_drawdown"]) / bs["max_drawdown"]) * 100
+                if differences["max_drawdown"] < 0
+                else 0.0
+            )
+        else:
+            reductions["max_drawdown"] = 0.0
+
+        # Calculate percentage changes (only for appropriate metrics - backward compatibility)
+        # Following reviewer guidance: restrict to dollar metrics (mean) and win_rate
+        # Avoid misleading percentage changes on ratios (Sharpe/Sortino)
+        percentage_changes = {}
+
+        # Mean PnL (dollar metric - appropriate)
+        if bs["mean"] != 0:
+            percentage_changes["mean"] = (differences["mean"] / abs(bs["mean"])) * 100
+        else:
+            percentage_changes["mean"] = 0.0
+
+        # Win rate (percentage metric - appropriate)
+        if bs["win_rate"] != 0:
+            percentage_changes["win_rate"] = (
+                differences["win_rate"] / bs["win_rate"]
+            ) * 100
+        else:
+            percentage_changes["win_rate"] = 0.0
+
+        # Std: include for backward compat, but prefer using reductions instead
+        if bs["std"] != 0:
+            percentage_changes["std"] = (differences["std"] / bs["std"]) * 100
+        else:
+            percentage_changes["std"] = 0.0
+
+        # Sharpe/Sortino: include for backward compat, but these are often misleading
+        if bs["sharpe_ratio"] != 0:
+            percentage_changes["sharpe_ratio"] = (
+                differences["sharpe_ratio"] / abs(bs["sharpe_ratio"])
+            ) * 100
+        else:
+            percentage_changes["sharpe_ratio"] = 0.0
+
+        # Count wins on key metrics (ties don't count for either side)
+        key_metrics = ["mean", "sharpe_ratio", "cvar_95", "max_drawdown"]
+        deep_wins = sum(1 for metric in key_metrics if winners[metric] == "deep_hedge")
+        ties = sum(1 for metric in key_metrics if winners[metric] == "tie")
+
+        # Overall assessment
+        if deep_wins >= 3:
+            assessment = "superior"
+        elif deep_wins >= 2:
+            assessment = "mixed"
+        else:
+            assessment = "underperformed"
+
+        return {
+            "winners": winners,
+            "differences": differences,
+            "percentage_changes": percentage_changes,  # For backward compatibility
+            "reductions": reductions,  # NEW: cleaner messaging for "lower is better" metrics
+            "summary": {
+                "deep_wins": deep_wins,
+                "ties": ties,
+                "total_metrics": len(key_metrics),
+                "assessment": assessment,
+            },
+        }
+
+    def print_summary(self, detailed: bool = True, emoji: bool = True) -> None:
+        """Print formatted summary of backtest results to console.
+
+        Args:
+            detailed: If True, shows all metrics grouped by category.
+                      If False, shows compact summary with key metrics only.
+            emoji: If True, includes emoji decorations. If False, plain text only.
+
+        Examples:
+            >>> results.print_summary()  # Full detailed view with emoji
+            >>> results.print_summary(detailed=False)  # Compact view with emoji
+            >>> results.print_summary(emoji=False)  # Plain text without emoji
+        """
+        summary = self.summary()
+        deep = summary["deep_hedge"]
+        bs = summary["bs_baseline"]
+
+        print("\n" + "=" * 60)
+        title = "📊 BACKTEST RESULTS SUMMARY" if emoji else "BACKTEST RESULTS SUMMARY"
+        print(title)
+        print("=" * 60)
+
+        if detailed:
+            # Full detailed view (grouped by category)
+            self._print_strategy_details("Deep Hedge", deep, emoji=emoji)
+            self._print_strategy_details("Black-Scholes", bs, emoji=emoji)
+            self._print_comparison(deep, bs)
+        else:
+            # Compact view (key metrics only)
+            self._print_compact_comparison(deep, bs)
+
+        print("=" * 60)
+
+    def _print_strategy_details(
+        self, name: str, metrics: dict, emoji: bool = True
+    ) -> None:
+        """Print detailed metrics for a single strategy."""
+        print(f"\n{name.upper()}")
+        print("─" * 60)
+
+        profit_label = "💰 Profitability:" if emoji else "Profitability:"
+        print(f"\n{profit_label}")
+        print(f"   Mean PnL:        ${metrics['mean']:>10.2f}")
+        print(f"   Std Dev:         ${metrics['std']:>10.2f}")
+        print(f"   Min PnL:         ${metrics['min']:>10.2f}")
+        print(f"   Max PnL:         ${metrics['max']:>10.2f}")
+        print(f"   Median PnL:      ${metrics['median']:>10.2f}")
+
+        risk_adj_label = "📈 Risk-Adjusted:" if emoji else "Risk-Adjusted:"
+        print(f"\n{risk_adj_label}")
+        print(f"   Sharpe Ratio:    {metrics['sharpe_ratio']:>10.3f}")
+        print(f"   Sortino Ratio:   {metrics['sortino_ratio']:>10.3f}")
+
+        risk_label = "⚠️  Risk Metrics:" if emoji else "Risk Metrics:"
+        print(f"\n{risk_label}")
+        print(f"   CVaR (95%):      ${metrics['cvar_95']:>10.2f}")
+        print(f"   Max Drawdown:    ${metrics['max_drawdown']:>10.2f}")
+        print(f"   Calmar Ratio:    {metrics['calmar_ratio']:>10.3f}")
+        print(f"   Win Rate:        {metrics['win_rate']:>9.1%}")
+
+    def _print_comparison(self, deep: dict, bs: dict) -> None:
+        """Print detailed comparison between strategies."""
+        print(f"\nCOMPARISON (Deep Hedge vs Black-Scholes)")
+        print("─" * 60)
+
+        mean_diff = deep["mean"] - bs["mean"]
+        mean_pct = (mean_diff / abs(bs["mean"]) * 100) if bs["mean"] != 0 else 0
+
+        print(f"\n   Mean PnL:        ${mean_diff:>10.2f} ({mean_pct:+.1f}%)")
+        print(f"   Sharpe Ratio:    {deep['sharpe_ratio'] - bs['sharpe_ratio']:>10.3f}")
+        print(f"   CVaR (95%):      ${deep['cvar_95'] - bs['cvar_95']:>10.2f}")
+        print(
+            f"   Max Drawdown:    ${deep['max_drawdown'] - bs['max_drawdown']:>10.2f}"
+        )
+
+    def _print_compact_comparison(self, deep: dict, bs: dict) -> None:
+        """Print compact comparison with key metrics only."""
+        print(
+            f"\nStrategy          Mean PnL    Std Dev    Sharpe    CVaR 95%    Win Rate"
+        )
+        print("─" * 78)
+        print(
+            f"Deep Hedge     {deep['mean']:>10.2f}  {deep['std']:>9.2f}  {deep['sharpe_ratio']:>7.3f}  {deep['cvar_95']:>10.2f}  {deep['win_rate']:>8.1%}"
+        )
+        print(
+            f"Black-Scholes  {bs['mean']:>10.2f}  {bs['std']:>9.2f}  {bs['sharpe_ratio']:>7.3f}  {bs['cvar_95']:>10.2f}  {bs['win_rate']:>8.1%}"
+        )
+
+        mean_diff = deep["mean"] - bs["mean"]
+        print("─" * 78)
+        print(
+            f"Difference     {mean_diff:>10.2f}  {deep['std'] - bs['std']:>9.2f}  {deep['sharpe_ratio'] - bs['sharpe_ratio']:>7.3f}  {deep['cvar_95'] - bs['cvar_95']:>10.2f}  {(deep['win_rate'] - bs['win_rate'])*100:>7.1f}%"
+        )
+
+    def print_key_insights(self, emoji: bool = True) -> None:
+        """Print key insights and overall assessment in executive-friendly format.
+
+        Provides a concise, actionable summary suitable for decision-makers.
+
+        Args:
+            emoji: If True, includes emoji decorations. If False, plain text only.
+
+        Examples:
+            >>> results.print_key_insights()  # With emoji
+            >>> results.print_key_insights(emoji=False)  # Plain text
+        """
+        comparison = self.compare_strategies()
+        summary = self.summary()
+        deep = summary["deep_hedge"]
+        bs = summary["bs_baseline"]
+
+        print("\n" + "=" * 60)
+        title = "💡 KEY INSIGHTS" if emoji else "KEY INSIGHTS"
+        print(title)
+        print("=" * 60)
+
+        # Show winners on each key metric
+        winners = comparison["winners"]
+
+        # Format winner lines with appropriate verb (wins/ties)
+        winner_verb = lambda w: "wins" if w != "tie" else "(tie)"
+
+        print(
+            f"\n1. Mean PnL:      {self._format_winner(winners['mean'])} {winner_verb(winners['mean'])}"
+        )
+
+        # For Sharpe: annotate if neutralized due to both being negative
+        sharpe_annotation = ""
+        if (
+            winners["sharpe_ratio"] == "tie"
+            and deep["sharpe_ratio"] < 0
+            and bs["sharpe_ratio"] < 0
+        ):
+            sharpe_annotation = " (both negative)"
+        winner_text = (
+            "wins (risk-adjusted)" if winners["sharpe_ratio"] != "tie" else "(tie)"
+        )
+        print(
+            f"2. Sharpe Ratio:  {self._format_winner(winners['sharpe_ratio'])} {winner_text}{sharpe_annotation}"
+        )
+
+        cvar_text = "has better tail risk" if winners["cvar_95"] != "tie" else "(tie)"
+        print(
+            f"3. CVaR (95%):    {self._format_winner(winners['cvar_95'])} {cvar_text}"
+        )
+
+        dd_text = (
+            "has better drawdown protection"
+            if winners["max_drawdown"] != "tie"
+            else "(tie)"
+        )
+        print(
+            f"4. Max Drawdown:  {self._format_winner(winners['max_drawdown'])} {dd_text}"
+        )
+
+        # Overall assessment
+        deep_wins = comparison["summary"]["deep_wins"]
+        ties = comparison["summary"]["ties"]
+        total = comparison["summary"]["total_metrics"]
+        assessment = comparison["summary"]["assessment"]
+
+        # Show wins and ties
+        overall_icon = "📊 " if emoji else ""
+        if ties > 0:
+            print(
+                f"\n{overall_icon}Overall: Deep Hedge wins on {deep_wins}/{total} key metrics ({ties} ties)"
+            )
+        else:
+            print(
+                f"\n{overall_icon}Overall: Deep Hedge wins on {deep_wins}/{total} key metrics"
+            )
+
+        if assessment == "superior":
+            conclusion_icon = "✅ " if emoji else ""
+            print(
+                f"\n{conclusion_icon}CONCLUSION: Deep Hedge demonstrates superior performance"
+            )
+        elif assessment == "mixed":
+            conclusion_icon = "⚖️  " if emoji else ""
+            print(
+                f"\n{conclusion_icon}CONCLUSION: Mixed results - context-dependent decision"
+            )
+        else:
+            conclusion_icon = "⚠️  " if emoji else ""
+            print(
+                f"\n{conclusion_icon}CONCLUSION: Black-Scholes performed better in this scenario"
+            )
+
+        # Highlight most important differences
+        diffs = comparison["differences"]
+        reductions = comparison["reductions"]
+
+        improve_icon = "🔑 " if emoji else ""
+        print(f"\n{improve_icon}Key Improvements (Deep Hedge vs BS):")
+
+        bullet = "•" if emoji else "-"
+
+        # Mean PnL: compute percentage change on the fly (appropriate for dollar metrics)
+        if diffs["mean"] > 0:
+            if deep["mean"] < 0 and bs["mean"] < 0:
+                # Both are losses - use "lower loss" language
+                pct_mean = (
+                    (abs(diffs["mean"]) / abs(bs["mean"]) * 100)
+                    if bs["mean"] != 0
+                    else 0
+                )
+                print(f"   {bullet} {pct_mean:.1f}% lower loss (mean PnL)")
+            else:
+                pct_mean = (
+                    (abs(diffs["mean"]) / abs(bs["mean"]) * 100)
+                    if bs["mean"] != 0
+                    else 0
+                )
+                print(f"   {bullet} {pct_mean:.1f}% better mean PnL")
+
+        # Volatility: use reductions dict for cleaner messaging
+        if reductions["std"] > 0:
+            print(f"   {bullet} {reductions['std']:.1f}% reduction in volatility")
+
+        # CVaR: use dollar difference (not percentage)
+        if diffs["cvar_95"] > 0:
+            print(
+                f"   {bullet} ${abs(diffs['cvar_95']):.2f} better CVaR (reduced tail risk)"
+            )
+
+        # Max drawdown: use reductions dict
+        if reductions["max_drawdown"] > 0:
+            print(
+                f"   {bullet} {reductions['max_drawdown']:.1f}% reduction in max drawdown"
+            )
+
+        print("=" * 60)
+
+    def _format_winner(self, strategy: str) -> str:
+        """Format winner string for display.
+
+        Args:
+            strategy: One of 'deep_hedge', 'bs_baseline', or 'tie'
+
+        Returns:
+            Formatted string for display
+        """
+        if strategy == "tie":
+            return "Tie"
+        return "Deep Hedge" if strategy == "deep_hedge" else "Black-Scholes"
 
     def __repr__(self) -> str:
         """String representation.

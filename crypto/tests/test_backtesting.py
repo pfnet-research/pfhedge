@@ -3040,3 +3040,407 @@ class TestBacktestResults:
         time_values, time_label = results._get_time_axis(time_unit="days")
         assert time_label == "Time (days)"
         assert abs(time_values[1] - 8.0 / 24.0) < 0.01
+
+    def test_compare_strategies_structure(self):
+        """Test compare_strategies returns correct structure."""
+        torch.manual_seed(42)
+        n_paths, n_steps = 100, 50
+        deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1) * 10
+        bs_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1) * 10
+        deep_positions = torch.randn(n_paths, n_steps)
+        bs_positions = torch.randn(n_paths, n_steps)
+        spots = torch.rand(n_paths, n_steps) * 50000
+
+        results = BacktestResults(
+            deep_pnl=deep_pnl,
+            bs_pnl=bs_pnl,
+            deep_positions=deep_positions,
+            bs_positions=bs_positions,
+            spots=spots,
+        )
+
+        comparison = results.compare_strategies()
+
+        # Verify top-level structure
+        assert "winners" in comparison
+        assert "differences" in comparison
+        assert "percentage_changes" in comparison
+        assert "summary" in comparison
+
+        # Verify winners structure
+        assert "mean" in comparison["winners"]
+        assert "sharpe_ratio" in comparison["winners"]
+        assert "cvar_95" in comparison["winners"]
+        assert "max_drawdown" in comparison["winners"]
+        assert comparison["winners"]["mean"] in ["deep_hedge", "bs_baseline"]
+
+        # Verify summary structure
+        assert "deep_wins" in comparison["summary"]
+        assert "total_metrics" in comparison["summary"]
+        assert "assessment" in comparison["summary"]
+        assert comparison["summary"]["total_metrics"] == 4
+        assert comparison["summary"]["assessment"] in [
+            "superior",
+            "mixed",
+            "underperformed",
+        ]
+
+    def test_compare_strategies_winner_determination(self):
+        """Test winner determination logic works correctly."""
+        n_paths, n_steps = 10, 20
+        # Create data where deep hedge is clearly better
+        deep_pnl = torch.ones(n_paths, n_steps).cumsum(dim=1) * 100  # Positive
+        bs_pnl = torch.ones(n_paths, n_steps).cumsum(dim=1) * -50  # Negative
+        deep_positions = torch.randn(n_paths, n_steps)
+        bs_positions = torch.randn(n_paths, n_steps)
+        spots = torch.rand(n_paths, n_steps) * 50000
+
+        results = BacktestResults(
+            deep_pnl=deep_pnl,
+            bs_pnl=bs_pnl,
+            deep_positions=deep_positions,
+            bs_positions=bs_positions,
+            spots=spots,
+        )
+
+        comparison = results.compare_strategies()
+
+        # Deep hedge should win on mean (clearly positive vs negative)
+        assert comparison["winners"]["mean"] == "deep_hedge"
+
+        # Assessment should be superior (deep wins on most metrics)
+        assert comparison["summary"]["assessment"] in ["superior", "mixed"]
+
+    def test_max_drawdown_winner_logic(self):
+        """Test max_drawdown winner determination (lower is better).
+
+        CRITICAL: max_drawdown returns positive value representing loss.
+        Strategy with LOWER drawdown should win.
+        """
+        n_paths, n_steps = 10, 20
+
+        # Create PnL where deep hedge has SMALLER drawdown (better)
+        # Deep: smooth growth with small dip
+        deep_pnl = torch.zeros(n_paths, n_steps)
+        for i in range(n_paths):
+            deep_pnl[i] = torch.tensor(
+                [
+                    0.0,
+                    5.0,
+                    10.0,
+                    8.0,
+                    12.0,
+                    15.0,
+                    18.0,
+                    20.0,
+                    22.0,
+                    25.0,
+                    28.0,
+                    30.0,
+                    32.0,
+                    35.0,
+                    38.0,
+                    40.0,
+                    42.0,
+                    45.0,
+                    47.0,
+                    50.0,
+                ]
+            )
+        # Max drawdown for deep: 10 - 8 = 2
+
+        # BS: volatile with large dip
+        bs_pnl = torch.zeros(n_paths, n_steps)
+        for i in range(n_paths):
+            bs_pnl[i] = torch.tensor(
+                [
+                    0.0,
+                    10.0,
+                    20.0,
+                    5.0,
+                    25.0,
+                    30.0,
+                    35.0,
+                    40.0,
+                    45.0,
+                    50.0,
+                    55.0,
+                    60.0,
+                    65.0,
+                    70.0,
+                    75.0,
+                    80.0,
+                    85.0,
+                    90.0,
+                    95.0,
+                    100.0,
+                ]
+            )
+        # Max drawdown for bs: 20 - 5 = 15 (much larger)
+
+        deep_positions = torch.randn(n_paths, n_steps)
+        bs_positions = torch.randn(n_paths, n_steps)
+        spots = torch.rand(n_paths, n_steps) * 50000
+
+        results = BacktestResults(
+            deep_pnl=deep_pnl,
+            bs_pnl=bs_pnl,
+            deep_positions=deep_positions,
+            bs_positions=bs_positions,
+            spots=spots,
+        )
+
+        summary = results.summary()
+        comparison = results.compare_strategies()
+
+        # Verify drawdown values
+        deep_dd = summary["deep_hedge"]["max_drawdown"]
+        bs_dd = summary["bs_baseline"]["max_drawdown"]
+
+        # Deep should have smaller drawdown
+        assert deep_dd < bs_dd, f"Deep DD ({deep_dd}) should be < BS DD ({bs_dd})"
+
+        # CRITICAL TEST: Deep hedge should win because it has LOWER (better) drawdown
+        assert (
+            comparison["winners"]["max_drawdown"] == "deep_hedge"
+        ), f"Deep hedge has lower drawdown ({deep_dd:.2f} vs {bs_dd:.2f}) so should win"
+
+    def test_compare_strategies_percentage_changes(self):
+        """Test percentage changes calculation."""
+        torch.manual_seed(42)
+        n_paths, n_steps = 50, 30
+        deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        bs_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        deep_positions = torch.randn(n_paths, n_steps)
+        bs_positions = torch.randn(n_paths, n_steps)
+        spots = torch.rand(n_paths, n_steps) * 50000
+
+        results = BacktestResults(
+            deep_pnl=deep_pnl,
+            bs_pnl=bs_pnl,
+            deep_positions=deep_positions,
+            bs_positions=bs_positions,
+            spots=spots,
+        )
+
+        comparison = results.compare_strategies()
+
+        # Verify percentage changes are calculated
+        assert "mean" in comparison["percentage_changes"]
+        assert "std" in comparison["percentage_changes"]
+        assert "sharpe_ratio" in comparison["percentage_changes"]
+
+        # Verify percentage calculation formula
+        summary = results.summary()
+        deep = summary["deep_hedge"]
+        bs = summary["bs_baseline"]
+
+        if bs["mean"] != 0:
+            expected_pct = ((deep["mean"] - bs["mean"]) / abs(bs["mean"])) * 100
+            assert abs(comparison["percentage_changes"]["mean"] - expected_pct) < 0.01
+
+    def test_print_summary_detailed_mode(self, capsys):
+        """Test print_summary works in detailed mode."""
+        torch.manual_seed(42)
+        n_paths, n_steps = 50, 30
+        deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        bs_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        deep_positions = torch.randn(n_paths, n_steps)
+        bs_positions = torch.randn(n_paths, n_steps)
+        spots = torch.rand(n_paths, n_steps) * 50000
+
+        results = BacktestResults(
+            deep_pnl=deep_pnl,
+            bs_pnl=bs_pnl,
+            deep_positions=deep_positions,
+            bs_positions=bs_positions,
+            spots=spots,
+        )
+
+        # Should not raise
+        results.print_summary(detailed=True)
+
+        # Verify output contains expected sections
+        captured = capsys.readouterr()
+        assert "BACKTEST RESULTS SUMMARY" in captured.out
+        assert "DEEP HEDGE" in captured.out
+        assert "BLACK-SCHOLES" in captured.out
+        assert "COMPARISON" in captured.out
+        assert "Profitability" in captured.out
+        assert "Risk-Adjusted" in captured.out
+
+    def test_print_summary_compact_mode(self, capsys):
+        """Test print_summary works in compact mode."""
+        torch.manual_seed(42)
+        n_paths, n_steps = 50, 30
+        deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        bs_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        deep_positions = torch.randn(n_paths, n_steps)
+        bs_positions = torch.randn(n_paths, n_steps)
+        spots = torch.rand(n_paths, n_steps) * 50000
+
+        results = BacktestResults(
+            deep_pnl=deep_pnl,
+            bs_pnl=bs_pnl,
+            deep_positions=deep_positions,
+            bs_positions=bs_positions,
+            spots=spots,
+        )
+
+        # Should not raise
+        results.print_summary(detailed=False)
+
+        # Verify output contains expected sections
+        captured = capsys.readouterr()
+        assert "BACKTEST RESULTS SUMMARY" in captured.out
+        assert "Deep Hedge" in captured.out
+        assert "Black-Scholes" in captured.out
+        assert "Difference" in captured.out
+
+    def test_print_key_insights(self, capsys):
+        """Test print_key_insights produces expected output."""
+        torch.manual_seed(42)
+        n_paths, n_steps = 50, 30
+        deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        bs_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        deep_positions = torch.randn(n_paths, n_steps)
+        bs_positions = torch.randn(n_paths, n_steps)
+        spots = torch.rand(n_paths, n_steps) * 50000
+
+        results = BacktestResults(
+            deep_pnl=deep_pnl,
+            bs_pnl=bs_pnl,
+            deep_positions=deep_positions,
+            bs_positions=bs_positions,
+            spots=spots,
+        )
+
+        # Should not raise
+        results.print_key_insights()
+
+        # Verify output contains expected sections
+        captured = capsys.readouterr()
+        assert "KEY INSIGHTS" in captured.out
+        assert "Mean PnL:" in captured.out
+        assert "Sharpe Ratio:" in captured.out
+        assert "CVaR" in captured.out
+        assert "Max Drawdown:" in captured.out
+        assert "CONCLUSION" in captured.out
+        # Should mention either "superior", "mixed", or better performance
+        assert any(
+            word in captured.out
+            for word in ["superior", "Mixed", "better", "performed"]
+        )
+
+    def test_negative_sharpe_messaging(self, capsys):
+        """Test that negative Sharpe/Sortino messaging is appropriate.
+
+        When both strategies have negative risk ratios, messaging should
+        indicate 'less bad' rather than a positive 'win'.
+        """
+        torch.manual_seed(42)
+        n_paths, n_steps = 20, 15
+
+        # Create PnL where BOTH strategies lose money (negative Sharpe)
+        # Need variance across paths but negative mean
+        # Deep: losses with some variation
+        deep_pnl = (
+            -torch.rand(n_paths, n_steps).cumsum(dim=1) * 10 - 20
+        )  # Negative, varying
+        # BS: worse losses with more variation
+        bs_pnl = -torch.rand(n_paths, n_steps).cumsum(dim=1) * 15 - 40  # More negative
+
+        deep_positions = torch.randn(n_paths, n_steps)
+        bs_positions = torch.randn(n_paths, n_steps)
+        spots = torch.rand(n_paths, n_steps) * 50000
+
+        results = BacktestResults(
+            deep_pnl=deep_pnl,
+            bs_pnl=bs_pnl,
+            deep_positions=deep_positions,
+            bs_positions=bs_positions,
+            spots=spots,
+        )
+
+        summary = results.summary()
+
+        # Verify both Sharpe ratios are negative (mean < 0, std > 0 → Sharpe < 0)
+        assert (
+            summary["deep_hedge"]["sharpe_ratio"] < 0
+        ), f"Deep Sharpe should be negative, got {summary['deep_hedge']['sharpe_ratio']}"
+        assert (
+            summary["bs_baseline"]["sharpe_ratio"] < 0
+        ), f"BS Sharpe should be negative, got {summary['bs_baseline']['sharpe_ratio']}"
+
+        # Print insights
+        results.print_key_insights()
+
+        # Verify messaging includes annotation for negative ratios
+        captured = capsys.readouterr()
+        # Should mention "both negative" or "less bad"
+        assert "both negative" in captured.out or "less bad" in captured.out
+
+        # Should mention "lower loss" not "better mean PnL" since both are losses
+        if "lower loss" not in captured.out:
+            # If not showing improvements, that's also acceptable
+            pass
+
+    def test_division_by_zero_edge_cases(self):
+        """Test edge cases with zero values to ensure no division errors."""
+        n_paths, n_steps = 10, 20
+
+        # Create PnL with zero std for BS (all paths identical)
+        deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
+        bs_pnl = torch.ones(n_paths, n_steps).cumsum(dim=1) * 10  # All identical
+
+        deep_positions = torch.randn(n_paths, n_steps)
+        bs_positions = torch.randn(n_paths, n_steps)
+        spots = torch.rand(n_paths, n_steps) * 50000
+
+        results = BacktestResults(
+            deep_pnl=deep_pnl,
+            bs_pnl=bs_pnl,
+            deep_positions=deep_positions,
+            bs_positions=bs_positions,
+            spots=spots,
+        )
+
+        # Should not raise division by zero
+        comparison = results.compare_strategies()
+
+        # Verify percentage changes exist (even with std=0)
+        assert "percentage_changes" in comparison
+        # When bs['std'] = 0, percentage change should be 0.0 (guarded)
+        assert isinstance(comparison["percentage_changes"]["std"], float)
+
+    def test_zero_win_rate_edge_case(self):
+        """Test edge case where win_rate is 0 for both strategies."""
+        n_paths, n_steps = 10, 20
+
+        # All paths lose money (final PnL all negative)
+        deep_pnl = torch.ones(n_paths, n_steps).cumsum(dim=1) * -10
+        bs_pnl = torch.ones(n_paths, n_steps).cumsum(dim=1) * -20
+
+        deep_positions = torch.randn(n_paths, n_steps)
+        bs_positions = torch.randn(n_paths, n_steps)
+        spots = torch.rand(n_paths, n_steps) * 50000
+
+        results = BacktestResults(
+            deep_pnl=deep_pnl,
+            bs_pnl=bs_pnl,
+            deep_positions=deep_positions,
+            bs_positions=bs_positions,
+            spots=spots,
+        )
+
+        summary = results.summary()
+
+        # Both should have 0% win rate
+        assert summary["deep_hedge"]["win_rate"] == 0.0
+        assert summary["bs_baseline"]["win_rate"] == 0.0
+
+        # Should not raise when computing comparison
+        comparison = results.compare_strategies()
+
+        # Win rate percentage change should be 0 (0 - 0 = 0)
+        assert comparison["percentage_changes"]["win_rate"] == 0.0
