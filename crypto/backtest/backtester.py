@@ -233,20 +233,13 @@ class Backtester:
 
         data_dir = self.config.data_dir
 
-        # Convert relative path to absolute if needed
-        if not os.path.isabs(data_dir):
-            # Assume relative to crypto/data directory
-            # __file__ is crypto/backtest/backtester.py
-            # dirname(__file__) is crypto/backtest
-            # dirname(dirname(__file__)) is crypto
-            base_dir = os.path.dirname(os.path.dirname(__file__))
-            data_dir = os.path.join(base_dir, "data", data_dir)
-
-        # Check if data directory exists
+        # Trust the path from config (already resolved by YAML loader if loaded from file)
+        # Just validate that it exists
         if not os.path.exists(data_dir):
             raise FileNotFoundError(
                 f"Data directory not found: {data_dir}\n"
-                f"(original path: {self.config.data_dir})"
+                f"Tip: If using YAML config, relative paths are resolved relative to the config file.\n"
+                f"      If creating config programmatically, use absolute paths or resolve manually."
             )
 
         print(f"Loading historical data from {data_dir}...")

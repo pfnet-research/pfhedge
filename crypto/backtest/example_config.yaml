@@ -17,30 +17,37 @@ transaction_cost: 0.0005  # 0.05%
 dt_hours: 8.0  # 8-hour rebalancing
 
 # Data directories (optional - defaults shown)
-data_dir: sample_data
+# NOTE: If using relative path, it must be relative to THIS config file!
+# Example: If this config is in crypto/backtest/ and data is in crypto/data/sample_data,
+#          use: ../data/sample_data
+data_dir: ../data/sample_data
 output_dir: backtest_results
 
 # ============================================================================
-# Path Expansion Examples
+# Path Resolution Rules
 # ============================================================================
-# The framework supports flexible path specifications:
+# All paths (model_path, data_dir, output_dir) support flexible specifications:
 #
-# 1. Tilde expansion (home directory):
-#    model_path: ~/models/deep_hedger.pth
-#    data_dir: ~/data/bitcoin
-#
-# 2. Environment variables:
-#    model_path: $HOME/models/deep_hedger.pth
-#    model_path: ${MODEL_DIR}/deep_hedger.pth
-#    data_dir: $DATA_ROOT/bitcoin
-#
-# 3. Relative paths (resolved from this config file's directory):
-#    model_path: ../models/deep_hedger.pth
-#    data_dir: ../data
-#
-# 4. Absolute paths (used as-is):
+# 1. Absolute paths (recommended for clarity):
+#    data_dir: /absolute/path/to/pfhedge/crypto/data/sample_data
 #    model_path: /absolute/path/to/models/deep_hedger.pth
-#    data_dir: /absolute/path/to/data
 #
-# All path types can be mixed and matched as needed!
+# 2. Relative paths (resolved from THIS config file's directory):
+#    data_dir: ../data/sample_data      # Config in crypto/backtest/, data in crypto/data/
+#    model_path: ../models/model.pth    # Config in crypto/backtest/, models in crypto/models/
+#
+# 3. Tilde expansion (home directory):
+#    data_dir: ~/data/bitcoin
+#    model_path: ~/models/deep_hedger.pth
+#
+# 4. Environment variables:
+#    data_dir: $DATA_ROOT/sample_data
+#    model_path: ${MODEL_DIR}/deep_hedger.pth
+#
+# IMPORTANT: All relative paths are resolved ONCE relative to this config file.
+#            The backtester will NOT prepend additional paths like "crypto/data/".
+#
+# Common mistakes:
+#   ❌ data_dir: sample_data           # Will fail if this config is NOT in crypto/data/
+#   ✅ data_dir: ../data/sample_data   # Correct if config is in crypto/backtest/
 # ============================================================================
