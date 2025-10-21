@@ -42,7 +42,7 @@ class TestHistoricalDataDownloader(unittest.TestCase):
         self.assertTrue(hasattr(self.downloader, "client"))
         self.assertEqual(self.downloader.data_dir, self.test_dir)
 
-    @patch("data.download_historical.time.sleep")  # Mock sleep to speed up tests
+    @patch("crypto.data.download_historical.time.sleep")  # Mock sleep to speed up tests
     def test_download_perpetual_data(self, mock_sleep):
         """Test downloading perpetual data."""
         # Mock the client's get_ticker method
@@ -146,7 +146,7 @@ class TestHistoricalDataDownloader(unittest.TestCase):
             self.assertIn("mark_iv", df.columns)
             self.assertIn("delta", df.columns)
 
-    @patch("data.download_historical.time.sleep")
+    @patch("crypto.data.download_historical.time.sleep")
     def test_download_sample_dataset(self, mock_sleep):
         """Test downloading sample dataset."""
         # Mock ticker data

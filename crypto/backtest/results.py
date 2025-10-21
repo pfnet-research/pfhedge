@@ -1,12 +1,15 @@
 """Results container for backtesting framework."""
 
-from typing import Dict, Optional, Any
+from typing import Dict, Optional, Any, TYPE_CHECKING
 import json
 from datetime import datetime
 from pathlib import Path
 import torch
 from torch import Tensor
 import numpy as np
+
+if TYPE_CHECKING:
+    from .config import BacktestConfig
 
 from .metrics import (
     calculate_sharpe_ratio,
@@ -58,7 +61,7 @@ class BacktestResults:
         deep_positions: Tensor,
         bs_positions: Tensor,
         spots: Tensor,
-        config: Optional[object] = None,
+        config: Optional["BacktestConfig"] = None,
     ):
         """Initialize results container.
 

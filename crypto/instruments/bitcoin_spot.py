@@ -1,12 +1,15 @@
 """
 Bitcoin spot instrument for PFHedge.
 """
-from typing import Optional, Tuple
+from typing import Optional, Tuple, TYPE_CHECKING
 import pandas as pd
 import torch
 
 from pfhedge._utils.typing import TensorOrScalar
 from .bitcoin_base import BitcoinBase
+
+if TYPE_CHECKING:
+    from crypto.data.loader import CryptoDataLoader
 
 
 class BitcoinSpot(BitcoinBase):
@@ -46,7 +49,7 @@ class BitcoinSpot(BitcoinBase):
         self,
         cost: float = 0.001,  # Higher cost for spot (wider spreads)
         dt: float = 1 / 24 / 12,  # 5-minute bars
-        data_loader: Optional[object] = None,
+        data_loader: Optional["CryptoDataLoader"] = None,
         dtype: Optional[torch.dtype] = None,
         device: Optional[torch.device] = None,
     ) -> None:

@@ -277,6 +277,64 @@ def calculate_all_metrics(
     return metrics
 
 
+def format_metrics(metrics: dict, name: str = "Strategy") -> str:
+    """Format metrics dictionary as a string.
+
+    Args:
+        metrics: Dictionary of metrics from calculate_all_metrics()
+        name: Name of the strategy (for display)
+
+    Returns:
+        Formatted metrics string
+
+    Examples:
+        >>> metrics = calculate_all_metrics(pnl)
+        >>> formatted = format_metrics(metrics, name="Deep Hedge")
+        >>> print(formatted)
+    """
+    lines = []
+    lines.append(f"\n{'='*50}")
+    lines.append(f"{name} Performance Metrics")
+    lines.append(f"{'='*50}")
+
+    # Basic statistics
+    lines.append(f"\n{'Basic Statistics':^50}")
+    lines.append(f"{'-'*50}")
+    lines.append(f"{'Mean PnL':<30} ${metrics['mean']:>15.2f}")
+    lines.append(f"{'Std Dev':<30} ${metrics['std']:>15.2f}")
+    lines.append(f"{'Median PnL':<30} ${metrics['median']:>15.2f}")
+    lines.append(f"{'Min PnL':<30} ${metrics['min']:>15.2f}")
+    lines.append(f"{'Max PnL':<30} ${metrics['max']:>15.2f}")
+
+    # Risk-adjusted returns
+    lines.append(f"\n{'Risk-Adjusted Returns':^50}")
+    lines.append(f"{'-'*50}")
+    lines.append(f"{'Sharpe Ratio':<30} {metrics['sharpe_ratio']:>18.3f}")
+    lines.append(f"{'Sortino Ratio':<30} {metrics['sortino_ratio']:>18.3f}")
+    if "calmar_ratio" in metrics:
+        lines.append(f"{'Calmar Ratio':<30} {metrics['calmar_ratio']:>18.3f}")
+
+    # Risk metrics
+    lines.append(f"\n{'Risk Metrics':^50}")
+    lines.append(f"{'-'*50}")
+    for key in metrics:
+        if "cvar" in key:
+            lines.append(f"{key.upper():<30} ${metrics[key]:>15.2f}")
+        elif "var" in key:
+            lines.append(f"{key.upper():<30} ${metrics[key]:>15.2f}")
+    if "max_drawdown" in metrics:
+        lines.append(f"{'Max Drawdown':<30} ${metrics['max_drawdown']:>15.2f}")
+
+    # Performance metrics
+    lines.append(f"\n{'Performance Metrics':^50}")
+    lines.append(f"{'-'*50}")
+    lines.append(f"{'Win Rate':<30} {metrics['win_rate']:>17.1%}")
+
+    lines.append(f"\n{'='*50}\n")
+
+    return "\n".join(lines)
+
+
 def print_metrics(metrics: dict, name: str = "Strategy") -> None:
     """Pretty print metrics dictionary.
 
@@ -288,41 +346,4 @@ def print_metrics(metrics: dict, name: str = "Strategy") -> None:
         >>> metrics = calculate_all_metrics(pnl)
         >>> print_metrics(metrics, name="Deep Hedge")
     """
-    print(f"\n{'='*50}")
-    print(f"{name} Performance Metrics")
-    print(f"{'='*50}")
-
-    # Basic statistics
-    print(f"\n{'Basic Statistics':^50}")
-    print(f"{'-'*50}")
-    print(f"{'Mean PnL':<30} ${metrics['mean']:>15.2f}")
-    print(f"{'Std Dev':<30} ${metrics['std']:>15.2f}")
-    print(f"{'Median PnL':<30} ${metrics['median']:>15.2f}")
-    print(f"{'Min PnL':<30} ${metrics['min']:>15.2f}")
-    print(f"{'Max PnL':<30} ${metrics['max']:>15.2f}")
-
-    # Risk-adjusted returns
-    print(f"\n{'Risk-Adjusted Returns':^50}")
-    print(f"{'-'*50}")
-    print(f"{'Sharpe Ratio':<30} {metrics['sharpe_ratio']:>18.3f}")
-    print(f"{'Sortino Ratio':<30} {metrics['sortino_ratio']:>18.3f}")
-    if "calmar_ratio" in metrics:
-        print(f"{'Calmar Ratio':<30} {metrics['calmar_ratio']:>18.3f}")
-
-    # Risk metrics
-    print(f"\n{'Risk Metrics':^50}")
-    print(f"{'-'*50}")
-    for key in metrics:
-        if "cvar" in key:
-            print(f"{key.upper():<30} ${metrics[key]:>15.2f}")
-        elif "var" in key:
-            print(f"{key.upper():<30} ${metrics[key]:>15.2f}")
-    if "max_drawdown" in metrics:
-        print(f"{'Max Drawdown':<30} ${metrics['max_drawdown']:>15.2f}")
-
-    # Performance metrics
-    print(f"\n{'Performance Metrics':^50}")
-    print(f"{'-'*50}")
-    print(f"{'Win Rate':<30} {metrics['win_rate']:>17.1%}")
-
-    print(f"\n{'='*50}\n")
+    print(format_metrics(metrics, name))

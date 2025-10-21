@@ -3,7 +3,7 @@ Abstract base class for Bitcoin instruments.
 """
 from abc import abstractmethod
 from math import ceil
-from typing import Optional, Tuple
+from typing import Optional, Tuple, TYPE_CHECKING
 import torch
 from torch import Tensor
 import pandas as pd
@@ -11,6 +11,9 @@ import numpy as np
 
 from pfhedge.instruments import BasePrimary
 from pfhedge._utils.typing import TensorOrScalar
+
+if TYPE_CHECKING:
+    from crypto.data.loader import CryptoDataLoader
 
 
 class BitcoinBase(BasePrimary):
@@ -31,7 +34,7 @@ class BitcoinBase(BasePrimary):
         self,
         cost: float = 0.0,
         dt: float = 1 / 24 / 12,  # 5-minute bars
-        data_loader: Optional[object] = None,
+        data_loader: Optional["CryptoDataLoader"] = None,
         dtype: Optional[torch.dtype] = None,
         device: Optional[torch.device] = None,
     ) -> None:

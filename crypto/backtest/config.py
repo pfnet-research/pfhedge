@@ -344,6 +344,73 @@ class BacktestConfig:
 
         return provenance
 
+    def compute_provenance_hash(self) -> str:
+        """Compute unique hash for this backtest configuration.
+
+        This hash uniquely identifies the configuration and data sources,
+        useful for tracking experiments and ensuring reproducibility.
+
+        The hash includes:
+        - Configuration parameters (sorted for consistency)
+        - Model checkpoint hash (if file exists)
+        - Git commit (if in git repo)
+        - Platform and Python version
+
+        Returns:
+            16-character hex hash string
+
+        Examples:
+            >>> config = BacktestConfig.load_yaml("config.yaml")
+            >>> hash1 = config.compute_provenance_hash()
+            >>> print(hash1)  # e.g., "a3f5d2c1b9e8f7a6"
+
+            >>> # Same config should produce same hash
+            >>> config2 = BacktestConfig.load_yaml("config.yaml")
+            >>> hash2 = config2.compute_provenance_hash()
+            >>> assert hash1 == hash2
+        """
+        import hashlib
+        import json
+
+        provenance = self.get_provenance_info()
+
+        # Build components for hash
+        components = []
+
+        # 1. Config (sorted for consistency)
+        config_str = json.dumps(self.to_dict(), sort_keys=True)
+        components.append(config_str)
+
+        # 2. Model file hash (if exists)
+        model_path = Path(self.model_path)
+        if model_path.exists() and model_path.is_file():
+            try:
+                with open(model_path, "rb") as f:
+                    # Read in chunks for large files
+                    file_hasher = hashlib.sha256()
+                    while chunk := f.read(8192):
+                        file_hasher.update(chunk)
+                    model_hash = file_hasher.hexdigest()[:16]
+                    components.append(f"model:{model_hash}")
+            except (OSError, IOError):
+                # File not readable, skip
+                pass
+
+        # 3. Git commit (if available)
+        if provenance["git_commit"]:
+            components.append(f"git:{provenance['git_commit'][:8]}")
+
+        # 4. Platform and Python version (for reproducibility tracking)
+        components.append(f"platform:{provenance['platform']}")
+        components.append(f"python:{provenance['python_version']}")
+
+        # Combine all components and hash
+        combined = "|".join(components)
+        full_hash = hashlib.sha256(combined.encode("utf-8")).hexdigest()
+
+        # Return first 16 characters (sufficient for uniqueness in practice)
+        return full_hash[:16]
+
     def __repr__(self) -> str:
         """String representation."""
         return (

@@ -1,12 +1,15 @@
 """
 Bitcoin perpetual futures instrument for PFHedge.
 """
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 import pandas as pd
 import torch
 from torch import Tensor
 
 from .bitcoin_base import BitcoinBase
+
+if TYPE_CHECKING:
+    from crypto.data.loader import CryptoDataLoader
 
 
 class BitcoinPerpetual(BitcoinBase):
@@ -54,7 +57,7 @@ class BitcoinPerpetual(BitcoinBase):
         cost: float = 0.0006,  # Lower cost for perpetual (taker fee)
         dt: float = 1 / 24 / 12,  # 5-minute bars
         leverage: float = 20.0,  # Maximum leverage
-        data_loader: Optional[object] = None,
+        data_loader: Optional["CryptoDataLoader"] = None,
         dtype: Optional[torch.dtype] = None,
         device: Optional[torch.device] = None,
     ) -> None:
