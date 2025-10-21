@@ -623,6 +623,100 @@ output_dir: ../results
         assert config.data_dir == expected_data
         assert config.output_dir == expected_output
 
+    def test_no_double_path_resolution(self, tmp_path):
+        """Test that backtester doesn't double-resolve data_dir path.
+
+        This is a regression test for the path resolution bug where:
+        1. BacktestConfig.load_yaml() resolved paths relative to config file
+        2. Backtester.load_data() then resolved them again relative to crypto/data/
+
+        The bug caused paths like "sample_data" to become
+        "crypto/data/crypto/backtest/sample_data" (incorrect).
+
+        The fix ensures Backtester trusts the already-resolved path from config.
+        """
+        pytest.importorskip("yaml")
+
+        # Create directory structure:
+        # tmp_path/
+        #   configs/
+        #     test_config.yaml
+        #   data/
+        #     my_data/
+        #       btc_perpetual.parquet
+
+        config_dir = tmp_path / "configs"
+        config_dir.mkdir()
+
+        data_dir = tmp_path / "data" / "my_data"
+        data_dir.mkdir(parents=True)
+
+        # Create minimal parquet data with required columns
+        # Need enough data to span the date range (2024-01-01 to 2024-01-02)
+        df = pd.DataFrame(
+            {
+                "timestamp": pd.date_range("2024-01-01", periods=50, freq="h"),
+                "open": [50000.0] * 50,
+                "high": [50100.0] * 50,
+                "low": [49900.0] * 50,
+                "close": [50000.0] * 50,
+                "volume": [100.0] * 50,
+                "last_price": [50000.0] * 50,
+                "bid_price": [49995.0] * 50,
+                "ask_price": [50005.0] * 50,
+                "mid_price": [50000.0] * 50,
+            }
+        )
+        parquet_file = data_dir / "btc_perpetual.parquet"
+        df.to_parquet(parquet_file)
+
+        # Create YAML config with relative path to data
+        yaml_content = f"""
+start_date: '2024-01-01'
+end_date: '2024-01-02'
+strike: 50000
+maturity_days: 1
+model_path: ../models/model.pth
+data_dir: ../data/my_data
+"""
+
+        yaml_path = config_dir / "test_config.yaml"
+        with open(yaml_path, "w") as f:
+            f.write(yaml_content)
+
+        # Load config - this should resolve data_dir to tmp_path/data/my_data
+        config = BacktestConfig.load_yaml(str(yaml_path))
+
+        # Verify config resolved the path correctly
+        expected_data_dir = str(data_dir.resolve())
+        assert config.data_dir == expected_data_dir, (
+            f"Config should resolve ../data/my_data to {expected_data_dir}, "
+            f"got {config.data_dir}"
+        )
+
+        # Create backtester with the config
+        backtester = Backtester(config)
+
+        # The critical test: backtester.load_data() should NOT double-resolve the path
+        # It should trust config.data_dir and find the data successfully
+        try:
+            loader = backtester.load_data()
+            # If we get here, the path was used correctly (no double resolution)
+            assert loader is not None
+            assert loader.perpetual_data is not None
+            assert len(loader.perpetual_data) > 0
+
+            # Verify the data was loaded from the correct location
+            # (the path in config, not some double-resolved version)
+            print(f"✅ Successfully loaded data from: {config.data_dir}")
+
+        except FileNotFoundError as e:
+            # If this fails, it likely means the path was double-resolved
+            pytest.fail(
+                f"Backtester failed to load data from {config.data_dir}. "
+                f"This suggests double path resolution bug has regressed. Error: {e}"
+            )
+
     def test_get_provenance_info(self):
         """Test provenance information gathering."""
         config = BacktestConfig(
