@@ -382,24 +382,28 @@ class Trainer:
             f"   BS baseline PnL: ${bs_pnl[:, -1].mean().item():.2f} ± ${bs_pnl[:, -1].std().item():.2f}"
         )
 
+        # Extract metrics from comparison results
+        # compare_hedge_performance returns: {"Deep Hedge": {...}, "Black-Scholes": {...}}
+        deep_results = results["Deep Hedge"]
+        bs_results = results["Black-Scholes"]
+
         # Store evaluation results
         test_metrics = {
             "deep_hedge": {
-                "mean_pnl": deep_pnl[:, -1].mean().item(),
-                "std_pnl": deep_pnl[:, -1].std().item(),
-                "sharpe_ratio": results["deep_sharpe"],
-                "sortino_ratio": results.get("deep_sortino", None),
+                "mean_pnl": deep_results["mean"],
+                "std_pnl": deep_results["std"],
+                "sharpe_ratio": deep_results["sharpe"],
+                "sortino_ratio": None,  # Not computed by compare_hedge_performance
             },
             "bs_baseline": {
-                "mean_pnl": bs_pnl[:, -1].mean().item(),
-                "std_pnl": bs_pnl[:, -1].std().item(),
-                "sharpe_ratio": results["bs_sharpe"],
-                "sortino_ratio": results.get("bs_sortino", None),
+                "mean_pnl": bs_results["mean"],
+                "std_pnl": bs_results["std"],
+                "sharpe_ratio": bs_results["sharpe"],
+                "sortino_ratio": None,  # Not computed by compare_hedge_performance
             },
             "comparison": {
-                "sharpe_improvement": results["deep_sharpe"] - results["bs_sharpe"],
-                "mean_pnl_improvement": deep_pnl[:, -1].mean().item()
-                - bs_pnl[:, -1].mean().item(),
+                "sharpe_improvement": deep_results["sharpe"] - bs_results["sharpe"],
+                "mean_pnl_improvement": deep_results["mean"] - bs_results["mean"],
             },
         }
 
