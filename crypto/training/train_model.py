@@ -163,35 +163,7 @@ def main():
 
     args = parser.parse_args()
 
-    # ========== Early Device Validation ==========
-
-    # Check if CUDA is requested but not available
-    if "cuda" in args.device.lower():
-        import torch
-
-        if not torch.cuda.is_available():
-            print("\n" + "=" * 70)
-            print("❌ CUDA ERROR")
-            print("=" * 70)
-            print(
-                f"\nCUDA device requested (--device {args.device}), but CUDA is not available."
-            )
-            print("\nPossible causes:")
-            print("  • PyTorch not installed with CUDA support")
-            print("  • No NVIDIA GPU detected")
-            print("  • CUDA drivers not properly installed")
-            print("\nSuggestions:")
-            print("  • Use --device cpu for CPU training")
-            print("  • Reinstall PyTorch with CUDA support: https://pytorch.org/")
-            print("  • Check GPU availability: nvidia-smi")
-            print("=" * 70 + "\n")
-            return 1
-
     # ========== Create Configuration ==========
-
-    print("\n" + "=" * 70)
-    print("BITCOIN DEEP HEDGING - MODEL TRAINING")
-    print("=" * 70)
 
     # Determine call/put
     is_call = not args.put  # Put overrides call
@@ -219,36 +191,30 @@ def main():
         device=args.device,
     )
 
-    print(f"\nConfiguration:")
-    print(f"  Option: {'Call' if config.call else 'Put'} @ ${config.strike:,.0f}")
-    print(f"  Maturity: {config.maturity_days} days")
-    print(f"  Volatility: {config.volatility:.1%}")
-    print(f"  Transaction cost: {config.transaction_cost:.2%}")
-    print(f"  Time step: {config.dt_hours} hours")
-    print(f"\nTraining:")
-    print(f"  Paths: {config.n_paths:,}")
-    print(f"  Epochs: {config.n_epochs}")
-    print(f"  Seed: {config.train_seed}")
-    print(f"\nModel:")
-    print(f"  Architecture: {config.n_layers} layers × {config.n_units} units")
-    print(f"  Risk measure: {config.risk_measure} (param={config.risk_param})")
-    print(f"  Device: {config.device}")
-    print(f"\nOutput:")
-    print(f"  Model: {config.model_path}")
-    print(f"  Results: {config.output_dir}/")
-    print("=" * 70)
-
     # Validate configuration
     try:
         config.validate()
     except ValueError as e:
-        print(f"\n❌ Configuration error: {e}")
+        print("\n" + "=" * 70)
+        print("❌ CONFIGURATION ERROR")
+        print("=" * 70)
+        print(f"\n{e}")
+        print("=" * 70 + "\n")
         return 1
 
     # ========== Train Model ==========
 
-    # Create trainer
-    trainer = Trainer(config)
+    # Create trainer with verbose=True for CLI output
+    # (CUDA availability checked here)
+    try:
+        trainer = Trainer(config, verbose=True)
+    except ValueError as e:
+        print("\n" + "=" * 70)
+        print("❌ DEVICE ERROR")
+        print("=" * 70)
+        print(f"\n{e}")
+        print("=" * 70 + "\n")
+        return 1
 
     # Run training
     try:
@@ -259,36 +225,7 @@ def main():
         results_file = os.path.join(config.output_dir, "training_results.json")
         results.to_json(results_file, include_raw=True, indent=2)
 
-        print(f"\n✅ Training results saved to: {results_file}")
-
-        # Print final summary
-        summary = results.summary()
-        print("\n" + "=" * 70)
-        print("SUCCESS!")
-        print("=" * 70)
-        print(f"\nFinal Training Loss: {summary['final_loss']:.6f}")
-        print(f"Improvement: {summary['improvement_pct']:.1f}%")
-
-        test_metrics = summary["test_metrics"]
-        deep = test_metrics["deep_hedge"]
-        bs = test_metrics["bs_baseline"]
-
-        print(f"\nTest Performance:")
-        print(
-            f"  Deep hedge: ${deep['mean_pnl']:,.2f} ± ${deep['std_pnl']:,.2f} (Sharpe: {deep['sharpe_ratio']:.3f})"
-        )
-        print(
-            f"  BS baseline: ${bs['mean_pnl']:,.2f} ± ${bs['std_pnl']:,.2f} (Sharpe: {bs['sharpe_ratio']:.3f})"
-        )
-
-        improvement = test_metrics["comparison"]["mean_pnl_improvement"]
-        sharpe_improvement = test_metrics["comparison"]["sharpe_improvement"]
-        print(
-            f"  Improvement: ${improvement:+,.2f} (Sharpe: {sharpe_improvement:+.3f})"
-        )
-
-        print(f"\nModel saved to: {results.model_path}")
-        print("=" * 70 + "\n")
+        print(f"✅ Training results saved to: {results_file}\n")
 
         return 0
 

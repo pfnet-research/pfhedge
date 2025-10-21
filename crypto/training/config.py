@@ -164,7 +164,7 @@ class TrainingConfig:
         if self.test_n_paths <= 0:
             raise ValueError(f"test_n_paths must be positive, got {self.test_n_paths}")
 
-        # Validate device
+        # Validate device (syntax only - availability checked when actually used)
         valid_devices = ["cpu", "cuda", "mps"]
         device_base = self.device.split(":")[0]  # Handle "cuda:0", "cuda:1", etc.
         if device_base not in valid_devices:
