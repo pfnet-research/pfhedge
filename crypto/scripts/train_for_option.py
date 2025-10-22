@@ -1,0 +1,348 @@
+#!/usr/bin/env python3
+"""
+Train Deep Hedging Model for Specific Option
+
+Trains a model using parameters from a selected option (from explore_options.py).
+This allows training with realistic market-derived parameters.
+
+Usage:
+    # Train for specific option from exploration results
+    python crypto/scripts/train_for_option.py \
+        --option-file options_candidates.json \
+        --instrument BTC-29OCT24-50000-C \
+        --output models/oct29_50k_call
+
+    # Override training parameters
+    python crypto/scripts/train_for_option.py \
+        --option-file options_candidates.json \
+        --instrument BTC-29OCT24-50000-C \
+        --epochs 200 \
+        --paths 100000 \
+        --output models/oct29_50k_call_v2
+
+    # Use volatility override instead of IV from premium
+    python crypto/scripts/train_for_option.py \
+        --option-file options_candidates.json \
+        --instrument BTC-29OCT24-50000-C \
+        --vol 0.9 \
+        --output models/oct29_50k_call_highvol
+"""
+
+import argparse
+import json
+import sys
+from pathlib import Path
+import logging
+
+# Add parent directory to path
+sys.path.append(str(Path(__file__).parent.parent.parent))
+
+from crypto.training import TrainingConfig, Trainer
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
+
+
+def load_option_from_file(option_file: str, instrument_name: str) -> dict:
+    """
+    Load specific option from exploration results file.
+
+    Args:
+        option_file: Path to JSON file from explore_options.py
+        instrument_name: Instrument name to select (e.g., BTC-29OCT24-50000-C)
+
+    Returns:
+        Option metadata dictionary
+
+    Raises:
+        FileNotFoundError: If file doesn't exist
+        ValueError: If instrument not found in file
+    """
+    with open(option_file, "r") as f:
+        data = json.load(f)
+
+    # Handle both formats: direct list or wrapped in 'options' key
+    options = data if isinstance(data, list) else data.get("options", [])
+
+    # Find matching instrument
+    for opt in options:
+        if opt["instrument_name"] == instrument_name:
+            return opt
+
+    # If not found, show available instruments
+    available = [opt["instrument_name"] for opt in options]
+    raise ValueError(
+        f"Instrument '{instrument_name}' not found in {option_file}\n"
+        f"Available instruments:\n" + "\n".join(f"  - {name}" for name in available)
+    )
+
+
+def create_training_config_from_option(
+    option: dict,
+    output_dir: str,
+    epochs: int = 100,
+    paths: int = 50000,
+    layers: int = 4,
+    units: int = 128,
+    risk_measure: str = "expected_shortfall",
+    risk_param: float = 0.9,
+    transaction_cost: float = 0.0006,
+    dt_hours: float = 8.0,
+    volatility_override: float = None,
+    seed: int = 42,
+) -> TrainingConfig:
+    """
+    Create training configuration from option metadata.
+
+    Args:
+        option: Option metadata from explore_options.py
+        output_dir: Directory to save model and results
+        epochs: Number of training epochs
+        paths: Number of training paths
+        layers: Number of hidden layers
+        units: Units per layer
+        risk_measure: Risk measure to optimize
+        risk_param: Risk parameter (e.g., CVaR alpha)
+        transaction_cost: Transaction cost rate
+        dt_hours: Time step in hours
+        volatility_override: Override IV (if None, uses option's IV)
+        seed: Random seed
+
+    Returns:
+        TrainingConfig instance
+    """
+    # Extract option parameters
+    strike = option["strike"]
+    maturity_days = option["days_to_expiry"]
+    is_call = option["option_type"] == "call"
+
+    # Use volatility override or option's IV
+    if volatility_override is not None:
+        volatility = volatility_override
+        logger.info(f"Using volatility override: {volatility:.1%}")
+    elif option.get("implied_volatility"):
+        volatility = option["implied_volatility"]
+        logger.info(f"Using implied volatility from premium: {volatility:.1%}")
+    else:
+        volatility = 0.8  # Default fallback
+        logger.warning(f"No IV available, using default: {volatility:.1%}")
+
+    # Create model path
+    model_path = Path(output_dir) / "model.pth"
+    model_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Create config
+    config = TrainingConfig(
+        strike=strike,
+        maturity_days=maturity_days,
+        call=is_call,
+        volatility=volatility,
+        transaction_cost=transaction_cost,
+        dt_hours=dt_hours,
+        n_paths=paths,
+        n_epochs=epochs,
+        n_layers=layers,
+        n_units=units,
+        risk_measure=risk_measure,
+        risk_param=risk_param,
+        model_path=str(model_path),
+        output_dir=output_dir,
+        train_seed=seed,
+        test_seed=seed + 1,
+    )
+
+    return config
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Train deep hedging model for specific option",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=__doc__,
+    )
+
+    # Required arguments
+    parser.add_argument(
+        "--option-file", required=True, help="JSON file from explore_options.py"
+    )
+    parser.add_argument(
+        "--instrument",
+        required=True,
+        help="Instrument name to train for (e.g., BTC-29OCT24-50000-C)",
+    )
+
+    # Output
+    parser.add_argument(
+        "--output",
+        "-o",
+        default="models/trained_model",
+        help="Output directory for model and results (default: models/trained_model)",
+    )
+
+    # Training parameters
+    parser.add_argument(
+        "--epochs",
+        type=int,
+        default=100,
+        help="Number of training epochs (default: 100)",
+    )
+    parser.add_argument(
+        "--paths",
+        type=int,
+        default=50000,
+        help="Number of training paths (default: 50000)",
+    )
+    parser.add_argument(
+        "--layers", type=int, default=4, help="Number of hidden layers (default: 4)"
+    )
+    parser.add_argument(
+        "--units", type=int, default=128, help="Units per layer (default: 128)"
+    )
+    parser.add_argument(
+        "--risk-measure",
+        choices=["expected_shortfall", "variance", "cvar", "entropic"],
+        default="expected_shortfall",
+        help="Risk measure to optimize (default: expected_shortfall)",
+    )
+    parser.add_argument(
+        "--risk-param",
+        type=float,
+        default=0.9,
+        help="Risk parameter, e.g., CVaR alpha (default: 0.9)",
+    )
+
+    # Market parameters
+    parser.add_argument(
+        "--cost",
+        type=float,
+        default=0.0006,
+        help="Transaction cost rate (default: 0.0006 = 0.06%%)",
+    )
+    parser.add_argument(
+        "--dt-hours",
+        type=float,
+        default=8.0,
+        help="Time step in hours (default: 8.0, aligned with funding)",
+    )
+
+    # Overrides
+    parser.add_argument(
+        "--vol",
+        "--volatility",
+        type=float,
+        dest="volatility",
+        help="Override volatility (if not specified, uses IV from option)",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=42,
+        help="Random seed for reproducibility (default: 42)",
+    )
+
+    args = parser.parse_args()
+
+    # Load option from file
+    try:
+        option = load_option_from_file(args.option_file, args.instrument)
+    except FileNotFoundError:
+        print(f"\nError: Option file not found: {args.option_file}")
+        print("Run explore_options.py first to generate option candidates.\n")
+        return 1
+    except ValueError as e:
+        print(f"\nError: {e}\n")
+        return 1
+
+    # Print option details
+    print("\n" + "=" * 80)
+    print("TRAINING DEEP HEDGING MODEL")
+    print("=" * 80)
+    print(f"\nSelected Option:")
+    print(f"  Instrument: {option['instrument_name']}")
+    print(f"  Type: {option['option_type'].upper()}")
+    print(f"  Strike: ${option['strike']:,.2f}")
+    print(f"  Initial spot: ${option['initial_spot']:,.2f}")
+    print(f"  Moneyness: {option['moneyness']:.3f}")
+    print(f"  Days to expiry: {option['days_to_expiry']}")
+    print(f"  Premium: {option['premium_btc']:.4f} BTC (${option['premium_usd']:,.2f})")
+    if option.get("implied_volatility"):
+        print(f"  Implied volatility: {option['implied_volatility']:.1%}")
+
+    print(f"\nTraining Parameters:")
+    print(f"  Epochs: {args.epochs}")
+    print(f"  Training paths: {args.paths:,}")
+    print(f"  Architecture: {args.layers} layers × {args.units} units")
+    print(f"  Risk measure: {args.risk_measure} ({args.risk_param})")
+    print(f"  Transaction cost: {args.cost:.2%}")
+    print(f"  Time step: {args.dt_hours} hours")
+    print(f"  Random seed: {args.seed}")
+
+    print(f"\nOutput:")
+    print(f"  Directory: {args.output}")
+    print("=" * 80 + "\n")
+
+    # Create training config
+    config = create_training_config_from_option(
+        option=option,
+        output_dir=args.output,
+        epochs=args.epochs,
+        paths=args.paths,
+        layers=args.layers,
+        units=args.units,
+        risk_measure=args.risk_measure,
+        risk_param=args.risk_param,
+        transaction_cost=args.cost,
+        dt_hours=args.dt_hours,
+        volatility_override=args.volatility,
+        seed=args.seed,
+    )
+
+    # Validate config
+    try:
+        config.validate()
+    except ValueError as e:
+        print(f"\nError: Invalid configuration: {e}\n")
+        return 1
+
+    # Train model
+    try:
+        trainer = Trainer(config, verbose=True)
+        results = trainer.train(seed=args.seed)
+
+        # Save training results
+        results_path = Path(args.output) / "training_results.json"
+        results.to_json(str(results_path), include_raw=True, indent=2)
+
+        # Save option metadata for reference
+        option_path = Path(args.output) / "option_metadata.json"
+        with open(option_path, "w") as f:
+            json.dump(option, f, indent=2, default=str)
+
+        print("\n" + "=" * 80)
+        print("TRAINING COMPLETE")
+        print("=" * 80)
+        print(f"\nFiles saved:")
+        print(f"  Model: {config.model_path}")
+        print(f"  Results: {results_path}")
+        print(f"  Option metadata: {option_path}")
+        print("\nNext step:")
+        print(
+            f"  Run backtest using: python -m crypto.backtest.run --model-path {config.model_path}"
+        )
+        print("=" * 80 + "\n")
+
+        return 0
+
+    except Exception as e:
+        print(f"\nError during training: {e}")
+        import traceback
+
+        traceback.print_exc()
+        return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -1,0 +1,39 @@
+# Test configuration using existing sample data
+#
+# This configuration is for testing the pipeline with the sample data
+# that's already in the repository.
+
+# Use dates that match our sample data
+trade_date: "2025-09-20 12:00"  # Within our sample data range
+expiry_date: "2025-09-22"      # 2 days later (sample data only has 3 days)
+lookback_start: "2025-09-20"   # Same as trade date due to limited data
+
+# Option selection - will use simulated since we don't have real option data
+option_type: "call"
+moneyness_target: 1.0
+min_trade_count: 1  # Low threshold for testing
+
+# Market parameters
+transaction_cost: 0.0006
+dt_hours: 8.0  # Aligned with funding intervals (recommended)
+
+# Small training for quick testing
+training:
+  n_paths: 1000   # Small for testing
+  n_epochs: 10    # Quick training
+  n_layers: 3
+  n_units: 64
+  risk_measure: "expected_shortfall"
+  risk_param: 0.9
+
+# Small backtest for testing
+backtest:
+  n_bootstrap_paths: 50  # Small for testing
+
+# Use sample data directory
+data_dir: "crypto/backtest/sample_data"
+output_dir: "test_results"
+
+# Testing settings
+seed: 42
+testnet: true  # Use testnet for testing

@@ -1,0 +1,43 @@
+# Configuration for Realistic Backtesting
+#
+# This configuration file demonstrates how to run a realistic backtest
+# that simulates selling an option on Deribit and hedging it until expiry.
+
+# Date configuration
+trade_date: "2024-10-01 12:00"  # When to trade the option (UTC)
+expiry_date: "2024-10-15"      # Option expiry date
+lookback_start: "2024-09-15"   # Start of lookback period for volatility estimation
+
+# Option selection criteria
+option_type: "call"             # Type of option to sell ("call" or "put")
+moneyness_target: 1.0          # Target moneyness (1.0 = ATM, >1 = ITM for calls, <1 = OTM)
+min_trade_count: 10            # Minimum trades for liquidity filter
+
+# Market parameters
+transaction_cost: 0.0006       # Deribit taker fee (0.06%)
+dt_hours: 8.0                  # Rebalancing frequency (8 hours = funding interval)
+
+# Training configuration
+training:
+  n_paths: 50000               # Number of Monte Carlo paths for training
+  n_epochs: 100                # Training epochs
+  n_layers: 4                  # Neural network layers
+  n_units: 128                 # Units per layer
+  risk_measure: "expected_shortfall"  # Risk measure for training
+  risk_param: 0.9              # CVaR level (90%)
+
+# Backtesting configuration
+backtest:
+  n_bootstrap_paths: 1000      # Number of bootstrap paths for backtest
+
+# Data and output directories
+data_dir: "crypto/data/historical"      # Where to store/find historical data
+output_dir: "backtest_results"          # Where to save results
+
+# Execution settings
+seed: 42                       # Random seed for reproducibility
+testnet: false                 # Use mainnet data (set true for testnet)
+
+# Advanced settings (optional)
+# funding_rate: 0.0001         # Override funding rate if needed
+# volatility_override: 0.8     # Override implied vol if IV calculation fails

@@ -24,6 +24,7 @@ class CryptoDataLoader:
         self.data_dir = Path(data_dir)
         self.perpetual_data = None
         self.options_data = None
+        self.funding_data = None
 
     def load_perpetual_data(self, filename: Optional[str] = None) -> pd.DataFrame:
         """
@@ -83,6 +84,37 @@ class CryptoDataLoader:
         self.options_data = df
         return df
 
+    def load_funding_data(self, filename: Optional[str] = None) -> pd.DataFrame:
+        """
+        Load funding rate data.
+
+        Args:
+            filename: Specific file to load, or None for default
+
+        Returns:
+            DataFrame with processed funding rate data
+        """
+        if filename is None:
+            # Look for funding file
+            files = list(self.data_dir.glob("*funding*.parquet"))
+            if not files:
+                # Funding data is optional
+                return pd.DataFrame()
+            filename = files[0]
+        else:
+            filename = self.data_dir / filename
+
+        print(f"Loading funding data from {filename}")
+        df = pd.read_parquet(filename)
+
+        # Ensure timestamp is datetime
+        if "timestamp" in df.columns:
+            df["timestamp"] = pd.to_datetime(df["timestamp"])
+            df = df.sort_values("timestamp").reset_index(drop=True)
+
+        self.funding_data = df
+        return df
+
     def _process_perpetual_data(self, df: pd.DataFrame) -> pd.DataFrame:
         """Process perpetual contract data."""
         # Ensure timestamp is datetime
@@ -90,12 +122,16 @@ class CryptoDataLoader:
             df["timestamp"] = pd.to_datetime(df["timestamp"])
             df = df.sort_values("timestamp").reset_index(drop=True)
 
+        # Handle OHLC-only files: use 'close' as fallback for 'last_price'
+        if "last_price" not in df.columns and "close" in df.columns:
+            df["last_price"] = df["close"]
+
         # Calculate basic features
         if "last_price" in df.columns:
             df["returns"] = df["last_price"].pct_change()
             df["log_returns"] = np.log(df["last_price"] / df["last_price"].shift(1))
 
-        # Calculate bid-ask spread
+        # Calculate bid-ask spread (may not exist in OHLC data)
         if "bid_price" in df.columns and "ask_price" in df.columns:
             df["spread"] = df["ask_price"] - df["bid_price"]
             df["mid_price"] = (df["bid_price"] + df["ask_price"]) / 2
@@ -172,12 +208,18 @@ class CryptoDataLoader:
         # Set timestamp as index for resampling
         df = df.set_index("timestamp")
 
+        # Determine which price columns exist (handle OHLC-only files)
+        price_cols = []
+        for col in ["last_price", "bid_price", "ask_price", "mid_price"]:
+            if col in df.columns:
+                price_cols.append(col)
+
+        # If we have OHLC data but no bid/ask, just use last_price
+        if not price_cols and "last_price" in df.columns:
+            price_cols = ["last_price"]
+
         # Resample to specified frequency
-        price_series = (
-            df[["last_price", "bid_price", "ask_price", "mid_price"]]
-            .resample(frequency)
-            .last()
-        )
+        price_series = df[price_cols].resample(frequency).last()
 
         # Forward fill missing values
         price_series = price_series.ffill()

@@ -1,0 +1,59 @@
+# Example Backtest Configuration
+#
+# This config is for Step 3 of the interactive workflow.
+# Use after training a model with train_for_option.py
+#
+# Usage:
+#   python -m crypto.backtest.run --config backtest_example.yaml --seed 42
+
+# ==============================================================================
+# DATES
+# ==============================================================================
+start_date: "2024-10-15"  # When option was "sold"
+end_date: "2024-10-29"    # Option expiry
+
+# ==============================================================================
+# OPTION PARAMETERS
+# ==============================================================================
+# These should match the option you selected in Step 1
+strike: 50000
+maturity_days: 14
+call: true  # true for call, false for put
+
+# ==============================================================================
+# MODEL
+# ==============================================================================
+# Path to trained model from Step 2 (train_for_option.py)
+model_path: "models/oct29_50k_call/model.pth"
+
+# ==============================================================================
+# BACKTEST PARAMETERS
+# ==============================================================================
+n_bootstrap_paths: 1000  # More paths = more robust results (slower)
+                         # Recommended: 1000+ for final analysis
+                         # Quick test: 200
+
+transaction_cost: 0.0006  # Deribit taker fee: 0.06%
+
+dt_hours: 8.0  # Rebalancing frequency in hours
+               # Recommended: 8.0 (aligns with funding payments)
+               # More frequent = higher transaction costs
+
+# ==============================================================================
+# DATA DIRECTORIES
+# ==============================================================================
+data_dir: "crypto/data/historical"         # Where perpetual data is stored
+output_dir: "backtest_results/oct29_50k"   # Where to save results
+
+# ==============================================================================
+# NOTES
+# ==============================================================================
+# 1. Make sure you've fetched historical data first:
+#    python crypto/scripts/fetch_deribit_data.py \
+#        --start 2024-10-01 --end 2024-10-31 \
+#        --output-dir crypto/data/historical
+#
+# 2. After running backtest, use calculate_seller_pnl.py to get final returns
+#
+# 3. The backtest returns HEDGING P&L only (negative for sellers).
+#    You must add premium to get total seller P&L!

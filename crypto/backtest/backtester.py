@@ -337,6 +337,46 @@ class Backtester:
             print(f"⚠️  No options data found (this is okay for basic backtesting)")
             options_df = None
 
+        # Load funding data (optional, but recommended for realistic backtesting)
+        try:
+            funding_df = loader.load_funding_data()
+
+            if not funding_df.empty and "timestamp" in funding_df.columns:
+                funding_df = self._normalize_timestamps_to_utc(funding_df)
+
+                # Filter funding by date range
+                funding_mask = (funding_df["timestamp"] >= start_date) & (
+                    funding_df["timestamp"] <= end_date
+                )
+                funding_df = funding_df[funding_mask].reset_index(drop=True)
+                loader.funding_data = funding_df
+
+                print(f"✅ Loaded {len(funding_df)} funding rate records in date range")
+
+                # Merge funding rates with perpetual data on timestamp
+                if not funding_df.empty:
+                    # Add funding rate column to perpetual data
+                    filtered_df = filtered_df.merge(
+                        funding_df[["timestamp", "interest_8h"]],
+                        on="timestamp",
+                        how="left",
+                    )
+                    # Rename for clarity
+                    if "interest_8h" in filtered_df.columns:
+                        filtered_df["funding_rate"] = filtered_df["interest_8h"]
+                    # Forward fill missing funding rates
+                    if "funding_rate" in filtered_df.columns:
+                        filtered_df["funding_rate"] = filtered_df[
+                            "funding_rate"
+                        ].ffill()
+
+                    # Update loader with merged data
+                    loader.perpetual_data = filtered_df
+        except FileNotFoundError:
+            print(
+                f"⚠️  No funding data found (this is okay, but funding costs won't be applied)"
+            )
+
         # Print summary statistics to verify real market data
         summary = loader.summary()
         print("\n" + "=" * 60)
