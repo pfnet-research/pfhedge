@@ -314,13 +314,21 @@ def main():
         if not args.no_insights:
             results.print_key_insights(emoji=use_emoji)
 
+        # Save results to JSON
+        from pathlib import Path
+
+        output_dir = Path(config.output_dir)
+        output_dir.mkdir(parents=True, exist_ok=True)
+        results_json_path = output_dir / "results.json"
+        results.to_json(str(results_json_path), include_raw=False, indent=2)
+        print(f"✓ Results saved to: {results_json_path}")
+
         # Generate report unless disabled
         if not args.no_report:
             print(f"\nGenerating report in {config.output_dir}...")
-            from pathlib import Path
 
-            report_path = Path(config.output_dir) / "backtest_report.md"
-            plot_dir = Path(config.output_dir) / "plots"
+            report_path = output_dir / "backtest_report.md"
+            plot_dir = output_dir / "plots"
             report_info = results.generate_report(
                 filepath=str(report_path), include_plots=True, plot_dir=str(plot_dir)
             )

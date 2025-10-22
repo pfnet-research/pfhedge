@@ -40,7 +40,8 @@ import logging
 # Add parent directory to path
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
-from crypto.data.deribit_client import DeribitClient
+from crypto.data.base_client import MarketDataClient
+from crypto.data.client_factory import create_client, add_client_args
 from crypto.utils.black_scholes import implied_volatility_from_btc_premium
 
 # Configure logging
@@ -51,7 +52,7 @@ logger = logging.getLogger(__name__)
 
 
 def get_available_options(
-    client: DeribitClient,
+    client: MarketDataClient,
     trade_date: datetime,
     expiry_date: datetime,
     option_type: str = "call",
@@ -75,20 +76,36 @@ def get_available_options(
     # Get perpetual price at trade date
     logger.info(f"Fetching spot price at {trade_date}")
 
-    # Get a narrow window around trade_date for spot price
-    from crypto.scripts.fetch_deribit_data import fetch_perpetual_trades
+    # Get a narrow window around trade_date for spot price (±5 minutes)
+    from datetime import timedelta
+    from crypto.data.deribit_client import timestamp_to_ms
 
-    start = trade_date
-    end = trade_date
+    window_minutes = 5
+    start = trade_date - timedelta(minutes=window_minutes)
+    end = trade_date + timedelta(minutes=window_minutes)
 
-    trades_df = fetch_perpetual_trades(client, start, end, instrument="BTC-PERPETUAL")
+    try:
+        trades = client.get_historical_trades(
+            instrument_name="BTC-PERPETUAL",
+            start_timestamp=timestamp_to_ms(start),
+            end_timestamp=timestamp_to_ms(end),
+            count=100,
+        )
 
-    if trades_df.empty:
-        logger.error("No perpetual trades found at trade date")
+        if not trades:
+            logger.error("No perpetual trades found at trade date")
+            return []
+
+        # Convert to DataFrame for easier processing
+        import pandas as pd
+
+        trades_df = pd.DataFrame(trades)
+        initial_spot = trades_df["price"].median()
+        logger.info(f"Initial spot price: ${initial_spot:,.2f}")
+
+    except Exception as e:
+        logger.error(f"Error fetching spot price: {e}")
         return []
-
-    initial_spot = trades_df["price"].median()
-    logger.info(f"Initial spot price: ${initial_spot:,.2f}")
 
     # Get available options for expiry
     expiry_str = expiry_date.strftime("%d%b%y").upper()
@@ -130,8 +147,9 @@ def get_available_options(
         logger.info(f"Checking {instrument_name} (K={strike}, M={moneyness:.3f})")
 
         try:
-            trades = client.get_last_trades_by_instrument(
-                instrument_name=instrument_name, count=1000, include_old=True
+            # Use get_recent_trades (part of MarketDataClient interface)
+            trades = client.get_recent_trades(
+                instrument_name=instrument_name, count=1000
             )
 
             if not trades or len(trades) < min_trades:
@@ -178,9 +196,11 @@ def get_available_options(
 
             options.append(option_info)
 
+            # Format IV for logging
+            iv_str = f"{iv:.1%}" if iv else "N/A"
             logger.info(
                 f"  ✓ Premium: {premium_btc:.4f} BTC (${premium_usd:,.2f}), "
-                f"IV: {iv:.1%} if iv else 'N/A', Trades: {len(trades)}"
+                f"IV: {iv_str}, Trades: {len(trades)}"
             )
 
         except Exception as e:
@@ -269,10 +289,10 @@ def main():
         metavar=("MIN", "MAX"),
         help="Moneyness range to consider (default: 0.9 1.1)",
     )
-    parser.add_argument(
-        "--testnet", action="store_true", help="Use Deribit testnet instead of mainnet"
-    )
     parser.add_argument("--output", "-o", help="Output JSON file path (optional)")
+
+    # Add common client arguments (data source, testnet, API keys)
+    add_client_args(parser)
 
     args = parser.parse_args()
 
@@ -291,13 +311,22 @@ def main():
         print("Error: Trade date must be before expiry date")
         return 1
 
-    # Create Deribit client
-    client = DeribitClient(testnet=args.testnet)
+    # Create market data client
+    try:
+        client = create_client(
+            data_source=args.data_source,
+            testnet=args.testnet,
+            tardis_api_key=args.tardis_api_key,
+        )
+    except (ValueError, ImportError) as e:
+        print(f"Error creating client: {e}")
+        return 1
 
     print("\n" + "=" * 120)
     print("OPTION EXPLORATION")
     print("=" * 120)
     print(f"\nParameters:")
+    print(f"  Data source: {args.data_source}")
     print(f"  Trade date: {trade_date}")
     print(f"  Expiry: {expiry_date}")
     print(f"  Type: {args.type}")
@@ -305,7 +334,8 @@ def main():
     print(
         f"  Moneyness range: {args.moneyness_range[0]:.2f} - {args.moneyness_range[1]:.2f}"
     )
-    print(f"  Network: {'Testnet' if args.testnet else 'Mainnet'}")
+    if args.data_source == "deribit":
+        print(f"  Network: {'Testnet' if args.testnet else 'Mainnet'}")
     print()
 
     # Get available options

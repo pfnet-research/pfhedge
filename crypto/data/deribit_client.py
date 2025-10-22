@@ -5,10 +5,14 @@ import requests
 import time
 from typing import Dict, List, Optional, Tuple
 from datetime import datetime, timezone
-import pandas as pd
+
+try:
+    from .base_client import MarketDataClient
+except ImportError:
+    from base_client import MarketDataClient
 
 
-class DeribitClient:
+class DeribitClient(MarketDataClient):
     """Simple Deribit REST API client for historical data."""
 
     def __init__(
@@ -58,7 +62,7 @@ class DeribitClient:
             raise Exception(f"Request failed: {e}")
 
     def get_instruments(
-        self, currency: str = "BTC", kind: str = "option"
+        self, currency: str = "BTC", kind: str = "option", **kwargs
     ) -> List[Dict]:
         """
         Get available instruments.
@@ -66,11 +70,14 @@ class DeribitClient:
         Args:
             currency: Currency (BTC, ETH, etc.)
             kind: Instrument kind (option, future, spot)
+            **kwargs: Additional parameters (e.g., expired=False)
 
         Returns:
             List of instrument data
         """
         params = {"currency": currency, "kind": kind}
+        # Add any additional parameters
+        params.update(kwargs)
         return self._make_request("GET", "public/get_instruments", params)
 
     def get_historical_trades(
@@ -100,9 +107,16 @@ class DeribitClient:
             "include_old": True,
             "sorting": "asc",
         }
-        return self._make_request(
+        result = self._make_request(
             "GET", "public/get_last_trades_by_instrument_and_time", params
         )
+
+        # Deribit API returns {"trades": [...], "has_more": bool}
+        # Extract and return just the trades list for interface compatibility
+        if isinstance(result, dict) and "trades" in result:
+            return result["trades"]
+        # Fallback: if API changes or returns list directly
+        return result if isinstance(result, list) else []
 
     def get_recent_trades(self, instrument_name: str, count: int = 10) -> List[Dict]:
         """
@@ -131,17 +145,27 @@ class DeribitClient:
         params = {"currency": currency}
         return self._make_request("GET", "public/get_historical_volatility", params)
 
-    def get_ticker(self, instrument_name: str) -> Dict:
+    def get_ticker(self, instrument_name: str, timestamp: Optional[int] = None) -> Dict:
         """
         Get current ticker data for an instrument.
 
         Args:
             instrument_name: Name of instrument
+            timestamp: Optional timestamp in milliseconds (ignored - Deribit API returns current data)
 
         Returns:
             Ticker data
         """
         params = {"instrument_name": instrument_name}
+        if timestamp is not None:
+            # Deribit's public ticker endpoint doesn't support historical timestamp
+            # Log a warning if timestamp is provided
+            import logging
+
+            logging.getLogger(__name__).warning(
+                f"DeribitClient.get_ticker() does not support historical timestamp parameter. "
+                f"Returning current ticker data instead."
+            )
         return self._make_request("GET", "public/ticker", params)
 
     def get_order_book(self, instrument_name: str, depth: int = 5) -> Dict:

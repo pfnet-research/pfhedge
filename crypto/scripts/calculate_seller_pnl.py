@@ -119,8 +119,13 @@ def calculate_seller_pnl(option: dict, backtest_results: dict) -> dict:
 
     # Extract hedging P&L from backtest results
     # Results contain final PnL statistics for both strategies
-    deep_hedge = backtest_results["deep_hedge"]
-    bs_baseline = backtest_results["bs_baseline"]
+    # Handle both legacy format (root level) and new format (summary level)
+    if "summary" in backtest_results:
+        deep_hedge = backtest_results["summary"]["deep_hedge"]
+        bs_baseline = backtest_results["summary"]["bs_baseline"]
+    else:
+        deep_hedge = backtest_results["deep_hedge"]
+        bs_baseline = backtest_results["bs_baseline"]
 
     # Get mean and std of hedging P&L
     deep_hedge_pnl_mean = deep_hedge["mean"]

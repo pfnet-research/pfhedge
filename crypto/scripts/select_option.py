@@ -26,7 +26,9 @@ import sys
 
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
-from crypto.data.deribit_client import DeribitClient, timestamp_to_ms, ms_to_timestamp
+from crypto.data.base_client import MarketDataClient
+from crypto.data.client_factory import create_client, add_client_args
+from crypto.data.deribit_client import timestamp_to_ms, ms_to_timestamp
 
 # Configure logging
 logging.basicConfig(
@@ -36,7 +38,7 @@ logger = logging.getLogger(__name__)
 
 
 def get_available_options(
-    client: DeribitClient, expiry_date: datetime, currency: str = "BTC"
+    client: MarketDataClient, expiry_date: datetime, currency: str = "BTC"
 ) -> List[Dict]:
     """
     Get all available options for a specific expiry date.
@@ -73,7 +75,7 @@ def get_available_options(
 
 
 def get_underlying_price(
-    client: DeribitClient, sale_time: datetime, instrument: str = "BTC-PERPETUAL"
+    client: MarketDataClient, sale_time: datetime, instrument: str = "BTC-PERPETUAL"
 ) -> Optional[float]:
     """
     Get underlying price at a specific time.
@@ -175,7 +177,7 @@ def select_atm_options(
 
 
 def check_option_liquidity(
-    client: DeribitClient,
+    client: MarketDataClient,
     option_name: str,
     check_time: datetime,
     min_trades: int = 10,
@@ -221,7 +223,7 @@ def check_option_liquidity(
 
 
 def get_executed_premium(
-    client: DeribitClient,
+    client: MarketDataClient,
     option_name: str,
     sale_time: datetime,
     direction: str = "sell",
@@ -297,7 +299,7 @@ def get_executed_premium(
 
 
 def select_best_option(
-    client: DeribitClient,
+    client: MarketDataClient,
     trade_date: datetime,
     expiry_date: datetime,
     option_type: str = "call",
@@ -414,7 +416,9 @@ def main():
         default="option_metadata.json",
         help="Output file for metadata",
     )
-    parser.add_argument("--testnet", action="store_true", help="Use testnet")
+
+    # Add common client arguments (data source, testnet, API keys)
+    add_client_args(parser)
 
     args = parser.parse_args()
 
@@ -434,9 +438,18 @@ def main():
     logger.info(f"Trade date: {trade_date}")
     logger.info(f"Expiry: {expiry_date}")
     logger.info(f"Target moneyness: {args.moneyness}")
+    logger.info(f"Data source: {args.data_source}")
 
     # Initialize client
-    client = DeribitClient(testnet=args.testnet)
+    try:
+        client = create_client(
+            data_source=args.data_source,
+            testnet=args.testnet,
+            tardis_api_key=args.tardis_api_key,
+        )
+    except (ValueError, ImportError) as e:
+        logger.error(f"Failed to create client: {e}")
+        sys.exit(1)
 
     # Select best option
     result = select_best_option(

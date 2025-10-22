@@ -16,7 +16,9 @@ dependencies = [
     "torch>=1.9.0,<3.0.0",
     "tqdm>=4.62.3",
     "numpy>=1.26; python_version>='3.9'",
-    "numpy<1.25; python_version=='3.8'"
+    "numpy<1.25; python_version=='3.8'",
+    "tardis-client>=2.0.0",
+    "requests>=2.25.0"
 ]
 
 [project.urls]
@@ -30,6 +32,11 @@ backtest = [
     "matplotlib>=3.3.0",
     "pandas>=1.3.0",
     "scipy>=1.7.0",
+    "pyyaml>=5.4.0",
+    "requests>=2.25.0"
+]
+crypto = [
+    "pandas>=1.3.0",
     "pyyaml>=5.4.0"
 ]
 dev = [

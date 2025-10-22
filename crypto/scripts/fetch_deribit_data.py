@@ -1,17 +1,27 @@
 #!/usr/bin/env python3
 """
-Fetch historical data from Deribit for realistic backtesting.
+Fetch historical data from Deribit or Tardis.dev for realistic backtesting.
 
 This script fetches:
 1. BTC-PERPETUAL historical trades
 2. Funding rate history
 3. Options data for specific strikes/expiries
 
+Data sources:
+- deribit: Live Deribit API (limited to ~24h historical data)
+- tardis: Tardis.dev historical data (2019-03-30 onwards, requires API key)
+
 Usage:
+    # Fetch from Deribit (recent data)
     python fetch_deribit_data.py --start 2024-01-01 --end 2024-01-31 --output-dir data/historical
+
+    # Fetch from Tardis (historical data)
+    python fetch_deribit_data.py --data-source tardis --tardis-api-key YOUR_KEY \
+        --start 2024-01-01 --end 2024-01-31 --output-dir data/historical
 """
 
 import argparse
+import os
 import time
 from datetime import datetime, timedelta, timezone
 import pandas as pd
@@ -25,7 +35,9 @@ import sys
 
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
-from crypto.data.deribit_client import DeribitClient, timestamp_to_ms, ms_to_timestamp
+from crypto.data.deribit_client import timestamp_to_ms, ms_to_timestamp
+from crypto.data.base_client import MarketDataClient
+from crypto.data.client_factory import create_client, add_client_args
 
 # Configure logging
 logging.basicConfig(
@@ -35,7 +47,7 @@ logger = logging.getLogger(__name__)
 
 
 def fetch_perpetual_trades(
-    client: DeribitClient,
+    client: MarketDataClient,
     start_date: datetime,
     end_date: datetime,
     instrument: str = "BTC-PERPETUAL",
@@ -108,7 +120,7 @@ def fetch_perpetual_trades(
 
 
 def fetch_funding_rates(
-    client: DeribitClient,
+    client: MarketDataClient,
     start_date: datetime,
     end_date: datetime,
     instrument: str = "BTC-PERPETUAL",
@@ -201,7 +213,7 @@ def resample_trades_to_ohlc(
 
 
 def fetch_option_trades(
-    client: DeribitClient,
+    client: MarketDataClient,
     option_name: str,
     sale_time: datetime,
     window_minutes: int = 30,
@@ -274,11 +286,19 @@ def save_data(
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Fetch Deribit historical data")
+    parser = argparse.ArgumentParser(
+        description="Fetch historical data from Deribit or Tardis.dev",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=__doc__,
+    )
+
+    # Date range
     parser.add_argument(
         "--start", type=str, required=True, help="Start date (YYYY-MM-DD)"
     )
     parser.add_argument("--end", type=str, required=True, help="End date (YYYY-MM-DD)")
+
+    # Output options
     parser.add_argument(
         "--output-dir",
         type=str,
@@ -295,15 +315,15 @@ def main():
         "--frequency", type=str, default="8H", help="Resampling frequency (default: 8H)"
     )
     parser.add_argument(
-        "--testnet", action="store_true", help="Use testnet instead of mainnet"
-    )
-    parser.add_argument(
         "--format",
         type=str,
         choices=["parquet", "csv"],
         default="parquet",
         help="Output format",
     )
+
+    # Add common client arguments (data source, testnet, API keys)
+    add_client_args(parser)
 
     args = parser.parse_args()
 
@@ -318,16 +338,31 @@ def main():
 
     logger.info(f"Fetching data from {start_date} to {end_date}")
     logger.info(f"Output directory: {output_dir}")
-    logger.info(f"Testnet: {args.testnet}")
+    logger.info(f"Data source: {args.data_source}")
+    if args.data_source == "tardis":
+        logger.info(
+            f"Tardis API key: {'***' + args.tardis_api_key[-4:] if args.tardis_api_key and len(args.tardis_api_key) > 4 else 'Not provided'}"
+        )
+    else:
+        logger.info(f"Testnet: {args.testnet}")
 
-    # Initialize client
-    client = DeribitClient(testnet=args.testnet)
+    # Initialize client based on data source
+    try:
+        client = create_client(
+            data_source=args.data_source,
+            testnet=args.testnet,
+            tardis_api_key=args.tardis_api_key,
+        )
+    except (ValueError, ImportError) as e:
+        logger.error(f"Failed to create client: {e}")
+        return 1
 
     # 1. Fetch perpetual trades
     trades_df = fetch_perpetual_trades(
         client, start_date, end_date, instrument=args.instrument
     )
 
+    ohlc_df = pd.DataFrame()  # Initialize to avoid unbound variable
     if not trades_df.empty:
         # Save raw trades
         save_data(
@@ -367,7 +402,7 @@ def main():
     if not trades_df.empty:
         print(f"\nSummary:")
         print(f"  Perpetual trades: {len(trades_df)}")
-        print(f"  OHLC bars: {len(ohlc_df) if not trades_df.empty else 0}")
+        print(f"  OHLC bars: {len(ohlc_df) if not ohlc_df.empty else 0}")
         print(f"  Funding records: {len(funding_df) if not funding_df.empty else 0}")
         print(
             f"  Date range: {trades_df['timestamp'].min()} to {trades_df['timestamp'].max()}"
@@ -375,6 +410,8 @@ def main():
         print(
             f"  Price range: ${trades_df['price'].min():.2f} - ${trades_df['price'].max():.2f}"
         )
+
+    return 0
 
 
 if __name__ == "__main__":
