@@ -90,6 +90,7 @@ class TardisClient(MarketDataClient):
             **kwargs: Additional parameters:
                 - active: bool (default True) - filter by active status
                 - expired: bool - if True, return expired instruments
+                - expiry_date: datetime - filter by specific expiry date (for options)
 
         Returns:
             List of instrument data in Deribit-compatible format
@@ -98,15 +99,19 @@ class TardisClient(MarketDataClient):
             >>> # Get active BTC options
             >>> client.get_instruments("BTC", "option")
 
-            >>> # Get all BTC options (including expired)
-            >>> client.get_instruments("BTC", "option", active=False)
+            >>> # Get BTC options expiring on Oct 29, 2024
+            >>> from datetime import datetime
+            >>> expiry = datetime(2024, 10, 29)
+            >>> client.get_instruments("BTC", "option", expiry_date=expiry)
         """
-        # Check cache
+        # Check cache (only if no specific filters)
         now = datetime.now(timezone.utc)
+
         if (
             self._instruments_cache is not None
             and self._cache_timestamp is not None
             and now - self._cache_timestamp < self._cache_ttl
+            and not kwargs.get("expiry_date")  # Don't use cache for filtered queries
         ):
             return self._filter_instruments(self._instruments_cache, currency, kind)
 
@@ -133,12 +138,12 @@ class TardisClient(MarketDataClient):
                 f"https://api.tardis.dev/v1/instruments/deribit?filter={encoded_filter}"
             )
 
-            # Make request with API key
+            # Make request with API key (increase timeout for large queries)
             headers = {}
             if self.api_key:
                 headers["Authorization"] = f"Bearer {self.api_key}"
 
-            response = requests.get(url, headers=headers)
+            response = requests.get(url, headers=headers, timeout=30)
             response.raise_for_status()
 
             tardis_instruments = response.json()
@@ -148,9 +153,23 @@ class TardisClient(MarketDataClient):
                 tardis_instruments
             )
 
-            # Update cache
-            self._instruments_cache = instruments
-            self._cache_timestamp = now
+            # Apply client-side filtering by expiry_date
+            if "expiry_date" in kwargs and kwargs["expiry_date"]:
+                expiry_date = kwargs["expiry_date"]
+                expiry_str = expiry_date.strftime("%d%b%y").upper()
+                instruments = [
+                    inst
+                    for inst in instruments
+                    if expiry_str in inst.get("instrument_name", "")
+                ]
+                logger.info(
+                    f"Filtered to {len(instruments)} instruments for expiry {expiry_str}"
+                )
+
+            # Update cache (only for unfiltered queries)
+            if not kwargs.get("expiry_date"):
+                self._instruments_cache = instruments
+                self._cache_timestamp = now
 
             logger.info(f"Found {len(instruments)} {kind}s for {currency}")
             return instruments

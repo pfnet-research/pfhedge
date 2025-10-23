@@ -35,11 +35,12 @@ Complete guide for interactive option trading with human decision points.
 ### Quick Start Commands
 
 ```bash
-# 1. Explore options
+# 1. Explore options (simplified date format)
 python crypto/scripts/explore_options.py \
-    --trade-date "2024-10-15 12:00" \
+    --trade-date 2024-10-15 \
     --expiry 2024-10-29 \
     --type call \
+    --data-source tardis \
     --output options.json
 
 # 2. Train model (after selecting instrument)
@@ -231,26 +232,76 @@ This workflow is designed for **real trading** where you need to:
 ## Step 1: Explore Available Options
 
 ### Purpose
-Search for liquid options at your target expiry and review candidates.
+Search for liquid options at your target expiry and review candidates. The script uses historical data from Tardis.dev, querying the full trading day (00:00-23:59 UTC) to maximize discovery of traded options.
+
+### Performance Benchmarks
+
+| Search Type | Strikes Checked | Duration | Best For |
+|-------------|----------------|----------|----------|
+| **ATM (±5%)** | ~11 strikes | ~2 minutes | ✅ Recommended for quick option selection |
+| **Wide (±30%)** | ~40 strikes | ~8 minutes | Comprehensive market scan |
+| **Per-strike** | 1 strike | ~11 seconds | Network-bound (Tardis API) |
+
+**Example**: Finding 1-week ATM calls takes approximately 2 minutes.
+
+### Deribit Option Types
+
+| Type | Expiry Schedule | Expiry Time | Notes |
+|------|----------------|-------------|-------|
+| **Daily** | Every day | 08:00 UTC | Listed ~48 hours before expiry |
+| **Weekly** | Every Friday | 08:00 UTC | Most popular for short-term |
+| **Monthly** | Last Friday of month | 08:00 UTC | Standard monthly expiries |
+| **Quarterly** | Last Fri of Mar/Jun/Sep/Dec | 08:00 UTC | If falls on month-end, no separate monthly |
 
 ### Command
+
+**Simplified format (recommended):**
 ```bash
 python crypto/scripts/explore_options.py \
-    --trade-date "2024-10-15 12:00" \
+    --trade-date 2024-10-15 \
     --expiry 2024-10-29 \
     --type call \
     --min-trades 10 \
+    --data-source tardis \
+    --output options_candidates.json
+```
+
+**With specific time (optional):**
+```bash
+python crypto/scripts/explore_options.py \
+    --trade-date "2024-10-15 14:30" \
+    --expiry "2024-10-29 08:00" \
+    --type call \
+    --min-trades 10 \
+    --data-source tardis \
     --output options_candidates.json
 ```
 
 ### Parameters
-- `--trade-date`: When you would sell the option (YYYY-MM-DD HH:MM)
-- `--expiry`: Option expiry date (YYYY-MM-DD)
+- `--trade-date`: When you would sell the option
+  - Simple: `2024-10-15` (defaults to 12:00 UTC for spot price)
+  - Specific: `"2024-10-15 14:30"` (custom time)
+- `--expiry`: Option expiry date
+  - Simple: `2024-10-29` (defaults to 08:00 UTC, Deribit standard)
+  - Specific: `"2024-10-29 08:00"`
 - `--type`: `call` or `put`
+- `--data-source`: Use `tardis` for historical data access (back to 2019)
 - `--min-trades`: Minimum trades for liquidity filter (default: 10)
 - `--moneyness-range`: Min/max moneyness (default: 0.9 1.1)
-- `--testnet`: Use testnet data (for testing)
+  - ATM search: `0.95 1.05` (~2 min, recommended)
+  - Wide search: `0.7 1.3` (~8 min, comprehensive)
+- `--testnet`: Use testnet data (for testing only)
 - `--output`: JSON file to save results
+
+### How It Works
+
+The script uses a **full-day querying approach** to discover options:
+
+1. **Spot Price**: Queries BTC-PERPETUAL trades in a ±5 minute window around `trade-date` for accurate spot price
+2. **Strike Generation**: If Instruments API returns no data (expired options beyond ~1 month retention), automatically generates candidate strikes using Deribit's grid pattern (1K/2K/5K intervals)
+3. **Full-Day Trade Queries**: For each strike, queries ALL trades from 00:00-23:59 UTC on the trade date to maximize finding historical option trades
+4. **Liquidity Filter**: Filters by minimum trade count threshold
+5. **Results**: Sorted by moneyness (ATM first)
 
 ### Output
 ```json
@@ -546,10 +597,11 @@ TRADING DECISION:
 # STEP 1: EXPLORE OPTIONS
 # ============================================================================
 python crypto/scripts/explore_options.py \
-    --trade-date "2024-10-15 12:00" \
+    --trade-date 2024-10-15 \
     --expiry 2024-10-29 \
     --type call \
     --min-trades 10 \
+    --data-source tardis \
     --output options_oct15.json
 
 # Review output table...
@@ -604,14 +656,16 @@ Always explore multiple strikes and expiries before committing:
 ```bash
 # Explore weekly options
 python crypto/scripts/explore_options.py \
-    --trade-date "2024-10-15 12:00" \
+    --trade-date 2024-10-15 \
     --expiry 2024-10-22 \
+    --data-source tardis \
     --output weekly_options.json
 
 # Explore monthly options
 python crypto/scripts/explore_options.py \
-    --trade-date "2024-10-15 12:00" \
+    --trade-date 2024-10-15 \
     --expiry 2024-11-15 \
+    --data-source tardis \
     --output monthly_options.json
 ```
 
@@ -648,8 +702,9 @@ For research, explore many dates at once:
 #!/bin/bash
 for date in 2024-10-15 2024-10-22 2024-10-29; do
     python crypto/scripts/explore_options.py \
-        --trade-date "$date 12:00" \
+        --trade-date "$date" \
         --expiry 2024-11-15 \
+        --data-source tardis \
         --output "options_${date}.json"
 done
 ```

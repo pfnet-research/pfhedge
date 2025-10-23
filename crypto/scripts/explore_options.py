@@ -2,31 +2,72 @@
 """
 Option Discovery Tool
 
-Explores available options at a given date and expiry, showing:
+Discovers all tradeable options at a given date and expiry, showing:
 - Available strikes and premiums
-- Liquidity metrics
+- Liquidity metrics (trade count)
 - Implied volatilities
 - Moneyness levels
 
-This allows traders to review options before selecting one to trade.
+Key Features:
+- Full-day querying: Searches entire trading day (00:00-23:59) for maximum coverage
+- Historical data access: Uses Tardis.dev API to access options back to 2019
+- Fallback mode: Generates strikes when Instruments API has no data (>1 month old)
+- Fast queries: ~2 minutes for ATM options (±5%), ~8 minutes for wide range (±30%)
 
-Usage:
-    # Explore options for Oct 29 expiry, trading on Oct 15
-    python crypto/scripts/explore_options.py \
-        --trade-date "2024-10-15 12:00" \
-        --expiry 2024-10-29 \
-        --type call \
-        --output options_candidates.json
+Usage Examples:
 
-    # With custom filters
-    python crypto/scripts/explore_options.py \
-        --trade-date "2024-10-15 12:00" \
-        --expiry 2024-10-29 \
-        --type call \
-        --min-trades 10 \
-        --moneyness-range 0.9 1.1 \
-        --testnet \
-        --output options_candidates.json
+    # Quick ATM search (recommended for most use cases)
+    python crypto/scripts/explore_options.py \\
+        --trade-date 2025-06-07 \\
+        --expiry 2025-06-13 \\
+        --type call \\
+        --min-trades 5 \\
+        --moneyness-range 0.95 1.05 \\
+        --data-source tardis \\
+        --output atm_calls.json
+
+    # Wide search for all available options
+    python crypto/scripts/explore_options.py \\
+        --trade-date 2025-06-07 \\
+        --expiry 2025-06-13 \\
+        --type call \\
+        --min-trades 1 \\
+        --moneyness-range 0.7 1.3 \\
+        --data-source tardis \\
+        --output all_calls.json
+
+    # With specific time (if needed)
+    python crypto/scripts/explore_options.py \\
+        --trade-date "2025-06-07 14:30" \\
+        --expiry 2025-06-13 \\
+        --type put \\
+        --data-source tardis
+
+Date Format:
+    - trade-date: YYYY-MM-DD (defaults to 12:00 UTC) or "YYYY-MM-DD HH:MM"
+    - expiry: YYYY-MM-DD (defaults to 08:00 UTC, Deribit expiry time) or "YYYY-MM-DD HH:MM"
+
+How It Works:
+    1. Fetches spot price from ±5 min window around trade-date for accuracy
+    2. Queries Instruments API for available options at expiry
+    3. If no instruments found (historical data), generates candidate strikes
+    4. For each strike, queries full trading day (00:00-23:59) for trades
+    5. Calculates premiums, IV, and filters by liquidity (min-trades)
+
+Performance:
+    - ATM (moneyness 0.95-1.05): ~11 strikes, ~2 minutes
+    - Wide (moneyness 0.7-1.3): ~40 strikes, ~7-8 minutes
+    - Per-strike query: ~10-11 seconds (network-bound)
+
+Deribit Option Types:
+    - Daily: Expire every day at 08:00 UTC (48h after listing)
+    - Weekly: Expire every Friday at 08:00 UTC
+    - Monthly: Last Friday of month at 08:00 UTC
+    - Quarterly: Last Friday of Mar/Jun/Sep/Dec at 08:00 UTC
+
+Requirements:
+    - Tardis.dev API key (set TARDIS_API_KEY environment variable)
+    - Historical data available back to 2019
 """
 
 import argparse
@@ -49,6 +90,87 @@ logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
+
+
+def generate_strikes(
+    spot_price: float, moneyness_range: tuple = (0.8, 1.2)
+) -> List[int]:
+    """
+    Generate candidate strikes matching Deribit's grid pattern.
+
+    Deribit uses different strike intervals depending on price level:
+    - 1K intervals around ATM (±10% from spot)
+    - 2K intervals for medium OTM (±20% from spot)
+    - 5K intervals for the full range
+
+    Args:
+        spot_price: Current spot price
+        moneyness_range: (min, max) moneyness to consider
+
+    Returns:
+        Sorted list of candidate strike prices
+    """
+    min_price = spot_price * moneyness_range[0]
+    max_price = spot_price * moneyness_range[1]
+
+    strikes = set()
+
+    # 1. Dense ATM grid: 1K intervals within ±10% of spot
+    atm_min = int(spot_price * 0.90 / 1000) * 1000
+    atm_max = int(spot_price * 1.10 / 1000) * 1000 + 1000
+
+    strike = atm_min
+    while strike <= atm_max:
+        if min_price <= strike <= max_price:
+            strikes.add(strike)
+        strike += 1000
+
+    # 2. Medium density: 2K intervals within ±20%
+    med_min = int(spot_price * 0.80 / 2000) * 2000
+    med_max = int(spot_price * 1.20 / 2000) * 2000 + 2000
+
+    strike = med_min
+    while strike <= med_max:
+        if min_price <= strike <= max_price:
+            strikes.add(strike)
+        strike += 2000
+
+    # 3. Sparse grid: 5K intervals for full range
+    sparse_min = int(min_price / 5000) * 5000
+    sparse_max = int(max_price / 5000) * 5000 + 5000
+
+    strike = sparse_min
+    while strike <= sparse_max:
+        if min_price <= strike <= max_price:
+            strikes.add(strike)
+        strike += 5000
+
+    return sorted(strikes)
+
+
+def _build_instrument_name(expiry_date: datetime, strike: int, option_type: str) -> str:
+    """
+    Build Deribit instrument name following their convention.
+
+    Format: BTC-{D}MMMYY}-{STRIKE}-{C|P} (no leading zero on day)
+    Example: BTC-5SEP25-110000-C (not BTC-05SEP25-110000-C)
+
+    Args:
+        expiry_date: Option expiry date
+        strike: Strike price
+        option_type: 'call' or 'put'
+
+    Returns:
+        Instrument name string
+    """
+    # Deribit doesn't use leading zeros for single-digit days
+    day = expiry_date.day
+    month = expiry_date.strftime("%b").upper()
+    year = expiry_date.strftime("%y")
+    expiry_str = f"{day}{month}{year}"
+
+    type_char = "C" if option_type == "call" else "P"
+    return f"BTC-{expiry_str}-{strike}-{type_char}"
 
 
 def get_available_options(
@@ -81,14 +203,14 @@ def get_available_options(
     from crypto.data.deribit_client import timestamp_to_ms
 
     window_minutes = 5
-    start = trade_date - timedelta(minutes=window_minutes)
-    end = trade_date + timedelta(minutes=window_minutes)
+    spot_start = trade_date - timedelta(minutes=window_minutes)
+    spot_end = trade_date + timedelta(minutes=window_minutes)
 
     try:
         trades = client.get_historical_trades(
             instrument_name="BTC-PERPETUAL",
-            start_timestamp=timestamp_to_ms(start),
-            end_timestamp=timestamp_to_ms(end),
+            start_timestamp=timestamp_to_ms(spot_start),
+            end_timestamp=timestamp_to_ms(spot_end),
             count=100,
         )
 
@@ -107,11 +229,22 @@ def get_available_options(
         logger.error(f"Error fetching spot price: {e}")
         return []
 
+    # Create full-day window for option trade queries
+    # This captures all trades on the trade date, maximizing liquidity discovery
+    day_start = trade_date.replace(hour=0, minute=0, second=0, microsecond=0)
+    day_end = trade_date.replace(hour=23, minute=59, second=59, microsecond=999999)
+
     # Get available options for expiry
     expiry_str = expiry_date.strftime("%d%b%y").upper()
     logger.info(f"Querying options for expiry: {expiry_str}")
 
-    instruments = client.get_instruments(currency="BTC", kind="option", expired=False)
+    # Get active instruments filtered by expiry date
+    instruments = client.get_instruments(
+        currency="BTC",
+        kind="option",
+        expired=False,
+        expiry_date=expiry_date,
+    )
 
     # Filter by expiry and type
     matching_instruments = [
@@ -128,6 +261,33 @@ def get_available_options(
     logger.info(
         f"Found {len(matching_instruments)} {option_type} options for {expiry_str}"
     )
+
+    # Fallback: If no instruments found, generate strikes and query directly
+    if len(matching_instruments) == 0:
+        logger.warning(
+            f"No instruments found in API for {expiry_str}. "
+            f"This may be because the expiry is beyond the API retention period (~1 month). "
+            f"Falling back to strike generation and direct trade queries."
+        )
+
+        # Generate candidate strikes based on spot price and moneyness range
+        strikes = generate_strikes(initial_spot, moneyness_range)
+        logger.info(f"Generated {len(strikes)} candidate strikes to query")
+
+        # Build synthetic instrument list for consistency with main flow
+        matching_instruments = [
+            {
+                "instrument_name": _build_instrument_name(
+                    expiry_date, strike, option_type
+                ),
+                "strike": strike,
+            }
+            for strike in strikes
+        ]
+
+        logger.info(
+            f"Fallback mode: will query {len(matching_instruments)} candidate instruments"
+        )
 
     # Calculate moneyness and filter
     min_moneyness, max_moneyness = moneyness_range
@@ -147,9 +307,13 @@ def get_available_options(
         logger.info(f"Checking {instrument_name} (K={strike}, M={moneyness:.3f})")
 
         try:
-            # Use get_recent_trades (part of MarketDataClient interface)
-            trades = client.get_recent_trades(
-                instrument_name=instrument_name, count=1000
+            # Get trades from the full trade_date (00:00 to 23:59)
+            # Using full-day window maximizes finding trades for historical options
+            trades = client.get_historical_trades(
+                instrument_name=instrument_name,
+                start_timestamp=timestamp_to_ms(day_start),
+                end_timestamp=timestamp_to_ms(day_end),
+                count=1000,
             )
 
             if not trades or len(trades) < min_trades:
@@ -262,10 +426,12 @@ def main():
     parser.add_argument(
         "--trade-date",
         required=True,
-        help="Date and time to trade option (YYYY-MM-DD HH:MM)",
+        help="Trade date: YYYY-MM-DD (defaults to 12:00 UTC) or 'YYYY-MM-DD HH:MM'",
     )
     parser.add_argument(
-        "--expiry", required=True, help="Option expiry date (YYYY-MM-DD)"
+        "--expiry",
+        required=True,
+        help="Expiry date: YYYY-MM-DD (defaults to 08:00 UTC) or 'YYYY-MM-DD HH:MM'",
     )
 
     # Optional arguments
@@ -296,14 +462,32 @@ def main():
 
     args = parser.parse_args()
 
-    # Parse dates
+    # Parse dates - accept both date (YYYY-MM-DD) and datetime (YYYY-MM-DD HH:MM)
     try:
-        trade_date = datetime.fromisoformat(args.trade_date).replace(
-            tzinfo=timezone.utc
-        )
-        expiry_date = datetime.fromisoformat(args.expiry).replace(tzinfo=timezone.utc)
+        # Parse trade_date - if only date provided, default to noon (12:00) for spot price
+        trade_date_str = args.trade_date.strip()
+        if len(trade_date_str) == 10:  # Just date: YYYY-MM-DD
+            trade_date = datetime.fromisoformat(trade_date_str).replace(
+                hour=12, minute=0, second=0, microsecond=0, tzinfo=timezone.utc
+            )
+        else:  # Full datetime
+            trade_date = datetime.fromisoformat(trade_date_str).replace(
+                tzinfo=timezone.utc
+            )
+
+        # Parse expiry_date - if only date provided, use 08:00 UTC (Deribit expiry time)
+        expiry_date_str = args.expiry.strip()
+        if len(expiry_date_str) == 10:  # Just date: YYYY-MM-DD
+            expiry_date = datetime.fromisoformat(expiry_date_str).replace(
+                hour=8, minute=0, second=0, microsecond=0, tzinfo=timezone.utc
+            )
+        else:  # Full datetime
+            expiry_date = datetime.fromisoformat(expiry_date_str).replace(
+                tzinfo=timezone.utc
+            )
     except ValueError as e:
         print(f"Error parsing dates: {e}")
+        print("Use format: YYYY-MM-DD or YYYY-MM-DD HH:MM")
         return 1
 
     # Validate date order
