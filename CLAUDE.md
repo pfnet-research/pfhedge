@@ -24,3 +24,25 @@
 * **Explicit over implicit**: Make temporal dependencies visible in method signatures. If a method assumes "yesterday", that assumption should be in the name or require an explicit date parameter.
 * **Add critical assertions in production code**: Data fetching functions should validate their results match requested parameters before returning
 * **Integration tests need temporal assertions**: End-to-end tests passed because we checked "got trades" but not "got trades FROM THE CORRECT DATE". Always verify temporal correctness.
+
+**From Bootstrap Moneyness Consistency (2025-01):**
+
+* **Problem**: Original bootstrap used fixed strike with varying historical spot prices, causing each path to test fundamentally different options (e.g., deep OTM in Jan vs ATM in Oct). This made backtest statistics meaningless for forward-looking trading decisions.
+* **Root cause**: Neural network received different `log_moneyness` inputs across paths, far outside training distribution. Averaging P&L from different option types (OTM/ATM/ITM) gave meaningless results.
+* **Solution**: Added `bootstrap_mode` with spot rescaling:
+  - `normalize_spot`: Rescales historical prices to preserve target moneyness (recommended for trading decisions)
+  - `absolute_strike`: Legacy mode for backward compatibility (raw prices, varying moneyness)
+* **Key insights**:
+  1. **Multiplicative rescaling preserves market dynamics**: Rescaling spot prices by a constant factor preserves returns and volatility (tested)
+  2. **Rescale ALL price columns; preserve rates/quantities**: Use whitelist for price-like columns (`last_price`, `bid_price`, etc.), but don't touch `funding_rate`, volumes
+  3. **Store scale_factors for auditability**: Track rescaling for each path to verify correctness
+  4. **Enforce no look-ahead**: Sample windows strictly from data < trade_date using `max_date` parameter
+  5. **Single source of truth for n_steps**: Use consistent formula `int(time_horizon / dt) + 1` to avoid off-by-one errors
+* **Implementation pattern**: Fix in bootstrap logic (rescale spots), not in option class (which stays simple with scalar strike)
+* **Testing priorities**:
+  - Returns invariance under rescaling
+  - Initial moneyness equality across paths
+  - Backward compatibility with `absolute_strike` mode
+  - Funding cost proportional scaling
+  - Edge cases (single window, insufficient data)
+* **User communication**: Clear defaults (`absolute_strike` for backward compat), helpful error messages for `normalize_spot` requiring moneyness specification

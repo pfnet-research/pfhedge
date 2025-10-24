@@ -502,7 +502,10 @@ class TardisClient(MarketDataClient):
         start_timestamp: Optional[int] = None,
         end_timestamp: Optional[int] = None,
     ) -> List[Dict]:
-        """Get funding rate history for perpetual contract.
+        """Get funding rate history for perpetual contract using CSV downloads.
+
+        This method uses Tardis CSV datasets which is much faster than WebSocket replay.
+        Downloads derivative_ticker CSV files for each day and samples at 8-hour intervals.
 
         Args:
             instrument_name: Name of perpetual instrument
@@ -510,7 +513,7 @@ class TardisClient(MarketDataClient):
             end_timestamp: End time in milliseconds
 
         Returns:
-            List of funding rate data
+            List of funding rate data (sampled at 8-hour intervals: 00:00, 08:00, 16:00 UTC)
         """
         if not start_timestamp or not end_timestamp:
             raise ValueError(
@@ -519,21 +522,15 @@ class TardisClient(MarketDataClient):
 
         logger.info(
             f"Fetching funding rates for {instrument_name} "
-            f"from {ms_to_timestamp(start_timestamp)} to {ms_to_timestamp(end_timestamp)}"
+            f"from {ms_to_timestamp(start_timestamp)} to {ms_to_timestamp(end_timestamp)} "
+            f"(using CSV download - fast)"
         )
 
-        from_date = ms_to_timestamp(start_timestamp).strftime("%Y-%m-%d")
-        to_date = ms_to_timestamp(end_timestamp).strftime("%Y-%m-%d")
-
         try:
-            funding_rates = asyncio.run(
-                self._replay_funding(
-                    instrument_name,
-                    from_date,
-                    to_date,
-                    start_timestamp,
-                    end_timestamp,
-                )
+            funding_rates = self._download_funding_csv(
+                instrument_name,
+                start_timestamp,
+                end_timestamp,
             )
 
             logger.info(f"Fetched {len(funding_rates)} funding rate records")
@@ -542,6 +539,125 @@ class TardisClient(MarketDataClient):
         except Exception as e:
             logger.error(f"Error fetching funding rates: {e}")
             return []
+
+    def _download_funding_csv(
+        self,
+        instrument_name: str,
+        start_timestamp: int,
+        end_timestamp: int,
+    ) -> List[Dict]:
+        """Download funding rate data from Tardis CSV datasets.
+
+        Downloads derivative_ticker CSV files for each day in the date range,
+        then samples at 8-hour intervals (00:00, 08:00, 16:00 UTC).
+
+        Args:
+            instrument_name: Instrument name (e.g., BTC-PERPETUAL)
+            start_timestamp: Start time in milliseconds
+            end_timestamp: End time in milliseconds
+
+        Returns:
+            List of funding rate records
+        """
+        import requests
+        import gzip
+        from io import BytesIO
+        import pandas as pd
+        from datetime import timedelta
+
+        start_dt = ms_to_timestamp(start_timestamp)
+        end_dt = ms_to_timestamp(end_timestamp)
+
+        all_data = []
+        current_date = start_dt.date()
+        end_date = end_dt.date()
+
+        while current_date <= end_date:
+            # Build CSV URL
+            # Format: https://datasets.tardis.dev/v1/deribit/derivative_ticker/YYYY/MM/DD/SYMBOL.csv.gz
+            url = (
+                f"https://datasets.tardis.dev/v1/deribit/derivative_ticker/"
+                f"{current_date.year}/{current_date.month:02d}/{current_date.day:02d}/"
+                f"{instrument_name}.csv.gz"
+            )
+
+            logger.debug(f"Downloading CSV for {current_date}")
+
+            try:
+                # Download with API key
+                headers = {}
+                if self.api_key:
+                    headers["Authorization"] = f"Bearer {self.api_key}"
+
+                response = requests.get(url, headers=headers, timeout=60)
+
+                if response.status_code == 200:
+                    # Decompress and read CSV
+                    with gzip.GzipFile(fileobj=BytesIO(response.content)) as f:
+                        df = pd.read_csv(f)
+
+                    # Convert timestamp (microseconds to datetime)
+                    df["timestamp"] = pd.to_datetime(
+                        df["timestamp"], unit="us", utc=True
+                    )
+
+                    # Sample at 8-hour intervals
+                    df["hour"] = df["timestamp"].dt.hour
+                    df["minute"] = df["timestamp"].dt.minute
+
+                    # Get records at funding times (00:00, 08:00, 16:00, within first minute)
+                    funding_times = df[
+                        (df["hour"].isin([0, 8, 16])) & (df["minute"] == 0)
+                    ].copy()
+
+                    # Take first record at each 8-hour interval
+                    funding_times["date_hour"] = funding_times["timestamp"].dt.floor(
+                        "8h"
+                    )
+                    funding_8h = (
+                        funding_times.groupby("date_hour").first().reset_index()
+                    )
+
+                    all_data.append(funding_8h)
+                    logger.debug(f"  Got {len(funding_8h)} 8-hour records")
+
+                elif response.status_code == 404:
+                    logger.warning(f"  No data for {current_date} (404)")
+                else:
+                    logger.error(f"  HTTP {response.status_code} for {current_date}")
+
+            except Exception as e:
+                logger.error(f"  Error downloading {current_date}: {e}")
+
+            # Next day
+            current_date += timedelta(days=1)
+
+        if not all_data:
+            return []
+
+        # Combine all days
+        combined = pd.concat(all_data, ignore_index=True)
+
+        # Filter by exact timestamp range
+        combined = combined[
+            (combined["timestamp"] >= start_dt) & (combined["timestamp"] <= end_dt)
+        ]
+
+        # Convert to list of dicts (matching Deribit format)
+        funding_records = []
+        for _, row in combined.iterrows():
+            funding_records.append(
+                {
+                    "timestamp": int(
+                        row["timestamp"].timestamp() * 1000
+                    ),  # Back to milliseconds
+                    "instrument_name": instrument_name,
+                    "interest_8h": row["funding_rate"],  # Tardis calls it funding_rate
+                    "index_price": row["index_price"],
+                }
+            )
+
+        return funding_records
 
     async def _replay_funding(
         self,
@@ -576,21 +692,62 @@ class TardisClient(MarketDataClient):
         )
 
         async for local_timestamp, message in messages:
-            msg_timestamp = message.get("timestamp", 0)
+            # Tardis returns WebSocket messages in the format:
+            # {"jsonrpc": "2.0", "method": "subscription", "params": {"channel": "...", "data": {...}}}
+            # Extract funding data from params.data
+            if "params" not in message or "data" not in message["params"]:
+                continue
+
+            funding_msg = message["params"]["data"]
+            msg_timestamp = funding_msg.get("timestamp", 0)
 
             if msg_timestamp < start_ms or msg_timestamp > end_ms:
                 continue
 
             # Extract funding rate info
-            if "interest_8h" in message or "funding_8h" in message:
-                funding_record = {
-                    "timestamp": msg_timestamp,
-                    "instrument_name": message.get("instrument_name", instrument_name),
-                    "interest_8h": message.get("interest_8h")
-                    or message.get("funding_8h", 0),
-                    "index_price": message.get("index_price"),
-                }
-                funding_data.append(funding_record)
+            # Note: Perpetual channel provides continuous 'interest' field
+            # To get 8-hour rates, we sample at 8-hour intervals (00:00, 08:00, 16:00 UTC)
+            if "interest" in funding_msg:
+                # Check if this timestamp is at an 8-hour funding interval
+                # Funding times are 00:00, 08:00, 16:00 UTC daily
+                from datetime import datetime, timezone
+
+                msg_dt = datetime.fromtimestamp(msg_timestamp / 1000, tz=timezone.utc)
+                hour = msg_dt.hour
+
+                # Only record at funding times (with 10-second tolerance to avoid duplicates)
+                # Take the first message at each funding interval
+                if hour in [0, 8, 16] and msg_dt.minute == 0 and msg_dt.second < 10:
+                    # Check if we already have a record for this funding time
+                    # (to avoid multiple samples from the same 8-hour period)
+                    funding_hour_key = (msg_dt.year, msg_dt.month, msg_dt.day, hour)
+                    if not any(
+                        (
+                            datetime.fromtimestamp(
+                                r["timestamp"] / 1000, tz=timezone.utc
+                            ).year,
+                            datetime.fromtimestamp(
+                                r["timestamp"] / 1000, tz=timezone.utc
+                            ).month,
+                            datetime.fromtimestamp(
+                                r["timestamp"] / 1000, tz=timezone.utc
+                            ).day,
+                            datetime.fromtimestamp(
+                                r["timestamp"] / 1000, tz=timezone.utc
+                            ).hour,
+                        )
+                        == funding_hour_key
+                        for r in funding_data
+                    ):
+                        funding_record = {
+                            "timestamp": msg_timestamp,
+                            "instrument_name": instrument_name,
+                            "interest_8h": funding_msg.get(
+                                "interest", 0
+                            ),  # Continuous interest rate
+                            "index_price": funding_msg.get("index_price"),
+                        }
+                        funding_data.append(funding_record)
 
         return funding_data
 

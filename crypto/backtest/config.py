@@ -29,6 +29,12 @@ class BacktestConfig:
         dt_hours: Time step in hours (default: 8.0 for 8-hour rebalancing)
         data_dir: Directory containing historical data (default: "sample_data")
         output_dir: Directory to save results (default: "backtest_results")
+        bootstrap_mode: Bootstrap sampling mode (default: "absolute_strike")
+            - "absolute_strike": Use raw historical prices (legacy, backward compatible)
+            - "normalize_spot": Rescale prices to preserve moneyness (recommended)
+        initial_spot: Initial spot price from option discovery (for normalize_spot mode)
+        target_moneyness: Explicit target moneyness override (alternative to initial_spot)
+        spot_tolerance: Tolerance for spot filtering (future use, default: 0.1)
 
     Examples:
         >>> config = BacktestConfig(
@@ -36,7 +42,9 @@ class BacktestConfig:
         ...     end_date="2024-01-31",
         ...     strike=50000,
         ...     maturity_days=14,
-        ...     model_path="models/deep_hedger.pth"
+        ...     model_path="models/deep_hedger.pth",
+        ...     bootstrap_mode="normalize_spot",
+        ...     initial_spot=49000
         ... )
         >>> config.validate()
         >>> config_dict = config.to_dict()
@@ -58,6 +66,12 @@ class BacktestConfig:
     dt_hours: float = 8.0
     data_dir: str = "sample_data"
     output_dir: str = "backtest_results"
+
+    # Bootstrap configuration (NEW)
+    bootstrap_mode: str = "absolute_strike"
+    initial_spot: Optional[float] = None
+    target_moneyness: Optional[float] = None
+    spot_tolerance: Optional[float] = 0.1
 
     def validate(self) -> None:
         """Validate configuration parameters.
@@ -111,6 +125,46 @@ class BacktestConfig:
             raise ValueError(f"dt_hours must be positive, got {self.dt_hours}")
         if self.dt_hours > 24:
             raise ValueError(f"dt_hours must be <= 24, got {self.dt_hours}")
+
+        # Validate bootstrap_mode
+        valid_modes = ["absolute_strike", "normalize_spot"]
+        if self.bootstrap_mode not in valid_modes:
+            raise ValueError(
+                f"bootstrap_mode must be one of {valid_modes}, got '{self.bootstrap_mode}'"
+            )
+
+        # Validate initial_spot if provided
+        if self.initial_spot is not None:
+            if self.initial_spot <= 0:
+                raise ValueError(
+                    f"initial_spot must be positive, got {self.initial_spot}"
+                )
+
+        # Validate target_moneyness if provided
+        if self.target_moneyness is not None:
+            if self.target_moneyness <= 0:
+                raise ValueError(
+                    f"target_moneyness must be positive, got {self.target_moneyness}"
+                )
+
+        # If normalize_spot, require initial_spot or target_moneyness
+        if self.bootstrap_mode == "normalize_spot":
+            if self.initial_spot is None and self.target_moneyness is None:
+                raise ValueError(
+                    "bootstrap_mode='normalize_spot' requires either 'initial_spot' or 'target_moneyness'.\n"
+                    "Add 'initial_spot' from Step 1 option discovery to your config."
+                )
+
+        # Warn if both provided and they conflict
+        if self.initial_spot is not None and self.target_moneyness is not None:
+            calculated_moneyness = self.initial_spot / self.strike
+            if abs(calculated_moneyness - self.target_moneyness) > 0.001:
+                import warnings
+
+                warnings.warn(
+                    f"initial_spot ({self.initial_spot}) implies moneyness={calculated_moneyness:.4f} "
+                    f"but target_moneyness={self.target_moneyness:.4f}. Using target_moneyness."
+                )
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert config to dictionary.
@@ -272,6 +326,31 @@ class BacktestConfig:
             Time step in years
         """
         return self.dt_hours / 24 / 365
+
+    @property
+    def effective_target_moneyness(self) -> Optional[float]:
+        """Calculate effective target moneyness for bootstrap.
+
+        Returns:
+            Target moneyness if configured, None otherwise
+
+        Raises:
+            ValueError: If strike is zero
+
+        Examples:
+            >>> config = BacktestConfig(..., strike=110000, initial_spot=108000)
+            >>> config.effective_target_moneyness
+            0.9818181818181818
+        """
+        # Handle divide-by-zero
+        if self.strike == 0:
+            raise ValueError("Cannot calculate moneyness with strike=0")
+
+        if self.target_moneyness is not None:
+            return self.target_moneyness
+        elif self.initial_spot is not None:
+            return self.initial_spot / self.strike
+        return None
 
     def get_provenance_info(self) -> Dict[str, Any]:
         """Get provenance information for reproducibility.

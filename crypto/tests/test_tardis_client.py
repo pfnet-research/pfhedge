@@ -211,10 +211,10 @@ class TestTardisClient(unittest.TestCase):
 
         self.assertIn("timestamp", str(context.exception).lower())
 
-    @patch("data.tardis_client.asyncio.run")
-    def test_get_funding_rate_history(self, mock_asyncio_run):
+    @patch("data.tardis_client.TardisClient._download_funding_csv")
+    def test_get_funding_rate_history(self, mock_download_csv):
         """Test get_funding_rate_history."""
-        # Mock funding data
+        # Mock funding data from CSV download
         mock_funding = [
             {
                 "timestamp": 1609459200000,
@@ -223,7 +223,7 @@ class TestTardisClient(unittest.TestCase):
                 "index_price": 29000.0,
             }
         ]
-        mock_asyncio_run.return_value = mock_funding
+        mock_download_csv.return_value = mock_funding
 
         start = datetime(2021, 1, 1, tzinfo=timezone.utc)
         end = datetime(2021, 1, 2, tzinfo=timezone.utc)

@@ -7,7 +7,7 @@ Complete guide for interactive option trading with human decision points.
 ## Table of Contents
 
 - [Quick Reference](#quick-reference)
-- [FAQ & Glossary](#faq--glossary)
+- [Step 0: Download Data](#step-0-download-historical-data)
 - [Overview](#overview)
 - [Workflow Diagram](#workflow-diagram)
 - [Step 1: Explore Options](#step-1-explore-available-options)
@@ -61,110 +61,84 @@ python crypto/scripts/calculate_seller_pnl.py \
     --backtest backtest_results/results.json
 ```
 
-### Supporting Scripts
+### Step 0: Download Historical Data (Required Before Backtesting)
 
-- **`fetch_deribit_data.py`** - Download historical data from Deribit (required before backtesting)
-  ```bash
-  python crypto/scripts/fetch_deribit_data.py \
-      --start 2024-10-01 --end 2024-10-31 \
-      --output-dir crypto/data/historical
-  ```
+**IMPORTANT**: Backtest data must be downloaded before running backtests. The workflow requires two types of data:
+
+| Data Type | Source | Method | Why |
+|-----------|--------|--------|-----|
+| **Perpetual OHLC** | Deribit API | `get_ohlc_candles` | Fast, pre-aggregated 8-hour bars |
+| **Funding rates** | Tardis CSV + Deribit API | CSV downloads + REST API | Complete historical coverage |
+
+**Recommended approach (hybrid data sources):**
+
+The script automatically handles the optimal data fetching strategy:
+- **OHLC data**: Fetched from Deribit's TradingView API (60-min candles → resampled to 8-hour)
+- **Funding rates**:
+  - Historical (>30 days): Tardis CSV downloads (fast, comprehensive)
+  - Recent (<30 days): Deribit REST API (official rates)
+
+**Command:**
+```bash
+# Download OHLC + funding rates for backtesting period
+# Requires Tardis API key for historical funding data
+python crypto/scripts/fetch_deribit_data.py \
+    --data-source tardis \
+    --start 2025-01-01 \
+    --end 2025-10-01 \
+    --instrument BTC-PERPETUAL \
+    --frequency 8H \
+    --output-dir crypto/data/historical \
+    --tardis-api-key YOUR_API_KEY
+```
+
+**What this does:**
+1. Fetches BTC-PERPETUAL OHLC candles from Deribit (automatic batching for long periods)
+2. Downloads funding rates from Tardis CSV datasets (Jan-Aug historical data)
+3. Downloads funding rates from Deribit API (Sept-Oct recent data)
+4. Automatically merges and aligns data to 8-hour intervals
+5. Saves to parquet files for fast loading during backtests
+
+**Output files:**
+```
+crypto/data/historical/
+├── btc-perpetual_8H_2025-01-01_2025-10-01.parquet          # OHLC price data
+└── btc-perpetual_funding_complete_2025-01-01_2025-10-01.parquet  # Funding rates
+```
+
+**For testing (no API key needed, limited to first day of each month):**
+```bash
+# Use Tardis free tier for testing
+python crypto/scripts/fetch_deribit_data.py \
+    --data-source tardis \
+    --start 2025-01-01 \
+    --end 2025-01-03 \
+    --output-dir crypto/data/historical
+```
+
+**For recent data only (no Tardis needed):**
+```bash
+# Deribit-only mode (last 30 days of funding available)
+python crypto/scripts/fetch_deribit_data.py \
+    --data-source deribit \
+    --start 2025-09-01 \
+    --end 2025-10-01 \
+    --output-dir crypto/data/historical
+```
+
+**Why this approach?**
+- **Fast**: OHLC from Deribit is 100x faster than individual trade replay
+- **Accurate**: Tardis funding rates are 8-hour TWAP (same as used for settlements)
+- **Complete**: Tardis has full history back to 2019; Deribit only retains 30 days
+- **Reliable**: CSV downloads avoid WebSocket replay timeouts
+
+### Supporting Scripts
 
 - **`realistic_backtest.py`** - Automated end-to-end pipeline (for batch jobs only)
   ```bash
   python crypto/scripts/realistic_backtest.py \
       --config crypto/configs/realistic_backtest_example.yaml
   ```
-
----
-
-## FAQ & Glossary
-
-### Common Questions
-
-**Q: Do I use testnet or mainnet for real trading?**
-A: **Mainnet** (real data) by default. Only use `--testnet` flag for testing the scripts. Testnet has fake/limited data.
-
-**Q: What currency are P&L calculations in?**
-A: **USD**. Premiums are quoted in BTC but converted to USD for P&L reporting. Both BTC and USD values are saved.
-
-**Q: What does "±" mean in results like "$-3,200 ± $450"?**
-A: **Standard deviation** (risk/uncertainty). The mean is $-3,200 and ±$450 is the variation:
-- 68% of scenarios: between $-3,650 and $-2,750
-- 95% of scenarios: between $-4,100 and $-2,300
-- Smaller ± = more consistent/predictable
-
-**Q: Where does the data come from?**
-A: **Deribit Public API** (no authentication needed for historical data):
-
-| Data Type | API Method | What We Get |
-|-----------|------------|-------------|
-| Available options | `get_instruments` | List of all BTC options with strikes, expiries |
-| Option premiums | `get_last_trades_by_instrument` | Actual executed trades (price, size, time) |
-| Perpetual prices | `get_tradingview_chart_data` | OHLC bars at 8-hour intervals |
-| Funding rates | `get_funding_rate_history` | 8-hour funding payments |
-
-All data comes from **mainnet** by default (real market data). Use `--testnet` only for testing scripts.
-
-**Q: How is the spot price determined for BTC/USD conversion?**
-A: The spot price is **always taken at the trade date** (when you would execute the option trade). This ensures all conversions use the correct market price at the time of trading:
-
-**Data Flow:**
-1. **Step 1 (explore_options.py)**: Fetches BTC-PERPETUAL trades at `--trade-date`, uses median price as `initial_spot`
-2. **Premium conversion**: `premium_usd = premium_btc * initial_spot`
-3. **All subsequent steps**: Use the same `initial_spot` from option metadata
-
-**Why this matters:**
-- Premiums are quoted in BTC on Deribit (e.g., 0.0624 BTC)
-- Converting to USD requires the BTC price at that moment
-- Using the wrong spot price would distort P&L calculations
-- All scripts consistently use `initial_spot` from the trade date
-
-**Example:**
-```
-Trade date: 2024-10-15 12:00 UTC
-BTC spot at that time: $50,250 (from perpetual trades)
-Premium: 0.0624 BTC
-Converted: 0.0624 × $50,250 = $3,136 USD
-```
-
-**Verification:** All BTC/USD conversions across the codebase use `initial_spot` consistently:
-- `explore_options.py` line 90, 150
-- `calculate_seller_pnl.py` line 118
-- `realistic_backtest.py` line 325
-- `select_option.py` line 322, 385
-- `black_scholes.py` line 240
-
-### Key Terms
-
-**Trade Date** (`--trade-date`): When you would execute the option trade (formerly called "trade date")
-
-**Trades** (in option table): Number of actual executed buy/sell transactions for that option. Higher = more liquid. Recommended minimum: 10.
-
-**Implied Volatility (IV)**: **We calculate this**, not from exchange. We take the actual premium from trades and invert Black-Scholes formula to get volatility. This is the market's expectation of future price movement.
-
-**Premium**: Price to buy/sell the option
-- Quoted in **BTC** on Deribit (e.g., 0.0624 BTC)
-- Converted to **USD** for analysis (e.g., $3,136)
-
-**Hedging P&L**: Cost of maintaining the hedge position
-- Usually **negative** for sellers (spending money to hedge)
-- Includes transaction costs and funding fees
-
-**Total Seller P&L**: The complete picture
-```
-Total P&L = Premium Received + Hedging P&L
-          = (positive income) + (negative cost)
-```
-
-**Moneyness**: Ratio of spot price to strike price
-- 1.0 = At-the-money (ATM)
-- > 1.0 = In-the-money (ITM) for calls
-- < 1.0 = Out-of-the-money (OTM) for calls
-
-**Bootstrap Paths**: Multiple simulated price paths from historical data
-- Used to test how strategy performs across different scenarios
-- More paths = more robust results (but slower)
 
 ---
 
@@ -183,6 +157,13 @@ This workflow is designed for **real trading** where you need to:
 ## Workflow Diagram
 
 ```
+┌─────────────────────────────────────────────────────────────┐
+│ Step 0: Download Historical Data                           │
+│ Script: fetch_deribit_data.py                               │
+│ Output: OHLC + funding rate parquet files                   │
+└────────────────┬────────────────────────────────────────────┘
+                 │
+                 ▼
 ┌─────────────────────────────────────────────────────────────┐
 │ Step 1: Explore Available Options                          │
 │ Script: explore_options.py                                  │
@@ -226,6 +207,104 @@ This workflow is designed for **real trading** where you need to:
          [ FINAL DECISION ]
          Execute trade or pass
 ```
+
+---
+
+## Step 0: Download Historical Data
+
+### Purpose
+Download perpetual contract OHLC data and funding rates required for backtesting. This data is used to simulate realistic market conditions during strategy evaluation.
+
+### Data Requirements
+
+For backtesting, you need:
+1. **BTC-PERPETUAL OHLC prices** (open, high, low, close at 8-hour intervals)
+2. **Funding rate history** (8-hour funding payments for perpetual positions)
+
+### Download Script
+
+```bash
+python crypto/scripts/fetch_deribit_data.py \
+    --data-source tardis \
+    --start 2025-01-01 \
+    --end 2025-10-01 \
+    --instrument BTC-PERPETUAL \
+    --frequency 8H \
+    --output-dir crypto/data/historical \
+    --tardis-api-key YOUR_API_KEY
+```
+
+### Parameters
+- `--data-source`: Use `tardis` for historical data (back to 2019), or `deribit` for recent data only
+- `--start`, `--end`: Date range for data download (format: YYYY-MM-DD)
+- `--instrument`: Perpetual contract name (default: BTC-PERPETUAL)
+- `--frequency`: Resampling frequency (default: 8H for 8-hour intervals)
+- `--output-dir`: Directory to save downloaded data
+- `--tardis-api-key`: Your Tardis.dev API key (required for historical data >30 days)
+
+### How It Works
+
+**Data fetching strategy:**
+1. **OHLC candles**: Fetched from Deribit's TradingView API
+   - Downloads 60-minute candles in batches (handles API limit of ~5000 candles)
+   - Automatically resamples to 8-hour intervals
+   - Fast: ~2 seconds for 9 months vs ~23 minutes for individual trades
+
+2. **Funding rates**: Hybrid approach for complete coverage
+   - **Historical (>30 days ago)**: Downloads from Tardis CSV datasets
+     - One CSV file per day, gzip compressed
+     - Samples funding rates at 8-hour intervals (00:00, 08:00, 16:00 UTC)
+     - Efficient: downloads 243 days in ~15 minutes
+   - **Recent (<30 days)**: Fetches from Deribit REST API
+     - Deribit only retains ~30 days of funding history
+     - Provides official 8-hour rates
+
+3. **Automatic merging**: Script combines Tardis and Deribit funding data
+   - Uses Tardis for historical data
+   - Uses Deribit for recent data
+   - Removes duplicates and aligns timestamps
+
+### Output Files
+
+```
+crypto/data/historical/
+├── btc-perpetual_8H_2025-01-01_2025-10-01.parquet
+│   └── OHLC price data (823 bars, 100% coverage)
+└── btc-perpetual_funding_complete_2025-01-01_2025-10-01.parquet
+    └── Funding rates (1,473 records, aligned to 8-hour intervals)
+```
+
+### Verification
+
+After download completes, verify data quality:
+
+```python
+import pandas as pd
+
+# Check OHLC data
+ohlc = pd.read_parquet('crypto/data/historical/btc-perpetual_8H_2025-01-01_2025-10-01.parquet')
+print(f"OHLC: {len(ohlc)} bars from {ohlc['timestamp'].min()} to {ohlc['timestamp'].max()}")
+
+# Check funding data
+funding = pd.read_parquet('crypto/data/historical/btc-perpetual_funding_complete_2025-01-01_2025-10-01.parquet')
+print(f"Funding: {len(funding)} records from {funding['timestamp'].min()} to {funding['timestamp'].max()}")
+```
+
+### Common Issues
+
+**No Tardis API key:**
+- Free tier: Limited to first day of each month
+- Solution: Get API key from https://tardis.dev or use Deribit-only mode for recent data
+
+**Download fails or times out:**
+- The script automatically retries failed downloads
+- Missing days will be logged but don't block the overall download
+- You can re-run for specific date ranges to fill gaps
+
+**Data gaps:**
+- Check logs for SSL errors or 404s (missing days in Tardis dataset)
+- Re-run script with date range covering only missing days
+- Script will merge new downloads with existing data
 
 ---
 
@@ -439,6 +518,10 @@ strike: 50000
 maturity_days: 14
 call: true
 
+# Bootstrap mode (NEW - see explanation below)
+bootstrap_mode: "normalize_spot"  # RECOMMENDED
+initial_spot: 50250.0             # From Step 1 option discovery
+
 # Model
 model_path: "models/oct29_50k_call/model.pth"
 
@@ -451,6 +534,64 @@ dt_hours: 8.0                # 8-hour rebalancing
 data_dir: "crypto/data/historical"
 output_dir: "backtest_results/oct29_50k_call"
 ```
+
+### Understanding Bootstrap Modes
+
+**IMPORTANT**: The bootstrap mode determines how historical prices are used to create test scenarios, which critically affects backtest validity.
+
+#### The Problem: Moneyness Consistency
+
+When backtesting an option with strike $50K:
+- January historical data: BTC was ~$42K → moneyness = 0.84 (deep OTM)
+- October historical data: BTC was ~$108K → moneyness = 2.16 (deep ITM)
+
+If we use a fixed strike with varying historical spots, each bootstrap path tests a **fundamentally different option**. The neural network sees completely different inputs (`log_moneyness`), and averaging P&L from OTM/ATM/ITM options together is **meaningless** for predicting performance of the specific option you plan to trade.
+
+#### Solution: Two Bootstrap Modes
+
+**1. `normalize_spot` (RECOMMENDED for trading decisions)**
+- **What it does**: Rescales historical prices so all paths start at the same spot (preserving moneyness)
+- **Why it works**: Multiplicative rescaling preserves returns and volatility (tested)
+- **Result**: All bootstrap paths test the **exact same option characteristics** (e.g., all 98% OTM calls)
+- **Configuration**:
+  ```yaml
+  bootstrap_mode: "normalize_spot"
+  initial_spot: 50250.0  # From Step 1 (option discovery)
+  # OR
+  target_moneyness: 0.98  # Explicitly set if you don't have initial_spot
+  ```
+
+**2. `absolute_strike` (legacy, for research only)**
+- **What it does**: Uses raw historical prices without rescaling
+- **Result**: Each path tests a different option type (OTM/ATM/ITM mix)
+- **Use case**: Historical analysis, understanding regime-dependent behavior
+- **Configuration**:
+  ```yaml
+  bootstrap_mode: "absolute_strike"
+  # No initial_spot needed
+  ```
+
+#### Which Mode Should I Use?
+
+| Goal | Mode | Reason |
+|------|------|--------|
+| **Trading decision** (Should I sell this option?) | `normalize_spot` | Tests the specific option you'll trade |
+| **Forward-looking P&L estimate** | `normalize_spot` | All paths match your option's characteristics |
+| **Historical performance analysis** | `absolute_strike` | See how strategy performed across different regimes |
+| **Research / regime studies** | `absolute_strike` | Understand behavior in different market conditions |
+
+**For real trading: Always use `normalize_spot`** with the `initial_spot` from Step 1 option discovery.
+
+#### How to Set initial_spot
+
+The `initial_spot` is already in your `options_candidates.json` from Step 1:
+
+```bash
+# View the initial_spot for your selected option
+cat options_candidates.json | grep -A 5 "BTC-29OCT24-50000-C" | grep initial_spot
+```
+
+This ensures your backtest uses the exact same spot price that was used to calculate the option's premium and moneyness.
 
 ### Command
 ```bash
@@ -623,7 +764,10 @@ python crypto/scripts/train_for_option.py \
 # ============================================================================
 # STEP 3: BACKTEST
 # ============================================================================
-# First, create backtest_config.yaml (see Step 3 above)
+# First, create backtest_oct15.yaml:
+# - Use bootstrap_mode: "normalize_spot"
+# - Set initial_spot: 50250.0 (from options_oct15.json)
+# - See Step 3 for full config example
 
 python -m crypto.backtest.run \
     --config backtest_oct15.yaml \

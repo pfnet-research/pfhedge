@@ -11,6 +11,27 @@ from pfhedge._utils.typing import TensorOrScalar
 from .bitcoin_perpetual_base import BitcoinPerpetualBase
 
 
+# Columns to rescale when adjusting spot prices (price-like)
+PRICE_COLUMNS = [
+    "last_price",  # Spot price
+    "index_price",  # Index/oracle price
+    "mark_price",  # Mark price
+    "best_bid_price",  # Level 1 bid
+    "best_ask_price",  # Level 1 ask
+    "bid_price",  # Legacy bid
+    "ask_price",  # Legacy ask
+]
+
+# Columns to preserve unchanged (rates, quantities, bps)
+PRESERVE_COLUMNS = [
+    "funding_rate",
+    "interest_8h",
+    "volume",
+    "amount",
+    "trades_count",
+]
+
+
 class BitcoinPerpetualHistorical(BitcoinPerpetualBase):
     """Bitcoin perpetual using historical data for backtesting.
 
@@ -86,11 +107,14 @@ class BitcoinPerpetualHistorical(BitcoinPerpetualBase):
             >>> # 100 identical paths, useful for averaging over random trades
         """
         # Load perpetual data with funding rates
-        perpetual_df = self.data_loader.load_perpetual_data()
-
-        if perpetual_df is None or perpetual_df.empty:
-            # Try cached data
+        # Prefer cached data (which may have funding merged) over reloading from disk
+        if (
+            self.data_loader.perpetual_data is not None
+            and not self.data_loader.perpetual_data.empty
+        ):
             perpetual_df = self.data_loader.perpetual_data
+        else:
+            perpetual_df = self.data_loader.load_perpetual_data()
 
         if perpetual_df is None or perpetual_df.empty:
             raise ValueError("No perpetual data available in data_loader")
@@ -153,9 +177,9 @@ class BitcoinPerpetualHistorical(BitcoinPerpetualBase):
         self.register_buffer("mid", (bid_prices + ask_prices) / 2)
 
         # Load funding rates
-        if "funding_8h" in data.columns:
+        if "funding_rate" in data.columns:
             funding_rates = torch.tensor(
-                data["funding_8h"].values, dtype=self.dtype, device=self.device
+                data["funding_rate"].values, dtype=self.dtype, device=self.device
             ).unsqueeze(0)
             if n_paths > 1:
                 funding_rates = funding_rates.repeat(n_paths, 1)
@@ -236,40 +260,69 @@ class BitcoinPerpetualHistorical(BitcoinPerpetualBase):
         n_paths: int,
         time_horizon: float,
         window_size: Optional[int] = None,
+        target_initial_spot: Optional[float] = None,
+        max_date: Optional[str] = None,
+        store_scale_factors: bool = False,
     ) -> None:
-        """Bootstrap simulation by randomly sampling historical windows.
+        """Bootstrap simulation with optional spot rescaling.
 
         This method creates multiple paths by randomly selecting different
-        starting points in the historical data. Useful for generating
-        multiple scenarios from limited historical data.
+        starting points in the historical data. Optionally rescales prices
+        to preserve moneyness across all paths.
 
         Args:
             n_paths: Number of bootstrap paths to generate
-            time_horizon: Time period for each path
-            window_size: Size of historical window to sample from
-                        (if None, uses all available data)
+            time_horizon: Time period for each path (in years)
+            window_size: Size of historical window to sample from (if None, uses all)
+            target_initial_spot: If provided, rescale all paths to this initial spot
+            max_date: If provided, only sample from data < max_date (no look-ahead)
+            store_scale_factors: Whether to store scale factors for auditability
 
         Examples:
             >>> btc = BitcoinPerpetualHistorical(data_loader=loader)
+            >>> # Basic bootstrap (no rescaling)
             >>> btc.simulate_bootstrap(n_paths=1000, time_horizon=5/365)
-            >>> # Creates 1000 different 5-day paths from historical data
+            >>>
+            >>> # Moneyness-preserving bootstrap
+            >>> btc.simulate_bootstrap(
+            ...     n_paths=1000,
+            ...     time_horizon=5/365,
+            ...     target_initial_spot=108000,  # Rescale all paths to start at $108k
+            ...     max_date="2024-10-15"  # No look-ahead
+            ... )
         """
         import math
         import random
+        import logging
+
+        logger = logging.getLogger(__name__)
 
         # Load all available data
-        perpetual_df = self.data_loader.load_perpetual_data()
-
-        if perpetual_df is None or perpetual_df.empty:
-            perpetual_df = self.data_loader.perpetual_data
+        # Prefer cached data (which may have funding merged) over reloading from disk
+        if (
+            self.data_loader.perpetual_data is not None
+            and not self.data_loader.perpetual_data.empty
+        ):
+            perpetual_df = self.data_loader.perpetual_data.copy()
+        else:
+            perpetual_df = self.data_loader.load_perpetual_data()
 
         if perpetual_df is None or perpetual_df.empty:
             raise ValueError("No perpetual data available")
 
-        # Calculate steps needed per path
-        n_steps = math.ceil(time_horizon / self.dt + 1)
+        # Apply no look-ahead filter
+        if max_date is not None:
+            max_timestamp = pd.to_datetime(max_date, utc=True)
+            if "timestamp" in perpetual_df.columns:
+                perpetual_df = perpetual_df[perpetual_df["timestamp"] < max_timestamp]
+                logger.info(
+                    f"Filtered data to before {max_date}: {len(perpetual_df)} records"
+                )
 
-        # Determine sampling window
+        # Calculate n_steps (single source of truth - match PFHedge convention)
+        n_steps = int(time_horizon / self.dt) + 1
+
+        # Validate sufficient data
         total_available = len(perpetual_df)
         if window_size is None:
             window_size = total_available
@@ -278,80 +331,132 @@ class BitcoinPerpetualHistorical(BitcoinPerpetualBase):
 
         if window_size < n_steps:
             raise ValueError(
-                f"Window size ({window_size}) must be >= steps needed ({n_steps})"
+                f"Insufficient historical data for bootstrap:\n"
+                f"  Need: {n_steps} steps ({time_horizon*365:.1f} days at dt={self.dt*365:.2f} days)\n"
+                f"  Available: {window_size} records\n"
+                f"  Suggestion: Reduce maturity_days or fetch more historical data"
             )
 
-        # Generate bootstrap samples
+        max_start = window_size - n_steps
+        if max_start < 0:
+            raise ValueError(
+                f"Cannot sample windows: window_size ({window_size}) < n_steps ({n_steps})"
+            )
+
+        # Initialize lists
         path_list = []
         bid_list = []
         ask_list = []
+        mid_list = []
         funding_list = []
         index_list = []
+        scale_factors = []
 
-        for _ in range(n_paths):
+        # Helper to extract and rescale column
+        def get_rescaled_column(
+            window_data, col_name: str, rescale_factor: float, default_val=None
+        ):
+            """Extract column and apply rescale factor if it's a price column."""
+            if col_name in window_data.columns:
+                vals = window_data[col_name].values
+                return torch.as_tensor(
+                    vals * rescale_factor, dtype=self.dtype, device=self.device
+                )
+            elif default_val is not None:
+                return default_val
+            else:
+                return None
+
+        # Bootstrap sampling
+        for path_idx in range(n_paths):
             # Random starting point
-            max_start = window_size - n_steps
             start_idx = random.randint(0, max_start)
             end_idx = start_idx + n_steps
 
             # Extract window
-            window_data = perpetual_df.iloc[start_idx:end_idx]
+            window_data = perpetual_df.iloc[start_idx:end_idx].copy()
 
-            # Extract prices
-            spot = torch.tensor(
-                window_data["last_price"].values, dtype=self.dtype, device=self.device
-            )
+            # Handle NaNs/gaps
+            if window_data["last_price"].isna().any():
+                logger.warning(
+                    f"Path {path_idx}: Found NaN in window at index {start_idx}, forward-filling"
+                )
+                window_data = window_data.ffill().bfill()
+
+            # Extract spot price (required)
+            spot_raw = window_data["last_price"].values
+
+            # Calculate rescale factor
+            if target_initial_spot is not None:
+                rescale_factor = target_initial_spot / spot_raw[0]
+                scale_factors.append(rescale_factor)
+            else:
+                rescale_factor = 1.0
+                scale_factors.append(1.0)
+
+            # Rescale spot price
+            spot = get_rescaled_column(window_data, "last_price", rescale_factor)
+            if spot is None:
+                raise ValueError(f"Required column 'last_price' not found in data")
             path_list.append(spot)
 
-            # Bid/ask
-            if "bid_price" in window_data.columns:
-                bid = torch.tensor(
-                    window_data["bid_price"].values,
-                    dtype=self.dtype,
-                    device=self.device,
-                )
-                ask = torch.tensor(
-                    window_data["ask_price"].values,
-                    dtype=self.dtype,
-                    device=self.device,
-                )
-            else:
-                spread = 0.0002
+            # Bid/ask prices (try multiple column names)
+            bid = get_rescaled_column(
+                window_data, "best_bid_price", rescale_factor
+            ) or get_rescaled_column(window_data, "bid_price", rescale_factor)
+            ask = get_rescaled_column(
+                window_data, "best_ask_price", rescale_factor
+            ) or get_rescaled_column(window_data, "ask_price", rescale_factor)
+
+            if bid is None or ask is None:
+                # Derive from spot with typical spread
+                spread = 0.0002  # 2 bps
                 bid = spot * (1 - spread / 2)
                 ask = spot * (1 + spread / 2)
 
             bid_list.append(bid)
             ask_list.append(ask)
+            mid_list.append((bid + ask) / 2)
 
-            # Funding
-            if "funding_8h" in window_data.columns:
-                funding = torch.tensor(
-                    window_data["funding_8h"].values,
-                    dtype=self.dtype,
-                    device=self.device,
+            # Index price (rescale if present)
+            index = get_rescaled_column(
+                window_data, "index_price", rescale_factor, default_val=spot.clone()
+            )
+            index_list.append(index)
+
+            # Funding rate (DO NOT rescale - it's a rate, not a price)
+            if "funding_rate" in window_data.columns:
+                funding_vals = window_data["funding_rate"].values
+                funding = torch.as_tensor(
+                    funding_vals, dtype=self.dtype, device=self.device
                 )
             else:
                 funding = torch.zeros_like(spot)
             funding_list.append(funding)
 
-            # Index
-            if "index_price" in window_data.columns:
-                index = torch.tensor(
-                    window_data["index_price"].values,
-                    dtype=self.dtype,
-                    device=self.device,
-                )
-            else:
-                index = spot.clone()
-            index_list.append(index)
-
         # Stack all paths
         self.register_buffer("spot", torch.stack(path_list))
         self.register_buffer("bid", torch.stack(bid_list))
         self.register_buffer("ask", torch.stack(ask_list))
-        self.register_buffer("mid", (self.bid + self.ask) / 2)
+        self.register_buffer("mid", torch.stack(mid_list))
         self.register_buffer("_funding_rate", torch.stack(funding_list))
         self.register_buffer("index_price", torch.stack(index_list))
+
+        # Store scale factors for auditability
+        if store_scale_factors or target_initial_spot is not None:
+            self.register_buffer(
+                "_bootstrap_scale_factors",
+                torch.as_tensor(scale_factors, dtype=self.dtype, device=self.device),
+            )
+
+        # Logging
+        if target_initial_spot is not None:
+            logger.info(
+                f"Bootstrap: Rescaled {n_paths} paths to initial_spot=${target_initial_spot:,.2f} "
+                f"(scale: {min(scale_factors):.3f}-{max(scale_factors):.3f})"
+            )
+        else:
+            logger.info(f"Bootstrap: Sampled {n_paths} paths (no rescaling)")
 
     def __repr__(self) -> str:
         """String representation."""

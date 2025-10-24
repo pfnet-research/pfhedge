@@ -150,7 +150,6 @@ models/
 bctprice/data/output/
 
 # Crypto project specific files
-crypto/data/sample_data/
 crypto/data/fresh_data/
 crypto/data/data/
 crypto/data/*.parquet
@@ -164,3 +163,4 @@ config/api_keys.json
 **/test_data/
 **/temp_data/
 /crypto/examples/output/
+/crypto/data/historical/

@@ -364,11 +364,11 @@ class Backtester:
                     # Rename for clarity
                     if "interest_8h" in filtered_df.columns:
                         filtered_df["funding_rate"] = filtered_df["interest_8h"]
-                    # Forward fill missing funding rates
+                    # Forward and backward fill missing funding rates
                     if "funding_rate" in filtered_df.columns:
-                        filtered_df["funding_rate"] = filtered_df[
-                            "funding_rate"
-                        ].ffill()
+                        filtered_df["funding_rate"] = (
+                            filtered_df["funding_rate"].ffill().bfill()
+                        )
 
                     # Update loader with merged data
                     loader.perpetual_data = filtered_df
@@ -440,7 +440,11 @@ class Backtester:
             >>> print(option.summary())
         """
         # Import necessary classes
+        import logging
+        import numpy as np
         from crypto.instruments import BitcoinPerpetualHistorical, BitcoinEuropeanOption
+
+        logger = logging.getLogger(__name__)
 
         # Use provided data_loader or fall back to self.data_loader
         if data_loader is None:
@@ -455,7 +459,7 @@ class Backtester:
         if data_loader.perpetual_data is None or data_loader.perpetual_data.empty:
             raise ValueError("Data loader has no perpetual data")
 
-        print("Creating bootstrap option from historical data...")
+        logger.info("Creating bootstrap option from historical data...")
 
         # Create BitcoinPerpetualHistorical with loaded data
         underlier = BitcoinPerpetualHistorical(
@@ -469,23 +473,99 @@ class Backtester:
         # Calculate time horizon from maturity_days
         time_horizon = self.config.maturity_days / 365.0
 
-        # Generate bootstrap paths
-        print(
-            f"Generating {self.config.n_bootstrap_paths} bootstrap paths "
-            f"for {self.config.maturity_days} days..."
-        )
+        # Determine bootstrap parameters based on mode
+        bootstrap_mode = self.config.bootstrap_mode
 
-        try:
-            underlier.simulate_bootstrap(
-                n_paths=self.config.n_bootstrap_paths,
-                time_horizon=time_horizon,
-                window_size=None,  # Use all available data
+        if bootstrap_mode == "normalize_spot":
+            # Calculate target initial spot
+            target_moneyness = self.config.effective_target_moneyness
+            target_initial_spot = self.config.strike * target_moneyness
+
+            logger.info(f"Bootstrap mode: normalize_spot")
+            logger.info(f"  Target moneyness: {target_moneyness:.4f}")
+            logger.info(f"  Target initial spot: ${target_initial_spot:,.2f}")
+            logger.info(f"  Strike: ${self.config.strike:,.2f}")
+            logger.info(f"  Target log_moneyness: {np.log(target_moneyness):.4f}")
+
+            # Generate bootstrap with rescaling (no look-ahead)
+            try:
+                underlier.simulate_bootstrap(
+                    n_paths=self.config.n_bootstrap_paths,
+                    time_horizon=time_horizon,
+                    window_size=None,
+                    target_initial_spot=target_initial_spot,  # Enable rescaling
+                    max_date=None,  # For backtesting, use all available data in the loaded range
+                    store_scale_factors=True,
+                )
+            except Exception as e:
+                raise ValueError(f"Failed to generate bootstrap paths: {e}")
+
+            logger.info(f"✅ Generated {underlier.spot.shape[0]} bootstrap paths")
+            logger.info(f"   Each path has {underlier.spot.shape[1]} time steps")
+
+            # Verify moneyness consistency
+            initial_spots = underlier.spot[:, 0]
+            initial_moneyness = initial_spots / self.config.strike
+            log_moneyness = torch.log(initial_moneyness)
+
+            # Check consistency
+            std_log_moneyness = log_moneyness.std().item()
+            mean_log_moneyness = log_moneyness.mean().item()
+            target_log_moneyness = np.log(target_moneyness)
+
+            if std_log_moneyness > 1e-6:
+                logger.warning(
+                    f"Initial log_moneyness varies across paths (std={std_log_moneyness:.6f})"
+                )
+
+            if abs(mean_log_moneyness - target_log_moneyness) > 1e-6:
+                logger.warning(
+                    f"Mean log_moneyness ({mean_log_moneyness:.4f}) differs from target ({target_log_moneyness:.4f})"
+                )
+
+            logger.info(
+                f"✅ Moneyness verified: mean={mean_log_moneyness:.4f}, std={std_log_moneyness:.6f}, "
+                f"initial_spot: ${initial_spots.mean().item():,.2f} (${initial_spots.min().item():,.2f}-${initial_spots.max().item():,.2f})"
             )
-        except Exception as e:
-            raise ValueError(f"Failed to generate bootstrap paths: {e}")
 
-        print(f"✅ Generated {underlier.spot.shape[0]} bootstrap paths")
-        print(f"   Each path has {underlier.spot.shape[1]} time steps")
+        elif bootstrap_mode == "absolute_strike":
+            # Legacy mode: no rescaling
+            logger.info(f"Bootstrap mode: absolute_strike (no rescaling)")
+            logger.warning(
+                "Using absolute_strike mode - paths will have varying moneyness. "
+                "Consider bootstrap_mode='normalize_spot' for consistent results."
+            )
+
+            try:
+                underlier.simulate_bootstrap(
+                    n_paths=self.config.n_bootstrap_paths,
+                    time_horizon=time_horizon,
+                    window_size=None,
+                    target_initial_spot=None,  # No rescaling
+                    max_date=None,  # For backtesting, use all available data in the loaded range
+                    store_scale_factors=False,
+                )
+            except Exception as e:
+                raise ValueError(f"Failed to generate bootstrap paths: {e}")
+
+            logger.info(f"✅ Generated {underlier.spot.shape[0]} bootstrap paths")
+            logger.info(f"   Each path has {underlier.spot.shape[1]} time steps")
+
+            # Log moneyness distribution for visibility
+            initial_spots = underlier.spot[:, 0]
+            initial_moneyness = initial_spots / self.config.strike
+            log_moneyness = torch.log(initial_moneyness)
+
+            # Percentiles
+            p5 = torch.quantile(log_moneyness, 0.05).item()
+            p50 = torch.quantile(log_moneyness, 0.50).item()
+            p95 = torch.quantile(log_moneyness, 0.95).item()
+
+            logger.info(
+                f"ℹ️  Initial log_moneyness distribution: "
+                f"5th={p5:.4f}, median={p50:.4f}, 95th={p95:.4f} "
+                f"(range: {np.exp(p5):.3f}x to {np.exp(p95):.3f}x)"
+            )
 
         # Create BitcoinEuropeanOption on top of the underlier
         option = BitcoinEuropeanOption(
@@ -818,13 +898,19 @@ class Backtester:
             >>> print(f"Deep Sharpe: {summary['deep_hedge']['sharpe_ratio']:.3f}")
         """
         # Import BacktestResults
-        from .results import BacktestResults
+        import logging
+        import random
         import numpy as np
+        from .results import BacktestResults
+
+        logger = logging.getLogger(__name__)
 
         # Set random seeds for reproducibility if requested
         if seed is not None:
-            torch.manual_seed(seed)
+            # Seed ALL random generators
+            random.seed(seed)
             np.random.seed(seed)
+            torch.manual_seed(seed)
 
             # Set CUDA seeds for GPU reproducibility
             if torch.cuda.is_available():
@@ -833,15 +919,11 @@ class Backtester:
                 # Enable deterministic mode for cuDNN
                 torch.backends.cudnn.deterministic = True
                 torch.backends.cudnn.benchmark = False
-                print(
-                    f"🔒 Random seed set to {seed} for reproducibility (including CUDA)\n"
-                )
+                logger.info(f"🔒 Seed={seed} (random, numpy, torch, CUDA)")
             else:
-                print(f"🔒 Random seed set to {seed} for reproducibility\n")
+                logger.info(f"🔒 Seed={seed} (random, numpy, torch)")
         else:
-            print(
-                f"⚠️  No random seed set. Results may vary between runs due to bootstrap sampling.\n"
-            )
+            logger.warning("⚠️  No seed set - results may vary between runs")
 
         print("\n" + "=" * 60)
         print("STARTING BACKTEST")

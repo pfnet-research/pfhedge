@@ -111,9 +111,9 @@ class BitcoinPerpetual(BitcoinBase):
         super().load_historical_data(data, n_paths)
 
         # Load funding rate if available
-        if "funding_8h" in data.columns:
+        if "funding_rate" in data.columns:
             funding_rates = torch.tensor(
-                data["funding_8h"].values, dtype=self.dtype, device=self.device
+                data["funding_rate"].values, dtype=self.dtype, device=self.device
             ).unsqueeze(0)
             if n_paths > 1:
                 funding_rates = funding_rates.repeat(n_paths, 1)

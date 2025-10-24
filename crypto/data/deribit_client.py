@@ -207,6 +207,46 @@ class DeribitClient(MarketDataClient):
 
         return self._make_request("GET", "public/get_funding_rate_history", params)
 
+    def get_ohlc_candles(
+        self,
+        instrument_name: str,
+        start_timestamp: int,
+        end_timestamp: int,
+        resolution: str = "60",
+    ) -> Dict:
+        """
+        Get OHLC candlestick data from Deribit TradingView API.
+
+        Args:
+            instrument_name: Name of instrument (e.g., BTC-PERPETUAL)
+            start_timestamp: Start time in milliseconds
+            end_timestamp: End time in milliseconds
+            resolution: Candle resolution in minutes
+                Supported: 1, 3, 5, 10, 15, 30, 60, 120, 180, 360, 720, 1D
+
+        Returns:
+            Dict with keys: ticks, open, high, low, close, volume, cost, status
+            Example:
+            {
+                "ticks": [1735689600000, 1735693200000, ...],
+                "open": [93445.5, 94225.5, ...],
+                "high": [94320.0, 94225.5, ...],
+                "low": [93336.0, 93440.5, ...],
+                "close": [94224.5, 93467.0, ...],
+                "volume": [238.92, 162.77, ...],
+                "cost": [...],
+                "status": "ok"
+            }
+        """
+        params = {
+            "instrument_name": instrument_name,
+            "start_timestamp": start_timestamp,
+            "end_timestamp": end_timestamp,
+            "resolution": resolution,
+        }
+
+        return self._make_request("GET", "public/get_tradingview_chart_data", params)
+
 
 def timestamp_to_ms(dt: datetime) -> int:
     """Convert datetime to milliseconds timestamp."""

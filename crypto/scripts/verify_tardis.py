@@ -298,6 +298,72 @@ def verify_expiry_filtering(client: TardisClient, expiry_date: datetime) -> bool
         return False
 
 
+def verify_funding_rates(client: TardisClient, test_date: datetime) -> bool:
+    """Verify funding rate history fetching."""
+    print_section("TEST 5: Funding Rate History")
+
+    print(f"\nFetching funding rates around {test_date}")
+
+    # Get funding rates for a 24-hour period
+    start = test_date - timedelta(hours=12)
+    end = test_date + timedelta(hours=12)
+
+    try:
+        funding_rates = client.get_funding_rate_history(
+            instrument_name="BTC-PERPETUAL",
+            start_timestamp=timestamp_to_ms(start),
+            end_timestamp=timestamp_to_ms(end),
+        )
+
+        print(f"✓ Found {len(funding_rates)} funding rate records")
+
+        if not funding_rates:
+            print(f"  Note: No funding rates found in this time window")
+            print(f"  Funding rates are published every 8 hours on Deribit")
+            return True  # Not an error, just no data in window
+
+        # Check data structure
+        sample = funding_rates[0]
+        required_fields = ["timestamp", "interest_8h"]
+        missing = [f for f in required_fields if f not in sample]
+
+        if missing:
+            print(f"✗ ERROR: Missing fields: {missing}")
+            return False
+
+        print(f"✓ Data structure valid")
+
+        # Show funding rate statistics
+        import pandas as pd
+
+        df = pd.DataFrame(funding_rates)
+
+        print(f"\nFunding rate statistics:")
+        print(f"  Count: {len(df)}")
+        print(f"  Mean: {df['interest_8h'].mean():.6f}")
+        print(f"  Range: {df['interest_8h'].min():.6f} - {df['interest_8h'].max():.6f}")
+
+        # Show sample records
+        print("\nSample funding rates:")
+        for record in funding_rates[:3]:
+            ts = datetime.fromtimestamp(record["timestamp"] / 1000, tz=timezone.utc)
+            rate = record.get("interest_8h", 0)
+            annualized = rate * 365 * 3  # 3 times per day
+            print(
+                f"  - {ts.strftime('%Y-%m-%d %H:%M')}: "
+                f"{rate:.6f} (annualized: {annualized*100:.2f}%)"
+            )
+
+        return True
+
+    except Exception as e:
+        print(f"✗ ERROR: {e}")
+        import traceback
+
+        traceback.print_exc()
+        return False
+
+
 def run_verification(
     test_date: Optional[datetime] = None,
     instrument: Optional[str] = None,
@@ -380,6 +446,9 @@ def run_verification(
     expiry_date = datetime.now(timezone.utc) + timedelta(days=7)
     expiry_date = expiry_date.replace(hour=8, minute=0, second=0, microsecond=0)
     results.append(("Expiry Filtering", verify_expiry_filtering(client, expiry_date)))
+
+    # Test 5: Funding rates
+    results.append(("Funding Rate History", verify_funding_rates(client, test_date)))
 
     # Summary
     print_section("VERIFICATION SUMMARY")

@@ -91,6 +91,9 @@ class BacktestResults:
         # Cache for summary statistics (computed once on first access)
         self._summary_cache: Optional[Dict[str, Dict[str, float]]] = None
 
+        # Bootstrap metadata (NEW)
+        self.bootstrap_metadata = self._extract_bootstrap_metadata()
+
     def _validate_inputs(
         self,
         deep_pnl: Tensor,
@@ -125,6 +128,89 @@ class BacktestResults:
                 raise ValueError(
                     f"{name} shape {tensor.shape} doesn't match deep_pnl shape {expected_shape}"
                 )
+
+    def _extract_bootstrap_metadata(self) -> Dict[str, Any]:
+        """Extract bootstrap metadata from config and spots.
+
+        Returns:
+            Dictionary with bootstrap metadata including mode, moneyness stats,
+            scale factors, etc.
+        """
+        metadata = {}
+
+        if self.config is None:
+            return metadata
+
+        # Basic bootstrap configuration
+        metadata["mode"] = self.config.bootstrap_mode
+        metadata["n_paths"] = self.n_paths
+        metadata["n_steps"] = self.n_steps
+
+        # Strike and moneyness info
+        if hasattr(self.config, "strike"):
+            metadata["strike"] = self.config.strike
+
+        if hasattr(self.config, "initial_spot"):
+            metadata["initial_spot_config"] = self.config.initial_spot
+
+        if hasattr(self.config, "effective_target_moneyness"):
+            try:
+                target_moneyness = self.config.effective_target_moneyness
+                if target_moneyness is not None:
+                    metadata["target_moneyness"] = target_moneyness
+            except Exception:
+                pass  # Skip if calculation fails
+
+        # If normalize_spot mode, add rescaling stats
+        if self.config.bootstrap_mode == "normalize_spot":
+            if hasattr(self.config, "strike") and hasattr(
+                self.config, "effective_target_moneyness"
+            ):
+                try:
+                    target_moneyness = self.config.effective_target_moneyness
+                    if target_moneyness is not None:
+                        target_initial_spot = self.config.strike * target_moneyness
+                        metadata["target_initial_spot"] = target_initial_spot
+
+                        # Actual initial spots from paths
+                        actual_initial_spots = self.spots[:, 0]
+                        metadata["actual_initial_spots"] = {
+                            "min": float(actual_initial_spots.min().item()),
+                            "max": float(actual_initial_spots.max().item()),
+                            "mean": float(actual_initial_spots.mean().item()),
+                            "std": float(actual_initial_spots.std().item()),
+                        }
+
+                        # Scale factors if available (stored in spots tensor attributes)
+                        if hasattr(self.spots, "_bootstrap_scale_factors"):
+                            scale_factors = self.spots._bootstrap_scale_factors
+                            metadata["scale_factors"] = {
+                                "min": float(scale_factors.min().item()),
+                                "max": float(scale_factors.max().item()),
+                                "mean": float(scale_factors.mean().item()),
+                                "std": float(scale_factors.std().item()),
+                            }
+                except Exception:
+                    pass  # Skip if calculation fails
+
+        # If absolute_strike mode, add moneyness distribution
+        elif self.config.bootstrap_mode == "absolute_strike":
+            if hasattr(self.config, "strike"):
+                try:
+                    initial_moneyness = self.spots[:, 0] / self.config.strike
+                    log_moneyness = torch.log(initial_moneyness)
+
+                    metadata["initial_log_moneyness"] = {
+                        "p5": float(torch.quantile(log_moneyness, 0.05).item()),
+                        "p50": float(torch.quantile(log_moneyness, 0.50).item()),
+                        "p95": float(torch.quantile(log_moneyness, 0.95).item()),
+                        "mean": float(log_moneyness.mean().item()),
+                        "std": float(log_moneyness.std().item()),
+                    }
+                except Exception:
+                    pass  # Skip if calculation fails
+
+        return metadata
 
     def _get_time_axis(self, time_unit: str = "steps") -> tuple:
         """Get time axis values and label based on config.
@@ -329,6 +415,7 @@ class BacktestResults:
             "n_paths": self.n_paths,
             "n_steps": self.n_steps,
             "summary": self.summary(),
+            "bootstrap": self.bootstrap_metadata,  # NEW: Bootstrap metadata
         }
 
         # Add raw tensor data if requested

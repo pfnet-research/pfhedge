@@ -11,13 +11,37 @@ Data sources:
 - deribit: Live Deribit API (limited to ~24h historical data)
 - tardis: Tardis.dev historical data (2019-03-30 onwards, requires API key)
 
-Usage:
-    # Fetch from Deribit (recent data)
-    python fetch_deribit_data.py --start 2024-01-01 --end 2024-01-31 --output-dir data/historical
+IMPORTANT - Funding Rates:
+- Tardis provides continuous interest rates (updated every second)
+- Deribit provides official 8-hour funding rates (published at 00:00, 08:00, 16:00 UTC)
+- For accurate backtesting P&L, use --use-deribit-funding to fetch official rates
 
-    # Fetch from Tardis (historical data)
-    python fetch_deribit_data.py --data-source tardis --tardis-api-key YOUR_KEY \
-        --start 2024-01-01 --end 2024-01-31 --output-dir data/historical
+Recommended usage for backtesting:
+    # Fetch perpetual trades from Tardis + official funding rates from Deribit
+    python fetch_deribit_data.py \
+        --data-source tardis \
+        --use-deribit-funding \
+        --start 2024-01-01 --end 2024-01-31 \
+        --output-dir data/historical
+
+Usage examples:
+    # Deribit only (recent data, both trades and funding)
+    python fetch_deribit_data.py \
+        --start 2024-01-01 --end 2024-01-31 \
+        --output-dir data/historical
+
+    # Tardis trades + Tardis funding (sampled continuous rates)
+    python fetch_deribit_data.py \
+        --data-source tardis \
+        --start 2024-01-01 --end 2024-01-31 \
+        --output-dir data/historical
+
+    # Tardis trades + Deribit funding (recommended for backtesting)
+    python fetch_deribit_data.py \
+        --data-source tardis \
+        --use-deribit-funding \
+        --start 2024-01-01 --end 2024-01-31 \
+        --output-dir data/historical
 """
 
 import argparse
@@ -44,6 +68,159 @@ logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
+
+
+def fetch_perpetual_ohlc(
+    client: MarketDataClient,
+    start_date: datetime,
+    end_date: datetime,
+    instrument: str = "BTC-PERPETUAL",
+    resolution: str = "60",
+    target_frequency: str = "8H",
+) -> pd.DataFrame:
+    """
+    Fetch OHLC candles from Deribit API and optionally resample.
+
+    Deribit API has a ~5000 candle limit per request. This function automatically
+    batches requests to fetch longer time periods.
+
+    Args:
+        client: Deribit client instance
+        start_date: Start datetime (UTC)
+        end_date: End datetime (UTC)
+        instrument: Instrument name (default: BTC-PERPETUAL)
+        resolution: Candle resolution in minutes (default: 60)
+        target_frequency: Target resampling frequency (default: 8H)
+            Set to None to skip resampling
+
+    Returns:
+        DataFrame with OHLC data at target frequency
+    """
+    logger.info(
+        f"Fetching {instrument} OHLC candles from {start_date} to {end_date} "
+        f"(resolution: {resolution}min, target: {target_frequency})"
+    )
+
+    # Calculate batch size to stay under 5000 candle limit
+    # For 60min resolution: 4000 hours = ~167 days per batch
+    resolution_mins = int(resolution) if resolution != "1D" else 1440
+    max_candles_per_batch = 4000  # Leave some margin
+    batch_hours = (max_candles_per_batch * resolution_mins) // 60
+
+    all_dfs = []
+    current_start = start_date
+
+    while current_start < end_date:
+        # Calculate batch end
+        current_end = min(current_start + timedelta(hours=batch_hours), end_date)
+
+        logger.info(f"Fetching batch: {current_start} to {current_end}")
+
+        start_ms = timestamp_to_ms(current_start)
+        end_ms = timestamp_to_ms(current_end)
+
+        try:
+            # Fetch candles from Deribit
+            result = client.get_ohlc_candles(
+                instrument_name=instrument,
+                start_timestamp=start_ms,
+                end_timestamp=end_ms,
+                resolution=resolution,
+            )
+
+            if result and "ticks" in result and result["ticks"]:
+                # Convert to DataFrame
+                df_batch = pd.DataFrame(
+                    {
+                        "timestamp": pd.to_datetime(
+                            result["ticks"], unit="ms", utc=True
+                        ),
+                        "open": result["open"],
+                        "high": result["high"],
+                        "low": result["low"],
+                        "close": result["close"],
+                        "volume": result["volume"],
+                    }
+                )
+                all_dfs.append(df_batch)
+                logger.info(f"Fetched {len(df_batch)} candles for this batch")
+            else:
+                logger.warning(f"No data for batch {current_start} to {current_end}")
+
+            # Rate limiting
+            time.sleep(0.5)
+
+        except Exception as e:
+            logger.error(f"Error fetching batch {current_start} to {current_end}: {e}")
+
+        current_start = current_end
+
+    if not all_dfs:
+        logger.warning("No OHLC data received")
+        return pd.DataFrame()
+
+    # Concatenate all batches
+    df = pd.concat(all_dfs, ignore_index=True)
+
+    # Remove duplicates (may occur at batch boundaries)
+    df = (
+        df.drop_duplicates(subset=["timestamp"])
+        .sort_values("timestamp")
+        .reset_index(drop=True)
+    )
+
+    # Add last_price (required by historical data loader)
+    df["last_price"] = df["close"]
+
+    logger.info(f"Fetched {len(df)} total candles at {resolution}min resolution")
+
+    # Resample if needed
+    if target_frequency and target_frequency != f"{resolution}min":
+        df = resample_ohlc(df, target_frequency)
+
+    return df
+
+
+def resample_ohlc(df: pd.DataFrame, frequency: str) -> pd.DataFrame:
+    """
+    Resample OHLC data to a different frequency.
+
+    Args:
+        df: DataFrame with timestamp, open, high, low, close, volume
+        frequency: Target frequency (e.g., '8H', '1D')
+
+    Returns:
+        Resampled DataFrame
+    """
+    if df.empty:
+        return df
+
+    logger.info(f"Resampling OHLC to {frequency}")
+
+    # Set timestamp as index
+    df = df.set_index("timestamp")
+
+    # Resample OHLC
+    resampled = df.resample(frequency).agg(
+        {
+            "open": "first",
+            "high": "max",
+            "low": "min",
+            "close": "last",
+            "volume": "sum",
+            "last_price": "last",
+        }
+    )
+
+    # Drop any rows with NaN (incomplete periods at the end)
+    resampled = resampled.dropna()
+
+    # Reset index
+    resampled = resampled.reset_index()
+
+    logger.info(f"Resampled to {len(resampled)} {frequency} bars")
+
+    return resampled
 
 
 def fetch_perpetual_trades(
@@ -325,6 +502,14 @@ def main():
     # Add common client arguments (data source, testnet, API keys)
     add_client_args(parser)
 
+    # Add hybrid mode flag
+    parser.add_argument(
+        "--use-deribit-funding",
+        action="store_true",
+        help="Fetch official funding rates from Deribit API (recommended for backtesting). "
+        "Only applies when --data-source=tardis. Provides accurate 8-hour funding rates instead of sampled continuous rates.",
+    )
+
     args = parser.parse_args()
 
     # Parse dates
@@ -353,28 +538,34 @@ def main():
             testnet=args.testnet,
             tardis_api_key=args.tardis_api_key,
         )
+
+        # Create separate client for funding if hybrid mode is requested
+        funding_client = None
+        if args.use_deribit_funding and args.data_source == "tardis":
+            logger.info("Hybrid mode: Using Deribit for official funding rates")
+            from crypto.data.deribit_client import DeribitClient
+
+            funding_client = DeribitClient(testnet=args.testnet)
+        else:
+            funding_client = client
+
     except (ValueError, ImportError) as e:
         logger.error(f"Failed to create client: {e}")
         return 1
 
-    # 1. Fetch perpetual trades
-    trades_df = fetch_perpetual_trades(
-        client, start_date, end_date, instrument=args.instrument
+    # 1. Fetch perpetual OHLC data directly from Deribit API
+    ohlc_df = fetch_perpetual_ohlc(
+        client,
+        start_date,
+        end_date,
+        instrument=args.instrument,
+        resolution="60",  # Fetch hourly candles
+        target_frequency=args.frequency.replace(
+            "H", "h"
+        ),  # Resample to target (e.g., 8h)
     )
 
-    ohlc_df = pd.DataFrame()  # Initialize to avoid unbound variable
-    if not trades_df.empty:
-        # Save raw trades
-        save_data(
-            trades_df,
-            output_dir / "raw",
-            f"{args.instrument.lower()}_trades_{args.start}_{args.end}",
-            format=args.format,
-        )
-
-        # Resample to OHLC
-        ohlc_df = resample_trades_to_ohlc(trades_df, frequency=args.frequency)
-
+    if not ohlc_df.empty:
         # Save OHLC data
         save_data(
             ohlc_df,
@@ -383,9 +574,9 @@ def main():
             format=args.format,
         )
 
-    # 2. Fetch funding rates
+    # 2. Fetch funding rates (using funding_client for hybrid mode support)
     funding_df = fetch_funding_rates(
-        client, start_date, end_date, instrument=args.instrument
+        funding_client, start_date, end_date, instrument=args.instrument
     )
 
     if not funding_df.empty:
@@ -399,16 +590,15 @@ def main():
     logger.info("Data fetching complete!")
 
     # Print summary
-    if not trades_df.empty:
+    if not ohlc_df.empty:
         print(f"\nSummary:")
-        print(f"  Perpetual trades: {len(trades_df)}")
-        print(f"  OHLC bars: {len(ohlc_df) if not ohlc_df.empty else 0}")
+        print(f"  OHLC bars ({args.frequency}): {len(ohlc_df)}")
         print(f"  Funding records: {len(funding_df) if not funding_df.empty else 0}")
         print(
-            f"  Date range: {trades_df['timestamp'].min()} to {trades_df['timestamp'].max()}"
+            f"  Date range: {ohlc_df['timestamp'].min()} to {ohlc_df['timestamp'].max()}"
         )
         print(
-            f"  Price range: ${trades_df['price'].min():.2f} - ${trades_df['price'].max():.2f}"
+            f"  Price range: ${ohlc_df['low'].min():.2f} - ${ohlc_df['high'].max():.2f}"
         )
 
     return 0

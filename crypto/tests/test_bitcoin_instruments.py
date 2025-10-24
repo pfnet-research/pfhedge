@@ -186,7 +186,11 @@ class TestDataIntegration(unittest.TestCase):
         """Test with actual CryptoDataLoader if sample data exists."""
         try:
             # Try to use real data loader
-            loader = CryptoDataLoader("../data/sample_data")
+            # Use absolute path to work both from repo root and from crypto/tests
+            sample_data_dir = os.path.join(
+                os.path.dirname(__file__), "..", "data", "sample_data"
+            )
+            loader = CryptoDataLoader(sample_data_dir)
 
             # Try to load data
             perp_data = loader.load_perpetual_data()

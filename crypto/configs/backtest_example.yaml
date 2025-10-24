@@ -21,6 +21,21 @@ maturity_days: 14
 call: true  # true for call, false for put
 
 # ==============================================================================
+# BOOTSTRAP MODE (NEW)
+# ==============================================================================
+# Options:
+#   - normalize_spot: Rescale prices to preserve moneyness (RECOMMENDED)
+#   - absolute_strike: Use raw historical prices (legacy, varying moneyness)
+#
+bootstrap_mode: "normalize_spot"
+
+# For normalize_spot mode: specify initial_spot from Step 1 (option discovery)
+initial_spot: 49000  # BTC spot at trade date (from explore_options.py)
+
+# Alternative: set moneyness explicitly (if you don't have initial_spot)
+# target_moneyness: 0.98  # e.g., 0.98 for slightly OTM, 1.0 for ATM
+
+# ==============================================================================
 # MODEL
 # ==============================================================================
 # Path to trained model from Step 2 (train_for_option.py)
