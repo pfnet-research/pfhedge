@@ -255,6 +255,84 @@ class BitcoinPerpetualHistorical(BitcoinPerpetualBase):
         """Returns historical realized variance."""
         return self.volatility ** 2
 
+    @staticmethod
+    def validate_bootstrap_data_sufficiency(
+        n_paths: int,
+        n_steps: int,
+        available_records: int,
+        dt: float,
+    ) -> Tuple[bool, Optional[str], int]:
+        """Validate whether historical data is sufficient for meaningful bootstrap variance.
+
+        Args:
+            n_paths: Number of bootstrap paths to generate.
+            n_steps: Number of time steps required per path.
+            available_records: Number of historical records available.
+            dt: Time step size in years (e.g., 8 hours = 8/24/365).
+
+        Returns:
+            Tuple of (is_sufficient, warning_message, recommended_records):
+                - is_sufficient: True if variance will be meaningful, False otherwise.
+                - warning_message: Detailed warning if insufficient, None otherwise.
+                - recommended_records: Recommended number of records for good variance.
+
+        Examples:
+            >>> is_ok, msg, rec = BitcoinPerpetualHistorical.validate_bootstrap_data_sufficiency(
+            ...     n_paths=100, n_steps=42, available_records=50, dt=8/24/365
+            ... )
+            >>> print(f"Sufficient: {is_ok}, Recommended: {rec}")
+            Sufficient: False, Recommended: 52
+        """
+        max_start = available_records - n_steps
+        unique_windows = max_start + 1 if max_start >= 0 else 0
+        recommended_windows = max(100, n_paths // 10)
+        recommended_records = n_steps + recommended_windows
+
+        # Check if we can even run bootstrap
+        if max_start < 0:
+            error_msg = (
+                f"Insufficient data: need {n_steps} steps but only have {available_records} records.\n"
+                f"Minimum required: {n_steps} records\n"
+                f"Recommended: {recommended_records} records"
+            )
+            return False, error_msg, recommended_records
+
+        # Check if we have zero variance (only 1 window)
+        if max_start == 0:
+            warning_msg = (
+                f"\n{'='*80}\n"
+                f"⚠️  BOOTSTRAP VARIANCE WARNING: Only 1 possible window!\n"
+                f"{'='*80}\n"
+                f"All {n_paths} paths will be IDENTICAL (zero variance in results).\n\n"
+                f"Current data: {available_records} records\n"
+                f"Backtest needs: {n_steps} steps\n"
+                f"Available windows: {unique_windows}\n\n"
+                f"SOLUTION: Download more historical data!\n"
+                f"  Recommended: {recommended_records} records\n"
+                f"  This enables: {recommended_windows} unique bootstrap windows\n"
+                f"  Extra days needed: ~{(recommended_windows * dt * 365):.0f} days\n"
+                f"{'='*80}\n"
+            )
+            return False, warning_msg, recommended_records
+
+        # Check if we have limited variance (few windows)
+        if unique_windows < n_paths // 10:
+            warning_msg = (
+                f"\n{'='*80}\n"
+                f"⚠️  BOOTSTRAP VARIANCE WARNING: Limited sampling diversity\n"
+                f"{'='*80}\n"
+                f"Only {unique_windows} unique windows available for {n_paths} paths.\n"
+                f"Many paths will be duplicates (reduces statistical power).\n\n"
+                f"For better variance, download more historical data:\n"
+                f"  Current: {available_records} records ({unique_windows} windows)\n"
+                f"  Recommended: {recommended_records} records ({recommended_windows} windows)\n"
+                f"{'='*80}\n"
+            )
+            return False, warning_msg, recommended_records
+
+        # Sufficient data
+        return True, None, recommended_records
+
     def simulate_bootstrap(
         self,
         n_paths: int,
@@ -298,13 +376,22 @@ class BitcoinPerpetualHistorical(BitcoinPerpetualBase):
         logger = logging.getLogger(__name__)
 
         # Load all available data
-        # Prefer cached data (which may have funding merged) over reloading from disk
+        # Prefer full data for bootstrap variance, fall back to filtered data or reload
         if (
+            hasattr(self.data_loader, "perpetual_data_full")
+            and self.data_loader.perpetual_data_full is not None
+            and not self.data_loader.perpetual_data_full.empty
+        ):
+            # Use full data (includes all history for bootstrap variance)
+            perpetual_df = self.data_loader.perpetual_data_full.copy()
+        elif (
             self.data_loader.perpetual_data is not None
             and not self.data_loader.perpetual_data.empty
         ):
+            # Fall back to filtered data if full not available
             perpetual_df = self.data_loader.perpetual_data.copy()
         else:
+            # Last resort: reload from disk
             perpetual_df = self.data_loader.load_perpetual_data()
 
         if perpetual_df is None or perpetual_df.empty:
@@ -337,11 +424,18 @@ class BitcoinPerpetualHistorical(BitcoinPerpetualBase):
                 f"  Suggestion: Reduce maturity_days or fetch more historical data"
             )
 
+        # Validate data sufficiency and warn if needed
+        is_sufficient, warning_msg, _ = self.validate_bootstrap_data_sufficiency(
+            n_paths=n_paths,
+            n_steps=n_steps,
+            available_records=window_size,
+            dt=self.dt,
+        )
+
+        if warning_msg:
+            logger.warning(warning_msg)
+
         max_start = window_size - n_steps
-        if max_start < 0:
-            raise ValueError(
-                f"Cannot sample windows: window_size ({window_size}) < n_steps ({n_steps})"
-            )
 
         # Initialize lists
         path_list = []
@@ -351,6 +445,7 @@ class BitcoinPerpetualHistorical(BitcoinPerpetualBase):
         funding_list = []
         index_list = []
         scale_factors = []
+        sampled_windows = []  # Track which windows were sampled for debugging
 
         # Helper to extract and rescale column
         def get_rescaled_column(
@@ -372,6 +467,7 @@ class BitcoinPerpetualHistorical(BitcoinPerpetualBase):
             # Random starting point
             start_idx = random.randint(0, max_start)
             end_idx = start_idx + n_steps
+            sampled_windows.append(start_idx)
 
             # Extract window
             window_data = perpetual_df.iloc[start_idx:end_idx].copy()
@@ -450,13 +546,21 @@ class BitcoinPerpetualHistorical(BitcoinPerpetualBase):
             )
 
         # Logging
+        unique_windows = len(set(sampled_windows))
+        window_stats = f"windows: {unique_windows} unique (range: {min(sampled_windows)}-{max(sampled_windows)})"
+
         if target_initial_spot is not None:
             logger.info(
                 f"Bootstrap: Rescaled {n_paths} paths to initial_spot=${target_initial_spot:,.2f} "
-                f"(scale: {min(scale_factors):.3f}-{max(scale_factors):.3f})"
+                f"(scale: {min(scale_factors):.3f}-{max(scale_factors):.3f}), {window_stats}"
             )
         else:
-            logger.info(f"Bootstrap: Sampled {n_paths} paths (no rescaling)")
+            logger.info(
+                f"Bootstrap: Sampled {n_paths} paths (no rescaling), {window_stats}"
+            )
+
+        # Store window indices for debugging (optional debug logging)
+        logger.debug(f"Bootstrap window indices: {sampled_windows}")
 
     def __repr__(self) -> str:
         """String representation."""

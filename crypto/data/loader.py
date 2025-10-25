@@ -37,8 +37,10 @@ class CryptoDataLoader:
             DataFrame with processed perpetual data
         """
         if filename is None:
-            # Look for sample file
+            # Look for perpetual OHLC file (exclude funding files)
             files = list(self.data_dir.glob("*perpetual*.parquet"))
+            # Filter out funding files
+            files = [f for f in files if "funding" not in f.name.lower()]
             if not files:
                 raise FileNotFoundError(
                     f"No perpetual data files found in {self.data_dir}"

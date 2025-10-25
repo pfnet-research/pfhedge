@@ -314,8 +314,12 @@ class Backtester:
 
         print(f"✅ Filtered to {len(filtered_df)} records in date range")
 
-        # Update loader's perpetual_data with filtered data
-        loader.perpetual_data = filtered_df
+        # IMPORTANT: Store BOTH filtered and full data
+        # - perpetual_data: filtered data (for backward compatibility, tests, validation)
+        # - perpetual_data_full: full resampled data (for bootstrap variance)
+        # Bootstrap needs access to ALL historical data, not just the filtered backtest range
+        loader.perpetual_data = filtered_df  # Filtered data for backward compatibility
+        loader.perpetual_data_full = resampled_df  # Full data for bootstrap variance
 
         # Load options data (optional, for real option price comparison)
         try:
@@ -344,34 +348,54 @@ class Backtester:
             if not funding_df.empty and "timestamp" in funding_df.columns:
                 funding_df = self._normalize_timestamps_to_utc(funding_df)
 
-                # Filter funding by date range
+                # Don't filter funding by date - merge with full data for bootstrap
+                # Filter just for display/validation
                 funding_mask = (funding_df["timestamp"] >= start_date) & (
                     funding_df["timestamp"] <= end_date
                 )
-                funding_df = funding_df[funding_mask].reset_index(drop=True)
-                loader.funding_data = funding_df
+                funding_in_range = funding_df[funding_mask]
 
-                print(f"✅ Loaded {len(funding_df)} funding rate records in date range")
+                print(
+                    f"✅ Loaded {len(funding_in_range)} funding rate records in date range"
+                )
 
-                # Merge funding rates with perpetual data on timestamp
+                # Merge funding rates with BOTH filtered and full perpetual data
                 if not funding_df.empty:
-                    # Add funding rate column to perpetual data
-                    filtered_df = filtered_df.merge(
+                    # Merge with FULL resampled data (for bootstrap variance)
+                    merged_full = resampled_df.merge(
                         funding_df[["timestamp", "interest_8h"]],
                         on="timestamp",
                         how="left",
                     )
                     # Rename for clarity
-                    if "interest_8h" in filtered_df.columns:
-                        filtered_df["funding_rate"] = filtered_df["interest_8h"]
+                    if "interest_8h" in merged_full.columns:
+                        merged_full["funding_rate"] = merged_full["interest_8h"]
                     # Forward and backward fill missing funding rates
-                    if "funding_rate" in filtered_df.columns:
-                        filtered_df["funding_rate"] = (
-                            filtered_df["funding_rate"].ffill().bfill()
+                    if "funding_rate" in merged_full.columns:
+                        merged_full["funding_rate"] = (
+                            merged_full["funding_rate"].ffill().bfill()
                         )
 
-                    # Update loader with merged data
-                    loader.perpetual_data = filtered_df
+                    # Merge with filtered data (for backward compatibility)
+                    merged_filtered = filtered_df.merge(
+                        funding_df[["timestamp", "interest_8h"]],
+                        on="timestamp",
+                        how="left",
+                    )
+                    if "interest_8h" in merged_filtered.columns:
+                        merged_filtered["funding_rate"] = merged_filtered["interest_8h"]
+                    if "funding_rate" in merged_filtered.columns:
+                        merged_filtered["funding_rate"] = (
+                            merged_filtered["funding_rate"].ffill().bfill()
+                        )
+
+                    # Update loader with BOTH versions
+                    loader.perpetual_data = (
+                        merged_filtered  # Filtered (for tests/validation)
+                    )
+                    loader.perpetual_data_full = (
+                        merged_full  # Full (for bootstrap variance)
+                    )
         except FileNotFoundError:
             print(
                 f"⚠️  No funding data found (this is okay, but funding costs won't be applied)"

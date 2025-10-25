@@ -44,9 +44,19 @@ model_path: "models/oct29_50k_call/model.pth"
 # ==============================================================================
 # BACKTEST PARAMETERS
 # ==============================================================================
+# IMPORTANT: Ensure historical data covers MORE than just the backtest period!
+# For meaningful bootstrap variance, you need extra data for random sampling.
+#
+# Formula: Download at least (maturity_days + 33) days of data
+# Example: 14-day backtest → download 47 days (Sep 1 - Oct 29)
+#
+# If you download exactly the backtest period, all bootstrap paths will be
+# IDENTICAL (variance = 0.00), making statistics meaningless.
+#
 n_bootstrap_paths: 1000  # More paths = more robust results (slower)
                          # Recommended: 1000+ for final analysis
                          # Quick test: 200
+                         # NOTE: Requires sufficient historical data!
 
 transaction_cost: 0.0006  # Deribit taker fee: 0.06%
 
@@ -63,12 +73,31 @@ output_dir: "backtest_results/oct29_50k"   # Where to save results
 # ==============================================================================
 # NOTES
 # ==============================================================================
-# 1. Make sure you've fetched historical data first:
+# 1. ⚠️  CRITICAL: Download MORE data than your backtest period!
+#
+#    For 14-day backtest (Oct 15-29) with 100 unique bootstrap windows:
+#    - Backtest steps: 14 * 24 / 8 = 42 steps
+#    - Desired windows: 100
+#    - Total records needed: 42 + 100 = 142 records
+#    - Days of data: 142 * 8 / 24 ≈ 47 days
+#
+#    CORRECT command (downloads 47 days):
 #    python crypto/scripts/fetch_deribit_data.py \
-#        --start 2024-10-01 --end 2024-10-31 \
+#        --start 2024-09-12 \  # 33 days BEFORE backtest start!
+#        --end 2024-10-30 \    # 1 day after backtest end
+#        --output-dir crypto/data/historical
+#
+#    WRONG command (only 14 days → all paths identical!):
+#    python crypto/scripts/fetch_deribit_data.py \
+#        --start 2024-10-15 \  # DON'T DO THIS!
+#        --end 2024-10-29 \
 #        --output-dir crypto/data/historical
 #
 # 2. After running backtest, use calculate_seller_pnl.py to get final returns
 #
 # 3. The backtest returns HEDGING P&L only (negative for sellers).
 #    You must add premium to get total seller P&L!
+#
+# 4. Verify bootstrap variance: After running, check that std > 0:
+#    - Deep Hedge: Mean PnL: $-X ± $Y (Y should be > 0, not 0.00)
+#    - If std = 0.00, you didn't download enough data!

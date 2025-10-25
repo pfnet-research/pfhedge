@@ -553,17 +553,31 @@ def main():
         logger.error(f"Failed to create client: {e}")
         return 1
 
-    # 1. Fetch perpetual OHLC data directly from Deribit API
-    ohlc_df = fetch_perpetual_ohlc(
-        client,
-        start_date,
-        end_date,
-        instrument=args.instrument,
-        resolution="60",  # Fetch hourly candles
-        target_frequency=args.frequency.replace(
-            "H", "h"
-        ),  # Resample to target (e.g., 8h)
-    )
+    # 1. Fetch perpetual data
+    # Use OHLC API if available (DeribitClient), otherwise fetch trades and resample (TardisClient)
+    if hasattr(client, "get_ohlc_candles"):
+        # Deribit: Fetch OHLC candles directly
+        logger.info("Using Deribit OHLC API (fast)")
+        ohlc_df = fetch_perpetual_ohlc(
+            client,
+            start_date,
+            end_date,
+            instrument=args.instrument,
+            resolution="60",  # Fetch hourly candles
+            target_frequency=args.frequency.replace(
+                "H", "h"
+            ),  # Resample to target (e.g., 8h)
+        )
+    else:
+        # Tardis: Fetch trades and resample
+        logger.info("Using Tardis trades API (fetching and resampling)")
+        trades_df = fetch_perpetual_trades(
+            client, start_date, end_date, instrument=args.instrument
+        )
+        if not trades_df.empty:
+            ohlc_df = resample_trades_to_ohlc(trades_df, frequency=args.frequency)
+        else:
+            ohlc_df = pd.DataFrame()
 
     if not ohlc_df.empty:
         # Save OHLC data

@@ -106,6 +106,58 @@ crypto/data/historical/
 └── btc-perpetual_funding_complete_2025-01-01_2025-10-01.parquet  # Funding rates
 ```
 
+### ⚠️  CRITICAL: Bootstrap Data Requirements
+
+**IMPORTANT**: For meaningful bootstrap statistics with variance > 0, you MUST download MORE data than your backtest period!
+
+**The Problem**: If you download exactly the backtest period, all bootstrap paths will be IDENTICAL (variance = 0.00).
+
+**Formula for data requirements**:
+```
+recommended_records = backtest_steps + desired_unique_windows
+
+Where:
+- backtest_steps = maturity_days * 24 / dt_hours
+- desired_unique_windows = max(100, n_bootstrap_paths / 10)
+- dt_hours = rebalancing frequency (typically 8)
+```
+
+**Example Calculation**:
+```
+Backtest: Oct 1-15 (14 days)
+Bootstrap paths: 1000
+dt_hours: 8
+
+backtest_steps = 14 * 24 / 8 = 42 steps
+desired_windows = max(100, 1000/10) = 100 windows
+recommended_records = 42 + 100 = 142 records
+
+Days of data needed: 142 * 8 / 24 = 47 days
+Download range: Sep 1 - Oct 16 (not Oct 1-15!)
+```
+
+**Correct command for 14-day backtest**:
+```bash
+# Download 47 days for 14-day backtest (100 unique bootstrap windows)
+python crypto/scripts/fetch_deribit_data.py \
+    --start 2024-09-01 \  # 33 days BEFORE backtest start!
+    --end 2024-10-16 \    # 1 day after backtest end
+    --output-dir crypto/data/historical
+```
+
+**What happens if you don't follow this?**
+- ❌ Download Oct 1-15 only → 42 records → 1 window → ALL paths identical
+- ❌ All bootstrap statistics show std = 0.00 (meaningless)
+- ❌ No variance in P&L, Sharpe, or any metric
+- ✅ Download Sep 1 - Oct 16 → 142 records → 100 unique windows → Valid statistics
+
+**Quick reference**:
+| Backtest Days | dt_hours | Min Extra Days | Total Download |
+|---------------|----------|----------------|----------------|
+| 7 days        | 8        | ~30 days       | ~37 days       |
+| 14 days       | 8        | ~33 days       | ~47 days       |
+| 30 days       | 8        | ~33 days       | ~63 days       |
+
 **For testing (no API key needed, limited to first day of each month):**
 ```bash
 # Use Tardis free tier for testing
@@ -634,10 +686,27 @@ Black-Scholes:
 **⚠️  IMPORTANT:** These are **hedging costs only** (negative because we're short the option).
 You haven't added the premium yet!
 
+**✅ ALWAYS CHECK: Bootstrap Variance**
+
+Before trusting these statistics, verify that bootstrap variance is present:
+- **Good**: `Std PnL: $450` (variance > 0)
+- **Bad**: `Std PnL: $0.00` (zero variance = meaningless statistics)
+
+If `Std PnL: $0.00` for both Deep Hedge and BS Baseline:
+1. You didn't download enough historical data
+2. All bootstrap paths are identical (see Step 0 data requirements)
+3. **Solution**: Download more data and re-run backtest
+
+**Expected behavior with proper data:**
+- Deep Hedge `std`: Typically 20-50% of mean (reflects path diversity)
+- BS Baseline `std`: Typically 10-30% of mean (less variance than deep hedge)
+- Both should show `std > 0`, otherwise statistics are invalid
+
 **Ask yourself:**
 - Are hedging costs stable (low std)?
 - Is deep hedge better than BS?
 - Are drawdowns acceptable?
+- **Do the statistics have variance (std > 0)?**
 
 ---
 
@@ -899,6 +968,46 @@ Error: No data found in date range
 - Fetch data first: `python crypto/scripts/fetch_deribit_data.py`
 - Check `data_dir` in config points to correct location
 - Verify dates match option's lifetime
+
+### All bootstrap paths are identical (variance = 0.00)
+```
+WARNING: Only 1 possible window!
+All 100 paths will be IDENTICAL (zero variance in results).
+```
+**Symptom:** Backtest shows std = 0.00 for all metrics:
+```
+Deep Hedge: Mean PnL: $-2,671.19 ± $0.00
+            Std PnL: $0.00
+            Sharpe Ratio: -10886357.874
+```
+
+**Cause:** Insufficient historical data - downloaded exactly the backtest period with no extra data for random sampling.
+
+**Example of the problem:**
+- Downloaded: Oct 1-15 (14 days) = 42 records at 8H intervals
+- Backtest needs: 14 days = 42 steps
+- Bootstrap windows available: 42 - 42 + 1 = **1 window only!**
+- Result: All 100 paths sample the same data → zero variance
+
+**Solution:** Download MORE data than your backtest period!
+
+**Formula:**
+```bash
+# For 14-day backtest with 100 unique windows:
+extra_days = 100 * dt_hours / 24  # 100 * 8 / 24 = 33 days
+total_days = backtest_days + extra_days  # 14 + 33 = 47 days
+
+# Download command:
+python crypto/scripts/fetch_deribit_data.py \
+    --start 2024-09-01 \  # 33 days BEFORE backtest
+    --end 2024-10-16      # 1 day after backtest
+```
+
+**Verification:** After fixing, re-run backtest and check for variance > 0:
+```
+Deep Hedge: Mean PnL: $-2,671.19 ± $719.49  ✓ Has variance
+            Std PnL: $719.49                 ✓ Non-zero
+```
 
 ---
 
