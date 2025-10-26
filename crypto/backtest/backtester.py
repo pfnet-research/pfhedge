@@ -133,14 +133,20 @@ class Backtester:
         else:
             raise KeyError("Model config missing 'criterion' or 'risk_measure'")
 
-        # Handle features with default fallback
-        if "features" in model_config:
-            features = model_config["features"]
-        else:
-            features = DEFAULT_FEATURES
-            print(
-                f"⚠️  Warning: 'features' not found in checkpoint, using DEFAULT_FEATURES"
+        # Require features to be present in checkpoint (no silent defaults)
+        if "features" not in model_config:
+            raise KeyError(
+                "Checkpoint missing 'features' in model_config. "
+                "This model was likely trained before the feature bug fix. "
+                "Please retrain so features are saved in the checkpoint."
             )
+
+        # Normalize features to a plain list of strings for safety
+        raw_features = model_config["features"]
+        if isinstance(raw_features, (list, tuple)):
+            features = [str(f) for f in raw_features]
+        else:
+            features = [str(raw_features)]
 
         # Create model with same architecture
         model = create_deep_hedger(
@@ -485,6 +491,21 @@ class Backtester:
 
         logger.info("Creating bootstrap option from historical data...")
 
+        # Try to extract training volatility from loaded model to avoid train/test mismatch
+        constant_vol = None
+        if self.model is not None:
+            try:
+                checkpoint = torch.load(self.config.model_path, map_location="cpu")
+                training_config = checkpoint.get("training_config", {})
+                constant_vol = training_config.get("volatility")
+                if constant_vol is not None:
+                    logger.info(
+                        f"Using constant volatility from training: {constant_vol:.4f}"
+                    )
+            except Exception as e:
+                logger.warning(f"Could not extract training volatility from model: {e}")
+                logger.info("Will use calculated volatility from historical returns")
+
         # Create BitcoinPerpetualHistorical with loaded data
         underlier = BitcoinPerpetualHistorical(
             data_loader=data_loader,
@@ -492,6 +513,7 @@ class Backtester:
             dt=self.config.dt,
             dtype=torch.float32,
             device="cpu",
+            constant_volatility=constant_vol,  # Use training vol to match model expectations
         )
 
         # Calculate time horizon from maturity_days

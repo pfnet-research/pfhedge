@@ -39,18 +39,26 @@ class Trainer:
         >>> print(results.summary())
     """
 
-    def __init__(self, config: TrainingConfig, verbose: bool = False):
+    def __init__(
+        self,
+        config: TrainingConfig,
+        verbose: bool = False,
+        enable_diagnostics: bool = False,
+    ):
         """Initialize trainer with configuration.
 
         Args:
             config: Training configuration
             verbose: If True, print progress messages (default: False)
+            enable_diagnostics: If True, enable MLP input/output diagnostics (default: False)
 
         Raises:
             ValueError: If CUDA device is requested but not available
         """
         self.config = config
         self.verbose = verbose
+        self.enable_diagnostics = enable_diagnostics
+        self.diagnostics = None
 
         # Check if CUDA is requested but not available
         if "cuda" in config.device.lower():
@@ -271,6 +279,17 @@ class Trainer:
                     f"   This may cause mixed precision issues. Consider converting option to {model_dtype}."
                 )
 
+        # Attach diagnostics if enabled
+        if self.enable_diagnostics:
+            from crypto.training.diagnostics import MLPDiagnostics
+
+            self.diagnostics = MLPDiagnostics(model, sample_frequency=5)
+            self.diagnostics.attach()
+            if self.verbose:
+                print(
+                    "\n🔍 Diagnostics enabled - will track MLP inputs/outputs/gradients"
+                )
+
         # Train the model
         history = model.fit(
             option,
@@ -278,6 +297,14 @@ class Trainer:
             n_epochs=self.config.n_epochs,
             verbose=self.verbose,
         )
+
+        # Print diagnostics if enabled
+        if self.enable_diagnostics and self.diagnostics is not None:
+            print("\n" + "=" * 70)
+            print("TRAINING DIAGNOSTICS")
+            print("=" * 70)
+            self.diagnostics.print_summary(verbose=self.verbose)
+            self.diagnostics.detach()
 
         if self.verbose:
             print(f"\n✅ Training complete!")
@@ -487,10 +514,32 @@ class Trainer:
         # Get features from model (use DEFAULT_FEATURES if not available)
         from crypto.strategies.deep_hedge_utils import DEFAULT_FEATURES
 
-        if hasattr(model, "features"):
-            features = model.features
+        # Get features from model - PFHedge Hedger uses 'inputs' attribute
+        # Convert to plain string list for robust serialization
+        if hasattr(model, "inputs"):
+            # Handle both FeatureList objects and plain lists
+            if hasattr(model.inputs, "features"):
+                # It's a FeatureList object
+                features = [str(f) for f in model.inputs.features]
+            elif isinstance(model.inputs, list):
+                # Already a list
+                features = [str(f) for f in model.inputs]
+            else:
+                # Single feature or unknown type
+                features = [str(model.inputs)]
+        elif hasattr(model, "features"):
+            features = (
+                [str(f) for f in model.features]
+                if isinstance(model.features, list)
+                else [str(model.features)]
+            )
         else:
-            features = DEFAULT_FEATURES
+            # This should never happen - fail fast
+            raise ValueError(
+                "Model has no 'inputs' or 'features' attribute! Cannot save checkpoint."
+            )
+
+        print(f"📝 Saving features to checkpoint: {features}")
 
         # Create checkpoint
         checkpoint = {
@@ -513,6 +562,9 @@ class Trainer:
                 "n_epochs": self.config.n_epochs,
                 "train_seed": self.config.train_seed,
                 "device": self.config.device,
+                "features": features,  # Critical: Include features in training_config
+                "n_layers": self.config.n_layers,
+                "n_units": self.config.n_units,
             },
             "training_history": history,
         }

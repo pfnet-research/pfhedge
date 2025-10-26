@@ -17,10 +17,10 @@ from pfhedge.nn.modules.loss import EntropicLoss
 
 
 # Default features for deep hedging
-# Note: Use "time_to_maturity" (standard PFHedge feature) not "expiry_time"
+# Note: PFHedge expects "expiry_time" for European options
 DEFAULT_FEATURES = [
     "log_moneyness",
-    "time_to_maturity",
+    "expiry_time",  # Changed from time_to_maturity to match PFHedge expectations
     "volatility",
     "prev_hedge",
 ]

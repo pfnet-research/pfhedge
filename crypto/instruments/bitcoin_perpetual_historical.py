@@ -69,8 +69,23 @@ class BitcoinPerpetualHistorical(BitcoinPerpetualBase):
         leverage: float = 20.0,
         dtype: Optional[torch.dtype] = None,
         device: Optional[torch.device] = None,
+        constant_volatility: Optional[
+            float
+        ] = None,  # NEW: Use constant vol for backtest
     ) -> None:
-        """Initialize historical Bitcoin perpetual."""
+        """Initialize historical Bitcoin perpetual.
+
+        Args:
+            data_loader: Data loader for historical data
+            cost: Transaction cost rate
+            dt: Time step in years
+            leverage: Maximum leverage
+            dtype: Tensor dtype
+            device: Tensor device
+            constant_volatility: If provided, use this constant volatility instead of
+                calculating from returns. This should match the training volatility to
+                avoid train/test distribution mismatch.
+        """
         super().__init__(
             cost=cost, dt=dt, leverage=leverage, dtype=dtype, device=device
         )
@@ -79,6 +94,9 @@ class BitcoinPerpetualHistorical(BitcoinPerpetualBase):
             raise ValueError("data_loader is required for BitcoinPerpetualHistorical")
 
         self.data_loader = data_loader
+        self.constant_volatility = (
+            constant_volatility  # NEW: Store for use in volatility property
+        )
 
     def simulate(
         self,
@@ -204,21 +222,31 @@ class BitcoinPerpetualHistorical(BitcoinPerpetualBase):
 
     @property
     def volatility(self) -> Tensor:
-        """Returns historical realized volatility.
+        """Returns volatility for the instrument.
 
-        Calculates rolling volatility from actual price movements.
+        If constant_volatility was provided at initialization, returns that constant value.
+        Otherwise, calculates rolling volatility from actual price movements.
+
+        Using constant volatility matching the training volatility prevents train/test
+        distribution mismatch when the model was trained on simulated GBM data.
         """
         if not hasattr(self, "spot"):
             raise ValueError("No data loaded. Call simulate() first.")
 
         spot = self.get_buffer("spot")
 
-        # Calculate returns
+        # Use constant volatility if provided (for train/test consistency)
+        if self.constant_volatility is not None:
+            return torch.full_like(spot, self.constant_volatility)
+
+        # Otherwise calculate from returns
         returns = torch.log(spot[:, 1:] / spot[:, :-1])
 
-        # Annualized volatility (assuming 5-min bars)
-        # There are 288 5-min bars per day, 365 days per year
-        periods_per_year = 288 * 365
+        # Annualized volatility (use actual dt, not hardcoded 5-min assumption)
+        # periods_per_year = 1 / dt, where dt is in years
+        periods_per_year = (
+            1.0 / self.dt if self.dt > 0 else 365 * 24 * 12
+        )  # fallback to 5-min
 
         if returns.shape[1] > 0:
             # Use expanding window volatility

@@ -126,12 +126,18 @@ class BitcoinEuropeanOption(EuropeanOption):
             raise ValueError("Underlier must be simulated first")
 
         # Calculate realized volatility for each window
+        # Use underlier's dt for correct annualization (not hardcoded 5-min)
+        dt = (
+            self.underlier.dt if hasattr(self.underlier, "dt") else (1.0 / 24 / 12)
+        )  # fallback to 5-min
+        annualization_factor = np.sqrt(1.0 / dt)
+
         vol_tensors = []
         for window in windows:
             vol = calculate_realized_volatility(
                 self.underlier.spot,
                 window=window,
-                annualization_factor=np.sqrt(252 * 24 * 12),  # Crypto 24/7, 5-min data
+                annualization_factor=annualization_factor,
             )
             vol_tensors.append(vol)
 
@@ -144,6 +150,52 @@ class BitcoinEuropeanOption(EuropeanOption):
         self._realized_vol_cache[cache_key] = realized_vol
 
         return realized_vol
+
+    def expiry_time(self) -> torch.Tensor:
+        """
+        Alias for time_to_maturity() to match PFHedge's expected feature name.
+
+        PFHedge's Hedger expects 'expiry_time' feature, but our option provides
+        'time_to_maturity'. This method bridges that gap.
+
+        Returns:
+            Time to maturity tensor
+        """
+        return self.time_to_maturity()
+
+    def volatility(self) -> torch.Tensor:
+        """
+        Get volatility from the underlier for PFHedge feature extraction.
+
+        This method is required for the 'volatility' feature in PFHedge's Hedger.
+        Returns the underlier's volatility if available, otherwise returns
+        constant volatility if set.
+
+        Returns:
+            Volatility tensor with shape (n_paths, n_steps)
+        """
+        # Check if underlier has volatility property (GBM and Historical with constant_volatility)
+        if hasattr(self.underlier, "volatility"):
+            return self.underlier.volatility
+
+        # Fallback: check if underlier has sigma attribute (GBM)
+        elif hasattr(self.underlier, "sigma"):
+            n_paths, n_steps = self.underlier.spot.shape
+            return torch.full((n_paths, n_steps), self.underlier.sigma)
+
+        # Fallback: check if underlier has constant_volatility (Historical)
+        elif (
+            hasattr(self.underlier, "constant_volatility")
+            and self.underlier.constant_volatility is not None
+        ):
+            n_paths, n_steps = self.underlier.spot.shape
+            return torch.full((n_paths, n_steps), self.underlier.constant_volatility)
+
+        # Last resort: calculate realized volatility with default window
+        else:
+            # Use 20-period realized volatility as fallback
+            realized_vol = self.realized_volatility([20])
+            return realized_vol.squeeze(-1)  # Remove window dimension
 
     def deep_hedging_features(
         self,

@@ -118,6 +118,24 @@ def create_training_config_from_option(
     strike = option["strike"]
     maturity_days = option["days_to_expiry"]
     is_call = option["option_type"] == "call"
+    initial_spot = option.get("initial_spot")
+
+    # CRITICAL FIX: Normalize strike for training
+    # The GBM simulator in pfhedge starts with S0=1.0. We must normalize the
+    # strike to match this, otherwise log_moneyness = log(S_t / K) will be
+    # completely mismatched between training (e.g., log(1/105k) ~ -11.5) and
+    # backtesting (e.g., log(109k/105k) ~ +0.04).
+    if not initial_spot or initial_spot <= 0:
+        raise ValueError(
+            f"Option data must contain 'initial_spot' for strike normalization. "
+            f"Got initial_spot={initial_spot}. Cannot train without knowing the "
+            f"initial spot price. Please regenerate option file with initial_spot."
+        )
+
+    normalized_strike = strike / initial_spot
+    logger.info(
+        f"✅ Normalizing strike for training: {strike:.2f} / {initial_spot:.2f} = {normalized_strike:.4f}"
+    )
 
     # Use volatility override or option's IV
     if volatility_override is not None:
@@ -136,7 +154,7 @@ def create_training_config_from_option(
 
     # Create config
     config = TrainingConfig(
-        strike=strike,
+        strike=normalized_strike,  # Use normalized strike
         maturity_days=maturity_days,
         call=is_call,
         volatility=volatility,
@@ -242,6 +260,11 @@ def main():
         default=42,
         help="Random seed for reproducibility (default: 42)",
     )
+    parser.add_argument(
+        "--diagnostics",
+        action="store_true",
+        help="Enable MLP input/output diagnostics during training",
+    )
 
     args = parser.parse_args()
 
@@ -284,6 +307,9 @@ def main():
     print(f"  Directory: {args.output}")
     print("=" * 80 + "\n")
 
+    # Calculate normalized strike for verification
+    normalized_strike = option["strike"] / option["initial_spot"]
+
     # Create training config
     config = create_training_config_from_option(
         option=option,
@@ -309,7 +335,7 @@ def main():
 
     # Train model
     try:
-        trainer = Trainer(config, verbose=True)
+        trainer = Trainer(config, verbose=True, enable_diagnostics=args.diagnostics)
         results = trainer.train(seed=args.seed)
 
         # Save training results
@@ -321,9 +347,38 @@ def main():
         with open(option_path, "w") as f:
             json.dump(option, f, indent=2, default=str)
 
+        # Verify checkpoint contains normalized strike
+        logger.info("Verifying saved checkpoint has normalized strike...")
+        try:
+            import torch
+
+            checkpoint = torch.load(config.model_path, map_location="cpu")
+            saved_strike = checkpoint.get("training_config", {}).get("strike")
+
+            if saved_strike is None:
+                logger.warning("⚠️  Checkpoint missing 'strike' in training_config")
+            elif abs(saved_strike - normalized_strike) > 0.0001:
+                logger.error(
+                    f"❌ CHECKPOINT VERIFICATION FAILED!\n"
+                    f"   Expected strike: {normalized_strike:.6f}\n"
+                    f"   Saved strike: {saved_strike:.6f}\n"
+                    f"   This indicates a bug in model saving!"
+                )
+            else:
+                logger.info(
+                    f"✅ Checkpoint verified: strike = {saved_strike:.6f} "
+                    f"(matches normalized value)"
+                )
+        except Exception as e:
+            logger.warning(f"⚠️  Could not verify checkpoint: {e}")
+
         print("\n" + "=" * 80)
         print("TRAINING COMPLETE")
         print("=" * 80)
+        print(f"\n✅ Strike Normalization Applied:")
+        print(f"   Original strike: ${option['strike']:,.2f}")
+        print(f"   Initial spot: ${option['initial_spot']:,.2f}")
+        print(f"   Normalized strike: {normalized_strike:.6f}")
         print(f"\nFiles saved:")
         print(f"  Model: {config.model_path}")
         print(f"  Results: {results_path}")

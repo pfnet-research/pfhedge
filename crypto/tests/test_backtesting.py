@@ -1398,7 +1398,7 @@ class TestBacktester:
                 os.unlink(temp_path)
 
     def test_load_model_missing_features_fallback(self):
-        """Test default features fallback when 'features' key missing."""
+        """Test error when 'features' key missing (old models not supported)."""
         with tempfile.NamedTemporaryFile(mode="wb", suffix=".pth", delete=False) as f:
             temp_path = f.name
 
@@ -1415,7 +1415,7 @@ class TestBacktester:
                     "n_units": 32,
                     "criterion": "expected_shortfall",
                     "risk_param": 0.5,
-                    # Missing 'features' - should fallback to DEFAULT_FEATURES
+                    # Missing 'features' - should raise error (no silent fallback)
                 },
             }
             torch.save(checkpoint, temp_path)
@@ -1429,9 +1429,9 @@ class TestBacktester:
             )
             backtester = Backtester(config)
 
-            # Should load successfully with default features
-            model = backtester.load_model()
-            assert model is not None
+            # Should raise KeyError for missing features
+            with pytest.raises(KeyError, match="Checkpoint missing 'features'"):
+                backtester.load_model()
 
         finally:
             if os.path.exists(temp_path):

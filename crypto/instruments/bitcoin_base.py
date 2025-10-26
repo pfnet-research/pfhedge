@@ -68,8 +68,10 @@ class BitcoinBase(BasePrimary):
         spot = self.get_buffer("spot")
         if spot.shape[1] > 1:
             log_returns = torch.log(spot[:, 1:] / spot[:, :-1])
-            # Annualized volatility assuming 5-minute bars
-            annualization_factor = np.sqrt(365 * 24 * 12)  # 5-min bars per year
+            # Annualized volatility using actual dt (not hardcoded 5-min)
+            annualization_factor = (
+                np.sqrt(1.0 / self.dt) if self.dt > 0 else np.sqrt(365 * 24 * 12)
+            )
             vol = log_returns.std(dim=1, keepdim=True) * annualization_factor
             # Expand to match spot shape
             return vol.expand_as(spot)
