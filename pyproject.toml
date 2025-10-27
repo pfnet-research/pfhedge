@@ -49,7 +49,7 @@ dev = [
     "sphinx-copybutton>=0.4.0",
     "furo>=2021.9.22",
     "codecov>=2.1.12",
-    "click==8.0.4",
+    "click==8.3.0",
     "flake8>=5.0.0",
     "scipy>=1.10.1; python_version<'3.9'",
     "scipy>=1.12.0; python_version>='3.9'",
