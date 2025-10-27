@@ -15,9 +15,9 @@ requires-python = ">=3.8.1"
 dependencies = [
     "torch>=1.9.0,<3.0.0",
     "tqdm>=4.62.3",
-    "numpy>=1.26; python_version>='3.9'",
+    "numpy>=1.26,<2.3; python_version>='3.9'",
     "numpy<1.25; python_version=='3.8'",
-    "tardis-client>=2.0.0",
+    "tardis-client>=1.3.0",
     "requests>=2.25.0"
 ]
 
