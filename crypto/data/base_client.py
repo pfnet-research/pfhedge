@@ -4,6 +4,7 @@ Abstract base class for market data clients.
 This module defines the common interface that all market data providers
 (Deribit, Tardis, etc.) must implement to ensure interoperability.
 """
+
 from abc import ABC, abstractmethod
 from typing import Dict, List, Optional
 

@@ -1,6 +1,7 @@
 """
 Unit tests for crypto data loader.
 """
+
 import unittest
 import pandas as pd
 import numpy as np

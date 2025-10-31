@@ -1,6 +1,7 @@
 """
 Bitcoin perpetual with Brownian motion simulation for deep hedging training.
 """
+
 from math import ceil
 from typing import Optional, Tuple, cast
 import torch
@@ -11,9 +12,10 @@ from pfhedge.stochastic import generate_geometric_brownian
 from pfhedge._utils.typing import TensorOrScalar
 
 from .bitcoin_perpetual_base import BitcoinPerpetualBase
+from .volatility_mixin import VolatilityMixin
 
 
-class BitcoinPerpetualBrownian(BitcoinPerpetualBase):
+class BitcoinPerpetualBrownian(VolatilityMixin, BitcoinPerpetualBase):
     """Bitcoin perpetual with geometric Brownian motion simulation.
 
     This implementation generates synthetic price paths using geometric
@@ -29,6 +31,8 @@ class BitcoinPerpetualBrownian(BitcoinPerpetualBase):
         cost (float, default=0.0006): Transaction cost rate.
         dt (float, default=1/24/12): Time step (5 minutes).
         leverage (float, default=20.0): Maximum leverage.
+        volatility_window (int, default=0): Rolling window for realized volatility.
+            If 0, uses constant volatility. If >0, calculates rolling realized vol.
         dtype (torch.dtype, optional): Tensor dtype.
         device (torch.device, optional): Tensor device.
 
@@ -59,6 +63,7 @@ class BitcoinPerpetualBrownian(BitcoinPerpetualBase):
         cost: float = 0.0006,
         dt: float = 8 / 24 / 365,  # 8-hour bars (matches funding interval)
         leverage: float = 20.0,
+        volatility_window: int = 0,  # 0 = constant vol, >0 = rolling realized vol
         dtype: Optional[torch.dtype] = None,
         device: Optional[torch.device] = None,
     ) -> None:
@@ -71,14 +76,19 @@ class BitcoinPerpetualBrownian(BitcoinPerpetualBase):
         self.mu = mu
         self.funding_mean = funding_mean
         self.funding_std = funding_std
+        self.volatility_window = volatility_window
 
     @property
     def volatility(self) -> Tensor:
         """Returns the volatility of the instrument.
 
-        Returns a tensor filled with self.sigma.
+        Uses VolatilityMixin to calculate volatility based on configuration:
+        - volatility_window=0: Returns constant sigma
+        - volatility_window>0: Calculates rolling realized volatility
+
+        See VolatilityMixin documentation for details on calculation logic.
         """
-        return torch.full_like(self.get_buffer("spot"), self.sigma)
+        return self.calculate_volatility()
 
     @property
     def variance(self) -> Tensor:
@@ -86,7 +96,7 @@ class BitcoinPerpetualBrownian(BitcoinPerpetualBase):
 
         Returns a tensor filled with sigma squared.
         """
-        return torch.full_like(self.get_buffer("spot"), self.sigma ** 2)
+        return torch.full_like(self.get_buffer("spot"), self.sigma**2)
 
     def simulate(
         self,

@@ -202,7 +202,16 @@ def entropic_risk_measure(input: Tensor, a: float = 1.0) -> Tensor:
 
     See :class:`pfhedge.nn.EntropicRiskMeasure` for details.
     """
-    return (torch.logsumexp(-input * a, dim=0) - math.log(input.size(0))) / a
+    # Force FP32 for numerical stability with AMP
+    # logsumexp and exponentials need higher precision
+    input_dtype = input.dtype
+    if input.dtype == torch.float16 or input.dtype == torch.bfloat16:
+        input = input.float()
+
+    result = (torch.logsumexp(-input * a, dim=0) - math.log(input.size(0))) / a
+
+    # Convert back to original dtype if needed (though typically kept in FP32)
+    return result.to(input_dtype)
 
 
 def topp(

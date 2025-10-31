@@ -1,6 +1,7 @@
 """
 Unit tests for historical data downloader.
 """
+
 import unittest
 from unittest.mock import Mock, patch, MagicMock
 import pandas as pd

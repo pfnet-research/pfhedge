@@ -4,6 +4,7 @@ Tardis.dev API client for historical cryptocurrency data.
 This client provides the same interface as DeribitClient but fetches historical
 data from Tardis.dev, which has comprehensive historical coverage since 2019-03-30.
 """
+
 import asyncio
 import json
 import logging

@@ -1,6 +1,7 @@
 """
 Data loader for processing downloaded Bitcoin and options data.
 """
+
 import pandas as pd
 import numpy as np
 from pathlib import Path
@@ -23,6 +24,7 @@ class CryptoDataLoader:
         """
         self.data_dir = Path(data_dir)
         self.perpetual_data = None
+        self.spot_data = None
         self.options_data = None
         self.funding_data = None
 
@@ -55,6 +57,34 @@ class CryptoDataLoader:
         # Clean and process data
         df = self._process_perpetual_data(df)
         self.perpetual_data = df
+        return df
+
+    def load_spot_data(self, filename: Optional[str] = None) -> pd.DataFrame:
+        """
+        Load Bitcoin spot data.
+
+        Args:
+            filename: Specific file to load, or None for default
+
+        Returns:
+            DataFrame with processed spot data
+        """
+        if filename is None:
+            # Look for spot data files
+            files = list(self.data_dir.glob("*spot*.parquet"))
+            if not files:
+                raise FileNotFoundError(f"No spot data files found in {self.data_dir}")
+            # Use the most recent file if multiple exist
+            filename = max(files, key=lambda f: f.stat().st_mtime)
+        else:
+            filename = self.data_dir / filename
+
+        print(f"Loading spot data from {filename}")
+        df = pd.read_parquet(filename)
+
+        # Clean and process data (same as perpetual since structure is identical)
+        df = self._process_perpetual_data(df)
+        self.spot_data = df
         return df
 
     def load_options_data(self, filename: Optional[str] = None) -> pd.DataFrame:
@@ -349,24 +379,28 @@ class CryptoDataLoader:
                 "records": len(perp),
                 "date_range": (perp["timestamp"].min(), perp["timestamp"].max()),
                 "price_range": (perp["last_price"].min(), perp["last_price"].max()),
-                "avg_spread_pct": perp["spread_pct"].mean()
-                if "spread_pct" in perp.columns
-                else None,
+                "avg_spread_pct": (
+                    perp["spread_pct"].mean() if "spread_pct" in perp.columns else None
+                ),
             }
 
         if self.options_data is not None:
             opts = self.options_data
             summary["options"] = {
                 "records": len(opts),
-                "unique_strikes": opts["strike"].nunique()
-                if "strike" in opts.columns
-                else 0,
-                "call_count": len(opts[opts["option_type"] == "call"])
-                if "option_type" in opts.columns
-                else 0,
-                "put_count": len(opts[opts["option_type"] == "put"])
-                if "option_type" in opts.columns
-                else 0,
+                "unique_strikes": (
+                    opts["strike"].nunique() if "strike" in opts.columns else 0
+                ),
+                "call_count": (
+                    len(opts[opts["option_type"] == "call"])
+                    if "option_type" in opts.columns
+                    else 0
+                ),
+                "put_count": (
+                    len(opts[opts["option_type"] == "put"])
+                    if "option_type" in opts.columns
+                    else 0
+                ),
                 "avg_iv": opts["mark_iv"].mean() if "mark_iv" in opts.columns else None,
             }
 

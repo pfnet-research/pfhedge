@@ -1,0 +1,25 @@
+{
+  "search_parameters": {
+    "trade_date": "2025-09-28T12:00:00+00:00",
+    "expiry_date": "2025-10-31T08:00:00+00:00",
+    "option_type": "call",
+    "data_source": "manual"
+  },
+  "options": [
+    {
+      "instrument_name": "BTC-31OCT25-110000-C",
+      "strike": 110000,
+      "option_type": "call",
+      "initial_spot": 109325.75,
+      "moneyness": 0.9939,
+      "premium_btc": 0.0380,
+      "premium_usd": 4154.38,
+      "implied_volatility": 0.42,
+      "trade_count": 50,
+      "days_to_expiry": 33,
+      "maturity_days": 33,
+      "trade_date": "2025-09-28T12:00:00+00:00",
+      "expiry_date": "2025-10-31T08:00:00+00:00"
+    }
+  ]
+}

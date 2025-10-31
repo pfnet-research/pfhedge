@@ -528,6 +528,8 @@ class Hedger(Module):
         validation: bool = True,
         tqdm_kwargs: dict = {},
         snapshots: Optional[list[int]] = None,
+        use_amp: bool = False,
+        validation_freq: int = 1,
     ) -> Optional[List[float]]:
         """Fit the hedging model to hedge a given derivative.
 
@@ -558,6 +560,12 @@ class Hedger(Module):
                 validation loss and returns ``None``.
             tqdm_kwargs (dict, default={}): Keyword argument passed to ``tqdm.__init__``
                 to customize the progress bar.
+            use_amp (bool, default=False): If ``True`` and device is CUDA, use Automatic
+                Mixed Precision (AMP) training with FP16/BF16 to reduce memory usage.
+            validation_freq (int, default=1): Validation frequency in epochs. If > 1,
+                validation is only performed every N epochs to reduce overhead.
+                The final epoch is always validated when validation=True.
+                Setting to 0 skips intermediate validation but still validates the final epoch.
 
         Returns:
             list[float]
@@ -613,19 +621,49 @@ class Hedger(Module):
                 **kwargs,
             )
 
+        # Initialize AMP if enabled and on CUDA
+        scaler = None
+        if use_amp:
+            # Check if device supports AMP
+            device = next(self.model.parameters()).device
+            if device.type == 'cuda':
+                from torch.cuda.amp import GradScaler
+                scaler = GradScaler()
+            elif use_amp and verbose:
+                print("Warning: AMP requested but not on CUDA device. Disabling AMP.")
+
         history = []
         hedger_snapshots = []
         progress = tqdm(range(n_epochs), disable=not verbose, **tqdm_kwargs)
         for i in progress:
             # Compute training loss and backpropagate
             self.train()
-            optimizer.zero_grad()
-            loss = compute_loss()
-            loss.backward()
-            optimizer.step()
+            optimizer.zero_grad(set_to_none=True)
+
+            if scaler is not None:
+                # Mixed precision training
+                from torch.cuda.amp import autocast
+                with autocast():
+                    loss = compute_loss()
+                scaler.scale(loss).backward()
+                scaler.step(optimizer)
+                scaler.update()
+            else:
+                # Standard FP32 training
+                loss = compute_loss()
+                loss.backward()
+                optimizer.step()
 
             # Compute validation loss
-            if validation:
+            # Validate if:
+            # 1. validation=True, AND
+            # 2. Either validation_freq > 0 (enabled) or this is the last epoch
+            should_validate = validation and (
+                (validation_freq > 0 and (i + 1) % validation_freq == 0)  # Regular interval
+                or (i + 1) == n_epochs  # Always validate last epoch when validation=True
+            )
+
+            if should_validate:
                 self.eval()
                 loss = compute_loss(n_times=n_times, enable_grad=False)
                 history.append(loss.item())

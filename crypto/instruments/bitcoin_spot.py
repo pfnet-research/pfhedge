@@ -1,6 +1,7 @@
 """
 Bitcoin spot instrument for PFHedge.
 """
+
 from typing import Optional, Tuple, TYPE_CHECKING
 import pandas as pd
 import torch
@@ -74,26 +75,31 @@ class BitcoinSpot(BitcoinBase):
         if self.data_loader is None:
             raise ValueError("No data_loader provided")
 
-        # Load perpetual data (we'll use it as proxy for spot)
-        # In production, you might have separate spot data
-        perpetual_df = self.data_loader.load_perpetual_data()
+        # Try to load actual spot data first
+        try:
+            spot_df = self.data_loader.load_spot_data()
+            print("Using actual Bitcoin spot data")
+        except FileNotFoundError:
+            # Fallback to perpetual data as proxy for spot
+            print("No spot data found, using perpetual as proxy")
+            perpetual_df = self.data_loader.load_perpetual_data()
 
-        if perpetual_df is None or perpetual_df.empty:
-            # Try to load from sample data
-            perpetual_df = self.data_loader.perpetual_data
+            if perpetual_df is None or perpetual_df.empty:
+                # Try to load from cached data
+                perpetual_df = self.data_loader.perpetual_data
 
-        if perpetual_df is None or perpetual_df.empty:
-            raise ValueError("No perpetual data available in data_loader")
+            if perpetual_df is None or perpetual_df.empty:
+                raise ValueError("No spot or perpetual data available in data_loader")
 
-        # For spot, we use the perpetual prices but without funding
-        # In reality, spot prices might differ slightly from perpetual
-        spot_df = perpetual_df[["timestamp", "last_price"]].copy()
+            # For spot, we use the perpetual prices but without funding
+            # In reality, spot prices might differ slightly from perpetual
+            spot_df = perpetual_df[["timestamp", "last_price"]].copy()
 
-        # Add bid/ask if available
-        if "bid_price" in perpetual_df.columns:
-            spot_df["bid_price"] = perpetual_df["bid_price"]
-        if "ask_price" in perpetual_df.columns:
-            spot_df["ask_price"] = perpetual_df["ask_price"]
+            # Add bid/ask if available from perpetual
+            if "bid_price" in perpetual_df.columns:
+                spot_df["bid_price"] = perpetual_df["bid_price"]
+            if "ask_price" in perpetual_df.columns:
+                spot_df["ask_price"] = perpetual_df["ask_price"]
 
         # Add spread if not present
         if "bid_price" in spot_df.columns and "ask_price" in spot_df.columns:

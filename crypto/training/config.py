@@ -1,7 +1,7 @@
 """Configuration for deep hedging training."""
 
 from dataclasses import dataclass, asdict
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Union, List
 
 
 @dataclass
@@ -13,6 +13,7 @@ class TrainingConfig:
         maturity_days: Option maturity in days
         call: True for call option, False for put option (default: True)
         volatility: Volatility for simulation (e.g., 0.8 for 80%)
+        volatility_window: Rolling window size for realized volatility (default: 20, 0 = use constant vol)
         drift: Drift for simulation (default: 0.0)
         transaction_cost: Transaction cost rate, e.g., 0.0005 for 0.05% (default: 0.0005)
         dt_hours: Time step in hours (default: 8.0 for 8-hour rebalancing)
@@ -48,9 +49,13 @@ class TrainingConfig:
 
     # Market simulation parameters
     volatility: float = 0.8
+    volatility_window: int = (
+        20  # Rolling window for realized volatility (0 = use constant vol)
+    )
     drift: float = 0.0
     transaction_cost: float = 0.0005
     dt_hours: float = 8.0
+    underlying_type: str = "perpetual"  # "perpetual" or "spot"
 
     # Training parameters
     n_paths: int = 10000
@@ -58,12 +63,16 @@ class TrainingConfig:
 
     # Model architecture
     n_layers: int = 4
-    n_units: int = 128
+    n_units: Union[int, List[int]] = 128  # Single int or list for variable layer sizes
     risk_measure: str = "expected_shortfall"
     risk_param: float = 0.9
 
     # Device
     device: str = "cpu"
+
+    # Memory optimizations
+    use_amp: bool = True  # Use mixed precision training (FP16/BF16) on CUDA
+    validation_freq: int = 1  # Validation frequency (1=every epoch, >1=every N epochs)
 
     # Model output
     model_path: str = "models/deep_hedger_trained.pth"
@@ -133,6 +142,13 @@ class TrainingConfig:
         if self.dt_hours > 24:
             raise ValueError(f"dt_hours must be <= 24, got {self.dt_hours}")
 
+        # Validate underlying_type
+        valid_underlying_types = ["perpetual", "spot"]
+        if self.underlying_type not in valid_underlying_types:
+            raise ValueError(
+                f"underlying_type must be one of {valid_underlying_types}, got '{self.underlying_type}'"
+            )
+
         # Validate training parameters
         if self.n_paths <= 0:
             raise ValueError(f"n_paths must be positive, got {self.n_paths}")
@@ -142,8 +158,24 @@ class TrainingConfig:
         # Validate model architecture
         if self.n_layers <= 0:
             raise ValueError(f"n_layers must be positive, got {self.n_layers}")
-        if self.n_units <= 0:
-            raise ValueError(f"n_units must be positive, got {self.n_units}")
+
+        # Validate n_units (can be int or list of ints)
+        if isinstance(self.n_units, int):
+            if self.n_units <= 0:
+                raise ValueError(f"n_units must be positive, got {self.n_units}")
+        elif isinstance(self.n_units, list):
+            if len(self.n_units) != self.n_layers:
+                raise ValueError(
+                    f"When n_units is a list, it must have {self.n_layers} elements (one per layer), "
+                    f"got {len(self.n_units)}: {self.n_units}"
+                )
+            for i, units in enumerate(self.n_units):
+                if units <= 0:
+                    raise ValueError(f"n_units[{i}] must be positive, got {units}")
+        else:
+            raise ValueError(
+                f"n_units must be int or list of ints, got {type(self.n_units).__name__}"
+            )
 
         # Normalize and validate risk measure
         # First normalize aliases (cvar -> expected_shortfall, etc.)
@@ -211,12 +243,18 @@ class TrainingConfig:
 
     def __repr__(self) -> str:
         """String representation."""
+        # Format n_units for display
+        if isinstance(self.n_units, list):
+            units_str = f"[{', '.join(str(u) for u in self.n_units)}]"
+        else:
+            units_str = f"{self.n_layers}×{self.n_units}"
+
         return (
             f"TrainingConfig(\n"
             f"  option: {'Call' if self.call else 'Put'} @ ${self.strike:,.0f}, {self.maturity_days}d\n"
             f"  market: vol={self.volatility:.1%}, drift={self.drift:.3f}, cost={self.transaction_cost:.2%}\n"
             f"  training: {self.n_paths:,} paths, {self.n_epochs} epochs, seed={self.train_seed}\n"
-            f"  model: {self.n_layers}×{self.n_units} units, {self.risk_measure}(p={self.risk_param})\n"
+            f"  model: {units_str} units, {self.risk_measure}(p={self.risk_param})\n"
             f"  output: {self.model_path}\n"
             f")"
         )

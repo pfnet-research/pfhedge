@@ -1,6 +1,7 @@
 """
 Bitcoin perpetual futures instrument for PFHedge.
 """
+
 from typing import Optional, TYPE_CHECKING
 import pandas as pd
 import torch

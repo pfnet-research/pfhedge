@@ -1,8 +1,12 @@
 """
-Historical data downloader for Bitcoin perpetual and options from Deribit.
+Historical data downloader for Bitcoin perpetual, options, and spot from exchanges.
 """
+
 import os
 import time
+import gzip
+import requests
+from io import BytesIO
 from datetime import datetime, timedelta, timezone
 from typing import List, Dict, Optional
 import pandas as pd
@@ -196,6 +200,148 @@ class HistoricalDataDownloader:
             print(f"Saved {len(df)} option records to {filename}")
 
         return df
+
+    def download_spot_data(
+        self,
+        start_date: datetime,
+        end_date: datetime,
+        exchange: str = "coinbase",
+        symbol: str = "BTC-USD",
+        resample_freq: str = "8H",
+        api_key: Optional[str] = None,
+        save_to_parquet: bool = True,
+    ) -> pd.DataFrame:
+        """
+        Download Bitcoin spot data from Tardis CSV datasets.
+
+        Args:
+            start_date: Start date for data collection
+            end_date: End date for data collection
+            exchange: Exchange name (coinbase, binance, kraken, bitstamp)
+            symbol: Trading pair symbol (BTC-USD for Coinbase, BTCUSDT for Binance)
+            resample_freq: Resample frequency (8H for 8-hour bars to match perpetual)
+            api_key: Tardis API key (optional, first day of month is free)
+            save_to_parquet: Save data to parquet file
+
+        Returns:
+            DataFrame with spot data (OHLCV bars)
+        """
+        print(
+            f"Downloading {exchange}/{symbol} spot data from {start_date.date()} to {end_date.date()}"
+        )
+        print(f"Using Tardis CSV downloads (fast, efficient)")
+
+        all_data = []
+        current_date = start_date.date()
+        end = end_date.date()
+
+        total_days = (end - current_date).days + 1
+
+        with tqdm(total=total_days, desc=f"{exchange} spot") as pbar:
+            while current_date <= end:
+                # Build CSV URL
+                url = (
+                    f"https://datasets.tardis.dev/v1/{exchange}/trades/"
+                    f"{current_date.year}/{current_date.month:02d}/{current_date.day:02d}/"
+                    f"{symbol}.csv.gz"
+                )
+
+                try:
+                    # Download with API key if provided
+                    headers = {}
+                    if api_key:
+                        headers["Authorization"] = f"Bearer {api_key}"
+
+                    response = requests.get(url, headers=headers, timeout=120)
+
+                    if response.status_code == 200:
+                        # Decompress and read CSV
+                        with gzip.GzipFile(fileobj=BytesIO(response.content)) as f:
+                            df = pd.read_csv(f)
+
+                        # Convert timestamp (microseconds to datetime)
+                        df["timestamp"] = pd.to_datetime(
+                            df["timestamp"], unit="us", utc=True
+                        )
+
+                        all_data.append(df)
+                        pbar.set_postfix({"trades": len(df)})
+
+                    elif response.status_code == 404:
+                        pbar.write(f"  ⚠️  No data for {current_date}")
+                    elif response.status_code == 401 or response.status_code == 402:
+                        pbar.write(f"  ⚠️  Auth required for {current_date} (402/401)")
+                        pbar.write(
+                            f"     First day of month is free, or provide API key"
+                        )
+                    else:
+                        pbar.write(
+                            f"  ⚠️  HTTP {response.status_code} for {current_date}"
+                        )
+
+                except Exception as e:
+                    pbar.write(f"  ⚠️  Error on {current_date}: {e}")
+
+                current_date += timedelta(days=1)
+                pbar.update(1)
+
+        if not all_data:
+            raise ValueError("No data downloaded. Check date range and API key.")
+
+        # Combine all days
+        combined = pd.concat(all_data, ignore_index=True)
+        print(f"Downloaded {len(combined):,} total trades")
+
+        # Resample to OHLCV bars
+        if resample_freq:
+            print(f"Resampling to {resample_freq} bars...")
+            df_indexed = combined.set_index("timestamp")
+
+            ohlcv = (
+                pd.DataFrame(
+                    {
+                        "open": df_indexed["price"].resample(resample_freq).first(),
+                        "high": df_indexed["price"].resample(resample_freq).max(),
+                        "low": df_indexed["price"].resample(resample_freq).min(),
+                        "close": df_indexed["price"].resample(resample_freq).last(),
+                        "volume": df_indexed["amount"].resample(resample_freq).sum(),
+                        "trades": df_indexed["price"].resample(resample_freq).count(),
+                    }
+                )
+                .dropna()
+                .reset_index()
+            )
+
+            # Format for backtest system (match perpetual data structure)
+            ohlcv["last_price"] = ohlcv["close"]
+            ohlcv["open_price"] = ohlcv["open"]
+            ohlcv["high_price"] = ohlcv["high"]
+            ohlcv["low_price"] = ohlcv["low"]
+
+            # Estimate bid/ask spread (0.01% = 1 basis point)
+            spread = 0.0001
+            ohlcv["bid_price"] = ohlcv["last_price"] * (1 - spread / 2)
+            ohlcv["ask_price"] = ohlcv["last_price"] * (1 + spread / 2)
+
+            # For spot, index price is same as last price
+            ohlcv["index_price"] = ohlcv["last_price"]
+            ohlcv["exchange"] = exchange
+
+            combined = ohlcv
+            print(f"Created {len(combined):,} {resample_freq} bars")
+
+        if save_to_parquet and not combined.empty:
+            filename = (
+                f"{self.data_dir}/btc_spot_{resample_freq}_"
+                f"{start_date.strftime('%Y-%m-%d')}_{end_date.strftime('%Y-%m-%d')}.parquet"
+            )
+            combined.to_parquet(filename, index=False)
+            print(f"✓ Saved to {filename}")
+            print(
+                f"  Price range: ${combined['last_price'].min():,.2f} - ${combined['last_price'].max():,.2f}"
+            )
+
+        return combined
 
     def download_sample_dataset(self, days_back: int = 7) -> Dict[str, pd.DataFrame]:
         """

@@ -119,6 +119,11 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Use plain text without emoji decorations",
     )
+    parser.add_argument(
+        "--diagnostics",
+        action="store_true",
+        help="Enable MLP input/output diagnostics during hedging",
+    )
 
     return parser.parse_args()
 
@@ -168,6 +173,8 @@ def create_config_from_args(args: argparse.Namespace) -> BacktestConfig:
             config.data_dir = args.data_dir
         if args.output_dir:
             config.output_dir = args.output_dir
+        if args.diagnostics is not None:
+            config.enable_diagnostics = args.diagnostics
 
         return config
 
@@ -208,6 +215,8 @@ def create_config_from_args(args: argparse.Namespace) -> BacktestConfig:
         config_dict["data_dir"] = args.data_dir
     if args.output_dir:
         config_dict["output_dir"] = args.output_dir
+    if args.diagnostics is not None:
+        config_dict["enable_diagnostics"] = args.diagnostics
 
     return BacktestConfig.from_dict(config_dict)
 

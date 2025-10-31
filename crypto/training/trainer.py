@@ -6,6 +6,7 @@ import torch
 from torch import Tensor
 
 from .config import TrainingConfig
+from torch.optim import AdamW
 
 if TYPE_CHECKING:
     from pfhedge.nn import Hedger
@@ -82,21 +83,38 @@ class Trainer:
         self.test_option = None
         self.model = None
 
-    def create_training_option(self) -> "BitcoinEuropeanOption":
-        """Create option for training with simulated Brownian paths.
+    def create_option(self, n_paths: int, seed: int) -> "BitcoinEuropeanOption":
+        """Create option with simulated paths.
+
+        Args:
+            n_paths: Number of paths to simulate
+            seed: Random seed for reproducibility
 
         Returns:
-            BitcoinEuropeanOption with synthetic paths for training
+            BitcoinEuropeanOption with synthetic paths
 
         Examples:
             >>> trainer = Trainer(config)
-            >>> option = trainer.create_training_option()
-            >>> print(option.summary())
+            >>> # Create training option
+            >>> train_option = trainer.create_option(
+            ...     n_paths=50000, seed=42
+            ... )
+            >>> # Create test option
+            >>> test_option = trainer.create_option(
+            ...     n_paths=200, seed=888
+            ... )
         """
         from crypto.instruments import create_bitcoin_option_from_config
 
-        if self.verbose:
-            print("Creating training option with simulated paths...")
+        # Select underlying instrument class based on config
+        if self.config.underlying_type == "spot":
+            from crypto.instruments import BitcoinSpotBrownian
+
+            underlier_class = BitcoinSpotBrownian
+        else:  # perpetual
+            from crypto.instruments import BitcoinPerpetualBrownian
+
+            underlier_class = BitcoinPerpetualBrownian
 
         # Create config dict for option creation
         option_config = {
@@ -108,64 +126,15 @@ class Trainer:
             "mu": self.config.drift,
             "underlier_cost": self.config.transaction_cost,
             "dt": self.config.dt,
-            "n_paths": self.config.n_paths,
-            "seed": self.config.train_seed,
+            "n_paths": n_paths,
+            "seed": seed,
+            "volatility_window": self.config.volatility_window,
+            # init_state defaults to (1.0,) via default_init_state property
         }
 
-        option, _ = create_bitcoin_option_from_config(option_config)
-
-        if self.verbose:
-            print(f"✅ Training option created")
-            print(f"   Type: {'Call' if self.config.call else 'Put'}")
-            print(f"   Strike: ${self.config.strike:,.2f}")
-            print(f"   Maturity: {self.config.maturity_days} days")
-            print(f"   Paths: {self.config.n_paths:,}")
-            print(f"   Volatility: {self.config.volatility:.1%}")
-
-        # Store for later use
-        self.train_option = option
-
-        return option
-
-    def create_test_option(self) -> "BitcoinEuropeanOption":
-        """Create option for testing with different seed.
-
-        Returns:
-            BitcoinEuropeanOption with synthetic paths for testing
-
-        Examples:
-            >>> trainer = Trainer(config)
-            >>> test_option = trainer.create_test_option()
-            >>> print(test_option.summary())
-        """
-        from crypto.instruments import create_bitcoin_option_from_config
-
-        if self.verbose:
-            print("\nCreating test option with different seed...")
-
-        # Create config dict for test option (same params, different seed and paths)
-        option_config = {
-            "strike": self.config.strike,
-            "maturity_days": self.config.maturity_days,
-            "call": self.config.call,
-            "cost": 0.0,
-            "sigma": self.config.volatility,
-            "mu": self.config.drift,
-            "underlier_cost": self.config.transaction_cost,
-            "dt": self.config.dt,
-            "n_paths": self.config.test_n_paths,
-            "seed": self.config.test_seed,
-        }
-
-        option, _ = create_bitcoin_option_from_config(option_config)
-
-        if self.verbose:
-            print(f"✅ Test option created")
-            print(f"   Paths: {self.config.test_n_paths:,}")
-            print(f"   Seed: {self.config.test_seed}")
-
-        # Store for later use
-        self.test_option = option
+        option, _ = create_bitcoin_option_from_config(
+            option_config, underlier_class=underlier_class
+        )
 
         return option
 
@@ -198,10 +167,16 @@ class Trainer:
         model = model.to(device)
 
         if self.verbose:
+            # Format architecture for display
+            if isinstance(self.config.n_units, list):
+                arch_str = f"[{', '.join(str(u) for u in self.config.n_units)}]"
+            else:
+                arch_str = (
+                    f"{self.config.n_layers} layers × {self.config.n_units} units"
+                )
+
             print(f"✅ Model created")
-            print(
-                f"   Architecture: {self.config.n_layers} layers × {self.config.n_units} units"
-            )
+            print(f"   Architecture: {arch_str}")
             print(
                 f"   Risk measure: {self.config.risk_measure} (param={self.config.risk_param})"
             )
@@ -248,7 +223,7 @@ class Trainer:
             )
         if option is None:
             raise ValueError(
-                "No training option provided. Call create_training_option() first or provide an option."
+                "No training option provided. Call create_option() first or provide an option."
             )
 
         if self.verbose:
@@ -295,7 +270,10 @@ class Trainer:
             option,
             n_paths=self.config.n_paths,
             n_epochs=self.config.n_epochs,
+            optimizer = AdamW(model.parameters(), lr=1e-3, weight_decay=1e-4),
             verbose=self.verbose,
+            use_amp=self.config.use_amp and model_device.type == "cuda",
+            validation_freq=self.config.validation_freq,
         )
 
         # Print diagnostics if enabled
@@ -355,7 +333,7 @@ class Trainer:
             raise ValueError("No model provided. Train model first or provide a model.")
         if option is None:
             raise ValueError(
-                "No test option provided. Call create_test_option() first or provide an option."
+                "No test option provided. Call create_option() first or provide an option."
             )
 
         if self.verbose:
@@ -437,10 +415,10 @@ class Trainer:
             print(f"✅ Evaluation complete")
             print(f"   Test paths: {deep_pnl.shape[0]:,}")
             print(
-                f"   Deep hedge PnL: ${deep_pnl[:, -1].mean().item():.2f} ± ${deep_pnl[:, -1].std().item():.2f}"
+                f"   Deep hedge PnL: ${deep_pnl[:, -1].mean().item():.4f} ± ${deep_pnl[:, -1].std().item():.4f}"
             )
             print(
-                f"   BS baseline PnL: ${bs_pnl[:, -1].mean().item():.2f} ± ${bs_pnl[:, -1].std().item():.2f}"
+                f"   BS baseline PnL: ${bs_pnl[:, -1].mean().item():.4f} ± ${bs_pnl[:, -1].std().item():.4f}"
             )
 
         # Extract metrics from comparison results
@@ -573,10 +551,16 @@ class Trainer:
         torch.save(checkpoint, self.config.model_path)
 
         if self.verbose:
+            # Format architecture for display
+            if isinstance(self.config.n_units, list):
+                arch_str = f"[{', '.join(str(u) for u in self.config.n_units)}]"
+            else:
+                arch_str = (
+                    f"{self.config.n_layers} layers × {self.config.n_units} units"
+                )
+
             print(f"✅ Model checkpoint saved to: {self.config.model_path}")
-            print(
-                f"   Architecture: {self.config.n_layers} layers × {self.config.n_units} units"
-            )
+            print(f"   Architecture: {arch_str}")
             print(f"   Training epochs: {self.config.n_epochs}")
             if len(history) > 0:
                 print(f"   Final loss: {history[-1]:.6f}")
@@ -651,7 +635,14 @@ class Trainer:
             print(f"  Training epochs: {self.config.n_epochs}")
             print(f"  Test paths: {self.config.test_n_paths:,}")
             print(f"  Random seed: {seed}")
-            print(f"  Model: {self.config.n_layers}×{self.config.n_units} units")
+
+            # Format model architecture for display
+            if isinstance(self.config.n_units, list):
+                model_str = f"{', '.join(str(u) for u in self.config.n_units)} units"
+            else:
+                model_str = f"{self.config.n_layers}×{self.config.n_units} units"
+
+            print(f"  Model: {model_str}")
             print(f"  Device: {self.config.device}")
             print("=" * 70 + "\n")
 
@@ -659,12 +650,27 @@ class Trainer:
             # Step 1: Create training option
             if self.verbose:
                 print("[Step 1/6] Creating training option...")
-            self.create_training_option()
+            self.train_option = self.create_option(
+                n_paths=self.config.n_paths, seed=self.config.train_seed
+            )
+            if self.verbose:
+                print(f"✅ Training option created")
+                print(f"   Type: {'Call' if self.config.call else 'Put'}")
+                print(f"   Strike: ${self.config.strike:,.2f}")
+                print(f"   Maturity: {self.config.maturity_days} days")
+                print(f"   Paths: {self.config.n_paths:,}")
+                print(f"   Volatility: {self.config.volatility:.1%}")
 
             # Step 2: Create test option
             if self.verbose:
                 print("\n[Step 2/6] Creating test option...")
-            self.create_test_option()
+            self.test_option = self.create_option(
+                n_paths=self.config.test_n_paths, seed=self.config.test_seed
+            )
+            if self.verbose:
+                print(f"✅ Test option created")
+                print(f"   Paths: {self.config.test_n_paths:,}")
+                print(f"   Seed: {self.config.test_seed}")
 
             # Step 3: Create model
             if self.verbose:
@@ -709,13 +715,13 @@ class Trainer:
                 deep = test_metrics["deep_hedge"]
                 bs = test_metrics["bs_baseline"]
                 print(
-                    f"  Deep hedge: ${deep['mean_pnl']:.2f} ± ${deep['std_pnl']:.2f} (Sharpe: {deep['sharpe_ratio']:.3f})"
+                    f"  Deep hedge: ${deep['mean_pnl']:.4f} ± ${deep['std_pnl']:.4f} (Sharpe: {deep['sharpe_ratio']:.3f})"
                 )
                 print(
-                    f"  BS baseline: ${bs['mean_pnl']:.2f} ± ${bs['std_pnl']:.2f} (Sharpe: {bs['sharpe_ratio']:.3f})"
+                    f"  BS baseline: ${bs['mean_pnl']:.4f} ± ${bs['std_pnl']:.4f} (Sharpe: {bs['sharpe_ratio']:.3f})"
                 )
                 print(
-                    f"  Improvement: ${test_metrics['comparison']['mean_pnl_improvement']:+.2f} (Sharpe: {test_metrics['comparison']['sharpe_improvement']:+.3f})"
+                    f"  Improvement: ${test_metrics['comparison']['mean_pnl_improvement']:+.4f} (Sharpe: {test_metrics['comparison']['sharpe_improvement']:+.3f})"
                 )
 
                 print(f"\nModel saved to: {model_path}")

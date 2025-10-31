@@ -182,11 +182,11 @@ def calculate_seller_pnl(option: dict, backtest_results: dict) -> dict:
         },
         "comparison": {
             "pnl_improvement": deep_total_pnl_mean - bs_total_pnl_mean,
-            "risk_reduction_pct": (bs_total_pnl_std - deep_total_pnl_std)
-            / bs_total_pnl_std
-            * 100
-            if bs_total_pnl_std > 0
-            else 0,
+            "risk_reduction_pct": (
+                (bs_total_pnl_std - deep_total_pnl_std) / bs_total_pnl_std * 100
+                if bs_total_pnl_std > 0
+                else 0
+            ),
             "sharpe_improvement": deep_sharpe - bs_sharpe,
         },
     }

@@ -224,6 +224,7 @@ class TestStrikeNormalizationEdgeCases:
             "initial_spot": 110000,  # Exactly ATM
             "days_to_expiry": 30,
             "option_type": "call",
+            "implied_volatility": 0.5,
         }
 
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -244,6 +245,7 @@ class TestStrikeNormalizationEdgeCases:
             "initial_spot": 100000,
             "days_to_expiry": 30,
             "option_type": "call",
+            "implied_volatility": 0.5,
         }
 
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -265,6 +267,7 @@ class TestStrikeNormalizationEdgeCases:
             "initial_spot": 100000,
             "days_to_expiry": 30,
             "option_type": "call",
+            "implied_volatility": 0.5,
         }
 
         with tempfile.TemporaryDirectory() as tmpdir:

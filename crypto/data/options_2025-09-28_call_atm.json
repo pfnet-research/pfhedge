@@ -1,0 +1,85 @@
+{
+  "search_parameters": {
+    "trade_date": "2025-09-28T12:00:00+00:00",
+    "expiry_date": "2025-10-03T08:00:00+00:00",
+    "option_type": "call",
+    "min_trades": 10,
+    "moneyness_range": [
+      0.95,
+      1.05
+    ],
+    "testnet": false
+  },
+  "options": [
+    {
+      "instrument_name": "BTC-3OCT25-110000-C",
+      "strike": 110000,
+      "option_type": "call",
+      "initial_spot": 109325.75,
+      "moneyness": 0.9938704545454545,
+      "premium_btc": 0.013,
+      "premium_usd": 1421.2347499999998,
+      "implied_volatility": 0.3794212936283851,
+      "trade_count": 28,
+      "days_to_expiry": 4,
+      "trade_date": "2025-09-28T12:00:00+00:00",
+      "expiry_date": "2025-10-03T08:00:00+00:00"
+    },
+    {
+      "instrument_name": "BTC-3OCT25-111000-C",
+      "strike": 111000,
+      "option_type": "call",
+      "initial_spot": 109325.75,
+      "moneyness": 0.9849166666666667,
+      "premium_btc": 0.009625,
+      "premium_usd": 1052.26034375,
+      "implied_volatility": 0.38354694812289297,
+      "trade_count": 22,
+      "days_to_expiry": 4,
+      "trade_date": "2025-09-28T12:00:00+00:00",
+      "expiry_date": "2025-10-03T08:00:00+00:00"
+    },
+    {
+      "instrument_name": "BTC-3OCT25-112000-C",
+      "strike": 112000,
+      "option_type": "call",
+      "initial_spot": 109325.75,
+      "moneyness": 0.9761227678571428,
+      "premium_btc": 0.0065,
+      "premium_usd": 710.6173749999999,
+      "implied_volatility": 0.3740599147520352,
+      "trade_count": 57,
+      "days_to_expiry": 4,
+      "trade_date": "2025-09-28T12:00:00+00:00",
+      "expiry_date": "2025-10-03T08:00:00+00:00"
+    },
+    {
+      "instrument_name": "BTC-3OCT25-113000-C",
+      "strike": 113000,
+      "option_type": "call",
+      "initial_spot": 109325.75,
+      "moneyness": 0.9674845132743363,
+      "premium_btc": 0.005,
+      "premium_usd": 546.62875,
+      "implied_volatility": 0.39311275803858664,
+      "trade_count": 36,
+      "days_to_expiry": 4,
+      "trade_date": "2025-09-28T12:00:00+00:00",
+      "expiry_date": "2025-10-03T08:00:00+00:00"
+    },
+    {
+      "instrument_name": "BTC-3OCT25-114000-C",
+      "strike": 114000,
+      "option_type": "call",
+      "initial_spot": 109325.75,
+      "moneyness": 0.9589978070175439,
+      "premium_btc": 0.0025,
+      "premium_usd": 273.314375,
+      "implied_volatility": 0.35632756006509336,
+      "trade_count": 27,
+      "days_to_expiry": 4,
+      "trade_date": "2025-09-28T12:00:00+00:00",
+      "expiry_date": "2025-10-03T08:00:00+00:00"
+    }
+  ]
+}

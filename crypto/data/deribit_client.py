@@ -1,6 +1,7 @@
 """
 Minimal Deribit API client for historical data retrieval.
 """
+
 import requests
 import time
 from typing import Dict, List, Optional, Tuple

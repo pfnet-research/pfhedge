@@ -86,13 +86,16 @@ def create_training_config_from_option(
     epochs: int = 100,
     paths: int = 50000,
     layers: int = 4,
-    units: int = 128,
+    units: "int | list[int]" = 128,  # Can be int or list of ints
     risk_measure: str = "expected_shortfall",
     risk_param: float = 0.9,
     transaction_cost: float = 0.0006,
     dt_hours: float = 8.0,
     volatility_override: float = None,
+    volatility_window: int = 20,
     seed: int = 42,
+    device: str = "cpu",
+    underlying_type: str = "perpetual",
 ) -> TrainingConfig:
     """
     Create training configuration from option metadata.
@@ -145,8 +148,12 @@ def create_training_config_from_option(
         volatility = option["implied_volatility"]
         logger.info(f"Using implied volatility from premium: {volatility:.1%}")
     else:
-        volatility = 0.8  # Default fallback
-        logger.warning(f"No IV available, using default: {volatility:.1%}")
+        instrument_name = option.get("instrument_name", "UNKNOWN")
+        raise ValueError(
+            f"No volatility available for option {instrument_name}. "
+            f"Option data missing 'implied_volatility' field. "
+            f"Either provide --vol flag or regenerate option file with IV calculation."
+        )
 
     # Create model path
     model_path = Path(output_dir) / "model.pth"
@@ -158,8 +165,10 @@ def create_training_config_from_option(
         maturity_days=maturity_days,
         call=is_call,
         volatility=volatility,
+        volatility_window=volatility_window,
         transaction_cost=transaction_cost,
         dt_hours=dt_hours,
+        underlying_type=underlying_type,
         n_paths=paths,
         n_epochs=epochs,
         n_layers=layers,
@@ -170,6 +179,7 @@ def create_training_config_from_option(
         output_dir=output_dir,
         train_seed=seed,
         test_seed=seed + 1,
+        device=device,
     )
 
     return config
@@ -217,7 +227,11 @@ def main():
         "--layers", type=int, default=4, help="Number of hidden layers (default: 4)"
     )
     parser.add_argument(
-        "--units", type=int, default=128, help="Units per layer (default: 128)"
+        "--units",
+        nargs="+",
+        type=int,
+        default=128,
+        help="Units per layer. Can be single int (e.g., 128) or list (e.g., 64 32 32 16). Default: 128",
     )
     parser.add_argument(
         "--risk-measure",
@@ -234,10 +248,18 @@ def main():
 
     # Market parameters
     parser.add_argument(
+        "--underlying",
+        choices=["perpetual", "spot"],
+        default="perpetual",
+        help="Underlying instrument type (default: perpetual). "
+        "Perpetual has funding rates and leverage, spot is simpler with higher costs.",
+    )
+    parser.add_argument(
         "--cost",
         type=float,
-        default=0.0006,
-        help="Transaction cost rate (default: 0.0006 = 0.06%%)",
+        default=None,
+        help="Transaction cost rate. If not specified, uses default for underlying type "
+        "(perpetual: 0.0006 = 0.06%%, spot: 0.001 = 0.1%%)",
     )
     parser.add_argument(
         "--dt-hours",
@@ -255,6 +277,12 @@ def main():
         help="Override volatility (if not specified, uses IV from option)",
     )
     parser.add_argument(
+        "--volatility-window",
+        type=int,
+        default=20,
+        help="Rolling window for realized volatility calculation (default: 20, 0 = use constant vol)",
+    )
+    parser.add_argument(
         "--seed",
         type=int,
         default=42,
@@ -265,8 +293,43 @@ def main():
         action="store_true",
         help="Enable MLP input/output diagnostics during training",
     )
+    parser.add_argument(
+        "--device",
+        type=str,
+        default="cpu",
+        choices=["cpu", "cuda", "auto"],
+        help="Device to use for training (default: cpu, auto=cuda if available)",
+    )
 
     args = parser.parse_args()
+
+    # Determine transaction cost based on underlying type if not specified
+    if args.cost is None:
+        if args.underlying == "spot":
+            transaction_cost = 0.001  # 0.1% for spot
+        else:  # perpetual
+            transaction_cost = 0.0006  # 0.06% for perpetual
+    else:
+        transaction_cost = args.cost
+
+    # Determine device
+    import torch
+
+    if args.device == "auto":
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        logger.info(f"Auto-detected device: {device}")
+    else:
+        device = args.device
+        if device == "cuda" and not torch.cuda.is_available():
+            logger.warning("CUDA requested but not available, falling back to CPU")
+            device = "cpu"
+
+    logger.info(f"Using device: {device}")
+    if device == "cuda":
+        logger.info(f"GPU: {torch.cuda.get_device_name(0)}")
+        logger.info(
+            f"GPU memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.2f} GB"
+        )
 
     # Load option from file
     try:
@@ -278,6 +341,21 @@ def main():
     except ValueError as e:
         print(f"\nError: {e}\n")
         return 1
+
+    # Parse units argument (can be single int or list of ints)
+    if isinstance(args.units, list):
+        if len(args.units) == 1:
+            units = args.units[0]  # Single value, convert to int
+        else:
+            units = args.units  # Multiple values, keep as list
+    else:
+        units = args.units
+
+    # Format units for display
+    if isinstance(units, list):
+        units_str = f"[{', '.join(str(u) for u in units)}]"
+    else:
+        units_str = f"{args.layers} layers × {units} units"
 
     # Print option details
     print("\n" + "=" * 80)
@@ -297,11 +375,13 @@ def main():
     print(f"\nTraining Parameters:")
     print(f"  Epochs: {args.epochs}")
     print(f"  Training paths: {args.paths:,}")
-    print(f"  Architecture: {args.layers} layers × {args.units} units")
+    print(f"  Architecture: {units_str}")
     print(f"  Risk measure: {args.risk_measure} ({args.risk_param})")
-    print(f"  Transaction cost: {args.cost:.2%}")
+    print(f"  Underlying: {args.underlying}")
+    print(f"  Transaction cost: {transaction_cost:.2%}")
     print(f"  Time step: {args.dt_hours} hours")
     print(f"  Random seed: {args.seed}")
+    print(f"  Device: {device}")
 
     print(f"\nOutput:")
     print(f"  Directory: {args.output}")
@@ -317,13 +397,16 @@ def main():
         epochs=args.epochs,
         paths=args.paths,
         layers=args.layers,
-        units=args.units,
+        units=units,  # Use parsed units (int or list)
         risk_measure=args.risk_measure,
         risk_param=args.risk_param,
-        transaction_cost=args.cost,
+        transaction_cost=transaction_cost,
         dt_hours=args.dt_hours,
         volatility_override=args.volatility,
+        volatility_window=args.volatility_window,
         seed=args.seed,
+        device=device,
+        underlying_type=args.underlying,
     )
 
     # Validate config

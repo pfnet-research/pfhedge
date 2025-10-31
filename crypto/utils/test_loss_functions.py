@@ -153,7 +153,9 @@ def test_loss_function(loss_config):
         f"  Deep:  ${deep_mean:>8.2f} ± ${deep_std:>8.2f} (Sharpe: {deep_sharpe:>6.3f})"
     )
     print(f"  BS:    ${bs_mean:>8.2f} ± ${bs_std:>8.2f} (Sharpe: {bs_sharpe:>6.3f})")
-    print(f"  {'✅' if success else '❌'} Sharpe improvement: {sharpe_improvement:+.1f}%")
+    print(
+        f"  {'✅' if success else '❌'} Sharpe improvement: {sharpe_improvement:+.1f}%"
+    )
 
     return {
         "name": loss_config["name"],

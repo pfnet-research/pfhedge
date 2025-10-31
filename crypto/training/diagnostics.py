@@ -48,6 +48,7 @@ class MLPDiagnostics:
 
     def attach(self):
         """Attach hooks to model to capture inputs/outputs."""
+
         # Hook for model inputs/outputs
         def forward_hook(module, input, output):
             self.call_count += 1
@@ -230,46 +231,70 @@ class MLPDiagnostics:
         """
         return {
             "input": {
-                "mean": np.mean(self.input_stats["mean"])
-                if self.input_stats["mean"]
-                else None,
-                "std": np.mean(self.input_stats["std"])
-                if self.input_stats["std"]
-                else None,
-                "min": np.mean(self.input_stats["min"])
-                if self.input_stats["min"]
-                else None,
-                "max": np.mean(self.input_stats["max"])
-                if self.input_stats["max"]
-                else None,
+                "mean": (
+                    np.mean(self.input_stats["mean"])
+                    if self.input_stats["mean"]
+                    else None
+                ),
+                "std": (
+                    np.mean(self.input_stats["std"])
+                    if self.input_stats["std"]
+                    else None
+                ),
+                "min": (
+                    np.mean(self.input_stats["min"])
+                    if self.input_stats["min"]
+                    else None
+                ),
+                "max": (
+                    np.mean(self.input_stats["max"])
+                    if self.input_stats["max"]
+                    else None
+                ),
             },
             "output": {
-                "mean": np.mean(self.output_stats["mean"])
-                if self.output_stats["mean"]
-                else None,
-                "std": np.mean(self.output_stats["std"])
-                if self.output_stats["std"]
-                else None,
-                "abs_mean": np.mean(self.output_stats["abs_mean"])
-                if self.output_stats["abs_mean"]
-                else None,
-                "min": np.mean(self.output_stats["min"])
-                if self.output_stats["min"]
-                else None,
-                "max": np.mean(self.output_stats["max"])
-                if self.output_stats["max"]
-                else None,
+                "mean": (
+                    np.mean(self.output_stats["mean"])
+                    if self.output_stats["mean"]
+                    else None
+                ),
+                "std": (
+                    np.mean(self.output_stats["std"])
+                    if self.output_stats["std"]
+                    else None
+                ),
+                "abs_mean": (
+                    np.mean(self.output_stats["abs_mean"])
+                    if self.output_stats["abs_mean"]
+                    else None
+                ),
+                "min": (
+                    np.mean(self.output_stats["min"])
+                    if self.output_stats["min"]
+                    else None
+                ),
+                "max": (
+                    np.mean(self.output_stats["max"])
+                    if self.output_stats["max"]
+                    else None
+                ),
             },
             "gradient": {
-                "mean": np.mean(self.gradient_stats["mean"])
-                if self.gradient_stats["mean"]
-                else None,
-                "std": np.mean(self.gradient_stats["std"])
-                if self.gradient_stats["std"]
-                else None,
-                "norm": np.mean(self.gradient_stats["norm"])
-                if self.gradient_stats["norm"]
-                else None,
+                "mean": (
+                    np.mean(self.gradient_stats["mean"])
+                    if self.gradient_stats["mean"]
+                    else None
+                ),
+                "std": (
+                    np.mean(self.gradient_stats["std"])
+                    if self.gradient_stats["std"]
+                    else None
+                ),
+                "norm": (
+                    np.mean(self.gradient_stats["norm"])
+                    if self.gradient_stats["norm"]
+                    else None
+                ),
             },
         }
 

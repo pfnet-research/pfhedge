@@ -106,9 +106,9 @@ def run_experiment(config):
         "bs": results["Black-Scholes"],
         "improvement": improvement,
         "beats_bs": beats_bs,
-        "training_improvement": (history[0] - history[-1]) / history[0] * 100
-        if len(history) > 0
-        else 0,
+        "training_improvement": (
+            (history[0] - history[-1]) / history[0] * 100 if len(history) > 0 else 0
+        ),
     }
 
 

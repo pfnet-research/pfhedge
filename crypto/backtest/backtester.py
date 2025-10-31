@@ -1,8 +1,9 @@
 """Backtesting framework for deep hedging strategies."""
 
-from typing import Optional, TYPE_CHECKING
 import os
 import pickle
+from typing import Optional, TYPE_CHECKING
+
 import torch
 from torch import Tensor
 
@@ -58,6 +59,9 @@ class Backtester:
         self.deep_positions = None
         self.bs_positions = None
 
+        # Diagnostics
+        self.diagnostics = None
+
     def load_model(self, device: Optional[str] = None) -> "Hedger":
         """Load pre-trained model from checkpoint.
 
@@ -85,9 +89,7 @@ class Backtester:
         # Import here to avoid circular dependency
         from crypto.strategies.deep_hedge_utils import (
             create_deep_hedger,
-            DEFAULT_FEATURES,
         )
-        from pfhedge.nn import Hedger
 
         model_path = self.config.model_path
 
@@ -235,7 +237,6 @@ class Backtester:
         # Import CryptoDataLoader and pandas
         from crypto.data.loader import CryptoDataLoader
         import pandas as pd
-        from datetime import datetime
 
         data_dir = self.config.data_dir
 
@@ -253,14 +254,23 @@ class Backtester:
         # Create data loader
         loader = CryptoDataLoader(data_dir)
 
-        # Load perpetual data (required for bootstrapping)
+        # Load data (perpetual or spot) based on config
+        data_file = self.config.data_file
+        underlying_type = self.config.underlying_type
         try:
-            perpetual_df = loader.load_perpetual_data()
-            print(f"✅ Loaded {len(perpetual_df)} raw perpetual records")
+            # Load specific file (works for both spot and perpetual)
+            print(f"Loading data from specified file: {data_file}")
+            if "spot" == underlying_type:
+                perpetual_df = loader.load_spot_data(filename=data_file)
+                # Store spot data as perpetual_data for compatibility with rest of code
+                loader.perpetual_data = loader.spot_data
+            else:
+                perpetual_df = loader.load_perpetual_data(filename=data_file)
+            print(f"✅ Loaded {len(perpetual_df)} raw records")
         except FileNotFoundError as e:
             raise FileNotFoundError(
-                f"No perpetual data found in {data_dir}. "
-                f"Expected files matching '*perpetual*.parquet'. Error: {e}"
+                f"No data found in {data_dir}. "
+                f"Expected files matching '*spot*.parquet' or '*perpetual*.parquet'. Error: {e}"
             )
 
         if perpetual_df.empty:
@@ -423,7 +433,7 @@ class Backtester:
                 f"  Price range: ${perp['price_range'][0]:.2f} - ${perp['price_range'][1]:.2f}"
             )
             if perp.get("avg_spread_pct"):
-                print(f"  Avg spread: {perp['avg_spread_pct']*100:.4f}%")
+                print(f"  Avg spread: {perp['avg_spread_pct'] * 100:.4f}%")
 
         if "options" in summary:
             opts = summary["options"]
@@ -472,7 +482,11 @@ class Backtester:
         # Import necessary classes
         import logging
         import numpy as np
-        from crypto.instruments import BitcoinPerpetualHistorical, BitcoinEuropeanOption
+        from crypto.instruments import (
+            BitcoinPerpetualHistorical,
+            BitcoinSpotHistorical,
+            BitcoinEuropeanOption,
+        )
 
         logger = logging.getLogger(__name__)
 
@@ -491,30 +505,42 @@ class Backtester:
 
         logger.info("Creating bootstrap option from historical data...")
 
-        # Try to extract training volatility from loaded model to avoid train/test mismatch
+        # Use time-varying realized volatility for realistic backtesting
+        # Setting constant_volatility=None triggers fallback to realized vol calculation
         constant_vol = None
-        if self.model is not None:
-            try:
-                checkpoint = torch.load(self.config.model_path, map_location="cpu")
-                training_config = checkpoint.get("training_config", {})
-                constant_vol = training_config.get("volatility")
-                if constant_vol is not None:
-                    logger.info(
-                        f"Using constant volatility from training: {constant_vol:.4f}"
-                    )
-            except Exception as e:
-                logger.warning(f"Could not extract training volatility from model: {e}")
-                logger.info("Will use calculated volatility from historical returns")
-
-        # Create BitcoinPerpetualHistorical with loaded data
-        underlier = BitcoinPerpetualHistorical(
-            data_loader=data_loader,
-            cost=self.config.transaction_cost,
-            dt=self.config.dt,
-            dtype=torch.float32,
-            device="cpu",
-            constant_volatility=constant_vol,  # Use training vol to match model expectations
+        logger.info(
+            f"Using time-varying realized volatility ({self.config.volatility_window}-period rolling window)"
         )
+        logger.info("This is more realistic than constant vol from training")
+
+        # Create underlier based on underlying_type
+        underlying_type = self.config.underlying_type
+        logger.info(f"Creating {underlying_type} underlier for backtest")
+
+        if underlying_type == "spot":
+            underlier = BitcoinSpotHistorical(
+                data_loader=data_loader,
+                cost=self.config.transaction_cost,
+                dt=self.config.dt,
+                dtype=torch.float32,
+                device="cpu",
+                constant_volatility=constant_vol,
+                volatility_window=self.config.volatility_window,
+            )
+        elif underlying_type == "perpetual":
+            underlier = BitcoinPerpetualHistorical(
+                data_loader=data_loader,
+                cost=self.config.transaction_cost,
+                dt=self.config.dt,
+                dtype=torch.float32,
+                device="cpu",
+                constant_volatility=constant_vol,
+                volatility_window=self.config.volatility_window,
+            )
+        else:
+            raise ValueError(
+                f"Invalid underlying_type: {underlying_type}. Must be 'spot' or 'perpetual'"
+            )
 
         # Calculate time horizon from maturity_days
         time_horizon = self.config.maturity_days / 365.0
@@ -713,6 +739,16 @@ class Backtester:
                 )
                 option.underlier.to(model_device)
 
+        # Attach diagnostics if enabled
+        if self.config.enable_diagnostics:
+            from crypto.training.diagnostics import MLPDiagnostics
+
+            self.diagnostics = MLPDiagnostics(model, sample_frequency=1)
+            self.diagnostics.attach()
+            print(
+                "\n🔍 Diagnostics enabled - will track MLP inputs/outputs during hedging\n"
+            )
+
         with torch.no_grad():
             # Compute hedge positions using the neural network
             # model.compute_hedge() returns shape (n_paths, n_instruments, n_steps)
@@ -725,9 +761,12 @@ class Backtester:
             # model.compute_cum_pl() already returns shape (n_paths, n_steps), no squeezing needed
             cum_pnl = model.compute_cum_pl(option)
 
-            # Add funding costs for perpetual futures
-            if hasattr(option.underlier, "funding_rate") and hasattr(
-                option.underlier, "funding_payment_times"
+            # Add funding costs for perpetual futures (skip for spot)
+            if (
+                hasattr(option.underlier, "has_funding")
+                and option.underlier.has_funding
+                and hasattr(option.underlier, "funding_rate")
+                and hasattr(option.underlier, "funding_payment_times")
             ):
                 spots = option.underlier.spot
                 funding_rate = option.underlier.funding_rate
@@ -754,6 +793,16 @@ class Backtester:
         print(
             f"   Final PnL: ${cum_pnl[:, -1].mean().item():.2f} ± ${cum_pnl[:, -1].std().item():.2f}"
         )
+
+        # Print diagnostics if enabled
+        if self.config.enable_diagnostics and self.diagnostics is not None:
+            print("\n" + "=" * 70)
+            print("BACKTEST DIAGNOSTICS")
+            print("=" * 70)
+            print("\nMLP behavior during hedging on bootstrap paths:\n")
+            self.diagnostics.print_summary(verbose=True)
+            self.diagnostics.detach()
+            print("=" * 70 + "\n")
 
         # Store positions for later use in results
         self.deep_positions = hedge_positions
@@ -814,12 +863,15 @@ class Backtester:
         # Get transaction cost from underlier
         cost = option.underlier.cost
 
-        # Get funding rate and funding times if available
+        # Get funding rate and funding times if available (skip for spot)
         funding_rate = None
         funding_times = None
 
-        if hasattr(option.underlier, "funding_rate") and hasattr(
-            option.underlier, "funding_payment_times"
+        if (
+            hasattr(option.underlier, "has_funding")
+            and option.underlier.has_funding
+            and hasattr(option.underlier, "funding_rate")
+            and hasattr(option.underlier, "funding_payment_times")
         ):
             funding_rate = option.underlier.funding_rate
             funding_times = option.underlier.funding_payment_times()
@@ -856,6 +908,13 @@ class Backtester:
         Note: This is a warning only and doesn't stop execution.
         """
         if self.option is None:
+            return
+
+        # Skip funding alignment check for spot instruments (has_funding=False)
+        if (
+            hasattr(self.option.underlier, "has_funding")
+            and not self.option.underlier.has_funding
+        ):
             return
 
         # Check if underlier has funding payment times
@@ -982,7 +1041,7 @@ class Backtester:
         print(f"  Maturity: {self.config.maturity_days} days")
         print(f"  Bootstrap paths: {self.config.n_bootstrap_paths}")
         print(f"  Time step: {self.config.dt_hours} hours")
-        print(f"  Transaction cost: {self.config.transaction_cost*100:.3f}%")
+        print(f"  Transaction cost: {self.config.transaction_cost * 100:.3f}%")
         print(f"  Model: {self.config.model_path}")
         print(f"  Data directory: {self.config.data_dir}")
         print("=" * 60 + "\n")

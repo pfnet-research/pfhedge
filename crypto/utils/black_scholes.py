@@ -39,8 +39,7 @@ def black_scholes_price(
 
     # Calculate d1 and d2
     d1 = (
-        np.log(spot / strike)
-        + (risk_free_rate + 0.5 * volatility ** 2) * time_to_expiry
+        np.log(spot / strike) + (risk_free_rate + 0.5 * volatility**2) * time_to_expiry
     ) / (volatility * np.sqrt(time_to_expiry))
     d2 = d1 - volatility * np.sqrt(time_to_expiry)
 
@@ -88,8 +87,7 @@ def black_scholes_delta(
 
     # Calculate d1
     d1 = (
-        np.log(spot / strike)
-        + (risk_free_rate + 0.5 * volatility ** 2) * time_to_expiry
+        np.log(spot / strike) + (risk_free_rate + 0.5 * volatility**2) * time_to_expiry
     ) / (volatility * np.sqrt(time_to_expiry))
 
     # Calculate delta
@@ -165,8 +163,7 @@ def implied_volatility(
         try:
             # Calculate vega
             d1 = (
-                np.log(spot / strike)
-                + (risk_free_rate + 0.5 * vol ** 2) * time_to_expiry
+                np.log(spot / strike) + (risk_free_rate + 0.5 * vol**2) * time_to_expiry
             ) / (vol * np.sqrt(time_to_expiry))
             vega = spot * norm.pdf(d1) * np.sqrt(time_to_expiry)
             return vega

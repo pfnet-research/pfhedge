@@ -72,32 +72,57 @@ def calculate_realized_volatility(
     # Calculate log returns
     log_returns = torch.log(prices[:, 1:] / prices[:, :-1])
 
-    # Initialize output tensor
+    # Initialize output tensor (first position always NaN since no return yet)
     volatility = torch.full_like(prices, float("nan"))
 
-    # Calculate rolling volatility for each path
-    for path_idx in range(n_paths):
-        returns_path = log_returns[path_idx]
+    # Vectorized rolling window calculation using unfold
+    # unfold(dimension, size, step) creates sliding windows
+    if not center:
+        # Backward-looking window (standard for trading)
+        # For each timestep t, we want returns from [t-window+1, t]
+        # Since we already computed returns, we need to handle the mapping carefully
 
-        for t in range(n_steps):
-            if center:
-                # Center the window around current point
+        # Pad returns at the beginning to handle initial timesteps
+        # We'll calculate std for windows of size 'window'
+        n_returns = log_returns.shape[1]  # n_steps - 1
+
+        # Create rolling windows: (n_paths, n_windows, window_size)
+        # unfold creates windows of size 'window' with step 1
+        if n_returns >= window:
+            # Use unfold to create sliding windows efficiently
+            windows = log_returns.unfold(dimension=1, size=window, step=1)
+            # windows shape: (n_paths, n_windows, window)
+            # where n_windows = n_returns - window + 1
+
+            # Calculate std for each window: (n_paths, n_windows)
+            window_std = windows.std(dim=2)
+
+            # Place the volatility values at the correct positions
+            # Window ending at return index i corresponds to price index i+1
+            # So window[0] (returns 0:window) -> volatility[window]
+            volatility[:, window:] = window_std
+
+        # Handle initial period with expanding window
+        for t in range(1, min(window, n_steps)):
+            # For timesteps before we have full window, use expanding window
+            if t >= min_periods:
+                # Use all available returns up to this point
+                window_returns = log_returns[:, :t]
+                volatility[:, t] = window_returns.std(dim=1)
+    else:
+        # Centered window - less common, fallback to loop for simplicity
+        for path_idx in range(n_paths):
+            returns_path = log_returns[path_idx]
+            for t in range(n_steps):
                 start_idx = max(0, t - window // 2)
                 end_idx = min(len(returns_path), t + window // 2 + 1)
-            else:
-                # Backward-looking window (more realistic for trading)
-                start_idx = max(0, t - window + 1)
-                end_idx = t + 1
 
-            # Skip if we don't have enough data
-            if end_idx - start_idx < min_periods or start_idx >= len(returns_path):
-                continue
+                if end_idx - start_idx < min_periods or start_idx >= len(returns_path):
+                    continue
 
-            # Calculate volatility for this window
-            window_returns = returns_path[start_idx:end_idx]
-            if len(window_returns) >= min_periods:
-                vol_estimate = window_returns.std()
-                volatility[path_idx, t] = vol_estimate
+                window_returns = returns_path[start_idx:end_idx]
+                if len(window_returns) >= min_periods:
+                    volatility[path_idx, t] = window_returns.std()
 
     # Annualize volatility
     if annualization_factor is None:
@@ -105,7 +130,8 @@ def calculate_realized_volatility(
         # For financial data: daily=sqrt(252), hourly=sqrt(252*24), 5min=sqrt(252*24*12)
         annualization_factor = np.sqrt(252 * 24 * 12)  # Assume 5-minute data by default
 
-    volatility = volatility * np.sqrt(annualization_factor)
+    # Apply annualization factor (should already be sqrt of periods per year)
+    volatility = volatility * annualization_factor
 
     if squeeze_output:
         volatility = volatility.squeeze(0)
@@ -293,7 +319,7 @@ def _test_volatility_calculation():
     for t in range(1, n_steps):
         dW = torch.randn(n_paths) * np.sqrt(dt)
         prices[:, t] = prices[:, t - 1] * torch.exp(
-            (mu - 0.5 * sigma ** 2) * dt + sigma * dW
+            (mu - 0.5 * sigma**2) * dt + sigma * dW
         )
 
     # Calculate realized volatility

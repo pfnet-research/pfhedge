@@ -115,7 +115,7 @@ class TestVolatilityFeatures(unittest.TestCase):
         for t in range(1, n_steps):
             dW = torch.randn(1) * np.sqrt(dt)
             prices[0, t] = prices[0, t - 1] * torch.exp(
-                (0.0 - 0.5 * true_vol ** 2) * dt + true_vol * dW
+                (0.0 - 0.5 * true_vol**2) * dt + true_vol * dW
             )
 
         realized_vol = calculate_realized_volatility(

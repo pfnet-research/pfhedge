@@ -1,6 +1,7 @@
 """
 Abstract base class for Bitcoin instruments.
 """
+
 from abc import abstractmethod
 from math import ceil
 from typing import Optional, Tuple, TYPE_CHECKING

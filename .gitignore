@@ -164,3 +164,5 @@ config/api_keys.json
 **/temp_data/
 /crypto/examples/output/
 /crypto/data/historical/
+/docs/archives/
+/backtest_results/

@@ -802,7 +802,7 @@ class TestMetrics:
         # Manual calculation
         mean = pnl.mean().item()
         downside = torch.clamp(pnl - 0.0, max=0.0)
-        downside_dev = torch.sqrt(torch.mean(downside ** 2)).item()
+        downside_dev = torch.sqrt(torch.mean(downside**2)).item()
         expected_sortino = mean / downside_dev
 
         assert abs(sortino - expected_sortino) < 1e-6
@@ -1453,7 +1453,7 @@ class TestBacktester:
                     "n_layers": 2,
                     "n_units": 32,
                     "risk_param": 0.5,
-                    "features": ["log_moneyness"]
+                    "features": ["log_moneyness"],
                     # Missing both 'criterion' and 'risk_measure'
                 },
             }
@@ -1625,7 +1625,7 @@ class TestBacktester:
             backtester = Backtester(config)
 
             with pytest.raises(
-                FileNotFoundError, match="No perpetual data found.*perpetual.*parquet"
+                FileNotFoundError, match="No perpetual data files found"
             ):
                 backtester.load_data()
 

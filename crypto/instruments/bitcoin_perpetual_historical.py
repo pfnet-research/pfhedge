@@ -1,6 +1,7 @@
 """
 Bitcoin perpetual with historical data replay for backtesting.
 """
+
 from typing import Optional, Tuple
 import pandas as pd
 import torch
@@ -9,6 +10,7 @@ from torch import Tensor
 from pfhedge._utils.typing import TensorOrScalar
 
 from .bitcoin_perpetual_base import BitcoinPerpetualBase
+from .volatility_mixin import VolatilityMixin
 
 
 # Columns to rescale when adjusting spot prices (price-like)
@@ -32,7 +34,7 @@ PRESERVE_COLUMNS = [
 ]
 
 
-class BitcoinPerpetualHistorical(BitcoinPerpetualBase):
+class BitcoinPerpetualHistorical(VolatilityMixin, BitcoinPerpetualBase):
     """Bitcoin perpetual using historical data for backtesting.
 
     This implementation loads real historical data for backtesting strategies.
@@ -72,6 +74,7 @@ class BitcoinPerpetualHistorical(BitcoinPerpetualBase):
         constant_volatility: Optional[
             float
         ] = None,  # NEW: Use constant vol for backtest
+        volatility_window: int = 20,  # Rolling window for realized vol (0 = expanding)
     ) -> None:
         """Initialize historical Bitcoin perpetual.
 
@@ -85,6 +88,8 @@ class BitcoinPerpetualHistorical(BitcoinPerpetualBase):
             constant_volatility: If provided, use this constant volatility instead of
                 calculating from returns. This should match the training volatility to
                 avoid train/test distribution mismatch.
+            volatility_window: Rolling window size for realized volatility calculation
+                (default: 20). If 0, uses expanding window.
         """
         super().__init__(
             cost=cost, dt=dt, leverage=leverage, dtype=dtype, device=device
@@ -97,6 +102,7 @@ class BitcoinPerpetualHistorical(BitcoinPerpetualBase):
         self.constant_volatility = (
             constant_volatility  # NEW: Store for use in volatility property
         )
+        self.volatility_window = volatility_window
 
     def simulate(
         self,
@@ -224,26 +230,25 @@ class BitcoinPerpetualHistorical(BitcoinPerpetualBase):
     def volatility(self) -> Tensor:
         """Returns volatility for the instrument.
 
-        If constant_volatility was provided at initialization, returns that constant value.
-        Otherwise, calculates rolling volatility from actual price movements.
+        Uses VolatilityMixin with priority:
+        1. constant_volatility override (for train/test consistency)
+        2. Rolling window realized vol (if volatility_window > 0)
+        3. Expanding window (if volatility_window = 0, backward compat)
 
-        Using constant volatility matching the training volatility prevents train/test
-        distribution mismatch when the model was trained on simulated GBM data.
+        See VolatilityMixin documentation for detailed explanation.
         """
         if not hasattr(self, "spot"):
             raise ValueError("No data loaded. Call simulate() first.")
 
+        # Use mixin for rolling window or constant vol
+        if self.constant_volatility is not None or self.volatility_window > 0:
+            return self.calculate_volatility()
+
+        # Fallback: expanding window (backward compatibility when volatility_window=0)
         spot = self.get_buffer("spot")
-
-        # Use constant volatility if provided (for train/test consistency)
-        if self.constant_volatility is not None:
-            return torch.full_like(spot, self.constant_volatility)
-
-        # Otherwise calculate from returns
         returns = torch.log(spot[:, 1:] / spot[:, :-1])
 
         # Annualized volatility (use actual dt, not hardcoded 5-min assumption)
-        # periods_per_year = 1 / dt, where dt is in years
         periods_per_year = (
             1.0 / self.dt if self.dt > 0 else 365 * 24 * 12
         )  # fallback to 5-min
@@ -253,19 +258,16 @@ class BitcoinPerpetualHistorical(BitcoinPerpetualBase):
             vol_list = []
             for i in range(returns.shape[1]):
                 if i == 0:
-                    # Use a default volatility for the first period
                     vol = torch.full(
                         (returns.shape[0], 1), 0.8, dtype=self.dtype, device=self.device
                     )
                 else:
-                    # Calculate volatility up to current point
                     hist_returns = returns[:, : i + 1]
                     vol = torch.std(hist_returns, dim=1, keepdim=True) * (
-                        periods_per_year ** 0.5
+                        periods_per_year**0.5
                     )
                 vol_list.append(vol)
 
-            # Add initial volatility for time 0
             initial_vol = torch.full(
                 (returns.shape[0], 1), 0.8, dtype=self.dtype, device=self.device
             )
@@ -273,7 +275,6 @@ class BitcoinPerpetualHistorical(BitcoinPerpetualBase):
 
             volatility = torch.cat(vol_list, dim=1)
         else:
-            # No returns, use default
             volatility = torch.full_like(spot, 0.8)
 
         return volatility
@@ -281,7 +282,7 @@ class BitcoinPerpetualHistorical(BitcoinPerpetualBase):
     @property
     def variance(self) -> Tensor:
         """Returns historical realized variance."""
-        return self.volatility ** 2
+        return self.volatility**2
 
     @staticmethod
     def validate_bootstrap_data_sufficiency(

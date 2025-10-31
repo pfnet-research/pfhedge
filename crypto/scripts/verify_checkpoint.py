@@ -60,9 +60,7 @@ def verify_checkpoint(checkpoint_path: str, expected_strike: float = None) -> bo
 
     # Check if strike looks normalized
     if strike < 0.5 or strike > 2.0:
-        print(
-            f"   ⚠️  WARNING: Strike {strike:.6f} is outside typical range [0.5, 2.0]"
-        )
+        print(f"   ⚠️  WARNING: Strike {strike:.6f} is outside typical range [0.5, 2.0]")
         print(f"   This might indicate an unnormalized absolute strike!")
         is_valid = False
     else:

@@ -27,6 +27,7 @@ class BacktestConfig:
         n_bootstrap_paths: Number of bootstrap paths to generate (default: 100)
         transaction_cost: Transaction cost rate, e.g., 0.0005 for 0.05% (default: 0.0005)
         dt_hours: Time step in hours (default: 8.0 for 8-hour rebalancing)
+        volatility_window: Rolling window for realized volatility (default: 20, 0 = use constant vol)
         data_dir: Directory containing historical data (default: "sample_data")
         output_dir: Directory to save results (default: "backtest_results")
         bootstrap_mode: Bootstrap sampling mode (default: "absolute_strike")
@@ -35,6 +36,7 @@ class BacktestConfig:
         initial_spot: Initial spot price from option discovery (for normalize_spot mode)
         target_moneyness: Explicit target moneyness override (alternative to initial_spot)
         spot_tolerance: Tolerance for spot filtering (future use, default: 0.1)
+        enable_diagnostics: Enable MLP input/output diagnostics during hedge computation (default: False)
 
     Examples:
         >>> config = BacktestConfig(
@@ -64,7 +66,14 @@ class BacktestConfig:
     n_bootstrap_paths: int = 100
     transaction_cost: float = 0.0005
     dt_hours: float = 8.0
+    volatility_window: int = (
+        20  # Rolling window for realized volatility (0 = use constant vol)
+    )
+    underlying_type: str = "perpetual"  # "perpetual" or "spot" (must match training)
     data_dir: str = "sample_data"
+    data_file: Optional[str] = (
+        None  # Specific data file to load (overrides auto-detection)
+    )
     output_dir: str = "backtest_results"
 
     # Bootstrap configuration (NEW)
@@ -72,6 +81,9 @@ class BacktestConfig:
     initial_spot: Optional[float] = None
     target_moneyness: Optional[float] = None
     spot_tolerance: Optional[float] = 0.1
+
+    # Diagnostics configuration
+    enable_diagnostics: bool = False
 
     def validate(self) -> None:
         """Validate configuration parameters.
@@ -131,6 +143,13 @@ class BacktestConfig:
         if self.bootstrap_mode not in valid_modes:
             raise ValueError(
                 f"bootstrap_mode must be one of {valid_modes}, got '{self.bootstrap_mode}'"
+            )
+
+        # Validate underlying_type
+        valid_underlying_types = ["perpetual", "spot"]
+        if self.underlying_type not in valid_underlying_types:
+            raise ValueError(
+                f"underlying_type must be one of {valid_underlying_types}, got '{self.underlying_type}'"
             )
 
         # Validate initial_spot if provided
@@ -379,9 +398,9 @@ class BacktestConfig:
         provenance = {
             "config": self.to_dict(),
             "resolved_paths": {
-                "model_path": str(Path(self.model_path).absolute())
-                if self.model_path
-                else None,
+                "model_path": (
+                    str(Path(self.model_path).absolute()) if self.model_path else None
+                ),
                 "data_dir": str(Path(self.data_dir).absolute()),
                 "output_dir": str(Path(self.output_dir).absolute()),
             },

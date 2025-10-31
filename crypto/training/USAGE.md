@@ -501,8 +501,8 @@ Main training engine.
 **Methods:**
 - `train(seed)`: Run complete training pipeline
   - Returns: `TrainingResults` object
-- `create_training_option()`: Create training option with simulated paths
-- `create_test_option()`: Create test option for evaluation
+- `create_option(n_paths, seed)`: Create option with simulated paths
+  - Used for both training and testing with different parameters
 - `create_model()`: Create deep hedger model
 - `train_model()`: Train the model
 - `evaluate()`: Evaluate model on test set

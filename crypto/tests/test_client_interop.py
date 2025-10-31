@@ -4,6 +4,7 @@ Integration tests for client interoperability.
 These tests verify that DeribitClient and TardisClient return compatible
 data structures and can be used interchangeably in real code.
 """
+
 import unittest
 from unittest.mock import patch, Mock
 from datetime import datetime, timezone

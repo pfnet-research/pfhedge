@@ -1,6 +1,7 @@
 """
 Base Bitcoin perpetual futures instrument for PFHedge.
 """
+
 from abc import abstractmethod
 from typing import Optional, Tuple
 import torch
@@ -52,8 +53,12 @@ class BitcoinPerpetualBase(BasePrimary):
 
     @property
     def default_init_state(self) -> Tuple[float, ...]:
-        """Default initial state for simulation."""
-        return (50000.0,)  # Default BTC price
+        """Default initial state for simulation.
+
+        Returns (1.0,) to match normalized pricing convention used in training.
+        When training with normalized strikes (K/S0), we start at S0=1.0.
+        """
+        return (1.0,)
 
     @property
     def is_listed(self) -> bool:

@@ -1,6 +1,7 @@
 """
 Unit tests for Bitcoin instruments.
 """
+
 import unittest
 import sys
 import os
@@ -38,6 +39,9 @@ class MockDataLoader:
         )
 
     def load_perpetual_data(self):
+        return self.perpetual_data
+
+    def load_spot_data(self):
         return self.perpetual_data
 
 

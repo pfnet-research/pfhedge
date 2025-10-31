@@ -4,6 +4,7 @@ Factory function for creating market data clients.
 This module provides a unified way to create market data clients across
 different scripts in the crypto module.
 """
+
 import os
 import logging
 from typing import Optional

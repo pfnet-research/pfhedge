@@ -28,7 +28,7 @@ DEFAULT_FEATURES = [
 
 def create_deep_hedger(
     n_layers: int = 3,
-    n_units: int = 64,
+    n_units: "int | list[int]" = 64,  # Can be int or list of ints
     risk_measure: str = "expected_shortfall",
     risk_param: float = 0.5,
     features: list = None,
@@ -37,7 +37,9 @@ def create_deep_hedger(
 
     Args:
         n_layers: Number of hidden layers
-        n_units: Number of units per layer
+        n_units: Number of units per layer. Can be:
+            - int: Same units for all layers (e.g., 64 → [64, 64, 64])
+            - list of ints: Variable units per layer (e.g., [64, 32, 32, 16])
         risk_measure: Risk measure type
             - 'expected_shortfall': ExpectedShortfall (CVaR)
             - 'entropic': EntropicRiskMeasure (exponential utility risk measure)
@@ -55,8 +57,13 @@ def create_deep_hedger(
     if features is None:
         features = DEFAULT_FEATURES
 
-    # Create model
-    model = MultiLayerPerceptron(n_layers=n_layers, n_units=[n_units] * n_layers)
+    # Create model with variable or uniform layer sizes
+    if isinstance(n_units, list):
+        units_list = n_units
+    else:
+        units_list = [n_units] * n_layers
+
+    model = MultiLayerPerceptron(n_layers=n_layers, n_units=units_list)
 
     # Create criterion based on risk measure
     if risk_measure == "expected_shortfall":

@@ -352,9 +352,11 @@ class OptionMatcher:
             "puts": len(df[df["option_type"] == "put"]),
             "strikes": sorted(df["strike"].unique().tolist()),
             "date_range": (df["timestamp"].min(), df["timestamp"].max()),
-            "expiries": sorted(df["expiration"].unique().tolist())
-            if "expiration" in df.columns
-            else [],
+            "expiries": (
+                sorted(df["expiration"].unique().tolist())
+                if "expiration" in df.columns
+                else []
+            ),
         }
 
         return summary
@@ -595,9 +597,9 @@ class PriceComparator:
             "model_price": model_price,
             "market_price": market_price,
             "matched_strike": float(match["strike"]) if match is not None else None,
-            "matched_maturity": float(match["days_to_expiry"])
-            if match is not None
-            else None,
+            "matched_maturity": (
+                float(match["days_to_expiry"]) if match is not None else None
+            ),
         }
 
         # Calculate price difference
@@ -795,7 +797,7 @@ class PriceComparator:
 
         d1 = (
             np.log(spot / strike)
-            + (risk_free_rate + 0.5 * volatility ** 2) * time_to_expiry
+            + (risk_free_rate + 0.5 * volatility**2) * time_to_expiry
         ) / (volatility * np.sqrt(time_to_expiry))
         d2 = d1 - volatility * np.sqrt(time_to_expiry)
 
@@ -1314,12 +1316,14 @@ class PriceComparator:
             "market_price": market_price,
             "moneyness": moneyness,
             "matched_strike": float(match["strike"]) if match is not None else None,
-            "matched_maturity": float(match["days_to_expiry"])
-            if match is not None
-            else None,
-            "matched_instrument": str(match["instrument"])
-            if match is not None and "instrument" in match
-            else None,
+            "matched_maturity": (
+                float(match["days_to_expiry"]) if match is not None else None
+            ),
+            "matched_instrument": (
+                str(match["instrument"])
+                if match is not None and "instrument" in match
+                else None
+            ),
         }
 
         # Calculate IV difference

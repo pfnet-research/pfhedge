@@ -345,9 +345,11 @@ def calculate_seller_pnl(
             "hedging_std": float(deep_hedge_pnl.std()),
             "total_pnl": float(deep_total_pnl.mean()),
             "total_std": float(deep_total_pnl.std()),
-            "sharpe": float(deep_total_pnl.mean() / deep_total_pnl.std())
-            if deep_total_pnl.std() > 0
-            else 0,
+            "sharpe": (
+                float(deep_total_pnl.mean() / deep_total_pnl.std())
+                if deep_total_pnl.std() > 0
+                else 0
+            ),
             "win_rate": float((deep_total_pnl > 0).mean()),
             "max_loss": float(deep_total_pnl.min()),
             "max_profit": float(deep_total_pnl.max()),
@@ -357,26 +359,30 @@ def calculate_seller_pnl(
             "hedging_std": float(bs_hedge_pnl.std()),
             "total_pnl": float(bs_total_pnl.mean()),
             "total_std": float(bs_total_pnl.std()),
-            "sharpe": float(bs_total_pnl.mean() / bs_total_pnl.std())
-            if bs_total_pnl.std() > 0
-            else 0,
+            "sharpe": (
+                float(bs_total_pnl.mean() / bs_total_pnl.std())
+                if bs_total_pnl.std() > 0
+                else 0
+            ),
             "win_rate": float((bs_total_pnl > 0).mean()),
             "max_loss": float(bs_total_pnl.min()),
             "max_profit": float(bs_total_pnl.max()),
         },
         "comparison": {
             "pnl_improvement": float(deep_total_pnl.mean() - bs_total_pnl.mean()),
-            "risk_reduction": float(
-                (bs_total_pnl.std() - deep_total_pnl.std()) / bs_total_pnl.std()
-            )
-            if bs_total_pnl.std() > 0
-            else 0,
-            "sharpe_improvement": float(
-                (deep_total_pnl.mean() / deep_total_pnl.std())
-                - (bs_total_pnl.mean() / bs_total_pnl.std())
-            )
-            if deep_total_pnl.std() > 0 and bs_total_pnl.std() > 0
-            else 0,
+            "risk_reduction": (
+                float((bs_total_pnl.std() - deep_total_pnl.std()) / bs_total_pnl.std())
+                if bs_total_pnl.std() > 0
+                else 0
+            ),
+            "sharpe_improvement": (
+                float(
+                    (deep_total_pnl.mean() / deep_total_pnl.std())
+                    - (bs_total_pnl.mean() / bs_total_pnl.std())
+                )
+                if deep_total_pnl.std() > 0 and bs_total_pnl.std() > 0
+                else 0
+            ),
         },
     }
 

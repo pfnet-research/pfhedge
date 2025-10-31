@@ -68,7 +68,7 @@ def calculate_sortino_ratio(
 
     # Calculate downside deviation (only negative deviations from target)
     downside_returns = torch.clamp(pnl - target, max=0.0)
-    downside_dev = torch.sqrt(torch.mean(downside_returns ** 2)).item()
+    downside_dev = torch.sqrt(torch.mean(downside_returns**2)).item()
 
     if downside_dev == 0:
         return 0.0

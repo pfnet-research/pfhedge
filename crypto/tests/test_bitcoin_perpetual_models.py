@@ -1,6 +1,7 @@
 """
 Unit tests for Bitcoin perpetual simulation models.
 """
+
 import unittest
 import sys
 import os

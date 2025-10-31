@@ -293,7 +293,7 @@ class BitcoinEuropeanOption(EuropeanOption):
         # Calculate d1 from Black-Scholes formula
         # d1: (n_paths, n_steps)
         d1 = (
-            torch.log(spot / strike) + (risk_free_rate + 0.5 * volatility ** 2) * ttm
+            torch.log(spot / strike) + (risk_free_rate + 0.5 * volatility**2) * ttm
         ) / vol_sqrt_ttm
 
         # Handle NaN values by replacing with 0
@@ -409,11 +409,17 @@ def create_bitcoin_option_from_config(
         mu=config.get("mu", 0.0),
         cost=config.get("underlier_cost", 0.001),
         dt=config.get("dt", 8 / 24 / 365),  # Default 8-hour bars
+        volatility_window=config.get("volatility_window", 0),  # 0 = constant vol
     )
 
     # Simulate underlying
     maturity = config.get("maturity_days", 30) / 365
-    underlier.simulate(n_paths=config.get("n_paths", 1000), time_horizon=maturity)
+    init_state = config.get("init_state", None)
+    underlier.simulate(
+        n_paths=config.get("n_paths", 1000),
+        time_horizon=maturity,
+        init_state=init_state,
+    )
 
     # Create option
     option = BitcoinEuropeanOption(
