@@ -5,6 +5,8 @@
 * **Follow PFHedge patterns**: When implementing deep hedging, follow established patterns from `examples/snowball_hedge.py`
 * **DON'T Apologize in reply**
 * **NEVER commit before ask**
+* **AVOID excessive comments, unless necessary. Don't add function comments unless being asked**
+* **AVOID using `print` for debugging, use `logging` instead**
 
 ## Workflow
 * TARDIS_API_KEY=TD.rSzoJCymVt13xucv.f0uh1Crgt0pdOcz.jyqhwMa1PoSjzEo.Xwjrec5DEivk4ON.Sgyf7c169jr4RCu.sXMR

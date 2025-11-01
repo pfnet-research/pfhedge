@@ -259,7 +259,7 @@ def estimate_annualization_factor(time_delta_seconds: float) -> float:
 
 
 def create_volatility_features(
-    instrument, windows: list = [10, 20, 50], feature_names: Optional[list] = None
+    instrument, windows: list = [10, 20, 50]
 ) -> torch.Tensor:
     """
     Create volatility features for deep hedging models.
@@ -270,7 +270,6 @@ def create_volatility_features(
     Args:
         instrument: Any instrument with .spot attribute (BitcoinSpot, BitcoinPerpetual, etc.)
         windows: List of window sizes for volatility calculation
-        feature_names: Optional custom names for features
 
     Returns:
         Tensor of shape (n_paths, n_steps, n_features) with volatility features

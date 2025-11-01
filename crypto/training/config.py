@@ -23,7 +23,7 @@ class TrainingConfig:
         n_units: Number of units per hidden layer (default: 128)
         risk_measure: Risk measure for training criterion (default: "expected_shortfall")
         risk_param: Parameter for risk measure, e.g., CVaR alpha (default: 0.9)
-        model_path: Path to save trained model checkpoint (default: "models/deep_hedger_trained.pth")
+        model_path: Path to save trained model checkpoint (required, no default)
         test_n_paths: Number of paths for test evaluation (default: 200)
         test_seed: Random seed for test set (default: 888)
         train_seed: Random seed for training (default: 42)
@@ -40,9 +40,10 @@ class TrainingConfig:
         >>> config_dict = config.to_dict()
     """
 
-    # Option parameters
+    # Option parameters (required)
     strike: float
     maturity_days: int
+    model_path: str  # Path to save trained model checkpoint (required)
 
     # Optional parameters with defaults
     call: bool = True
@@ -73,9 +74,6 @@ class TrainingConfig:
     # Memory optimizations
     use_amp: bool = True  # Use mixed precision training (FP16/BF16) on CUDA
     validation_freq: int = 1  # Validation frequency (1=every epoch, >1=every N epochs)
-
-    # Model output
-    model_path: str = "models/deep_hedger_trained.pth"
 
     # Testing parameters
     test_n_paths: int = 200

@@ -270,7 +270,7 @@ class Trainer:
             option,
             n_paths=self.config.n_paths,
             n_epochs=self.config.n_epochs,
-            optimizer = AdamW(model.parameters(), lr=1e-3, weight_decay=1e-4),
+            optimizer=AdamW(model.parameters(), lr=1e-3, weight_decay=1e-4),
             verbose=self.verbose,
             use_amp=self.config.use_amp and model_device.type == "cuda",
             validation_freq=self.config.validation_freq,

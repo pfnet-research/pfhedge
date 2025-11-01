@@ -1030,7 +1030,7 @@ class PriceComparator:
         if HAS_SCIPY:
             # Use Brent's method (primary)
             try:
-                from scipy.optimize import brentq, OptimizeResult
+                from scipy.optimize import brentq
 
                 def price_diff(sigma):
                     return (

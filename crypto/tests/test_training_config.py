@@ -12,6 +12,7 @@ class TestNormalizeRiskMeasure:
         config = TrainingConfig(
             strike=50000,
             maturity_days=14,
+            model_path="test.pth",
             risk_measure="cvar",
         )
         # Before validation
@@ -26,6 +27,7 @@ class TestNormalizeRiskMeasure:
         config = TrainingConfig(
             strike=50000,
             maturity_days=14,
+            model_path="test.pth",
             risk_measure="es",
         )
         config.validate()
@@ -36,6 +38,7 @@ class TestNormalizeRiskMeasure:
         config = TrainingConfig(
             strike=50000,
             maturity_days=14,
+            model_path="test.pth",
             risk_measure="CVaR",
         )
         config.validate()
@@ -46,6 +49,7 @@ class TestNormalizeRiskMeasure:
         config = TrainingConfig(
             strike=50000,
             maturity_days=14,
+            model_path="test.pth",
             risk_measure="ES",
         )
         config.validate()
@@ -56,6 +60,7 @@ class TestNormalizeRiskMeasure:
         config = TrainingConfig(
             strike=50000,
             maturity_days=14,
+            model_path="test.pth",
             risk_measure="expected_shortfall",
         )
         config.validate()
@@ -66,6 +71,7 @@ class TestNormalizeRiskMeasure:
         config = TrainingConfig(
             strike=50000,
             maturity_days=14,
+            model_path="test.pth",
             risk_measure="variance",
         )
         config.validate()
@@ -76,6 +82,7 @@ class TestNormalizeRiskMeasure:
         config = TrainingConfig(
             strike=50000,
             maturity_days=14,
+            model_path="test.pth",
             risk_measure="entropic",
         )
         config.validate()
@@ -86,6 +93,7 @@ class TestNormalizeRiskMeasure:
         config = TrainingConfig(
             strike=50000,
             maturity_days=14,
+            model_path="test.pth",
             risk_measure="invalid_measure",
         )
         with pytest.raises(ValueError, match="risk_measure must be one of"):
@@ -100,6 +108,7 @@ class TestDeviceValidation:
         config = TrainingConfig(
             strike=50000,
             maturity_days=14,
+            model_path="test.pth",
             device="cpu",
         )
         config.validate()  # Should not raise
@@ -110,6 +119,7 @@ class TestDeviceValidation:
         config = TrainingConfig(
             strike=50000,
             maturity_days=14,
+            model_path="test.pth",
             device="cuda",
         )
         config.validate()  # Should not raise
@@ -120,6 +130,7 @@ class TestDeviceValidation:
         config = TrainingConfig(
             strike=50000,
             maturity_days=14,
+            model_path="test.pth",
             device="cuda:0",
         )
         config.validate()  # Should not raise
@@ -131,6 +142,7 @@ class TestDeviceValidation:
             config = TrainingConfig(
                 strike=50000,
                 maturity_days=14,
+                model_path="test.pth",
                 device=f"cuda:{i}",
             )
             config.validate()  # Should not raise
@@ -141,6 +153,7 @@ class TestDeviceValidation:
         config = TrainingConfig(
             strike=50000,
             maturity_days=14,
+            model_path="test.pth",
             device="mps",
         )
         config.validate()  # Should not raise
@@ -151,6 +164,7 @@ class TestDeviceValidation:
         config = TrainingConfig(
             strike=50000,
             maturity_days=14,
+            model_path="test.pth",
             device="invalid_device",
         )
         with pytest.raises(ValueError, match="device must be one of"):
@@ -161,6 +175,7 @@ class TestDeviceValidation:
         config = TrainingConfig(
             strike=50000,
             maturity_days=14,
+            model_path="test.pth",
             device="tpu:0",
         )
         with pytest.raises(ValueError, match="device must be one of"):
@@ -175,6 +190,7 @@ class TestTrainingConfigIntegration:
         config = TrainingConfig(
             strike=60000,
             maturity_days=7,
+            model_path="test.pth",
             call=False,
             volatility=1.2,
             risk_measure="cvar",  # Should be normalized
@@ -199,6 +215,7 @@ class TestTrainingConfigIntegration:
         config = TrainingConfig(
             strike=50000,
             maturity_days=14,
+            model_path="test.pth",
             risk_measure="cvar",
         )
         config.validate()
@@ -214,6 +231,7 @@ class TestTrainingConfigIntegration:
         config_dict = {
             "strike": 50000,
             "maturity_days": 14,
+            "model_path": "test.pth",
             "risk_measure": "es",  # Alias
         }
 

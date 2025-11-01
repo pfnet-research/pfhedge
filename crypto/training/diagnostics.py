@@ -50,7 +50,7 @@ class MLPDiagnostics:
         """Attach hooks to model to capture inputs/outputs."""
 
         # Hook for model inputs/outputs
-        def forward_hook(module, input, output):
+        def forward_hook(_module, input, output):
             self.call_count += 1
 
             # Sample to reduce overhead
@@ -90,7 +90,7 @@ class MLPDiagnostics:
                 self.output_stats["has_inf"].append(torch.isinf(output).any().item())
 
         # Hook for gradients (during backward pass)
-        def backward_hook(module, grad_input, grad_output):
+        def backward_hook(_module, _grad_input, grad_output):
             if grad_output[0] is not None:
                 grad = grad_output[0]
                 self.gradient_stats["mean"].append(grad.mean().item())
@@ -299,14 +299,13 @@ class MLPDiagnostics:
         }
 
 
-def diagnose_hedger(hedger, option, n_paths: int = 1000, n_steps_sample: int = 5):
+def diagnose_hedger(hedger, option, n_paths: int = 1000):
     """Quick diagnostic helper function.
 
     Args:
         hedger: Trained PFHedge Hedger
         option: Option to evaluate on
         n_paths: Number of paths to simulate
-        n_steps_sample: Sample every N time steps
 
     Returns:
         Dictionary with diagnostic statistics

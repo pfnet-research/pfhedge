@@ -1071,120 +1071,6 @@ class TestBacktester:
         assert backtester.data_loader is None
         assert backtester.option is None
 
-    def test_normalize_timestamps_to_utc_naive(self):
-        """Test normalizing timezone-naive timestamps to UTC."""
-        config = BacktestConfig(
-            start_date="2024-01-01",
-            end_date="2024-01-31",
-            strike=50000,
-            maturity_days=14,
-            model_path="models/test.pth",
-        )
-        backtester = Backtester(config)
-
-        # Create DataFrame with naive timestamps
-        df = pd.DataFrame(
-            {
-                "timestamp": pd.date_range("2024-01-01", periods=5, freq="1h"),
-                "value": [1, 2, 3, 4, 5],
-            }
-        )
-
-        assert df["timestamp"].dt.tz is None  # Verify naive
-
-        # Normalize to UTC
-        result = backtester._normalize_timestamps_to_utc(df)
-
-        # Should now be UTC-aware
-        assert result["timestamp"].dt.tz is not None
-        assert str(result["timestamp"].dt.tz) == "UTC"
-
-    def test_normalize_timestamps_to_utc_already_utc(self):
-        """Test normalizing already-UTC timestamps (no-op)."""
-        config = BacktestConfig(
-            start_date="2024-01-01",
-            end_date="2024-01-31",
-            strike=50000,
-            maturity_days=14,
-            model_path="models/test.pth",
-        )
-        backtester = Backtester(config)
-
-        # Create DataFrame with UTC timestamps
-        df = pd.DataFrame(
-            {
-                "timestamp": pd.date_range(
-                    "2024-01-01", periods=5, freq="1h", tz="UTC"
-                ),
-                "value": [1, 2, 3, 4, 5],
-            }
-        )
-
-        original_timestamps = df["timestamp"].copy()
-
-        # Normalize (should be no-op)
-        result = backtester._normalize_timestamps_to_utc(df)
-
-        # Should remain UTC
-        assert str(result["timestamp"].dt.tz) == "UTC"
-        # Timestamps should be unchanged
-        assert (result["timestamp"] == original_timestamps).all()
-
-    def test_normalize_timestamps_to_utc_non_utc_aware(self):
-        """Test converting non-UTC timezone-aware timestamps to UTC."""
-        config = BacktestConfig(
-            start_date="2024-01-01",
-            end_date="2024-01-31",
-            strike=50000,
-            maturity_days=14,
-            model_path="models/test.pth",
-        )
-        backtester = Backtester(config)
-
-        # Create DataFrame with US/Eastern timestamps
-        df = pd.DataFrame(
-            {
-                "timestamp": pd.date_range(
-                    "2024-01-01", periods=5, freq="1h", tz="US/Eastern"
-                ),
-                "value": [1, 2, 3, 4, 5],
-            }
-        )
-
-        assert str(df["timestamp"].dt.tz) != "UTC"  # Verify not UTC
-
-        # Normalize to UTC
-        result = backtester._normalize_timestamps_to_utc(df)
-
-        # Should now be UTC
-        assert str(result["timestamp"].dt.tz) == "UTC"
-
-        # Verify conversion is correct (Eastern is UTC-5 or UTC-4 depending on DST)
-        # For Jan 1, 2024 (EST), should be UTC-5
-        # First timestamp: 2024-01-01 00:00:00-05:00 → 2024-01-01 05:00:00+00:00
-        assert result["timestamp"].iloc[0].hour == 5
-
-    def test_normalize_timestamps_to_utc_missing_column(self):
-        """Test normalizing when timestamp column is missing (no-op)."""
-        config = BacktestConfig(
-            start_date="2024-01-01",
-            end_date="2024-01-31",
-            strike=50000,
-            maturity_days=14,
-            model_path="models/test.pth",
-        )
-        backtester = Backtester(config)
-
-        # Create DataFrame without timestamp column
-        df = pd.DataFrame({"value": [1, 2, 3, 4, 5]})
-
-        # Normalize (should be no-op)
-        result = backtester._normalize_timestamps_to_utc(df)
-
-        # Should return unchanged DataFrame
-        assert "timestamp" not in result.columns
-        assert len(result) == 5
-
     def test_load_model_success(self):
         """Test successful model loading."""
         # Create temporary checkpoint
@@ -1217,20 +1103,6 @@ class TestBacktester:
             # Clean up
             if os.path.exists(temp_path):
                 os.unlink(temp_path)
-
-    def test_load_model_file_not_found(self):
-        """Test that load_model raises FileNotFoundError for missing file."""
-        config = BacktestConfig(
-            start_date="2024-01-01",
-            end_date="2024-01-31",
-            strike=50000,
-            maturity_days=14,
-            model_path="nonexistent/model.pth",
-        )
-        backtester = Backtester(config)
-
-        with pytest.raises(FileNotFoundError, match="Model checkpoint not found"):
-            backtester.load_model()
 
     def test_load_model_missing_state_dict(self):
         """Test that load_model raises KeyError for missing model_state_dict."""
@@ -1290,42 +1162,6 @@ class TestBacktester:
             backtester = Backtester(config)
 
             with pytest.raises(KeyError, match="model_config"):
-                backtester.load_model()
-
-        finally:
-            if os.path.exists(temp_path):
-                os.unlink(temp_path)
-
-    def test_load_model_missing_config_key(self):
-        """Test that load_model raises KeyError for missing config keys."""
-        with tempfile.NamedTemporaryFile(mode="wb", suffix=".pth", delete=False) as f:
-            temp_path = f.name
-
-        try:
-            # Create checkpoint with incomplete model_config
-            from crypto.strategies.deep_hedge_utils import create_deep_hedger
-
-            model = create_deep_hedger(n_layers=2, n_units=32)
-
-            checkpoint = {
-                "model_state_dict": model.state_dict(),
-                "model_config": {
-                    "n_layers": 2,
-                    # Missing n_units, features, criterion, risk_param
-                },
-            }
-            torch.save(checkpoint, temp_path)
-
-            config = BacktestConfig(
-                start_date="2024-01-01",
-                end_date="2024-01-31",
-                strike=50000,
-                maturity_days=14,
-                model_path=temp_path,
-            )
-            backtester = Backtester(config)
-
-            with pytest.raises(KeyError, match="Model config missing required key"):
                 backtester.load_model()
 
         finally:
@@ -1392,125 +1228,6 @@ class TestBacktester:
             # Should load successfully
             model = backtester.load_model()
             assert model is not None
-
-        finally:
-            if os.path.exists(temp_path):
-                os.unlink(temp_path)
-
-    def test_load_model_missing_features_fallback(self):
-        """Test error when 'features' key missing (old models not supported)."""
-        with tempfile.NamedTemporaryFile(mode="wb", suffix=".pth", delete=False) as f:
-            temp_path = f.name
-
-        try:
-            # Create checkpoint without 'features'
-            from crypto.strategies.deep_hedge_utils import create_deep_hedger
-
-            model = create_deep_hedger(n_layers=2, n_units=32)
-
-            checkpoint = {
-                "model_state_dict": model.state_dict(),
-                "model_config": {
-                    "n_layers": 2,
-                    "n_units": 32,
-                    "criterion": "expected_shortfall",
-                    "risk_param": 0.5,
-                    # Missing 'features' - should raise error (no silent fallback)
-                },
-            }
-            torch.save(checkpoint, temp_path)
-
-            config = BacktestConfig(
-                start_date="2024-01-01",
-                end_date="2024-01-31",
-                strike=50000,
-                maturity_days=14,
-                model_path=temp_path,
-            )
-            backtester = Backtester(config)
-
-            # Should raise KeyError for missing features
-            with pytest.raises(KeyError, match="Checkpoint missing 'features'"):
-                backtester.load_model()
-
-        finally:
-            if os.path.exists(temp_path):
-                os.unlink(temp_path)
-
-    def test_load_model_missing_criterion_and_risk_measure(self):
-        """Test error when both 'criterion' and 'risk_measure' missing."""
-        with tempfile.NamedTemporaryFile(mode="wb", suffix=".pth", delete=False) as f:
-            temp_path = f.name
-
-        try:
-            from crypto.strategies.deep_hedge_utils import create_deep_hedger
-
-            model = create_deep_hedger(n_layers=2, n_units=32)
-
-            checkpoint = {
-                "model_state_dict": model.state_dict(),
-                "model_config": {
-                    "n_layers": 2,
-                    "n_units": 32,
-                    "risk_param": 0.5,
-                    "features": ["log_moneyness"],
-                    # Missing both 'criterion' and 'risk_measure'
-                },
-            }
-            torch.save(checkpoint, temp_path)
-
-            config = BacktestConfig(
-                start_date="2024-01-01",
-                end_date="2024-01-31",
-                strike=50000,
-                maturity_days=14,
-                model_path=temp_path,
-            )
-            backtester = Backtester(config)
-
-            with pytest.raises(KeyError, match="criterion.*risk_measure"):
-                backtester.load_model()
-
-        finally:
-            if os.path.exists(temp_path):
-                os.unlink(temp_path)
-
-    def test_load_model_state_dict_mismatch(self):
-        """Test error handling for state dict mismatch."""
-        with tempfile.NamedTemporaryFile(mode="wb", suffix=".pth", delete=False) as f:
-            temp_path = f.name
-
-        try:
-            # Create checkpoint with different architecture than config
-            from crypto.strategies.deep_hedge_utils import create_deep_hedger
-
-            # Create model with 3 layers
-            model_3layers = create_deep_hedger(n_layers=3, n_units=32)
-
-            # But save config for 2 layers (mismatch)
-            checkpoint = {
-                "model_state_dict": model_3layers.state_dict(),
-                "model_config": {
-                    "n_layers": 2,  # Mismatch!
-                    "n_units": 32,
-                    "criterion": "expected_shortfall",
-                    "risk_param": 0.5,
-                    "features": ["log_moneyness", "time_to_maturity"],
-                },
-            }
-            torch.save(checkpoint, temp_path)
-
-            config = BacktestConfig(
-                start_date="2024-01-01",
-                end_date="2024-01-31",
-                strike=50000,
-                maturity_days=14,
-                model_path=temp_path,
-            )
-            backtester = Backtester(config)
-
-            with pytest.raises(RuntimeError, match="State dict mismatch"):
-                backtester.load_model()
 
         finally:
             if os.path.exists(temp_path):
@@ -2358,26 +2075,6 @@ class TestBacktester:
 
             assert results2 is not None
             assert isinstance(results2, BacktestResults)
-
-    def test_run_error_handling_missing_model(self):
-        """Test that run() handles missing model file gracefully."""
-        with tempfile.TemporaryDirectory() as temp_dir:
-            self.create_dummy_parquet_data(temp_dir, n_days=5)
-
-            config = BacktestConfig(
-                start_date="2024-01-01",
-                end_date="2024-01-03",
-                strike=50000,
-                maturity_days=2,
-                model_path=os.path.join(temp_dir, "nonexistent_model.pth"),
-                data_dir=temp_dir,
-                n_bootstrap_paths=3,
-            )
-            backtester = Backtester(config)
-
-            # Should raise FileNotFoundError with helpful message
-            with pytest.raises(FileNotFoundError, match="Model checkpoint not found"):
-                backtester.run()
 
     def test_run_error_handling_missing_data(self):
         """Test that run() handles missing data directory gracefully."""

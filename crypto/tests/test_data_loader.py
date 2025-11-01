@@ -118,7 +118,6 @@ class TestCryptoDataLoader(unittest.TestCase):
         self.assertGreater(len(price_series), 0)
         self.assertIn("returns", price_series.columns)
         self.assertIn("log_returns", price_series.columns)
-        self.assertIn("volatility", price_series.columns)
 
     def test_get_atm_option(self):
         """Test finding ATM option."""

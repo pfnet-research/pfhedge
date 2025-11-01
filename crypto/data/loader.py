@@ -262,11 +262,6 @@ class CryptoDataLoader:
             price_series["last_price"] / price_series["last_price"].shift(1)
         )
 
-        # Calculate volatility
-        price_series["volatility"] = price_series["log_returns"].rolling(
-            window=20
-        ).std() * np.sqrt(365.25 * 24 * 60 / 5)
-
         return price_series.reset_index()
 
     def get_options_for_expiry(
