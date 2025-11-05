@@ -166,3 +166,4 @@ config/api_keys.json
 /crypto/data/historical/
 /docs/archives/
 /backtest_results/
+/results/

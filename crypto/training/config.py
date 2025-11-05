@@ -63,6 +63,7 @@ class TrainingConfig:
     n_epochs: int = 80
 
     # Model architecture
+    model_type: str = "mlp"  # "mlp", "lstm", or "gru"
     n_layers: int = 4
     n_units: Union[int, List[int]] = 128  # Single int or list for variable layer sizes
     risk_measure: str = "expected_shortfall"
@@ -70,6 +71,16 @@ class TrainingConfig:
 
     # Device
     device: str = "cpu"
+
+    # Optimizer settings
+    optimizer: str = "adamw"  # "adam", "adamw", "sgd"
+    learning_rate: float = 1e-3
+    weight_decay: float = 1e-4
+
+    # Early stopping
+    early_stopping: bool = False
+    patience: int = 10  # Number of epochs to wait for improvement
+    min_delta: float = 1e-6  # Minimum change to qualify as improvement
 
     # Memory optimizations
     use_amp: bool = True  # Use mixed precision training (FP16/BF16) on CUDA
@@ -82,6 +93,9 @@ class TrainingConfig:
 
     # Output directory
     output_dir: str = "training_results"
+
+    # Model features
+    features: Optional[List[str]] = None  # None = use DEFAULT_FEATURES
 
     def normalize_risk_measure(self) -> str:
         """Normalize risk measure to canonical form.
@@ -154,6 +168,13 @@ class TrainingConfig:
             raise ValueError(f"n_epochs must be positive, got {self.n_epochs}")
 
         # Validate model architecture
+        valid_model_types = ["mlp", "lstm", "gru"]
+        if self.model_type.lower() not in valid_model_types:
+            raise ValueError(
+                f"model_type must be one of {valid_model_types}, got '{self.model_type}'"
+            )
+        self.model_type = self.model_type.lower()  # Normalize to lowercase
+
         if self.n_layers <= 0:
             raise ValueError(f"n_layers must be positive, got {self.n_layers}")
 
@@ -186,9 +207,44 @@ class TrainingConfig:
         # Update to normalized form for consistency
         self.risk_measure = normalized_measure
 
-        # Validate risk_param
-        if self.risk_param <= 0 or self.risk_param > 1:
-            raise ValueError(f"risk_param must be in (0, 1], got {self.risk_param}")
+        # Validate risk_param based on risk measure
+        if self.risk_param <= 0:
+            raise ValueError(f"risk_param must be positive, got {self.risk_param}")
+
+        # Additional constraints for specific risk measures
+        if normalized_measure == "expected_shortfall" and self.risk_param > 1:
+            raise ValueError(
+                f"risk_param for expected_shortfall must be in (0, 1], got {self.risk_param}"
+            )
+
+        # Validate optimizer
+        valid_optimizers = ["adam", "adamw", "sgd"]
+        if self.optimizer.lower() not in valid_optimizers:
+            raise ValueError(
+                f"optimizer must be one of {valid_optimizers}, got '{self.optimizer}'"
+            )
+        self.optimizer = self.optimizer.lower()
+
+        # Validate optimizer hyperparameters
+        if self.learning_rate <= 0:
+            raise ValueError(
+                f"learning_rate must be positive, got {self.learning_rate}"
+            )
+        if self.weight_decay < 0:
+            raise ValueError(
+                f"weight_decay must be non-negative, got {self.weight_decay}"
+            )
+
+        # Validate early stopping parameters
+        if self.early_stopping:
+            if self.patience <= 0:
+                raise ValueError(
+                    f"patience must be positive when early_stopping=True, got {self.patience}"
+                )
+            if self.min_delta < 0:
+                raise ValueError(
+                    f"min_delta must be non-negative, got {self.min_delta}"
+                )
 
         # Validate test parameters
         if self.test_n_paths <= 0:
@@ -238,6 +294,106 @@ class TrainingConfig:
             Time step in years
         """
         return self.dt_hours / 24 / 365
+
+    def get_provenance_info(self) -> Dict[str, Any]:
+        """Get provenance information for reproducibility.
+
+        Returns:
+            Dictionary with provenance information including:
+            - config: Full config as dict
+            - git_commit: Git commit hash if available
+            - git_branch: Git branch if available
+            - git_dirty: Whether repo has uncommitted changes
+            - python_version: Python version string
+            - platform: Operating system
+            - timestamp: Current timestamp
+
+        Examples:
+            >>> config = TrainingConfig(strike=50000, maturity_days=14, model_path="model.pth")
+            >>> provenance = config.get_provenance_info()
+            >>> print(provenance['git_commit'])
+        """
+        import subprocess
+        import sys
+        import platform
+        from datetime import datetime
+
+        provenance = {
+            "config": self.to_dict(),
+            "python_version": sys.version.split()[0],
+            "platform": platform.system(),
+            "timestamp": datetime.now().isoformat(),
+        }
+
+        try:
+            git_commit = subprocess.check_output(
+                ["git", "rev-parse", "HEAD"],
+                stderr=subprocess.DEVNULL,
+                text=True,
+            ).strip()
+            provenance["git_commit"] = git_commit
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            provenance["git_commit"] = None
+
+        try:
+            git_branch = subprocess.check_output(
+                ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+                stderr=subprocess.DEVNULL,
+                text=True,
+            ).strip()
+            provenance["git_branch"] = git_branch
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            provenance["git_branch"] = None
+
+        try:
+            git_dirty = subprocess.check_output(
+                ["git", "status", "--porcelain"],
+                stderr=subprocess.DEVNULL,
+                text=True,
+            ).strip()
+            provenance["git_dirty"] = bool(git_dirty)
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            provenance["git_dirty"] = None
+
+        return provenance
+
+    def compute_config_hash(self) -> str:
+        """Compute unique hash for this training configuration.
+
+        This hash uniquely identifies the training configuration,
+        useful for tracking experiments and ensuring reproducibility.
+
+        Returns:
+            16-character hex hash string
+
+        Examples:
+            >>> config = TrainingConfig(strike=50000, maturity_days=14, model_path="model.pth")
+            >>> hash1 = config.compute_config_hash()
+            >>> print(hash1)
+        """
+        import hashlib
+        import json
+
+        provenance = self.get_provenance_info()
+
+        components = []
+
+        # Config (sorted for consistency)
+        config_str = json.dumps(self.to_dict(), sort_keys=True)
+        components.append(config_str)
+
+        # Git commit (if available)
+        if provenance["git_commit"]:
+            components.append(f"git:{provenance['git_commit'][:8]}")
+
+        # Platform and Python version
+        components.append(f"platform:{provenance['platform']}")
+        components.append(f"python:{provenance['python_version']}")
+
+        combined = "|".join(components)
+        full_hash = hashlib.sha256(combined.encode("utf-8")).hexdigest()
+
+        return full_hash[:16]
 
     def __repr__(self) -> str:
         """String representation."""

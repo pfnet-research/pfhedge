@@ -6,122 +6,116 @@ import torch
 from torch import Tensor
 
 from .config import TrainingConfig
-from torch.optim import AdamW
+from torch.optim import Adam, AdamW, SGD
 
 if TYPE_CHECKING:
     from pfhedge.nn import Hedger
     from crypto.instruments import BitcoinEuropeanOption
 
 
+def _validate_cuda_available(device: str):
+    if "cuda" in device.lower() and not torch.cuda.is_available():
+        raise ValueError(
+            f"CUDA device requested (device='{device}'), but CUDA is not available.\n"
+            f"Suggestions: Use device='cpu' or install CUDA support"
+        )
+
+
+def _create_optimizer(config: TrainingConfig, model_parameters):
+    optimizer_class = {"adam": Adam, "adamw": AdamW, "sgd": SGD}[config.optimizer]
+
+    kwargs = {
+        "lr": config.learning_rate,
+        "weight_decay": config.weight_decay,
+    }
+
+    if config.optimizer == "sgd":
+        kwargs["momentum"] = 0.9
+
+    return optimizer_class(model_parameters, **kwargs)
+
+
+def _move_option_to_device(option, target_device, verbose=False):
+    if not hasattr(option.underlier, "spot"):
+        return
+
+    option_device = option.underlier.spot.device
+    if option_device != target_device:
+        if verbose:
+            print(f"   Moving option from {option_device} to {target_device}...")
+        option.underlier.to(target_device)
+
+
+def _check_dtype_consistency(option, model_dtype, verbose=False):
+    if not hasattr(option.underlier, "spot"):
+        return
+
+    option_dtype = option.underlier.spot.dtype
+    if option_dtype != model_dtype and verbose:
+        print(
+            f"   ⚠️  Warning: Option dtype ({option_dtype}) differs from model dtype ({model_dtype})"
+        )
+
+
+def _print_optimizer_info(config: TrainingConfig, verbose=False):
+    if not verbose:
+        return
+
+    print(f"\n🔧 Optimizer: {config.optimizer.upper()}")
+    print(f"   Learning rate: {config.learning_rate}")
+    print(f"   Weight decay: {config.weight_decay}")
+    if config.early_stopping:
+        print(
+            f"   Early stopping: enabled (patience={config.patience}, min_delta={config.min_delta})"
+        )
+
+
+def _print_training_summary(history: List[float], verbose=False):
+    if not verbose or len(history) == 0:
+        return
+
+    print(f"\n✅ Training complete!")
+    print(f"  Initial loss: {history[0]:.6f}")
+    print(f"  Final loss: {history[-1]:.6f}")
+    improvement = (history[0] - history[-1]) / history[0] * 100
+    print(f"  Improvement: {improvement:.1f}%")
+
+
 class Trainer:
-    """Train deep hedging models with comprehensive experiment tracking.
-
-    This class orchestrates the training process:
-    1. Create training option with simulated paths
-    2. Create test option for evaluation
-    3. Create and configure the model
-    4. Train the model
-    5. Evaluate on test set
-    6. Save model checkpoint
-
-    Args:
-        config: Training configuration
-
-    Examples:
-        >>> from crypto.training import TrainingConfig, Trainer
-        >>> config = TrainingConfig(
-        ...     strike=50000,
-        ...     maturity_days=14,
-        ...     volatility=0.8,
-        ...     n_epochs=80
-        ... )
-        >>> trainer = Trainer(config)
-        >>> results = trainer.train(seed=42)
-        >>> print(results.summary())
-    """
-
     def __init__(
         self,
         config: TrainingConfig,
         verbose: bool = False,
         enable_diagnostics: bool = False,
     ):
-        """Initialize trainer with configuration.
+        _validate_cuda_available(config.device)
 
-        Args:
-            config: Training configuration
-            verbose: If True, print progress messages (default: False)
-            enable_diagnostics: If True, enable MLP input/output diagnostics (default: False)
-
-        Raises:
-            ValueError: If CUDA device is requested but not available
-        """
         self.config = config
         self.verbose = verbose
         self.enable_diagnostics = enable_diagnostics
         self.diagnostics = None
 
-        # Check if CUDA is requested but not available
-        if "cuda" in config.device.lower():
-            import torch
-
-            if not torch.cuda.is_available():
-                raise ValueError(
-                    f"CUDA device requested (device='{config.device}'), but CUDA is not available.\n"
-                    f"Possible causes:\n"
-                    f"  • PyTorch not installed with CUDA support\n"
-                    f"  • No NVIDIA GPU detected\n"
-                    f"  • CUDA drivers not properly installed\n"
-                    f"Suggestions:\n"
-                    f"  • Use device='cpu' for CPU training\n"
-                    f"  • Reinstall PyTorch with CUDA support: https://pytorch.org/\n"
-                    f"  • Check GPU availability with: nvidia-smi"
-                )
-
-        # Placeholders for created components
         self.train_option = None
         self.test_option = None
         self.model = None
 
     def create_option(self, n_paths: int, seed: int) -> "BitcoinEuropeanOption":
-        """Create option with simulated paths.
-
-        Args:
-            n_paths: Number of paths to simulate
-            seed: Random seed for reproducibility
-
-        Returns:
-            BitcoinEuropeanOption with synthetic paths
-
-        Examples:
-            >>> trainer = Trainer(config)
-            >>> # Create training option
-            >>> train_option = trainer.create_option(
-            ...     n_paths=50000, seed=42
-            ... )
-            >>> # Create test option
-            >>> test_option = trainer.create_option(
-            ...     n_paths=200, seed=888
-            ... )
-        """
         from crypto.instruments import create_bitcoin_option_from_config
 
-        # Select underlying instrument class based on config
         if self.config.underlying_type == "spot":
             from crypto.instruments import BitcoinSpotBrownian
 
             underlier_class = BitcoinSpotBrownian
-        else:  # perpetual
+        else:
             from crypto.instruments import BitcoinPerpetualBrownian
 
             underlier_class = BitcoinPerpetualBrownian
 
-        # Create config dict for option creation
         option_config = {
             "strike": self.config.strike,
             "maturity_days": self.config.maturity_days,
             "call": self.config.call,
-            "cost": 0.0,  # No option transaction cost, only underlier cost
+            "cost": 0.0,
             "sigma": self.config.volatility,
             "mu": self.config.drift,
             "underlier_cost": self.config.transaction_cost,
@@ -129,7 +123,6 @@ class Trainer:
             "n_paths": n_paths,
             "seed": seed,
             "volatility_window": self.config.volatility_window,
-            # init_state defaults to (1.0,) via default_init_state property
         }
 
         option, _ = create_bitcoin_option_from_config(
@@ -139,158 +132,149 @@ class Trainer:
         return option
 
     def create_model(self) -> "Hedger":
-        """Create deep hedger model with configured architecture.
+        from crypto.strategies import create_deep_hedger
 
-        Returns:
-            Hedger model ready for training
-
-        Examples:
-            >>> trainer = Trainer(config)
-            >>> model = trainer.create_model()
-            >>> print(model)
-        """
-        from crypto.strategies.deep_hedge_utils import create_deep_hedger
-
-        if self.verbose:
-            print("\nCreating deep hedger model...")
-
-        # Create model with configured architecture
-        model = create_deep_hedger(
+        hedger = create_deep_hedger(
+            model_type=self.config.model_type,
             n_layers=self.config.n_layers,
             n_units=self.config.n_units,
             risk_measure=self.config.risk_measure,
             risk_param=self.config.risk_param,
+            features=self.config.features,
         )
 
-        # Move model to configured device
         device = self.config.device
-        model = model.to(device)
+        if device == "auto":
+            device = "cuda" if torch.cuda.is_available() else "cpu"
+
+        hedger.to(device)
 
         if self.verbose:
-            # Format architecture for display
-            if isinstance(self.config.n_units, list):
-                arch_str = f"[{', '.join(str(u) for u in self.config.n_units)}]"
-            else:
-                arch_str = (
-                    f"{self.config.n_layers} layers × {self.config.n_units} units"
-                )
-
-            print(f"✅ Model created")
-            print(f"   Architecture: {arch_str}")
-            print(
-                f"   Risk measure: {self.config.risk_measure} (param={self.config.risk_param})"
-            )
+            n_params = sum(p.numel() for p in hedger.parameters())
+            print(f"✅ Model created: {self.config.model_type.upper()}")
             print(f"   Device: {device}")
+            print(f"   Parameters: {n_params:,}")
+            print(f"   Risk measure: {self.config.risk_measure}")
 
-        # Store for later use
-        self.model = model
-
-        return model
+        return hedger
 
     def train_model(
         self,
         model: Optional["Hedger"] = None,
         option: Optional["BitcoinEuropeanOption"] = None,
     ) -> List[float]:
-        """Train the model on the training option.
-
-        Args:
-            model: Hedger model to train. If None, uses self.model.
-            option: Option to train on. If None, uses self.train_option.
-
-        Returns:
-            Training history (list of loss values per epoch)
-
-        Raises:
-            ValueError: If model or option is None and not previously created
-
-        Examples:
-            >>> trainer = Trainer(config)
-            >>> trainer.create_model()
-            >>> trainer.create_training_option()
-            >>> history = trainer.train_model()
-            >>> print(f"Final loss: {history[-1]:.6f}")
-        """
-        # Use provided model/option or fall back to stored ones
-        if model is None:
-            model = self.model
-        if option is None:
-            option = self.train_option
+        model = model or self.model
+        option = option or self.train_option
 
         if model is None:
-            raise ValueError(
-                "No model provided. Call create_model() first or provide a model."
-            )
+            raise ValueError("No model provided. Call create_model() first.")
         if option is None:
-            raise ValueError(
-                "No training option provided. Call create_option() first or provide an option."
-            )
+            raise ValueError("No training option provided. Call create_option() first.")
 
         if self.verbose:
             print(f"\nTraining model for {self.config.n_epochs} epochs...")
             print(f"  Training paths: {self.config.n_paths:,}")
-            print(f"  This may take a few minutes...\n")
 
-        # Ensure option is on same device as model
         model_device = next(model.parameters()).device
         model_dtype = next(model.parameters()).dtype
 
-        if hasattr(option.underlier, "spot"):
-            option_device = option.underlier.spot.device
-            option_dtype = option.underlier.spot.dtype
+        _move_option_to_device(option, model_device, self.verbose)
+        _check_dtype_consistency(option, model_dtype, self.verbose)
 
-            # Move to correct device if needed
-            if option_device != model_device:
-                if self.verbose:
-                    print(f"   Moving option from {option_device} to {model_device}...")
-                option.underlier.to(model_device)
-
-            # Verify dtype consistency (warn if mismatch)
-            if option_dtype != model_dtype and self.verbose:
-                print(
-                    f"   ⚠️  Warning: Option dtype ({option_dtype}) differs from model dtype ({model_dtype})"
-                )
-                print(
-                    f"   This may cause mixed precision issues. Consider converting option to {model_dtype}."
-                )
-
-        # Attach diagnostics if enabled
         if self.enable_diagnostics:
-            from crypto.training.diagnostics import MLPDiagnostics
+            self._attach_diagnostics(model)
 
-            self.diagnostics = MLPDiagnostics(model, sample_frequency=5)
-            self.diagnostics.attach()
-            if self.verbose:
-                print(
-                    "\n🔍 Diagnostics enabled - will track MLP inputs/outputs/gradients"
-                )
+        optimizer = _create_optimizer(self.config, model.parameters())
+        _print_optimizer_info(self.config, self.verbose)
 
-        # Train the model
-        history = model.fit(
-            option,
-            n_paths=self.config.n_paths,
-            n_epochs=self.config.n_epochs,
-            optimizer=AdamW(model.parameters(), lr=1e-3, weight_decay=1e-4),
-            verbose=self.verbose,
-            use_amp=self.config.use_amp and model_device.type == "cuda",
-            validation_freq=self.config.validation_freq,
-        )
+        if self.config.early_stopping:
+            history = self._train_with_early_stopping(
+                model, option, optimizer, model_device
+            )
+        else:
+            history = model.fit(
+                option,
+                n_paths=self.config.n_paths,
+                n_epochs=self.config.n_epochs,
+                optimizer=optimizer,
+                verbose=self.verbose,
+                use_amp=self.config.use_amp and model_device.type == "cuda",
+                validation_freq=self.config.validation_freq,
+            )
 
-        # Print diagnostics if enabled
         if self.enable_diagnostics and self.diagnostics is not None:
-            print("\n" + "=" * 70)
-            print("TRAINING DIAGNOSTICS")
-            print("=" * 70)
-            self.diagnostics.print_summary(verbose=self.verbose)
-            self.diagnostics.detach()
+            self._print_diagnostics()
 
+        _print_training_summary(history, self.verbose)
+
+        return history
+
+    def _attach_diagnostics(self, model):
+        from crypto.training.diagnostics import MLPDiagnostics
+
+        self.diagnostics = MLPDiagnostics(model, sample_frequency=5)
+        self.diagnostics.attach()
         if self.verbose:
-            print(f"\n✅ Training complete!")
-            if len(history) > 0:
-                print(f"  Initial loss: {history[0]:.6f}")
-                print(f"  Final loss: {history[-1]:.6f}")
-                improvement = (history[0] - history[-1]) / history[0] * 100
-                print(f"  Improvement: {improvement:.1f}%")
+            print("\n🔍 Diagnostics enabled - will track MLP inputs/outputs/gradients")
+
+    def _print_diagnostics(self):
+        print("\n" + "=" * 70)
+        print("TRAINING DIAGNOSTICS")
+        print("=" * 70)
+        self.diagnostics.print_summary(verbose=self.verbose)
+        self.diagnostics.detach()
+
+    def _train_with_early_stopping(
+        self, model: "Hedger", option: "BitcoinEuropeanOption", optimizer, device
+    ) -> List[float]:
+        history = []
+        best_loss = float("inf")
+        patience_counter = 0
+        best_state = None
+
+        for epoch in range(self.config.n_epochs):
+            epoch_history = model.fit(
+                option,
+                n_paths=self.config.n_paths,
+                n_epochs=1,
+                optimizer=optimizer,
+                verbose=False,
+                use_amp=self.config.use_amp and device.type == "cuda",
+                validation_freq=1,
+            )
+
+            loss = epoch_history[0] if epoch_history else float("inf")
+            history.append(loss)
+
+            if loss < best_loss - self.config.min_delta:
+                best_loss = loss
+                patience_counter = 0
+                best_state = {k: v.cpu().clone() for k, v in model.state_dict().items()}
+                if self.verbose:
+                    print(
+                        f"Epoch {epoch+1}/{self.config.n_epochs}: loss={loss:.6f} ⭐ (new best)"
+                    )
+            else:
+                patience_counter += 1
+                if self.verbose:
+                    print(
+                        f"Epoch {epoch+1}/{self.config.n_epochs}: loss={loss:.6f} (patience: {patience_counter}/{self.config.patience})"
+                    )
+
+            if patience_counter >= self.config.patience:
+                if self.verbose:
+                    print(f"\n🛑 Early stopping triggered after {epoch+1} epochs")
+                    print(
+                        f"   Best loss: {best_loss:.6f} (epoch {epoch+1-patience_counter})"
+                    )
+
+                if best_state is not None:
+                    model.load_state_dict(
+                        {k: v.to(device) for k, v in best_state.items()}
+                    )
+                    if self.verbose:
+                        print(f"   Restored best model weights")
+                break
 
         return history
 
@@ -299,447 +283,131 @@ class Trainer:
         model: Optional["Hedger"] = None,
         option: Optional["BitcoinEuropeanOption"] = None,
     ) -> Dict[str, Any]:
-        """Evaluate model on test set.
+        model = model or self.model
+        option = option or self.test_option
 
-        Args:
-            model: Trained model to evaluate. If None, uses self.model.
-            option: Test option to evaluate on. If None, uses self.test_option.
+        if model is None:
+            raise ValueError("No model provided.")
+        if option is None:
+            raise ValueError("No test option provided.")
 
-        Returns:
-            Dictionary with test metrics (mean_pnl, std_pnl, sharpe_ratio, etc.)
+        if self.verbose:
+            print(f"\nEvaluating on test set ({self.config.test_n_paths} paths)...")
 
-        Raises:
-            ValueError: If model or option is None and not previously created
+        from crypto.strategies import calculate_bs_hedge_pnl
 
-        Examples:
-            >>> trainer = Trainer(config)
-            >>> # ... train model ...
-            >>> test_metrics = trainer.evaluate()
-            >>> print(f"Test Sharpe: {test_metrics['sharpe_ratio']:.3f}")
-        """
-        from crypto.strategies.deep_hedge_utils import (
-            calculate_bs_hedge_pnl,
-            compute_funding_cum_cost,
-            compare_hedge_performance,
+        hedge_positions = model.compute_hedge(option)
+        if hedge_positions.dim() == 3:
+            hedge_positions = hedge_positions.squeeze(1)
+
+        spots = option.underlier.spot
+        payoffs = option.payoff()
+
+        pnl = calculate_bs_hedge_pnl(
+            spots=spots,
+            bs_delta=hedge_positions,
+            payoffs=payoffs,
+            cost=self.config.transaction_cost,
         )
 
-        # Use provided model/option or fall back to stored ones
-        if model is None:
-            model = self.model
-        if option is None:
-            option = self.test_option
+        final_pnl = pnl[:, -1]
 
-        if model is None:
-            raise ValueError("No model provided. Train model first or provide a model.")
-        if option is None:
-            raise ValueError(
-                "No test option provided. Call create_option() first or provide an option."
-            )
-
-        if self.verbose:
-            print("\nEvaluating model on test set...")
-
-        # Set model to eval mode
-        model.eval()
-
-        # Ensure option is on same device and dtype as model
-        model_device = next(model.parameters()).device
-        model_dtype = next(model.parameters()).dtype
-
-        if hasattr(option.underlier, "spot"):
-            option_device = option.underlier.spot.device
-            option_dtype = option.underlier.spot.dtype
-
-            # Move to correct device if needed
-            if option_device != model_device:
-                if self.verbose:
-                    print(
-                        f"   Moving test option from {option_device} to {model_device}..."
-                    )
-                option.underlier.to(model_device)
-
-            # Verify dtype consistency (warn if mismatch)
-            if option_dtype != model_dtype and self.verbose:
-                print(
-                    f"   ⚠️  Warning: Test option dtype ({option_dtype}) differs from model dtype ({model_dtype})"
-                )
-                print(f"   This may cause mixed precision issues during evaluation.")
-
-        with torch.no_grad():
-            # Compute deep hedging strategy
-            deep_positions = model.compute_hedge(option).squeeze(1)
-            deep_pnl = model.compute_cum_pl(option)
-
-            # Get necessary tensors
-            spots = option.underlier.spot
-
-            # Add funding costs if applicable
-            if hasattr(option.underlier, "funding_rate") and hasattr(
-                option.underlier, "funding_payment_times"
-            ):
-                funding_rate = option.underlier.funding_rate
-                funding_times = option.underlier.funding_payment_times()
-
-                funding_costs = compute_funding_cum_cost(
-                    spots=spots,
-                    positions=deep_positions,
-                    funding_rate=funding_rate,
-                    funding_times=funding_times,
-                )
-                deep_pnl = deep_pnl - funding_costs
-
-            # Compute Black-Scholes baseline
-            bs_delta = option.black_scholes_delta()
-            payoffs = option.payoff()
-            cost = option.underlier.cost
-
-            funding_rate = None
-            funding_times = None
-            if hasattr(option.underlier, "funding_rate"):
-                funding_rate = option.underlier.funding_rate
-                funding_times = option.underlier.funding_payment_times()
-
-            bs_pnl = calculate_bs_hedge_pnl(
-                spots=spots,
-                bs_delta=bs_delta,
-                payoffs=payoffs,
-                cost=cost,
-                funding_rate=funding_rate,
-                funding_times=funding_times,
-            )
-
-        # Compare performance
-        results = compare_hedge_performance(deep_pnl, bs_pnl)
-
-        if self.verbose:
-            print(f"✅ Evaluation complete")
-            print(f"   Test paths: {deep_pnl.shape[0]:,}")
-            print(
-                f"   Deep hedge PnL: ${deep_pnl[:, -1].mean().item():.4f} ± ${deep_pnl[:, -1].std().item():.4f}"
-            )
-            print(
-                f"   BS baseline PnL: ${bs_pnl[:, -1].mean().item():.4f} ± ${bs_pnl[:, -1].std().item():.4f}"
-            )
-
-        # Extract metrics from comparison results
-        # compare_hedge_performance returns: {"Deep Hedge": {...}, "Black-Scholes": {...}}
-        deep_results = results["Deep Hedge"]
-        bs_results = results["Black-Scholes"]
-
-        # Store evaluation results
-        test_metrics = {
-            "deep_hedge": {
-                "mean_pnl": deep_results["mean"],
-                "std_pnl": deep_results["std"],
-                "sharpe_ratio": deep_results["sharpe"],
-                "sortino_ratio": None,  # Not computed by compare_hedge_performance
-            },
-            "bs_baseline": {
-                "mean_pnl": bs_results["mean"],
-                "std_pnl": bs_results["std"],
-                "sharpe_ratio": bs_results["sharpe"],
-                "sortino_ratio": None,  # Not computed by compare_hedge_performance
-            },
-            "comparison": {
-                "sharpe_improvement": deep_results["sharpe"] - bs_results["sharpe"],
-                "mean_pnl_improvement": deep_results["mean"] - bs_results["mean"],
-            },
+        metrics = {
+            "pnl_mean": final_pnl.mean().item(),
+            "pnl_std": final_pnl.std().item(),
+            "pnl_min": final_pnl.min().item(),
+            "pnl_max": final_pnl.max().item(),
+            "sharpe": final_pnl.mean().item() / (final_pnl.std().item() + 1e-8),
         }
 
-        return test_metrics
-
-    def save_model(
-        self,
-        model: Optional["Hedger"] = None,
-        history: Optional[List[float]] = None,
-    ) -> str:
-        """Save trained model checkpoint.
-
-        Args:
-            model: Trained model to save. If None, uses self.model.
-            history: Training history to save. If None, uses empty list.
-
-        Returns:
-            Path where model was saved
-
-        Raises:
-            ValueError: If model is None and not previously created
-
-        Examples:
-            >>> trainer = Trainer(config)
-            >>> # ... train model ...
-            >>> model_path = trainer.save_model()
-            >>> print(f"Model saved to: {model_path}")
-        """
-        # Use provided model or fall back to stored one
-        if model is None:
-            model = self.model
-
-        if model is None:
-            raise ValueError("No model provided. Train model first or provide a model.")
-
-        if history is None:
-            history = []
-
         if self.verbose:
-            print("\nSaving model checkpoint...")
+            print(f"  Mean PnL: {metrics['pnl_mean']:.6f}")
+            print(f"  Std PnL: {metrics['pnl_std']:.6f}")
+            print(f"  Sharpe: {metrics['sharpe']:.6f}")
 
-        # Create model directory if it doesn't exist
-        model_dir = os.path.dirname(self.config.model_path)
-        if model_dir:
-            os.makedirs(model_dir, exist_ok=True)
+        return metrics
 
-        # Get features from model (use DEFAULT_FEATURES if not available)
-        from crypto.strategies.deep_hedge_utils import DEFAULT_FEATURES
+    def save_checkpoint(
+        self, model: Optional["Hedger"] = None, path: Optional[str] = None
+    ):
+        model = model or self.model
+        path = path or self.config.model_path
 
-        # Get features from model - PFHedge Hedger uses 'inputs' attribute
-        # Convert to plain string list for robust serialization
-        if hasattr(model, "inputs"):
-            # Handle both FeatureList objects and plain lists
-            if hasattr(model.inputs, "features"):
-                # It's a FeatureList object
-                features = [str(f) for f in model.inputs.features]
-            elif isinstance(model.inputs, list):
-                # Already a list
-                features = [str(f) for f in model.inputs]
-            else:
-                # Single feature or unknown type
-                features = [str(model.inputs)]
-        elif hasattr(model, "features"):
-            features = (
-                [str(f) for f in model.features]
-                if isinstance(model.features, list)
-                else [str(model.features)]
-            )
-        else:
-            # This should never happen - fail fast
-            raise ValueError(
-                "Model has no 'inputs' or 'features' attribute! Cannot save checkpoint."
-            )
+        if model is None:
+            raise ValueError("No model to save.")
 
-        print(f"📝 Saving features to checkpoint: {features}")
+        dir_path = os.path.dirname(path)
+        if dir_path:
+            os.makedirs(dir_path, exist_ok=True)
 
-        # Create checkpoint
+        model_config = {
+            "model_type": self.config.model_type,
+            "n_layers": self.config.n_layers,
+            "n_units": self.config.n_units,
+            "risk_param": self.config.risk_param,
+            "criterion": self.config.risk_measure,
+            "features": self.config.features
+            or [
+                "log_moneyness",
+                "expiry_time",
+                "volatility",
+                "prev_hedge",
+            ],
+        }
+
         checkpoint = {
             "model_state_dict": model.state_dict(),
-            "model_config": {
-                "n_layers": self.config.n_layers,
-                "n_units": self.config.n_units,
-                "in_features": 4,  # log_moneyness, expiry_time, volatility, prev_hedge
-                "out_features": 1,  # hedge ratio
-                "risk_param": self.config.risk_param,
-                "risk_measure": self.config.risk_measure,
-                "features": features,  # Include features for reproducibility
-            },
-            "training_config": {
-                "strike": self.config.strike,
-                "maturity_days": self.config.maturity_days,
-                "volatility": self.config.volatility,
-                "cost": self.config.transaction_cost,
-                "dt": self.config.dt,
-                "n_epochs": self.config.n_epochs,
-                "train_seed": self.config.train_seed,
-                "device": self.config.device,
-                "features": features,  # Critical: Include features in training_config
-                "n_layers": self.config.n_layers,
-                "n_units": self.config.n_units,
-            },
-            "training_history": history,
+            "config": self.config.to_dict(),
+            "training_config": self.config.to_dict(),
+            "model_config": model_config,
         }
 
-        # Save checkpoint
-        torch.save(checkpoint, self.config.model_path)
+        torch.save(checkpoint, path)
 
         if self.verbose:
-            # Format architecture for display
-            if isinstance(self.config.n_units, list):
-                arch_str = f"[{', '.join(str(u) for u in self.config.n_units)}]"
-            else:
-                arch_str = (
-                    f"{self.config.n_layers} layers × {self.config.n_units} units"
-                )
-
-            print(f"✅ Model checkpoint saved to: {self.config.model_path}")
-            print(f"   Architecture: {arch_str}")
-            print(f"   Training epochs: {self.config.n_epochs}")
-            if len(history) > 0:
-                print(f"   Final loss: {history[-1]:.6f}")
-
-        return self.config.model_path
+            print(f"\n✅ Model saved to: {path}")
 
     def train(self, seed: Optional[int] = None):
-        """Run full training pipeline.
-
-        This orchestrates the entire training process:
-        1. Set random seeds for reproducibility
-        2. Create training option
-        3. Create test option
-        4. Create model
-        5. Train model
-        6. Evaluate on test set
-        7. Save model checkpoint
-        8. Return training results
-
-        Args:
-            seed: Random seed for reproducibility. If provided, overrides
-                  config.train_seed. If None, uses config.train_seed.
-
-        Returns:
-            TrainingResults object with all results and metrics
-
-        Raises:
-            ValueError: If configuration is invalid
-
-        Examples:
-            >>> from crypto.training import TrainingConfig, Trainer
-            >>> config = TrainingConfig(
-            ...     strike=50000,
-            ...     maturity_days=14,
-            ...     n_epochs=80
-            ... )
-            >>> trainer = Trainer(config)
-            >>> results = trainer.train(seed=42)
-            >>> print(results.summary())
-        """
         from .results import TrainingResults
-        import numpy as np
 
-        # Use provided seed or config seed
-        if seed is None:
-            seed = self.config.train_seed
+        seed = seed if seed is not None else self.config.train_seed
 
-        # Set random seeds for reproducibility
         torch.manual_seed(seed)
-        np.random.seed(seed)
-
-        # Set CUDA seeds if using CUDA
-        if torch.cuda.is_available() and "cuda" in self.config.device:
-            torch.cuda.manual_seed(seed)
-            torch.cuda.manual_seed_all(seed)  # For multi-GPU
-            # Make cuDNN deterministic (may impact performance)
-            torch.backends.cudnn.deterministic = True
-            torch.backends.cudnn.benchmark = False
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed_all(seed)
 
         if self.verbose:
-            print("\n" + "=" * 70)
-            print("DEEP HEDGING TRAINING")
-            print("=" * 70)
-            print(f"\nConfiguration:")
-            print(
-                f"  Option: {'Call' if self.config.call else 'Put'} @ ${self.config.strike:,.2f}"
-            )
-            print(f"  Maturity: {self.config.maturity_days} days")
-            print(f"  Volatility: {self.config.volatility:.1%}")
-            print(f"  Transaction cost: {self.config.transaction_cost:.2%}")
-            print(f"  Training paths: {self.config.n_paths:,}")
-            print(f"  Training epochs: {self.config.n_epochs}")
-            print(f"  Test paths: {self.config.test_n_paths:,}")
-            print(f"  Random seed: {seed}")
+            print(f"\n{'='*60}")
+            print(f"TRAINING DEEP HEDGING MODEL")
+            print(f"{'='*60}")
+            print(f"  Seed: {seed}")
+            print(f"  Underlying: {self.config.underlying_type}")
+            print(f"  Architecture: {self.config.model_type.upper()}")
 
-            # Format model architecture for display
-            if isinstance(self.config.n_units, list):
-                model_str = f"{', '.join(str(u) for u in self.config.n_units)} units"
-            else:
-                model_str = f"{self.config.n_layers}×{self.config.n_units} units"
+        self.train_option = self.create_option(n_paths=self.config.n_paths, seed=seed)
 
-            print(f"  Model: {model_str}")
-            print(f"  Device: {self.config.device}")
-            print("=" * 70 + "\n")
+        self.test_option = self.create_option(
+            n_paths=self.config.test_n_paths, seed=self.config.test_seed
+        )
 
-        try:
-            # Step 1: Create training option
-            if self.verbose:
-                print("[Step 1/6] Creating training option...")
-            self.train_option = self.create_option(
-                n_paths=self.config.n_paths, seed=self.config.train_seed
-            )
-            if self.verbose:
-                print(f"✅ Training option created")
-                print(f"   Type: {'Call' if self.config.call else 'Put'}")
-                print(f"   Strike: ${self.config.strike:,.2f}")
-                print(f"   Maturity: {self.config.maturity_days} days")
-                print(f"   Paths: {self.config.n_paths:,}")
-                print(f"   Volatility: {self.config.volatility:.1%}")
+        self.model = self.create_model()
 
-            # Step 2: Create test option
-            if self.verbose:
-                print("\n[Step 2/6] Creating test option...")
-            self.test_option = self.create_option(
-                n_paths=self.config.test_n_paths, seed=self.config.test_seed
-            )
-            if self.verbose:
-                print(f"✅ Test option created")
-                print(f"   Paths: {self.config.test_n_paths:,}")
-                print(f"   Seed: {self.config.test_seed}")
+        train_history = self.train_model()
 
-            # Step 3: Create model
-            if self.verbose:
-                print("\n[Step 3/6] Creating model...")
-            self.create_model()
+        test_metrics = self.evaluate()
 
-            # Step 4: Train model
-            if self.verbose:
-                print("\n[Step 4/6] Training model...")
-            history = self.train_model()
+        self.save_checkpoint()
 
-            # Step 5: Evaluate on test set
-            if self.verbose:
-                print("\n[Step 5/6] Evaluating on test set...")
-            test_metrics = self.evaluate()
+        results = TrainingResults(
+            config=self.config,
+            train_history=train_history,
+            test_metrics=test_metrics,
+            model=self.model,
+        )
 
-            # Step 6: Save model
-            if self.verbose:
-                print("\n[Step 6/6] Saving model...")
-            model_path = self.save_model(history=history)
+        if self.verbose:
+            print(f"\n{'='*60}")
+            print(f"TRAINING COMPLETE")
+            print(f"{'='*60}\n")
 
-            # Create results object
-            results = TrainingResults(
-                training_history=history,
-                test_metrics=test_metrics,
-                model_config=self.config.to_dict(),
-                model_path=model_path,
-            )
-
-            # Print summary only if verbose
-            if self.verbose:
-                print("\n" + "=" * 70)
-                print("TRAINING COMPLETE")
-                print("=" * 70)
-                print(f"\nTraining Summary:")
-                print(f"  Initial loss: {history[0]:.6f}")
-                print(f"  Final loss: {history[-1]:.6f}")
-                improvement = (history[0] - history[-1]) / history[0] * 100
-                print(f"  Improvement: {improvement:.1f}%")
-
-                print(f"\nTest Performance:")
-                deep = test_metrics["deep_hedge"]
-                bs = test_metrics["bs_baseline"]
-                print(
-                    f"  Deep hedge: ${deep['mean_pnl']:.4f} ± ${deep['std_pnl']:.4f} (Sharpe: {deep['sharpe_ratio']:.3f})"
-                )
-                print(
-                    f"  BS baseline: ${bs['mean_pnl']:.4f} ± ${bs['std_pnl']:.4f} (Sharpe: {bs['sharpe_ratio']:.3f})"
-                )
-                print(
-                    f"  Improvement: ${test_metrics['comparison']['mean_pnl_improvement']:+.4f} (Sharpe: {test_metrics['comparison']['sharpe_improvement']:+.3f})"
-                )
-
-                print(f"\nModel saved to: {model_path}")
-                print("=" * 70 + "\n")
-
-            return results
-
-        except Exception as e:
-            if self.verbose:
-                print("\n" + "=" * 70)
-                print("❌ TRAINING FAILED")
-                print("=" * 70)
-                print(f"\nError type: {type(e).__name__}")
-                print(f"Error message: {e}")
-                print("\nPlease check the configuration and error details.")
-                print("=" * 70 + "\n")
-            raise
-
-    def __repr__(self) -> str:
-        """String representation."""
-        return f"Trainer(config={self.config})"
+        return results

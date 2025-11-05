@@ -91,6 +91,7 @@ class Backtester:
         from crypto.strategies.deep_hedge_utils import create_deep_hedger
 
         self.model = create_deep_hedger(
+            model_type=model_config.get("model_type", "mlp"),
             n_layers=model_config["n_layers"],
             n_units=model_config["n_units"],
             risk_measure=model_config["criterion"],

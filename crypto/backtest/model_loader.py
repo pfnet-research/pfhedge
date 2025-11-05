@@ -46,6 +46,7 @@ class BacktestModelLoader:
         model_config = BacktestModelLoader._extract_config(checkpoint)
 
         model = create_deep_hedger(
+            model_type=model_config.get("model_type", "mlp"),
             n_layers=model_config["n_layers"],
             n_units=model_config["n_units"],
             risk_measure=model_config["criterion"],
@@ -138,6 +139,7 @@ class BacktestModelLoader:
             features = [str(raw_features)]
 
         return {
+            "model_type": model_config.get("model_type", "mlp"),
             "n_layers": model_config["n_layers"],
             "n_units": model_config["n_units"],
             "risk_param": model_config["risk_param"],

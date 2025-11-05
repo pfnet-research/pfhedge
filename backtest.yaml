@@ -1,9 +1,9 @@
-# Backtest Configuration for perp1 model
-# Model trained with: perpetual, 500 epochs, 5k paths, [64,32,32,16] units, vol=0.2, cost=0.0001
+# Backtest Configuration for GRU Real Option Model
+# Model trained with: spot, 100 epochs, 500k paths, GRU 2x32 units, vol=0.42, cost=0.001
 
 # Dates (using available data range)
-start_date: "2025-08-15"
-end_date: "2025-10-27"
+start_date: "2025-01-01"
+end_date: "2025-09-25"
 
 # Option parameters (matching training)
 strike: 110000
@@ -15,15 +15,15 @@ bootstrap_mode: "normalize_spot"
 initial_spot: 109325.75
 
 # Model path
-model_path: "models/es_05_roll_vol_20_adamw"
+model_path: "models/mlp_realopt_model_a18f3e9d/model.pth"
 
 # Backtest parameters
-n_bootstrap_paths: 100
-transaction_cost: 0.0001  # 0.01% to match training
+n_bootstrap_paths: 1000
+transaction_cost: 0.001  # 0.1% to match training
 dt_hours: 8.0
 underlying_type: "spot"  # "spot" or "perpetual" - MUST match training!
 
 # Data
 data_dir: "crypto/data/historical"
 data_file: "btc_spot_8H_2025-01-01_2025-10-28.parquet"
-output_dir: "backtest_results/es_05_roll_vol_20_adamw"
+output_dir: "backtest_results/mlp_realopt_model_a18f3e9d"

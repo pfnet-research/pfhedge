@@ -31,29 +31,31 @@ class TrainingResults:
 
     def __init__(
         self,
-        training_history: List[float],
-        test_metrics: Dict[str, Any],
-        model_config: Dict[str, Any],
-        model_path: str,
+        config=None,
+        train_history=None,
+        test_metrics=None,
+        model=None,
+        training_history=None,
+        model_config=None,
+        model_path=None,
     ):
-        """Initialize results container.
+        if config is not None:
+            self.training_history = train_history or []
+            self.test_metrics = test_metrics or {}
+            self.model_config = (
+                config.to_dict() if hasattr(config, "to_dict") else config
+            )
+            self.model_path = config.model_path if hasattr(config, "model_path") else ""
+            self.model = model
+        else:
+            self.training_history = training_history or []
+            self.test_metrics = test_metrics or {}
+            self.model_config = model_config or {}
+            self.model_path = model_path or ""
+            self.model = None
 
-        Args:
-            training_history: List of loss values per epoch
-            test_metrics: Test performance metrics
-            model_config: Model and training configuration
-            model_path: Path where model was saved
-        """
-        self.training_history = training_history
-        self.test_metrics = test_metrics
-        self.model_config = model_config
-        self.model_path = model_path
-
-        # Store creation timestamp
         self.created_at = datetime.now()
-
-        # Derived properties
-        self.n_epochs = len(training_history)
+        self.n_epochs = len(self.training_history)
 
     def summary(self) -> Dict[str, Any]:
         """Get training and test summary.

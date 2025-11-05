@@ -26,9 +26,83 @@ DEFAULT_FEATURES = [
 ]
 
 
+# Model factory registry
+_MODEL_REGISTRY = {}
+
+
+def _register_model(name: str):
+    """Decorator to register model creation functions."""
+
+    def decorator(func):
+        _MODEL_REGISTRY[name.lower()] = func
+        return func
+
+    return decorator
+
+
+@_register_model("mlp")
+def _create_mlp(n_layers: int, n_units: "int | list[int]") -> MultiLayerPerceptron:
+    """Create MultiLayerPerceptron model."""
+    if isinstance(n_units, list):
+        units_list = n_units
+    else:
+        units_list = [n_units] * n_layers
+    return MultiLayerPerceptron(n_layers=n_layers, n_units=units_list)
+
+
+@_register_model("lstm")
+def _create_lstm(
+    n_layers: int, n_units: "int | list[int]", in_features: int = 4
+) -> "LongShortTermMemory":
+    """Create LSTM model.
+
+    Note: in_features defaults to 4 (typical for deep hedging: log_moneyness,
+    expiry_time, volatility, prev_hedge). Can be overridden if needed.
+    """
+    from .long_short_term_memory import LongShortTermMemory
+
+    hidden_size = n_units if isinstance(n_units, int) else n_units[0]
+    return LongShortTermMemory(
+        in_features=in_features,
+        hidden_size=hidden_size,
+        num_layers=n_layers,
+        dropout=0.2 if n_layers > 1 else 0.0,
+    )
+
+
+@_register_model("gru")
+def _create_gru(
+    n_layers: int, n_units: "int | list[int]", in_features: int = 4
+) -> "GatedRecurrentUnit":
+    """Create GRU model.
+
+    Note: in_features defaults to 4 (typical for deep hedging: log_moneyness,
+    expiry_time, volatility, prev_hedge). Can be overridden if needed.
+    """
+    from .gated_recurrent_unit import GatedRecurrentUnit
+
+    hidden_size = n_units if isinstance(n_units, int) else n_units[0]
+    return GatedRecurrentUnit(
+        in_features=in_features,
+        hidden_size=hidden_size,
+        num_layers=n_layers,
+        dropout=0.2 if n_layers > 1 else 0.0,
+    )
+
+
+# Risk measure factory registry
+_CRITERION_REGISTRY = {
+    "expected_shortfall": lambda param: ExpectedShortfall(p=param),
+    "entropic": lambda param: EntropicRiskMeasure(a=param),
+    "entropic_loss": lambda param: EntropicLoss(a=param),
+    "quadratic_cvar": lambda param: QuadraticCVaR(lam=param),
+}
+
+
 def create_deep_hedger(
+    model_type: str = "mlp",
     n_layers: int = 3,
-    n_units: "int | list[int]" = 64,  # Can be int or list of ints
+    n_units: "int | list[int]" = 64,
     risk_measure: str = "expected_shortfall",
     risk_param: float = 0.5,
     features: list = None,
@@ -36,10 +110,15 @@ def create_deep_hedger(
     """Create a deep hedger with standard configuration.
 
     Args:
-        n_layers: Number of hidden layers
+        model_type: Model architecture type
+            - 'mlp': MultiLayerPerceptron (feedforward network)
+            - 'lstm': LSTM-based model (for temporal dependencies)
+            - 'gru': GRU-based model (simpler than LSTM)
+        n_layers: Number of hidden layers (for MLP) or number of recurrent layers (for LSTM/GRU)
         n_units: Number of units per layer. Can be:
             - int: Same units for all layers (e.g., 64 → [64, 64, 64])
-            - list of ints: Variable units per layer (e.g., [64, 32, 32, 16])
+            - list of ints: Variable units per layer (e.g., [64, 32, 32, 16]) - MLP only
+            For LSTM/GRU: hidden_size (if int) or hidden_size of first layer (if list)
         risk_measure: Risk measure type
             - 'expected_shortfall': ExpectedShortfall (CVaR)
             - 'entropic': EntropicRiskMeasure (exponential utility risk measure)
@@ -53,32 +132,44 @@ def create_deep_hedger(
 
     Returns:
         Configured Hedger instance
+
+    Raises:
+        ValueError: If model_type or risk_measure is not supported
     """
     if features is None:
         features = DEFAULT_FEATURES
 
-    # Create model with variable or uniform layer sizes
-    if isinstance(n_units, list):
-        units_list = n_units
-    else:
-        units_list = [n_units] * n_layers
-
-    model = MultiLayerPerceptron(n_layers=n_layers, n_units=units_list)
-
-    # Create criterion based on risk measure
-    if risk_measure == "expected_shortfall":
-        criterion = ExpectedShortfall(p=risk_param)
-    elif risk_measure == "entropic":
-        criterion = EntropicRiskMeasure(a=risk_param)
-    elif risk_measure == "entropic_loss":
-        criterion = EntropicLoss(a=risk_param)
-    elif risk_measure == "quadratic_cvar":
-        criterion = QuadraticCVaR(lam=risk_param)
-    else:
+    # Create model using registry
+    model_type = model_type.lower()
+    if model_type not in _MODEL_REGISTRY:
+        available = ", ".join(sorted(_MODEL_REGISTRY.keys()))
         raise ValueError(
-            f"Unsupported risk measure: {risk_measure}. "
-            f"Choose from: expected_shortfall, entropic, entropic_loss, quadratic_cvar"
+            f"Unsupported model_type: '{model_type}'. "
+            f"Available options: {available}"
         )
+
+    model_creator = _MODEL_REGISTRY[model_type]
+
+    # For LSTM/GRU, pass in_features based on number of features
+    if model_type in ["lstm", "gru"]:
+        n_features = len(features)
+        model = model_creator(
+            n_layers=n_layers, n_units=n_units, in_features=n_features
+        )
+    else:
+        model = model_creator(n_layers=n_layers, n_units=n_units)
+
+    # Create criterion using registry
+    risk_measure = risk_measure.lower()
+    if risk_measure not in _CRITERION_REGISTRY:
+        available = ", ".join(sorted(_CRITERION_REGISTRY.keys()))
+        raise ValueError(
+            f"Unsupported risk_measure: '{risk_measure}'. "
+            f"Available options: {available}"
+        )
+
+    criterion_creator = _CRITERION_REGISTRY[risk_measure]
+    criterion = criterion_creator(risk_param)
 
     # Create hedger
     return Hedger(model=model, inputs=features, criterion=criterion)

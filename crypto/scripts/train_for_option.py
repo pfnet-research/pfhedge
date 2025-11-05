@@ -96,6 +96,14 @@ def create_training_config_from_option(
     seed: int = 42,
     device: str = "cpu",
     underlying_type: str = "perpetual",
+    optimizer: str = "adamw",
+    learning_rate: float = 1e-3,
+    weight_decay: float = 1e-4,
+    early_stopping: bool = False,
+    patience: int = 10,
+    min_delta: float = 1e-6,
+    features: list = None,
+    model_type: str = "mlp",
 ) -> TrainingConfig:
     """
     Create training configuration from option metadata.
@@ -155,6 +163,23 @@ def create_training_config_from_option(
             f"Either provide --vol flag or regenerate option file with IV calculation."
         )
 
+    # Create temporary config to get git hash
+    temp_config = TrainingConfig(
+        strike=normalized_strike,
+        maturity_days=maturity_days,
+        model_path="temp.pth",
+    )
+    provenance = temp_config.get_provenance_info()
+
+    # Append git hash to output directory if available
+    if provenance["git_commit"]:
+        git_short = provenance["git_commit"][:8]
+        output_dir_with_hash = f"{output_dir}_{git_short}"
+        logger.info(
+            f"Appending git hash to output directory: {output_dir} -> {output_dir_with_hash}"
+        )
+        output_dir = output_dir_with_hash
+
     # Create model path
     model_path = Path(output_dir) / "model.pth"
     model_path.parent.mkdir(parents=True, exist_ok=True)
@@ -171,15 +196,23 @@ def create_training_config_from_option(
         underlying_type=underlying_type,
         n_paths=paths,
         n_epochs=epochs,
+        model_type=model_type,
         n_layers=layers,
         n_units=units,
         risk_measure=risk_measure,
         risk_param=risk_param,
+        optimizer=optimizer,
+        learning_rate=learning_rate,
+        weight_decay=weight_decay,
+        early_stopping=early_stopping,
+        patience=patience,
+        min_delta=min_delta,
         model_path=str(model_path),
         output_dir=output_dir,
         train_seed=seed,
         test_seed=seed + 1,
         device=device,
+        features=features,
     )
 
     return config
@@ -300,6 +333,61 @@ def main():
         choices=["cpu", "cuda", "auto"],
         help="Device to use for training (default: cpu, auto=cuda if available)",
     )
+    parser.add_argument(
+        "--features",
+        nargs="+",
+        type=str,
+        default=None,
+        help="Feature list for model input (e.g., log_moneyness expiry_time volatility). "
+        "Default: log_moneyness expiry_time volatility prev_hedge",
+    )
+    parser.add_argument(
+        "--model-type",
+        choices=["mlp", "lstm", "gru"],
+        default="mlp",
+        help="Model architecture type: mlp (feedforward), lstm (recurrent), gru (recurrent, simpler than LSTM). Default: mlp",
+    )
+
+    # Optimizer settings
+    parser.add_argument(
+        "--optimizer",
+        choices=["adam", "adamw", "sgd"],
+        default="adamw",
+        help="Optimizer: adam, adamw (default), or sgd",
+    )
+    parser.add_argument(
+        "--learning-rate",
+        "--lr",
+        type=float,
+        default=1e-3,
+        dest="learning_rate",
+        help="Learning rate (default: 0.001)",
+    )
+    parser.add_argument(
+        "--weight-decay",
+        type=float,
+        default=1e-4,
+        help="Weight decay for regularization (default: 0.0001)",
+    )
+
+    # Early stopping
+    parser.add_argument(
+        "--early-stopping",
+        action="store_true",
+        help="Enable early stopping based on training loss",
+    )
+    parser.add_argument(
+        "--patience",
+        type=int,
+        default=10,
+        help="Early stopping patience (epochs to wait for improvement, default: 10)",
+    )
+    parser.add_argument(
+        "--min-delta",
+        type=float,
+        default=1e-6,
+        help="Minimum change to qualify as improvement for early stopping (default: 1e-6)",
+    )
 
     args = parser.parse_args()
 
@@ -407,6 +495,14 @@ def main():
         seed=args.seed,
         device=device,
         underlying_type=args.underlying,
+        optimizer=args.optimizer,
+        learning_rate=args.learning_rate,
+        weight_decay=args.weight_decay,
+        early_stopping=args.early_stopping,
+        patience=args.patience,
+        min_delta=args.min_delta,
+        features=args.features,
+        model_type=args.model_type,
     )
 
     # Validate config
@@ -421,12 +517,15 @@ def main():
         trainer = Trainer(config, verbose=True, enable_diagnostics=args.diagnostics)
         results = trainer.train(seed=args.seed)
 
-        # Save training results
-        results_path = Path(args.output) / "training_results.json"
+        # Save training results (use config.output_dir which has git hash appended)
+        output_dir = Path(config.output_dir)
+        output_dir.mkdir(parents=True, exist_ok=True)
+
+        results_path = output_dir / "training_results.json"
         results.to_json(str(results_path), include_raw=True, indent=2)
 
         # Save option metadata for reference
-        option_path = Path(args.output) / "option_metadata.json"
+        option_path = output_dir / "option_metadata.json"
         with open(option_path, "w") as f:
             json.dump(option, f, indent=2, default=str)
 
