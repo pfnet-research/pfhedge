@@ -1,5 +1,3 @@
-"""Constants used in backtesting."""
-
 DAYS_PER_YEAR = 365.0
 
 FUNDING_TIME_TOLERANCE_FACTOR = 0.1

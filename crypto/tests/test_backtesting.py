@@ -1,5 +1,3 @@
-"""Tests for backtesting framework."""
-
 import pytest
 import torch
 import tempfile
@@ -24,10 +22,8 @@ from crypto.backtest.metrics import (
 
 
 class TestBacktestConfig:
-    """Tests for BacktestConfig."""
 
     def test_create_basic_config(self):
-        """Test creating a basic config with required parameters."""
         config = BacktestConfig(
             start_date="2024-01-01",
             end_date="2024-01-31",
@@ -51,7 +47,6 @@ class TestBacktestConfig:
         assert config.output_dir == "backtest_results"
 
     def test_create_config_with_custom_values(self):
-        """Test creating config with custom values."""
         config = BacktestConfig(
             start_date="2024-01-01",
             end_date="2024-02-01",
@@ -74,7 +69,6 @@ class TestBacktestConfig:
         assert config.output_dir == "custom_results"
 
     def test_validate_valid_config(self):
-        """Test validation passes for valid config."""
         config = BacktestConfig(
             start_date="2024-01-01",
             end_date="2024-01-31",
@@ -85,7 +79,6 @@ class TestBacktestConfig:
         config.validate()  # Should not raise
 
     def test_validate_invalid_date_format(self):
-        """Test validation fails for invalid date format."""
         config = BacktestConfig(
             start_date="01-01-2024",  # Wrong format
             end_date="2024-01-31",
@@ -98,7 +91,6 @@ class TestBacktestConfig:
             config.validate()
 
     def test_validate_end_before_start(self):
-        """Test validation fails when end_date is before start_date."""
         config = BacktestConfig(
             start_date="2024-01-31",
             end_date="2024-01-01",  # Before start
@@ -111,7 +103,6 @@ class TestBacktestConfig:
             config.validate()
 
     def test_validate_negative_strike(self):
-        """Test validation fails for negative strike."""
         config = BacktestConfig(
             start_date="2024-01-01",
             end_date="2024-01-31",
@@ -124,7 +115,6 @@ class TestBacktestConfig:
             config.validate()
 
     def test_validate_zero_maturity(self):
-        """Test validation fails for zero maturity."""
         config = BacktestConfig(
             start_date="2024-01-01",
             end_date="2024-01-31",
@@ -137,7 +127,6 @@ class TestBacktestConfig:
             config.validate()
 
     def test_validate_negative_bootstrap_paths(self):
-        """Test validation fails for negative n_bootstrap_paths."""
         config = BacktestConfig(
             start_date="2024-01-01",
             end_date="2024-01-31",
@@ -151,7 +140,6 @@ class TestBacktestConfig:
             config.validate()
 
     def test_validate_negative_transaction_cost(self):
-        """Test validation fails for negative transaction cost."""
         config = BacktestConfig(
             start_date="2024-01-01",
             end_date="2024-01-31",
@@ -165,7 +153,6 @@ class TestBacktestConfig:
             config.validate()
 
     def test_validate_too_high_transaction_cost(self):
-        """Test validation fails for unreasonably high transaction cost."""
         config = BacktestConfig(
             start_date="2024-01-01",
             end_date="2024-01-31",
@@ -179,7 +166,6 @@ class TestBacktestConfig:
             config.validate()
 
     def test_validate_zero_dt_hours(self):
-        """Test validation fails for zero dt_hours."""
         config = BacktestConfig(
             start_date="2024-01-01",
             end_date="2024-01-31",
@@ -193,7 +179,6 @@ class TestBacktestConfig:
             config.validate()
 
     def test_validate_dt_hours_too_large(self):
-        """Test validation fails for dt_hours > 24."""
         config = BacktestConfig(
             start_date="2024-01-01",
             end_date="2024-01-31",
@@ -207,7 +192,6 @@ class TestBacktestConfig:
             config.validate()
 
     def test_to_dict(self):
-        """Test converting config to dictionary."""
         config = BacktestConfig(
             start_date="2024-01-01",
             end_date="2024-01-31",
@@ -230,7 +214,6 @@ class TestBacktestConfig:
         assert config_dict["n_bootstrap_paths"] == 200
 
     def test_from_dict(self):
-        """Test creating config from dictionary."""
         config_dict = {
             "start_date": "2024-01-01",
             "end_date": "2024-01-31",
@@ -252,7 +235,6 @@ class TestBacktestConfig:
         assert config.n_bootstrap_paths == 200
 
     def test_to_dict_from_dict_roundtrip(self):
-        """Test that to_dict and from_dict are inverse operations."""
         original = BacktestConfig(
             start_date="2024-01-01",
             end_date="2024-01-31",
@@ -275,7 +257,6 @@ class TestBacktestConfig:
         assert reconstructed.dt_hours == original.dt_hours
 
     def test_dt_property(self):
-        """Test dt property converts hours to years correctly."""
         config = BacktestConfig(
             start_date="2024-01-01",
             end_date="2024-01-31",
@@ -289,7 +270,6 @@ class TestBacktestConfig:
         assert abs(config.dt - expected_dt) < 1e-10
 
     def test_repr(self):
-        """Test string representation."""
         config = BacktestConfig(
             start_date="2024-01-01",
             end_date="2024-01-31",
@@ -308,7 +288,6 @@ class TestBacktestConfig:
         assert "models/test.pth" in repr_str
 
     def test_repr_put_option(self):
-        """Test string representation for put option."""
         config = BacktestConfig(
             start_date="2024-01-01",
             end_date="2024-01-31",
@@ -322,7 +301,6 @@ class TestBacktestConfig:
         assert "Put" in repr_str
 
     def test_save_yaml_success(self, tmp_path):
-        """Test saving config to YAML file."""
         pytest.importorskip("yaml")
 
         config = BacktestConfig(
@@ -353,7 +331,6 @@ class TestBacktestConfig:
         assert loaded_data["n_bootstrap_paths"] == 200
 
     def test_save_yaml_creates_directories(self, tmp_path):
-        """Test that save_yaml creates parent directories if needed."""
         pytest.importorskip("yaml")
 
         config = BacktestConfig(
@@ -372,7 +349,6 @@ class TestBacktestConfig:
         assert yaml_path.parent.exists()
 
     def test_load_yaml_success(self, tmp_path):
-        """Test loading config from YAML file."""
         pytest.importorskip("yaml")
 
         # Create YAML file
@@ -407,14 +383,12 @@ output_dir: backtest_results
         assert config.dt_hours == 4.0
 
     def test_load_yaml_file_not_found(self):
-        """Test load_yaml raises error for missing file."""
         pytest.importorskip("yaml")
 
         with pytest.raises(FileNotFoundError, match="Config file not found"):
             BacktestConfig.load_yaml("nonexistent.yaml")
 
     def test_load_yaml_invalid_content(self, tmp_path):
-        """Test load_yaml handles invalid YAML content."""
         pytest.importorskip("yaml")
 
         yaml_path = tmp_path / "invalid.yaml"
@@ -425,7 +399,6 @@ output_dir: backtest_results
             BacktestConfig.load_yaml(str(yaml_path))
 
     def test_load_yaml_empty_file(self, tmp_path):
-        """Test load_yaml handles empty file."""
         pytest.importorskip("yaml")
 
         yaml_path = tmp_path / "empty.yaml"
@@ -435,7 +408,6 @@ output_dir: backtest_results
             BacktestConfig.load_yaml(str(yaml_path))
 
     def test_load_yaml_missing_required_fields(self, tmp_path):
-        """Test load_yaml handles missing required fields."""
         pytest.importorskip("yaml")
 
         # Missing 'strike' field
@@ -454,7 +426,6 @@ model_path: models/test.pth
             BacktestConfig.load_yaml(str(yaml_path))
 
     def test_load_yaml_validates_config(self, tmp_path):
-        """Test load_yaml validates config after loading."""
         pytest.importorskip("yaml")
 
         # Create invalid config (negative strike)
@@ -474,7 +445,6 @@ model_path: models/test.pth
             BacktestConfig.load_yaml(str(yaml_path))
 
     def test_yaml_roundtrip(self, tmp_path):
-        """Test saving and loading YAML produces identical config."""
         pytest.importorskip("yaml")
 
         original = BacktestConfig(
@@ -509,7 +479,6 @@ model_path: models/test.pth
         assert loaded.output_dir == original.output_dir
 
     def test_load_yaml_unknown_keys(self, tmp_path):
-        """Test load_yaml rejects unknown configuration keys."""
         pytest.importorskip("yaml")
 
         yaml_content = """
@@ -530,7 +499,6 @@ another_bad_field: 123
             BacktestConfig.load_yaml(str(yaml_path))
 
     def test_load_yaml_env_variable_expansion(self, tmp_path):
-        """Test environment variable expansion in paths."""
         pytest.importorskip("yaml")
         import os
 
@@ -560,7 +528,6 @@ data_dir: ${TEST_MODEL_DIR}_data
         del os.environ["TEST_MODEL_DIR"]
 
     def test_load_yaml_tilde_expansion(self, tmp_path):
-        """Test tilde (~) expansion in paths."""
         pytest.importorskip("yaml")
         import os
         from pathlib import Path
@@ -590,7 +557,6 @@ data_dir: ~/data
         )  # Handle Windows paths
 
     def test_load_yaml_relative_path_anchoring(self, tmp_path):
-        """Test relative paths are resolved relative to config file directory."""
         pytest.importorskip("yaml")
 
         # Create nested directory structure
@@ -624,17 +590,6 @@ output_dir: ../results
         assert config.output_dir == expected_output
 
     def test_no_double_path_resolution(self, tmp_path):
-        """Test that backtester doesn't double-resolve data_dir path.
-
-        This is a regression test for the path resolution bug where:
-        1. BacktestConfig.load_yaml() resolved paths relative to config file
-        2. Backtester.load_data() then resolved them again relative to crypto/data/
-
-        The bug caused paths like "sample_data" to become
-        "crypto/data/crypto/backtest/sample_data" (incorrect).
-
-        The fix ensures Backtester trusts the already-resolved path from config.
-        """
         pytest.importorskip("yaml")
 
         # Create directory structure:
@@ -718,7 +673,6 @@ data_dir: ../data/my_data
             )
 
     def test_get_provenance_info(self):
-        """Test provenance information gathering."""
         config = BacktestConfig(
             start_date="2024-01-01",
             end_date="2024-01-31",
@@ -757,10 +711,8 @@ data_dir: ../data/my_data
 
 
 class TestMetrics:
-    """Tests for metrics module."""
 
     def test_sharpe_ratio_basic(self):
-        """Test basic Sharpe ratio calculation."""
         pnl = torch.tensor([100.0, 150.0, 80.0, 120.0, 110.0])
         sharpe = calculate_sharpe_ratio(pnl)
 
@@ -772,13 +724,11 @@ class TestMetrics:
         assert abs(sharpe - expected_sharpe) < 1e-6
 
     def test_sharpe_ratio_zero_std(self):
-        """Test Sharpe ratio with zero standard deviation."""
         pnl = torch.tensor([100.0, 100.0, 100.0, 100.0])
         sharpe = calculate_sharpe_ratio(pnl)
         assert sharpe == 0.0
 
     def test_sharpe_ratio_2d_input(self):
-        """Test Sharpe ratio with 2D cumulative PnL."""
         cum_pnl = torch.tensor(
             [
                 [0.0, 10.0, 20.0, 30.0, 100.0],
@@ -795,7 +745,6 @@ class TestMetrics:
         assert abs(sharpe - expected_sharpe) < 1e-6
 
     def test_sortino_ratio_basic(self):
-        """Test basic Sortino ratio calculation."""
         pnl = torch.tensor([100.0, 150.0, -50.0, 120.0, -20.0])
         sortino = calculate_sortino_ratio(pnl)
 
@@ -808,13 +757,11 @@ class TestMetrics:
         assert abs(sortino - expected_sortino) < 1e-6
 
     def test_sortino_ratio_no_losses(self):
-        """Test Sortino ratio with no losses."""
         pnl = torch.tensor([100.0, 150.0, 200.0, 120.0])
         sortino = calculate_sortino_ratio(pnl)
         assert sortino == 0.0  # No downside deviation
 
     def test_max_drawdown_simple(self):
-        """Test max drawdown with known sequence."""
         cum_pnl = torch.tensor([[0.0, 10.0, 15.0, 8.0, 12.0, 5.0]])
         max_dd = calculate_max_drawdown(cum_pnl)
 
@@ -822,19 +769,16 @@ class TestMetrics:
         assert abs(max_dd - 10.0) < 1e-6
 
     def test_max_drawdown_no_drawdown(self):
-        """Test max drawdown when PnL only increases."""
         cum_pnl = torch.tensor([[0.0, 10.0, 20.0, 30.0, 40.0]])
         max_dd = calculate_max_drawdown(cum_pnl)
         assert max_dd == 0.0
 
     def test_max_drawdown_1d_input(self):
-        """Test max drawdown with 1D input."""
         cum_pnl = torch.tensor([0.0, 10.0, 15.0, 8.0, 12.0, 5.0])
         max_dd = calculate_max_drawdown(cum_pnl)
         assert abs(max_dd - 10.0) < 1e-6
 
     def test_max_drawdown_multiple_paths(self):
-        """Test max drawdown averages across paths."""
         cum_pnl = torch.tensor(
             [[0.0, 10.0, 15.0, 8.0], [0.0, 5.0, 10.0, 3.0]]  # max dd = 7  # max dd = 7
         )
@@ -842,7 +786,6 @@ class TestMetrics:
         assert abs(max_dd - 7.0) < 1e-6
 
     def test_cvar_basic(self):
-        """Test CVaR calculation."""
         torch.manual_seed(42)
         pnl = torch.randn(1000) * 100
         cvar_5 = calculate_cvar(pnl, alpha=0.05)
@@ -855,7 +798,6 @@ class TestMetrics:
         assert abs(cvar_5 - expected_cvar) < 1e-4
 
     def test_cvar_alpha_levels(self):
-        """Test CVaR at different alpha levels."""
         torch.manual_seed(42)
         pnl = torch.randn(1000) * 100
 
@@ -867,7 +809,6 @@ class TestMetrics:
         assert cvar_1 < cvar_5 < cvar_10
 
     def test_var_basic(self):
-        """Test VaR calculation."""
         torch.manual_seed(42)
         pnl = torch.randn(1000) * 100
         var_5 = calculate_var(pnl, alpha=0.05)
@@ -878,7 +819,6 @@ class TestMetrics:
         assert abs(var_5 - expected_var) < 1e-4
 
     def test_var_alpha_levels(self):
-        """Test VaR at different alpha levels."""
         torch.manual_seed(42)
         pnl = torch.randn(1000) * 100
 
@@ -890,7 +830,6 @@ class TestMetrics:
         assert var_1 < var_5 < var_10
 
     def test_win_rate_basic(self):
-        """Test win rate calculation."""
         pnl = torch.tensor([100.0, -50.0, 30.0, 80.0, -20.0, 60.0])
         win_rate = calculate_win_rate(pnl)
 
@@ -898,19 +837,16 @@ class TestMetrics:
         assert abs(win_rate - 4 / 6) < 1e-6
 
     def test_win_rate_all_wins(self):
-        """Test win rate with all positive."""
         pnl = torch.tensor([100.0, 50.0, 30.0, 80.0])
         win_rate = calculate_win_rate(pnl)
         assert win_rate == 1.0
 
     def test_win_rate_all_losses(self):
-        """Test win rate with all negative."""
         pnl = torch.tensor([-100.0, -50.0, -30.0, -80.0])
         win_rate = calculate_win_rate(pnl)
         assert win_rate == 0.0
 
     def test_win_rate_2d_input(self):
-        """Test win rate with 2D cumulative PnL."""
         cum_pnl = torch.tensor(
             [
                 [0.0, 10.0, 20.0, 100.0],
@@ -924,7 +860,6 @@ class TestMetrics:
         assert abs(win_rate - 2 / 3) < 1e-6
 
     def test_calmar_ratio_basic(self):
-        """Test Calmar ratio calculation."""
         cum_pnl = torch.tensor(
             [[0.0, 10.0, 15.0, 8.0, 20.0], [0.0, 5.0, 10.0, 3.0, 18.0]]
         )
@@ -937,19 +872,16 @@ class TestMetrics:
         assert abs(calmar - expected_calmar) < 1e-6
 
     def test_calmar_ratio_requires_2d(self):
-        """Test Calmar ratio requires cumulative PnL."""
         pnl = torch.tensor([100.0, 150.0, 80.0])
         with pytest.raises(ValueError, match="requires cumulative PnL"):
             calculate_calmar_ratio(pnl)
 
     def test_calmar_ratio_zero_drawdown(self):
-        """Test Calmar ratio with no drawdown."""
         cum_pnl = torch.tensor([[0.0, 10.0, 20.0, 30.0]])
         calmar = calculate_calmar_ratio(cum_pnl)
         assert calmar == 0.0
 
     def test_calculate_all_metrics_basic(self):
-        """Test calculating all metrics at once."""
         pnl = torch.randn(1000) * 100
         cum_pnl = torch.randn(1000, 50).cumsum(dim=1)
 
@@ -970,7 +902,6 @@ class TestMetrics:
         assert "calmar_ratio" in metrics
 
     def test_calculate_all_metrics_without_cumulative(self):
-        """Test calculating metrics without cumulative PnL."""
         pnl = torch.randn(1000) * 100
 
         metrics = calculate_all_metrics(pnl)
@@ -984,7 +915,6 @@ class TestMetrics:
         assert "calmar_ratio" not in metrics
 
     def test_calculate_all_metrics_custom_alpha(self):
-        """Test calculating metrics with custom alpha."""
         pnl = torch.randn(1000) * 100
 
         metrics = calculate_all_metrics(pnl, alpha_cvar=0.01, alpha_var=0.01)
@@ -994,7 +924,6 @@ class TestMetrics:
         assert "var_99" in metrics
 
     def test_print_metrics_runs(self):
-        """Test print_metrics doesn't crash."""
         pnl = torch.randn(100) * 100
         cum_pnl = torch.randn(100, 50).cumsum(dim=1)
 
@@ -1020,11 +949,9 @@ class TestMetrics:
 
 
 class TestBacktester:
-    """Tests for Backtester class."""
 
     @staticmethod
     def create_dummy_checkpoint(path: str):
-        """Helper to create a dummy model checkpoint for testing."""
         from crypto.strategies.deep_hedge_utils import create_deep_hedger
 
         # Create a simple model
@@ -1055,7 +982,6 @@ class TestBacktester:
         torch.save(checkpoint, path)
 
     def test_create_backtester(self):
-        """Test creating a Backtester instance."""
         config = BacktestConfig(
             start_date="2024-01-01",
             end_date="2024-01-31",
@@ -1072,7 +998,6 @@ class TestBacktester:
         assert backtester.option is None
 
     def test_load_model_success(self):
-        """Test successful model loading."""
         # Create temporary checkpoint
         with tempfile.NamedTemporaryFile(mode="wb", suffix=".pth", delete=False) as f:
             temp_path = f.name
@@ -1105,7 +1030,6 @@ class TestBacktester:
                 os.unlink(temp_path)
 
     def test_load_model_missing_state_dict(self):
-        """Test that load_model raises KeyError for missing model_state_dict."""
         with tempfile.NamedTemporaryFile(mode="wb", suffix=".pth", delete=False) as f:
             temp_path = f.name
 
@@ -1139,7 +1063,6 @@ class TestBacktester:
                 os.unlink(temp_path)
 
     def test_load_model_missing_config(self):
-        """Test that load_model raises KeyError for missing model_config."""
         with tempfile.NamedTemporaryFile(mode="wb", suffix=".pth", delete=False) as f:
             temp_path = f.name
 
@@ -1169,7 +1092,6 @@ class TestBacktester:
                 os.unlink(temp_path)
 
     def test_load_model_with_device(self):
-        """Test loading model to specific device."""
         with tempfile.NamedTemporaryFile(mode="wb", suffix=".pth", delete=False) as f:
             temp_path = f.name
 
@@ -1194,7 +1116,6 @@ class TestBacktester:
                 os.unlink(temp_path)
 
     def test_load_model_backward_compat_risk_measure(self):
-        """Test backward compatibility with 'risk_measure' key."""
         with tempfile.NamedTemporaryFile(mode="wb", suffix=".pth", delete=False) as f:
             temp_path = f.name
 
@@ -1235,12 +1156,6 @@ class TestBacktester:
 
     @staticmethod
     def create_dummy_parquet_data(data_dir: str, n_days: int = 10):
-        """Helper to create dummy parquet data files for testing.
-
-        Args:
-            data_dir: Directory to create data files in
-            n_days: Number of days of data to generate
-        """
         from datetime import datetime, timedelta
 
         os.makedirs(data_dir, exist_ok=True)
@@ -1280,7 +1195,6 @@ class TestBacktester:
         options_df.to_parquet(options_path)
 
     def test_load_data_success(self):
-        """Test successful data loading."""
         with tempfile.TemporaryDirectory() as temp_dir:
             # Create dummy parquet files
             self.create_dummy_parquet_data(temp_dir)
@@ -1313,7 +1227,6 @@ class TestBacktester:
             assert "last_price" in loader.perpetual_data.columns
 
     def test_load_data_directory_not_found(self):
-        """Test error when data directory doesn't exist."""
         config = BacktestConfig(
             start_date="2024-01-01",
             end_date="2024-01-31",
@@ -1328,7 +1241,6 @@ class TestBacktester:
             backtester.load_data()
 
     def test_load_data_no_perpetual_files(self):
-        """Test error when no perpetual data files found."""
         with tempfile.TemporaryDirectory() as temp_dir:
             # Create empty directory (no parquet files)
             config = BacktestConfig(
@@ -1347,7 +1259,6 @@ class TestBacktester:
                 backtester.load_data()
 
     def test_load_data_missing_options_is_ok(self):
-        """Test that missing options data is handled gracefully."""
         with tempfile.TemporaryDirectory() as temp_dir:
             # Create only perpetual data (no options)
             import pandas as pd
@@ -1389,7 +1300,6 @@ class TestBacktester:
             assert not loader.perpetual_data.empty
 
     def test_load_data_verifies_real_market_data(self):
-        """Test that loaded data has expected properties of real market data."""
         with tempfile.TemporaryDirectory() as temp_dir:
             self.create_dummy_parquet_data(temp_dir)
 
@@ -1429,7 +1339,6 @@ class TestBacktester:
             assert "price_range" in summary["perpetual"]
 
     def test_load_data_with_resampling(self):
-        """Test data loading with resampling to different frequencies."""
         with tempfile.TemporaryDirectory() as temp_dir:
             self.create_dummy_parquet_data(temp_dir, n_days=5)
 
@@ -1453,7 +1362,6 @@ class TestBacktester:
             assert len(perp_df) <= 20  # Allow some margin
 
     def test_load_data_with_non_integer_hours(self):
-        """Test resampling with non-integer hours (converted to minutes)."""
         with tempfile.TemporaryDirectory() as temp_dir:
             self.create_dummy_parquet_data(temp_dir, n_days=3)
 
@@ -1476,7 +1384,6 @@ class TestBacktester:
             assert len(perp_df) >= 90  # Should have many records
 
     def test_load_data_date_filtering(self):
-        """Test that date filtering works correctly."""
         with tempfile.TemporaryDirectory() as temp_dir:
             self.create_dummy_parquet_data(temp_dir, n_days=10)
 
@@ -1506,7 +1413,6 @@ class TestBacktester:
             )  # Allow end of day
 
     def test_load_data_invalid_date_range(self):
-        """Test error when requested date range has no data."""
         with tempfile.TemporaryDirectory() as temp_dir:
             self.create_dummy_parquet_data(temp_dir, n_days=5)  # 2024-01-01 to 01-05
 
@@ -1525,7 +1431,6 @@ class TestBacktester:
                 backtester.load_data()
 
     def test_create_bootstrap_option_success(self):
-        """Test successful bootstrap option creation."""
         with tempfile.TemporaryDirectory() as temp_dir:
             # Create data with enough records for bootstrap
             self.create_dummy_parquet_data(temp_dir, n_days=10)
@@ -1562,7 +1467,6 @@ class TestBacktester:
             assert option.maturity == pytest.approx(3 / 365.0)
 
     def test_create_bootstrap_option_uses_self_data_loader(self):
-        """Test that create_bootstrap_option can use self.data_loader."""
         with tempfile.TemporaryDirectory() as temp_dir:
             self.create_dummy_parquet_data(temp_dir, n_days=10)
 
@@ -1588,7 +1492,6 @@ class TestBacktester:
             assert option.underlier.spot.shape[0] == 5
 
     def test_create_bootstrap_option_no_data_loaded(self):
-        """Test error when create_bootstrap_option called without loading data."""
         config = BacktestConfig(
             start_date="2024-01-01",
             end_date="2024-01-05",
@@ -1603,7 +1506,6 @@ class TestBacktester:
             backtester.create_bootstrap_option()
 
     def test_create_bootstrap_option_correct_time_steps(self):
-        """Test that bootstrap paths have correct number of time steps."""
         with tempfile.TemporaryDirectory() as temp_dir:
             self.create_dummy_parquet_data(temp_dir, n_days=10)
 
@@ -1632,7 +1534,6 @@ class TestBacktester:
             assert n_steps >= 9  # At least 9 steps for 3 days
 
     def test_create_bootstrap_option_put_option(self):
-        """Test creating a put option."""
         with tempfile.TemporaryDirectory() as temp_dir:
             self.create_dummy_parquet_data(temp_dir, n_days=5)
 
@@ -1655,7 +1556,6 @@ class TestBacktester:
             assert option.strike == 50000
 
     def test_run_deep_hedge_success(self):
-        """Test successful deep hedge evaluation."""
         with tempfile.TemporaryDirectory() as temp_dir:
             # Create dummy data
             self.create_dummy_parquet_data(temp_dir, n_days=10)
@@ -1690,7 +1590,6 @@ class TestBacktester:
             assert isinstance(pnl, torch.Tensor)
 
     def test_run_deep_hedge_uses_stored_option_and_model(self):
-        """Test that run_deep_hedge can use stored option and model."""
         with tempfile.TemporaryDirectory() as temp_dir:
             self.create_dummy_parquet_data(temp_dir, n_days=10)
             model_path = os.path.join(temp_dir, "test_model.pth")
@@ -1720,7 +1619,6 @@ class TestBacktester:
             assert pnl.shape[0] == 3
 
     def test_run_deep_hedge_no_model_loaded(self):
-        """Test error when run_deep_hedge called without model."""
         with tempfile.TemporaryDirectory() as temp_dir:
             self.create_dummy_parquet_data(temp_dir, n_days=10)
 
@@ -1743,7 +1641,6 @@ class TestBacktester:
                 backtester.run_deep_hedge(option, None)
 
     def test_run_deep_hedge_no_option_created(self):
-        """Test error when run_deep_hedge called without option."""
         with tempfile.TemporaryDirectory() as temp_dir:
             model_path = os.path.join(temp_dir, "test_model.pth")
             self.create_dummy_checkpoint(model_path)
@@ -1766,7 +1663,6 @@ class TestBacktester:
                 backtester.run_deep_hedge(None, model)
 
     def test_run_deep_hedge_correct_pnl_shape(self):
-        """Test that deep hedge PnL has correct shape matching option paths."""
         with tempfile.TemporaryDirectory() as temp_dir:
             self.create_dummy_parquet_data(temp_dir, n_days=10)
             model_path = os.path.join(temp_dir, "test_model.pth")
@@ -1796,7 +1692,6 @@ class TestBacktester:
             assert pnl.shape[1] == option.underlier.spot.shape[1]  # Same n_steps
 
     def test_run_bs_baseline_success(self):
-        """Test successful BS baseline evaluation."""
         with tempfile.TemporaryDirectory() as temp_dir:
             # Create dummy data
             self.create_dummy_parquet_data(temp_dir, n_days=10)
@@ -1826,7 +1721,6 @@ class TestBacktester:
             assert isinstance(pnl, torch.Tensor)
 
     def test_run_bs_baseline_uses_stored_option(self):
-        """Test that run_bs_baseline can use stored option."""
         with tempfile.TemporaryDirectory() as temp_dir:
             self.create_dummy_parquet_data(temp_dir, n_days=10)
 
@@ -1853,7 +1747,6 @@ class TestBacktester:
             assert pnl.shape[0] == 3
 
     def test_run_bs_baseline_no_option_created(self):
-        """Test error when run_bs_baseline called without option."""
         config = BacktestConfig(
             start_date="2024-01-01",
             end_date="2024-01-05",
@@ -1868,7 +1761,6 @@ class TestBacktester:
             backtester.run_bs_baseline(None)
 
     def test_run_bs_baseline_correct_pnl_shape(self):
-        """Test that BS baseline PnL has correct shape matching option paths."""
         with tempfile.TemporaryDirectory() as temp_dir:
             self.create_dummy_parquet_data(temp_dir, n_days=10)
 
@@ -1895,7 +1787,6 @@ class TestBacktester:
             assert pnl.shape[1] == option.underlier.spot.shape[1]  # Same n_steps
 
     def test_run_bs_baseline_matches_deep_hedge_shape(self):
-        """Test that BS baseline and deep hedge produce same shape outputs."""
         with tempfile.TemporaryDirectory() as temp_dir:
             self.create_dummy_parquet_data(temp_dir, n_days=10)
             model_path = os.path.join(temp_dir, "test_model.pth")
@@ -1925,7 +1816,6 @@ class TestBacktester:
             assert deep_pnl.shape == bs_pnl.shape
 
     def test_run_with_single_path(self):
-        """Test that strategies work correctly with n_paths=1 (catches squeeze bugs)."""
         with tempfile.TemporaryDirectory() as temp_dir:
             self.create_dummy_parquet_data(temp_dir, n_days=10)
             model_path = os.path.join(temp_dir, "test_model.pth")
@@ -1965,7 +1855,6 @@ class TestBacktester:
             assert deep_pnl.shape == bs_pnl.shape
 
     def test_run_end_to_end(self):
-        """Test complete end-to-end backtest."""
         with tempfile.TemporaryDirectory() as temp_dir:
             # Create dummy data
             self.create_dummy_parquet_data(temp_dir, n_days=10)
@@ -2015,7 +1904,6 @@ class TestBacktester:
             assert "sharpe_ratio" in summary["bs_baseline"]
 
     def test_run_stores_positions(self):
-        """Test that run() properly stores positions from strategies."""
         with tempfile.TemporaryDirectory() as temp_dir:
             self.create_dummy_parquet_data(temp_dir, n_days=5)
             model_path = os.path.join(temp_dir, "test_model.pth")
@@ -2044,7 +1932,6 @@ class TestBacktester:
             assert torch.equal(backtester.bs_positions, results.bs_positions)
 
     def test_run_with_seed_parameter(self):
-        """Test that run() accepts seed parameter without error."""
         with tempfile.TemporaryDirectory() as temp_dir:
             self.create_dummy_parquet_data(temp_dir, n_days=10)
             model_path = os.path.join(temp_dir, "test_model.pth")
@@ -2077,7 +1964,6 @@ class TestBacktester:
             assert isinstance(results2, BacktestResults)
 
     def test_run_error_handling_missing_data(self):
-        """Test that run() handles missing data directory gracefully."""
         with tempfile.TemporaryDirectory() as temp_dir:
             model_path = os.path.join(temp_dir, "test_model.pth")
             self.create_dummy_checkpoint(model_path)
@@ -2098,7 +1984,6 @@ class TestBacktester:
                 backtester.run()
 
     def test_repr(self):
-        """Test string representation."""
         config = BacktestConfig(
             start_date="2024-01-01",
             end_date="2024-01-31",
@@ -2115,10 +2000,8 @@ class TestBacktester:
 
 
 class TestBacktestResults:
-    """Tests for BacktestResults class."""
 
     def test_create_results_success(self):
-        """Test successful creation of BacktestResults."""
         # Create dummy data
         n_paths, n_steps = 10, 20
         deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
@@ -2146,7 +2029,6 @@ class TestBacktestResults:
         assert results.n_steps == n_steps
 
     def test_create_results_with_config(self):
-        """Test creating results with config."""
         n_paths, n_steps = 5, 10
         deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
         bs_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
@@ -2174,7 +2056,6 @@ class TestBacktestResults:
         assert results.config is config
 
     def test_validate_inputs_wrong_dimension(self):
-        """Test validation fails for wrong tensor dimensions."""
         n_paths, n_steps = 10, 20
         deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
         bs_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
@@ -2192,7 +2073,6 @@ class TestBacktestResults:
             )
 
     def test_validate_inputs_mismatched_shapes(self):
-        """Test validation fails for mismatched shapes."""
         n_paths, n_steps = 10, 20
         deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
         bs_pnl = torch.randn(n_paths, n_steps + 5).cumsum(dim=1)  # Wrong shape
@@ -2210,7 +2090,6 @@ class TestBacktestResults:
             )
 
     def test_summary_basic(self):
-        """Test summary statistics calculation."""
         torch.manual_seed(42)
         n_paths, n_steps = 100, 50
         deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
@@ -2249,7 +2128,6 @@ class TestBacktestResults:
             assert "win_rate" in summary[strategy]
 
     def test_summary_values_reasonable(self):
-        """Test that summary values are calculated correctly."""
         # Create controlled data
         n_paths, n_steps = 10, 20
         deep_pnl = torch.ones(n_paths, n_steps).cumsum(dim=1) * 100  # Increasing
@@ -2276,7 +2154,6 @@ class TestBacktestResults:
         assert summary["bs_baseline"]["mean"] > 0
 
     def test_to_dict_structure(self):
-        """Test to_dict returns proper structure."""
         n_paths, n_steps = 5, 10
         deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
         bs_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
@@ -2315,7 +2192,6 @@ class TestBacktestResults:
         assert data["n_steps"] == n_steps
 
     def test_to_dict_with_config(self):
-        """Test to_dict includes config when provided."""
         n_paths, n_steps = 5, 10
         deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
         bs_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
@@ -2347,7 +2223,6 @@ class TestBacktestResults:
         assert data["config"]["strike"] == 50000
 
     def test_repr(self):
-        """Test string representation."""
         n_paths, n_steps = 10, 20
         deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
         bs_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
@@ -2372,7 +2247,6 @@ class TestBacktestResults:
         assert "bs_sharpe" in repr_str
 
     def test_summary_caching(self):
-        """Test that summary is cached and reused on subsequent calls."""
         torch.manual_seed(42)
         n_paths, n_steps = 100, 50
         deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
@@ -2403,7 +2277,6 @@ class TestBacktestResults:
         assert summary3 is not summary1  # Different object
 
     def test_to_dict_include_raw_false(self):
-        """Test to_dict with include_raw=False excludes tensor data."""
         n_paths, n_steps = 100, 200  # Large dataset
         deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
         bs_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
@@ -2437,7 +2310,6 @@ class TestBacktestResults:
         assert "spots" not in data
 
     def test_to_dict_include_raw_true_default(self):
-        """Test to_dict with include_raw=True (default) includes all data."""
         n_paths, n_steps = 5, 10
         deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
         bs_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
@@ -2472,7 +2344,6 @@ class TestBacktestResults:
         assert len(data["deep_pnl"]) == n_paths
 
     def test_to_json_returns_valid_json_string(self):
-        """Test to_json returns valid JSON string."""
         n_paths, n_steps = 5, 10
         deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
         bs_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
@@ -2500,7 +2371,6 @@ class TestBacktestResults:
         assert "n_steps" in parsed
 
     def test_to_json_write_to_file(self):
-        """Test to_json writes to file correctly."""
         import tempfile
         import os
 
@@ -2540,7 +2410,6 @@ class TestBacktestResults:
                 os.unlink(temp_path)
 
     def test_to_json_handles_config_with_dates(self):
-        """Test to_json handles config with date strings correctly."""
         n_paths, n_steps = 5, 10
         deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
         bs_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
@@ -2572,7 +2441,6 @@ class TestBacktestResults:
         assert parsed["config"]["start_date"] == "2024-01-01"
 
     def test_safe_json_normalize_datetime(self):
-        """Test _safe_json_normalize handles datetime objects."""
         from datetime import datetime
 
         dt = datetime(2024, 1, 15, 12, 30, 45)
@@ -2581,7 +2449,6 @@ class TestBacktestResults:
         assert "2024-01-15" in normalized
 
     def test_safe_json_normalize_numpy_types(self):
-        """Test _safe_json_normalize handles numpy types."""
         import numpy as np
 
         # Test numpy integer
@@ -2603,7 +2470,6 @@ class TestBacktestResults:
         assert normalized == [1, 2, 3]
 
     def test_safe_json_normalize_nested_dict(self):
-        """Test _safe_json_normalize handles nested structures."""
         from datetime import datetime
         import numpy as np
 
@@ -2626,7 +2492,6 @@ class TestBacktestResults:
         assert isinstance(json_str, str)
 
     def test_get_time_axis_auto_mode_with_large_dt(self):
-        """Test auto time_unit mode selects 'days' for large dt_hours."""
         n_paths, n_steps = 10, 20
         deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
         bs_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
@@ -2661,7 +2526,6 @@ class TestBacktestResults:
         assert abs(time_values[1] - 1.0) < 0.01  # Should be 1 day
 
     def test_get_time_axis_auto_mode_with_medium_dt(self):
-        """Test auto time_unit mode selects 'hours' for medium dt_hours."""
         n_paths, n_steps = 10, 20
         deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
         bs_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
@@ -2696,7 +2560,6 @@ class TestBacktestResults:
         assert abs(time_values[1] - 8.0) < 0.01  # Should be 8 hours
 
     def test_get_time_axis_auto_mode_with_small_dt(self):
-        """Test auto time_unit mode selects 'steps' for small dt_hours."""
         n_paths, n_steps = 10, 20
         deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
         bs_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
@@ -2731,7 +2594,6 @@ class TestBacktestResults:
         assert time_values[1] == 1
 
     def test_get_time_axis_auto_mode_without_config(self):
-        """Test auto time_unit mode falls back to 'steps' without config."""
         n_paths, n_steps = 10, 20
         deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
         bs_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
@@ -2756,7 +2618,6 @@ class TestBacktestResults:
         assert time_values[1] == 1
 
     def test_get_time_axis_auto_mode_uses_default_dt_hours(self):
-        """Test auto time_unit mode uses default dt_hours from config."""
         n_paths, n_steps = 10, 20
         deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
         bs_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
@@ -2791,7 +2652,6 @@ class TestBacktestResults:
         assert abs(time_values[1] - 8.0) < 0.01  # Should be 8 hours
 
     def test_get_time_axis_manual_modes_still_work(self):
-        """Test that manual time_unit modes still work with auto mode available."""
         n_paths, n_steps = 10, 20
         deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
         bs_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
@@ -2833,7 +2693,6 @@ class TestBacktestResults:
         assert abs(time_values[1] - 8.0 / 24.0) < 0.01
 
     def test_compare_strategies_structure(self):
-        """Test compare_strategies returns correct structure."""
         torch.manual_seed(42)
         n_paths, n_steps = 100, 50
         deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1) * 10
@@ -2877,7 +2736,6 @@ class TestBacktestResults:
         ]
 
     def test_compare_strategies_winner_determination(self):
-        """Test winner determination logic works correctly."""
         n_paths, n_steps = 10, 20
         # Create data where deep hedge is clearly better
         deep_pnl = torch.ones(n_paths, n_steps).cumsum(dim=1) * 100  # Positive
@@ -2903,11 +2761,6 @@ class TestBacktestResults:
         assert comparison["summary"]["assessment"] in ["superior", "mixed"]
 
     def test_max_drawdown_winner_logic(self):
-        """Test max_drawdown winner determination (lower is better).
-
-        CRITICAL: max_drawdown returns positive value representing loss.
-        Strategy with LOWER drawdown should win.
-        """
         n_paths, n_steps = 10, 20
 
         # Create PnL where deep hedge has SMALLER drawdown (better)
@@ -2997,7 +2850,6 @@ class TestBacktestResults:
         ), f"Deep hedge has lower drawdown ({deep_dd:.2f} vs {bs_dd:.2f}) so should win"
 
     def test_compare_strategies_percentage_changes(self):
-        """Test percentage changes calculation."""
         torch.manual_seed(42)
         n_paths, n_steps = 50, 30
         deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
@@ -3031,7 +2883,6 @@ class TestBacktestResults:
             assert abs(comparison["percentage_changes"]["mean"] - expected_pct) < 0.01
 
     def test_print_summary_detailed_mode(self, capsys):
-        """Test print_summary works in detailed mode."""
         torch.manual_seed(42)
         n_paths, n_steps = 50, 30
         deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
@@ -3061,7 +2912,6 @@ class TestBacktestResults:
         assert "Risk-Adjusted" in captured.out
 
     def test_print_summary_compact_mode(self, capsys):
-        """Test print_summary works in compact mode."""
         torch.manual_seed(42)
         n_paths, n_steps = 50, 30
         deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
@@ -3089,7 +2939,6 @@ class TestBacktestResults:
         assert "Difference" in captured.out
 
     def test_print_key_insights(self, capsys):
-        """Test print_key_insights produces expected output."""
         torch.manual_seed(42)
         n_paths, n_steps = 50, 30
         deep_pnl = torch.randn(n_paths, n_steps).cumsum(dim=1)
@@ -3124,11 +2973,6 @@ class TestBacktestResults:
         )
 
     def test_negative_sharpe_messaging(self, capsys):
-        """Test that negative Sharpe/Sortino messaging is appropriate.
-
-        When both strategies have negative risk ratios, messaging should
-        indicate 'less bad' rather than a positive 'win'.
-        """
         torch.manual_seed(42)
         n_paths, n_steps = 20, 15
 
@@ -3177,7 +3021,6 @@ class TestBacktestResults:
             pass
 
     def test_division_by_zero_edge_cases(self):
-        """Test edge cases with zero values to ensure no division errors."""
         n_paths, n_steps = 10, 20
 
         # Create PnL with zero std for BS (all paths identical)
@@ -3205,7 +3048,6 @@ class TestBacktestResults:
         assert isinstance(comparison["percentage_changes"]["std"], float)
 
     def test_zero_win_rate_edge_case(self):
-        """Test edge case where win_rate is 0 for both strategies."""
         n_paths, n_steps = 10, 20
 
         # All paths lose money (final PnL all negative)

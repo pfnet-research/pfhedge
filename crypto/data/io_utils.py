@@ -1,5 +1,3 @@
-"""Pure functional utilities for data I/O and transformations."""
-
 from __future__ import annotations
 
 import pandas as pd
@@ -10,19 +8,6 @@ from pathlib import Path
 def load_price_data(
     data_dir: str, filename: str | None, underlying_type: str
 ) -> pd.DataFrame:
-    """Load price data from parquet file.
-
-    Args:
-        data_dir: Directory containing data files
-        filename: Specific file to load, or None to auto-detect
-        underlying_type: 'spot' or 'perpetual'
-
-    Returns:
-        Raw DataFrame
-
-    Raises:
-        FileNotFoundError: If file not found
-    """
     data_path = Path(data_dir)
 
     if filename is None:
@@ -56,14 +41,6 @@ def load_price_data(
 
 
 def process_price_data(df: pd.DataFrame) -> pd.DataFrame:
-    """Process raw price data.
-
-    Args:
-        df: Raw price DataFrame
-
-    Returns:
-        Processed DataFrame
-    """
     df = df.copy()
 
     if "timestamp" in df.columns:
@@ -80,18 +57,6 @@ def process_price_data(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def resample_ohlc(df: pd.DataFrame, frequency: str) -> pd.DataFrame:
-    """Resample price data to specified frequency using last price.
-
-    Note: Despite the name, this uses 'last' aggregation for simplicity.
-    For true OHLC aggregation, use pandas resample with agg({'open': 'first', ...}).
-
-    Args:
-        df: DataFrame with timestamp and price columns
-        frequency: Pandas frequency string (e.g., '1H', '5T')
-
-    Returns:
-        Resampled DataFrame with last prices and computed returns
-    """
     df = df.copy()
     df = df.set_index("timestamp")
 
@@ -117,29 +82,11 @@ def resample_ohlc(df: pd.DataFrame, frequency: str) -> pd.DataFrame:
 def filter_by_date_range(
     df: pd.DataFrame, start_date: pd.Timestamp, end_date: pd.Timestamp
 ) -> pd.DataFrame:
-    """Filter DataFrame by date range.
-
-    Args:
-        df: DataFrame with timestamp column
-        start_date: Start date (inclusive)
-        end_date: End date (inclusive)
-
-    Returns:
-        Filtered DataFrame
-    """
     mask = (df["timestamp"] >= start_date) & (df["timestamp"] <= end_date)
     return df[mask].reset_index(drop=True)
 
 
 def load_options_data(data_dir: str) -> pd.DataFrame | None:
-    """Load options data from parquet file.
-
-    Args:
-        data_dir: Directory containing data files
-
-    Returns:
-        Options DataFrame or None if not found
-    """
     data_path = Path(data_dir)
     files = list(data_path.glob("*options*.parquet"))
 
@@ -161,14 +108,6 @@ def load_options_data(data_dir: str) -> pd.DataFrame | None:
 
 
 def load_funding_data(data_dir: str) -> pd.DataFrame | None:
-    """Load funding rate data from parquet file.
-
-    Args:
-        data_dir: Directory containing data files
-
-    Returns:
-        Funding DataFrame or None if not found
-    """
     data_path = Path(data_dir)
     files = list(data_path.glob("*funding*.parquet"))
 
@@ -192,15 +131,6 @@ def load_funding_data(data_dir: str) -> pd.DataFrame | None:
 def merge_funding_rates(
     price_df: pd.DataFrame, funding_df: pd.DataFrame
 ) -> pd.DataFrame:
-    """Merge funding rates with price data.
-
-    Args:
-        price_df: Price DataFrame
-        funding_df: Funding DataFrame
-
-    Returns:
-        Merged DataFrame with funding_rate column
-    """
     merged = price_df.merge(
         funding_df[["timestamp", "interest_8h"]], on="timestamp", how="left"
     )
@@ -217,15 +147,6 @@ def merge_funding_rates(
 def normalize_timestamps(
     df: pd.DataFrame, timestamp_col: str = "timestamp"
 ) -> pd.DataFrame:
-    """Normalize timestamp column to UTC timezone.
-
-    Args:
-        df: DataFrame with timestamp column
-        timestamp_col: Name of timestamp column
-
-    Returns:
-        DataFrame with timestamps normalized to UTC
-    """
     if timestamp_col not in df.columns:
         return df
 

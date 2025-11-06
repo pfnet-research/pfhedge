@@ -1,5 +1,3 @@
-"""Validation utilities for backtesting."""
-
 import torch
 from typing import Optional, TYPE_CHECKING, List
 
@@ -11,20 +9,11 @@ if TYPE_CHECKING:
 
 
 class BacktestValidators:
-    """Validation utilities for backtesting."""
 
     @staticmethod
     def check_funding_alignment(
         option: "BitcoinEuropeanOption", config: "BacktestConfig"
     ) -> Optional[List[float]]:
-        """Check if funding payment times align with resampled grid.
-
-        Returns:
-            List of misaligned funding times, or None if no issues
-
-        Raises:
-            Exception: Only if check itself fails (not for misalignment)
-        """
         if option is None:
             return None
 
@@ -63,17 +52,6 @@ class BacktestValidators:
         target_moneyness: float,
         tolerance: float = MONEYNESS_TOLERANCE,
     ) -> tuple[float, float]:
-        """Validate moneyness matches target within tolerance.
-
-        Args:
-            initial_spots: Initial spot prices across paths
-            strike: Strike price
-            target_moneyness: Expected moneyness (spot/strike)
-            tolerance: Acceptable deviation
-
-        Returns:
-            Tuple of (mean_log_moneyness, std_log_moneyness)
-        """
         initial_moneyness = initial_spots / strike
         log_moneyness = torch.log(initial_moneyness)
 

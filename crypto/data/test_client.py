@@ -1,13 +1,8 @@
-"""
-Test script for Deribit client.
-"""
-
 from datetime import datetime, timedelta, timezone
 from deribit_client import DeribitClient, timestamp_to_ms
 
 
 def test_deribit_client():
-    """Test basic functionality of Deribit client."""
     print("Testing Deribit API client...")
 
     # Create client (testnet, no auth needed for public endpoints)

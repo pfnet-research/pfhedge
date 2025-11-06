@@ -1,7 +1,3 @@
-"""
-Bitcoin spot instrument for PFHedge.
-"""
-
 from typing import Optional, Tuple, TYPE_CHECKING
 import pandas as pd
 import torch
@@ -14,37 +10,6 @@ if TYPE_CHECKING:
 
 
 class BitcoinSpot(BitcoinBase):
-    """Bitcoin spot instrument - direct exposure with full capital.
-
-    Represents actual Bitcoin that would be bought/sold on spot exchanges.
-    No leverage, no funding rates, simple direct exposure.
-
-    Args:
-        cost (float, default=0.001): Transaction cost rate (typically higher for spot).
-        dt (float, default=1/24/12): Time step interval (default 5 minutes).
-        data_loader (Optional[CryptoDataLoader]): Data loader for historical data.
-        dtype (torch.dtype, optional): Desired dtype of tensors.
-        device (torch.device, optional): Desired device of tensors.
-
-    Examples:
-        >>> from crypto.data.loader import CryptoDataLoader
-        >>> from crypto.instruments import BitcoinSpot
-        >>>
-        >>> # Create data loader
-        >>> loader = CryptoDataLoader("sample_data")
-        >>> btc_spot = BitcoinSpot(cost=0.001, data_loader=loader)
-        >>>
-        >>> # Simulate (load historical data)
-        >>> btc_spot.simulate(n_paths=1, time_horizon=5/250)
-        >>> print(btc_spot.spot.shape)
-        torch.Size([1, 25])  # 1 path, 25 time steps (5 days of 5-min bars)
-
-    Attributes:
-        spot (Tensor): Spot prices, shape (n_paths, n_steps)
-        bid (Tensor): Bid prices, shape (n_paths, n_steps)
-        ask (Tensor): Ask prices, shape (n_paths, n_steps)
-        mid (Tensor): Mid prices, shape (n_paths, n_steps)
-    """
 
     def __init__(
         self,
@@ -54,7 +19,6 @@ class BitcoinSpot(BitcoinBase):
         dtype: Optional[torch.dtype] = None,
         device: Optional[torch.device] = None,
     ) -> None:
-        """Initialize Bitcoin spot instrument."""
         super().__init__(
             cost=cost, dt=dt, data_loader=data_loader, dtype=dtype, device=device
         )
@@ -64,14 +28,6 @@ class BitcoinSpot(BitcoinBase):
         self.leverage = 1.0  # No leverage for spot
 
     def _load_data_for_simulation(self, time_horizon: float) -> pd.DataFrame:
-        """Load spot price data for simulation.
-
-        Args:
-            time_horizon: Time period to load data for
-
-        Returns:
-            DataFrame with spot price data
-        """
         if self.data_loader is None:
             raise ValueError("No data_loader provided")
 
@@ -110,25 +66,13 @@ class BitcoinSpot(BitcoinBase):
 
     @property
     def has_funding(self) -> bool:
-        """Spot instruments do not have funding rates."""
         return False
 
     @property
     def max_leverage(self) -> float:
-        """Maximum leverage for spot trading (none)."""
         return 1.0
 
     def margin_requirement(self, position_size: float) -> float:
-        """Calculate margin requirement for a position.
-
-        For spot, this is the full notional value.
-
-        Args:
-            position_size: Size of the position in BTC
-
-        Returns:
-            Margin requirement in USD
-        """
         current_price = self.spot[:, -1].mean().item() if self.buffers() else 50000.0
         return abs(position_size * current_price)
 
@@ -138,17 +82,6 @@ class BitcoinSpot(BitcoinBase):
         time_horizon: float = 20 / 250,
         init_state: Optional[Tuple[TensorOrScalar, ...]] = None,
     ) -> None:
-        """Load historical spot price data.
-
-        For spot, we typically use historical data rather than
-        synthetic generation. If n_paths > 1, the same historical
-        path is replicated.
-
-        Args:
-            n_paths: Number of paths (typically 1 for spot)
-            time_horizon: Time period to load
-            init_state: Not used for historical data
-        """
         from math import ceil
 
         if self.data_loader is None:
@@ -177,7 +110,6 @@ class BitcoinSpot(BitcoinBase):
         self.load_historical_data(data, n_paths)
 
     def __repr__(self) -> str:
-        """String representation of BitcoinSpot."""
         params = [f"cost={self.cost}", f"dt={self.dt}", "leverage=1.0", "type='spot'"]
         if hasattr(self, "dtype") and self.dtype is not None:
             params.append(f"dtype={self.dtype}")

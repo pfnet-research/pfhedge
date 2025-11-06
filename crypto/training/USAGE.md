@@ -65,6 +65,7 @@ The training script supports extensive customization via CLI arguments.
 --drift 0.0             # Drift for simulation (default: 0.0)
 --cost 0.0005           # Transaction cost rate (default: 0.0005 = 0.05%)
 --dt-hours 8.0          # Time step in hours (default: 8.0)
+--band-width 0.001      # Minimum trade size in BTC (default: 0.001 = Binance, 0.01 = Deribit, 0.0 = disable)
 ```
 
 #### Training Parameters
@@ -127,6 +128,7 @@ config = TrainingConfig(
     call=True,
     volatility=0.8,
     transaction_cost=0.0005,
+    band_width=0.001,
     n_paths=10000,
     n_epochs=80,
     model_path="models/deep_hedger.pth",
@@ -471,6 +473,7 @@ Configuration dataclass for model training.
 - `drift` (float): Drift for simulation
 - `transaction_cost` (float): Transaction cost rate
 - `dt_hours` (float): Time step in hours
+- `band_width` (float): Minimum trade size in BTC (applied during test evaluation only)
 - `n_paths` (int): Number of training paths
 - `n_epochs` (int): Number of training epochs
 - `n_layers` (int): Number of hidden layers

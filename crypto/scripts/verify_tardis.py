@@ -1,22 +1,4 @@
 #!/usr/bin/env python3
-"""
-Tardis Data Verification Script
-
-Tests and verifies data fetching from Tardis.dev API:
-- Instruments metadata (options, futures, perpetuals)
-- Historical trades data
-- Data quality and completeness
-
-Usage:
-    # Basic verification
-    python crypto/scripts/verify_tardis.py
-
-    # With specific date
-    python crypto/scripts/verify_tardis.py --date "2025-10-22 12:00"
-
-    # Test specific instrument
-    python crypto/scripts/verify_tardis.py --instrument BTC-31OCT25-108000-C --date "2025-10-22 12:00"
-"""
 
 import argparse
 import sys
@@ -32,14 +14,12 @@ from crypto.data.client_factory import add_client_args, create_client
 
 
 def print_section(title: str):
-    """Print a formatted section header."""
     print("\n" + "=" * 80)
     print(f"  {title}")
     print("=" * 80)
 
 
 def verify_instruments(client: TardisClient, currency: str = "BTC") -> bool:
-    """Verify instruments API is working."""
     print_section("TEST 1: Instruments API")
 
     print(f"\nFetching {currency} options...")
@@ -100,7 +80,6 @@ def verify_instruments(client: TardisClient, currency: str = "BTC") -> bool:
 
 
 def verify_spot_price(client: TardisClient, test_date: datetime) -> Optional[float]:
-    """Verify spot price fetching."""
     print_section("TEST 2: Spot Price (BTC-PERPETUAL)")
 
     print(f"\nFetching spot price at {test_date}")
@@ -171,7 +150,6 @@ def verify_spot_price(client: TardisClient, test_date: datetime) -> Optional[flo
 def verify_option_trades(
     client: TardisClient, instrument_name: str, test_date: datetime
 ) -> bool:
-    """Verify option trades fetching."""
     print_section(f"TEST 3: Option Trades - {instrument_name}")
 
     print(f"\nFetching trades at {test_date}")
@@ -240,7 +218,6 @@ def verify_option_trades(
 
 
 def verify_expiry_filtering(client: TardisClient, expiry_date: datetime) -> bool:
-    """Verify filtering by expiry date works."""
     print_section("TEST 4: Expiry Date Filtering")
 
     expiry_str = expiry_date.strftime("%d%b%y").upper()
@@ -299,7 +276,6 @@ def verify_expiry_filtering(client: TardisClient, expiry_date: datetime) -> bool
 
 
 def verify_funding_rates(client: TardisClient, test_date: datetime) -> bool:
-    """Verify funding rate history fetching."""
     print_section("TEST 5: Funding Rate History")
 
     print(f"\nFetching funding rates around {test_date}")
@@ -369,7 +345,6 @@ def run_verification(
     instrument: Optional[str] = None,
     api_key: Optional[str] = None,
 ) -> bool:
-    """Run all verification tests."""
 
     # Use yesterday if no date specified (to avoid data availability issues)
     if test_date is None:

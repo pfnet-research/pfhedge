@@ -1,13 +1,4 @@
 #!/usr/bin/env python3
-"""
-Compute realistic market parameters from Deribit data.
-
-This script fetches recent Bitcoin data from Deribit and computes:
-- Current spot price
-- Realized volatility (annualized)
-- Drift (mu)
-- Transaction costs from market data
-"""
 
 import sys
 import os
@@ -21,14 +12,6 @@ from crypto.data.deribit_client import DeribitClient
 
 
 def fetch_recent_btc_data(days=30):
-    """Fetch recent Bitcoin perpetual data from Deribit.
-
-    Args:
-        days: Number of days of historical data to fetch
-
-    Returns:
-        DataFrame with timestamp, price, and other market data
-    """
     print(f"Fetching {days} days of BTC perpetual data from Deribit...")
 
     client = DeribitClient()
@@ -92,16 +75,6 @@ def fetch_recent_btc_data(days=30):
 
 
 def compute_realized_volatility(prices, window_hours=24, frequency="1h"):
-    """Compute realized volatility from price series.
-
-    Args:
-        prices: Series of prices with datetime index
-        window_hours: Rolling window size in hours
-        frequency: Resampling frequency
-
-    Returns:
-        Annualized realized volatility
-    """
     # Resample to regular intervals
     prices_resampled = prices.resample(frequency).last().dropna()
 
@@ -122,15 +95,6 @@ def compute_realized_volatility(prices, window_hours=24, frequency="1h"):
 
 
 def compute_drift(prices, frequency="1h"):
-    """Compute drift (mu) from price series.
-
-    Args:
-        prices: Series of prices with datetime index
-        frequency: Resampling frequency
-
-    Returns:
-        Annualized drift
-    """
     # Resample to regular intervals
     prices_resampled = prices.resample(frequency).last().dropna()
 
@@ -148,14 +112,6 @@ def compute_drift(prices, frequency="1h"):
 
 
 def get_current_market_params(days=30):
-    """Get current market parameters from Deribit data.
-
-    Args:
-        days: Number of days of historical data to use
-
-    Returns:
-        Dictionary with market parameters
-    """
     # Fetch data
     df = fetch_recent_btc_data(days=days)
 
@@ -194,7 +150,6 @@ def get_current_market_params(days=30):
 
 
 def print_market_params(params):
-    """Pretty print market parameters."""
     print("\n" + "=" * 60)
     print("CURRENT BITCOIN MARKET PARAMETERS")
     print("=" * 60)

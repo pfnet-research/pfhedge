@@ -1,7 +1,3 @@
-"""
-Bitcoin perpetual with Brownian motion simulation for deep hedging training.
-"""
-
 from math import ceil
 from typing import Optional, Tuple, cast
 import torch
@@ -16,43 +12,6 @@ from .volatility_mixin import VolatilityMixin
 
 
 class BitcoinPerpetualBrownian(VolatilityMixin, BitcoinPerpetualBase):
-    """Bitcoin perpetual with geometric Brownian motion simulation.
-
-    This implementation generates synthetic price paths using geometric
-    Brownian motion, suitable for deep hedging training where we need
-    many different scenarios.
-
-    Args:
-        sigma (float, default=0.8): Volatility parameter (annualized).
-            Default is higher than stocks due to crypto volatility.
-        mu (float, default=0.0): Drift parameter (annualized).
-        funding_mean (float, default=0.0001): Mean funding rate (8-hour).
-        funding_std (float, default=0.0002): Std dev of funding rate.
-        cost (float, default=0.0006): Transaction cost rate.
-        dt (float, default=1/24/12): Time step (5 minutes).
-        leverage (float, default=20.0): Maximum leverage.
-        volatility_window (int, default=0): Rolling window for realized volatility.
-            If 0, uses constant volatility. If >0, calculates rolling realized vol.
-        dtype (torch.dtype, optional): Tensor dtype.
-        device (torch.device, optional): Tensor device.
-
-    Examples:
-        >>> btc = BitcoinPerpetualBrownian(sigma=0.8, mu=0.1)
-        >>> btc.simulate(n_paths=1000, time_horizon=30/365)
-        >>> print(btc.spot.shape)
-        torch.Size([1000, 145])  # 1000 paths, ~145 time steps
-        >>>
-        >>> # Training deep hedging
-        >>> from pfhedge.instruments import EuropeanOption
-        >>> from pfhedge.nn import Hedger, MLP
-        >>>
-        >>> option = EuropeanOption(btc, strike=50000, maturity=30/365)
-        >>> hedger = Hedger(
-        ...     MLP(3, 1),
-        ...     inputs=["log_moneyness", "time_to_maturity", "volatility"]
-        ... )
-        >>> hedger.fit(option, n_paths=10000, n_epochs=100)
-    """
 
     def __init__(
         self,
@@ -67,7 +26,6 @@ class BitcoinPerpetualBrownian(VolatilityMixin, BitcoinPerpetualBase):
         dtype: Optional[torch.dtype] = None,
         device: Optional[torch.device] = None,
     ) -> None:
-        """Initialize Brownian Bitcoin perpetual."""
         super().__init__(
             cost=cost, dt=dt, leverage=leverage, dtype=dtype, device=device
         )
@@ -80,22 +38,10 @@ class BitcoinPerpetualBrownian(VolatilityMixin, BitcoinPerpetualBase):
 
     @property
     def volatility(self) -> Tensor:
-        """Returns the volatility of the instrument.
-
-        Uses VolatilityMixin to calculate volatility based on configuration:
-        - volatility_window=0: Returns constant sigma
-        - volatility_window>0: Calculates rolling realized volatility
-
-        See VolatilityMixin documentation for details on calculation logic.
-        """
         return self.calculate_volatility()
 
     @property
     def variance(self) -> Tensor:
-        """Returns the variance of the instrument.
-
-        Returns a tensor filled with sigma squared.
-        """
         return torch.full_like(self.get_buffer("spot"), self.sigma**2)
 
     def simulate(
@@ -104,21 +50,6 @@ class BitcoinPerpetualBrownian(VolatilityMixin, BitcoinPerpetualBase):
         time_horizon: float = 20 / 250,
         init_state: Optional[Tuple[TensorOrScalar, ...]] = None,
     ) -> None:
-        """Simulate Bitcoin perpetual paths using geometric Brownian motion.
-
-        This generates multiple synthetic price paths for Monte Carlo
-        training of deep hedging models.
-
-        Args:
-            n_paths: Number of paths to simulate (can be large for training)
-            time_horizon: Time period to simulate
-            init_state: Initial price state, default (50000.0,)
-
-        Examples:
-            >>> btc = BitcoinPerpetualBrownian(sigma=0.8)
-            >>> btc.simulate(n_paths=10000, time_horizon=30/365)
-            >>> # Now have 10,000 different scenarios for training
-        """
         if init_state is None:
             init_state = cast(Tuple[float], self.default_init_state)
 
@@ -192,33 +123,6 @@ class BitcoinPerpetualBrownian(VolatilityMixin, BitcoinPerpetualBase):
         time_horizon: float,
         historical_data: Optional[dict] = None,
     ) -> None:
-        """Simulate using parameters calibrated from historical data.
-
-        Args:
-            n_paths: Number of paths to simulate
-            time_horizon: Time period to simulate
-            historical_data: Dict with historical statistics
-                - 'volatility': Historical volatility
-                - 'drift': Historical drift
-                - 'funding_mean': Historical mean funding
-                - 'funding_std': Historical funding volatility
-                - 'init_price': Starting price
-
-        Examples:
-            >>> # Calibrate from historical data
-            >>> hist_params = {
-            ...     'volatility': 0.75,
-            ...     'drift': 0.15,
-            ...     'funding_mean': 0.0002,
-            ...     'init_price': 55000
-            ... }
-            >>> btc = BitcoinPerpetualBrownian()
-            >>> btc.simulate_with_historical_parameters(
-            ...     n_paths=10000,
-            ...     time_horizon=30/365,
-            ...     historical_data=hist_params
-            ... )
-        """
         if historical_data:
             # Override parameters with historical values
             if "volatility" in historical_data:
@@ -238,7 +142,6 @@ class BitcoinPerpetualBrownian(VolatilityMixin, BitcoinPerpetualBase):
         self.simulate(n_paths, time_horizon, init_state)
 
     def __repr__(self) -> str:
-        """String representation."""
         params = [
             f"sigma={self.sigma}",
             f"mu={self.mu}",

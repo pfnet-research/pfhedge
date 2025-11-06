@@ -1,5 +1,3 @@
-"""Unit tests for option comparison module."""
-
 import pytest
 import pandas as pd
 import numpy as np
@@ -17,7 +15,6 @@ from crypto.data.loader import CryptoDataLoader
 
 @pytest.fixture
 def sample_options_data():
-    """Create sample options data for testing."""
     # Create sample data with various options
     timestamps = pd.date_range("2024-01-01", periods=10, freq="1H", tz="UTC")
 
@@ -57,7 +54,6 @@ def sample_options_data():
 
 @pytest.fixture
 def temp_data_dir(sample_options_data):
-    """Create temporary directory with sample options data."""
     with tempfile.TemporaryDirectory() as tmpdir:
         # Save options data to parquet
         options_path = Path(tmpdir) / "btc_options.parquet"
@@ -68,24 +64,20 @@ def temp_data_dir(sample_options_data):
 
 @pytest.fixture
 def loaded_data_loader(temp_data_dir):
-    """Create and load data loader with sample data."""
     loader = CryptoDataLoader(temp_data_dir)
     loader.load_options_data()
     return loader
 
 
 class TestOptionMatcher:
-    """Tests for OptionMatcher class."""
 
     def test_create_matcher_success(self, loaded_data_loader):
-        """Test successful matcher creation."""
         matcher = OptionMatcher(loaded_data_loader)
         assert matcher.data_loader == loaded_data_loader
         assert matcher.options_data is not None
         assert len(matcher.options_data) > 0
 
     def test_create_matcher_no_options_data(self):
-        """Test matcher creation fails without options data."""
         loader = CryptoDataLoader("sample_data")
         # Don't load options data
 
@@ -93,7 +85,6 @@ class TestOptionMatcher:
             OptionMatcher(loader)
 
     def test_find_matching_options_call(self, loaded_data_loader):
-        """Test finding matching call options."""
         matcher = OptionMatcher(loaded_data_loader)
 
         matches = matcher.find_matching_options(
@@ -109,7 +100,6 @@ class TestOptionMatcher:
         assert all(abs(matches["strike"] - 50000) / 50000 <= 0.05)
 
     def test_find_matching_options_put(self, loaded_data_loader):
-        """Test finding matching put options."""
         matcher = OptionMatcher(loaded_data_loader)
 
         matches = matcher.find_matching_options(
@@ -124,7 +114,6 @@ class TestOptionMatcher:
         assert all(matches["option_type"] == "put")
 
     def test_find_matching_options_strike_filter(self, loaded_data_loader):
-        """Test strike filtering works correctly."""
         matcher = OptionMatcher(loaded_data_loader)
 
         # Look for 48000 strike with tight tolerance
@@ -140,7 +129,6 @@ class TestOptionMatcher:
             assert all(abs(matches["strike"] - 48000) <= 48000 * 0.02)
 
     def test_find_matching_options_maturity_filter(self, loaded_data_loader):
-        """Test maturity filtering works correctly."""
         matcher = OptionMatcher(loaded_data_loader)
 
         matches = matcher.find_matching_options(
@@ -155,7 +143,6 @@ class TestOptionMatcher:
             assert all(abs(matches["days_to_expiry"] - 7) <= 0.5)
 
     def test_find_matching_options_no_matches(self, loaded_data_loader):
-        """Test returns empty DataFrame when no matches found."""
         matcher = OptionMatcher(loaded_data_loader)
 
         # Use impossible criteria
@@ -170,7 +157,6 @@ class TestOptionMatcher:
         assert matches.empty
 
     def test_find_matching_options_sorted_by_time(self, loaded_data_loader):
-        """Test results are sorted by timestamp."""
         matcher = OptionMatcher(loaded_data_loader)
 
         matches = matcher.find_matching_options(
@@ -186,7 +172,6 @@ class TestOptionMatcher:
             )
 
     def test_get_closest_match_success(self, loaded_data_loader):
-        """Test getting closest match returns single option."""
         matcher = OptionMatcher(loaded_data_loader)
 
         best_match = matcher.get_closest_match(
@@ -202,7 +187,6 @@ class TestOptionMatcher:
         assert "days_to_expiry" in best_match
 
     def test_get_closest_match_none_when_no_matches(self, loaded_data_loader):
-        """Test returns None when no matches found."""
         matcher = OptionMatcher(loaded_data_loader)
 
         best_match = matcher.get_closest_match(
@@ -216,7 +200,6 @@ class TestOptionMatcher:
         assert best_match is None
 
     def test_get_closest_match_prioritizes_strike(self, loaded_data_loader):
-        """Test that strike accuracy is prioritized over maturity."""
         matcher = OptionMatcher(loaded_data_loader)
 
         # Wide tolerance to get multiple matches
@@ -238,7 +221,6 @@ class TestOptionMatcher:
             assert "match_distance" in best_match
 
     def test_get_time_series_success(self, loaded_data_loader):
-        """Test getting time series of options."""
         matcher = OptionMatcher(loaded_data_loader)
 
         start_date = datetime(2024, 1, 1, tzinfo=timezone.utc)
@@ -257,7 +239,6 @@ class TestOptionMatcher:
             assert all(time_series["timestamp"] <= end_date)
 
     def test_get_time_series_filters_by_date(self, loaded_data_loader):
-        """Test time series date filtering works."""
         matcher = OptionMatcher(loaded_data_loader)
 
         # Get full series
@@ -281,7 +262,6 @@ class TestOptionMatcher:
             assert all(filtered_series["timestamp"] >= start_date)
 
     def test_summary_returns_dict(self, loaded_data_loader):
-        """Test summary returns expected structure."""
         matcher = OptionMatcher(loaded_data_loader)
 
         summary = matcher.summary()
@@ -295,7 +275,6 @@ class TestOptionMatcher:
         assert "expiries" in summary
 
     def test_summary_values_reasonable(self, loaded_data_loader):
-        """Test summary contains reasonable values."""
         matcher = OptionMatcher(loaded_data_loader)
 
         summary = matcher.summary()
@@ -307,7 +286,6 @@ class TestOptionMatcher:
         assert summary["calls"] + summary["puts"] == summary["total_options"]
 
     def test_summary_strikes_sorted(self, loaded_data_loader):
-        """Test summary strikes are sorted."""
         matcher = OptionMatcher(loaded_data_loader)
 
         summary = matcher.summary()
@@ -319,7 +297,6 @@ class TestOptionMatcher:
 
 @pytest.fixture
 def sample_backtest_results():
-    """Create sample backtest results for testing."""
     # Set seed for reproducibility
     torch.manual_seed(42)
     np.random.seed(42)
@@ -363,12 +340,10 @@ def sample_backtest_results():
 
 
 class TestPriceComparator:
-    """Tests for PriceComparator class."""
 
     def test_create_comparator_success(
         self, sample_backtest_results, loaded_data_loader
     ):
-        """Test successful comparator creation."""
         matcher = OptionMatcher(loaded_data_loader)
         comparator = PriceComparator(sample_backtest_results, matcher)
 
@@ -378,7 +353,6 @@ class TestPriceComparator:
     def test_calculate_model_implied_price(
         self, sample_backtest_results, loaded_data_loader
     ):
-        """Test model-implied price calculation."""
         matcher = OptionMatcher(loaded_data_loader)
         comparator = PriceComparator(sample_backtest_results, matcher)
 
@@ -394,7 +368,6 @@ class TestPriceComparator:
         # See TestPnLConvention tests for verification with realistic data.
 
     def test_calculate_model_implied_price_repeatability(self, loaded_data_loader):
-        """Test that same seed produces identical model-implied price."""
         # Create results with seed 123
         torch.manual_seed(123)
         np.random.seed(123)
@@ -456,11 +429,6 @@ class TestPriceComparator:
     def test_calculate_model_implied_price_realistic_scenarios(
         self, loaded_data_loader, strike, final_spot, expected_sign
     ):
-        """Test model-implied price with realistic scenarios expecting positive prices.
-
-        For ITM call options with realistic hedging costs, we expect positive prices.
-        This provides an economics check on top of the mechanism tests.
-        """
         n_paths = 100
         n_steps = 10
 
@@ -516,7 +484,6 @@ class TestPriceComparator:
         ), f"Price {model_price:.2f} too far from intrinsic {intrinsic_value:.2f}"
 
     def test_calculate_model_implied_price_put(self, loaded_data_loader):
-        """Test model-implied price calculation for put option."""
         # Create put option backtest results
         n_paths = 10
         n_steps = 5
@@ -557,7 +524,6 @@ class TestPriceComparator:
     def test_get_market_price_success(
         self, sample_backtest_results, loaded_data_loader
     ):
-        """Test getting market price for matching option."""
         matcher = OptionMatcher(loaded_data_loader)
         comparator = PriceComparator(sample_backtest_results, matcher)
 
@@ -577,7 +543,6 @@ class TestPriceComparator:
     def test_get_market_price_no_match(
         self, sample_backtest_results, loaded_data_loader
     ):
-        """Test returns None when no matching option found."""
         matcher = OptionMatcher(loaded_data_loader)
         comparator = PriceComparator(sample_backtest_results, matcher)
 
@@ -593,7 +558,6 @@ class TestPriceComparator:
     def test_compare_with_market_success(
         self, sample_backtest_results, loaded_data_loader
     ):
-        """Test price comparison with market."""
         matcher = OptionMatcher(loaded_data_loader)
         comparator = PriceComparator(sample_backtest_results, matcher)
 
@@ -615,7 +579,6 @@ class TestPriceComparator:
     def test_compare_with_market_calculates_difference(
         self, sample_backtest_results, loaded_data_loader
     ):
-        """Test comparison calculates price difference when market price available."""
         matcher = OptionMatcher(loaded_data_loader)
         comparator = PriceComparator(sample_backtest_results, matcher)
 
@@ -636,7 +599,6 @@ class TestPriceComparator:
             assert abs(comparison["difference"] - expected_diff) < 0.01
 
     def test_summary_returns_dict(self, sample_backtest_results, loaded_data_loader):
-        """Test summary returns expected structure."""
         matcher = OptionMatcher(loaded_data_loader)
         comparator = PriceComparator(sample_backtest_results, matcher)
 
@@ -651,7 +613,6 @@ class TestPriceComparator:
     def test_summary_values_reasonable(
         self, sample_backtest_results, loaded_data_loader
     ):
-        """Test summary contains reasonable values."""
         matcher = OptionMatcher(loaded_data_loader)
         comparator = PriceComparator(sample_backtest_results, matcher)
 
@@ -664,10 +625,8 @@ class TestPriceComparator:
 
 
 class TestOptionMatcherWeights:
-    """Tests for configurable weights in OptionMatcher."""
 
     def test_get_closest_match_default_weights(self, loaded_data_loader):
-        """Test default weights sum to 1.0."""
         matcher = OptionMatcher(loaded_data_loader)
 
         # Call with defaults should work
@@ -681,7 +640,6 @@ class TestOptionMatcherWeights:
         assert best_match is not None or best_match is None
 
     def test_get_closest_match_custom_weights(self, loaded_data_loader):
-        """Test custom weights work correctly."""
         matcher = OptionMatcher(loaded_data_loader)
 
         # Use custom weights that sum to 1.0
@@ -697,7 +655,6 @@ class TestOptionMatcherWeights:
         assert best_match is not None or best_match is None
 
     def test_get_closest_match_weights_validation_sum_not_one(self, loaded_data_loader):
-        """Test weights validation fails when sum != 1.0."""
         matcher = OptionMatcher(loaded_data_loader)
 
         with pytest.raises(ValueError, match="Weights must sum to 1.0"):
@@ -710,7 +667,6 @@ class TestOptionMatcherWeights:
             )
 
     def test_get_closest_match_weights_validation_negative(self, loaded_data_loader):
-        """Test weights validation fails for negative weights."""
         matcher = OptionMatcher(loaded_data_loader)
 
         with pytest.raises(ValueError, match="Weights must be non-negative"):
@@ -723,7 +679,6 @@ class TestOptionMatcherWeights:
             )
 
     def test_get_closest_match_extreme_strike_weight(self, loaded_data_loader):
-        """Test extreme strike weight prioritizes strike matching."""
         matcher = OptionMatcher(loaded_data_loader)
 
         # Use very high strike weight
@@ -743,7 +698,6 @@ class TestOptionMatcherWeights:
             assert strike_error_pct < 0.10
 
     def test_get_closest_match_extreme_maturity_weight(self, loaded_data_loader):
-        """Test extreme maturity weight prioritizes maturity matching."""
         matcher = OptionMatcher(loaded_data_loader)
 
         # Use very high maturity weight
@@ -764,10 +718,8 @@ class TestOptionMatcherWeights:
 
 
 class TestPnLConvention:
-    """Tests for PnL convention and model-implied pricing."""
 
     def test_model_implied_price_uses_correct_convention(self, loaded_data_loader):
-        """Test that model-implied price uses correct PnL convention."""
         # Create specific backtest results to test formula
         n_paths = 100
         n_steps = 10
@@ -818,7 +770,6 @@ class TestPnLConvention:
     def test_model_implied_price_alternative_formulas_equivalent(
         self, loaded_data_loader
     ):
-        """Test that both pricing formulas are equivalent under PFHedge convention."""
         n_paths = 50
         n_steps = 10
 
@@ -867,7 +818,6 @@ class TestPnLConvention:
         ), f"Methods should be equivalent: {model_price_method1} vs {model_price_method2}"
 
     def test_model_implied_price_positive_for_itm_calls(self, loaded_data_loader):
-        """Test that ITM calls have positive model-implied prices."""
         n_paths = 100
         n_steps = 10
 
@@ -912,12 +862,10 @@ class TestPnLConvention:
 
 
 class TestConfidenceIntervals:
-    """Tests for model price confidence interval calculation."""
 
     def test_calculate_model_price_confidence_default_level(
         self, sample_backtest_results, loaded_data_loader
     ):
-        """Test confidence interval calculation with default 95% level."""
         matcher = OptionMatcher(loaded_data_loader)
         comparator = PriceComparator(sample_backtest_results, matcher)
 
@@ -955,7 +903,6 @@ class TestConfidenceIntervals:
     def test_calculate_model_price_confidence_custom_level(
         self, sample_backtest_results, loaded_data_loader
     ):
-        """Test confidence interval with custom confidence level."""
         matcher = OptionMatcher(loaded_data_loader)
         comparator = PriceComparator(sample_backtest_results, matcher)
 
@@ -975,7 +922,6 @@ class TestConfidenceIntervals:
     def test_calculate_model_price_confidence_different_levels(
         self, sample_backtest_results, loaded_data_loader
     ):
-        """Test multiple confidence levels."""
         matcher = OptionMatcher(loaded_data_loader)
         comparator = PriceComparator(sample_backtest_results, matcher)
 
@@ -998,7 +944,6 @@ class TestConfidenceIntervals:
     def test_calculate_model_price_confidence_matches_mean_price(
         self, sample_backtest_results, loaded_data_loader
     ):
-        """Test that confidence interval mean matches model-implied price."""
         matcher = OptionMatcher(loaded_data_loader)
         comparator = PriceComparator(sample_backtest_results, matcher)
 
@@ -1010,12 +955,10 @@ class TestConfidenceIntervals:
 
 
 class TestSpreadDiagnostics:
-    """Tests for spread diagnostics in price comparison."""
 
     def test_compare_with_market_includes_spread_diagnostics(
         self, sample_backtest_results, loaded_data_loader
     ):
-        """Test that spread diagnostics are included when flag is True."""
         matcher = OptionMatcher(loaded_data_loader)
         comparator = PriceComparator(sample_backtest_results, matcher)
 
@@ -1037,7 +980,6 @@ class TestSpreadDiagnostics:
     def test_compare_with_market_no_spread_when_disabled(
         self, sample_backtest_results, loaded_data_loader
     ):
-        """Test that spread diagnostics are not included when flag is False."""
         matcher = OptionMatcher(loaded_data_loader)
         comparator = PriceComparator(sample_backtest_results, matcher)
 
@@ -1054,7 +996,6 @@ class TestSpreadDiagnostics:
         assert "model_in_spread" not in comparison
 
     def test_spread_diagnostics_calculations(self, sample_backtest_results):
-        """Test spread diagnostics are calculated correctly."""
         # Create mock options data with known spread
         timestamps = pd.date_range("2024-01-01", periods=5, freq="1H", tz="UTC")
         data = []
@@ -1112,12 +1053,10 @@ class TestSpreadDiagnostics:
 
 
 class TestImpliedVolatility:
-    """Tests for implied volatility comparison methods."""
 
     def test_calculate_model_implied_iv_success(
         self, sample_backtest_results, loaded_data_loader
     ):
-        """Test successful model-implied IV calculation."""
         # Import scipy here so test is skipped if not available
         pytest.importorskip("scipy")
 
@@ -1141,7 +1080,6 @@ class TestImpliedVolatility:
             assert not np.isinf(model_iv)
 
     def test_calculate_model_implied_iv_realistic_scenario(self, loaded_data_loader):
-        """Test IV calculation with realistic option scenario."""
         pytest.importorskip("scipy")
 
         # Create results with realistic ITM call
@@ -1201,7 +1139,6 @@ class TestImpliedVolatility:
             assert 0.3 <= model_iv <= 2.0, f"IV {model_iv:.2%} outside reasonable range"
 
     def test_calculate_model_implied_iv_outside_bounds(self, loaded_data_loader):
-        """Test IV calculation fails gracefully when price outside arbitrage bounds."""
         pytest.importorskip("scipy")
 
         # Create scenario where model price violates arbitrage bounds
@@ -1249,7 +1186,6 @@ class TestImpliedVolatility:
             assert model_iv is None
 
     def test_calculate_model_implied_iv_no_scipy(self, loaded_data_loader):
-        """Test bisection fallback when scipy not available."""
         # Create realistic scenario that should work with bisection
         n_paths = 100
         n_steps = 20
@@ -1318,7 +1254,6 @@ class TestImpliedVolatility:
             opt_comp.HAS_SCIPY = original_has_scipy
 
     def test_get_market_iv_success(self, loaded_data_loader):
-        """Test getting market IV from matched option."""
         matcher = OptionMatcher(loaded_data_loader)
 
         # Just test the matcher has IV data
@@ -1335,7 +1270,6 @@ class TestImpliedVolatility:
     def test_get_market_iv_with_comparator(
         self, sample_backtest_results, loaded_data_loader
     ):
-        """Test get_market_iv method in PriceComparator."""
         matcher = OptionMatcher(loaded_data_loader)
         comparator = PriceComparator(sample_backtest_results, matcher)
 
@@ -1353,7 +1287,6 @@ class TestImpliedVolatility:
             assert not np.isnan(market_iv)
 
     def test_get_market_iv_fallback(self):
-        """Test IV fallback when preferred type not available."""
         # Create data with only bid_iv, no mark_iv
         timestamps = pd.date_range("2024-01-01", periods=5, freq="1H", tz="UTC")
         data = []
@@ -1418,7 +1351,6 @@ class TestImpliedVolatility:
                 assert market_iv in [0.85, 0.90]
 
     def test_compare_implied_volatility_success(self, loaded_data_loader):
-        """Test full IV comparison."""
         pytest.importorskip("scipy")
 
         # Create realistic scenario
@@ -1485,7 +1417,6 @@ class TestImpliedVolatility:
     def test_compare_implied_volatility_no_market_match(
         self, sample_backtest_results, loaded_data_loader
     ):
-        """Test IV comparison when no market match found."""
         pytest.importorskip("scipy")
 
         matcher = OptionMatcher(loaded_data_loader)
@@ -1504,7 +1435,6 @@ class TestImpliedVolatility:
         assert comparison["iv_difference"] is None
 
     def test_get_volatility_smile_success(self, loaded_data_loader):
-        """Test volatility smile generation."""
         pytest.importorskip("scipy")
 
         # Create realistic scenario
@@ -1573,7 +1503,6 @@ class TestImpliedVolatility:
     def test_get_volatility_smile_empty_strikes(
         self, sample_backtest_results, loaded_data_loader
     ):
-        """Test volatility smile with empty strikes list."""
         pytest.importorskip("scipy")
 
         matcher = OptionMatcher(loaded_data_loader)
@@ -1590,7 +1519,6 @@ class TestImpliedVolatility:
         assert len(smile) == 0
 
     def test_get_volatility_smile_moneyness_ordered(self, loaded_data_loader):
-        """Test that volatility smile has ordered moneyness."""
         pytest.importorskip("scipy")
 
         # Create realistic scenario
@@ -1646,7 +1574,6 @@ class TestImpliedVolatility:
         assert moneyness == sorted(moneyness)
 
     def test_calculate_model_implied_iv_extreme_bounds(self, loaded_data_loader):
-        """Test IV calculation near extreme bounds (very high/low volatility)."""
         pytest.importorskip("scipy")
 
         # Test scenario 1: Very high IV case (deep OTM, small price)

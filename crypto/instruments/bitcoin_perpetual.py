@@ -1,7 +1,3 @@
-"""
-Bitcoin perpetual futures instrument for PFHedge.
-"""
-
 from typing import Optional, TYPE_CHECKING
 import pandas as pd
 import torch
@@ -14,44 +10,6 @@ if TYPE_CHECKING:
 
 
 class BitcoinPerpetual(BitcoinBase):
-    """Bitcoin perpetual futures - leveraged instrument with funding rates.
-
-    Represents perpetual futures contracts that track Bitcoin price through
-    a funding rate mechanism. Most liquid instrument for hedging.
-
-    Args:
-        cost (float, default=0.0006): Transaction cost rate (taker fee).
-        dt (float, default=1/24/12): Time step interval (default 5 minutes).
-        leverage (float, default=20.0): Maximum leverage available.
-        data_loader (Optional[CryptoDataLoader]): Data loader for historical data.
-        dtype (torch.dtype, optional): Desired dtype of tensors.
-        device (torch.device, optional): Desired device of tensors.
-
-    Examples:
-        >>> from crypto.data.loader import CryptoDataLoader
-        >>> from crypto.instruments import BitcoinPerpetual
-        >>>
-        >>> # Create data loader
-        >>> loader = CryptoDataLoader("sample_data")
-        >>> btc_perp = BitcoinPerpetual(cost=0.0006, leverage=20, data_loader=loader)
-        >>>
-        >>> # Simulate (load historical data)
-        >>> btc_perp.simulate(n_paths=1, time_horizon=5/250)
-        >>> print(btc_perp.spot.shape)
-        torch.Size([1, 25])  # 1 path, 25 time steps
-        >>>
-        >>> # Access funding rate
-        >>> funding = btc_perp.funding_rate
-        >>> print(f"Current funding rate: {funding[0, -1].item():.4%}")
-
-    Attributes:
-        spot (Tensor): Perpetual prices, shape (n_paths, n_steps)
-        bid (Tensor): Bid prices, shape (n_paths, n_steps)
-        ask (Tensor): Ask prices, shape (n_paths, n_steps)
-        mid (Tensor): Mid prices, shape (n_paths, n_steps)
-        funding_rate (Tensor): 8-hour funding rates, shape (n_paths, n_steps)
-        index_price (Tensor): Underlying index prices, shape (n_paths, n_steps)
-    """
 
     def __init__(
         self,
@@ -62,7 +20,6 @@ class BitcoinPerpetual(BitcoinBase):
         dtype: Optional[torch.dtype] = None,
         device: Optional[torch.device] = None,
     ) -> None:
-        """Initialize Bitcoin perpetual instrument."""
         super().__init__(
             cost=cost, dt=dt, data_loader=data_loader, dtype=dtype, device=device
         )
@@ -73,14 +30,6 @@ class BitcoinPerpetual(BitcoinBase):
         self.funding_interval = 8 / 24  # Funding every 8 hours
 
     def _load_data_for_simulation(self, time_horizon: float) -> pd.DataFrame:
-        """Load perpetual futures data for simulation.
-
-        Args:
-            time_horizon: Time period to load data for
-
-        Returns:
-            DataFrame with perpetual data including funding rates
-        """
         if self.data_loader is None:
             raise ValueError("No data_loader provided")
 
@@ -102,12 +51,6 @@ class BitcoinPerpetual(BitcoinBase):
         return perpetual_df
 
     def load_historical_data(self, data: pd.DataFrame, n_paths: int = 1) -> None:
-        """Load historical data into buffers, including funding-specific data.
-
-        Args:
-            data: DataFrame with perpetual data
-            n_paths: Number of paths
-        """
         # Call parent to load basic price data
         super().load_historical_data(data, n_paths)
 
@@ -138,43 +81,19 @@ class BitcoinPerpetual(BitcoinBase):
 
     @property
     def funding_rate(self) -> Tensor:
-        """Get the 8-hour funding rate.
-
-        Returns:
-            Tensor of funding rates, shape (n_paths, n_steps)
-        """
         if not hasattr(self, "_buffers") or "_funding_rate" not in self._buffers:
             raise ValueError("No funding rate data loaded. Call simulate() first.")
         return self.get_buffer("_funding_rate")
 
     @property
     def has_funding(self) -> bool:
-        """Perpetual instruments have funding rates."""
         return True
 
     @property
     def max_leverage(self) -> float:
-        """Maximum leverage available for perpetual trading."""
         return self.leverage
 
     def cumulative_funding_cost(self, position_size: Optional[Tensor] = None) -> Tensor:
-        """Calculate cumulative funding cost/revenue.
-
-        For long positions:
-        - Pay funding when rate > 0
-        - Receive funding when rate < 0
-
-        For short positions (opposite):
-        - Receive funding when rate > 0
-        - Pay funding when rate < 0
-
-        Args:
-            position_size: Position size in BTC (positive=long, negative=short)
-                         If None, assumes position size of 1.0
-
-        Returns:
-            Cumulative funding cost (positive = cost, negative = revenue)
-        """
         if "_funding_rate" not in self._buffers:
             raise ValueError("No funding rate data loaded")
 
@@ -204,28 +123,11 @@ class BitcoinPerpetual(BitcoinBase):
         return funding_cost.cumsum(dim=1)
 
     def margin_requirement(self, position_size: float) -> float:
-        """Calculate margin requirement for a position.
-
-        For perpetual, this depends on leverage.
-
-        Args:
-            position_size: Size of the position in BTC
-
-        Returns:
-            Margin requirement in USD
-        """
         current_price = self.spot[:, -1].mean().item() if self.buffers() else 50000.0
         notional_value = abs(position_size * current_price)
         return notional_value / self.leverage
 
     def funding_payment_times(self) -> Tensor:
-        """Get indices where funding payments occur.
-
-        Funding is paid every 8 hours in crypto markets.
-
-        Returns:
-            Boolean tensor indicating funding payment times
-        """
         if not self.buffers():
             raise ValueError("No data loaded. Call simulate() first.")
 
@@ -239,7 +141,6 @@ class BitcoinPerpetual(BitcoinBase):
         return funding_times
 
     def __repr__(self) -> str:
-        """String representation of BitcoinPerpetual."""
         params = [
             f"cost={self.cost}",
             f"dt={self.dt}",

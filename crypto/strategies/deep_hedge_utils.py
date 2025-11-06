@@ -1,9 +1,3 @@
-"""Utilities for deep hedging strategies.
-
-This module provides reusable functions for creating deep hedgers,
-calculating baseline PnL, and comparing performance.
-"""
-
 import torch
 from typing import Dict, Tuple, Optional
 from pfhedge.nn import (
@@ -31,7 +25,6 @@ _MODEL_REGISTRY = {}
 
 
 def _register_model(name: str):
-    """Decorator to register model creation functions."""
 
     def decorator(func):
         _MODEL_REGISTRY[name.lower()] = func
@@ -42,7 +35,6 @@ def _register_model(name: str):
 
 @_register_model("mlp")
 def _create_mlp(n_layers: int, n_units: "int | list[int]") -> MultiLayerPerceptron:
-    """Create MultiLayerPerceptron model."""
     if isinstance(n_units, list):
         units_list = n_units
     else:
@@ -54,11 +46,6 @@ def _create_mlp(n_layers: int, n_units: "int | list[int]") -> MultiLayerPerceptr
 def _create_lstm(
     n_layers: int, n_units: "int | list[int]", in_features: int = 4
 ) -> "LongShortTermMemory":
-    """Create LSTM model.
-
-    Note: in_features defaults to 4 (typical for deep hedging: log_moneyness,
-    expiry_time, volatility, prev_hedge). Can be overridden if needed.
-    """
     from .long_short_term_memory import LongShortTermMemory
 
     hidden_size = n_units if isinstance(n_units, int) else n_units[0]
@@ -74,11 +61,6 @@ def _create_lstm(
 def _create_gru(
     n_layers: int, n_units: "int | list[int]", in_features: int = 4
 ) -> "GatedRecurrentUnit":
-    """Create GRU model.
-
-    Note: in_features defaults to 4 (typical for deep hedging: log_moneyness,
-    expiry_time, volatility, prev_hedge). Can be overridden if needed.
-    """
     from .gated_recurrent_unit import GatedRecurrentUnit
 
     hidden_size = n_units if isinstance(n_units, int) else n_units[0]
@@ -107,35 +89,6 @@ def create_deep_hedger(
     risk_param: float = 0.5,
     features: list = None,
 ) -> Hedger:
-    """Create a deep hedger with standard configuration.
-
-    Args:
-        model_type: Model architecture type
-            - 'mlp': MultiLayerPerceptron (feedforward network)
-            - 'lstm': LSTM-based model (for temporal dependencies)
-            - 'gru': GRU-based model (simpler than LSTM)
-        n_layers: Number of hidden layers (for MLP) or number of recurrent layers (for LSTM/GRU)
-        n_units: Number of units per layer. Can be:
-            - int: Same units for all layers (e.g., 64 → [64, 64, 64])
-            - list of ints: Variable units per layer (e.g., [64, 32, 32, 16]) - MLP only
-            For LSTM/GRU: hidden_size (if int) or hidden_size of first layer (if list)
-        risk_measure: Risk measure type
-            - 'expected_shortfall': ExpectedShortfall (CVaR)
-            - 'entropic': EntropicRiskMeasure (exponential utility risk measure)
-            - 'entropic_loss': EntropicLoss (expected exponential utility)
-            - 'quadratic_cvar': QuadraticCVaR (Buehler 2019)
-        risk_param: Risk parameter
-            - For ExpectedShortfall: p (quantile level, 0 < p <= 1)
-            - For EntropicRiskMeasure/EntropicLoss: a (risk aversion, a > 0)
-            - For QuadraticCVaR: lam (lambda, lam >= 1)
-        features: List of feature names (defaults to log_moneyness, time_to_maturity, volatility, prev_hedge)
-
-    Returns:
-        Configured Hedger instance
-
-    Raises:
-        ValueError: If model_type or risk_measure is not supported
-    """
     if features is None:
         features = DEFAULT_FEATURES
 
@@ -175,6 +128,30 @@ def create_deep_hedger(
     return Hedger(model=model, inputs=features, criterion=criterion)
 
 
+def apply_no_trade_band(
+    positions: torch.Tensor,
+    band_width: float,
+) -> torch.Tensor:
+    if band_width <= 0:
+        return positions
+
+    filtered = torch.zeros_like(positions)
+    filtered[:, 0] = positions[:, 0]
+
+    for t in range(1, positions.size(1)):
+        prev_pos = filtered[:, t - 1]
+        target_pos = positions[:, t]
+        change = torch.abs(target_pos - prev_pos)
+
+        filtered[:, t] = torch.where(
+            change > band_width,
+            target_pos,
+            prev_pos,
+        )
+
+    return filtered
+
+
 def calculate_bs_hedge_pnl(
     spots: torch.Tensor,
     bs_delta: torch.Tensor,
@@ -182,23 +159,10 @@ def calculate_bs_hedge_pnl(
     cost: float,
     funding_rate: Optional[torch.Tensor] = None,
     funding_times: Optional[torch.Tensor] = None,
+    band_width: float = 0.0,
 ) -> torch.Tensor:
-    """Calculate Black-Scholes hedge PnL with transaction costs.
+    bs_delta = apply_no_trade_band(bs_delta, band_width)
 
-    This implements PnL calculation following PFHedge's cum_pl logic:
-    - Capital gains: δ_{i-1} * (S_i - S_{i-1}) using PREVIOUS position
-    - Transaction costs: applied to new spot prices after trades
-    - Final payoff subtracted at maturity
-
-    Args:
-        spots: Spot prices, shape (n_paths, n_steps)
-        bs_delta: Black-Scholes delta, shape (n_paths, n_steps)
-        payoffs: Option payoffs, shape (n_paths,)
-        cost: Transaction cost rate (e.g., 0.001 for 0.1%)
-
-    Returns:
-        Cumulative PnL tensor, shape (n_paths, n_steps)
-    """
     # Capital gains: δ_{i-1} * (S_i - S_{i-1})
     # Use PREVIOUS position (not current) for price changes
     capital_gains = torch.cat(
@@ -256,17 +220,6 @@ def compute_funding_cum_cost(
     funding_rate: torch.Tensor,
     funding_times: torch.Tensor,
 ) -> torch.Tensor:
-    """Compute cumulative funding cost for positions.
-
-    Args:
-        spots: Spot prices, shape (n_paths, n_steps)
-        positions: Hedge positions, shape (n_paths, n_steps)
-        funding_rate: Funding rates, shape (n_paths, n_steps)
-        funding_times: Boolean mask of payment times, shape (n_steps,) or (n_paths, n_steps)
-
-    Returns:
-        Cumulative funding cost (positive = cost), shape (n_paths, n_steps)
-    """
     if funding_times.dim() == 1:
         funding_times = funding_times.unsqueeze(0).expand_as(spots)
 
@@ -286,16 +239,6 @@ def compare_hedge_performance(
     bs_pnl: torch.Tensor,
     names: Tuple[str, str] = ("Deep Hedge", "Black-Scholes"),
 ) -> Dict[str, Dict[str, float]]:
-    """Compare performance of two hedging strategies.
-
-    Args:
-        deep_pnl: Deep hedging PnL, shape (n_paths, n_steps)
-        bs_pnl: Baseline PnL, shape (n_paths, n_steps)
-        names: Tuple of (deep_name, baseline_name)
-
-    Returns:
-        Dictionary with performance metrics for each strategy
-    """
     # Get final PnL (last time step)
     deep_final = deep_pnl[:, -1] if deep_pnl.dim() == 2 else deep_pnl
     bs_final = bs_pnl[:, -1] if bs_pnl.dim() == 2 else bs_pnl
@@ -326,11 +269,6 @@ def compare_hedge_performance(
 
 
 def print_performance_comparison(results: Dict[str, Dict[str, float]]) -> None:
-    """Pretty print performance comparison results.
-
-    Args:
-        results: Dictionary from compare_hedge_performance()
-    """
     names = list(results.keys())
 
     print("\n" + "=" * 60)

@@ -1,7 +1,3 @@
-"""
-Abstract base class for Bitcoin instruments.
-"""
-
 from abc import abstractmethod
 from math import ceil
 from typing import Optional, Tuple, TYPE_CHECKING
@@ -18,18 +14,6 @@ if TYPE_CHECKING:
 
 
 class BitcoinBase(BasePrimary):
-    """Abstract base class for Bitcoin instruments.
-
-    This class provides common functionality for Bitcoin spot and perpetual instruments,
-    including historical data loading and buffer management.
-
-    Args:
-        cost (float, default=0.0): Transaction cost rate.
-        dt (float, default=1/24/12): Time step interval (default 5 minutes).
-        data_loader (Optional[CryptoDataLoader]): Data loader for historical data.
-        dtype (torch.dtype, optional): Desired dtype of tensors.
-        device (torch.device, optional): Desired device of tensors.
-    """
 
     def __init__(
         self,
@@ -53,15 +37,10 @@ class BitcoinBase(BasePrimary):
 
     @property
     def default_init_state(self) -> Tuple[float, ...]:
-        """Default initial state for simulation."""
         return (1.0,)  # Default initial price normalized to 1
 
     @property
     def volatility(self) -> Tensor:
-        """Returns the volatility of the instrument.
-
-        Calculated from historical data if available.
-        """
         if not self.buffers():
             raise ValueError("No data loaded. Call simulate() first.")
 
@@ -80,12 +59,6 @@ class BitcoinBase(BasePrimary):
             return torch.zeros_like(spot)
 
     def load_historical_data(self, data: pd.DataFrame, n_paths: int = 1) -> None:
-        """Load historical data into buffers.
-
-        Args:
-            data: DataFrame with price data (must have 'last_price' column)
-            n_paths: Number of paths (for compatibility, usually 1 for historical)
-        """
         if data is None or data.empty:
             raise ValueError("No data provided")
 
@@ -137,40 +110,17 @@ class BitcoinBase(BasePrimary):
         time_horizon: float = 20 / 250,
         init_state: Optional[Tuple[TensorOrScalar, ...]] = None,
     ) -> None:
-        """Simulate price paths for the instrument.
-
-        This method must be implemented by subclasses according to their
-        specific simulation model (Brownian motion, historical replay, etc.).
-
-        Args:
-            n_paths: Number of paths to simulate
-            time_horizon: Time period to simulate
-            init_state: Initial state
-        """
         pass
 
     @abstractmethod
     def _load_data_for_simulation(self, time_horizon: float) -> pd.DataFrame:
-        """Load appropriate data for simulation.
-
-        This method should be implemented by subclasses to load
-        either spot or perpetual data.
-
-        Args:
-            time_horizon: Time period to load data for
-
-        Returns:
-            DataFrame with price data
-        """
         pass
 
     @property
     def is_listed(self) -> bool:
-        """Bitcoin instruments are always listed (tradeable on exchanges)."""
         return True
 
     def to(self, *args, **kwargs):
-        """Move buffers to device/dtype."""
         # Call parent implementation
         super().to(*args, **kwargs)
 

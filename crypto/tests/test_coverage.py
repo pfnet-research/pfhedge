@@ -1,7 +1,3 @@
-"""
-Test coverage demonstration for crypto module.
-"""
-
 import unittest
 import sys
 import os
@@ -11,7 +7,6 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 
 def show_test_coverage():
-    """Show what components have test coverage."""
     print("🧪 Crypto Module Test Coverage Report")
     print("=" * 50)
 

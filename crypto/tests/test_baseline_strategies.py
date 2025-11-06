@@ -1,9 +1,3 @@
-"""Unit tests for baseline hedging strategies.
-
-This module verifies that baseline strategies (Black-Scholes delta, no-hedge, unhedged)
-are correctly implemented and produce expected results.
-"""
-
 import pytest
 import torch
 import numpy as np
@@ -13,10 +7,8 @@ from crypto.strategies import calculate_bs_hedge_pnl
 
 
 class TestBlackScholesBaseline:
-    """Test Black-Scholes delta hedging baseline."""
 
     def test_bs_delta_shape(self):
-        """Test BS delta has correct shape."""
         torch.manual_seed(42)
 
         underlier = BitcoinPerpetualBrownian(dt=8 / 24 / 365, sigma=0.8)
@@ -32,7 +24,6 @@ class TestBlackScholesBaseline:
         assert not torch.any(torch.isinf(bs_delta))
 
     def test_bs_delta_bounds(self):
-        """Test BS delta is within [0, 1] for call options."""
         torch.manual_seed(42)
 
         underlier = BitcoinPerpetualBrownian(dt=8 / 24 / 365, sigma=0.8)
@@ -48,7 +39,6 @@ class TestBlackScholesBaseline:
         assert torch.all(bs_delta <= 1), "Call delta should be <= 1"
 
     def test_bs_pnl_calculation(self):
-        """Test BS PnL calculation runs without error."""
         torch.manual_seed(42)
 
         underlier = BitcoinPerpetualBrownian(dt=8 / 24 / 365, sigma=0.8)
@@ -73,7 +63,6 @@ class TestBlackScholesBaseline:
         assert not torch.any(torch.isinf(pnl))
 
     def test_bs_pnl_with_zero_cost(self):
-        """Test BS PnL with zero transaction cost."""
         torch.manual_seed(42)
 
         underlier = BitcoinPerpetualBrownian(dt=8 / 24 / 365, sigma=0.8)
@@ -106,7 +95,6 @@ class TestBlackScholesBaseline:
         ), "PnL with transaction costs should be lower"
 
     def test_bs_pnl_final_value_reasonable(self):
-        """Test BS PnL final values are in reasonable range."""
         torch.manual_seed(42)
 
         underlier = BitcoinPerpetualBrownian(dt=8 / 24 / 365, sigma=0.8)
@@ -135,10 +123,8 @@ class TestBlackScholesBaseline:
 
 
 class TestNoHedgeBaseline:
-    """Test no-hedge baseline (always hold delta=0)."""
 
     def test_no_hedge_pnl(self):
-        """Test no-hedge strategy PnL."""
         torch.manual_seed(42)
 
         underlier = BitcoinPerpetualBrownian(dt=8 / 24 / 365, sigma=0.8)
@@ -169,7 +155,6 @@ class TestNoHedgeBaseline:
         ), "No-hedge PnL should equal -payoff"
 
     def test_no_hedge_higher_variance(self):
-        """Test no-hedge has higher variance than BS hedge."""
         torch.manual_seed(42)
 
         underlier = BitcoinPerpetualBrownian(dt=8 / 24 / 365, sigma=0.8)
@@ -209,10 +194,8 @@ class TestNoHedgeBaseline:
 
 
 class TestUnhedgedBaseline:
-    """Test unhedged baseline (buy and hold option)."""
 
     def test_unhedged_pnl_equals_payoff(self):
-        """Test unhedged PnL distribution is reasonable."""
         torch.manual_seed(42)
 
         underlier = BitcoinPerpetualBrownian(dt=8 / 24 / 365, sigma=0.8)
@@ -239,10 +222,8 @@ class TestUnhedgedBaseline:
 
 
 class TestBaselineComparison:
-    """Test comparison between baseline strategies."""
 
     def test_all_baselines_computable(self):
-        """Test all three baselines can be computed together."""
         torch.manual_seed(42)
 
         underlier = BitcoinPerpetualBrownian(dt=8 / 24 / 365, sigma=0.8)
@@ -293,7 +274,6 @@ class TestBaselineComparison:
         ), "BS hedge should have lower variance than unhedged"
 
     def test_variance_ranking(self):
-        """Test that BS hedge has lowest variance among baselines."""
         torch.manual_seed(42)
 
         underlier = BitcoinPerpetualBrownian(dt=8 / 24 / 365, sigma=0.8)
@@ -328,7 +308,6 @@ class TestBaselineComparison:
 
 
 def test_baseline_summary():
-    """Summary test for all baseline strategies."""
     torch.manual_seed(42)
 
     underlier = BitcoinPerpetualBrownian(dt=8 / 24 / 365, sigma=0.8)

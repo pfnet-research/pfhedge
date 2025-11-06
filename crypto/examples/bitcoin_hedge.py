@@ -1,10 +1,4 @@
 #!/usr/bin/env python3
-"""
-Bitcoin Deep Hedging - Example Using Training Framework
-
-This script demonstrates how to use the training framework to train
-a deep hedging model and visualize the results.
-"""
 
 import os
 import sys
@@ -19,7 +13,6 @@ from crypto.utils import plot_hedge_comparison
 
 
 def main():
-    """Main function demonstrating training framework usage."""
 
     # ========== Configuration ==========
     print("=" * 70)

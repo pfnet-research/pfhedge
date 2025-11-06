@@ -1,9 +1,4 @@
 #!/usr/bin/env python3
-"""
-Optimization experiments for Bitcoin deep hedging.
-
-This script runs systematic experiments to find the best training configuration.
-"""
 
 import sys
 import os
@@ -23,14 +18,6 @@ from pfhedge.nn import EntropicRiskMeasure, ExpectedShortfall, QuadraticCVaR
 
 
 def run_experiment(config):
-    """Run a single deep hedging experiment.
-
-    Args:
-        config: Dictionary with experiment configuration
-
-    Returns:
-        Dictionary with results
-    """
     experiment_name = config["name"]
     print(f"\n{'='*70}")
     print(f"EXPERIMENT: {experiment_name}")
@@ -150,7 +137,6 @@ def run_experiment(config):
 
 
 def run_optimization_suite():
-    """Run a suite of optimization experiments."""
 
     print("=" * 70)
     print("BITCOIN DEEP HEDGING OPTIMIZATION SUITE")

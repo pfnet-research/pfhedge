@@ -1,26 +1,3 @@
-"""Contract tests for backtester behavioral invariants.
-
-These tests pin down critical API contracts and behavioral invariants
-that must be preserved during refactoring. They focus on:
-
-1. Model loading contracts (features, backward compatibility, fallback)
-2. Data loading invariants (fractional resampling, UTC normalization, perpetual_data_full)
-3. Bootstrap option modes (normalize_spot vs absolute_strike)
-4. Underlying type selection (spot vs perpetual, has_funding)
-5. Funding cost integration (application vs skipping)
-6. Device handling guardrails
-7. Orchestrator determinism (snapshot metrics with fixed seed)
-8. Error handling coverage
-
-These tests are separate from functional tests to clearly document
-the contracts that refactoring must preserve.
-
-Test Markers:
-- @pytest.mark.slow: Marks heavier end-to-end or numeric-snapshot tests
-  Run with: pytest -m "not slow" to skip slow tests
-  Run with: pytest -m slow to run only slow tests
-"""
-
 import pytest
 import torch
 import tempfile
@@ -36,7 +13,6 @@ from crypto.instruments import BitcoinSpotHistorical, BitcoinPerpetualHistorical
 
 
 class TestModelLoadingContracts:
-    """Contract tests for load_model() API."""
 
     @staticmethod
     def create_dummy_checkpoint(
@@ -45,7 +21,6 @@ class TestModelLoadingContracts:
         use_criterion: bool = True,
         use_risk_measure: bool = False,
     ):
-        """Helper to create a dummy model checkpoint with configurable fields."""
         from crypto.strategies.deep_hedge_utils import create_deep_hedger
 
         model = create_deep_hedger(
@@ -81,11 +56,6 @@ class TestModelLoadingContracts:
         torch.save(checkpoint, path)
 
     def test_load_model_missing_features_raises_keyerror(self):
-        """Contract: Missing 'features' in checkpoint raises KeyError.
-
-        This protects the "feature bug fix" contract - we require features
-        to be explicitly stored in checkpoints.
-        """
         with tempfile.TemporaryDirectory() as temp_dir:
             model_path = os.path.join(temp_dir, "model_no_features.pth")
             self.create_dummy_checkpoint(model_path, include_features=False)
@@ -103,10 +73,6 @@ class TestModelLoadingContracts:
                 backtester.load_model()
 
     def test_load_model_accepts_criterion_field(self):
-        """Contract: Checkpoint with 'criterion' field loads successfully.
-
-        Backward compatibility for old checkpoints using 'criterion'.
-        """
         with tempfile.TemporaryDirectory() as temp_dir:
             model_path = os.path.join(temp_dir, "model_criterion.pth")
             self.create_dummy_checkpoint(
@@ -126,10 +92,6 @@ class TestModelLoadingContracts:
             assert model is not None
 
     def test_load_model_accepts_risk_measure_field(self):
-        """Contract: Checkpoint with 'risk_measure' field loads successfully.
-
-        Backward compatibility for new checkpoints using 'risk_measure'.
-        """
         with tempfile.TemporaryDirectory() as temp_dir:
             model_path = os.path.join(temp_dir, "model_risk_measure.pth")
             self.create_dummy_checkpoint(
@@ -152,10 +114,6 @@ class TestModelLoadingContracts:
             assert model is not None
 
     def test_load_model_weights_only_fallback(self):
-        """Contract: weights_only fallback path works when first load raises.
-
-        Verifies the safety mechanism for loading older checkpoints.
-        """
         with tempfile.TemporaryDirectory() as temp_dir:
             model_path = os.path.join(temp_dir, "model.pth")
             self.create_dummy_checkpoint(model_path, include_features=True)
@@ -188,16 +146,9 @@ class TestModelLoadingContracts:
 
 
 class TestDataLoadingInvariants:
-    """Contract tests for data loading invariants."""
 
     @staticmethod
     def create_parquet_with_fractional_dt(data_dir: str, dt_hours: float = 0.5):
-        """Create parquet data for testing fractional dt_hours resampling.
-
-        Args:
-            data_dir: Directory to create data files
-            dt_hours: Time step in hours (can be fractional)
-        """
         os.makedirs(data_dir, exist_ok=True)
 
         # Create 2 days of minute-level data
@@ -235,12 +186,6 @@ class TestDataLoadingInvariants:
 
     @staticmethod
     def create_spot_data(data_dir: str, dt_hours: float = 8.0):
-        """Create spot data for testing.
-
-        Args:
-            data_dir: Directory to create data files
-            dt_hours: Time step in hours
-        """
         os.makedirs(data_dir, exist_ok=True)
 
         start_time = datetime(2024, 1, 1)
@@ -262,10 +207,6 @@ class TestDataLoadingInvariants:
         spot_df.to_parquet(spot_path)
 
     def test_fractional_dt_hours_resampling(self):
-        """Contract: Fractional dt_hours (e.g., 0.5h = 30min) works correctly.
-
-        Ensures resampling handles sub-hour intervals without errors.
-        """
         with tempfile.TemporaryDirectory() as temp_dir:
             dt_hours = 0.5  # 30 minutes
             self.create_parquet_with_fractional_dt(temp_dir, dt_hours=dt_hours)
@@ -295,11 +236,6 @@ class TestDataLoadingInvariants:
             assert all(diffs == expected_delta), "Timestamps should be 30min apart"
 
     def test_perpetual_data_full_invariant(self):
-        """Contract: perpetual_data_full is set, larger or equal to filtered,
-        includes merged funding_rate with ffill/bfill (no NaNs).
-
-        This invariant is critical for bootstrap sampling from full dataset.
-        """
         with tempfile.TemporaryDirectory() as temp_dir:
             self.create_parquet_with_fractional_dt(temp_dir, dt_hours=8.0)
 
@@ -331,10 +267,6 @@ class TestDataLoadingInvariants:
             ), "funding_rate must have no NaNs (should be ffill/bfill filled)"
 
     def test_timestamps_normalized_to_utc(self):
-        """Contract: Options and funding timestamps are normalized to UTC like perpetuals.
-
-        All timestamp columns must be timezone-aware UTC after loading.
-        """
         with tempfile.TemporaryDirectory() as temp_dir:
             self.create_parquet_with_fractional_dt(temp_dir, dt_hours=8.0)
 
@@ -364,11 +296,9 @@ class TestDataLoadingInvariants:
 
 
 class TestBootstrapOptionModes:
-    """Contract tests for bootstrap option generation modes."""
 
     @staticmethod
     def create_test_data_and_model(temp_dir: str):
-        """Create test data and model for bootstrap tests."""
         from crypto.tests.test_backtesting import TestBacktester
 
         # Create data
@@ -381,13 +311,6 @@ class TestBootstrapOptionModes:
         return model_path
 
     def test_bootstrap_mode_normalize_spot_contract(self):
-        """Contract: normalize_spot mode ensures initial spot ≈ strike * target_moneyness.
-
-        Verifies:
-        - Initial spot across paths ≈ configured initial_spot
-        - Log-moneyness mean ≈ target, std ≈ 0
-        - scale_factors are stored in underlier
-        """
         with tempfile.TemporaryDirectory() as temp_dir:
             model_path = self.create_test_data_and_model(temp_dir)
 
@@ -427,12 +350,6 @@ class TestBootstrapOptionModes:
             # Note: scale_factors storage is an implementation detail, not part of contract
 
     def test_bootstrap_mode_absolute_strike_contract(self):
-        """Contract: absolute_strike mode allows initial log-moneyness variance.
-
-        Verifies:
-        - Initial log-moneyness across paths varies (std > threshold)
-        - No normalization applied
-        """
         with tempfile.TemporaryDirectory() as temp_dir:
             model_path = self.create_test_data_and_model(temp_dir)
 
@@ -464,7 +381,6 @@ class TestBootstrapOptionModes:
             ), f"Log-moneyness std {log_m_std} should be >0.01 for absolute_strike mode"
 
     def test_invalid_bootstrap_mode_raises_error(self):
-        """Contract: Invalid bootstrap_mode raises helpful error."""
         config = BacktestConfig(
             start_date="2024-01-01",
             end_date="2024-01-10",
@@ -479,11 +395,9 @@ class TestBootstrapOptionModes:
 
 
 class TestUnderlyingTypeSelection:
-    """Contract tests for underlying type selection (spot vs perpetual)."""
 
     @staticmethod
     def create_test_setup(temp_dir: str, underlying_type: str):
-        """Create test data and config for underlying type tests."""
         from crypto.tests.test_backtesting import TestBacktester
 
         TestBacktester.create_dummy_parquet_data(temp_dir, n_days=10)
@@ -508,7 +422,6 @@ class TestUnderlyingTypeSelection:
         return config
 
     def test_underlying_type_spot_contract(self):
-        """Contract: underlying_type='spot' uses BitcoinSpotHistorical with has_funding=False."""
         with tempfile.TemporaryDirectory() as temp_dir:
             # For spot tests, we still need to use perpetual data
             # The backtester will treat it as spot based on underlying_type config
@@ -530,9 +443,6 @@ class TestUnderlyingTypeSelection:
             ), "Spot instruments must have has_funding=False"
 
     def test_underlying_type_perpetual_contract(self):
-        """Contract: underlying_type='perpetual' uses BitcoinPerpetualHistorical
-        with has_funding=True and funding_payment_times() method.
-        """
         with tempfile.TemporaryDirectory() as temp_dir:
             config = self.create_test_setup(temp_dir, underlying_type="perpetual")
             backtester = Backtester(config)
@@ -556,7 +466,6 @@ class TestUnderlyingTypeSelection:
             assert callable(option.underlier.funding_payment_times)
 
     def test_invalid_underlying_type_raises_error(self):
-        """Contract: Invalid underlying_type raises clear error."""
         config = BacktestConfig(
             start_date="2024-01-01",
             end_date="2024-01-10",
@@ -571,13 +480,8 @@ class TestUnderlyingTypeSelection:
 
 
 class TestFundingCostIntegration:
-    """Contract tests for funding cost application."""
 
     def test_funding_costs_applied_for_perpetual(self):
-        """Contract: For perpetual underlier, funding costs are subtracted from PnL.
-
-        Uses controlled setup to verify funding cost calculation.
-        """
         # This test requires a more complex setup with actual hedging
         # Simplified version: verify that run_deep_hedge includes funding costs
         # when underlier has funding
@@ -612,10 +516,6 @@ class TestFundingCostIntegration:
             assert pnl.shape[1] > 0  # n_steps
 
     def test_no_funding_costs_for_spot(self):
-        """Contract: For spot underlier, no funding costs are applied.
-
-        Verifies has_funding check prevents funding cost calculation.
-        """
         with tempfile.TemporaryDirectory() as temp_dir:
             from crypto.tests.test_backtesting import TestBacktester
 
@@ -649,7 +549,6 @@ class TestFundingCostIntegration:
             assert pnl.shape[0] == 10
 
     def test_bs_baseline_includes_funding_if_available(self):
-        """Contract: BS baseline includes funding costs iff underlier has funding."""
         with tempfile.TemporaryDirectory() as temp_dir:
             from crypto.tests.test_backtesting import TestBacktester
 
@@ -698,13 +597,8 @@ class TestFundingCostIntegration:
 
 
 class TestDeviceHandling:
-    """Contract tests for device handling."""
 
     def test_device_mismatch_handling(self):
-        """Contract: If model and option are on different devices, underlier is moved.
-
-        Kept CPU-only to avoid CUDA dependency in tests.
-        """
         with tempfile.TemporaryDirectory() as temp_dir:
             from crypto.tests.test_backtesting import TestBacktester
 
@@ -737,13 +631,8 @@ class TestDeviceHandling:
 
 
 class TestOrchestratorDeterminism:
-    """Contract tests for deterministic behavior with fixed seed."""
 
     def test_run_determinism_with_fixed_seed(self):
-        """Contract: With fixed seed and data, run() produces consistent metrics.
-
-        Snapshot key metrics within tolerances to detect logic drift.
-        """
         with tempfile.TemporaryDirectory() as temp_dir:
             from crypto.tests.test_backtesting import TestBacktester
 
@@ -784,10 +673,6 @@ class TestOrchestratorDeterminism:
             ), f"With same seed, mean PnL should be identical: {dh_mean1} vs {dh_mean2}"
 
     def test_run_stores_positions(self):
-        """Contract: run() stores deep_positions and bs_positions in Backtester.
-
-        Verifies orchestration side effects.
-        """
         with tempfile.TemporaryDirectory() as temp_dir:
             from crypto.tests.test_backtesting import TestBacktester
 
@@ -824,10 +709,8 @@ class TestOrchestratorDeterminism:
 
 
 class TestErrorHandlingCoverage:
-    """Contract tests for error handling."""
 
     def test_load_model_missing_file_raises(self):
-        """Contract: load_model with missing file raises FileNotFoundError."""
         config = BacktestConfig(
             start_date="2024-01-01",
             end_date="2024-01-10",
@@ -842,7 +725,6 @@ class TestErrorHandlingCoverage:
             backtester.load_model()
 
     def test_load_data_out_of_range_dates_raises(self):
-        """Contract: load_data with out-of-range dates raises ValueError."""
         with tempfile.TemporaryDirectory() as temp_dir:
             from crypto.tests.test_backtesting import TestBacktester
 
@@ -865,7 +747,6 @@ class TestErrorHandlingCoverage:
                 backtester.load_data()
 
     def test_run_deep_hedge_without_model_raises(self):
-        """Contract: run_deep_hedge without model raises ValueError."""
         config = BacktestConfig(
             start_date="2024-01-01",
             end_date="2024-01-10",
@@ -881,7 +762,6 @@ class TestErrorHandlingCoverage:
             backtester.run_deep_hedge()
 
     def test_run_deep_hedge_without_option_raises(self):
-        """Contract: run_deep_hedge without option raises ValueError."""
         with tempfile.TemporaryDirectory() as temp_dir:
             from crypto.tests.test_backtesting import TestBacktester
 
@@ -904,7 +784,6 @@ class TestErrorHandlingCoverage:
                 backtester.run_deep_hedge()
 
     def test_create_bootstrap_option_without_data_loader_raises(self):
-        """Contract: create_bootstrap_option without data loader raises ValueError."""
         config = BacktestConfig(
             start_date="2024-01-01",
             end_date="2024-01-10",
@@ -921,11 +800,9 @@ class TestErrorHandlingCoverage:
 
 
 class TestModelLoadingExtended:
-    """Extended model loading contract tests."""
 
     @staticmethod
     def create_mismatched_checkpoint(path: str, wrong_n_layers: int = 99):
-        """Create checkpoint with architecture mismatch."""
         from crypto.strategies.deep_hedge_utils import create_deep_hedger
 
         # Create model with different architecture than what will be loaded
@@ -955,10 +832,6 @@ class TestModelLoadingExtended:
         torch.save(checkpoint, path)
 
     def test_state_dict_mismatch_raises_runtime_error(self):
-        """Contract: State dict mismatch (wrong n_layers/n_units) raises RuntimeError.
-
-        This protects against loading incompatible models.
-        """
         with tempfile.TemporaryDirectory() as temp_dir:
             model_path = os.path.join(temp_dir, "mismatched_model.pth")
             self.create_mismatched_checkpoint(model_path, wrong_n_layers=99)
@@ -977,10 +850,6 @@ class TestModelLoadingExtended:
                 backtester.load_model()
 
     def test_features_type_normalization(self):
-        """Contract: Features normalize to list[str] from string/tuple/list.
-
-        Ensures features are always stored consistently regardless of input type.
-        """
         with tempfile.TemporaryDirectory() as temp_dir:
             from crypto.strategies.deep_hedge_utils import create_deep_hedger
 
@@ -1023,10 +892,8 @@ class TestModelLoadingExtended:
 
 
 class TestDataFileRespected:
-    """Contract tests for data_file configuration."""
 
     def test_data_file_respected_for_perpetual(self):
-        """Contract: config.data_file is used for perpetual underlying_type."""
         with tempfile.TemporaryDirectory() as temp_dir:
             from crypto.tests.test_backtesting import TestBacktester
 
@@ -1051,7 +918,6 @@ class TestDataFileRespected:
             assert len(loader.perpetual_data) > 0
 
     def test_data_file_respected_for_spot(self):
-        """Contract: config.data_file is used for spot underlying_type."""
         with tempfile.TemporaryDirectory() as temp_dir:
             from crypto.tests.test_backtesting import TestBacktester
 
@@ -1076,11 +942,6 @@ class TestDataFileRespected:
             assert len(loader.perpetual_data) > 0
 
     def test_naive_and_aware_timestamps_normalize_identically(self):
-        """Contract: Naive and timezone-aware timestamps both normalize to UTC.
-
-        Ensures consistent handling regardless of input timestamp format.
-        This test now verifies that BacktestDataLoader handles both formats correctly.
-        """
         from crypto.backtest.data_loader import BacktestDataLoader
 
         # Create a dummy BacktestDataLoader instance
@@ -1125,13 +986,8 @@ class TestDataFileRespected:
 
 
 class TestBootstrapBehaviorExtended:
-    """Extended bootstrap and funding behavior tests."""
 
     def test_normalize_spot_stores_scale_factors(self):
-        """Contract: normalize_spot mode stores scale_factors attribute.
-
-        Scale factors are needed for inverse transformation if required.
-        """
         with tempfile.TemporaryDirectory() as temp_dir:
             from crypto.tests.test_backtesting import TestBacktester
 
@@ -1167,10 +1023,6 @@ class TestBootstrapBehaviorExtended:
 
     @pytest.mark.slow
     def test_funding_alignment_warning_with_misaligned_dt(self, capsys):
-        """Contract: Misaligned dt_hours triggers funding alignment warning.
-
-        When dt_hours doesn't align with 8h funding periods, should warn.
-        """
         with tempfile.TemporaryDirectory() as temp_dir:
             from crypto.tests.test_backtesting import TestBacktester
 
@@ -1203,7 +1055,6 @@ class TestBootstrapBehaviorExtended:
             # (Funding data may or may not be present depending on test data)
 
     def test_no_funding_warning_with_aligned_dt(self, capsys):
-        """Contract: Aligned dt_hours (8h) should not warn about funding alignment."""
         with tempfile.TemporaryDirectory() as temp_dir:
             from crypto.tests.test_backtesting import TestBacktester
 
@@ -1236,10 +1087,6 @@ class TestBootstrapBehaviorExtended:
             assert True  # Just verify it runs without error
 
     def test_volatility_window_passed_through(self):
-        """Contract: volatility_window config is passed to underlier.
-
-        Guards the realized volatility path.
-        """
         with tempfile.TemporaryDirectory() as temp_dir:
             from crypto.tests.test_backtesting import TestBacktester
 
@@ -1270,14 +1117,9 @@ class TestBootstrapBehaviorExtended:
 
 
 class TestDiagnostics:
-    """Contract tests for diagnostics functionality."""
 
     @pytest.mark.slow
     def test_diagnostics_mode_runs_without_error(self, capsys):
-        """Contract: enable_diagnostics=True runs without errors.
-
-        Verifies attach/print/detach happen by checking stdout.
-        """
         with tempfile.TemporaryDirectory() as temp_dir:
             from crypto.tests.test_backtesting import TestBacktester
 
@@ -1310,14 +1152,9 @@ class TestDiagnostics:
 
 
 class TestOrchestratorDeterminismExtended:
-    """Extended determinism tests with metric snapshots."""
 
     @pytest.mark.slow
     def test_snapshot_metrics_with_tolerance(self):
-        """Contract: With fixed seed, snapshot key metrics within 5-10% tolerance.
-
-        This catches logic drift while being robust to minor numerical changes.
-        """
         with tempfile.TemporaryDirectory() as temp_dir:
             from crypto.tests.test_backtesting import TestBacktester
 

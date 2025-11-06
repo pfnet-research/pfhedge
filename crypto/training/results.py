@@ -1,5 +1,3 @@
-"""Results container for training framework."""
-
 from typing import Dict, Optional, Any, List
 import json
 from datetime import datetime
@@ -7,27 +5,6 @@ from pathlib import Path
 
 
 class TrainingResults:
-    """Container for training results with summary statistics.
-
-    Stores training history, test metrics, and model configuration.
-    Provides methods to export data for analysis and reproducibility.
-
-    Args:
-        training_history: List of loss values per epoch
-        test_metrics: Dictionary with test performance metrics
-        model_config: Model and training configuration dictionary
-        model_path: Path where model checkpoint was saved
-
-    Examples:
-        >>> results = TrainingResults(
-        ...     training_history=history,
-        ...     test_metrics=test_metrics,
-        ...     model_config=config.to_dict(),
-        ...     model_path="models/model.pth"
-        ... )
-        >>> summary = results.summary()
-        >>> print(f"Final loss: {summary['final_loss']:.6f}")
-    """
 
     def __init__(
         self,
@@ -58,16 +35,6 @@ class TrainingResults:
         self.n_epochs = len(self.training_history)
 
     def summary(self) -> Dict[str, Any]:
-        """Get training and test summary.
-
-        Returns:
-            Dictionary with training and test metrics
-
-        Examples:
-            >>> summary = results.summary()
-            >>> print(f"Final loss: {summary['final_loss']:.6f}")
-            >>> print(f"Test Sharpe: {summary['test_metrics']['deep_hedge']['sharpe_ratio']:.3f}")
-        """
         if len(self.training_history) == 0:
             initial_loss = None
             final_loss = None
@@ -91,34 +58,6 @@ class TrainingResults:
         }
 
     def to_dict(self, include_raw: bool = True) -> Dict[str, Any]:
-        """Export all data to dictionary.
-
-        Args:
-            include_raw: If True (default), includes full training history.
-                         If False, includes only summary statistics.
-                         Set to False for large training runs to reduce size.
-
-        Returns:
-            Dictionary containing:
-            - 'summary': Summary statistics
-            - 'model_config': Model and training configuration
-            - 'training_history': Full loss history (if include_raw=True)
-            - 'test_metrics': Test performance metrics
-            - 'model_path': Path to saved model
-            - 'created_at': Timestamp
-
-        Examples:
-            >>> # Full export with training history
-            >>> data = results.to_dict()
-            >>>
-            >>> # Lightweight export without full history
-            >>> summary_only = results.to_dict(include_raw=False)
-            >>>
-            >>> # Save to JSON
-            >>> import json
-            >>> with open('results.json', 'w') as f:
-            ...     json.dump(data, f)
-        """
         data = {
             "summary": self.summary(),
             "model_config": self.model_config,
@@ -135,19 +74,6 @@ class TrainingResults:
 
     @staticmethod
     def _safe_json_normalize(obj: Any) -> Any:
-        """Recursively normalize data for JSON serialization.
-
-        Handles common non-JSON types:
-        - datetime objects -> ISO format strings
-        - Path objects -> strings
-        - Recursively processes dicts and lists
-
-        Args:
-            obj: Object to normalize
-
-        Returns:
-            JSON-serializable version of obj
-        """
         if isinstance(obj, (datetime,)):
             return obj.isoformat()
         elif isinstance(obj, (Path,)):
@@ -162,30 +88,6 @@ class TrainingResults:
     def to_json(
         self, filepath: Optional[str] = None, include_raw: bool = False, **kwargs
     ) -> Optional[str]:
-        """Export results to JSON format.
-
-        Convenience method that handles non-JSON types and optionally
-        writes to file.
-
-        Args:
-            filepath: Optional path to write JSON file. If None, returns JSON string.
-            include_raw: If True, includes full training history. If False, only
-                         summary and test metrics (default False for smaller size).
-            **kwargs: Additional arguments passed to json.dumps() (e.g., indent=2)
-
-        Returns:
-            JSON string if filepath is None, otherwise None (writes to file)
-
-        Examples:
-            >>> # Get JSON string without full history
-            >>> json_str = results.to_json(include_raw=False)
-            >>>
-            >>> # Write to file with pretty formatting
-            >>> results.to_json('results.json', include_raw=True, indent=2)
-            >>>
-            >>> # Lightweight export (summary only)
-            >>> results.to_json('summary.json', include_raw=False, indent=2)
-        """
         # Get dictionary and normalize for JSON
         data = self.to_dict(include_raw=include_raw)
         normalized = self._safe_json_normalize(data)
@@ -203,7 +105,6 @@ class TrainingResults:
             return json.dumps(normalized, **kwargs)
 
     def __repr__(self) -> str:
-        """String representation."""
         summary = self.summary()
         final_loss = summary.get("final_loss")
         improvement = summary.get("improvement_pct")

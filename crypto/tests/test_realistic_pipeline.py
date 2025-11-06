@@ -1,9 +1,4 @@
 #!/usr/bin/env python3
-"""
-Test script to demonstrate the realistic backtesting pipeline components.
-
-This script tests each component individually without requiring real Deribit data.
-"""
 
 import sys
 from pathlib import Path
@@ -24,7 +19,6 @@ from crypto.utils.black_scholes import (
 
 
 def test_black_scholes_utilities():
-    """Test Black-Scholes utilities."""
     print("\n" + "=" * 60)
     print("Testing Black-Scholes Utilities")
     print("=" * 60)
@@ -94,7 +88,6 @@ def test_black_scholes_utilities():
 
 
 def test_training_component():
-    """Test the training component."""
     print("\n" + "=" * 60)
     print("Testing Training Component")
     print("=" * 60)
@@ -141,7 +134,6 @@ def test_training_component():
 
 
 def test_seller_pnl_calculation():
-    """Test seller P&L calculation logic."""
     print("\n" + "=" * 60)
     print("Testing Seller P&L Calculation")
     print("=" * 60)
@@ -193,7 +185,6 @@ def test_seller_pnl_calculation():
 
 
 def test_existing_backtest_integration():
-    """Test that our approach integrates with existing backtest framework."""
     print("\n" + "=" * 60)
     print("Testing Integration with Existing Framework")
     print("=" * 60)
@@ -230,7 +221,6 @@ def test_existing_backtest_integration():
 
 
 def main():
-    """Run all tests."""
     print("\n" + "🚀 " * 20)
     print("REALISTIC BACKTESTING PIPELINE TEST")
     print("🚀 " * 20)

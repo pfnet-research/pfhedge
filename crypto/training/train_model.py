@@ -1,16 +1,4 @@
 #!/usr/bin/env python3
-"""
-Bitcoin Deep Hedging Model Training Script
-
-Simple CLI script to train a deep hedging model with customizable parameters.
-This script uses the training framework to train and save a model.
-
-Usage:
-    python train_model.py                           # Default parameters
-    python train_model.py --epochs 100              # Custom epochs
-    python train_model.py --strike 60000 --vol 1.0  # Custom strike and volatility
-    python train_model.py --help                    # Show all options
-"""
 
 import argparse
 import os
@@ -23,7 +11,6 @@ from crypto.training import TrainingConfig, Trainer
 
 
 def main():
-    """Run model training with command-line arguments."""
 
     # Parse command-line arguments
     parser = argparse.ArgumentParser(

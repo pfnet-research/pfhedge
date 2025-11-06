@@ -1,7 +1,3 @@
-"""
-Bitcoin perpetual with historical data replay for backtesting.
-"""
-
 from typing import Optional, Tuple
 import pandas as pd
 import torch
@@ -35,33 +31,6 @@ PRESERVE_COLUMNS = [
 
 
 class BitcoinPerpetualHistorical(VolatilityMixin, BitcoinPerpetualBase):
-    """Bitcoin perpetual using historical data for backtesting.
-
-    This implementation loads real historical data for backtesting strategies.
-    Unlike BitcoinPerpetualBrownian which generates synthetic paths for training,
-    this uses actual market data to test performance on historical scenarios.
-
-    Args:
-        data_loader (CryptoDataLoader): Data loader for historical data.
-        cost (float, default=0.0006): Transaction cost rate.
-        dt (float, default=1/24/12): Time step (5 minutes).
-        leverage (float, default=20.0): Maximum leverage.
-        dtype (torch.dtype, optional): Tensor dtype.
-        device (torch.device, optional): Tensor device.
-
-    Examples:
-        >>> from crypto.data.loader import CryptoDataLoader
-        >>> loader = CryptoDataLoader("sample_data")
-        >>> btc = BitcoinPerpetualHistorical(data_loader=loader)
-        >>> btc.simulate(n_paths=1, time_horizon=30/365)
-        >>> print(btc.spot.shape)
-        torch.Size([1, 8640])  # 1 path, 30 days of 5-min data
-        >>>
-        >>> # Backtesting a strategy
-        >>> from pfhedge.instruments import EuropeanOption
-        >>> option = EuropeanOption(btc, strike=50000, maturity=30/365)
-        >>> # Now can backtest hedging strategies on real data
-    """
 
     def __init__(
         self,
@@ -76,21 +45,6 @@ class BitcoinPerpetualHistorical(VolatilityMixin, BitcoinPerpetualBase):
         ] = None,  # NEW: Use constant vol for backtest
         volatility_window: int = 20,  # Rolling window for realized vol (0 = expanding)
     ) -> None:
-        """Initialize historical Bitcoin perpetual.
-
-        Args:
-            data_loader: Data loader for historical data
-            cost: Transaction cost rate
-            dt: Time step in years
-            leverage: Maximum leverage
-            dtype: Tensor dtype
-            device: Tensor device
-            constant_volatility: If provided, use this constant volatility instead of
-                calculating from returns. This should match the training volatility to
-                avoid train/test distribution mismatch.
-            volatility_window: Rolling window size for realized volatility calculation
-                (default: 20). If 0, uses expanding window.
-        """
         super().__init__(
             cost=cost, dt=dt, leverage=leverage, dtype=dtype, device=device
         )
@@ -110,26 +64,6 @@ class BitcoinPerpetualHistorical(VolatilityMixin, BitcoinPerpetualBase):
         time_horizon: float = 20 / 250,
         init_state: Optional[Tuple[TensorOrScalar, ...]] = None,
     ) -> None:
-        """Load historical data for backtesting.
-
-        For backtesting, we typically use n_paths=1 to test on actual history.
-        If n_paths > 1 is requested, we replicate the same historical path
-        multiple times (useful for Monte Carlo with transaction costs).
-
-        Args:
-            n_paths: Number of paths (typically 1 for backtesting)
-            time_horizon: Time period to load
-            init_state: Not used for historical data (uses actual prices)
-
-        Examples:
-            >>> btc = BitcoinPerpetualHistorical(data_loader=loader)
-            >>> btc.simulate(n_paths=1, time_horizon=30/365)
-            >>> # Now have actual historical data for backtesting
-            >>>
-            >>> # Can also replicate for Monte Carlo with costs
-            >>> btc.simulate(n_paths=100, time_horizon=30/365)
-            >>> # 100 identical paths, useful for averaging over random trades
-        """
         # Load perpetual data with funding rates
         # Prefer cached data (which may have funding merged) over reloading from disk
         if (
@@ -228,15 +162,6 @@ class BitcoinPerpetualHistorical(VolatilityMixin, BitcoinPerpetualBase):
 
     @property
     def volatility(self) -> Tensor:
-        """Returns volatility for the instrument.
-
-        Uses VolatilityMixin with priority:
-        1. constant_volatility override (for train/test consistency)
-        2. Rolling window realized vol (if volatility_window > 0)
-        3. Expanding window (if volatility_window = 0, backward compat)
-
-        See VolatilityMixin documentation for detailed explanation.
-        """
         if not hasattr(self, "spot"):
             raise ValueError("No data loaded. Call simulate() first.")
 
@@ -281,7 +206,6 @@ class BitcoinPerpetualHistorical(VolatilityMixin, BitcoinPerpetualBase):
 
     @property
     def variance(self) -> Tensor:
-        """Returns historical realized variance."""
         return self.volatility**2
 
     @staticmethod
@@ -291,27 +215,6 @@ class BitcoinPerpetualHistorical(VolatilityMixin, BitcoinPerpetualBase):
         available_records: int,
         dt: float,
     ) -> Tuple[bool, Optional[str], int]:
-        """Validate whether historical data is sufficient for meaningful bootstrap variance.
-
-        Args:
-            n_paths: Number of bootstrap paths to generate.
-            n_steps: Number of time steps required per path.
-            available_records: Number of historical records available.
-            dt: Time step size in years (e.g., 8 hours = 8/24/365).
-
-        Returns:
-            Tuple of (is_sufficient, warning_message, recommended_records):
-                - is_sufficient: True if variance will be meaningful, False otherwise.
-                - warning_message: Detailed warning if insufficient, None otherwise.
-                - recommended_records: Recommended number of records for good variance.
-
-        Examples:
-            >>> is_ok, msg, rec = BitcoinPerpetualHistorical.validate_bootstrap_data_sufficiency(
-            ...     n_paths=100, n_steps=42, available_records=50, dt=8/24/365
-            ... )
-            >>> print(f"Sufficient: {is_ok}, Recommended: {rec}")
-            Sufficient: False, Recommended: 52
-        """
         max_start = available_records - n_steps
         unique_windows = max_start + 1 if max_start >= 0 else 0
         recommended_windows = max(100, n_paths // 10)
@@ -371,33 +274,6 @@ class BitcoinPerpetualHistorical(VolatilityMixin, BitcoinPerpetualBase):
         max_date: Optional[str] = None,
         store_scale_factors: bool = False,
     ) -> None:
-        """Bootstrap simulation with optional spot rescaling.
-
-        This method creates multiple paths by randomly selecting different
-        starting points in the historical data. Optionally rescales prices
-        to preserve moneyness across all paths.
-
-        Args:
-            n_paths: Number of bootstrap paths to generate
-            time_horizon: Time period for each path (in years)
-            window_size: Size of historical window to sample from (if None, uses all)
-            target_initial_spot: If provided, rescale all paths to this initial spot
-            max_date: If provided, only sample from data < max_date (no look-ahead)
-            store_scale_factors: Whether to store scale factors for auditability
-
-        Examples:
-            >>> btc = BitcoinPerpetualHistorical(data_loader=loader)
-            >>> # Basic bootstrap (no rescaling)
-            >>> btc.simulate_bootstrap(n_paths=1000, time_horizon=5/365)
-            >>>
-            >>> # Moneyness-preserving bootstrap
-            >>> btc.simulate_bootstrap(
-            ...     n_paths=1000,
-            ...     time_horizon=5/365,
-            ...     target_initial_spot=108000,  # Rescale all paths to start at $108k
-            ...     max_date="2024-10-15"  # No look-ahead
-            ... )
-        """
         import math
         import random
         import logging
@@ -480,7 +356,6 @@ class BitcoinPerpetualHistorical(VolatilityMixin, BitcoinPerpetualBase):
         def get_rescaled_column(
             window_data, col_name: str, rescale_factor: float, default_val=None
         ):
-            """Extract column and apply rescale factor if it's a price column."""
             if col_name in window_data.columns:
                 vals = window_data[col_name].values
                 return torch.as_tensor(
@@ -592,7 +467,6 @@ class BitcoinPerpetualHistorical(VolatilityMixin, BitcoinPerpetualBase):
         logger.debug(f"Bootstrap window indices: {sampled_windows}")
 
     def __repr__(self) -> str:
-        """String representation."""
         params = [
             f"cost={self.cost}",
             f"dt={self.dt}",

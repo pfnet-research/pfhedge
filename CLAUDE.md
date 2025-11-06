@@ -1,3 +1,29 @@
+## Project Map
+
+### Core Framework
+- `crypto/instruments/` - Bitcoin option and underlier instruments (spot/perpetual Brownian motion)
+- `crypto/strategies/` - Hedging strategies (deep hedge models, BS baseline, no-trade band utils)
+- `crypto/training/` - Training framework (Trainer, TrainingConfig, results)
+- `crypto/backtest/` - Backtesting framework (Backtester, StrategyExecutor, configs)
+
+### Scripts & Tools
+- `crypto/scripts/train_*.py` - Training entry points for models
+- `crypto/scripts/backtest_*.py` - Backtesting entry points
+- `crypto/data/` - Historical data download and processing (TARDIS API integration)
+
+### Tests & Docs
+- `crypto/tests/` - Unit tests (feature leakage, GBM sanity, baselines, no-trade band)
+- `crypto/backtest/USAGE.md` - Backtesting guide
+- `crypto/training/USAGE.md` - Training guide
+- `crypto/docs/INSTRUCTIONS.md` - Quick 4-step workflow guide (data → explore → train → backtest)
+- `crypto/docs/STEP_BY_STEP_WORKFLOW.md` - Detailed interactive workflow with decision points
+- `docs/Real-World-Deep-Hedging-Tricks.md` - Implementation tricks and best practices
+
+### Key Files
+- `backtest.yaml` - Backtest configuration template
+- `crypto/strategies/deep_hedge_utils.py` - Core utilities (PnL calculation, no-trade band)
+- `crypto/training/trainer.py` - Main training loop and model evaluation
+
 ## Coding Standards
 
 * **NEVER write new scripts/files without checking existing code first**: Before creating new scripts, ALWAYS search for existing functionality (`Glob` for `**/download*.py`, `**/fetch*.py`, etc.). Extend existing code instead of duplicating. Only create new files when absolutely necessary.

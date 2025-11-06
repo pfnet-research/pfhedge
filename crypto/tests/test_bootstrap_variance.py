@@ -1,8 +1,3 @@
-"""Test bootstrap variance to ensure paths are not identical.
-
-This test verifies the fix for the bootstrap identical paths bug.
-"""
-
 import pytest
 import torch
 import pandas as pd
@@ -13,15 +8,6 @@ from crypto.instruments import BitcoinPerpetualHistorical
 
 
 def create_test_data(n_records: int, dt_hours: int = 8) -> pd.DataFrame:
-    """Create synthetic perpetual data for testing.
-
-    Args:
-        n_records: Number of records to create
-        dt_hours: Time step in hours
-
-    Returns:
-        DataFrame with timestamp and price columns
-    """
     import numpy as np
 
     start = pd.Timestamp("2024-10-01", tz="UTC")
@@ -46,7 +32,6 @@ def create_test_data(n_records: int, dt_hours: int = 8) -> pd.DataFrame:
 
 
 def test_bootstrap_variance_with_sufficient_data():
-    """Test that bootstrap creates varied paths when sufficient data is available."""
     # Create enough data for variance
     n_steps = 42  # 14 days at 8H intervals
     extra_windows = 50  # Want 50 unique windows
@@ -97,7 +82,6 @@ def test_bootstrap_variance_with_sufficient_data():
 
 
 def test_bootstrap_warns_with_insufficient_data(caplog):
-    """Test that bootstrap warns when data is insufficient for variance."""
     import logging
 
     # Create exactly enough data for backtest (no extra for variance)
@@ -152,7 +136,6 @@ def test_bootstrap_warns_with_insufficient_data(caplog):
 
 
 def test_bootstrap_variance_with_rescaling():
-    """Test that variance exists even with spot rescaling."""
     # Create sufficient data
     n_steps = 42
     extra_windows = 50

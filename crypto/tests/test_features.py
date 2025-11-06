@@ -1,7 +1,4 @@
 #!/usr/bin/env python3
-"""
-Tests for feature engineering utilities.
-"""
 
 import sys
 import os
@@ -21,15 +18,12 @@ from crypto.instruments import BitcoinPerpetualBrownian
 
 
 class TestVolatilityFeatures(unittest.TestCase):
-    """Test volatility calculation functions."""
 
     def setUp(self):
-        """Set up test data."""
         torch.manual_seed(42)
         np.random.seed(42)
 
     def test_calculate_realized_volatility_basic(self):
-        """Test basic realized volatility calculation."""
         # Create simple price series
         prices = torch.tensor([100.0, 101.0, 99.0, 102.0, 98.0, 103.0, 97.0])
 
@@ -41,7 +35,6 @@ class TestVolatilityFeatures(unittest.TestCase):
         self.assertTrue(torch.isfinite(vol[-1]))  # Final value should be valid
 
     def test_calculate_realized_volatility_batch(self):
-        """Test volatility calculation with multiple paths."""
         n_paths, n_steps = 10, 50
         prices = torch.randn(n_paths, n_steps).cumsum(dim=1).exp() * 100
 
@@ -54,7 +47,6 @@ class TestVolatilityFeatures(unittest.TestCase):
         self.assertTrue(torch.all(valid_vol > 0))
 
     def test_realized_volatility_calculator(self):
-        """Test the stateful volatility calculator."""
         calc = RealizedVolatilityCalculator(
             windows=[5, 10], annualization_factor=np.sqrt(252)
         )
@@ -70,7 +62,6 @@ class TestVolatilityFeatures(unittest.TestCase):
         self.assertTrue(all(not np.isnan(v) for v in vols))
 
     def test_create_volatility_features(self):
-        """Test volatility features creation for instruments."""
         btc = BitcoinPerpetualBrownian(sigma=0.8)
         btc.simulate(n_paths=10, time_horizon=30 / 365)
 
@@ -80,7 +71,6 @@ class TestVolatilityFeatures(unittest.TestCase):
         self.assertEqual(features.shape, expected_shape)
 
     def test_estimate_annualization_factor(self):
-        """Test annualization factor estimation."""
         # Test daily data (24 * 3600 seconds)
         daily_factor = estimate_annualization_factor(24 * 3600)
         self.assertAlmostEqual(daily_factor, np.sqrt(365.25), places=1)
@@ -91,7 +81,6 @@ class TestVolatilityFeatures(unittest.TestCase):
         self.assertAlmostEqual(min5_factor, expected, places=0)
 
     def test_volatility_with_nans(self):
-        """Test handling of insufficient data."""
         # Very short series
         prices = torch.tensor([100.0, 101.0])
 
@@ -101,7 +90,6 @@ class TestVolatilityFeatures(unittest.TestCase):
         self.assertTrue(torch.isnan(vol[0]))
 
     def test_volatility_convergence(self):
-        """Test that volatility converges to known value for GBM."""
         torch.manual_seed(42)
 
         # Generate long GBM series with known volatility
@@ -129,14 +117,11 @@ class TestVolatilityFeatures(unittest.TestCase):
 
 
 class TestIntegrationWithInstruments(unittest.TestCase):
-    """Test volatility features with actual instruments."""
 
     def setUp(self):
-        """Set up test instruments."""
         torch.manual_seed(42)
 
     def test_integration_with_bitcoin_brownian(self):
-        """Test volatility features with BitcoinPerpetualBrownian."""
         btc = BitcoinPerpetualBrownian(sigma=0.8, mu=0.0)
         btc.simulate(n_paths=5, time_horizon=7 / 365)
 
@@ -150,7 +135,6 @@ class TestIntegrationWithInstruments(unittest.TestCase):
         self.assertEqual(features.shape, expected_shape)
 
     def test_volatility_features_non_nan(self):
-        """Test that volatility features don't produce unexpected NaNs."""
         btc = BitcoinPerpetualBrownian(sigma=0.5)
         btc.simulate(n_paths=3, time_horizon=20 / 365)  # Longer series
 

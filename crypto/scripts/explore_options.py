@@ -1,74 +1,4 @@
 #!/usr/bin/env python3
-"""
-Option Discovery Tool
-
-Discovers all tradeable options at a given date and expiry, showing:
-- Available strikes and premiums
-- Liquidity metrics (trade count)
-- Implied volatilities
-- Moneyness levels
-
-Key Features:
-- Full-day querying: Searches entire trading day (00:00-23:59) for maximum coverage
-- Historical data access: Uses Tardis.dev API to access options back to 2019
-- Fallback mode: Generates strikes when Instruments API has no data (>1 month old)
-- Fast queries: ~2 minutes for ATM options (±5%), ~8 minutes for wide range (±30%)
-
-Usage Examples:
-
-    # Quick ATM search (recommended for most use cases)
-    python crypto/scripts/explore_options.py \\
-        --trade-date 2025-06-07 \\
-        --expiry 2025-06-13 \\
-        --type call \\
-        --min-trades 5 \\
-        --moneyness-range 0.95 1.05 \\
-        --data-source tardis \\
-        --output atm_calls.json
-
-    # Wide search for all available options
-    python crypto/scripts/explore_options.py \\
-        --trade-date 2025-06-07 \\
-        --expiry 2025-06-13 \\
-        --type call \\
-        --min-trades 1 \\
-        --moneyness-range 0.7 1.3 \\
-        --data-source tardis \\
-        --output all_calls.json
-
-    # With specific time (if needed)
-    python crypto/scripts/explore_options.py \\
-        --trade-date "2025-06-07 14:30" \\
-        --expiry 2025-06-13 \\
-        --type put \\
-        --data-source tardis
-
-Date Format:
-    - trade-date: YYYY-MM-DD (defaults to 12:00 UTC) or "YYYY-MM-DD HH:MM"
-    - expiry: YYYY-MM-DD (defaults to 08:00 UTC, Deribit expiry time) or "YYYY-MM-DD HH:MM"
-
-How It Works:
-    1. Fetches spot price from ±5 min window around trade-date for accuracy
-    2. Queries Instruments API for available options at expiry
-    3. If no instruments found (historical data), generates candidate strikes
-    4. For each strike, queries full trading day (00:00-23:59) for trades
-    5. Calculates premiums, IV, and filters by liquidity (min-trades)
-
-Performance:
-    - ATM (moneyness 0.95-1.05): ~11 strikes, ~2 minutes
-    - Wide (moneyness 0.7-1.3): ~40 strikes, ~7-8 minutes
-    - Per-strike query: ~10-11 seconds (network-bound)
-
-Deribit Option Types:
-    - Daily: Expire every day at 08:00 UTC (48h after listing)
-    - Weekly: Expire every Friday at 08:00 UTC
-    - Monthly: Last Friday of month at 08:00 UTC
-    - Quarterly: Last Friday of Mar/Jun/Sep/Dec at 08:00 UTC
-
-Requirements:
-    - Tardis.dev API key (set TARDIS_API_KEY environment variable)
-    - Historical data available back to 2019
-"""
 
 import argparse
 import json
@@ -95,21 +25,6 @@ logger = logging.getLogger(__name__)
 def generate_strikes(
     spot_price: float, moneyness_range: tuple = (0.8, 1.2)
 ) -> List[int]:
-    """
-    Generate candidate strikes matching Deribit's grid pattern.
-
-    Deribit uses different strike intervals depending on price level:
-    - 1K intervals around ATM (±10% from spot)
-    - 2K intervals for medium OTM (±20% from spot)
-    - 5K intervals for the full range
-
-    Args:
-        spot_price: Current spot price
-        moneyness_range: (min, max) moneyness to consider
-
-    Returns:
-        Sorted list of candidate strike prices
-    """
     min_price = spot_price * moneyness_range[0]
     max_price = spot_price * moneyness_range[1]
 
@@ -149,20 +64,6 @@ def generate_strikes(
 
 
 def _build_instrument_name(expiry_date: datetime, strike: int, option_type: str) -> str:
-    """
-    Build Deribit instrument name following their convention.
-
-    Format: BTC-{D}MMMYY}-{STRIKE}-{C|P} (no leading zero on day)
-    Example: BTC-5SEP25-110000-C (not BTC-05SEP25-110000-C)
-
-    Args:
-        expiry_date: Option expiry date
-        strike: Strike price
-        option_type: 'call' or 'put'
-
-    Returns:
-        Instrument name string
-    """
     # Deribit doesn't use leading zeros for single-digit days
     day = expiry_date.day
     month = expiry_date.strftime("%b").upper()
@@ -181,20 +82,6 @@ def get_available_options(
     min_trades: int = 1,
     moneyness_range: tuple = (0.8, 1.2),
 ) -> List[Dict]:
-    """
-    Get all available options matching criteria.
-
-    Args:
-        client: Deribit client
-        trade_date: When option would be traded
-        expiry_date: Option expiry date
-        option_type: 'call' or 'put'
-        min_trades: Minimum number of trades for liquidity
-        moneyness_range: (min, max) moneyness to consider
-
-    Returns:
-        List of option dictionaries with metadata
-    """
     # Get perpetual price at trade date
     logger.info(f"Fetching spot price at {trade_date}")
 
@@ -378,7 +265,6 @@ def get_available_options(
 
 
 def print_options_table(options: List[Dict]):
-    """Print options in a readable table format."""
     if not options:
         print("\nNo options found matching criteria.")
         return

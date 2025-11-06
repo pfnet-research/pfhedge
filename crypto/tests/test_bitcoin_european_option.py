@@ -1,7 +1,4 @@
 #!/usr/bin/env python3
-"""
-Tests for Bitcoin European Option instrument.
-"""
 
 import sys
 import os
@@ -19,10 +16,8 @@ from crypto.instruments import (
 
 
 class TestBitcoinEuropeanOption(unittest.TestCase):
-    """Test Bitcoin European Option functionality."""
 
     def setUp(self):
-        """Set up test data."""
         torch.manual_seed(42)
         np.random.seed(42)
 
@@ -36,7 +31,6 @@ class TestBitcoinEuropeanOption(unittest.TestCase):
         )
 
     def test_initialization(self):
-        """Test option initialization."""
         self.assertEqual(self.option.strike, 50000)
         self.assertAlmostEqual(self.option.maturity, 30 / 365, places=6)
         self.assertTrue(self.option.call)
@@ -44,7 +38,6 @@ class TestBitcoinEuropeanOption(unittest.TestCase):
         self.assertEqual(self.option.transaction_cost, 0.001)
 
     def test_payoff_calculation(self):
-        """Test option payoff calculation."""
         payoffs = self.option.payoff()
 
         self.assertEqual(payoffs.shape, (self.btc.spot.shape[0],))
@@ -58,7 +51,6 @@ class TestBitcoinEuropeanOption(unittest.TestCase):
         self.assertTrue(torch.all(payoffs <= expected_gross))
 
     def test_payoff_without_transaction_costs(self):
-        """Test payoff calculation without transaction costs."""
         option_no_cost = BitcoinEuropeanOption(
             underlier=self.btc, strike=50000, maturity=30 / 365, call=True, cost=0.0
         )
@@ -70,7 +62,6 @@ class TestBitcoinEuropeanOption(unittest.TestCase):
         torch.testing.assert_close(payoffs, expected)
 
     def test_put_option(self):
-        """Test put option payoff."""
         put_option = BitcoinEuropeanOption(
             underlier=self.btc, strike=50000, maturity=30 / 365, call=False, cost=0.0
         )
@@ -82,7 +73,6 @@ class TestBitcoinEuropeanOption(unittest.TestCase):
         torch.testing.assert_close(payoffs, expected)
 
     def test_moneyness_calculation(self):
-        """Test log-moneyness calculation."""
         # Parent class moneyness() has log parameter, need to pass log=True for log-moneyness
         moneyness = self.option.moneyness(log=True)
 
@@ -94,7 +84,6 @@ class TestBitcoinEuropeanOption(unittest.TestCase):
         torch.testing.assert_close(moneyness, expected)
 
     def test_time_to_maturity(self):
-        """Test time to maturity calculation."""
         ttm = self.option.time_to_maturity()
 
         # time_to_maturity() returns tensor, either 1D (n_steps,) or 2D (n_paths, n_steps)
@@ -123,7 +112,6 @@ class TestBitcoinEuropeanOption(unittest.TestCase):
             self.assertLessEqual(ttm_values[i].item(), ttm_values[i - 1].item() + 1e-9)
 
     def test_realized_volatility(self):
-        """Test realized volatility calculation."""
         windows = [5, 10]
         realized_vol = self.option.realized_volatility(windows=windows)
 
@@ -135,7 +123,6 @@ class TestBitcoinEuropeanOption(unittest.TestCase):
         self.assertTrue(torch.all(valid_vol > 0))
 
     def test_deep_hedging_features(self):
-        """Test deep hedging feature creation."""
         features = self.option.deep_hedging_features()
 
         expected_features = [
@@ -157,7 +144,6 @@ class TestBitcoinEuropeanOption(unittest.TestCase):
             )
 
     def test_deep_hedging_features_selective(self):
-        """Test selective feature creation."""
         features = self.option.deep_hedging_features(
             include_time=False, include_volatility=False
         )
@@ -165,7 +151,6 @@ class TestBitcoinEuropeanOption(unittest.TestCase):
         self.assertEqual(list(features.keys()), ["log_moneyness"])
 
     def test_black_scholes_delta(self):
-        """Test Black-Scholes delta calculation."""
         delta = self.option.black_scholes_delta()
 
         self.assertEqual(delta.shape, self.btc.spot.shape)
@@ -179,7 +164,6 @@ class TestBitcoinEuropeanOption(unittest.TestCase):
         self.assertFalse(torch.any(torch.isinf(delta)))
 
     def test_black_scholes_delta_put(self):
-        """Test Black-Scholes delta for put option."""
         put_option = BitcoinEuropeanOption(
             underlier=self.btc, strike=50000, maturity=30 / 365, call=False
         )
@@ -191,7 +175,6 @@ class TestBitcoinEuropeanOption(unittest.TestCase):
         self.assertTrue(torch.all(delta <= 0))
 
     def test_summary(self):
-        """Test option summary generation."""
         summary = self.option.summary()
 
         required_keys = [
@@ -216,7 +199,6 @@ class TestBitcoinEuropeanOption(unittest.TestCase):
         self.assertLessEqual(summary["itm_ratio"], 1)
 
     def test_summary_without_simulation(self):
-        """Test summary when underlying is not simulated."""
         btc_no_sim = BitcoinPerpetualBrownian()
         option_no_sim = BitcoinEuropeanOption(
             btc_no_sim, strike=50000, maturity=30 / 365
@@ -229,10 +211,8 @@ class TestBitcoinEuropeanOption(unittest.TestCase):
 
 
 class TestCreateBitcoinOptionFromConfig(unittest.TestCase):
-    """Test configuration-based option creation."""
 
     def setUp(self):
-        """Set up test configuration."""
         self.config = {
             "strike": 50000,
             "maturity_days": 30,
@@ -245,7 +225,6 @@ class TestCreateBitcoinOptionFromConfig(unittest.TestCase):
         }
 
     def test_create_from_config(self):
-        """Test creating option from configuration."""
         option, summary = create_bitcoin_option_from_config(self.config)
 
         self.assertIsInstance(option, BitcoinEuropeanOption)
@@ -259,7 +238,6 @@ class TestCreateBitcoinOptionFromConfig(unittest.TestCase):
         self.assertEqual(summary["config"], self.config)
 
     def test_create_with_defaults(self):
-        """Test creating option with default values."""
         minimal_config = {"strike": 45000, "maturity_days": 7}
 
         option, summary = create_bitcoin_option_from_config(minimal_config)
@@ -270,7 +248,6 @@ class TestCreateBitcoinOptionFromConfig(unittest.TestCase):
         self.assertEqual(option.cost, 0.0)  # Default
 
     def test_put_option_creation(self):
-        """Test creating put option from config."""
         put_config = self.config.copy()
         put_config["call"] = False
 
@@ -281,10 +258,8 @@ class TestCreateBitcoinOptionFromConfig(unittest.TestCase):
 
 
 class TestIntegrationWithVisualization(unittest.TestCase):
-    """Test integration with visualization utilities."""
 
     def setUp(self):
-        """Set up test data."""
         torch.manual_seed(42)
 
         config = {"strike": 50000, "maturity_days": 14, "n_paths": 20, "seed": 42}
@@ -292,7 +267,6 @@ class TestIntegrationWithVisualization(unittest.TestCase):
         self.option, self.summary = create_bitcoin_option_from_config(config)
 
     def test_option_analysis_compatibility(self):
-        """Test that option works with our visualization utilities."""
         # Test that we can extract the data needed for option analysis
 
         # Should have underlying with spot prices
@@ -309,7 +283,6 @@ class TestIntegrationWithVisualization(unittest.TestCase):
         self.assertIn("time_to_maturity", features)
 
     def test_hedging_performance_compatibility(self):
-        """Test compatibility with hedging performance analysis."""
         # Calculate simple hedge
         hedge_ratio = 0.5
         initial_prices = self.option.underlier.spot[:, 0]

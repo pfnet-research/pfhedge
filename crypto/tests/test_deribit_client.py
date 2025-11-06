@@ -1,7 +1,3 @@
-"""
-Unit tests for Deribit API client.
-"""
-
 import unittest
 from unittest.mock import Mock, patch, MagicMock
 from datetime import datetime, timezone
@@ -15,25 +11,20 @@ from data.deribit_client import DeribitClient, timestamp_to_ms, ms_to_timestamp
 
 
 class TestDeribitClient(unittest.TestCase):
-    """Test cases for DeribitClient."""
 
     def setUp(self):
-        """Set up test fixtures."""
         self.client = DeribitClient(testnet=True)
 
     def test_init_testnet(self):
-        """Test client initialization with testnet."""
         client = DeribitClient(testnet=True)
         self.assertIn("test.deribit.com", client.base_url)
 
     def test_init_mainnet(self):
-        """Test client initialization with mainnet."""
         client = DeribitClient(testnet=False)
         self.assertIn("www.deribit.com", client.base_url)
 
     @patch("crypto.data.deribit_client.requests.Session.get")
     def test_make_request_success(self, mock_get):
-        """Test successful API request."""
         # Mock successful response
         mock_response = Mock()
         mock_response.json.return_value = {"result": {"test": "data"}}
@@ -47,7 +38,6 @@ class TestDeribitClient(unittest.TestCase):
 
     @patch("crypto.data.deribit_client.requests.Session.get")
     def test_make_request_api_error(self, mock_get):
-        """Test API error handling."""
         # Mock API error response
         mock_response = Mock()
         mock_response.json.return_value = {"error": {"message": "API Error"}}
@@ -61,7 +51,6 @@ class TestDeribitClient(unittest.TestCase):
 
     @patch("crypto.data.deribit_client.requests.Session.get")
     def test_get_instruments(self, mock_get):
-        """Test get_instruments method."""
         # Mock response with sample instruments
         mock_response = Mock()
         mock_response.json.return_value = {
@@ -80,7 +69,6 @@ class TestDeribitClient(unittest.TestCase):
 
     @patch("crypto.data.deribit_client.requests.Session.get")
     def test_get_ticker(self, mock_get):
-        """Test get_ticker method."""
         # Mock ticker response
         mock_response = Mock()
         mock_response.json.return_value = {
@@ -101,7 +89,6 @@ class TestDeribitClient(unittest.TestCase):
 
     @patch("crypto.data.deribit_client.requests.Session.get")
     def test_get_order_book(self, mock_get):
-        """Test get_order_book method."""
         # Mock order book response
         mock_response = Mock()
         mock_response.json.return_value = {
@@ -123,7 +110,6 @@ class TestDeribitClient(unittest.TestCase):
 
     @patch("crypto.data.deribit_client.requests.Session.get")
     def test_get_recent_trades(self, mock_get):
-        """Test get_recent_trades method."""
         # Mock trades response
         mock_response = Mock()
         mock_response.json.return_value = {
@@ -142,10 +128,8 @@ class TestDeribitClient(unittest.TestCase):
 
 
 class TestUtilityFunctions(unittest.TestCase):
-    """Test utility functions."""
 
     def test_timestamp_to_ms(self):
-        """Test timestamp to milliseconds conversion."""
         dt = datetime(2023, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
         ms = timestamp_to_ms(dt)
 
@@ -154,7 +138,6 @@ class TestUtilityFunctions(unittest.TestCase):
         )  # Known timestamp for 2023-01-01 12:00:00 UTC
 
     def test_ms_to_timestamp(self):
-        """Test milliseconds to timestamp conversion."""
         ms = 1672574400000  # 2023-01-01 12:00:00 UTC
         dt = ms_to_timestamp(ms)
 
@@ -164,7 +147,6 @@ class TestUtilityFunctions(unittest.TestCase):
         self.assertEqual(dt.hour, 12)
 
     def test_timestamp_roundtrip(self):
-        """Test timestamp conversion roundtrip."""
         original_dt = datetime(2023, 6, 15, 14, 30, 45, tzinfo=timezone.utc)
         ms = timestamp_to_ms(original_dt)
         converted_dt = ms_to_timestamp(ms)

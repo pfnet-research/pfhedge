@@ -1,9 +1,4 @@
 #!/usr/bin/env python3
-"""
-Final comprehensive optimization with corrected PnL calculation.
-
-Tests various configurations to find optimal deep hedging setup.
-"""
 
 import sys
 import os
@@ -22,7 +17,6 @@ from crypto.strategies import (
 
 
 def run_experiment(config):
-    """Run a single optimization experiment."""
 
     # Base parameters
     base_config = {
@@ -104,7 +98,6 @@ def run_experiment(config):
 
 
 def main():
-    """Run comprehensive optimization experiments."""
 
     print("=" * 70)
     print("FINAL OPTIMIZATION WITH CORRECTED PNL")

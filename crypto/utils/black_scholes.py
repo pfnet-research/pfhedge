@@ -1,7 +1,3 @@
-"""
-Black-Scholes utilities for option pricing and implied volatility calculation.
-"""
-
 import numpy as np
 from scipy import optimize
 from scipy.stats import norm
@@ -16,20 +12,6 @@ def black_scholes_price(
     risk_free_rate: float = 0.0,
     option_type: str = "call",
 ) -> float:
-    """
-    Calculate Black-Scholes option price.
-
-    Args:
-        spot: Current spot price
-        strike: Strike price
-        time_to_expiry: Time to expiry in years
-        volatility: Annualized volatility
-        risk_free_rate: Risk-free rate (default: 0 for crypto)
-        option_type: "call" or "put"
-
-    Returns:
-        Option price
-    """
     if time_to_expiry <= 0:
         # Option expired
         if option_type == "call":
@@ -64,20 +46,6 @@ def black_scholes_delta(
     risk_free_rate: float = 0.0,
     option_type: str = "call",
 ) -> float:
-    """
-    Calculate Black-Scholes delta.
-
-    Args:
-        spot: Current spot price
-        strike: Strike price
-        time_to_expiry: Time to expiry in years
-        volatility: Annualized volatility
-        risk_free_rate: Risk-free rate
-        option_type: "call" or "put"
-
-    Returns:
-        Delta (hedge ratio)
-    """
     if time_to_expiry <= 0:
         # Option expired
         if option_type == "call":
@@ -110,23 +78,6 @@ def implied_volatility(
     max_iterations: int = 100,
     tolerance: float = 1e-6,
 ) -> Optional[float]:
-    """
-    Calculate implied volatility from option premium using Newton-Raphson method.
-
-    Args:
-        premium: Observed option premium
-        spot: Current spot price
-        strike: Strike price
-        time_to_expiry: Time to expiry in years
-        risk_free_rate: Risk-free rate (default: 0 for crypto)
-        option_type: "call" or "put"
-        initial_guess: Initial volatility guess
-        max_iterations: Maximum iterations for convergence
-        tolerance: Convergence tolerance
-
-    Returns:
-        Implied volatility, or None if cannot converge
-    """
     # Handle edge cases
     if time_to_expiry <= 0:
         return None
@@ -149,7 +100,6 @@ def implied_volatility(
             return None
 
     def objective(vol):
-        """Objective function: model_price - market_price."""
         try:
             model_price = black_scholes_price(
                 spot, strike, time_to_expiry, vol, risk_free_rate, option_type
@@ -159,7 +109,6 @@ def implied_volatility(
             return float("inf")
 
     def vega_func(vol):
-        """Vega: derivative of price with respect to volatility."""
         try:
             # Calculate vega
             d1 = (
@@ -217,21 +166,6 @@ def implied_volatility_from_btc_premium(
     time_to_expiry: float,
     option_type: str = "call",
 ) -> Optional[float]:
-    """
-    Calculate implied volatility from BTC-denominated premium.
-
-    For Deribit, premiums are quoted in BTC, so we need to convert.
-
-    Args:
-        premium_btc: Premium in BTC
-        spot: Spot price in USD
-        strike: Strike price in USD
-        time_to_expiry: Time to expiry in years
-        option_type: "call" or "put"
-
-    Returns:
-        Implied volatility
-    """
     # Convert premium from BTC to USD terms
     # For BTC options on Deribit, 1 contract = 1 BTC
     premium_usd = premium_btc * spot
@@ -250,17 +184,6 @@ def implied_volatility_from_btc_premium(
 def calculate_breakeven(
     strike: float, premium: float, option_type: str = "call"
 ) -> float:
-    """
-    Calculate breakeven price for an option position.
-
-    Args:
-        strike: Strike price
-        premium: Premium paid/received
-        option_type: "call" or "put"
-
-    Returns:
-        Breakeven price
-    """
     if option_type == "call":
         # For calls, breakeven is strike + premium
         return strike + premium
@@ -276,19 +199,6 @@ def calculate_option_pnl(
     option_type: str = "call",
     position: str = "long",
 ) -> float:
-    """
-    Calculate P&L for an option position at expiry.
-
-    Args:
-        spot_at_expiry: Spot price at expiry
-        strike: Strike price
-        premium: Premium paid (if long) or received (if short)
-        option_type: "call" or "put"
-        position: "long" or "short"
-
-    Returns:
-        Total P&L including premium
-    """
     # Calculate payoff
     if option_type == "call":
         payoff = max(spot_at_expiry - strike, 0)

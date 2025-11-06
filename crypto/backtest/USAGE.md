@@ -73,6 +73,7 @@ call: true                    # true for call, false for put
 n_bootstrap_paths: 100        # Number of bootstrap paths to generate
 transaction_cost: 0.0005      # Transaction cost rate (0.05%)
 dt_hours: 8.0                 # Rebalancing interval in hours
+band_width: 0.001             # Minimum trade size in BTC (0.001=Binance, 0.01=Deribit, 0.0=disable)
 
 # Directories (optional - defaults shown)
 data_dir: sample_data         # Where to find historical data

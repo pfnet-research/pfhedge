@@ -1,10 +1,3 @@
-"""
-Tardis.dev API client for historical cryptocurrency data.
-
-This client provides the same interface as DeribitClient but fetches historical
-data from Tardis.dev, which has comprehensive historical coverage since 2019-03-30.
-"""
-
 import asyncio
 import json
 import logging
@@ -24,41 +17,12 @@ logger = logging.getLogger(__name__)
 
 
 class TardisClient(MarketDataClient):
-    """Tardis.dev client with Deribit-compatible interface.
-
-    This client fetches historical data from Tardis.dev and converts it to the
-    same format as DeribitClient, allowing seamless switching between data sources.
-
-    Features:
-    - Historical data since 2019-03-30
-    - Tick-by-tick trades, order book, quotes, funding rates
-    - First day of each month free without API key
-    - Full access with API key
-
-    Args:
-        api_key: Tardis.dev API key (optional for free access)
-        testnet: Ignored (Tardis only has mainnet historical data)
-
-    Example:
-        >>> client = TardisClient(api_key="your_api_key")
-        >>> trades = client.get_historical_trades(
-        ...     "BTC-PERPETUAL",
-        ...     timestamp_to_ms(datetime(2024, 10, 1)),
-        ...     timestamp_to_ms(datetime(2024, 10, 2))
-        ... )
-    """
 
     def __init__(
         self,
         api_key: Optional[str] = None,
         testnet: bool = False,
     ):
-        """Initialize Tardis client.
-
-        Args:
-            api_key: Tardis.dev API key (optional for free monthly access)
-            testnet: Ignored - Tardis only has mainnet data
-        """
         self.api_key = api_key
         self._tardis_client = (
             TardisAPIClient(api_key=api_key) if api_key else TardisAPIClient()
@@ -78,33 +42,6 @@ class TardisClient(MarketDataClient):
     def get_instruments(
         self, currency: str = "BTC", kind: str = "option", **kwargs
     ) -> List[Dict]:
-        """Get available instruments using Tardis Instruments Metadata API.
-
-        This method fetches instruments from Tardis's comprehensive instrument
-        database, which includes historical instruments and their availability periods.
-
-        Note: Requires Tardis API key (free tier limited, paid plans recommended).
-
-        Args:
-            currency: Currency (BTC, ETH, etc.)
-            kind: Instrument kind (option, future, spot)
-            **kwargs: Additional parameters:
-                - active: bool (default True) - filter by active status
-                - expired: bool - if True, return expired instruments
-                - expiry_date: datetime - filter by specific expiry date (for options)
-
-        Returns:
-            List of instrument data in Deribit-compatible format
-
-        Examples:
-            >>> # Get active BTC options
-            >>> client.get_instruments("BTC", "option")
-
-            >>> # Get BTC options expiring on Oct 29, 2024
-            >>> from datetime import datetime
-            >>> expiry = datetime(2024, 10, 29)
-            >>> client.get_instruments("BTC", "option", expiry_date=expiry)
-        """
         # Check cache (only if no specific filters)
         now = datetime.now(timezone.utc)
 
@@ -184,20 +121,6 @@ class TardisClient(MarketDataClient):
     def _convert_tardis_instruments_to_deribit_format(
         self, tardis_instruments: List[Dict]
     ) -> List[Dict]:
-        """Convert Tardis instrument format to Deribit format.
-
-        Tardis format:
-            {id, baseCurrency, quoteCurrency, type, strikePrice, optionType, expiry, ...}
-
-        Deribit format:
-            {instrument_name, kind, strike, option_type, expiration_timestamp, ...}
-
-        Args:
-            tardis_instruments: List of instruments in Tardis format
-
-        Returns:
-            List of instruments in Deribit format
-        """
         deribit_instruments = []
 
         for inst in tardis_instruments:
@@ -236,7 +159,6 @@ class TardisClient(MarketDataClient):
     def _get_instruments_from_deribit_fallback(
         self, currency: str, kind: str, **kwargs
     ) -> List[Dict]:
-        """Fallback to Deribit public API if Tardis fails."""
         url = "https://www.deribit.com/api/v2/public/get_instruments"
         params = {"currency": currency, "kind": kind}
 
@@ -260,7 +182,6 @@ class TardisClient(MarketDataClient):
     def _filter_instruments(
         self, instruments: List[Dict], currency: str, kind: str
     ) -> List[Dict]:
-        """Filter instruments by currency and kind."""
         return [
             inst
             for inst in instruments
@@ -274,17 +195,6 @@ class TardisClient(MarketDataClient):
         end_timestamp: int,
         count: int = 1000,
     ) -> List[Dict]:
-        """Get historical trades for an instrument.
-
-        Args:
-            instrument_name: Name of instrument (e.g., "BTC-PERPETUAL")
-            start_timestamp: Start time in milliseconds
-            end_timestamp: End time in milliseconds
-            count: Maximum number of trades (note: Tardis may return more)
-
-        Returns:
-            List of trade data in Deribit format
-        """
         logger.info(
             f"Fetching historical trades for {instrument_name} "
             f"from {ms_to_timestamp(start_timestamp)} to {ms_to_timestamp(end_timestamp)}"
@@ -340,19 +250,6 @@ class TardisClient(MarketDataClient):
         end_ms: int,
         max_count: int,
     ) -> List[Dict]:
-        """Replay historical trades from Tardis (async).
-
-        Args:
-            instrument_name: Instrument name
-            from_date: Start date (YYYY-MM-DD)
-            to_date: End date (YYYY-MM-DD)
-            start_ms: Start timestamp in milliseconds
-            end_ms: End timestamp in milliseconds
-            max_count: Maximum trades to return
-
-        Returns:
-            List of trades in Deribit format
-        """
         trades = []
 
         # Tardis replay API
@@ -390,25 +287,6 @@ class TardisClient(MarketDataClient):
         return trades
 
     def _convert_trade_message(self, msg: Dict) -> Dict:
-        """Convert Tardis trade message to Deribit format.
-
-        Tardis message structure (from Deribit WebSocket v2):
-        {
-            "timestamp": 1609459200000,
-            "trade_id": "123456",
-            "price": 29000.5,
-            "amount": 100,
-            "direction": "buy",
-            "instrument_name": "BTC-PERPETUAL",
-            ...
-        }
-
-        Args:
-            msg: Tardis message
-
-        Returns:
-            Trade data in Deribit REST API format
-        """
         # Tardis already provides data in Deribit WebSocket format
         # Just extract the fields we need
         return {
@@ -424,18 +302,6 @@ class TardisClient(MarketDataClient):
         }
 
     def get_ticker(self, instrument_name: str, timestamp: Optional[int] = None) -> Dict:
-        """Get ticker data for an instrument.
-
-        Args:
-            instrument_name: Name of instrument
-            timestamp: Timestamp in milliseconds (required for Tardis)
-
-        Returns:
-            Ticker data in Deribit format
-
-        Raises:
-            ValueError: If timestamp is not provided
-        """
         if timestamp is None:
             raise ValueError(
                 "TardisClient requires a timestamp for ticker data. "
@@ -503,19 +369,6 @@ class TardisClient(MarketDataClient):
         start_timestamp: Optional[int] = None,
         end_timestamp: Optional[int] = None,
     ) -> List[Dict]:
-        """Get funding rate history for perpetual contract using CSV downloads.
-
-        This method uses Tardis CSV datasets which is much faster than WebSocket replay.
-        Downloads derivative_ticker CSV files for each day and samples at 8-hour intervals.
-
-        Args:
-            instrument_name: Name of perpetual instrument
-            start_timestamp: Start time in milliseconds
-            end_timestamp: End time in milliseconds
-
-        Returns:
-            List of funding rate data (sampled at 8-hour intervals: 00:00, 08:00, 16:00 UTC)
-        """
         if not start_timestamp or not end_timestamp:
             raise ValueError(
                 "TardisClient requires start_timestamp and end_timestamp for funding rates"
@@ -547,19 +400,6 @@ class TardisClient(MarketDataClient):
         start_timestamp: int,
         end_timestamp: int,
     ) -> List[Dict]:
-        """Download funding rate data from Tardis CSV datasets.
-
-        Downloads derivative_ticker CSV files for each day in the date range,
-        then samples at 8-hour intervals (00:00, 08:00, 16:00 UTC).
-
-        Args:
-            instrument_name: Instrument name (e.g., BTC-PERPETUAL)
-            start_timestamp: Start time in milliseconds
-            end_timestamp: End time in milliseconds
-
-        Returns:
-            List of funding rate records
-        """
         import requests
         import gzip
         from io import BytesIO
@@ -668,18 +508,6 @@ class TardisClient(MarketDataClient):
         start_ms: int,
         end_ms: int,
     ) -> List[Dict]:
-        """Replay funding rate data from Tardis (async).
-
-        Args:
-            instrument_name: Instrument name
-            from_date: Start date (YYYY-MM-DD)
-            to_date: End date (YYYY-MM-DD)
-            start_ms: Start timestamp in milliseconds
-            end_ms: End timestamp in milliseconds
-
-        Returns:
-            List of funding rate records
-        """
         funding_data = []
 
         # Tardis captures funding rate from "perpetual" channel
@@ -753,18 +581,6 @@ class TardisClient(MarketDataClient):
         return funding_data
 
     def get_recent_trades(self, instrument_name: str, count: int = 10) -> List[Dict]:
-        """Get recent trades for an instrument.
-
-        Note: Tardis is for historical data. This method fetches the most recent
-        available historical trades (typically yesterday or last complete day).
-
-        Args:
-            instrument_name: Name of instrument
-            count: Number of recent trades to fetch
-
-        Returns:
-            List of recent trade data
-        """
         logger.warning(
             "TardisClient is for historical data. "
             "get_recent_trades() returns last available historical trades, not live data."

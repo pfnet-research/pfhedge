@@ -1,5 +1,3 @@
-"""Backtesting framework for deep hedging strategies."""
-
 from typing import Optional, TYPE_CHECKING
 
 import torch
@@ -20,38 +18,7 @@ if TYPE_CHECKING:
 
 
 class Backtester:
-    """Backtest deep hedging strategies on historical data.
-
-    This class orchestrates the backtesting process:
-    1. Load pre-trained model
-    2. Load historical data
-    3. Create bootstrap paths from historical data
-    4. Run deep hedge and Black-Scholes strategies
-    5. Calculate performance metrics
-    6. Generate reports and visualizations
-
-    Args:
-        config: Backtest configuration
-
-    Examples:
-        >>> from crypto.backtest.config import BacktestConfig
-        >>> config = BacktestConfig(
-        ...     start_date="2024-01-01",
-        ...     end_date="2024-01-31",
-        ...     strike=50000,
-        ...     maturity_days=14,
-        ...     model_path="models/deep_hedger.pth"
-        ... )
-        >>> backtester = Backtester(config)
-        >>> results = backtester.run()
-    """
-
     def __init__(self, config: BacktestConfig):
-        """Initialize backtester with configuration.
-
-        Args:
-            config: Backtest configuration
-        """
         self.config = config
         self.logger = BacktestLogger(verbosity="INFO")
 
@@ -65,19 +32,6 @@ class Backtester:
         self.diagnostics = None
 
     def load_model(self, device: Optional[str] = None) -> "Hedger":
-        """Load pre-trained model from checkpoint.
-
-        Args:
-            device: Target device ('cpu', 'cuda', etc.). If None, uses 'cpu'.
-
-        Returns:
-            Loaded Hedger model
-
-        Raises:
-            FileNotFoundError: If checkpoint file doesn't exist
-            KeyError: If checkpoint is missing required keys
-            RuntimeError: If state dict doesn't match model architecture
-        """
         if device is None:
             device = "cpu"
 
@@ -108,15 +62,6 @@ class Backtester:
         return self.model
 
     def load_data(self) -> "CryptoDataLoader":
-        """Load historical data for backtesting.
-
-        Returns:
-            CryptoDataLoader with historical data loaded and prepared
-
-        Raises:
-            FileNotFoundError: If data directory doesn't exist or no data files found
-            ValueError: If data loading fails, data is empty, or date filtering results in no data
-        """
         data_loader_helper = BacktestDataLoader(self.config)
         self.data_loader = data_loader_helper.load_and_prepare_data()
 
@@ -133,18 +78,6 @@ class Backtester:
     def create_bootstrap_option(
         self, data_loader: Optional["CryptoDataLoader"] = None
     ) -> "BitcoinEuropeanOption":
-        """Create option with bootstrap paths from historical data.
-
-        Args:
-            data_loader: CryptoDataLoader with historical data.
-                        If None, uses self.data_loader.
-
-        Returns:
-            BitcoinEuropeanOption with bootstrap paths from historical data
-
-        Raises:
-            ValueError: If data_loader is None and no data has been loaded
-        """
         if data_loader is None:
             data_loader = self.data_loader
 
@@ -161,15 +94,6 @@ class Backtester:
         return self.option
 
     def run_deep_hedge(self, option=None, model=None) -> Tensor:
-        """Run deep hedging strategy on option.
-
-        Args:
-            option: Option to hedge. If None, uses self.option.
-            model: Pre-trained Hedger model. If None, uses self.model.
-
-        Returns:
-            Cumulative PnL tensor, shape (n_paths, n_steps)
-        """
         if option is None:
             option = self.option
         if model is None:
@@ -184,14 +108,6 @@ class Backtester:
         return deep_pnl
 
     def run_bs_baseline(self, option=None) -> Tensor:
-        """Run Black-Scholes delta hedge baseline.
-
-        Args:
-            option: Option to hedge. If None, uses self.option.
-
-        Returns:
-            Cumulative PnL tensor, shape (n_paths, n_steps)
-        """
         if option is None:
             option = self.option
 
@@ -203,42 +119,6 @@ class Backtester:
         return bs_pnl
 
     def run(self, seed: Optional[int] = None):
-        """Run full backtest.
-
-        This orchestrates the entire backtesting process:
-        1. Load model
-        2. Load data
-        3. Create bootstrap option
-        4. Run deep hedge strategy
-        5. Run BS baseline strategy
-        6. Create results object with metrics
-
-        Args:
-            seed: Random seed for reproducibility. If None, results may vary
-                  between runs due to random bootstrap sampling.
-
-        Returns:
-            BacktestResults object with all results and summary statistics
-
-        Raises:
-            FileNotFoundError: If model checkpoint or data directory not found
-            ValueError: If data loading fails or configuration is invalid
-            RuntimeError: If model loading or strategy execution fails
-
-        Examples:
-            >>> from crypto.backtest.config import BacktestConfig
-            >>> config = BacktestConfig(
-            ...     start_date="2024-01-01",
-            ...     end_date="2024-01-31",
-            ...     strike=50000,
-            ...     maturity_days=14,
-            ...     model_path="models/deep_hedger.pth"
-            ... )
-            >>> backtester = Backtester(config)
-            >>> results = backtester.run(seed=42)  # Reproducible results
-            >>> summary = results.summary()
-            >>> print(f"Deep Sharpe: {summary['deep_hedge']['sharpe_ratio']:.3f}")
-        """
         # Import BacktestResults
         import logging
         import random
@@ -420,5 +300,4 @@ class Backtester:
         return results
 
     def __repr__(self) -> str:
-        """String representation."""
         return f"Backtester(config={self.config})"

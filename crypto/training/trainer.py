@@ -1,5 +1,3 @@
-"""Training framework for deep hedging strategies."""
-
 from typing import Optional, TYPE_CHECKING, List, Dict, Any
 import os
 import torch
@@ -36,14 +34,18 @@ def _create_optimizer(config: TrainingConfig, model_parameters):
 
 
 def _move_option_to_device(option, target_device, verbose=False):
-    if not hasattr(option.underlier, "spot"):
-        return
+    # CRITICAL: Move underlier to target device BEFORE any simulation
+    # This ensures data generation happens directly on GPU, avoiding CPU bottleneck
+    current_device = getattr(option.underlier, "device", torch.device("cpu"))
 
-    option_device = option.underlier.spot.device
-    if option_device != target_device:
+    if current_device != target_device:
         if verbose:
-            print(f"   Moving option from {option_device} to {target_device}...")
+            print(f"   Moving underlier from {current_device} to {target_device}...")
         option.underlier.to(target_device)
+
+        # Also ensure the option itself is on the correct device
+        if hasattr(option, "to"):
+            option.to(target_device)
 
 
 def _check_dtype_consistency(option, model_dtype, verbose=False):
@@ -100,7 +102,9 @@ class Trainer:
         self.model = None
 
     def create_option(self, n_paths: int, seed: int) -> "BitcoinEuropeanOption":
-        from crypto.instruments import create_bitcoin_option_from_config
+        from crypto.instruments import BitcoinEuropeanOption
+        import torch
+        import numpy as np
 
         if self.config.underlying_type == "spot":
             from crypto.instruments import BitcoinSpotBrownian
@@ -111,23 +115,37 @@ class Trainer:
 
             underlier_class = BitcoinPerpetualBrownian
 
-        option_config = {
-            "strike": self.config.strike,
-            "maturity_days": self.config.maturity_days,
-            "call": self.config.call,
-            "cost": 0.0,
-            "sigma": self.config.volatility,
-            "mu": self.config.drift,
-            "underlier_cost": self.config.transaction_cost,
-            "dt": self.config.dt,
-            "n_paths": n_paths,
-            "seed": seed,
-            "volatility_window": self.config.volatility_window,
-        }
+        # Set random seed if provided
+        torch.manual_seed(seed)
+        np.random.seed(seed)
 
-        option, _ = create_bitcoin_option_from_config(
-            option_config, underlier_class=underlier_class
+        # Determine the actual device to use
+        device_str = self.config.device
+        if device_str == "auto":
+            device_str = "cuda" if torch.cuda.is_available() else "cpu"
+        device = torch.device(device_str)
+
+        # Create underlier directly on the target device to avoid CPU bottleneck
+        underlier = underlier_class(
+            sigma=self.config.volatility,
+            mu=self.config.drift,
+            cost=self.config.transaction_cost,
+            dt=self.config.dt,
+            volatility_window=self.config.volatility_window,
+            device=device,  # CRITICAL: Set device here to generate data directly on GPU
         )
+
+        # Create option
+        maturity_time = self.config.maturity_days / 365
+        option = BitcoinEuropeanOption(
+            underlier,
+            strike=self.config.strike,
+            maturity=maturity_time,
+            call=self.config.call,
+        )
+
+        # Simulate underlying paths on the correct device
+        underlier.simulate(n_paths=n_paths, time_horizon=maturity_time)
 
         return option
 
@@ -150,11 +168,19 @@ class Trainer:
         hedger.to(device)
 
         if self.verbose:
-            n_params = sum(p.numel() for p in hedger.parameters())
-            print(f"✅ Model created: {self.config.model_type.upper()}")
-            print(f"   Device: {device}")
-            print(f"   Parameters: {n_params:,}")
-            print(f"   Risk measure: {self.config.risk_measure}")
+            try:
+                n_params = sum(
+                    p.numel() for p in hedger.parameters() if p.is_meta is False
+                )
+                print(f"✅ Model created: {self.config.model_type.upper()}")
+                print(f"   Device: {device}")
+                print(f"   Parameters: {n_params:,}")
+                print(f"   Risk measure: {self.config.risk_measure}")
+            except (ValueError, RuntimeError):
+                print(f"✅ Model created: {self.config.model_type.upper()}")
+                print(f"   Device: {device}")
+                print(f"   Parameters: (lazy, will be initialized on first forward)")
+                print(f"   Risk measure: {self.config.risk_measure}")
 
         return hedger
 
@@ -294,6 +320,9 @@ class Trainer:
         if self.verbose:
             print(f"\nEvaluating on test set ({self.config.test_n_paths} paths)...")
 
+        model_device = next(model.parameters()).device
+        _move_option_to_device(option, model_device, self.verbose)
+
         from crypto.strategies import calculate_bs_hedge_pnl
 
         hedge_positions = model.compute_hedge(option)
@@ -308,6 +337,7 @@ class Trainer:
             bs_delta=hedge_positions,
             payoffs=payoffs,
             cost=self.config.transaction_cost,
+            band_width=self.config.band_width,
         )
 
         final_pnl = pnl[:, -1]
@@ -394,9 +424,9 @@ class Trainer:
 
         train_history = self.train_model()
 
-        test_metrics = self.evaluate()
-
         self.save_checkpoint()
+
+        test_metrics = self.evaluate()
 
         results = TrainingResults(
             config=self.config,

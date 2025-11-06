@@ -1,10 +1,3 @@
-"""
-Visualization utilities for crypto deep hedging framework.
-
-This module provides reusable plotting functions that work with any instrument
-in our framework (BitcoinSpot, BitcoinPerpetualBrownian, BitcoinPerpetualHistorical, etc.)
-"""
-
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
@@ -21,31 +14,6 @@ def plot_price_paths(
     show_stats: bool = True,
     save_path: Optional[str] = None,
 ) -> plt.Figure:
-    """
-    Plot price paths for any instrument in our framework.
-
-    Args:
-        instrument: Any instrument with .spot attribute (BitcoinSpot, BitcoinPerpetual*, etc.)
-        n_paths_to_show: Number of price paths to display
-        time_unit: Time unit for x-axis ('days', 'hours', 'minutes')
-        title: Custom title for the plot
-        figsize: Figure size (width, height)
-        show_stats: Whether to show price statistics
-        save_path: Path to save the plot (optional)
-
-    Returns:
-        matplotlib.Figure: The created figure
-
-    Examples:
-        >>> btc = BitcoinPerpetualBrownian(sigma=0.8)
-        >>> btc.simulate(n_paths=1000, time_horizon=30/365)
-        >>> fig = plot_price_paths(btc, n_paths_to_show=20, time_unit="days")
-        >>> plt.show()
-
-        >>> btc_hist = BitcoinPerpetualHistorical(data_loader=loader)
-        >>> btc_hist.simulate(n_paths=1, time_horizon=7/365)
-        >>> fig = plot_price_paths(btc_hist, title="Historical Bitcoin Prices")
-    """
 
     if not hasattr(instrument, "spot"):
         raise ValueError("Instrument must have a 'spot' attribute with price data")
@@ -163,20 +131,6 @@ def plot_option_analysis(
     figsize: Tuple[int, int] = (15, 5),
     save_path: Optional[str] = None,
 ) -> plt.Figure:
-    """
-    Analyze option payoffs for any instrument.
-
-    Args:
-        instrument: Any instrument with .spot attribute
-        strike: Strike price for the option
-        option_type: 'call' or 'put'
-        title: Custom title
-        figsize: Figure size
-        save_path: Path to save plot
-
-    Returns:
-        matplotlib.Figure: The created figure
-    """
 
     if not hasattr(instrument, "spot"):
         raise ValueError("Instrument must have a 'spot' attribute")
@@ -277,20 +231,6 @@ def plot_hedging_performance(
     figsize: Tuple[int, int] = (15, 5),
     save_path: Optional[str] = None,
 ) -> plt.Figure:
-    """
-    Analyze hedging strategy performance.
-
-    Args:
-        hedge_pnl: PnL of the hedging strategy
-        underlying_returns: Underlying asset returns (optional)
-        hedge_name: Name of the strategy for labels
-        title: Custom title
-        figsize: Figure size
-        save_path: Path to save plot
-
-    Returns:
-        matplotlib.Figure: The created figure
-    """
 
     # Convert to numpy
     if isinstance(hedge_pnl, torch.Tensor):
@@ -380,18 +320,6 @@ def plot_volatility_analysis(
     figsize: Tuple[int, int] = (12, 8),
     save_path: Optional[str] = None,
 ) -> plt.Figure:
-    """
-    Analyze volatility patterns for any instrument.
-
-    Args:
-        instrument: Any instrument with .volatility attribute
-        title: Custom title
-        figsize: Figure size
-        save_path: Path to save plot
-
-    Returns:
-        matplotlib.Figure: The created figure
-    """
 
     if not hasattr(instrument, "volatility"):
         raise ValueError("Instrument must have a 'volatility' attribute")
@@ -499,17 +427,6 @@ def quick_instrument_analysis(
     save_plots: bool = False,
     output_dir: str = "plots",
 ) -> None:
-    """
-    Run complete analysis suite for any instrument.
-
-    Args:
-        instrument: Any instrument in our framework
-        strike: Strike for option analysis (uses ATM if None)
-        option_type: 'call' or 'put'
-        n_paths_to_show: Number of paths to show
-        save_plots: Whether to save plots
-        output_dir: Directory to save plots
-    """
 
     instrument_name = instrument.__class__.__name__
 
@@ -567,42 +484,6 @@ def plot_hedge_comparison(
     figsize: Tuple[int, int] = (12, 14),
     save_path: Optional[str] = None,
 ) -> plt.Figure:
-    """
-    Create comprehensive hedge comparison visualization.
-
-    Shows training history, hedging positions over time, and final PnL distribution
-    comparing deep hedging vs Black-Scholes strategies.
-
-    Args:
-        deep_hedge_positions: Deep hedging positions over time, shape (n_paths, n_steps)
-        bs_delta: Black-Scholes delta over time, shape (n_paths, n_steps)
-        deep_hedge_pnl: Deep hedging cumulative PnL, shape (n_paths, n_steps)
-        bs_hedge_pnl: Black-Scholes cumulative PnL, shape (n_paths, n_steps)
-        spots: Spot prices over time, shape (n_paths, n_steps)
-        strike: Strike price for the option
-        training_history: Training loss history (optional)
-        performance_results: Performance metrics dict from compare_hedge_performance (optional)
-        path_idx: Which path to show for time series plots
-        title: Custom title (optional)
-        figsize: Figure size
-        save_path: Path to save plot (optional)
-
-    Returns:
-        matplotlib.Figure: The created figure
-
-    Examples:
-        >>> # Basic usage
-        >>> fig = plot_hedge_comparison(
-        ...     deep_positions, bs_delta, deep_pnl, bs_pnl, spots, strike=50000
-        ... )
-        >>> plt.show()
-
-        >>> # With training history
-        >>> fig = plot_hedge_comparison(
-        ...     deep_positions, bs_delta, deep_pnl, bs_pnl, spots,
-        ...     strike=50000, training_history=history
-        ... )
-    """
 
     # Convert tensors to numpy
     if isinstance(deep_hedge_positions, torch.Tensor):

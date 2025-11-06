@@ -1,9 +1,3 @@
-"""Data loading factory for backtesting.
-
-This module provides a factory function to create CryptoDataLoader instances
-configured for backtesting scenarios.
-"""
-
 from __future__ import annotations
 
 import os
@@ -22,26 +16,6 @@ logger = logging.getLogger(__name__)
 
 
 def load_for_backtesting(config: "BacktestConfig") -> "CryptoDataLoader":
-    """Load and prepare data for backtesting.
-
-    This is a factory function that:
-    1. Loads raw price data from parquet files
-    2. Processes and resamples to configured frequency
-    3. Filters to specified date range
-    4. Loads and merges funding data (if perpetual)
-    5. Loads options data (if available)
-    6. Returns a configured CryptoDataLoader
-
-    Args:
-        config: Backtest configuration
-
-    Returns:
-        CryptoDataLoader with data prepared for backtesting
-
-    Raises:
-        FileNotFoundError: If data directory or files not found
-        ValueError: If data processing fails
-    """
     from crypto.data.loader import CryptoDataLoader
 
     data_dir = config.data_dir
@@ -110,18 +84,6 @@ def load_for_backtesting(config: "BacktestConfig") -> "CryptoDataLoader":
 
 
 def _load_price_data(config: "BacktestConfig") -> pd.DataFrame:
-    """Load price data from parquet file.
-
-    Args:
-        config: Backtest configuration
-
-    Returns:
-        Raw price DataFrame
-
-    Raises:
-        FileNotFoundError: If file not found
-        ValueError: If data is empty
-    """
     data_file = config.data_file
     underlying_type = config.underlying_type
 
@@ -139,18 +101,6 @@ def _load_price_data(config: "BacktestConfig") -> pd.DataFrame:
 
 
 def _resample_data(config: "BacktestConfig", df: pd.DataFrame) -> pd.DataFrame:
-    """Resample data to configured frequency.
-
-    Args:
-        config: Backtest configuration
-        df: Processed price DataFrame
-
-    Returns:
-        Resampled DataFrame
-
-    Raises:
-        ValueError: If resampling fails
-    """
     dt_hours = config.dt_hours
 
     if dt_hours == int(dt_hours):
@@ -179,16 +129,6 @@ def _load_options_data(
     start_date: pd.Timestamp,
     end_date: pd.Timestamp,
 ) -> pd.DataFrame | None:
-    """Load options data if available.
-
-    Args:
-        config: Backtest configuration
-        start_date: Start of date range
-        end_date: End of date range
-
-    Returns:
-        Options DataFrame or None if not found
-    """
     options_df = io_utils.load_options_data(config.data_dir)
 
     if options_df is None:
@@ -208,16 +148,6 @@ def _load_funding_data(
     start_date: pd.Timestamp,
     end_date: pd.Timestamp,
 ) -> pd.DataFrame | None:
-    """Load funding data if available.
-
-    Args:
-        config: Backtest configuration
-        start_date: Start of date range
-        end_date: End of date range
-
-    Returns:
-        Funding DataFrame or None if not found
-    """
     funding_df = io_utils.load_funding_data(config.data_dir)
 
     if funding_df is None:
@@ -244,10 +174,6 @@ def _load_funding_data(
 
 # Backward compatibility: Keep BacktestDataLoader as a wrapper
 class BacktestDataLoader:
-    """DEPRECATED: Use load_for_backtesting() function instead.
-
-    This class is kept for backward compatibility only.
-    """
 
     def __init__(self, config: "BacktestConfig"):
         import warnings
@@ -260,22 +186,16 @@ class BacktestDataLoader:
         self.config = config
 
     def load_and_prepare_data(self) -> "CryptoDataLoader":
-        """Load and prepare data for backtesting.
-
-        DEPRECATED: Use load_for_backtesting(config) instead.
-        """
         return load_for_backtesting(self.config)
 
     @staticmethod
     def _normalize_timestamps(
         df: pd.DataFrame, timestamp_col: str = "timestamp"
     ) -> pd.DataFrame:
-        """DEPRECATED: Use io_utils.normalize_timestamps() instead."""
         return io_utils.normalize_timestamps(df, timestamp_col)
 
     @staticmethod
     def _merge_funding_rates(
         price_df: pd.DataFrame, funding_df: pd.DataFrame
     ) -> pd.DataFrame:
-        """DEPRECATED: Use io_utils.merge_funding_rates() instead."""
         return io_utils.merge_funding_rates(price_df, funding_df)

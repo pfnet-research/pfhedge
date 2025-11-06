@@ -1,13 +1,3 @@
-"""Unit tests for GBM simulator sanity checks.
-
-This module verifies the Geometric Brownian Motion simulator used for deep hedging
-satisfies fundamental mathematical properties:
-1. Martingale property under risk-neutral measure
-2. Correct drift and volatility
-3. Lognormal distribution of returns
-4. Path independence
-"""
-
 import pytest
 import torch
 import numpy as np
@@ -16,10 +6,8 @@ from crypto.instruments import BitcoinPerpetualBrownian
 
 
 class TestMartingaleProperty:
-    """Test martingale property of GBM under risk-neutral measure."""
 
     def test_zero_drift_martingale(self):
-        """Test that with zero drift, expected future spot equals initial spot."""
         torch.manual_seed(42)
 
         # Create GBM with zero drift (mu=0) - risk-neutral measure
@@ -50,7 +38,6 @@ class TestMartingaleProperty:
         ), f"Martingale property violated: E[S_T]={expected_final:.4f} vs S_0={init_spot:.4f} (error: {relative_error:.2%})"
 
     def test_intermediate_martingale(self):
-        """Test martingale property at intermediate time steps."""
         torch.manual_seed(42)
 
         underlier = BitcoinPerpetualBrownian(dt=1 / 252, sigma=0.2, mu=0.0)
@@ -76,10 +63,8 @@ class TestMartingaleProperty:
 
 
 class TestVolatilityCalibration:
-    """Test that simulated volatility matches specified volatility."""
 
     def test_realized_vol_matches_sigma(self):
-        """Test that realized volatility converges to specified sigma."""
         torch.manual_seed(42)
 
         sigma = 0.8  # 80% annual volatility (crypto-like)
@@ -109,7 +94,6 @@ class TestVolatilityCalibration:
         ), f"Volatility mismatch: realized={realized_vol:.4f} vs specified={sigma:.4f} (error: {relative_error:.2%})"
 
     def test_vol_scales_with_time_step(self):
-        """Test that volatility properly scales with different time steps."""
         torch.manual_seed(42)
 
         sigma = 0.5
@@ -139,10 +123,8 @@ class TestVolatilityCalibration:
 
 
 class TestLognormalDistribution:
-    """Test that GBM produces lognormally distributed prices."""
 
     def test_log_returns_normality(self):
-        """Test that log returns are approximately normally distributed."""
         torch.manual_seed(42)
 
         underlier = BitcoinPerpetualBrownian(dt=1 / 252, sigma=0.3, mu=0.0)
@@ -178,7 +160,6 @@ class TestLognormalDistribution:
         ), f"Log returns not normal: kurtosis={kurtosis:.4f}"
 
     def test_final_price_lognormal(self):
-        """Test that final prices follow lognormal distribution."""
         torch.manual_seed(42)
 
         sigma = 0.4
@@ -217,10 +198,8 @@ class TestLognormalDistribution:
 
 
 class TestPathIndependence:
-    """Test that simulated paths are independent."""
 
     def test_different_seeds_different_paths(self):
-        """Test that different seeds produce different paths."""
         sigma = 0.6
 
         # Seed 1
@@ -241,7 +220,6 @@ class TestPathIndependence:
         ), "Different seeds should produce different paths"
 
     def test_same_seed_same_paths(self):
-        """Test that same seed produces identical paths."""
         sigma = 0.6
 
         # Run 1
@@ -262,7 +240,6 @@ class TestPathIndependence:
         ), "Same seed should produce identical paths"
 
     def test_path_correlation_near_zero(self):
-        """Test that different paths have near-zero correlation."""
         torch.manual_seed(42)
 
         underlier = BitcoinPerpetualBrownian(dt=1 / 252, sigma=0.4, mu=0.0)
@@ -282,10 +259,8 @@ class TestPathIndependence:
 
 
 class TestNumericalStability:
-    """Test numerical stability of GBM simulation."""
 
     def test_no_nan_values(self):
-        """Test that simulation produces no NaN values."""
         torch.manual_seed(42)
 
         # Test with various parameter combinations
@@ -304,7 +279,6 @@ class TestNumericalStability:
             ), f"NaN values found with params: {params}"
 
     def test_no_inf_values(self):
-        """Test that simulation produces no infinite values."""
         torch.manual_seed(42)
 
         # Test with high volatility
@@ -316,7 +290,6 @@ class TestNumericalStability:
         ), "Infinite values found in simulation"
 
     def test_positive_prices(self):
-        """Test that all simulated prices remain positive."""
         torch.manual_seed(42)
 
         underlier = BitcoinPerpetualBrownian(dt=1 / 252, sigma=0.8, mu=0.0)
@@ -328,7 +301,6 @@ class TestNumericalStability:
 
 
 def test_gbm_sanity_summary():
-    """Summary test for GBM simulator sanity checks."""
     torch.manual_seed(42)
 
     # Create simulator

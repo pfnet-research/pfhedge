@@ -1,5 +1,3 @@
-"""Results container for backtesting framework."""
-
 from typing import Dict, Optional, Any, TYPE_CHECKING
 import json
 from datetime import datetime
@@ -23,36 +21,6 @@ from .metrics import (
 
 
 class BacktestResults:
-    """Container for backtest results with summary statistics.
-
-    Stores PnL data, positions, and spot prices from deep hedge and
-    Black-Scholes baseline strategies. Provides methods to calculate
-    summary statistics and export data.
-
-    **Important**: All tensor data is assumed to be immutable after construction.
-    Summary statistics are cached for performance. If you modify any tensor fields
-    after construction, you must manually reset `_summary_cache = None` to force
-    recomputation.
-
-    Args:
-        deep_pnl: Deep hedging cumulative PnL, shape (n_paths, n_steps)
-        bs_pnl: Black-Scholes cumulative PnL, shape (n_paths, n_steps)
-        deep_positions: Deep hedge positions, shape (n_paths, n_steps)
-        bs_positions: BS delta positions, shape (n_paths, n_steps)
-        spots: Underlying spot prices, shape (n_paths, n_steps)
-        config: Optional backtest configuration
-
-    Examples:
-        >>> results = BacktestResults(
-        ...     deep_pnl=deep_pnl_tensor,
-        ...     bs_pnl=bs_pnl_tensor,
-        ...     deep_positions=deep_positions,
-        ...     bs_positions=bs_positions,
-        ...     spots=spot_prices
-        ... )
-        >>> summary = results.summary()
-        >>> print(summary['deep_hedge']['sharpe_ratio'])
-    """
 
     def __init__(
         self,
@@ -63,16 +31,6 @@ class BacktestResults:
         spots: Tensor,
         config: Optional["BacktestConfig"] = None,
     ):
-        """Initialize results container.
-
-        Args:
-            deep_pnl: Deep hedging cumulative PnL (n_paths, n_steps)
-            bs_pnl: Black-Scholes cumulative PnL (n_paths, n_steps)
-            deep_positions: Deep hedge positions (n_paths, n_steps)
-            bs_positions: BS delta positions (n_paths, n_steps)
-            spots: Spot prices (n_paths, n_steps)
-            config: Optional BacktestConfig object
-        """
         # Validate inputs
         self._validate_inputs(deep_pnl, bs_pnl, deep_positions, bs_positions, spots)
 
@@ -102,7 +60,6 @@ class BacktestResults:
         bs_positions: Tensor,
         spots: Tensor,
     ) -> None:
-        """Validate that all inputs have consistent shapes."""
         # Check all are 2D tensors
         for name, tensor in [
             ("deep_pnl", deep_pnl),
@@ -130,12 +87,6 @@ class BacktestResults:
                 )
 
     def _extract_bootstrap_metadata(self) -> Dict[str, Any]:
-        """Extract bootstrap metadata from config and spots.
-
-        Returns:
-            Dictionary with bootstrap metadata including mode, moneyness stats,
-            scale factors, etc.
-        """
         metadata = {}
 
         if self.config is None:
@@ -213,32 +164,6 @@ class BacktestResults:
         return metadata
 
     def _get_time_axis(self, time_unit: str = "steps") -> tuple:
-        """Get time axis values and label based on config.
-
-        Args:
-            time_unit: One of 'auto', 'steps', 'hours', 'days' (default: 'steps')
-                - 'auto': Automatically choose based on dt_hours from config
-                    - If dt >= 24 hours: use days
-                    - If dt >= 1 hour: use hours
-                    - Otherwise: use steps
-                - 'steps': Use time step indices
-                - 'hours': Convert to hours using config.dt
-                - 'days': Convert to days using config.dt
-
-        Returns:
-            Tuple of (time_values, xlabel) where:
-            - time_values: np.ndarray of time axis values
-            - xlabel: str for axis label
-
-        Examples:
-            >>> # Auto mode selects best unit based on dt
-            >>> time_vals, label = results._get_time_axis("auto")
-            >>>
-            >>> # Explicit unit selection
-            >>> time_vals, label = results._get_time_axis("days")
-            >>> ax.plot(time_vals, data)
-            >>> ax.set_xlabel(label)
-        """
         time_steps = np.arange(self.n_steps)
 
         # Auto mode: choose best unit based on dt_hours
@@ -280,43 +205,6 @@ class BacktestResults:
     def summary(
         self, alpha_cvar: float = 0.05, alpha_var: float = 0.05
     ) -> Dict[str, Dict[str, float]]:
-        """Calculate summary statistics for both strategies.
-
-        Computes comprehensive performance metrics for deep hedge and
-        Black-Scholes baseline, including:
-        - Basic stats: mean, std, min, max, median
-        - Risk-adjusted: Sharpe ratio, Sortino ratio
-        - Risk metrics: CVaR, VaR, max drawdown, Calmar ratio
-        - Win rate (percentage of paths with final PnL > 0)
-
-        **Important - Metrics Computation Method**:
-        Sharpe ratio, Sortino ratio, and Calmar ratio are computed CROSS-SECTIONALLY
-        across simulation paths using final PnL values, not time-series returns.
-
-        Specifically:
-        - Sharpe = mean(final_pnl_across_paths) / std(final_pnl_across_paths)
-        - This differs from traditional time-series Sharpe: mean(daily_returns) / std(daily_returns)
-
-        This cross-sectional approach is appropriate for Monte Carlo backtesting where
-        we're assessing performance variability across different market scenarios (paths),
-        rather than temporal return variability.
-
-        Note: Results are cached after first computation to avoid expensive
-        recomputation on subsequent calls (e.g., in __repr__).
-
-        Args:
-            alpha_cvar: Significance level for CVaR (default 0.05 = 95% CVaR)
-            alpha_var: Significance level for VaR (default 0.05 = 95% VaR)
-
-        Returns:
-            Dictionary with 'deep_hedge' and 'bs_baseline' keys, each containing
-            metrics dictionary
-
-        Examples:
-            >>> summary = results.summary()
-            >>> print(f"Deep Sharpe: {summary['deep_hedge']['sharpe_ratio']:.3f}")
-            >>> print(f"BS Sharpe: {summary['bs_baseline']['sharpe_ratio']:.3f}")
-        """
         # Return cached summary if available and alpha values match default
         if self._summary_cache is not None and alpha_cvar == 0.05 and alpha_var == 0.05:
             return self._summary_cache
@@ -352,7 +240,6 @@ class BacktestResults:
     def _calculate_strategy_metrics(
         self, final_pnl: Tensor, cum_pnl: Tensor, alpha_cvar: float, alpha_var: float
     ) -> Dict[str, float]:
-        """Calculate metrics for a single strategy."""
         metrics = {}
 
         # Basic statistics
@@ -380,37 +267,6 @@ class BacktestResults:
         return metrics
 
     def to_dict(self, include_raw: bool = True) -> Dict[str, Any]:
-        """Export all data to dictionary.
-
-        Args:
-            include_raw: If True (default), includes raw tensor data as lists.
-                         If False, includes only summary statistics and metadata.
-                         Set to False for large datasets to reduce memory usage.
-
-        Returns:
-            Dictionary containing:
-            - 'n_paths': Number of simulation paths
-            - 'n_steps': Number of time steps
-            - 'summary': Summary statistics
-            - 'config': Config dict if available
-            - 'deep_pnl': Deep hedge PnL as list (if include_raw=True)
-            - 'bs_pnl': BS baseline PnL as list (if include_raw=True)
-            - 'deep_positions': Deep hedge positions as list (if include_raw=True)
-            - 'bs_positions': BS positions as list (if include_raw=True)
-            - 'spots': Spot prices as list (if include_raw=True)
-
-        Examples:
-            >>> # Full export with raw data
-            >>> data = results.to_dict()
-            >>>
-            >>> # Lightweight export without raw arrays
-            >>> summary_only = results.to_dict(include_raw=False)
-            >>>
-            >>> # Save to JSON
-            >>> import json
-            >>> with open('results.json', 'w') as f:
-            ...     json.dump(data, f)
-        """
         data = {
             "n_paths": self.n_paths,
             "n_steps": self.n_steps,
@@ -437,20 +293,6 @@ class BacktestResults:
 
     @staticmethod
     def _safe_json_normalize(obj: Any) -> Any:
-        """Recursively normalize data for JSON serialization.
-
-        Handles common non-JSON types:
-        - datetime objects -> ISO format strings
-        - numpy types -> Python native types
-        - Path objects -> strings
-        - Recursively processes dicts and lists
-
-        Args:
-            obj: Object to normalize
-
-        Returns:
-            JSON-serializable version of obj
-        """
         if isinstance(obj, (datetime,)):
             return obj.isoformat()
         elif isinstance(obj, (np.integer,)):
@@ -471,30 +313,6 @@ class BacktestResults:
     def to_json(
         self, filepath: Optional[str] = None, include_raw: bool = False, **kwargs
     ) -> Optional[str]:
-        """Export results to JSON format.
-
-        Convenience method that handles non-JSON types (dates, numpy types)
-        and optionally writes to file.
-
-        Args:
-            filepath: Optional path to write JSON file. If None, returns JSON string.
-            include_raw: If True, includes raw tensor data. If False, only metadata
-                         and summary (default False for smaller file size).
-            **kwargs: Additional arguments passed to json.dumps() (e.g., indent=2)
-
-        Returns:
-            JSON string if filepath is None, otherwise None (writes to file)
-
-        Examples:
-            >>> # Get JSON string without raw data
-            >>> json_str = results.to_json(include_raw=False)
-            >>>
-            >>> # Write to file with pretty formatting
-            >>> results.to_json('results.json', include_raw=True, indent=2)
-            >>>
-            >>> # Lightweight export (summary only)
-            >>> results.to_json('summary.json', include_raw=False, indent=2)
-        """
         # Get dictionary and normalize for JSON
         data = self.to_dict(include_raw=include_raw)
         normalized = self._safe_json_normalize(data)
@@ -519,31 +337,6 @@ class BacktestResults:
         figsize: tuple = (12, 6),
         save_path: Optional[str] = None,
     ):
-        """Plot cumulative PnL comparison between deep hedge and BS baseline.
-
-        Args:
-            path_indices: List of path indices to plot. If None, plots mean only.
-            show_mean: If True, show mean PnL across all paths (default: True)
-            time_unit: Time axis unit - 'steps', 'hours', or 'days' (default: 'steps')
-            figsize: Figure size (width, height) in inches
-            save_path: Optional path to save figure. If None, displays plot.
-
-        Returns:
-            matplotlib Figure object
-
-        Examples:
-            >>> # Plot mean PnL only
-            >>> results.plot_pnl_comparison()
-            >>>
-            >>> # Plot first 5 paths plus mean
-            >>> results.plot_pnl_comparison(path_indices=[0, 1, 2, 3, 4])
-            >>>
-            >>> # Plot with time in days
-            >>> results.plot_pnl_comparison(time_unit="days")
-            >>>
-            >>> # Save to file
-            >>> results.plot_pnl_comparison(save_path="pnl_comparison.png")
-        """
         import matplotlib.pyplot as plt
 
         # Validate and limit path_indices
@@ -615,20 +408,6 @@ class BacktestResults:
     def plot_pnl_distribution(
         self, bins: int = 50, figsize: tuple = (12, 6), save_path: Optional[str] = None
     ):
-        """Plot final PnL distribution for both strategies.
-
-        Args:
-            bins: Number of histogram bins (default: 50)
-            figsize: Figure size (width, height) in inches
-            save_path: Optional path to save figure. If None, displays plot.
-
-        Returns:
-            matplotlib Figure object
-
-        Examples:
-            >>> results.plot_pnl_distribution()
-            >>> results.plot_pnl_distribution(bins=30, save_path="pnl_dist.png")
-        """
         import matplotlib.pyplot as plt
 
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=figsize)
@@ -689,24 +468,6 @@ class BacktestResults:
         figsize: tuple = (12, 6),
         save_path: Optional[str] = None,
     ):
-        """Plot hedge positions over time for both strategies.
-
-        Args:
-            path_indices: List of path indices to plot. If None, plots mean only.
-            show_mean: If True, show mean positions across all paths (default: True)
-            time_unit: Time axis unit - 'steps', 'hours', or 'days' (default: 'steps')
-            figsize: Figure size (width, height) in inches
-            save_path: Optional path to save figure. If None, displays plot.
-
-        Returns:
-            matplotlib Figure object
-
-        Examples:
-            >>> results.plot_positions()
-            >>> results.plot_positions(path_indices=[0, 1, 2])
-            >>> results.plot_positions(time_unit="days")
-            >>> results.plot_positions(save_path="positions.png")
-        """
         import matplotlib.pyplot as plt
 
         # Validate and limit path_indices
@@ -782,28 +543,6 @@ class BacktestResults:
         figsize: tuple = (16, 12),
         save_path: Optional[str] = None,
     ):
-        """Create comprehensive visualization with all plots.
-
-        Creates a 2x2 grid with:
-        - Top left: PnL comparison
-        - Top right: PnL distribution
-        - Bottom left: Hedge positions
-        - Bottom right: Performance metrics table
-
-        Args:
-            path_indices: List of path indices to plot in line plots
-            time_unit: Time axis unit - 'steps', 'hours', or 'days' (default: 'steps')
-            figsize: Figure size (width, height) in inches
-            save_path: Optional path to save figure. If None, displays plot.
-
-        Returns:
-            matplotlib Figure object
-
-        Examples:
-            >>> results.plot_all()
-            >>> results.plot_all(path_indices=[0, 1, 2], save_path="backtest_summary.png")
-            >>> results.plot_all(time_unit="days")
-        """
         import matplotlib.pyplot as plt
 
         # Validate and limit path_indices
@@ -992,25 +731,6 @@ class BacktestResults:
     def generate_report(
         self, filepath: str, include_plots: bool = True, plot_dir: Optional[str] = None
     ) -> dict:
-        """Generate a markdown report with backtest results.
-
-        Args:
-            filepath: Path to save markdown report (.md file)
-            include_plots: If True, generates and embeds plot images
-            plot_dir: Directory to save plots. If None, uses same dir as report.
-
-        Returns:
-            Dictionary containing:
-            - 'report_path': Path to generated report file
-            - 'plot_paths': List of generated plot file paths (if include_plots=True)
-
-        Examples:
-            >>> result = results.generate_report("backtest_report.md")
-            >>> print(result['report_path'])
-            >>> print(result['plot_paths'])
-            >>>
-            >>> results.generate_report("report.md", include_plots=True, plot_dir="plots/")
-        """
         from pathlib import Path
 
         # Determine plot directory
@@ -1139,41 +859,6 @@ class BacktestResults:
         }
 
     def compare_strategies(self) -> dict:
-        """Compare strategies and determine winner on each metric.
-
-        Uses epsilon tolerance for tie-handling and neutralizes negative risk ratios
-        from scoring to prevent misleading assessments.
-
-        Returns:
-            Dictionary with comparison results:
-            {
-                'winners': {
-                    'mean': 'deep_hedge' | 'bs_baseline' | 'tie',
-                    'sharpe_ratio': ...,
-                    'cvar_95': ...,
-                    'max_drawdown': ...,
-                },
-                'differences': {
-                    'mean': <float>,
-                    ...
-                },
-                'reductions': {  # For metrics where lower is better
-                    'std': <float>,  # percent reduction
-                    'max_drawdown': <float>,
-                    ...
-                },
-                'summary': {
-                    'deep_wins': <int>,  # out of 4 key metrics
-                    'ties': <int>,  # neutral outcomes
-                    'assessment': 'superior' | 'mixed' | 'underperformed'
-                }
-            }
-
-        Examples:
-            >>> comparison = results.compare_strategies()
-            >>> print(comparison['winners']['sharpe_ratio'])  # 'deep_hedge', 'bs_baseline', or 'tie'
-            >>> print(comparison['summary']['assessment'])  # 'superior'
-        """
         summary = self.summary()
         deep = summary["deep_hedge"]
         bs = summary["bs_baseline"]
@@ -1316,18 +1001,6 @@ class BacktestResults:
         }
 
     def print_summary(self, detailed: bool = True, emoji: bool = True) -> None:
-        """Print formatted summary of backtest results to console.
-
-        Args:
-            detailed: If True, shows all metrics grouped by category.
-                      If False, shows compact summary with key metrics only.
-            emoji: If True, includes emoji decorations. If False, plain text only.
-
-        Examples:
-            >>> results.print_summary()  # Full detailed view with emoji
-            >>> results.print_summary(detailed=False)  # Compact view with emoji
-            >>> results.print_summary(emoji=False)  # Plain text without emoji
-        """
         summary = self.summary()
         deep = summary["deep_hedge"]
         bs = summary["bs_baseline"]
@@ -1351,7 +1024,6 @@ class BacktestResults:
     def _print_strategy_details(
         self, name: str, metrics: dict, emoji: bool = True
     ) -> None:
-        """Print detailed metrics for a single strategy."""
         print(f"\n{name.upper()}")
         print("─" * 60)
 
@@ -1376,7 +1048,6 @@ class BacktestResults:
         print(f"   Win Rate:        {metrics['win_rate']:>9.1%}")
 
     def _print_comparison(self, deep: dict, bs: dict) -> None:
-        """Print detailed comparison between strategies."""
         print(f"\nCOMPARISON (Deep Hedge vs Black-Scholes)")
         print("─" * 60)
 
@@ -1391,7 +1062,6 @@ class BacktestResults:
         )
 
     def _print_compact_comparison(self, deep: dict, bs: dict) -> None:
-        """Print compact comparison with key metrics only."""
         print(
             f"\nStrategy          Mean PnL    Std Dev    Sharpe    CVaR 95%    Win Rate"
         )
@@ -1410,17 +1080,6 @@ class BacktestResults:
         )
 
     def print_key_insights(self, emoji: bool = True) -> None:
-        """Print key insights and overall assessment in executive-friendly format.
-
-        Provides a concise, actionable summary suitable for decision-makers.
-
-        Args:
-            emoji: If True, includes emoji decorations. If False, plain text only.
-
-        Examples:
-            >>> results.print_key_insights()  # With emoji
-            >>> results.print_key_insights(emoji=False)  # Plain text
-        """
         comparison = self.compare_strategies()
         summary = self.summary()
         deep = summary["deep_hedge"]
@@ -1549,23 +1208,11 @@ class BacktestResults:
         print("=" * 60)
 
     def _format_winner(self, strategy: str) -> str:
-        """Format winner string for display.
-
-        Args:
-            strategy: One of 'deep_hedge', 'bs_baseline', or 'tie'
-
-        Returns:
-            Formatted string for display
-        """
         if strategy == "tie":
             return "Tie"
         return "Deep Hedge" if strategy == "deep_hedge" else "Black-Scholes"
 
     def __repr__(self) -> str:
-        """String representation.
-
-        Note: Uses cached summary if available, avoiding expensive recomputation.
-        """
         summary = self.summary()  # Will use cache if available
         deep_sharpe = summary["deep_hedge"]["sharpe_ratio"]
         bs_sharpe = summary["bs_baseline"]["sharpe_ratio"]

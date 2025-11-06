@@ -1,5 +1,3 @@
-"""Tests for moneyness-preserving bootstrap implementation."""
-
 import pytest
 import torch
 import numpy as np
@@ -12,7 +10,6 @@ from crypto.instruments.bitcoin_perpetual_historical import BitcoinPerpetualHist
 
 # Mock data loader for testing
 class MockDataLoader:
-    """Mock data loader with synthetic historical data."""
 
     def __init__(self, n_records=500):
         # Create synthetic data with varying price levels (simulating different historical periods)
@@ -41,10 +38,8 @@ class MockDataLoader:
 
 
 class TestRescalingInvariance:
-    """Test that multiplicative rescaling preserves returns and volatility."""
 
     def test_log_returns_invariance(self):
-        """Verify that log returns are preserved under rescaling."""
         # Original prices
         spot_raw = torch.tensor([42000.0, 43500.0, 41200.0, 44100.0, 42800.0])
 
@@ -61,7 +56,6 @@ class TestRescalingInvariance:
         torch.testing.assert_close(returns_raw, returns_rescaled, atol=1e-7, rtol=1e-6)
 
     def test_volatility_invariance(self):
-        """Verify that volatility is preserved under rescaling."""
         # Generate random price path
         torch.manual_seed(42)
         returns = torch.randn(100) * 0.02  # 2% daily vol
@@ -80,10 +74,8 @@ class TestRescalingInvariance:
 
 
 class TestMoneynessConsistency:
-    """Test that bootstrap produces consistent moneyness across paths."""
 
     def test_normalize_spot_moneyness_equality(self):
-        """All paths should have identical initial log_moneyness."""
         loader = MockDataLoader(n_records=500)
 
         underlier = BitcoinPerpetualHistorical(
@@ -132,7 +124,6 @@ class TestMoneynessConsistency:
         assert abs(log_moneyness.mean() - target_log_moneyness) < 1e-6
 
     def test_initial_spot_mean_matches_target(self):
-        """Mean of initial spots should match target_initial_spot."""
         loader = MockDataLoader(n_records=300)
 
         underlier = BitcoinPerpetualHistorical(
@@ -158,10 +149,8 @@ class TestMoneynessConsistency:
 
 
 class TestFundingCostScaling:
-    """Test that funding costs scale proportionally with spot rescaling."""
 
     def test_funding_cost_scales_with_spot(self):
-        """Dollar funding costs should scale proportionally with rescale_factor."""
         position = 1.0
         funding_rate = 0.0001  # 0.01%
 
@@ -177,10 +166,8 @@ class TestFundingCostScaling:
 
 
 class TestBackwardCompatibility:
-    """Test that absolute_strike mode works unchanged (no rescaling)."""
 
     def test_absolute_strike_no_rescaling(self):
-        """absolute_strike mode should not rescale (all scale_factors = 1.0)."""
         loader = MockDataLoader(n_records=300)
 
         underlier = BitcoinPerpetualHistorical(
@@ -213,10 +200,8 @@ class TestBackwardCompatibility:
 
 
 class TestConfigValidation:
-    """Test BacktestConfig validation logic."""
 
     def test_normalize_spot_requires_moneyness(self):
-        """normalize_spot mode should error without initial_spot or target_moneyness."""
         with pytest.raises(
             ValueError, match="requires either 'initial_spot' or 'target_moneyness'"
         ):
@@ -232,7 +217,6 @@ class TestConfigValidation:
             config.validate()
 
     def test_normalize_spot_with_initial_spot_works(self):
-        """normalize_spot with initial_spot should work and calculate moneyness."""
         config = BacktestConfig(
             start_date="2024-01-01",
             end_date="2024-01-11",
@@ -249,7 +233,6 @@ class TestConfigValidation:
         assert abs(target_moneyness - expected) < 1e-9
 
     def test_normalize_spot_with_target_moneyness_works(self):
-        """normalize_spot with explicit target_moneyness should work."""
         config = BacktestConfig(
             start_date="2024-01-01",
             end_date="2024-01-11",
@@ -264,7 +247,6 @@ class TestConfigValidation:
         assert config.effective_target_moneyness == 0.95
 
     def test_absolute_strike_no_moneyness_required(self):
-        """absolute_strike mode shouldn't require moneyness (backward compat)."""
         config = BacktestConfig(
             start_date="2024-01-01",
             end_date="2024-01-11",
@@ -278,7 +260,6 @@ class TestConfigValidation:
         assert config.effective_target_moneyness is None
 
     def test_invalid_initial_spot(self):
-        """initial_spot must be positive."""
         with pytest.raises(ValueError, match="initial_spot must be positive"):
             config = BacktestConfig(
                 start_date="2024-01-01",
@@ -292,7 +273,6 @@ class TestConfigValidation:
             config.validate()
 
     def test_invalid_target_moneyness(self):
-        """target_moneyness must be positive."""
         with pytest.raises(ValueError, match="target_moneyness must be positive"):
             config = BacktestConfig(
                 start_date="2024-01-01",
@@ -306,7 +286,6 @@ class TestConfigValidation:
             config.validate()
 
     def test_strike_zero_error(self):
-        """effective_target_moneyness should error on strike=0."""
         config = BacktestConfig(
             start_date="2024-01-01",
             end_date="2024-01-11",
@@ -323,10 +302,8 @@ class TestConfigValidation:
 
 
 class TestEdgeCases:
-    """Test edge cases and error handling."""
 
     def test_single_window_rescaling(self):
-        """When window_size == n_steps, only one window possible - rescaling should still work."""
         # Create minimal synthetic data (exactly n_steps long)
         n_steps = 30
         dates = pd.date_range("2024-01-01", periods=n_steps, freq="8H")
@@ -367,7 +344,6 @@ class TestEdgeCases:
             torch.testing.assert_close(underlier.spot[i], underlier.spot[0])
 
     def test_insufficient_data_error(self):
-        """Should raise clear error when insufficient historical data."""
         # Create very short dataset
         dates = pd.date_range("2024-01-01", periods=10, freq="8H")
 
@@ -393,10 +369,8 @@ class TestEdgeCases:
 
 
 class TestSeedReproducibility:
-    """Test that same seed produces identical results."""
 
     def test_same_seed_identical_paths(self):
-        """Same seed should produce identical bootstrap paths."""
         loader = MockDataLoader(n_records=500)
 
         def run_bootstrap(seed_val):
@@ -425,7 +399,6 @@ class TestSeedReproducibility:
         torch.testing.assert_close(spots1, spots2)
 
     def test_different_seed_different_paths(self):
-        """Different seeds should produce different paths."""
         loader = MockDataLoader(n_records=500)
 
         def run_bootstrap(seed_val):

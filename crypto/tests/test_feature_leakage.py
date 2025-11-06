@@ -1,15 +1,3 @@
-"""Unit tests for feature leakage detection in deep hedging.
-
-This module ensures that all features used for hedging decisions are causally
-sound and do not leak future information.
-
-Critical properties tested:
-1. Volatility at time t uses only returns from [0, t-1]
-2. No features access future spot prices
-3. Rolling windows are strictly backward-looking
-4. prev_hedge uses strictly lagged decisions
-"""
-
 import pytest
 import torch
 import numpy as np
@@ -20,10 +8,8 @@ from crypto.strategies import create_deep_hedger
 
 
 class TestVolatilityLeakage:
-    """Test volatility calculation for future data leakage."""
 
     def test_backward_looking_window(self):
-        """Volatility at time t should only use returns from [0, t-1]."""
         torch.manual_seed(42)
 
         # Create price series
@@ -48,7 +34,6 @@ class TestVolatilityLeakage:
         ), f"Volatility at t=3 should use only past returns. Expected {expected_vol_at_3:.6f}, got {actual_vol_at_3:.6f}"
 
     def test_no_future_returns_used(self):
-        """Verify that changing future prices doesn't affect past volatility."""
         torch.manual_seed(42)
 
         # Create price series
@@ -70,7 +55,6 @@ class TestVolatilityLeakage:
         ), "Volatility at t=3 should not depend on future prices"
 
     def test_volatility_causality_multiple_paths(self):
-        """Test causality holds for multiple paths simultaneously."""
         torch.manual_seed(42)
         n_paths = 10
         n_steps = 20
@@ -102,7 +86,6 @@ class TestVolatilityLeakage:
                 ), f"Path {path_idx}, time {t}: volatility leaked future data"
 
     def test_volatility_initialization_no_leakage(self):
-        """Test that NaN filling at initialization doesn't use future data."""
         torch.manual_seed(42)
 
         prices = torch.tensor([100.0, 101.0, 99.0])
@@ -123,10 +106,8 @@ class TestVolatilityLeakage:
 
 
 class TestFeatureLeakageIntegration:
-    """Integration tests for feature leakage in hedging workflow."""
 
     def test_hedger_features_no_future_access(self):
-        """Verify hedger can't access future spot prices through features."""
         torch.manual_seed(42)
 
         # Create option with Brownian simulation
@@ -177,7 +158,6 @@ class TestFeatureLeakageIntegration:
         ), "Delta too positive (possible leakage)"
 
     def test_volatility_feature_causality_in_simulation(self):
-        """Test that volatility feature in simulation is causally sound."""
         torch.manual_seed(42)
 
         # Create option with rolling volatility
@@ -235,10 +215,8 @@ class TestFeatureLeakageIntegration:
 
 
 class TestPrevHedgeLeakage:
-    """Test that prev_hedge feature doesn't leak future information."""
 
     def test_prev_hedge_is_lagged(self):
-        """Verify prev_hedge at time t is the hedge from time t-1."""
         torch.manual_seed(42)
 
         # Create simple option
@@ -284,10 +262,8 @@ class TestPrevHedgeLeakage:
 
 
 class TestMoneynesLeakage:
-    """Test that log_moneyness doesn't leak future information."""
 
     def test_moneyness_uses_current_spot_only(self):
-        """Verify log_moneyness at time t uses spot at time t, not future."""
         torch.manual_seed(42)
 
         # Create option
@@ -329,10 +305,8 @@ class TestMoneynesLeakage:
 
 
 class TestExpiryTimeLeakage:
-    """Test that expiry_time feature doesn't leak information."""
 
     def test_expiry_time_deterministic(self):
-        """Verify expiry_time is deterministic and decreases linearly."""
         torch.manual_seed(42)
 
         # Create option
@@ -372,7 +346,6 @@ class TestExpiryTimeLeakage:
 
 
 def test_no_leakage_summary():
-    """Summary test that runs all major leakage checks."""
     # This test aggregates results from other tests
     # If all other tests pass, this test passes
 

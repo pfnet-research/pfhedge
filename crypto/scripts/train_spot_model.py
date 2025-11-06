@@ -1,8 +1,4 @@
 #!/usr/bin/env python3
-"""Train deep hedging model with SPOT underlying (not perpetual).
-
-Uses same parameters as Phase 4 best model but with spot instead of perpetual.
-"""
 
 import argparse
 import json
@@ -27,7 +23,6 @@ def train_spot_model(
     seed: int = 42,
     output_dir: str = "results/spot_model",
 ):
-    """Train model with spot underlying using Phase 4 optimal config."""
 
     logger.info(f"\n{'='*60}")
     logger.info("Training Deep Hedging Model with SPOT Underlying")

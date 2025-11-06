@@ -1,9 +1,3 @@
-"""Diagnostic utilities for debugging deep hedging models.
-
-This module provides tools to inspect MLP inputs, outputs, and gradients
-during training and inference to diagnose issues like zero-hedge outputs.
-"""
-
 import torch
 import numpy as np
 from typing import Optional, Dict, List
@@ -11,28 +5,8 @@ from collections import defaultdict
 
 
 class MLPDiagnostics:
-    """Diagnostic tool to track MLP inputs/outputs during training and inference.
-
-    Usage:
-        >>> from crypto.training.diagnostics import MLPDiagnostics
-        >>> diagnostics = MLPDiagnostics(model)
-        >>> diagnostics.attach()
-        >>>
-        >>> # Train model...
-        >>> model.fit(option, ...)
-        >>>
-        >>> # Print statistics
-        >>> diagnostics.print_summary()
-        >>> diagnostics.detach()
-    """
 
     def __init__(self, hedger, sample_frequency: int = 5):
-        """Initialize diagnostics.
-
-        Args:
-            hedger: PFHedge Hedger instance
-            sample_frequency: Sample every N forward passes (to reduce overhead)
-        """
         self.hedger = hedger
         self.model = hedger.model
         self.sample_frequency = sample_frequency
@@ -47,7 +21,6 @@ class MLPDiagnostics:
         self.hooks = []
 
     def attach(self):
-        """Attach hooks to model to capture inputs/outputs."""
 
         # Hook for model inputs/outputs
         def forward_hook(_module, input, output):
@@ -106,18 +79,12 @@ class MLPDiagnostics:
         print("✅ Diagnostics attached to model")
 
     def detach(self):
-        """Remove hooks from model."""
         for hook in self.hooks:
             hook.remove()
         self.hooks = []
         print("✅ Diagnostics detached from model")
 
     def print_summary(self, verbose: bool = True):
-        """Print summary statistics of inputs/outputs.
-
-        Args:
-            verbose: If True, print per-feature statistics
-        """
         print("\n" + "=" * 70)
         print("MLP DIAGNOSTICS SUMMARY")
         print("=" * 70)
@@ -217,18 +184,12 @@ class MLPDiagnostics:
         print("\n" + "=" * 70 + "\n")
 
     def reset(self):
-        """Reset all collected statistics."""
         self.call_count = 0
         self.input_stats.clear()
         self.output_stats.clear()
         self.gradient_stats.clear()
 
     def get_stats(self) -> Dict[str, Dict[str, float]]:
-        """Get statistics as dictionary.
-
-        Returns:
-            Dictionary with 'input', 'output', 'gradient' keys containing stats
-        """
         return {
             "input": {
                 "mean": (
@@ -300,16 +261,6 @@ class MLPDiagnostics:
 
 
 def diagnose_hedger(hedger, option, n_paths: int = 1000):
-    """Quick diagnostic helper function.
-
-    Args:
-        hedger: Trained PFHedge Hedger
-        option: Option to evaluate on
-        n_paths: Number of paths to simulate
-
-    Returns:
-        Dictionary with diagnostic statistics
-    """
     diagnostics = MLPDiagnostics(hedger, sample_frequency=1)
     diagnostics.attach()
 

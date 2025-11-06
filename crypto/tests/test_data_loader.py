@@ -1,7 +1,3 @@
-"""
-Unit tests for crypto data loader.
-"""
-
 import unittest
 import pandas as pd
 import numpy as np
@@ -18,10 +14,8 @@ from data.loader import CryptoDataLoader
 
 
 class TestCryptoDataLoader(unittest.TestCase):
-    """Test cases for CryptoDataLoader."""
 
     def setUp(self):
-        """Set up test fixtures."""
         # Create temporary directory for test data
         self.test_dir = tempfile.mkdtemp()
         self.loader = CryptoDataLoader(data_dir=self.test_dir)
@@ -73,11 +67,9 @@ class TestCryptoDataLoader(unittest.TestCase):
         self.sample_options_data.to_parquet(self.options_file, index=False)
 
     def tearDown(self):
-        """Clean up test fixtures."""
         shutil.rmtree(self.test_dir)
 
     def test_load_perpetual_data(self):
-        """Test loading perpetual data."""
         df = self.loader.load_perpetual_data(filename="test_perpetual.parquet")
 
         self.assertEqual(len(df), 10)
@@ -95,7 +87,6 @@ class TestCryptoDataLoader(unittest.TestCase):
         pd.testing.assert_series_equal(df["spread"], expected_spread, check_names=False)
 
     def test_load_options_data(self):
-        """Test loading options data."""
         df = self.loader.load_options_data(filename="test_options.parquet")
 
         self.assertEqual(len(df), 3)
@@ -108,7 +99,6 @@ class TestCryptoDataLoader(unittest.TestCase):
         self.assertTrue(all(df["time_to_expiry"] > 0))
 
     def test_get_price_series(self):
-        """Test price series resampling."""
         # Load data first
         self.loader.load_perpetual_data(filename="test_perpetual.parquet")
 
@@ -120,7 +110,6 @@ class TestCryptoDataLoader(unittest.TestCase):
         self.assertIn("log_returns", price_series.columns)
 
     def test_get_atm_option(self):
-        """Test finding ATM option."""
         # Load data first
         self.loader.load_options_data(filename="test_options.parquet")
 
@@ -135,7 +124,6 @@ class TestCryptoDataLoader(unittest.TestCase):
         self.assertEqual(atm_put["option_type"], "put")
 
     def test_create_backtest_dataset(self):
-        """Test creating backtest dataset."""
         # Load both datasets
         self.loader.load_perpetual_data(filename="test_perpetual.parquet")
         self.loader.load_options_data(filename="test_options.parquet")
@@ -149,7 +137,6 @@ class TestCryptoDataLoader(unittest.TestCase):
         self.assertGreater(len(dataset["options"]), 0)
 
     def test_summary(self):
-        """Test data summary generation."""
         # Load both datasets
         self.loader.load_perpetual_data(filename="test_perpetual.parquet")
         self.loader.load_options_data(filename="test_options.parquet")
@@ -171,7 +158,6 @@ class TestCryptoDataLoader(unittest.TestCase):
         self.assertIn("unique_strikes", opts_summary)
 
     def test_process_perpetual_data_calculations(self):
-        """Test that perpetual data processing calculations are correct."""
         self.loader.load_perpetual_data(filename="test_perpetual.parquet")
         df = self.loader.perpetual_data
 
@@ -190,7 +176,6 @@ class TestCryptoDataLoader(unittest.TestCase):
         pd.testing.assert_series_equal(df["mid_price"], expected_mid, check_names=False)
 
     def test_empty_data_handling(self):
-        """Test handling of empty data files."""
         # Create minimal parquet file (can't save completely empty DataFrame)
         empty_df = pd.DataFrame({"dummy": []})
         empty_file = os.path.join(self.test_dir, "empty.parquet")
@@ -201,17 +186,14 @@ class TestCryptoDataLoader(unittest.TestCase):
         self.assertIsInstance(result, pd.DataFrame)
 
     def test_file_not_found(self):
-        """Test file not found error handling."""
         with self.assertRaises(FileNotFoundError):
             loader = CryptoDataLoader(data_dir="/nonexistent/path")
             loader.load_perpetual_data()
 
 
 class TestDataProcessingFunctions(unittest.TestCase):
-    """Test data processing utility functions."""
 
     def test_timezone_handling(self):
-        """Test proper timezone handling in data processing."""
         # Create data with timezone-naive timestamps
         data = pd.DataFrame(
             {

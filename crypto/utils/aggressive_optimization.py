@@ -1,9 +1,4 @@
 #!/usr/bin/env python3
-"""
-Aggressive optimization - push training harder.
-
-Tests very long training, massive capacity, and many paths.
-"""
 
 import sys
 import os
@@ -22,7 +17,6 @@ from crypto.strategies import (
 
 
 def run_experiment(config):
-    """Run a single optimization experiment."""
 
     # Base parameters
     base_config = {
@@ -104,7 +98,6 @@ def run_experiment(config):
 
 
 def main():
-    """Run aggressive optimization experiments."""
 
     print("=" * 70)
     print("AGGRESSIVE OPTIMIZATION - PUSH THE LIMITS")

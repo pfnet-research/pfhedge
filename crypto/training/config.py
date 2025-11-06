@@ -1,45 +1,9 @@
-"""Configuration for deep hedging training."""
-
 from dataclasses import dataclass, asdict
 from typing import Optional, Dict, Any, Union, List
 
 
 @dataclass
 class TrainingConfig:
-    """Configuration for training a deep hedging model.
-
-    Args:
-        strike: Option strike price (absolute value, e.g., 50000)
-        maturity_days: Option maturity in days
-        call: True for call option, False for put option (default: True)
-        volatility: Volatility for simulation (e.g., 0.8 for 80%)
-        volatility_window: Rolling window size for realized volatility (default: 20, 0 = use constant vol)
-        drift: Drift for simulation (default: 0.0)
-        transaction_cost: Transaction cost rate, e.g., 0.0005 for 0.05% (default: 0.0005)
-        dt_hours: Time step in hours (default: 8.0 for 8-hour rebalancing)
-        n_paths: Number of simulation paths for training (default: 10000)
-        n_epochs: Number of training epochs (default: 80)
-        n_layers: Number of hidden layers in neural network (default: 4)
-        n_units: Number of units per hidden layer (default: 128)
-        risk_measure: Risk measure for training criterion (default: "expected_shortfall")
-        risk_param: Parameter for risk measure, e.g., CVaR alpha (default: 0.9)
-        model_path: Path to save trained model checkpoint (required, no default)
-        test_n_paths: Number of paths for test evaluation (default: 200)
-        test_seed: Random seed for test set (default: 888)
-        train_seed: Random seed for training (default: 42)
-        output_dir: Directory to save training outputs (default: "training_results")
-
-    Examples:
-        >>> config = TrainingConfig(
-        ...     strike=50000,
-        ...     maturity_days=14,
-        ...     volatility=0.8,
-        ...     n_epochs=100
-        ... )
-        >>> config.validate()
-        >>> config_dict = config.to_dict()
-    """
-
     # Option parameters (required)
     strike: float
     maturity_days: int
@@ -57,6 +21,7 @@ class TrainingConfig:
     transaction_cost: float = 0.0005
     dt_hours: float = 8.0
     underlying_type: str = "perpetual"  # "perpetual" or "spot"
+    band_width: float = 0.001  # Minimum trade size in BTC (0.0 = no filtering)
 
     # Training parameters
     n_paths: int = 10000
@@ -98,15 +63,6 @@ class TrainingConfig:
     features: Optional[List[str]] = None  # None = use DEFAULT_FEATURES
 
     def normalize_risk_measure(self) -> str:
-        """Normalize risk measure to canonical form.
-
-        Maps aliases to canonical names:
-        - "cvar" -> "expected_shortfall"
-        - All others pass through
-
-        Returns:
-            Canonical risk measure name
-        """
         # Map aliases to canonical names
         alias_map = {
             "cvar": "expected_shortfall",
@@ -115,11 +71,6 @@ class TrainingConfig:
         return alias_map.get(self.risk_measure.lower(), self.risk_measure)
 
     def validate(self) -> None:
-        """Validate configuration parameters.
-
-        Raises:
-            ValueError: If any parameter is invalid
-        """
         # Validate strike
         if self.strike <= 0:
             raise ValueError(f"strike must be positive, got {self.strike}")
@@ -259,60 +210,17 @@ class TrainingConfig:
             )
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert config to dictionary.
-
-        Returns:
-            Dictionary representation of config
-        """
         return asdict(self)
 
     @classmethod
     def from_dict(cls, config_dict: Dict[str, Any]) -> "TrainingConfig":
-        """Create config from dictionary.
-
-        Args:
-            config_dict: Dictionary with config parameters
-
-        Returns:
-            TrainingConfig instance
-
-        Examples:
-            >>> config_dict = {
-            ...     "strike": 50000,
-            ...     "maturity_days": 14,
-            ...     "volatility": 0.8
-            ... }
-            >>> config = TrainingConfig.from_dict(config_dict)
-        """
         return cls(**config_dict)
 
     @property
     def dt(self) -> float:
-        """Get dt in years (for compatibility with PFHedge).
-
-        Returns:
-            Time step in years
-        """
         return self.dt_hours / 24 / 365
 
     def get_provenance_info(self) -> Dict[str, Any]:
-        """Get provenance information for reproducibility.
-
-        Returns:
-            Dictionary with provenance information including:
-            - config: Full config as dict
-            - git_commit: Git commit hash if available
-            - git_branch: Git branch if available
-            - git_dirty: Whether repo has uncommitted changes
-            - python_version: Python version string
-            - platform: Operating system
-            - timestamp: Current timestamp
-
-        Examples:
-            >>> config = TrainingConfig(strike=50000, maturity_days=14, model_path="model.pth")
-            >>> provenance = config.get_provenance_info()
-            >>> print(provenance['git_commit'])
-        """
         import subprocess
         import sys
         import platform
@@ -358,19 +266,6 @@ class TrainingConfig:
         return provenance
 
     def compute_config_hash(self) -> str:
-        """Compute unique hash for this training configuration.
-
-        This hash uniquely identifies the training configuration,
-        useful for tracking experiments and ensuring reproducibility.
-
-        Returns:
-            16-character hex hash string
-
-        Examples:
-            >>> config = TrainingConfig(strike=50000, maturity_days=14, model_path="model.pth")
-            >>> hash1 = config.compute_config_hash()
-            >>> print(hash1)
-        """
         import hashlib
         import json
 
@@ -396,7 +291,6 @@ class TrainingConfig:
         return full_hash[:16]
 
     def __repr__(self) -> str:
-        """String representation."""
         # Format n_units for display
         if isinstance(self.n_units, list):
             units_str = f"[{', '.join(str(u) for u in self.n_units)}]"

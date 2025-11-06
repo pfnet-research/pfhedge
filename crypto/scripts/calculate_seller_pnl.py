@@ -1,25 +1,4 @@
 #!/usr/bin/env python3
-"""
-Calculate Seller P&L from Backtest Results
-
-Combines premium received with hedging P&L to calculate true seller economics.
-
-The key insight: Seller P&L = Premium Received + Hedging P&L
-
-Usage:
-    # Basic usage
-    python crypto/scripts/calculate_seller_pnl.py \
-        --option option_metadata.json \
-        --backtest backtest_results/results.json \
-        --output final_analysis.json
-
-    # Specify instrument if option file has multiple
-    python crypto/scripts/calculate_seller_pnl.py \
-        --option options_candidates.json \
-        --instrument BTC-29OCT24-50000-C \
-        --backtest backtest_results/results.json \
-        --output final_analysis.json
-"""
 
 import argparse
 import json
@@ -39,16 +18,6 @@ logger = logging.getLogger(__name__)
 
 
 def load_option_metadata(option_file: str, instrument_name: str = None) -> dict:
-    """
-    Load option metadata from JSON file.
-
-    Args:
-        option_file: Path to option metadata JSON
-        instrument_name: Specific instrument to load (optional)
-
-    Returns:
-        Option metadata dictionary
-    """
     with open(option_file, "r") as f:
         data = json.load(f)
 
@@ -88,30 +57,11 @@ def load_option_metadata(option_file: str, instrument_name: str = None) -> dict:
 
 
 def load_backtest_results(backtest_file: str) -> dict:
-    """
-    Load backtest results from JSON file.
-
-    Args:
-        backtest_file: Path to backtest results JSON
-
-    Returns:
-        Backtest results dictionary
-    """
     with open(backtest_file, "r") as f:
         return json.load(f)
 
 
 def calculate_seller_pnl(option: dict, backtest_results: dict) -> dict:
-    """
-    Calculate true seller P&L including premium.
-
-    Args:
-        option: Option metadata
-        backtest_results: Backtest results
-
-    Returns:
-        Dictionary with seller P&L analysis
-    """
     # Extract premium
     premium_btc = option["premium_btc"]
     initial_spot = option["initial_spot"]
@@ -195,7 +145,6 @@ def calculate_seller_pnl(option: dict, backtest_results: dict) -> dict:
 
 
 def print_seller_analysis(results: dict):
-    """Print seller P&L analysis in readable format."""
     option = results["option"]
     premium = results["premium"]
     deep = results["deep_hedge"]

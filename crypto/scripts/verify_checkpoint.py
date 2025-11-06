@@ -1,19 +1,4 @@
 #!/usr/bin/env python3
-"""
-Verify Strike Normalization in Saved Checkpoint
-
-Checks that a trained model checkpoint has the correct normalized strike,
-not the absolute strike. This helps catch training bugs where strike
-normalization was skipped.
-
-Usage:
-    python crypto/scripts/verify_checkpoint.py models/my_model/model.pth
-
-    # With expected strike value
-    python crypto/scripts/verify_checkpoint.py \
-        models/my_model/model.pth \
-        --expected-strike 0.9604
-"""
 
 import argparse
 import sys
@@ -23,16 +8,6 @@ import torch
 
 
 def verify_checkpoint(checkpoint_path: str, expected_strike: float = None) -> bool:
-    """
-    Verify that checkpoint contains normalized strike.
-
-    Args:
-        checkpoint_path: Path to model.pth checkpoint
-        expected_strike: Optional expected strike value for verification
-
-    Returns:
-        True if checkpoint appears valid, False otherwise
-    """
     # Load checkpoint
     try:
         checkpoint = torch.load(checkpoint_path, map_location="cpu")

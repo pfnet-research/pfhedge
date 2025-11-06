@@ -1,5 +1,3 @@
-"""Bootstrap option generation from historical data."""
-
 import logging
 import numpy as np
 import torch
@@ -18,7 +16,6 @@ if TYPE_CHECKING:
 
 
 class BootstrapOptionGenerator:
-    """Generates bootstrap options from historical data."""
 
     def __init__(self, config: "BacktestConfig", data_loader: "CryptoDataLoader"):
         self.config = config
@@ -26,14 +23,6 @@ class BootstrapOptionGenerator:
         self.logger = logging.getLogger(__name__)
 
     def create_option(self) -> "BitcoinEuropeanOption":
-        """Create option with bootstrap paths.
-
-        Returns:
-            BitcoinEuropeanOption with bootstrap paths from historical data
-
-        Raises:
-            ValueError: If data_loader is None or has no data
-        """
         from crypto.instruments import BitcoinEuropeanOption
 
         if self.data_loader is None:
@@ -72,11 +61,6 @@ class BootstrapOptionGenerator:
     def _create_underlier(
         self,
     ) -> Union["BitcoinSpotHistorical", "BitcoinPerpetualHistorical"]:
-        """Create spot or perpetual underlier based on config.
-
-        Returns:
-            Configured underlier instrument
-        """
         from crypto.instruments import (
             BitcoinPerpetualHistorical,
             BitcoinSpotHistorical,
@@ -119,12 +103,6 @@ class BootstrapOptionGenerator:
         underlier: Union["BitcoinSpotHistorical", "BitcoinPerpetualHistorical"],
         time_horizon: float,
     ) -> None:
-        """Generate bootstrap paths with appropriate mode.
-
-        Args:
-            underlier: Underlier instrument to populate with paths
-            time_horizon: Time to maturity in years
-        """
         bootstrap_mode = self.config.bootstrap_mode
 
         if bootstrap_mode == "normalize_spot":
@@ -141,12 +119,6 @@ class BootstrapOptionGenerator:
         underlier: Union["BitcoinSpotHistorical", "BitcoinPerpetualHistorical"],
         time_horizon: float,
     ) -> None:
-        """Bootstrap with spot normalization.
-
-        Args:
-            underlier: Underlier instrument
-            time_horizon: Time to maturity in years
-        """
         target_moneyness = self.config.effective_target_moneyness
         target_initial_spot = self.config.strike * target_moneyness
 
@@ -178,12 +150,6 @@ class BootstrapOptionGenerator:
         underlier: Union["BitcoinSpotHistorical", "BitcoinPerpetualHistorical"],
         time_horizon: float,
     ) -> None:
-        """Bootstrap without normalization (legacy mode).
-
-        Args:
-            underlier: Underlier instrument
-            time_horizon: Time to maturity in years
-        """
         self.logger.info(f"Bootstrap mode: absolute_strike (no rescaling)")
         self.logger.warning(
             "Using absolute_strike mode - paths will have varying moneyness. "
@@ -212,12 +178,6 @@ class BootstrapOptionGenerator:
         underlier: Union["BitcoinSpotHistorical", "BitcoinPerpetualHistorical"],
         target_moneyness: float,
     ) -> None:
-        """Verify moneyness matches expectations.
-
-        Args:
-            underlier: Underlier with simulated paths
-            target_moneyness: Expected moneyness value
-        """
         initial_spots = underlier.spot[:, 0]
         initial_moneyness = initial_spots / self.config.strike
         log_moneyness = torch.log(initial_moneyness)
@@ -246,11 +206,6 @@ class BootstrapOptionGenerator:
         self,
         underlier: Union["BitcoinSpotHistorical", "BitcoinPerpetualHistorical"],
     ) -> None:
-        """Log moneyness distribution for visibility.
-
-        Args:
-            underlier: Underlier with simulated paths
-        """
         initial_spots = underlier.spot[:, 0]
         initial_moneyness = initial_spots / self.config.strike
         log_moneyness = torch.log(initial_moneyness)

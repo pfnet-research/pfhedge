@@ -1,5 +1,3 @@
-"""Strategy execution for backtesting."""
-
 import logging
 import torch
 from torch import Tensor
@@ -12,7 +10,6 @@ if TYPE_CHECKING:
 
 
 class StrategyExecutor:
-    """Executes hedging strategies and computes PnL."""
 
     def __init__(self, config: "BacktestConfig"):
         self.config = config
@@ -23,19 +20,10 @@ class StrategyExecutor:
     def run_deep_hedge(
         self, option: "BitcoinEuropeanOption", model: "Hedger"
     ) -> Tensor:
-        """Execute deep hedging strategy.
-
-        Args:
-            option: Option to hedge
-            model: Pre-trained Hedger model
-
-        Returns:
-            Cumulative PnL tensor, shape (n_paths, n_steps)
-
-        Raises:
-            ValueError: If option or model is None
-        """
-        from crypto.strategies.deep_hedge_utils import compute_funding_cum_cost
+        from crypto.strategies.deep_hedge_utils import (
+            compute_funding_cum_cost,
+            apply_no_trade_band,
+        )
 
         if option is None:
             raise ValueError(
@@ -56,8 +44,24 @@ class StrategyExecutor:
             self._attach_diagnostics(model)
 
         with torch.no_grad():
+            from pfhedge.nn.functional import cum_pl
+
             hedge_positions = model.compute_hedge(option).squeeze(1)
-            cum_pnl = model.compute_cum_pl(option)
+            hedge_positions = apply_no_trade_band(
+                hedge_positions, self.config.band_width
+            )
+
+            spot = option.underlier.spot
+            cost = option.underlier.cost
+            payoff = option.payoff()
+
+            cum_pnl = cum_pl(
+                spot=spot.unsqueeze(1),
+                unit=hedge_positions.unsqueeze(1),
+                cost=[cost],
+                payoff=payoff,
+                deduct_first_cost=True,
+            )
 
             cum_pnl = self._apply_funding_costs(cum_pnl, hedge_positions, option)
 
@@ -76,18 +80,10 @@ class StrategyExecutor:
         return cum_pnl
 
     def run_bs_baseline(self, option: "BitcoinEuropeanOption") -> Tensor:
-        """Execute Black-Scholes delta hedging.
-
-        Args:
-            option: Option to hedge
-
-        Returns:
-            Cumulative PnL tensor, shape (n_paths, n_steps)
-
-        Raises:
-            ValueError: If option is None
-        """
-        from crypto.strategies.deep_hedge_utils import calculate_bs_hedge_pnl
+        from crypto.strategies.deep_hedge_utils import (
+            calculate_bs_hedge_pnl,
+            apply_no_trade_band,
+        )
 
         if option is None:
             raise ValueError(
@@ -120,7 +116,10 @@ class StrategyExecutor:
             cost=cost,
             funding_rate=funding_rate,
             funding_times=funding_times,
+            band_width=self.config.band_width,
         )
+
+        filtered_delta = apply_no_trade_band(bs_delta, self.config.band_width)
 
         self.logger.info(f"✅ Black-Scholes baseline computed")
         self.logger.info(f"   Delta shape: {bs_delta.shape}")
@@ -129,17 +128,11 @@ class StrategyExecutor:
             f"   Final PnL: ${cum_pnl[:, -1].mean().item():.2f} ± ${cum_pnl[:, -1].std().item():.2f}"
         )
 
-        self.positions = bs_delta
+        self.positions = filtered_delta
 
         return cum_pnl
 
     def _move_to_device(self, option: "BitcoinEuropeanOption", model: "Hedger") -> None:
-        """Ensure option tensors are on same device as model.
-
-        Args:
-            option: Option to move
-            model: Model determining target device
-        """
         model_device = next(model.parameters()).device
         if hasattr(option.underlier, "spot"):
             if option.underlier.spot.device != model_device:
@@ -149,11 +142,6 @@ class StrategyExecutor:
                 option.underlier.to(model_device)
 
     def _attach_diagnostics(self, model: "Hedger") -> None:
-        """Attach diagnostics if enabled.
-
-        Args:
-            model: Model to attach diagnostics to
-        """
         from crypto.training.diagnostics import MLPDiagnostics
 
         self.diagnostics = MLPDiagnostics(model, sample_frequency=1)
@@ -168,16 +156,6 @@ class StrategyExecutor:
         positions: Tensor,
         option: "BitcoinEuropeanOption",
     ) -> Tensor:
-        """Apply funding costs if underlier supports it.
-
-        Args:
-            cum_pnl: Cumulative PnL before funding
-            positions: Hedge positions
-            option: Option being hedged
-
-        Returns:
-            Cumulative PnL after funding costs
-        """
         from crypto.strategies.deep_hedge_utils import compute_funding_cum_cost
 
         if (
@@ -206,7 +184,6 @@ class StrategyExecutor:
         return cum_pnl
 
     def _print_diagnostics(self) -> None:
-        """Print diagnostics summary."""
         self.logger.info("=" * 70)
         self.logger.info("BACKTEST DIAGNOSTICS")
         self.logger.info("=" * 70)

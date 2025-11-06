@@ -1,7 +1,3 @@
-"""
-Historical data downloader for Bitcoin perpetual, options, and spot from exchanges.
-"""
-
 import os
 import time
 import gzip
@@ -20,16 +16,8 @@ except ImportError:
 
 
 class HistoricalDataDownloader:
-    """Download and save historical data from Deribit."""
 
     def __init__(self, data_dir: str = "data", testnet: bool = True):
-        """
-        Initialize downloader.
-
-        Args:
-            data_dir: Directory to save data files
-            testnet: Use testnet (True) or mainnet (False)
-        """
         self.client = DeribitClient(testnet=testnet)
         self.data_dir = data_dir
         os.makedirs(data_dir, exist_ok=True)
@@ -41,18 +29,6 @@ class HistoricalDataDownloader:
         instrument: str = "BTC-PERPETUAL",
         save_to_parquet: bool = True,
     ) -> pd.DataFrame:
-        """
-        Download perpetual contract data (tickers and simple trades).
-
-        Args:
-            start_date: Start date for data collection
-            end_date: End date for data collection
-            instrument: Instrument name
-            save_to_parquet: Save data to parquet file
-
-        Returns:
-            DataFrame with perpetual data
-        """
         print(
             f"Downloading {instrument} data from {start_date.date()} to {end_date.date()}"
         )
@@ -112,19 +88,6 @@ class HistoricalDataDownloader:
         maturity_filter: Optional[str] = None,
         save_to_parquet: bool = True,
     ) -> pd.DataFrame:
-        """
-        Download options data for specified period.
-
-        Args:
-            start_date: Start date for data collection
-            end_date: End date for data collection
-            currency: Currency (BTC, ETH, etc.)
-            maturity_filter: Filter by maturity date (e.g., "25DEC23")
-            save_to_parquet: Save data to parquet file
-
-        Returns:
-            DataFrame with options data
-        """
         print(
             f"Downloading {currency} options data from {start_date.date()} to {end_date.date()}"
         )
@@ -211,21 +174,6 @@ class HistoricalDataDownloader:
         api_key: Optional[str] = None,
         save_to_parquet: bool = True,
     ) -> pd.DataFrame:
-        """
-        Download Bitcoin spot data from Tardis CSV datasets.
-
-        Args:
-            start_date: Start date for data collection
-            end_date: End date for data collection
-            exchange: Exchange name (coinbase, binance, kraken, bitstamp)
-            symbol: Trading pair symbol (BTC-USD for Coinbase, BTCUSDT for Binance)
-            resample_freq: Resample frequency (8H for 8-hour bars to match perpetual)
-            api_key: Tardis API key (optional, first day of month is free)
-            save_to_parquet: Save data to parquet file
-
-        Returns:
-            DataFrame with spot data (OHLCV bars)
-        """
         print(
             f"Downloading {exchange}/{symbol} spot data from {start_date.date()} to {end_date.date()}"
         )
@@ -344,15 +292,6 @@ class HistoricalDataDownloader:
         return combined
 
     def download_sample_dataset(self, days_back: int = 7) -> Dict[str, pd.DataFrame]:
-        """
-        Download a sample dataset for testing.
-
-        Args:
-            days_back: Number of days of data to collect
-
-        Returns:
-            Dictionary with 'perpetual' and 'options' DataFrames
-        """
         end_date = datetime.now(timezone.utc)
         start_date = end_date - timedelta(days=days_back)
 
@@ -404,7 +343,6 @@ class HistoricalDataDownloader:
 
 
 def main():
-    """Download sample data for testing."""
     downloader = HistoricalDataDownloader(data_dir="sample_data", testnet=True)
 
     try:

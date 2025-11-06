@@ -1,10 +1,3 @@
-"""
-Factory function for creating market data clients.
-
-This module provides a unified way to create market data clients across
-different scripts in the crypto module.
-"""
-
 import os
 import logging
 from typing import Optional
@@ -21,40 +14,6 @@ def create_client(
     tardis_api_key: Optional[str] = None,
     **kwargs,
 ) -> MarketDataClient:
-    """Create market data client based on data source.
-
-    Args:
-        data_source: "deribit" or "tardis"
-        testnet: Use testnet (for Deribit only, Tardis uses mainnet historical data)
-        tardis_api_key: Tardis.dev API key (optional; None uses free tier - first day of month only)
-        **kwargs: Additional client-specific parameters
-
-    Returns:
-        MarketDataClient instance (DeribitClient or TardisClient)
-
-    Raises:
-        ValueError: If data_source is invalid
-        ImportError: If required package is not installed (tardis-client for Tardis)
-
-    Notes:
-        - Tardis without API key: Free tier access (first day of each month only)
-        - Tardis with API key: Full historical access since 2019-03-30
-        - API key can be provided via parameter or TARDIS_API_KEY environment variable
-
-    Examples:
-        >>> # Create Deribit client (testnet)
-        >>> client = create_client("deribit", testnet=True)
-
-        >>> # Create Tardis client with API key (full access)
-        >>> client = create_client("tardis", tardis_api_key="your_key")
-
-        >>> # Create Tardis client without API key (free tier)
-        >>> client = create_client("tardis")  # First day of month only
-
-        >>> # Use environment variable for API key
-        >>> os.environ["TARDIS_API_KEY"] = "your_key"
-        >>> client = create_client("tardis")
-    """
     if data_source == "tardis":
         # Get API key from parameter or environment
         api_key = tardis_api_key or os.getenv("TARDIS_API_KEY")
@@ -93,24 +52,6 @@ def create_client(
 
 
 def add_client_args(parser):
-    """Add common data source arguments to argparse parser.
-
-    This is a convenience function to add standardized client selection
-    arguments to any script that needs market data access.
-
-    Args:
-        parser: argparse.ArgumentParser instance
-
-    Returns:
-        parser (for chaining)
-
-    Examples:
-        >>> import argparse
-        >>> parser = argparse.ArgumentParser()
-        >>> add_client_args(parser)
-        >>> args = parser.parse_args()
-        >>> client = create_client(args.data_source, args.testnet, args.tardis_api_key)
-    """
     parser.add_argument(
         "--data-source",
         type=str,

@@ -1,16 +1,3 @@
-"""Domain constants for crypto hedging.
-
-This module centralizes all domain-specific default values to avoid drift
-and ensure consistency across the codebase.
-
-Constants:
-    TRANSACTION_COSTS: Default transaction cost rates for different markets
-    LEVERAGE_LIMITS: Maximum leverage allowed for different instruments
-    FUNDING_INTERVALS: Funding payment intervals in years
-    TIME_STEPS: Standard time steps for rebalancing
-    RISK_MEASURES: Valid risk measures for optimization
-"""
-
 from typing import Dict
 
 # ==============================================================================
@@ -173,71 +160,17 @@ MARKET_DEFAULTS: Dict[str, float] = {
 
 
 def dt_hours_to_years(dt_hours: float) -> float:
-    """Convert time step from hours to years (for PFHedge compatibility).
-
-    Args:
-        dt_hours: Time step in hours
-
-    Returns:
-        Time step in years
-
-    Examples:
-        >>> dt_hours_to_years(8.0)
-        0.0009132420091324201  # 8 hours / (24 * 365)
-    """
     return dt_hours / 24 / 365
 
 
 def dt_years_to_hours(dt_years: float) -> float:
-    """Convert time step from years to hours.
-
-    Args:
-        dt_years: Time step in years
-
-    Returns:
-        Time step in hours
-
-    Examples:
-        >>> dt_years_to_hours(0.0009132420091324201)
-        8.0
-    """
     return dt_years * 24 * 365
 
 
 def normalize_risk_measure(risk_measure: str) -> str:
-    """Normalize risk measure name using aliases.
-
-    Args:
-        risk_measure: Risk measure name (may be alias)
-
-    Returns:
-        Canonical risk measure name
-
-    Examples:
-        >>> normalize_risk_measure("cvar")
-        'expected_shortfall'
-        >>> normalize_risk_measure("expected_shortfall")
-        'expected_shortfall'
-    """
     return RISK_MEASURE_ALIASES.get(risk_measure.lower(), risk_measure)
 
 
 def validate_risk_measure(risk_measure: str) -> bool:
-    """Check if risk measure is valid.
-
-    Args:
-        risk_measure: Risk measure name to validate
-
-    Returns:
-        True if valid, False otherwise
-
-    Examples:
-        >>> validate_risk_measure("expected_shortfall")
-        True
-        >>> validate_risk_measure("cvar")  # alias
-        True
-        >>> validate_risk_measure("invalid")
-        False
-    """
     normalized = normalize_risk_measure(risk_measure)
     return normalized in RISK_MEASURES

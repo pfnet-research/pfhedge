@@ -1,29 +1,4 @@
 #!/usr/bin/env python3
-"""
-Automated End-to-End Realistic Backtesting Pipeline
-
-⚠️  NOTE: This script is for AUTOMATED batch processing.
-    For INTERACTIVE trading workflows, use the step-by-step scripts instead:
-
-    Step 1: explore_options.py      → Review available options
-    Step 2: train_for_option.py     → Train model for selected option
-    Step 3: crypto.backtest.run     → Backtest the strategy
-    Step 4: calculate_seller_pnl.py → Calculate final returns
-
-This automated script coordinates the complete workflow:
-1. Fetch historical data
-2. Select option and discover premium (automated - no review)
-3. Train model with market parameters
-4. Run backtest from sale to expiry
-5. Calculate final P&L including premium
-
-Usage:
-    # For automation/batch jobs
-    python realistic_backtest.py --config config.yaml
-
-    # For interactive trading, use step-by-step workflow instead
-    python crypto/scripts/explore_options.py --help
-"""
 
 import argparse
 import json
@@ -63,23 +38,12 @@ logger = logging.getLogger(__name__)
 
 
 def load_config(config_path: str) -> Dict:
-    """Load configuration from YAML file."""
     with open(config_path, "r") as f:
         config = yaml.safe_load(f)
     return config
 
 
 def ensure_data_available(config: Dict, client: DeribitClient) -> bool:
-    """
-    Ensure historical data is available for backtesting.
-
-    Args:
-        config: Configuration dictionary
-        client: Deribit client
-
-    Returns:
-        True if data is available, False otherwise
-    """
     data_dir = Path(config.get("data_dir", "crypto/data/historical"))
 
     # Parse dates
@@ -142,16 +106,6 @@ def ensure_data_available(config: Dict, client: DeribitClient) -> bool:
 
 
 def select_and_fetch_option(config: Dict, client: DeribitClient) -> Optional[Dict]:
-    """
-    Select option and fetch premium information.
-
-    Args:
-        config: Configuration dictionary
-        client: Deribit client
-
-    Returns:
-        Option metadata dictionary or None
-    """
     trade_date = datetime.fromisoformat(config["trade_date"]).replace(
         tzinfo=timezone.utc
     )
@@ -191,16 +145,6 @@ def select_and_fetch_option(config: Dict, client: DeribitClient) -> Optional[Dic
 
 
 def train_model_for_option(option_info: Dict, config: Dict) -> str:
-    """
-    Train deep hedging model for the selected option.
-
-    Args:
-        option_info: Option metadata
-        config: Configuration dictionary
-
-    Returns:
-        Path to trained model
-    """
     logger.info("Training deep hedging model with market parameters")
 
     # Calculate implied volatility from market premium
@@ -265,17 +209,6 @@ def train_model_for_option(option_info: Dict, config: Dict) -> str:
 
 
 def run_backtest_with_model(option_info: Dict, model_path: str, config: Dict) -> Dict:
-    """
-    Run backtest from sale to expiry.
-
-    Args:
-        option_info: Option metadata
-        model_path: Path to trained model
-        config: Configuration dictionary
-
-    Returns:
-        Backtest results
-    """
     logger.info("Running backtest from sale to expiry")
 
     # Parse dates
@@ -309,20 +242,6 @@ def run_backtest_with_model(option_info: Dict, model_path: str, config: Dict) ->
 def calculate_seller_pnl(
     backtest_results, option_premium_btc: float, initial_spot: float
 ) -> Dict:
-    """
-    Calculate true seller P&L including premium.
-
-    The backtester gives us hedging P&L (negative for sellers).
-    We need to add the premium to get true seller economics.
-
-    Args:
-        backtest_results: Results from backtester
-        option_premium_btc: Premium received in BTC
-        initial_spot: Spot price at trade time
-
-    Returns:
-        Dictionary with final P&L metrics
-    """
     logger.info("Calculating seller P&L including premium")
 
     # Convert premium to USD
@@ -390,7 +309,6 @@ def calculate_seller_pnl(
 
 
 def generate_final_report(option_info: Dict, seller_pnl: Dict, config: Dict):
-    """Generate final markdown report."""
     output_dir = Path(config.get("output_dir", "backtest_results"))
     output_dir.mkdir(parents=True, exist_ok=True)
 

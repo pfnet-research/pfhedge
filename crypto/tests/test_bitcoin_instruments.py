@@ -1,7 +1,3 @@
-"""
-Unit tests for Bitcoin instruments.
-"""
-
 import unittest
 import sys
 import os
@@ -19,7 +15,6 @@ from crypto.data.loader import CryptoDataLoader
 
 
 class MockDataLoader:
-    """Mock data loader for testing."""
 
     def __init__(self):
         # Create sample data
@@ -46,22 +41,18 @@ class MockDataLoader:
 
 
 class TestBitcoinSpot(unittest.TestCase):
-    """Test cases for BitcoinSpot instrument."""
 
     def setUp(self):
-        """Set up test fixtures."""
         self.mock_loader = MockDataLoader()
         self.btc_spot = BitcoinSpot(data_loader=self.mock_loader)
 
     def test_initialization(self):
-        """Test BitcoinSpot initialization."""
         self.assertEqual(self.btc_spot.cost, 0.001)
         self.assertEqual(self.btc_spot.dt, 1 / 24 / 12)
         self.assertEqual(self.btc_spot.leverage, 1.0)
         self.assertFalse(self.btc_spot.has_funding)
 
     def test_simulate(self):
-        """Test loading historical data via simulate."""
         # Simulate for 1 hour (12 5-minute bars)
         time_horizon = 1 / 24
         self.btc_spot.simulate(n_paths=1, time_horizon=time_horizon)
@@ -81,7 +72,6 @@ class TestBitcoinSpot(unittest.TestCase):
         self.assertTrue(hasattr(self.btc_spot, "mid"))
 
     def test_multiple_paths(self):
-        """Test simulating multiple paths."""
         self.btc_spot.simulate(n_paths=3, time_horizon=1 / 24)
 
         spot = self.btc_spot.spot
@@ -92,7 +82,6 @@ class TestBitcoinSpot(unittest.TestCase):
         torch.testing.assert_close(spot[1], spot[2])
 
     def test_margin_requirement(self):
-        """Test margin requirement calculation."""
         self.btc_spot.simulate(n_paths=1, time_horizon=1 / 24)
 
         # For spot, margin = full notional
@@ -105,7 +94,6 @@ class TestBitcoinSpot(unittest.TestCase):
         self.assertAlmostEqual(margin, expected_margin, places=2)
 
     def test_volatility(self):
-        """Test volatility calculation."""
         self.btc_spot.simulate(n_paths=1, time_horizon=1 / 24)
 
         vol = self.btc_spot.volatility
@@ -113,11 +101,9 @@ class TestBitcoinSpot(unittest.TestCase):
         self.assertTrue((vol >= 0).all())
 
     def test_is_listed(self):
-        """Test that Bitcoin spot is always listed."""
         self.assertTrue(self.btc_spot.is_listed)
 
     def test_device_dtype(self):
-        """Test moving to different device/dtype."""
         btc = BitcoinSpot(data_loader=self.mock_loader, dtype=torch.float64)
         btc.simulate(n_paths=1, time_horizon=1 / 24)
 
@@ -129,14 +115,11 @@ class TestBitcoinSpot(unittest.TestCase):
 
 
 class TestIntegrationWithPFHedge(unittest.TestCase):
-    """Test integration with PFHedge framework."""
 
     def setUp(self):
-        """Set up test fixtures."""
         self.mock_loader = MockDataLoader()
 
     def test_as_primary_instrument(self):
-        """Test that our instruments work as PFHedge primary instruments."""
         from pfhedge.instruments import EuropeanOption
 
         # Create Bitcoin perpetual as underlier
@@ -157,7 +140,6 @@ class TestIntegrationWithPFHedge(unittest.TestCase):
         self.assertEqual(payoff.shape[0], 2)
 
     def test_with_hedger(self):
-        """Test basic compatibility with PFHedge Hedger."""
         try:
             from pfhedge.nn import Hedger, MultiLayerPerceptron
             from pfhedge.instruments import EuropeanOption
@@ -184,10 +166,8 @@ class TestIntegrationWithPFHedge(unittest.TestCase):
 
 
 class TestDataIntegration(unittest.TestCase):
-    """Test integration with our data loader."""
 
     def test_with_real_data_loader(self):
-        """Test with actual CryptoDataLoader if sample data exists."""
         try:
             # Try to use real data loader
             # Use absolute path to work both from repo root and from crypto/tests

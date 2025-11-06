@@ -1,7 +1,3 @@
-"""
-Unit tests for Bitcoin perpetual simulation models.
-"""
-
 import unittest
 import sys
 import os
@@ -22,7 +18,6 @@ from crypto.data.loader import CryptoDataLoader
 
 
 class MockDataLoader:
-    """Mock data loader for testing."""
 
     def __init__(self):
         # Create sample data
@@ -46,16 +41,13 @@ class MockDataLoader:
 
 
 class TestBitcoinPerpetualBase(unittest.TestCase):
-    """Test cases for BitcoinPerpetualBase abstract class."""
 
     def test_cannot_instantiate(self):
-        """Test that base class cannot be instantiated."""
         with self.assertRaises(TypeError):
             # Should fail because simulate() is abstract
             BitcoinPerpetualBase()
 
     def test_base_properties(self):
-        """Test base class properties through a concrete subclass."""
         btc = BitcoinPerpetualBrownian()
 
         # Check base properties
@@ -66,7 +58,6 @@ class TestBitcoinPerpetualBase(unittest.TestCase):
         self.assertAlmostEqual(btc.funding_interval, (8 / 24) / 365, places=10)
 
     def test_margin_requirement(self):
-        """Test margin requirement calculation with leverage."""
         btc = BitcoinPerpetualBrownian()
         btc.simulate(n_paths=1, time_horizon=1 / 24 / 365)  # 1 hour in years
 
@@ -79,7 +70,6 @@ class TestBitcoinPerpetualBase(unittest.TestCase):
         self.assertAlmostEqual(margin, expected_margin, places=2)
 
     def test_funding_payment_times(self):
-        """Test funding payment time identification."""
         btc = BitcoinPerpetualBrownian()
         btc.simulate(n_paths=1, time_horizon=8 / 24 / 365)  # 8 hours in years
 
@@ -100,10 +90,8 @@ class TestBitcoinPerpetualBase(unittest.TestCase):
 
 
 class TestBitcoinPerpetualBrownian(unittest.TestCase):
-    """Test cases for BitcoinPerpetualBrownian model."""
 
     def test_initialization(self):
-        """Test Brownian model initialization."""
         btc = BitcoinPerpetualBrownian(sigma=0.8, mu=0.1)
 
         self.assertEqual(btc.sigma, 0.8)
@@ -112,7 +100,6 @@ class TestBitcoinPerpetualBrownian(unittest.TestCase):
         self.assertEqual(btc.funding_std, 0.0002)
 
     def test_simulate_multiple_paths(self):
-        """Test generating multiple Monte Carlo paths."""
         btc = BitcoinPerpetualBrownian(sigma=0.8)
 
         n_paths = 100
@@ -133,7 +120,6 @@ class TestBitcoinPerpetualBrownian(unittest.TestCase):
         self.assertEqual(btc.index_price.shape, btc.spot.shape)
 
     def test_volatility_property(self):
-        """Test volatility property returns constant sigma."""
         btc = BitcoinPerpetualBrownian(sigma=0.75)
         btc.simulate(n_paths=10, time_horizon=5 / 365)
 
@@ -142,7 +128,6 @@ class TestBitcoinPerpetualBrownian(unittest.TestCase):
         self.assertTrue(torch.allclose(vol, torch.full_like(vol, 0.75)))
 
     def test_simulate_with_init_state(self):
-        """Test simulation with custom initial price."""
         btc = BitcoinPerpetualBrownian()
 
         init_price = 60000.0
@@ -152,7 +137,6 @@ class TestBitcoinPerpetualBrownian(unittest.TestCase):
         self.assertTrue(torch.allclose(btc.spot[:, 0], torch.full((5,), init_price)))
 
     def test_funding_rate_correlation(self):
-        """Test that funding rates correlate with momentum."""
         btc = BitcoinPerpetualBrownian(mu=0.5)  # Strong upward drift
         btc.simulate(n_paths=100, time_horizon=10 / 365)
 
@@ -165,7 +149,6 @@ class TestBitcoinPerpetualBrownian(unittest.TestCase):
         self.assertIsNotNone(mean_funding)
 
     def test_historical_calibration(self):
-        """Test simulation with historical parameters."""
         btc = BitcoinPerpetualBrownian()
 
         hist_params = {
@@ -191,14 +174,11 @@ class TestBitcoinPerpetualBrownian(unittest.TestCase):
 
 
 class TestBitcoinPerpetualHistorical(unittest.TestCase):
-    """Test cases for BitcoinPerpetualHistorical model."""
 
     def setUp(self):
-        """Set up test fixtures."""
         self.mock_loader = MockDataLoader()
 
     def test_initialization_requires_loader(self):
-        """Test that historical model requires data loader."""
         with self.assertRaises(ValueError):
             BitcoinPerpetualHistorical(data_loader=None)
 
@@ -207,7 +187,6 @@ class TestBitcoinPerpetualHistorical(unittest.TestCase):
         self.assertIsNotNone(btc.data_loader)
 
     def test_simulate_single_path(self):
-        """Test loading historical data for backtesting."""
         btc = BitcoinPerpetualHistorical(data_loader=self.mock_loader)
 
         btc.simulate(n_paths=1, time_horizon=1 / 24 / 365)  # 1 hour in years
@@ -223,7 +202,6 @@ class TestBitcoinPerpetualHistorical(unittest.TestCase):
         self.assertTrue(hasattr(btc, "index_price"))
 
     def test_replicate_paths(self):
-        """Test replicating historical path for Monte Carlo with costs."""
         btc = BitcoinPerpetualHistorical(data_loader=self.mock_loader)
 
         n_paths = 10
@@ -237,7 +215,6 @@ class TestBitcoinPerpetualHistorical(unittest.TestCase):
             torch.testing.assert_close(btc.spot[0], btc.spot[i])
 
     def test_historical_volatility(self):
-        """Test historical volatility calculation."""
         btc = BitcoinPerpetualHistorical(data_loader=self.mock_loader)
         btc.simulate(
             n_paths=1, time_horizon=30 / 365
@@ -257,7 +234,6 @@ class TestBitcoinPerpetualHistorical(unittest.TestCase):
         self.assertFalse(torch.allclose(vol[:, 0], vol[:, -1]))
 
     def test_bootstrap_simulation(self):
-        """Test bootstrap sampling from historical data."""
         btc = BitcoinPerpetualHistorical(data_loader=self.mock_loader)
 
         n_paths = 20
@@ -279,7 +255,6 @@ class TestBitcoinPerpetualHistorical(unittest.TestCase):
         self.assertGreater(different_paths, n_paths // 2)
 
     def test_cumulative_funding_cost(self):
-        """Test funding cost calculation with historical data."""
         btc = BitcoinPerpetualHistorical(data_loader=self.mock_loader)
         btc.simulate(n_paths=1, time_horizon=8 / 24 / 365)  # 8 hours in years
 
@@ -293,14 +268,11 @@ class TestBitcoinPerpetualHistorical(unittest.TestCase):
 
 
 class TestModelComparison(unittest.TestCase):
-    """Test comparing different models."""
 
     def setUp(self):
-        """Set up test fixtures."""
         self.mock_loader = MockDataLoader()
 
     def test_training_vs_backtesting(self):
-        """Test that models are used for different purposes."""
         # Brownian for training (many paths)
         btc_train = BitcoinPerpetualBrownian(sigma=0.8)
         btc_train.simulate(n_paths=1000, time_horizon=30 / 365)
@@ -317,7 +289,6 @@ class TestModelComparison(unittest.TestCase):
         self.assertEqual(btc_backtest.spot.shape[0], 1)
 
     def test_with_pfhedge_option(self):
-        """Test both models work with PFHedge options."""
         try:
             from pfhedge.instruments import EuropeanOption
         except ImportError:

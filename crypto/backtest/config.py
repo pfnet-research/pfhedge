@@ -1,5 +1,3 @@
-"""Configuration for backtesting."""
-
 from dataclasses import dataclass, asdict
 from datetime import datetime
 from typing import Optional, Dict, Any
@@ -15,42 +13,6 @@ except ImportError:
 
 @dataclass
 class BacktestConfig:
-    """Configuration for a backtest run.
-
-    Args:
-        start_date: Start date in YYYY-MM-DD format
-        end_date: End date in YYYY-MM-DD format
-        strike: Option strike price (absolute value, e.g., 50000)
-        maturity_days: Option maturity in days
-        model_path: Path to pre-trained model checkpoint (.pth file)
-        call: True for call option, False for put option (default: True)
-        n_bootstrap_paths: Number of bootstrap paths to generate (default: 100)
-        transaction_cost: Transaction cost rate, e.g., 0.0005 for 0.05% (default: 0.0005)
-        dt_hours: Time step in hours (default: 8.0 for 8-hour rebalancing)
-        volatility_window: Rolling window for realized volatility (default: 20, 0 = use constant vol)
-        data_dir: Directory containing historical data (default: "sample_data")
-        output_dir: Directory to save results (default: "backtest_results")
-        bootstrap_mode: Bootstrap sampling mode (default: "absolute_strike")
-            - "absolute_strike": Use raw historical prices (legacy, backward compatible)
-            - "normalize_spot": Rescale prices to preserve moneyness (recommended)
-        initial_spot: Initial spot price from option discovery (for normalize_spot mode)
-        target_moneyness: Explicit target moneyness override (alternative to initial_spot)
-        spot_tolerance: Tolerance for spot filtering (future use, default: 0.1)
-        enable_diagnostics: Enable MLP input/output diagnostics during hedge computation (default: False)
-
-    Examples:
-        >>> config = BacktestConfig(
-        ...     start_date="2024-01-01",
-        ...     end_date="2024-01-31",
-        ...     strike=50000,
-        ...     maturity_days=14,
-        ...     model_path="models/deep_hedger.pth",
-        ...     bootstrap_mode="normalize_spot",
-        ...     initial_spot=49000
-        ... )
-        >>> config.validate()
-        >>> config_dict = config.to_dict()
-    """
 
     # Date range
     start_date: str
@@ -70,6 +32,7 @@ class BacktestConfig:
         20  # Rolling window for realized volatility (0 = use constant vol)
     )
     underlying_type: str = "perpetual"  # "perpetual" or "spot" (must match training)
+    band_width: float = 0.001  # Minimum trade size in BTC (0.0 = no filtering)
     data_dir: str = "sample_data"
     data_file: Optional[str] = (
         None  # Specific data file to load (overrides auto-detection)
@@ -86,11 +49,6 @@ class BacktestConfig:
     enable_diagnostics: bool = False
 
     def validate(self) -> None:
-        """Validate configuration parameters.
-
-        Raises:
-            ValueError: If any parameter is invalid
-        """
         # Validate dates
         try:
             start = datetime.strptime(self.start_date, "%Y-%m-%d")
@@ -186,54 +144,13 @@ class BacktestConfig:
                 )
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert config to dictionary.
-
-        Returns:
-            Dictionary representation of config
-        """
         return asdict(self)
 
     @classmethod
     def from_dict(cls, config_dict: Dict[str, Any]) -> "BacktestConfig":
-        """Create config from dictionary.
-
-        Args:
-            config_dict: Dictionary with config parameters
-
-        Returns:
-            BacktestConfig instance
-
-        Examples:
-            >>> config_dict = {
-            ...     "start_date": "2024-01-01",
-            ...     "end_date": "2024-01-31",
-            ...     "strike": 50000,
-            ...     "maturity_days": 14,
-            ...     "model_path": "models/model.pth"
-            ... }
-            >>> config = BacktestConfig.from_dict(config_dict)
-        """
         return cls(**config_dict)
 
     def save_yaml(self, path: str) -> None:
-        """Save configuration to YAML file.
-
-        Args:
-            path: Path to save YAML file
-
-        Raises:
-            ImportError: If PyYAML is not installed
-
-        Examples:
-            >>> config = BacktestConfig(
-            ...     start_date="2024-01-01",
-            ...     end_date="2024-01-31",
-            ...     strike=50000,
-            ...     maturity_days=14,
-            ...     model_path="models/model.pth"
-            ... )
-            >>> config.save_yaml("config.yaml")
-        """
         if not HAS_YAML:
             raise ImportError(
                 "PyYAML is required for YAML support. "
@@ -259,24 +176,6 @@ class BacktestConfig:
     def load_yaml(
         cls, path: str, anchor_relative_paths: bool = True
     ) -> "BacktestConfig":
-        """Load configuration from YAML file.
-
-        Args:
-            path: Path to YAML file
-            anchor_relative_paths: If True, resolve relative paths relative to config file directory (default: True)
-
-        Returns:
-            BacktestConfig instance
-
-        Raises:
-            ImportError: If PyYAML is not installed
-            FileNotFoundError: If file does not exist
-            ValueError: If YAML is invalid, missing required fields, or has unknown keys
-
-        Examples:
-            >>> config = BacktestConfig.load_yaml("config.yaml")
-            >>> config.validate()
-        """
         if not HAS_YAML:
             raise ImportError(
                 "PyYAML is required for YAML support. "
@@ -339,28 +238,10 @@ class BacktestConfig:
 
     @property
     def dt(self) -> float:
-        """Get dt in years (for compatibility with PFHedge).
-
-        Returns:
-            Time step in years
-        """
         return self.dt_hours / 24 / 365
 
     @property
     def effective_target_moneyness(self) -> Optional[float]:
-        """Calculate effective target moneyness for bootstrap.
-
-        Returns:
-            Target moneyness if configured, None otherwise
-
-        Raises:
-            ValueError: If strike is zero
-
-        Examples:
-            >>> config = BacktestConfig(..., strike=110000, initial_spot=108000)
-            >>> config.effective_target_moneyness
-            0.9818181818181818
-        """
         # Handle divide-by-zero
         if self.strike == 0:
             raise ValueError("Cannot calculate moneyness with strike=0")
@@ -372,24 +253,6 @@ class BacktestConfig:
         return None
 
     def get_provenance_info(self) -> Dict[str, Any]:
-        """Get provenance information for reproducibility.
-
-        Returns:
-            Dictionary with provenance information including:
-            - config: Full config as dict
-            - resolved_paths: Absolute paths after resolution
-            - git_commit: Git commit hash if available
-            - git_branch: Git branch if available
-            - git_dirty: Whether repo has uncommitted changes
-            - python_version: Python version string
-            - platform: Operating system
-            - timestamp: Current timestamp
-
-        Examples:
-            >>> config = BacktestConfig.load_yaml("config.yaml")
-            >>> provenance = config.get_provenance_info()
-            >>> print(provenance['git_commit'])  # Git hash for reproducibility
-        """
         import subprocess
         import sys
         import platform
@@ -443,30 +306,6 @@ class BacktestConfig:
         return provenance
 
     def compute_provenance_hash(self) -> str:
-        """Compute unique hash for this backtest configuration.
-
-        This hash uniquely identifies the configuration and data sources,
-        useful for tracking experiments and ensuring reproducibility.
-
-        The hash includes:
-        - Configuration parameters (sorted for consistency)
-        - Model checkpoint hash (if file exists)
-        - Git commit (if in git repo)
-        - Platform and Python version
-
-        Returns:
-            16-character hex hash string
-
-        Examples:
-            >>> config = BacktestConfig.load_yaml("config.yaml")
-            >>> hash1 = config.compute_provenance_hash()
-            >>> print(hash1)  # e.g., "a3f5d2c1b9e8f7a6"
-
-            >>> # Same config should produce same hash
-            >>> config2 = BacktestConfig.load_yaml("config.yaml")
-            >>> hash2 = config2.compute_provenance_hash()
-            >>> assert hash1 == hash2
-        """
         import hashlib
         import json
 
@@ -510,7 +349,6 @@ class BacktestConfig:
         return full_hash[:16]
 
     def __repr__(self) -> str:
-        """String representation."""
         return (
             f"BacktestConfig(\n"
             f"  date_range: {self.start_date} to {self.end_date}\n"

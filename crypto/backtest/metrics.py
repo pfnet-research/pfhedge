@@ -1,32 +1,9 @@
-"""Performance metrics for backtesting.
-
-This module provides functions to calculate various risk and performance metrics
-for evaluating hedging strategies.
-"""
-
 import torch
 from torch import Tensor
 from typing import Union
 
 
 def calculate_sharpe_ratio(pnl: Tensor, risk_free_rate: float = 0.0) -> float:
-    """Calculate Sharpe ratio.
-
-    The Sharpe ratio measures risk-adjusted return as the ratio of mean excess
-    return to standard deviation.
-
-    Args:
-        pnl: PnL tensor, shape (n_paths,) for final PnL or (n_paths, n_steps) for cumulative
-        risk_free_rate: Risk-free rate (default: 0.0)
-
-    Returns:
-        Sharpe ratio (float). Returns 0.0 if standard deviation is zero.
-
-    Examples:
-        >>> pnl = torch.tensor([100.0, 150.0, 80.0, 120.0, 110.0])
-        >>> sharpe = calculate_sharpe_ratio(pnl)
-        >>> print(f"Sharpe: {sharpe:.3f}")
-    """
     # If cumulative PnL, take final values
     if pnl.dim() == 2:
         pnl = pnl[:, -1]
@@ -43,23 +20,6 @@ def calculate_sharpe_ratio(pnl: Tensor, risk_free_rate: float = 0.0) -> float:
 def calculate_sortino_ratio(
     pnl: Tensor, risk_free_rate: float = 0.0, target: float = 0.0
 ) -> float:
-    """Calculate Sortino ratio.
-
-    The Sortino ratio is similar to Sharpe but only penalizes downside volatility.
-    It uses downside deviation instead of total standard deviation.
-
-    Args:
-        pnl: PnL tensor, shape (n_paths,) for final PnL or (n_paths, n_steps) for cumulative
-        risk_free_rate: Risk-free rate (default: 0.0)
-        target: Target return for downside calculation (default: 0.0)
-
-    Returns:
-        Sortino ratio (float). Returns 0.0 if downside deviation is zero.
-
-    Examples:
-        >>> pnl = torch.tensor([100.0, 150.0, -50.0, 120.0, -20.0])
-        >>> sortino = calculate_sortino_ratio(pnl)
-    """
     # If cumulative PnL, take final values
     if pnl.dim() == 2:
         pnl = pnl[:, -1]
@@ -77,21 +37,6 @@ def calculate_sortino_ratio(
 
 
 def calculate_max_drawdown(pnl: Tensor) -> float:
-    """Calculate maximum drawdown.
-
-    Maximum drawdown is the largest peak-to-trough decline in cumulative PnL.
-
-    Args:
-        pnl: Cumulative PnL tensor, shape (n_paths, n_steps) or (n_steps,)
-
-    Returns:
-        Maximum drawdown (positive value represents loss)
-
-    Examples:
-        >>> cum_pnl = torch.tensor([[0., 10., 15., 8., 12., 5.]])
-        >>> max_dd = calculate_max_drawdown(cum_pnl)
-        >>> print(f"Max Drawdown: ${max_dd:.2f}")
-    """
     # Handle 1D case
     if pnl.dim() == 1:
         pnl = pnl.unsqueeze(0)
@@ -112,23 +57,6 @@ def calculate_max_drawdown(pnl: Tensor) -> float:
 
 
 def calculate_cvar(pnl: Tensor, alpha: float = 0.05) -> float:
-    """Calculate Conditional Value at Risk (CVaR), also known as Expected Shortfall.
-
-    CVaR is the expected loss given that the loss exceeds the VaR threshold.
-    It measures tail risk.
-
-    Args:
-        pnl: PnL tensor, shape (n_paths,) for final PnL or (n_paths, n_steps) for cumulative
-        alpha: Confidence level (default: 0.05 for 95% CVaR)
-
-    Returns:
-        CVaR value (negative means loss)
-
-    Examples:
-        >>> pnl = torch.randn(1000) * 100  # Random PnL
-        >>> cvar_95 = calculate_cvar(pnl, alpha=0.05)  # 95% CVaR
-        >>> cvar_99 = calculate_cvar(pnl, alpha=0.01)  # 99% CVaR
-    """
     # If cumulative PnL, take final values
     if pnl.dim() == 2:
         pnl = pnl[:, -1]
@@ -146,23 +74,6 @@ def calculate_cvar(pnl: Tensor, alpha: float = 0.05) -> float:
 
 
 def calculate_var(pnl: Tensor, alpha: float = 0.05) -> float:
-    """Calculate Value at Risk (VaR).
-
-    VaR is the loss threshold at a given confidence level.
-    For example, 95% VaR is the loss exceeded in 5% of worst cases.
-
-    Args:
-        pnl: PnL tensor, shape (n_paths,) for final PnL or (n_paths, n_steps) for cumulative
-        alpha: Confidence level (default: 0.05 for 95% VaR)
-
-    Returns:
-        VaR value (negative means loss)
-
-    Examples:
-        >>> pnl = torch.randn(1000) * 100
-        >>> var_95 = calculate_var(pnl, alpha=0.05)
-        >>> print(f"95% VaR: ${var_95:.2f}")
-    """
     # If cumulative PnL, take final values
     if pnl.dim() == 2:
         pnl = pnl[:, -1]
@@ -174,19 +85,6 @@ def calculate_var(pnl: Tensor, alpha: float = 0.05) -> float:
 
 
 def calculate_win_rate(pnl: Tensor) -> float:
-    """Calculate win rate (percentage of profitable outcomes).
-
-    Args:
-        pnl: PnL tensor, shape (n_paths,) for final PnL or (n_paths, n_steps) for cumulative
-
-    Returns:
-        Win rate as a fraction between 0 and 1
-
-    Examples:
-        >>> pnl = torch.tensor([100., -50., 30., 80., -20.])
-        >>> win_rate = calculate_win_rate(pnl)
-        >>> print(f"Win rate: {win_rate:.1%}")
-    """
     # If cumulative PnL, take final values
     if pnl.dim() == 2:
         pnl = pnl[:, -1]
@@ -198,21 +96,6 @@ def calculate_win_rate(pnl: Tensor) -> float:
 
 
 def calculate_calmar_ratio(pnl: Tensor) -> float:
-    """Calculate Calmar ratio (return / max drawdown).
-
-    The Calmar ratio measures return relative to maximum drawdown.
-    Higher is better. Requires cumulative PnL to calculate drawdown.
-
-    Args:
-        pnl: Cumulative PnL tensor, shape (n_paths, n_steps)
-
-    Returns:
-        Calmar ratio (float). Returns 0.0 if max drawdown is zero.
-
-    Examples:
-        >>> cum_pnl = torch.randn(100, 50).cumsum(dim=1)
-        >>> calmar = calculate_calmar_ratio(cum_pnl)
-    """
     if pnl.dim() == 1:
         raise ValueError("Calmar ratio requires cumulative PnL (2D tensor)")
 
@@ -235,23 +118,6 @@ def calculate_all_metrics(
     alpha_cvar: float = 0.05,
     alpha_var: float = 0.05,
 ) -> dict:
-    """Calculate all metrics at once.
-
-    Args:
-        pnl: Final PnL tensor, shape (n_paths,)
-        cumulative_pnl: Cumulative PnL tensor, shape (n_paths, n_steps), optional
-        alpha_cvar: Confidence level for CVaR (default: 0.05)
-        alpha_var: Confidence level for VaR (default: 0.05)
-
-    Returns:
-        Dictionary with all calculated metrics
-
-    Examples:
-        >>> final_pnl = torch.randn(1000) * 100
-        >>> cum_pnl = torch.randn(1000, 50).cumsum(dim=1)
-        >>> metrics = calculate_all_metrics(final_pnl, cum_pnl)
-        >>> print(metrics['sharpe_ratio'])
-    """
     metrics = {
         # Basic statistics
         "mean": pnl.mean().item(),
@@ -278,20 +144,6 @@ def calculate_all_metrics(
 
 
 def format_metrics(metrics: dict, name: str = "Strategy") -> str:
-    """Format metrics dictionary as a string.
-
-    Args:
-        metrics: Dictionary of metrics from calculate_all_metrics()
-        name: Name of the strategy (for display)
-
-    Returns:
-        Formatted metrics string
-
-    Examples:
-        >>> metrics = calculate_all_metrics(pnl)
-        >>> formatted = format_metrics(metrics, name="Deep Hedge")
-        >>> print(formatted)
-    """
     lines = []
     lines.append(f"\n{'='*50}")
     lines.append(f"{name} Performance Metrics")
@@ -336,14 +188,4 @@ def format_metrics(metrics: dict, name: str = "Strategy") -> str:
 
 
 def print_metrics(metrics: dict, name: str = "Strategy") -> None:
-    """Pretty print metrics dictionary.
-
-    Args:
-        metrics: Dictionary of metrics from calculate_all_metrics()
-        name: Name of the strategy (for display)
-
-    Examples:
-        >>> metrics = calculate_all_metrics(pnl)
-        >>> print_metrics(metrics, name="Deep Hedge")
-    """
     print(format_metrics(metrics, name))

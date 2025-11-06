@@ -1,5 +1,3 @@
-"""Deep hedging strategies and utilities."""
-
 from .deep_hedge_utils import (
     create_deep_hedger,
     calculate_bs_hedge_pnl,

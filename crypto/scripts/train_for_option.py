@@ -1,32 +1,4 @@
 #!/usr/bin/env python3
-"""
-Train Deep Hedging Model for Specific Option
-
-Trains a model using parameters from a selected option (from explore_options.py).
-This allows training with realistic market-derived parameters.
-
-Usage:
-    # Train for specific option from exploration results
-    python crypto/scripts/train_for_option.py \
-        --option-file options_candidates.json \
-        --instrument BTC-29OCT24-50000-C \
-        --output models/oct29_50k_call
-
-    # Override training parameters
-    python crypto/scripts/train_for_option.py \
-        --option-file options_candidates.json \
-        --instrument BTC-29OCT24-50000-C \
-        --epochs 200 \
-        --paths 100000 \
-        --output models/oct29_50k_call_v2
-
-    # Use volatility override instead of IV from premium
-    python crypto/scripts/train_for_option.py \
-        --option-file options_candidates.json \
-        --instrument BTC-29OCT24-50000-C \
-        --vol 0.9 \
-        --output models/oct29_50k_call_highvol
-"""
 
 import argparse
 import json
@@ -47,20 +19,6 @@ logger = logging.getLogger(__name__)
 
 
 def load_option_from_file(option_file: str, instrument_name: str) -> dict:
-    """
-    Load specific option from exploration results file.
-
-    Args:
-        option_file: Path to JSON file from explore_options.py
-        instrument_name: Instrument name to select (e.g., BTC-29OCT24-50000-C)
-
-    Returns:
-        Option metadata dictionary
-
-    Raises:
-        FileNotFoundError: If file doesn't exist
-        ValueError: If instrument not found in file
-    """
     with open(option_file, "r") as f:
         data = json.load(f)
 
@@ -105,26 +63,6 @@ def create_training_config_from_option(
     features: list = None,
     model_type: str = "mlp",
 ) -> TrainingConfig:
-    """
-    Create training configuration from option metadata.
-
-    Args:
-        option: Option metadata from explore_options.py
-        output_dir: Directory to save model and results
-        epochs: Number of training epochs
-        paths: Number of training paths
-        layers: Number of hidden layers
-        units: Units per layer
-        risk_measure: Risk measure to optimize
-        risk_param: Risk parameter (e.g., CVaR alpha)
-        transaction_cost: Transaction cost rate
-        dt_hours: Time step in hours
-        volatility_override: Override IV (if None, uses option's IV)
-        seed: Random seed
-
-    Returns:
-        TrainingConfig instance
-    """
     # Extract option parameters
     strike = option["strike"]
     maturity_days = option["days_to_expiry"]

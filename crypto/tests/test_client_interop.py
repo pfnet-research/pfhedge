@@ -1,10 +1,3 @@
-"""
-Integration tests for client interoperability.
-
-These tests verify that DeribitClient and TardisClient return compatible
-data structures and can be used interchangeably in real code.
-"""
-
 import unittest
 from unittest.mock import patch, Mock
 from datetime import datetime, timezone
@@ -21,31 +14,26 @@ from data.client_factory import create_client
 
 
 class TestClientFactory(unittest.TestCase):
-    """Test client factory function."""
 
     def test_create_deribit_client_testnet(self):
-        """Test creating Deribit client for testnet."""
         client = create_client("deribit", testnet=True)
         self.assertIsInstance(client, DeribitClient)
         self.assertIsInstance(client, MarketDataClient)
         self.assertIn("test.deribit.com", client.base_url)
 
     def test_create_deribit_client_mainnet(self):
-        """Test creating Deribit client for mainnet."""
         client = create_client("deribit", testnet=False)
         self.assertIsInstance(client, DeribitClient)
         self.assertIsInstance(client, MarketDataClient)
         self.assertIn("www.deribit.com", client.base_url)
 
     def test_create_tardis_client(self):
-        """Test creating Tardis client."""
         with patch("data.tardis_client.TardisAPIClient"):
             client = create_client("tardis", tardis_api_key="test_key")
             self.assertIsInstance(client, TardisClient)
             self.assertIsInstance(client, MarketDataClient)
 
     def test_create_tardis_without_api_key_free_tier(self):
-        """Test that creating Tardis client without API key works (free tier)."""
         with patch("data.tardis_client.TardisAPIClient"):
             with patch("data.client_factory.logger") as mock_logger:
                 client = create_client("tardis", tardis_api_key=None)
@@ -60,7 +48,6 @@ class TestClientFactory(unittest.TestCase):
                 self.assertIn("free tier", warning_msg.lower())
 
     def test_invalid_data_source_raises(self):
-        """Test that invalid data source raises error."""
         with self.assertRaises(ValueError) as context:
             create_client("invalid_source")
 
@@ -68,21 +55,17 @@ class TestClientFactory(unittest.TestCase):
 
 
 class TestClientInterfaceCompatibility(unittest.TestCase):
-    """Test that both clients have compatible interfaces."""
 
     def setUp(self):
-        """Set up test clients."""
         self.deribit_client = DeribitClient(testnet=True)
         with patch("data.tardis_client.TardisAPIClient"):
             self.tardis_client = TardisClient(api_key="test")
 
     def test_both_implement_market_data_client(self):
-        """Test that both clients implement MarketDataClient."""
         self.assertIsInstance(self.deribit_client, MarketDataClient)
         self.assertIsInstance(self.tardis_client, MarketDataClient)
 
     def test_both_have_get_instruments(self):
-        """Test that both clients have get_instruments method."""
         self.assertTrue(hasattr(self.deribit_client, "get_instruments"))
         self.assertTrue(callable(getattr(self.deribit_client, "get_instruments")))
 
@@ -90,7 +73,6 @@ class TestClientInterfaceCompatibility(unittest.TestCase):
         self.assertTrue(callable(getattr(self.tardis_client, "get_instruments")))
 
     def test_both_have_get_historical_trades(self):
-        """Test that both clients have get_historical_trades method."""
         self.assertTrue(hasattr(self.deribit_client, "get_historical_trades"))
         self.assertTrue(callable(getattr(self.deribit_client, "get_historical_trades")))
 
@@ -98,7 +80,6 @@ class TestClientInterfaceCompatibility(unittest.TestCase):
         self.assertTrue(callable(getattr(self.tardis_client, "get_historical_trades")))
 
     def test_both_have_get_ticker(self):
-        """Test that both clients have get_ticker method."""
         self.assertTrue(hasattr(self.deribit_client, "get_ticker"))
         self.assertTrue(callable(getattr(self.deribit_client, "get_ticker")))
 
@@ -106,7 +87,6 @@ class TestClientInterfaceCompatibility(unittest.TestCase):
         self.assertTrue(callable(getattr(self.tardis_client, "get_ticker")))
 
     def test_both_have_get_funding_rate_history(self):
-        """Test that both clients have get_funding_rate_history method."""
         self.assertTrue(hasattr(self.deribit_client, "get_funding_rate_history"))
         self.assertTrue(
             callable(getattr(self.deribit_client, "get_funding_rate_history"))
@@ -118,7 +98,6 @@ class TestClientInterfaceCompatibility(unittest.TestCase):
         )
 
     def test_both_have_get_recent_trades(self):
-        """Test that both clients have get_recent_trades method."""
         self.assertTrue(hasattr(self.deribit_client, "get_recent_trades"))
         self.assertTrue(callable(getattr(self.deribit_client, "get_recent_trades")))
 
@@ -127,11 +106,9 @@ class TestClientInterfaceCompatibility(unittest.TestCase):
 
 
 class TestDataFormatCompatibility(unittest.TestCase):
-    """Test that both clients return compatible data formats."""
 
     @patch("data.deribit_client.requests.Session.get")
     def test_get_instruments_format(self, mock_get):
-        """Test that get_instruments returns compatible format."""
         # Mock Deribit response
         mock_response = Mock()
         mock_response.json.return_value = {
@@ -159,7 +136,6 @@ class TestDataFormatCompatibility(unittest.TestCase):
 
     @patch("data.deribit_client.requests.Session.get")
     def test_get_historical_trades_format(self, mock_get):
-        """Test that get_historical_trades returns compatible format."""
         # Mock Deribit response
         mock_response = Mock()
         mock_response.json.return_value = {
@@ -198,7 +174,6 @@ class TestDataFormatCompatibility(unittest.TestCase):
 
     @patch("data.deribit_client.requests.Session.get")
     def test_get_ticker_format(self, mock_get):
-        """Test that get_ticker returns compatible format."""
         # Mock Deribit response
         mock_response = Mock()
         mock_response.json.return_value = {
@@ -226,7 +201,6 @@ class TestDataFormatCompatibility(unittest.TestCase):
 
     @patch("data.deribit_client.requests.Session.get")
     def test_get_funding_rate_history_format(self, mock_get):
-        """Test that get_funding_rate_history returns compatible format."""
         # Mock Deribit response
         mock_response = Mock()
         mock_response.json.return_value = {
@@ -258,13 +232,10 @@ class TestDataFormatCompatibility(unittest.TestCase):
 
 
 class TestPolymorphicUsage(unittest.TestCase):
-    """Test that clients can be used polymorphically."""
 
     def test_function_accepts_both_clients(self):
-        """Test that a function accepting MarketDataClient works with both."""
 
         def fetch_data(client: MarketDataClient, instrument: str):
-            """Example function that uses client polymorphically."""
             # This should work with any MarketDataClient implementation
             return {
                 "has_get_instruments": hasattr(client, "get_instruments"),

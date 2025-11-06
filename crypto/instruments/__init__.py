@@ -1,7 +1,3 @@
-"""
-Bitcoin instruments for PFHedge.
-"""
-
 from .bitcoin_base import BitcoinBase
 from .bitcoin_spot import BitcoinSpot
 from .bitcoin_spot_brownian import BitcoinSpotBrownian

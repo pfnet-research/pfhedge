@@ -1,10 +1,4 @@
 #!/usr/bin/env python3
-"""
-Test different loss functions for Bitcoin deep hedging.
-
-This script systematically tests various loss functions to find
-which one works best for European option hedging.
-"""
 
 import sys
 import os
@@ -23,14 +17,6 @@ from crypto.strategies import (
 
 
 def test_loss_function(loss_config):
-    """Test a single loss function configuration.
-
-    Args:
-        loss_config: Dictionary with loss function configuration
-
-    Returns:
-        Dictionary with results
-    """
     print(f"\n{'='*70}")
     print(f"Testing: {loss_config['name']}")
     print(f"{'='*70}")
@@ -177,7 +163,6 @@ def test_loss_function(loss_config):
 
 
 def run_loss_function_experiments():
-    """Run systematic experiments with different loss functions."""
 
     print("=" * 70)
     print("LOSS FUNCTION COMPARISON FOR BITCOIN DEEP HEDGING")

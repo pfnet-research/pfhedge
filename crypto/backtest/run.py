@@ -1,24 +1,4 @@
 #!/usr/bin/env python
-"""Command-line interface for running backtests.
-
-This module provides a CLI for running deep hedging backtests on historical Bitcoin data.
-
-Examples:
-    Basic usage with config file:
-        $ python -m crypto.backtest.run --config config.yaml
-
-    Override config parameters:
-        $ python -m crypto.backtest.run --config config.yaml --seed 42 --n_bootstrap_paths 200
-
-    Run without config (all parameters via CLI):
-        $ python -m crypto.backtest.run \\
-            --start-date 2024-01-01 \\
-            --end-date 2024-01-31 \\
-            --strike 50000 \\
-            --maturity-days 14 \\
-            --model-path models/deep_hedger.pth \\
-            --data-dir sample_data
-"""
 
 import argparse
 import sys
@@ -30,11 +10,6 @@ from crypto.backtest.backtester import Backtester
 
 
 def parse_args() -> argparse.Namespace:
-    """Parse command-line arguments.
-
-    Returns:
-        Parsed arguments namespace
-    """
     parser = argparse.ArgumentParser(
         description="Run deep hedging backtest on historical Bitcoin data",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -129,17 +104,6 @@ def parse_args() -> argparse.Namespace:
 
 
 def create_config_from_args(args: argparse.Namespace) -> BacktestConfig:
-    """Create BacktestConfig from command-line arguments.
-
-    Args:
-        args: Parsed command-line arguments
-
-    Returns:
-        BacktestConfig instance
-
-    Raises:
-        ValueError: If required parameters are missing
-    """
     # Load from YAML if provided
     if args.config:
         if not Path(args.config).exists():
@@ -222,7 +186,6 @@ def create_config_from_args(args: argparse.Namespace) -> BacktestConfig:
 
 
 def main():
-    """Main CLI entry point."""
     try:
         args = parse_args()
 

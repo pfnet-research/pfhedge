@@ -1,9 +1,4 @@
 #!/usr/bin/env python3
-"""
-Debug script to compare PnL calculations.
-
-This verifies that our manual BS PnL calculation matches PFHedge's native method.
-"""
 
 import sys
 import os
@@ -18,7 +13,6 @@ from pfhedge.nn.functional import cum_pl
 
 
 def compare_pnl_calculations():
-    """Compare our manual BS PnL with PFHedge's native cum_pl."""
 
     print("=" * 70)
     print("PNL CALCULATION COMPARISON")

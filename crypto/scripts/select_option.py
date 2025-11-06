@@ -1,16 +1,4 @@
 #!/usr/bin/env python3
-"""
-Select options from historical Deribit data and discover executed premiums.
-
-This script:
-1. Finds available options for a target expiry
-2. Calculates ATM relative to underlying price
-3. Filters for liquidity
-4. Fetches actual executed premiums from historical trades
-
-Usage:
-    python select_option.py --trade-date 2024-01-15 --expiry 2024-01-29 --output metadata.json
-"""
 
 import argparse
 import json
@@ -40,17 +28,6 @@ logger = logging.getLogger(__name__)
 def get_available_options(
     client: MarketDataClient, expiry_date: datetime, currency: str = "BTC"
 ) -> List[Dict]:
-    """
-    Get all available options for a specific expiry date.
-
-    Args:
-        client: Deribit client
-        expiry_date: Target expiry date
-        currency: Currency (BTC or ETH)
-
-    Returns:
-        List of option instruments
-    """
     logger.info(
         f"Fetching available {currency} options for expiry {expiry_date.date()}"
     )
@@ -77,17 +54,6 @@ def get_available_options(
 def get_underlying_price(
     client: MarketDataClient, sale_time: datetime, instrument: str = "BTC-PERPETUAL"
 ) -> Optional[float]:
-    """
-    Get underlying price at a specific time.
-
-    Args:
-        client: Deribit client
-        sale_time: Time to get price
-        instrument: Underlying instrument (perpetual or index)
-
-    Returns:
-        Price at the specified time, or None if not found
-    """
     logger.info(f"Fetching {instrument} price at {sale_time}")
 
     try:
@@ -126,7 +92,6 @@ def get_underlying_price(
 
 
 def calculate_moneyness(spot: float, strike: float, option_type: str = "call") -> float:
-    """Calculate moneyness (spot/strike for calls, strike/spot for puts)."""
     if option_type.lower() == "call":
         return spot / strike
     else:
@@ -139,18 +104,6 @@ def select_atm_options(
     target_moneyness: float = 1.0,
     tolerance: float = 0.05,
 ) -> List[Dict]:
-    """
-    Select ATM options based on moneyness.
-
-    Args:
-        options: List of option instruments
-        spot_price: Current spot price
-        target_moneyness: Target moneyness (1.0 for ATM)
-        tolerance: Tolerance for moneyness matching
-
-    Returns:
-        List of options close to target moneyness
-    """
     atm_options = []
 
     for opt in options:
@@ -183,19 +136,6 @@ def check_option_liquidity(
     min_trades: int = 10,
     window_hours: int = 24,
 ) -> Tuple[bool, int, Optional[float]]:
-    """
-    Check if option has sufficient liquidity.
-
-    Args:
-        client: Deribit client
-        option_name: Option instrument name
-        check_time: Time to check liquidity
-        min_trades: Minimum number of trades required
-        window_hours: Hours to look back for trades
-
-    Returns:
-        Tuple of (is_liquid, trade_count, average_price)
-    """
     logger.debug(f"Checking liquidity for {option_name}")
 
     try:
@@ -228,18 +168,6 @@ def get_executed_premium(
     sale_time: datetime,
     direction: str = "sell",
 ) -> Optional[Dict]:
-    """
-    Get actual executed premium from historical trades.
-
-    Args:
-        client: Deribit client
-        option_name: Option instrument name
-        sale_time: Time of sale
-        direction: "sell" or "buy"
-
-    Returns:
-        Dictionary with premium info or None
-    """
     logger.info(f"Fetching executed premium for {option_name} at {sale_time}")
 
     try:
@@ -306,20 +234,6 @@ def select_best_option(
     target_moneyness: float = 1.0,
     min_trades: int = 10,
 ) -> Optional[Dict]:
-    """
-    Select the best option based on criteria.
-
-    Args:
-        client: Deribit client
-        trade_date: Date of option trade
-        expiry_date: Target expiry date
-        option_type: "call" or "put"
-        target_moneyness: Target moneyness (1.0 for ATM)
-        min_trades: Minimum trades for liquidity
-
-    Returns:
-        Dictionary with selected option info
-    """
     # Get underlying price at trade time
     initial_spot = get_underlying_price(client, trade_date)
     if not initial_spot:

@@ -1,48 +1,4 @@
 #!/usr/bin/env python3
-"""
-Fetch historical data from Deribit or Tardis.dev for realistic backtesting.
-
-This script fetches:
-1. BTC-PERPETUAL historical trades
-2. Funding rate history
-3. Options data for specific strikes/expiries
-
-Data sources:
-- deribit: Live Deribit API (limited to ~24h historical data)
-- tardis: Tardis.dev historical data (2019-03-30 onwards, requires API key)
-
-IMPORTANT - Funding Rates:
-- Tardis provides continuous interest rates (updated every second)
-- Deribit provides official 8-hour funding rates (published at 00:00, 08:00, 16:00 UTC)
-- For accurate backtesting P&L, use --use-deribit-funding to fetch official rates
-
-Recommended usage for backtesting:
-    # Fetch perpetual trades from Tardis + official funding rates from Deribit
-    python fetch_deribit_data.py \
-        --data-source tardis \
-        --use-deribit-funding \
-        --start 2024-01-01 --end 2024-01-31 \
-        --output-dir data/historical
-
-Usage examples:
-    # Deribit only (recent data, both trades and funding)
-    python fetch_deribit_data.py \
-        --start 2024-01-01 --end 2024-01-31 \
-        --output-dir data/historical
-
-    # Tardis trades + Tardis funding (sampled continuous rates)
-    python fetch_deribit_data.py \
-        --data-source tardis \
-        --start 2024-01-01 --end 2024-01-31 \
-        --output-dir data/historical
-
-    # Tardis trades + Deribit funding (recommended for backtesting)
-    python fetch_deribit_data.py \
-        --data-source tardis \
-        --use-deribit-funding \
-        --start 2024-01-01 --end 2024-01-31 \
-        --output-dir data/historical
-"""
 
 import argparse
 import os
@@ -78,24 +34,6 @@ def fetch_perpetual_ohlc(
     resolution: str = "60",
     target_frequency: str = "8H",
 ) -> pd.DataFrame:
-    """
-    Fetch OHLC candles from Deribit API and optionally resample.
-
-    Deribit API has a ~5000 candle limit per request. This function automatically
-    batches requests to fetch longer time periods.
-
-    Args:
-        client: Deribit client instance
-        start_date: Start datetime (UTC)
-        end_date: End datetime (UTC)
-        instrument: Instrument name (default: BTC-PERPETUAL)
-        resolution: Candle resolution in minutes (default: 60)
-        target_frequency: Target resampling frequency (default: 8H)
-            Set to None to skip resampling
-
-    Returns:
-        DataFrame with OHLC data at target frequency
-    """
     logger.info(
         f"Fetching {instrument} OHLC candles from {start_date} to {end_date} "
         f"(resolution: {resolution}min, target: {target_frequency})"
@@ -182,16 +120,6 @@ def fetch_perpetual_ohlc(
 
 
 def resample_ohlc(df: pd.DataFrame, frequency: str) -> pd.DataFrame:
-    """
-    Resample OHLC data to a different frequency.
-
-    Args:
-        df: DataFrame with timestamp, open, high, low, close, volume
-        frequency: Target frequency (e.g., '8H', '1D')
-
-    Returns:
-        Resampled DataFrame
-    """
     if df.empty:
         return df
 
@@ -230,19 +158,6 @@ def fetch_perpetual_trades(
     instrument: str = "BTC-PERPETUAL",
     batch_hours: int = 24,
 ) -> pd.DataFrame:
-    """
-    Fetch historical trades for perpetual futures.
-
-    Args:
-        client: Deribit client instance
-        start_date: Start datetime (UTC)
-        end_date: End datetime (UTC)
-        instrument: Instrument name (default: BTC-PERPETUAL)
-        batch_hours: Hours per batch (API has limits)
-
-    Returns:
-        DataFrame with trade data
-    """
     logger.info(f"Fetching {instrument} trades from {start_date} to {end_date}")
 
     all_trades = []
@@ -302,18 +217,6 @@ def fetch_funding_rates(
     end_date: datetime,
     instrument: str = "BTC-PERPETUAL",
 ) -> pd.DataFrame:
-    """
-    Fetch funding rate history.
-
-    Args:
-        client: Deribit client instance
-        start_date: Start datetime (UTC)
-        end_date: End datetime (UTC)
-        instrument: Perpetual instrument name
-
-    Returns:
-        DataFrame with funding rate history
-    """
     logger.info(f"Fetching funding rates for {instrument}")
 
     start_ms = timestamp_to_ms(start_date)
@@ -346,16 +249,6 @@ def fetch_funding_rates(
 def resample_trades_to_ohlc(
     trades_df: pd.DataFrame, frequency: str = "8H"
 ) -> pd.DataFrame:
-    """
-    Resample trades to OHLC format.
-
-    Args:
-        trades_df: DataFrame with trades (must have timestamp, price, amount columns)
-        frequency: Resampling frequency (default: 8H for funding intervals)
-
-    Returns:
-        DataFrame with OHLC data
-    """
     if trades_df.empty:
         return pd.DataFrame()
 
@@ -395,18 +288,6 @@ def fetch_option_trades(
     sale_time: datetime,
     window_minutes: int = 30,
 ) -> pd.DataFrame:
-    """
-    Fetch option trades around a specific time.
-
-    Args:
-        client: Deribit client instance
-        option_name: Option instrument name (e.g., "BTC-15NOV24-50000-C")
-        sale_time: Target time for trades
-        window_minutes: Minutes before/after to fetch
-
-    Returns:
-        DataFrame with option trades
-    """
     logger.info(f"Fetching trades for {option_name} around {sale_time}")
 
     start_time = sale_time - timedelta(minutes=window_minutes)
@@ -445,7 +326,6 @@ def fetch_option_trades(
 def save_data(
     df: pd.DataFrame, output_dir: Path, filename: str, format: str = "parquet"
 ):
-    """Save DataFrame to file."""
     if df.empty:
         logger.warning(f"Skipping empty DataFrame: {filename}")
         return

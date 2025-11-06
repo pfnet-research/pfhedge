@@ -1,5 +1,3 @@
-"""Model checkpoint loading utilities for backtesting."""
-
 import os
 import pickle
 import logging
@@ -12,24 +10,9 @@ if TYPE_CHECKING:
 
 
 class BacktestModelLoader:
-    """Handles model checkpoint loading with backward compatibility."""
 
     @staticmethod
     def load_from_checkpoint(model_path: str, device: str = "cpu") -> "Hedger":
-        """Load model from checkpoint with safety fallbacks.
-
-        Args:
-            model_path: Path to model checkpoint file
-            device: Target device ('cpu', 'cuda', etc.)
-
-        Returns:
-            Loaded Hedger model in evaluation mode
-
-        Raises:
-            FileNotFoundError: If checkpoint file doesn't exist
-            KeyError: If checkpoint is missing required keys
-            RuntimeError: If state dict doesn't match model architecture
-        """
         from crypto.strategies.deep_hedge_utils import create_deep_hedger
 
         logger = logging.getLogger(__name__)
@@ -68,15 +51,6 @@ class BacktestModelLoader:
 
     @staticmethod
     def _load_checkpoint_safely(model_path: str, device: str) -> dict:
-        """Try weights_only first, fallback to unsafe loading.
-
-        Args:
-            model_path: Path to checkpoint
-            device: Target device
-
-        Returns:
-            Loaded checkpoint dictionary
-        """
         try:
             return torch.load(model_path, map_location=device, weights_only=True)
         except (TypeError, RuntimeError, pickle.UnpicklingError):
@@ -84,14 +58,6 @@ class BacktestModelLoader:
 
     @staticmethod
     def _validate_checkpoint(checkpoint: dict) -> None:
-        """Validate checkpoint has required structure.
-
-        Args:
-            checkpoint: Loaded checkpoint dictionary
-
-        Raises:
-            KeyError: If required keys are missing
-        """
         if "model_state_dict" not in checkpoint:
             raise KeyError("Checkpoint missing 'model_state_dict'")
         if "model_config" not in checkpoint:
@@ -116,15 +82,6 @@ class BacktestModelLoader:
 
     @staticmethod
     def _extract_config(checkpoint: dict) -> dict:
-        """Extract and normalize model config from checkpoint.
-
-        Args:
-            checkpoint: Loaded checkpoint dictionary
-
-        Returns:
-            Normalized model config dictionary with keys:
-                - n_layers, n_units, risk_param, criterion, features
-        """
         model_config = checkpoint["model_config"]
 
         if "criterion" in model_config:

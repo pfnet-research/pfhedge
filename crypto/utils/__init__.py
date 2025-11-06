@@ -1,7 +1,3 @@
-"""
-Utility functions for the crypto deep hedging framework.
-"""
-
 from .visualization import (
     plot_price_paths,
     plot_option_analysis,

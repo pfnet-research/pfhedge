@@ -1,28 +1,4 @@
 #!/usr/bin/env python3
-"""
-Bitcoin European Option for Deep Hedging
-
-This module provides a Bitcoin-specific European option that integrates with our
-deep hedging framework. It extends PFHedge's EuropeanOption with:
-- Bitcoin-specific volatility modeling
-- Realized volatility features
-- Transaction costs
-- Integration with our Bitcoin instruments
-
-Usage:
-    from crypto.instruments import BitcoinEuropeanOption, BitcoinPerpetualBrownian
-
-    # Create underlying
-    btc = BitcoinPerpetualBrownian(sigma=0.8)
-    btc.simulate(n_paths=1000, time_horizon=30/365)
-
-    # Create option
-    option = BitcoinEuropeanOption(btc, strike=50000, maturity=30/365)
-    option.simulate()  # Inherits paths from underlying
-
-    # Get payoffs for deep hedging
-    payoffs = option.payoff()
-"""
 
 import torch
 import numpy as np
@@ -37,22 +13,6 @@ from crypto.features.volatility import (
 
 
 class BitcoinEuropeanOption(EuropeanOption):
-    """
-    Bitcoin European Option with deep hedging features.
-
-    Extends PFHedge's EuropeanOption with Bitcoin-specific functionality:
-    - Realized volatility calculation from underlying price paths
-    - Transaction costs for Bitcoin trading
-    - Feature extraction for neural networks
-    - Integration with Bitcoin instruments
-
-    Args:
-        underlier: Bitcoin instrument (BitcoinPerpetualBrownian, etc.)
-        strike: Strike price of the option
-        maturity: Time to maturity in years
-        call: True for call option, False for put option
-        cost: Transaction cost rate for option trading
-    """
 
     def __init__(
         self,
@@ -72,16 +32,9 @@ class BitcoinEuropeanOption(EuropeanOption):
 
     @property
     def transaction_cost(self) -> float:
-        """Transaction cost rate for option trading."""
         return self.cost
 
     def payoff(self) -> torch.Tensor:
-        """
-        Calculate option payoff with transaction costs.
-
-        Returns:
-            Option payoffs after transaction costs
-        """
         # Get base payoff from parent class
         base_payoff = super().payoff()
 
@@ -102,16 +55,6 @@ class BitcoinEuropeanOption(EuropeanOption):
     def realized_volatility(
         self, windows: Optional[list] = None, recalculate: bool = False
     ) -> torch.Tensor:
-        """
-        Calculate realized volatility from underlying price paths.
-
-        Args:
-            windows: List of window sizes for volatility calculation
-            recalculate: Force recalculation even if cached
-
-        Returns:
-            Realized volatility tensor
-        """
         if windows is None:
             windows = [10, 20]
 
@@ -152,28 +95,9 @@ class BitcoinEuropeanOption(EuropeanOption):
         return realized_vol
 
     def expiry_time(self) -> torch.Tensor:
-        """
-        Alias for time_to_maturity() to match PFHedge's expected feature name.
-
-        PFHedge's Hedger expects 'expiry_time' feature, but our option provides
-        'time_to_maturity'. This method bridges that gap.
-
-        Returns:
-            Time to maturity tensor
-        """
         return self.time_to_maturity()
 
     def volatility(self) -> torch.Tensor:
-        """
-        Get volatility from the underlier for PFHedge feature extraction.
-
-        This method is required for the 'volatility' feature in PFHedge's Hedger.
-        Returns the underlier's volatility if available, otherwise returns
-        constant volatility if set.
-
-        Returns:
-            Volatility tensor with shape (n_paths, n_steps)
-        """
         # Check if underlier has volatility property (GBM and Historical with constant_volatility)
         if hasattr(self.underlier, "volatility"):
             return self.underlier.volatility
@@ -204,18 +128,6 @@ class BitcoinEuropeanOption(EuropeanOption):
         include_moneyness: bool = True,
         include_volatility: bool = True,
     ) -> dict:
-        """
-        Create feature set for deep hedging neural networks.
-
-        Args:
-            vol_windows: Volatility calculation windows
-            include_time: Include time-to-maturity feature
-            include_moneyness: Include log-moneyness feature
-            include_volatility: Include realized volatility features
-
-        Returns:
-            Dictionary of features ready for neural network input
-        """
         if not hasattr(self.underlier, "spot"):
             raise ValueError("Underlier must be simulated first")
 
@@ -245,21 +157,6 @@ class BitcoinEuropeanOption(EuropeanOption):
     def black_scholes_delta(
         self, volatility: Optional[torch.Tensor] = None, risk_free_rate: float = 0.0
     ) -> torch.Tensor:
-        """
-        Calculate Black-Scholes delta for comparison with deep hedging.
-
-        This computes the optimal hedge ratio at each time step for each simulated path.
-        For example, if n_steps represents daily observations, delta[i, j] tells you
-        how many units of the underlying to hold on day j for path i.
-
-        Args:
-            volatility: Volatility to use. If None, uses underlier's constant volatility.
-            risk_free_rate: Risk-free rate
-
-        Returns:
-            Black-Scholes delta values of shape (n_paths, n_steps).
-            Each delta[i, j] is the hedge ratio for path i at time step j.
-        """
         if volatility is None:
             # Use underlier's constant volatility instead of realized vol
             # to avoid NaN issues with short time series
@@ -320,12 +217,6 @@ class BitcoinEuropeanOption(EuropeanOption):
         return delta
 
     def summary(self) -> dict:
-        """
-        Generate summary statistics for the option.
-
-        Returns:
-            Dictionary with option summary statistics
-        """
         if not hasattr(self.underlier, "spot"):
             return {
                 "strike": self.strike,
@@ -370,29 +261,6 @@ class BitcoinEuropeanOption(EuropeanOption):
 def create_bitcoin_option_from_config(
     config: dict, underlier_class=None
 ) -> Tuple[BitcoinEuropeanOption, dict]:
-    """
-    Create Bitcoin option and underlying from configuration.
-
-    Args:
-        config: Configuration dictionary with option parameters
-        underlier_class: Class to use for underlying (default: BitcoinPerpetualBrownian)
-
-    Returns:
-        Tuple of (option, summary_dict)
-
-    Example:
-        config = {
-            'strike': 50000,
-            'maturity_days': 30,
-            'call': True,
-            'cost': 0.001,
-            'sigma': 0.8,
-            'mu': 0.0,
-            'n_paths': 1000,
-            'seed': 42
-        }
-        option, summary = create_bitcoin_option_from_config(config)
-    """
     if underlier_class is None:
         from crypto.instruments import BitcoinPerpetualBrownian
 
@@ -439,7 +307,6 @@ def create_bitcoin_option_from_config(
 
 # Example usage and testing
 def _test_bitcoin_european_option():
-    """Test function to verify Bitcoin European option works correctly."""
     print("Testing Bitcoin European Option...")
 
     torch.manual_seed(42)

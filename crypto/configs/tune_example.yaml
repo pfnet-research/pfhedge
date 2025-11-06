@@ -1,0 +1,43 @@
+# Example hyperparameter search space for tune_for_option.py
+#
+# This demonstrates both global optimizer configs and measure-specific configs
+
+# Model architecture
+model_type: ["gru", "mlp", "lstm"]
+layers: [2,3]
+units: [32, 64, 128]
+
+# Risk measures and their parameters
+risk_measure: ["entropic", "expected_shortfall"]
+risk_param_by_measure:
+  entropic: [1.0, 2.0, 3.0]
+  expected_shortfall: [0.85, 0.90, 0.95]
+
+# OPTION 1: Global optimizer config (applies to all risk measures)
+# optimizer: ["adamw"]
+# learning_rate: [1e-3]
+# weight_decay: [1e-4]
+
+# OPTION 2: Risk measure-specific optimizer configs (recommended)
+# Different risk measures may need different learning rates
+# Entropic risk with high risk_param can have exploding gradients -> use lower LR
+optimizer_by_measure:
+  entropic:
+    - optimizer: "adamw"
+      learning_rate: 1.0e-4
+      weight_decay: 1.0e-3
+  expected_shortfall:
+    - optimizer: "adamw"
+      learning_rate: 1.0e-3
+      weight_decay: 1.0e-4
+
+# Volatility features
+volatility_window: [20]
+
+# Training budget
+epochs: [100]
+paths: [500000]
+
+# Note: With this config, the grid size will be:
+# model_type(2) × layers(1) × units(2) × risk_measure(2) × risk_param(2 each) × optimizer_configs(1 each)
+# = 2 × 1 × 2 × 2 × 2 × 1 = 16 runs

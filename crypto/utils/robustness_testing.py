@@ -1,12 +1,4 @@
 #!/usr/bin/env python3
-"""
-Robustness testing for deep hedging across different market conditions.
-
-Tests the optimal configuration (10k paths, 80 epochs, 4x128, ES p=0.9) on:
-- Different strike prices (ITM, ATM, OTM)
-- Different maturities (7, 14, 21, 30 days)
-- Different volatilities (0.4, 0.8, 1.2)
-"""
 
 import sys
 import os
@@ -25,7 +17,6 @@ from crypto.strategies import (
 
 
 def run_experiment(config, scenario):
-    """Run a single robustness experiment."""
 
     # Training
     train_config = {
@@ -105,7 +96,6 @@ def run_experiment(config, scenario):
 
 
 def main():
-    """Run comprehensive robustness testing."""
 
     print("=" * 70)
     print("ROBUSTNESS TESTING ACROSS MARKET CONDITIONS")

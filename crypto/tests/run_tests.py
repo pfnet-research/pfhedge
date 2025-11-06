@@ -1,7 +1,3 @@
-"""
-Test runner for crypto module unit tests.
-"""
-
 import unittest
 import sys
 import os
@@ -11,7 +7,6 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 
 def run_all_tests():
-    """Run all unit tests."""
     # Discover and run all tests
     loader = unittest.TestLoader()
     start_dir = os.path.dirname(__file__)

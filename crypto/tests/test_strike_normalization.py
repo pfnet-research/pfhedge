@@ -1,12 +1,3 @@
-"""Unit tests to protect against strike normalization bugs.
-
-These tests ensure that:
-1. Training normalizes strikes correctly
-2. Checkpoints save normalized strikes
-3. Models fail gracefully when loading unnormalized checkpoints
-4. Strike values are in expected ranges throughout the workflow
-"""
-
 import pytest
 import torch
 import tempfile
@@ -16,10 +7,8 @@ from pathlib import Path
 
 
 class TestStrikeNormalizationTraining:
-    """Test strike normalization during training."""
 
     def test_train_for_option_normalizes_strike(self):
-        """Test that train_for_option.py normalizes strike before training."""
         from crypto.scripts.train_for_option import create_training_config_from_option
 
         # Option with absolute strike
@@ -47,7 +36,6 @@ class TestStrikeNormalizationTraining:
             ), f"Strike {config.strike} not normalized!"
 
     def test_train_for_option_fails_without_initial_spot(self):
-        """Test that training fails gracefully when initial_spot is missing."""
         from crypto.scripts.train_for_option import create_training_config_from_option
 
         # Option without initial_spot
@@ -67,7 +55,6 @@ class TestStrikeNormalizationTraining:
                 )
 
     def test_train_for_option_fails_with_zero_initial_spot(self):
-        """Test that training fails when initial_spot is zero."""
         from crypto.scripts.train_for_option import create_training_config_from_option
 
         option = {
@@ -86,10 +73,8 @@ class TestStrikeNormalizationTraining:
 
 
 class TestCheckpointStrikeValidation:
-    """Test that checkpoints save and validate strike correctly."""
 
     def test_checkpoint_saves_normalized_strike(self):
-        """Test that trainer saves normalized strike to checkpoint."""
         from crypto.training import TrainingConfig, Trainer
 
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -121,7 +106,6 @@ class TestCheckpointStrikeValidation:
             ), f"Saved strike {saved_strike} not normalized!"
 
     def test_verify_checkpoint_detects_absolute_strike(self):
-        """Test that verify_checkpoint.py detects unnormalized strikes."""
         from crypto.scripts.verify_checkpoint import verify_checkpoint
         from crypto.strategies.deep_hedge_utils import create_deep_hedger
 
@@ -166,7 +150,6 @@ class TestCheckpointStrikeValidation:
                 os.unlink(temp_path)
 
     def test_verify_checkpoint_accepts_normalized_strike(self):
-        """Test that verify_checkpoint.py accepts normalized strikes."""
         from crypto.scripts.verify_checkpoint import verify_checkpoint
         from crypto.strategies.deep_hedge_utils import create_deep_hedger
 
@@ -212,10 +195,8 @@ class TestCheckpointStrikeValidation:
 
 
 class TestStrikeNormalizationEdgeCases:
-    """Test edge cases for strike normalization."""
 
     def test_atm_option_strike_near_one(self):
-        """Test ATM option produces strike near 1.0."""
         from crypto.scripts.train_for_option import create_training_config_from_option
 
         # ATM option
@@ -236,7 +217,6 @@ class TestStrikeNormalizationEdgeCases:
             assert abs(config.strike - 1.0) < 0.0001
 
     def test_deep_otm_option_strike_below_one(self):
-        """Test deep OTM option produces strike < 1.0."""
         from crypto.scripts.train_for_option import create_training_config_from_option
 
         # Deep OTM call
@@ -258,7 +238,6 @@ class TestStrikeNormalizationEdgeCases:
             assert config.strike > 1.0
 
     def test_deep_itm_option_strike_above_one(self):
-        """Test deep ITM option produces strike > 1.0."""
         from crypto.scripts.train_for_option import create_training_config_from_option
 
         # Deep ITM call
@@ -281,10 +260,8 @@ class TestStrikeNormalizationEdgeCases:
 
 
 class TestBackwardCompatibility:
-    """Test that old checkpoints without proper strike fail gracefully."""
 
     def test_backtester_rejects_old_checkpoint_without_strike(self):
-        """Test that backtester rejects checkpoints without strike in training_config."""
         from crypto.backtest.config import BacktestConfig
         from crypto.backtest.backtester import Backtester
         from crypto.strategies.deep_hedge_utils import create_deep_hedger
@@ -328,10 +305,8 @@ class TestBackwardCompatibility:
 
 
 class TestStrikeNormalizationInference:
-    """Test that strike normalization is preserved during inference."""
 
     def test_log_moneyness_uses_normalized_strike_btc_option(self):
-        """Test that BitcoinEuropeanOption uses normalized strike correctly."""
         from crypto.instruments.bitcoin_european_option import BitcoinEuropeanOption
         from pfhedge.instruments import BrownianStock
 
@@ -364,7 +339,6 @@ class TestStrikeNormalizationInference:
         assert log_m.mean() > -5.0, "log_moneyness suggests absolute strike was used!"
 
     def test_bitcoin_option_with_absolute_strike_would_break(self):
-        """Test that using absolute strike in BitcoinEuropeanOption would produce wrong log_moneyness."""
         from crypto.instruments.bitcoin_european_option import BitcoinEuropeanOption
         from pfhedge.instruments import BrownianStock
 
@@ -396,7 +370,6 @@ class TestStrikeNormalizationInference:
         print(f"   This would be completely outside training distribution!")
 
     def test_bitcoin_option_strike_normalization_end_to_end(self):
-        """End-to-end test: Train with normalized strike, verify it's saved correctly."""
         from crypto.training import TrainingConfig, Trainer
         import tempfile
 

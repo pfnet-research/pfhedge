@@ -1,7 +1,3 @@
-"""
-Unit tests for historical data downloader.
-"""
-
 import unittest
 from unittest.mock import Mock, patch, MagicMock
 import pandas as pd
@@ -26,26 +22,21 @@ except ImportError:
 
 
 class TestHistoricalDataDownloader(unittest.TestCase):
-    """Test cases for HistoricalDataDownloader."""
 
     def setUp(self):
-        """Set up test fixtures."""
         self.test_dir = tempfile.mkdtemp()
         self.downloader = HistoricalDataDownloader(data_dir=self.test_dir, testnet=True)
 
     def tearDown(self):
-        """Clean up test fixtures."""
         shutil.rmtree(self.test_dir)
 
     def test_init(self):
-        """Test downloader initialization."""
         self.assertTrue(os.path.exists(self.test_dir))
         self.assertTrue(hasattr(self.downloader, "client"))
         self.assertEqual(self.downloader.data_dir, self.test_dir)
 
     @patch("crypto.data.download_historical.time.sleep")  # Mock sleep to speed up tests
     def test_download_perpetual_data(self, mock_sleep):
-        """Test downloading perpetual data."""
         # Mock the client's get_ticker method
         mock_ticker_data = {
             "last_price": 50000.0,
@@ -82,7 +73,6 @@ class TestHistoricalDataDownloader(unittest.TestCase):
             self.assertEqual(df["bid_price"].iloc[0], 49999.5)
 
     def test_download_options_data(self):
-        """Test downloading options data."""
         # Mock instruments response
         mock_instruments = [
             {
@@ -149,7 +139,6 @@ class TestHistoricalDataDownloader(unittest.TestCase):
 
     @patch("crypto.data.download_historical.time.sleep")
     def test_download_sample_dataset(self, mock_sleep):
-        """Test downloading sample dataset."""
         # Mock ticker data
         mock_ticker_data = {
             "last_price": 50000.0,
@@ -210,7 +199,6 @@ class TestHistoricalDataDownloader(unittest.TestCase):
             self.assertTrue(os.path.exists(options_file))
 
     def test_error_handling(self):
-        """Test error handling in downloader."""
         # Test with client that raises exceptions
         with patch.object(
             self.downloader.client, "get_ticker", side_effect=Exception("API Error")
@@ -227,7 +215,6 @@ class TestHistoricalDataDownloader(unittest.TestCase):
             self.assertIsInstance(df, pd.DataFrame)
 
     def test_file_saving(self):
-        """Test that files are saved correctly."""
         # Create sample data
         sample_data = pd.DataFrame(
             {"timestamp": [datetime.now(timezone.utc)], "price": [50000.0]}
@@ -249,15 +236,12 @@ class TestHistoricalDataDownloader(unittest.TestCase):
 
 
 class TestDownloaderUtilities(unittest.TestCase):
-    """Test utility functions in downloader."""
 
     def test_data_validation(self):
-        """Test that downloaded data has correct structure."""
         # This would test data validation functions if they existed
         pass
 
     def test_rate_limiting(self):
-        """Test that rate limiting is properly implemented."""
         # Test would verify that appropriate delays are added between requests
         pass
 

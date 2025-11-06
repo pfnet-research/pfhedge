@@ -1,19 +1,4 @@
 #!/usr/bin/env python3
-"""
-Bitcoin Options Backtesting - Comprehensive Interactive Demo
-
-This script demonstrates the complete backtesting workflow:
-1. Configuration and validation
-2. Model loading
-3. Data loading and bootstrap sampling
-4. Running deep hedge and Black-Scholes strategies
-5. Performance analysis and comparison
-6. Export results for reproducibility
-
-Usage:
-    python demo_backtesting.py                    # Interactive mode
-    python demo_backtesting.py --no-interactive   # Run all at once
-"""
 
 import os
 import sys
@@ -29,21 +14,18 @@ from crypto.backtest import BacktestConfig, Backtester
 
 
 def print_header(title):
-    """Print a formatted header."""
     print("\n" + "=" * 70)
     print(title.center(70))
     print("=" * 70 + "\n")
 
 
 def wait_for_user(message="Press ENTER to continue", interactive=True):
-    """Wait for user input in interactive mode."""
     if interactive:
         input(f"\n▶ {message}...")
     print()
 
 
 def main():
-    """Run the comprehensive backtesting demo."""
 
     # Parse command line arguments
     parser = argparse.ArgumentParser(description="Bitcoin Options Backtesting Demo")

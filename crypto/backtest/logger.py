@@ -1,5 +1,3 @@
-"""Centralized logging for backtesting operations."""
-
 import logging
 from typing import Optional, TYPE_CHECKING
 
@@ -14,7 +12,6 @@ if TYPE_CHECKING:
 
 
 class BacktestLogger:
-    """Centralized logging for backtesting with configurable verbosity."""
 
     def __init__(self, verbosity: str = "INFO"):
         self.logger = logging.getLogger(__name__)

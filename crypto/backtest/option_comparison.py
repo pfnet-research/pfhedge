@@ -1,12 +1,3 @@
-"""Option price comparison utilities for backtesting framework.
-
-This module provides functionality to:
-1. Load real option data from Deribit
-2. Find options matching backtest configuration
-3. Compare model-implied prices with market prices
-4. Analyze implied volatility differences
-"""
-
 import pandas as pd
 import numpy as np
 import torch
@@ -25,50 +16,8 @@ from crypto.data.loader import CryptoDataLoader
 
 
 class OptionMatcher:
-    """Match backtest configuration to real market options.
-
-    This class helps find options in historical data that match the
-    backtest configuration parameters (strike, maturity, call/put).
-
-    **Time Conventions:**
-    - All timestamps are timezone-aware (UTC)
-    - Maturity measured in calendar days (not business days)
-    - Days to expiry calculated as: (expiration - timestamp).total_seconds() / 86400
-    - Time to expiry in years uses: days / 365.25 (accounts for leap years)
-    - No automatic filtering for stale quotes; use reference_date to exclude old data
-
-    **Stale Quote Handling:**
-    - Options data returned as-is without age filtering
-    - Use `reference_date` parameter to exclude data before a specific time
-    - For time series analysis, use `start_date` and `end_date` parameters
-    - Check `timestamp` field in results to verify data freshness
-
-    **Missing Fields:**
-    - If price field not found, falls back in order: mid → mark → ask → bid
-    - Missing implied volatility fields are filled with 0
-    - Warnings issued for missing critical fields
-
-    Args:
-        data_loader: CryptoDataLoader instance with options data loaded
-
-    Examples:
-        >>> loader = CryptoDataLoader("sample_data")
-        >>> loader.load_options_data()
-        >>> matcher = OptionMatcher(loader)
-        >>> matches = matcher.find_matching_options(
-        ...     strike=50000,
-        ...     maturity_days=7,
-        ...     call=True,
-        ...     tolerance_pct=0.05
-        ... )
-    """
 
     def __init__(self, data_loader: CryptoDataLoader):
-        """Initialize option matcher.
-
-        Args:
-            data_loader: Loaded CryptoDataLoader instance
-        """
         if data_loader.options_data is None:
             raise ValueError("data_loader must have options data loaded")
 
@@ -84,28 +33,6 @@ class OptionMatcher:
         strike_tolerance_pct: float = 0.05,
         maturity_tolerance_days: float = 1.0,
     ) -> pd.DataFrame:
-        """Find options matching specified criteria.
-
-        Args:
-            strike: Target strike price
-            maturity_days: Target maturity in days
-            call: True for call options, False for puts
-            reference_date: Reference date for matching (default: earliest in data)
-            strike_tolerance_pct: Allowable strike deviation as percentage (default: 5%)
-            maturity_tolerance_days: Allowable maturity deviation in days (default: 1 day)
-
-        Returns:
-            DataFrame of matching options sorted by timestamp
-
-        Examples:
-            >>> # Find $50k strike, 7-day calls within 5% strike and 1 day maturity
-            >>> matches = matcher.find_matching_options(
-            ...     strike=50000,
-            ...     maturity_days=7,
-            ...     call=True
-            ... )
-            >>> print(f"Found {len(matches)} matching options")
-        """
         df = self.options_data.copy()
 
         # Filter by option type
@@ -173,62 +100,6 @@ class OptionMatcher:
         strike_weight: float = 0.7,
         maturity_weight: float = 0.3,
     ) -> Optional[pd.Series]:
-        """Get single closest matching option.
-
-        Finds the option that best matches the specified criteria using a
-        weighted distance metric. Distance is calculated using relative errors
-        (unitless) for both strike and maturity.
-
-        Args:
-            strike: Target strike price
-            maturity_days: Target maturity in days
-            call: True for call options, False for puts
-            reference_date: Reference date for matching (default: earliest in data)
-            strike_tolerance_pct: Allowable strike deviation (default: 10%)
-            maturity_tolerance_days: Allowable maturity deviation (default: 2 days)
-            strike_weight: Weight for strike matching (default: 0.7)
-                Higher values prioritize strike accuracy.
-            maturity_weight: Weight for maturity matching (default: 0.3)
-                Higher values prioritize maturity accuracy.
-
-        Returns:
-            Series with best matching option, or None if no match found
-
-        Raises:
-            ValueError: If strike_weight + maturity_weight != 1.0
-
-        Examples:
-            >>> # Default: prioritize strike (70%) over maturity (30%)
-            >>> best_match = matcher.get_closest_match(
-            ...     strike=50000,
-            ...     maturity_days=7,
-            ...     call=True
-            ... )
-            >>>
-            >>> # Equal weighting
-            >>> best_match = matcher.get_closest_match(
-            ...     strike=50000,
-            ...     maturity_days=7,
-            ...     call=True,
-            ...     strike_weight=0.5,
-            ...     maturity_weight=0.5
-            ... )
-            >>>
-            >>> # Prioritize maturity for time-sensitive analysis
-            >>> best_match = matcher.get_closest_match(
-            ...     strike=50000,
-            ...     maturity_days=7,
-            ...     call=True,
-            ...     strike_weight=0.3,
-            ...     maturity_weight=0.7
-            ... )
-
-        Note:
-            Distance metric uses relative errors for unit consistency:
-            - Strike distance: |K_match - K_target| / K_target (unitless)
-            - Maturity distance: |T_match - T_target| / T_target (unitless)
-            - Combined: strike_weight * strike_dist + maturity_weight * maturity_dist
-        """
         # Validate weights
         if strike_weight < 0 or maturity_weight < 0:
             raise ValueError(
@@ -285,33 +156,6 @@ class OptionMatcher:
         strike_tolerance_pct: float = 0.05,
         maturity_tolerance_days: float = 1.0,
     ) -> pd.DataFrame:
-        """Get time series of matching options.
-
-        Returns all options matching criteria within the specified date range,
-        suitable for tracking option prices over time.
-
-        Args:
-            strike: Target strike price
-            maturity_days: Target maturity in days
-            call: True for call options, False for puts
-            start_date: Start of time range (default: earliest in data)
-            end_date: End of time range (default: latest in data)
-            strike_tolerance_pct: Allowable strike deviation (default: 5%)
-            maturity_tolerance_days: Allowable maturity deviation (default: 1 day)
-
-        Returns:
-            DataFrame with time series of matching options
-
-        Examples:
-            >>> time_series = matcher.get_time_series(
-            ...     strike=50000,
-            ...     maturity_days=7,
-            ...     call=True,
-            ...     start_date=datetime(2024, 1, 1),
-            ...     end_date=datetime(2024, 1, 10)
-            ... )
-            >>> # Useful for tracking option price evolution
-        """
         matches = self.find_matching_options(
             strike=strike,
             maturity_days=maturity_days,
@@ -334,16 +178,6 @@ class OptionMatcher:
         return matches
 
     def summary(self) -> Dict:
-        """Get summary statistics of loaded options data.
-
-        Returns:
-            Dictionary with summary statistics
-
-        Examples:
-            >>> summary = matcher.summary()
-            >>> print(f"Total options: {summary['total_options']}")
-            >>> print(f"Strikes available: {summary['strikes']}")
-        """
         df = self.options_data
 
         summary = {
@@ -363,35 +197,8 @@ class OptionMatcher:
 
 
 class PriceComparator:
-    """Compare model-implied option prices with market prices.
-
-    This class calculates model-implied prices from deep hedging results
-    and compares them with observed market prices.
-
-    The model-implied price represents the expected cost of replicating
-    the option payoff using the model's hedging strategy.
-
-    Args:
-        backtest_results: BacktestResults object from running backtest
-        option_matcher: OptionMatcher instance with loaded options data
-
-    Examples:
-        >>> comparator = PriceComparator(results, matcher)
-        >>> implied_price = comparator.calculate_model_implied_price()
-        >>> comparison = comparator.compare_with_market(
-        ...     strike=50000,
-        ...     maturity_days=7,
-        ...     call=True
-        ... )
-    """
 
     def __init__(self, backtest_results, option_matcher: OptionMatcher):
-        """Initialize price comparator.
-
-        Args:
-            backtest_results: BacktestResults from backtest
-            option_matcher: OptionMatcher instance
-        """
         self.backtest_results = backtest_results
         self.option_matcher = option_matcher
 
@@ -406,45 +213,6 @@ class PriceComparator:
         self,
         method: str = "mean_cost",
     ) -> float:
-        """Calculate model-implied option price.
-
-        The model-implied price represents what the model believes
-        the fair price should be, based on its hedging performance.
-
-        **IMPORTANT: PFHedge PnL Convention**
-
-        PFHedge's `cum_pl()` returns:
-            cum_pl = hedging_gains - transaction_costs - payoff
-
-        For an option seller:
-            Total PnL = premium + cum_pl
-
-        Setting E[Total PnL] = 0 for fair pricing:
-            0 = premium + E[cum_pl]
-            premium = -E[cum_pl]
-
-        This is the formula used by this method.
-
-        Args:
-            method: Pricing method to use:
-                - 'mean_cost': Uses P = -E[cum_pl] (default and recommended)
-
-        Returns:
-            Model-implied option price in dollars
-
-        Examples:
-            >>> implied_price = comparator.calculate_model_implied_price()
-            >>> print(f"Model fair value: ${implied_price:.2f}")
-
-        Note:
-            The returned price represents the premium an option seller would
-            charge to achieve zero expected PnL when hedging with the model's
-            strategy. A positive price means the option has value; a negative
-            price would indicate the model believes hedging costs exceed payoff.
-
-            **Caching**: Result is cached to avoid redundant computation when
-            called multiple times (e.g., during volatility smile generation).
-        """
         # Use cache if available
         if self._model_price_cache is not None:
             return self._model_price_cache
@@ -479,26 +247,6 @@ class PriceComparator:
         price_type: str = "mid",
         reference_date: Optional[datetime] = None,
     ) -> Optional[float]:
-        """Get market price for matching option.
-
-        Args:
-            strike: Option strike
-            maturity_days: Option maturity in days
-            call: True for call, False for put
-            price_type: Price to use - 'bid', 'ask', 'mid', or 'mark' (default: 'mid')
-            reference_date: Reference date for finding option
-
-        Returns:
-            Market price in dollars, or None if no match found
-
-        Examples:
-            >>> market_price = comparator.get_market_price(
-            ...     strike=50000,
-            ...     maturity_days=7,
-            ...     call=True,
-            ...     price_type="mid"
-            ... )
-        """
         # Find closest matching option
         match = self.option_matcher.get_closest_match(
             strike=strike,
@@ -531,48 +279,6 @@ class PriceComparator:
         reference_date: Optional[datetime] = None,
         include_spread_diagnostics: bool = True,
     ) -> Dict[str, float]:
-        """Compare model-implied price with market price.
-
-        Args:
-            strike: Option strike
-            maturity_days: Option maturity in days
-            call: True for call, False for put
-            price_type: Market price type to use (default: 'mid')
-            reference_date: Reference date for finding option
-            include_spread_diagnostics: Include bid-ask spread analysis (default: True)
-
-        Returns:
-            Dictionary with comparison metrics:
-            - model_price: Model-implied price
-            - market_price: Market price (based on price_type)
-            - difference: model_price - market_price
-            - difference_pct: Percentage difference
-            - matched_strike: Actual strike of matched option
-            - matched_maturity: Actual maturity of matched option
-
-            If include_spread_diagnostics=True, also includes:
-            - bid_price: Bid price (if available)
-            - ask_price: Ask price (if available)
-            - mid_price: Mid price (bid+ask)/2 (if available)
-            - mark_price: Mark price (if available)
-            - spread: Bid-ask spread (ask - bid)
-            - spread_pct: Spread as percentage of mid price
-            - spread_bps: Spread in basis points
-            - mark_mid_diff: Mark - mid price difference
-            - model_in_spread: True if model price within bid-ask spread
-
-        Examples:
-            >>> comparison = comparator.compare_with_market(
-            ...     strike=50000,
-            ...     maturity_days=7,
-            ...     call=True
-            ... )
-            >>> print(f"Model: ${comparison['model_price']:.2f}")
-            >>> print(f"Market: ${comparison['market_price']:.2f}")
-            >>> print(f"Spread: {comparison['spread_pct']:.2f}%")
-            >>> if comparison['model_in_spread']:
-            ...     print("Model price is within bid-ask spread!")
-        """
         # Calculate model-implied price
         model_price = self.calculate_model_implied_price()
 
@@ -681,48 +387,6 @@ class PriceComparator:
         self,
         confidence_level: float = 0.95,
     ) -> Dict[str, float]:
-        """Calculate confidence interval for model-implied price.
-
-        Uses bootstrap standard error from path dispersion to estimate
-        uncertainty in the model-implied price.
-
-        Args:
-            confidence_level: Confidence level for interval (default: 0.95 for 95%)
-
-        Returns:
-            Dictionary with:
-            - mean: Model-implied price (point estimate)
-            - std_error: Standard error estimate
-            - std_dev: Sample standard deviation
-            - lower: Lower confidence bound
-            - upper: Upper confidence bound
-            - confidence_level: Confidence level used
-            - n_paths: Number of paths used
-            - distribution: 't' for n < 30, 'normal' for n >= 30
-            - critical_value: t-score or z-score used
-
-        Raises:
-            ImportError: If scipy is not installed (needed for confidence intervals)
-
-        Examples:
-            >>> confidence = comparator.calculate_model_price_confidence()
-            >>> print(f"Price: ${confidence['mean']:.2f}")
-            >>> print(f"95% CI: [${confidence['lower']:.2f}, ${confidence['upper']:.2f}]")
-            >>> print(f"Sample size: {confidence['n_paths']}, Distribution: {confidence['distribution']}")
-            >>>
-            >>> # With 99% confidence
-            >>> confidence = comparator.calculate_model_price_confidence(confidence_level=0.99)
-
-        Note:
-            **Statistical methodology**:
-            - For n_paths < 30: Uses t-distribution (more conservative for small samples)
-            - For n_paths >= 30: Uses normal distribution (asymptotically valid by CLT)
-            - Standard error assumes paths are independent samples from the same distribution
-
-            **Why t-distribution for small samples?**
-            When n is small, estimating σ from sample introduces additional uncertainty.
-            The t-distribution accounts for this by having heavier tails than the normal.
-        """
         if not HAS_SCIPY:
             raise ImportError(
                 "scipy is required for confidence intervals. "
@@ -777,10 +441,6 @@ class PriceComparator:
         risk_free_rate: float,
         call: bool,
     ) -> float:
-        """Calculate Black-Scholes option price.
-
-        Helper method for IV calculation.
-        """
         if HAS_SCIPY:
             from scipy.stats import norm
         else:
@@ -823,11 +483,6 @@ class PriceComparator:
         tol: float = 1e-4,
         max_iter: int = 100,
     ) -> Tuple[Optional[float], Dict]:
-        """Bisection method for IV calculation (fallback when scipy unavailable).
-
-        Returns:
-            Tuple of (iv, diagnostics)
-        """
         vol_low, vol_high = 0.01, 5.0
 
         for i in range(max_iter):
@@ -872,84 +527,6 @@ class PriceComparator:
         risk_free_rate: float = 0.0,
         return_diagnostics: bool = False,
     ):
-        """Calculate model-implied volatility from model price.
-
-        Uses Black-Scholes formula to invert model price to implied volatility.
-        This allows direct comparison with market IV.
-
-        **Important Assumptions:**
-        - **Risk-free rate r = 0.0 by default** (crypto assumption: no riskless benchmark)
-          You can override this, but crypto markets typically don't have a risk-free rate
-        - No dividends/continuous yield
-        - European exercise only
-        - Black-Scholes model applies (lognormal returns, constant volatility)
-
-        **IV Inversion Method:**
-        - **Primary**: Brent's method (scipy.optimize.brentq) - robust bracketed root-finding
-        - **Fallback**: Simple bisection if scipy unavailable (still works, slightly slower)
-        - **Search range**: [0.01, 5.0] (1% to 500% annualized, appropriate for crypto)
-        - **Convergence tolerance**: 1e-6 for Brent, 1e-4 for bisection
-
-        **Numerical Stability:**
-        - Checks arbitrage bounds before solving
-        - **Guards deep ITM/OTM cases** where vega → 0 (ill-conditioned inversion)
-          For deep ITM calls (S >> K), BS price ≈ S - K*exp(-rT), insensitive to σ
-          For deep OTM options, price ≈ 0, also insensitive to σ
-        - Returns None with warning if solver fails or price out of bounds
-        - **Negative model prices** return None (economically invalid - see Note below)
-
-        Args:
-            strike: Option strike price
-            maturity_days: Option maturity in days
-            call: True for call, False for put
-            spot_price: Current spot price (default: use final spot from backtest)
-            risk_free_rate: Risk-free interest rate (default: 0.0)
-            return_diagnostics: Return dict with solver diagnostics (default: False)
-
-        Returns:
-            If return_diagnostics=False:
-                Model-implied volatility (annualized), or None if cannot be calculated
-            If return_diagnostics=True:
-                Tuple of (iv, diagnostics_dict) where diagnostics contains:
-                - status: 'success', 'out_of_bounds', 'solver_failed', 'negative_price', 'ill_conditioned'
-                - iterations: Number of solver iterations (if available)
-                - method: 'brentq' or 'bisection'
-                - price_error: Final price residual
-
-        Examples:
-            >>> # Basic usage
-            >>> model_iv = comparator.calculate_model_implied_iv(
-            ...     strike=50000,
-            ...     maturity_days=7,
-            ...     call=True
-            ... )
-            >>> if model_iv is not None:
-            ...     print(f"Model IV: {model_iv:.2%}")
-            >>>
-            >>> # With diagnostics
-            >>> iv, diag = comparator.calculate_model_implied_iv(
-            ...     strike=50000,
-            ...     maturity_days=7,
-            ...     call=True,
-            ...     return_diagnostics=True
-            ... )
-            >>> if iv is not None:
-            ...     print(f"IV: {iv:.2%}, Method: {diag['method']}, Iterations: {diag['iterations']}")
-
-        Note:
-            **Returns None if:**
-            - **Negative model price**: Can occur if model's hedging strategy has very
-              high expected costs that exceed the expected payoff. Economically invalid
-              for option pricing (no arbitrage requires price ≥ 0).
-            - **Price violates arbitrage bounds**: price < intrinsic or price > upper_bound
-            - **Solver fails to converge**: Root-finding unsuccessful
-            - **Deep ITM/OTM with vega ≈ 0**: Ill-conditioned inversion (price insensitive to σ)
-
-            **Why negative model prices occur:**
-            If E[cum_pl] > 0, then premium = -E[cum_pl] < 0. This means the model
-            expects to lose money on the hedging strategy even before paying the premium.
-            This is not a valid option price and cannot be inverted to an IV.
-        """
         # Cache key for memoization
         cache_key = (strike, maturity_days, call, risk_free_rate)
         if not hasattr(self, "_iv_cache"):
@@ -1106,39 +683,6 @@ class PriceComparator:
         reference_date: Optional[datetime] = None,
         sanity_check: bool = True,
     ) -> Optional[float]:
-        """Get market implied volatility for matching option.
-
-        Extracts market IV from Deribit options data with sanity checks.
-
-        Args:
-            strike: Option strike
-            maturity_days: Option maturity in days
-            call: True for call, False for put
-            iv_type: IV to use - 'bid', 'ask', or 'mark' (default: 'mark')
-            reference_date: Reference date for finding option
-            sanity_check: Perform sanity checks on IV values (default: True)
-
-        Returns:
-            Market implied volatility (annualized), or None if no match found
-
-        Examples:
-            >>> market_iv = comparator.get_market_iv(
-            ...     strike=50000,
-            ...     maturity_days=7,
-            ...     call=True,
-            ...     iv_type="mark"
-            ... )
-            >>> if market_iv is not None:
-            ...     print(f"Market IV: {market_iv:.2%}")
-
-        Note:
-            **Sanity checks performed** (if sanity_check=True):
-            - Filters out zero IVs (data glitches)
-            - Ensures IV in [0.01, 5.0] range (1% to 500%)
-            - Warns if bid/ask/mark IVs are wildly inconsistent (spread > 50% of mark)
-
-            **Fallback order**: mark_iv → bid_iv → ask_iv
-        """
         # Find closest matching option
         match = self.option_matcher.get_closest_match(
             strike=strike,
@@ -1226,46 +770,6 @@ class PriceComparator:
         iv_type: str = "mark",
         reference_date: Optional[datetime] = None,
     ) -> Dict:
-        """Compare model-implied IV with market IV.
-
-        Args:
-            strike: Option strike
-            maturity_days: Option maturity in days
-            call: True for call, False for put
-            spot_price: Current spot price (default: use final spot from backtest)
-            risk_free_rate: Risk-free interest rate (default: 0.0)
-            iv_type: Market IV type to use (default: 'mark')
-            reference_date: Reference date for finding option
-
-        Returns:
-            Dictionary with IV comparison metrics:
-            - model_iv: Model-implied volatility
-            - market_iv: Market implied volatility
-            - iv_difference: model_iv - market_iv (absolute)
-            - iv_difference_pct: Percentage difference relative to market_iv
-            - model_price: Model-implied price
-            - market_price: Market price (mid if available)
-            - matched_strike: Actual strike of matched option
-            - matched_maturity: Actual maturity of matched option (days)
-            - matched_instrument: Instrument name (e.g., "BTC-25DEC23-50000-C") for debugging
-            - moneyness: Strike/Spot ratio (defined as K/S, >1 is OTM call, <1 is ITM call)
-
-        Examples:
-            >>> iv_comp = comparator.compare_implied_volatility(
-            ...     strike=50000,
-            ...     maturity_days=7,
-            ...     call=True
-            ... )
-            >>> print(f"Model IV: {iv_comp['model_iv']:.2%}")
-            >>> print(f"Market IV: {iv_comp['market_iv']:.2%}")
-            >>> print(f"Moneyness (K/S): {iv_comp['moneyness']:.3f}")
-
-        Note:
-            **Moneyness definition**: K/S (strike divided by spot)
-            - K/S > 1: Out-of-the-money (OTM) call / In-the-money (ITM) put
-            - K/S = 1: At-the-money (ATM)
-            - K/S < 1: In-the-money (ITM) call / Out-of-the-money (OTM) put
-        """
         # Get spot price
         if spot_price is None:
             spot_price = self.backtest_results.spots[:, -1].mean().item()
@@ -1346,52 +850,6 @@ class PriceComparator:
         iv_type: str = "mark",
         reference_date: Optional[datetime] = None,
     ) -> pd.DataFrame:
-        """Get volatility smile (IV across strikes) for comparison.
-
-        Calculates both model and market IVs across multiple strikes to
-        enable volatility smile/skew analysis. Ensures all points share
-        the same maturity window.
-
-        Args:
-            strikes: List of strikes to analyze
-            maturity_days: Option maturity in days (same for all strikes)
-            call: True for call, False for put
-            spot_price: Current spot price (default: use final spot from backtest)
-            risk_free_rate: Risk-free interest rate (default: 0.0)
-            iv_type: Market IV type to use (default: 'mark')
-            reference_date: Reference date for finding options
-
-        Returns:
-            DataFrame with columns:
-            - strike: Strike price
-            - moneyness: K/S ratio (strike/spot, >1 is OTM call, <1 is ITM call)
-            - model_iv: Model-implied volatility
-            - market_iv: Market implied volatility
-            - iv_difference: model_iv - market_iv
-            - model_price: Model-implied price
-            - market_price: Market price (mid)
-            - matched_strike: Actual strike from data
-            - matched_maturity: Actual maturity from data (days)
-            - matched_instrument: Instrument name for debugging
-            - skipped: True if this strike was skipped due to missing data
-
-        Examples:
-            >>> strikes = [45000, 47500, 50000, 52500, 55000]
-            >>> smile = comparator.get_volatility_smile(
-            ...     strikes=strikes,
-            ...     maturity_days=7,
-            ...     call=True
-            ... )
-            >>> # Filter out skipped points
-            >>> valid_smile = smile[~smile['skipped']]
-            >>> print(valid_smile[['strike', 'moneyness', 'model_iv', 'market_iv']])
-
-        Note:
-            **Moneyness**: K/S (strike/spot)
-            - All strikes use the same maturity window (±2 days by default)
-            - Skipped strikes are included in output with skipped=True
-            - Returns model price and market price for cross-checks
-        """
         # Get spot price
         if spot_price is None:
             spot_price = self.backtest_results.spots[:, -1].mean().item()
@@ -1440,15 +898,6 @@ class PriceComparator:
         return pd.DataFrame(results)
 
     def summary(self) -> Dict:
-        """Get summary of price comparison.
-
-        Returns:
-            Dictionary with comparison summary
-
-        Examples:
-            >>> summary = comparator.summary()
-            >>> print(f"Model implied: ${summary['model_implied_price']:.2f}")
-        """
         model_price = self.calculate_model_implied_price()
 
         summary = {

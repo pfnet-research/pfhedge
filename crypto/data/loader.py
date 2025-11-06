@@ -1,7 +1,3 @@
-"""
-Data loader for processing downloaded Bitcoin and options data.
-"""
-
 import pandas as pd
 import numpy as np
 from pathlib import Path
@@ -13,15 +9,7 @@ warnings.filterwarnings("ignore")
 
 
 class CryptoDataLoader:
-    """Load and process cryptocurrency and options data."""
-
     def __init__(self, data_dir: str = "sample_data"):
-        """
-        Initialize data loader.
-
-        Args:
-            data_dir: Directory containing parquet files
-        """
         self.data_dir = Path(data_dir)
         self.perpetual_data = None
         self.spot_data = None
@@ -29,15 +17,6 @@ class CryptoDataLoader:
         self.funding_data = None
 
     def load_perpetual_data(self, filename: Optional[str] = None) -> pd.DataFrame:
-        """
-        Load perpetual contract data.
-
-        Args:
-            filename: Specific file to load, or None for default
-
-        Returns:
-            DataFrame with processed perpetual data
-        """
         if filename is None:
             # Look for perpetual OHLC file (exclude funding files)
             files = list(self.data_dir.glob("*perpetual*.parquet"))
@@ -60,15 +39,6 @@ class CryptoDataLoader:
         return df
 
     def load_spot_data(self, filename: Optional[str] = None) -> pd.DataFrame:
-        """
-        Load Bitcoin spot data.
-
-        Args:
-            filename: Specific file to load, or None for default
-
-        Returns:
-            DataFrame with processed spot data
-        """
         if filename is None:
             # Look for spot data files
             files = list(self.data_dir.glob("*spot*.parquet"))
@@ -88,15 +58,6 @@ class CryptoDataLoader:
         return df
 
     def load_options_data(self, filename: Optional[str] = None) -> pd.DataFrame:
-        """
-        Load options data.
-
-        Args:
-            filename: Specific file to load, or None for default
-
-        Returns:
-            DataFrame with processed options data
-        """
         if filename is None:
             # Look for sample file
             files = list(self.data_dir.glob("*options*.parquet"))
@@ -117,15 +78,6 @@ class CryptoDataLoader:
         return df
 
     def load_funding_data(self, filename: Optional[str] = None) -> pd.DataFrame:
-        """
-        Load funding rate data.
-
-        Args:
-            filename: Specific file to load, or None for default
-
-        Returns:
-            DataFrame with processed funding rate data
-        """
         if filename is None:
             # Look for funding file
             files = list(self.data_dir.glob("*funding*.parquet"))
@@ -148,7 +100,6 @@ class CryptoDataLoader:
         return df
 
     def _process_perpetual_data(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Process perpetual contract data."""
         # Ensure timestamp is datetime
         if "timestamp" in df.columns:
             df["timestamp"] = pd.to_datetime(df["timestamp"])
@@ -182,7 +133,6 @@ class CryptoDataLoader:
         return df
 
     def _process_options_data(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Process options data."""
         # Ensure timestamp is datetime
         if "timestamp" in df.columns:
             df["timestamp"] = pd.to_datetime(df["timestamp"])
@@ -223,15 +173,6 @@ class CryptoDataLoader:
         return df
 
     def get_price_series(self, frequency: str = "5T") -> pd.DataFrame:
-        """
-        Get resampled price series for backtesting.
-
-        Args:
-            frequency: Pandas frequency string (e.g., '5T' for 5 minutes, '1H' for 1 hour)
-
-        Returns:
-            DataFrame with resampled price data
-        """
         if self.perpetual_data is None:
             raise ValueError("Must load perpetual data first")
 
@@ -267,15 +208,6 @@ class CryptoDataLoader:
     def get_options_for_expiry(
         self, expiry_date: Optional[datetime] = None
     ) -> pd.DataFrame:
-        """
-        Get options data for a specific expiry.
-
-        Args:
-            expiry_date: Target expiry date, or None for nearest expiry
-
-        Returns:
-            DataFrame with options for specified expiry
-        """
         if self.options_data is None:
             raise ValueError("Must load options data first")
 
@@ -298,15 +230,6 @@ class CryptoDataLoader:
         return df
 
     def get_atm_option(self, option_type: str = "call") -> Optional[Dict]:
-        """
-        Get the most ATM option of specified type.
-
-        Args:
-            option_type: 'call' or 'put'
-
-        Returns:
-            Dictionary with option data, or None if not found
-        """
         if self.options_data is None:
             raise ValueError("Must load options data first")
 
@@ -328,17 +251,6 @@ class CryptoDataLoader:
         end_date: Optional[datetime] = None,
         frequency: str = "1H",
     ) -> Dict[str, pd.DataFrame]:
-        """
-        Create a clean dataset for backtesting.
-
-        Args:
-            start_date: Start date for dataset
-            end_date: End date for dataset
-            frequency: Resampling frequency
-
-        Returns:
-            Dictionary with 'prices' and 'options' DataFrames
-        """
         # Get price series
         prices = self.get_price_series(frequency=frequency)
 
@@ -365,7 +277,6 @@ class CryptoDataLoader:
         return {"prices": prices, "options": options}
 
     def summary(self) -> Dict:
-        """Get summary statistics of loaded data."""
         summary = {}
 
         if self.perpetual_data is not None:
@@ -403,7 +314,6 @@ class CryptoDataLoader:
 
 
 def test_loader():
-    """Test the data loader."""
     print("Testing CryptoDataLoader...")
 
     loader = CryptoDataLoader("sample_data")

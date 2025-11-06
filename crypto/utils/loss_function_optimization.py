@@ -1,12 +1,4 @@
 #!/usr/bin/env python3
-"""
-Comprehensive loss function comparison with optimal architecture.
-
-Tests all available loss functions with the optimal training setup:
-- 10000 training paths
-- 80 epochs
-- 4 layers x 128 units
-"""
 
 import sys
 import os
@@ -25,7 +17,6 @@ from crypto.strategies import (
 
 
 def run_experiment(config):
-    """Run a single loss function experiment."""
 
     # Base parameters (optimal from previous experiments)
     base_config = {
@@ -113,7 +104,6 @@ def run_experiment(config):
 
 
 def main():
-    """Run comprehensive loss function optimization."""
 
     print("=" * 70)
     print("LOSS FUNCTION OPTIMIZATION WITH OPTIMAL ARCHITECTURE")
