@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# Parse command line arguments
+FORCE=false
+if [ "$1" = "--force" ] || [ "$1" = "-f" ]; then
+    FORCE=true
+    echo "⚠️  Force mode enabled: will overwrite existing results"
+fi
+
 echo "Starting batch backtesting..."
 echo "============================================================"
 
@@ -37,8 +44,8 @@ for model_path in results/hparam_tuning/*/train_*/model.pth; do
     # Backtest output directory
     backtest_dir="$run_dir/backtest_$git_hash"
 
-    # Check if backtest already completed
-    if [ -f "$backtest_dir/results.json" ] || [ -f "$backtest_dir/backtest_results.json" ]; then
+    # Check if backtest already completed (skip if not forcing)
+    if [ "$FORCE" = false ] && [ -f "$backtest_dir/results.json" ]; then
         echo "⏭  Skipping (already backtested): $run_name"
         ((skipped++))
         continue
@@ -54,7 +61,7 @@ for model_path in results/hparam_tuning/*/train_*/model.pth; do
     # Create backtest config from training results
     backtest_config="$train_dir/backtest_config.yaml"
 
-    if [ ! -f "$backtest_config" ]; then
+    if [ ! -f "$backtest_config" ] || [ "$FORCE" = true ]; then
         echo "Creating backtest config: $run_name"
         python crypto/scripts/create_backtest_config.py \
             --train-results "$train_dir/training_results.json" \
@@ -78,10 +85,8 @@ for model_path in results/hparam_tuning/*/train_*/model.pth; do
     echo "Started: $(date)"
     echo "============================================================"
 
-    # Run backtest
-    python -m crypto.backtest.run \
-        --config "$backtest_config" \
-        --seed 42
+    # Run backtest (all config from file)
+    python -m crypto.backtest.run --config "$backtest_config"
 
     exit_code=$?
 

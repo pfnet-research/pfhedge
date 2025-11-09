@@ -151,6 +151,7 @@ class Trainer:
 
     def create_model(self) -> "Hedger":
         from crypto.strategies import create_deep_hedger
+        import torch.nn as nn
 
         hedger = create_deep_hedger(
             model_type=self.config.model_type,
@@ -167,6 +168,10 @@ class Trainer:
 
         hedger.to(device)
 
+        # Apply better initialization for MLP output head
+        if self.config.model_type == "mlp":
+            self._initialize_model_head(hedger.model)
+
         if self.verbose:
             try:
                 n_params = sum(
@@ -176,6 +181,10 @@ class Trainer:
                 print(f"   Device: {device}")
                 print(f"   Parameters: {n_params:,}")
                 print(f"   Risk measure: {self.config.risk_measure}")
+                if self.config.grad_clip_norm:
+                    print(f"   Gradient clipping: {self.config.grad_clip_norm}")
+                if self.config.bs_warmup_epochs > 0:
+                    print(f"   BS warmup: {self.config.bs_warmup_epochs} epochs")
             except (ValueError, RuntimeError):
                 print(f"✅ Model created: {self.config.model_type.upper()}")
                 print(f"   Device: {device}")
@@ -183,6 +192,20 @@ class Trainer:
                 print(f"   Risk measure: {self.config.risk_measure}")
 
         return hedger
+
+    def _initialize_model_head(self, model):
+        """Initialize MLP output head with Xavier initialization for better gradient flow."""
+        import torch.nn as nn
+
+        last_linear = None
+        for module in model.modules():
+            if isinstance(module, nn.Linear):
+                last_linear = module
+
+        if last_linear is not None:
+            with torch.no_grad():
+                nn.init.xavier_uniform_(last_linear.weight, gain=0.5)
+                last_linear.bias.fill_(0.0)
 
     def train_model(
         self,
@@ -213,25 +236,301 @@ class Trainer:
         optimizer = _create_optimizer(self.config, model.parameters())
         _print_optimizer_info(self.config, self.verbose)
 
-        if self.config.early_stopping:
+        # Use curriculum learning if warmup epochs specified
+        if self.config.bs_warmup_epochs > 0:
+            history = self._train_with_curriculum(
+                model, option, optimizer, model_device
+            )
+        elif self.config.early_stopping:
             history = self._train_with_early_stopping(
                 model, option, optimizer, model_device
             )
         else:
-            history = model.fit(
-                option,
-                n_paths=self.config.n_paths,
-                n_epochs=self.config.n_epochs,
-                optimizer=optimizer,
-                verbose=self.verbose,
-                use_amp=self.config.use_amp and model_device.type == "cuda",
-                validation_freq=self.config.validation_freq,
-            )
+            # Standard training with optional gradient clipping
+            history = self._train_standard(model, option, optimizer, model_device)
 
         if self.enable_diagnostics and self.diagnostics is not None:
             self._print_diagnostics()
 
         _print_training_summary(history, self.verbose)
+
+        return history
+
+    def _train_standard(
+        self, model: "Hedger", option: "BitcoinEuropeanOption", optimizer, device
+    ) -> List[float]:
+        """Standard training with optional gradient clipping."""
+        if self.config.grad_clip_norm:
+            # Custom training loop with gradient clipping
+            return self._train_with_grad_clipping(model, option, optimizer, device)
+        else:
+            # Use PFHedge's built-in fit method
+            return model.fit(
+                option,
+                n_paths=self.config.n_paths,
+                n_epochs=self.config.n_epochs,
+                optimizer=optimizer,
+                verbose=self.verbose,
+                use_amp=self.config.use_amp and device.type == "cuda",
+                validation_freq=self.config.validation_freq,
+            )
+
+    def _compute_hedge(
+        self, model: "Hedger", option: "BitcoinEuropeanOption"
+    ) -> Tensor:
+        """Compute hedge positions and reduce dimensions if needed."""
+        hedge_positions = model.compute_hedge(option)
+        if hedge_positions.dim() == 3:
+            hedge_positions = hedge_positions.squeeze(1)
+        return hedge_positions
+
+    def _compute_loss(
+        self, model: "Hedger", option: "BitcoinEuropeanOption", hedge_positions: Tensor
+    ) -> Tensor:
+        """Compute loss including CVaR and optional penalties."""
+        from crypto.strategies import calculate_bs_hedge_pnl
+
+        spots = option.underlier.spot
+        payoffs = option.payoff()
+        pnl = calculate_bs_hedge_pnl(
+            spots=spots,
+            bs_delta=hedge_positions,
+            payoffs=payoffs,
+            cost=self.config.transaction_cost,
+        )
+
+        # Normalize PnL by initial spot for stable loss scale
+        initial_spot = spots[:, 0].mean()
+        normalized_pnl = pnl[:, -1] / initial_spot
+
+        loss = model.criterion(normalized_pnl)
+
+        # Add penalty for constant positions
+        if self.config.const_position_penalty > 0:
+            time_changes = (
+                (hedge_positions[:, 1:] - hedge_positions[:, :-1]).abs().mean()
+            )
+            const_penalty = self.config.const_position_penalty / (time_changes + 1e-6)
+            loss = loss + const_penalty
+
+        return loss
+
+    def _backward_and_step(
+        self, loss: Tensor, model: "Hedger", optimizer, scaler=None
+    ) -> float:
+        """Unified backward pass with optional AMP and gradient clipping.
+
+        Returns:
+            grad_norm: Gradient norm value (float)
+        """
+        import torch.nn as nn
+
+        if scaler:
+            # AMP backward pass
+            scaler.scale(loss).backward()
+            scaler.unscale_(optimizer)
+            if self.config.grad_clip_norm:
+                grad_norm = nn.utils.clip_grad_norm_(
+                    model.parameters(), max_norm=self.config.grad_clip_norm
+                )
+            else:
+                grad_norm = sum(
+                    p.grad.norm().item()
+                    for p in model.parameters()
+                    if p.grad is not None
+                )
+            scaler.step(optimizer)
+            scaler.update()
+        else:
+            # Standard backward pass
+            loss.backward()
+            if self.config.grad_clip_norm:
+                grad_norm = nn.utils.clip_grad_norm_(
+                    model.parameters(), max_norm=self.config.grad_clip_norm
+                )
+            else:
+                grad_norm = sum(
+                    p.grad.norm().item()
+                    for p in model.parameters()
+                    if p.grad is not None
+                )
+            optimizer.step()
+
+        # Convert to float if tensor
+        return grad_norm.item() if torch.is_tensor(grad_norm) else grad_norm
+
+    def _log_epoch(
+        self,
+        epoch: int,
+        loss: Tensor,
+        grad_norm: float,
+        hedge_positions: Tensor,
+        extra_info: str = "",
+    ):
+        """Log training progress for an epoch."""
+        if not self.verbose:
+            return
+        if epoch % 10 != 0 and epoch != self.config.n_epochs - 1:
+            return
+
+        with torch.no_grad():
+            pos_mean = hedge_positions.mean().item()
+            pos_std = hedge_positions.std().item()
+            pos_min = hedge_positions.min().item()
+            pos_max = hedge_positions.max().item()
+
+        base_msg = (
+            f"Epoch {epoch+1}/{self.config.n_epochs}{extra_info}: "
+            f"Loss={loss.item():.6f}, GradNorm={grad_norm:.2f}, "
+            f"Hedge: μ={pos_mean:.3f} σ={pos_std:.3f} range=[{pos_min:.3f}, {pos_max:.3f}]"
+        )
+        print(base_msg)
+
+    def _train_with_grad_clipping(
+        self, model: "Hedger", option: "BitcoinEuropeanOption", optimizer, device
+    ) -> List[float]:
+        """Training loop with gradient clipping."""
+        history = []
+        use_amp = self.config.use_amp and device.type == "cuda"
+        scaler = torch.cuda.amp.GradScaler() if use_amp else None
+
+        model.train()
+
+        for epoch in range(self.config.n_epochs):
+            optimizer.zero_grad(set_to_none=True)
+
+            # Forward pass with optional AMP
+            if use_amp:
+                with torch.cuda.amp.autocast():
+                    hedge_positions = self._compute_hedge(model, option)
+                    loss = self._compute_loss(model, option, hedge_positions)
+            else:
+                hedge_positions = self._compute_hedge(model, option)
+                loss = self._compute_loss(model, option, hedge_positions)
+
+            # Backward pass (unified)
+            grad_norm = self._backward_and_step(loss, model, optimizer, scaler)
+
+            history.append(loss.item())
+            self._log_epoch(epoch, loss, grad_norm, hedge_positions)
+
+        return history
+
+    def _compute_curriculum_loss(
+        self,
+        model: "Hedger",
+        option: "BitcoinEuropeanOption",
+        hedge_positions: Tensor,
+        alpha: float,
+    ) -> tuple[Tensor, Tensor, Tensor]:
+        """Compute curriculum loss with MSE and CVaR components.
+
+        Returns:
+            tuple: (total_loss, mse_loss, cvar_loss)
+        """
+        from crypto.strategies import calculate_bs_hedge_pnl
+
+        # Compute Black-Scholes delta for curriculum
+        bs_delta = option.black_scholes_delta(option.underlier.spot)
+        mse_loss = torch.mean((hedge_positions - bs_delta) ** 2)
+
+        # Compute CVaR loss
+        spots = option.underlier.spot
+        payoffs = option.payoff()
+        pnl = calculate_bs_hedge_pnl(
+            spots=spots,
+            bs_delta=hedge_positions,
+            payoffs=payoffs,
+            cost=self.config.transaction_cost,
+        )
+
+        initial_spot = spots[:, 0].mean()
+        normalized_pnl = pnl[:, -1] / initial_spot
+        cvar_loss = model.criterion(normalized_pnl)
+
+        # Combined loss based on curriculum stage
+        if alpha < 1.0:
+            loss = (1.0 - alpha) * mse_loss + alpha * cvar_loss
+        else:
+            # After warmup, optionally keep BS anchor
+            loss = cvar_loss + self.config.bs_anchor_weight * mse_loss
+
+        # Add penalty for constant positions
+        if self.config.const_position_penalty > 0:
+            time_changes = (
+                (hedge_positions[:, 1:] - hedge_positions[:, :-1]).abs().mean()
+            )
+            const_penalty = self.config.const_position_penalty / (time_changes + 1e-6)
+            loss = loss + const_penalty
+
+        return loss, mse_loss, cvar_loss
+
+    def _train_with_curriculum(
+        self, model: "Hedger", option: "BitcoinEuropeanOption", optimizer, device
+    ) -> List[float]:
+        """Training with BS-delta warmup curriculum."""
+        history = []
+        warmup = self.config.bs_warmup_epochs
+        ramp = self.config.curriculum_ramp_epochs
+        total_transition = warmup + ramp
+        use_amp = self.config.use_amp and device.type == "cuda"
+        scaler = torch.cuda.amp.GradScaler() if use_amp else None
+
+        model.train()
+
+        if self.verbose:
+            print(f"\n📚 Curriculum Learning:")
+            print(f"  Warmup (BS imitation): epochs 1-{warmup}")
+            if ramp > 0:
+                print(f"  Transition: epochs {warmup+1}-{total_transition}")
+            print(f"  Full training: epochs {total_transition+1}+")
+
+        for epoch in range(self.config.n_epochs):
+            optimizer.zero_grad(set_to_none=True)
+
+            # Curriculum weight: 0 (pure BS) -> 1 (pure CVaR)
+            if epoch < warmup:
+                alpha = 0.0
+            elif epoch < total_transition:
+                alpha = (epoch - warmup) / ramp if ramp > 0 else 1.0
+            else:
+                alpha = 1.0
+
+            # Forward pass with optional AMP
+            if use_amp:
+                with torch.cuda.amp.autocast():
+                    hedge_positions = self._compute_hedge(model, option)
+                    loss, mse_loss, cvar_loss = self._compute_curriculum_loss(
+                        model, option, hedge_positions, alpha
+                    )
+            else:
+                hedge_positions = self._compute_hedge(model, option)
+                loss, mse_loss, cvar_loss = self._compute_curriculum_loss(
+                    model, option, hedge_positions, alpha
+                )
+
+            # Backward pass (unified)
+            grad_norm = self._backward_and_step(loss, model, optimizer, scaler)
+
+            history.append(loss.item())
+
+            # Custom logging for curriculum with phase info
+            if self.verbose and (epoch % 10 == 0 or epoch == self.config.n_epochs - 1):
+                phase = (
+                    "Warmup"
+                    if epoch < warmup
+                    else ("Transition" if epoch < total_transition else "Full")
+                )
+                extra_info = f" [{phase}, α={alpha:.2f}]: Loss={loss.item():.6f} (MSE={mse_loss.item():.6f}, CVaR={cvar_loss.item():.6f})"
+
+                with torch.no_grad():
+                    pos_mean = hedge_positions.mean().item()
+                    pos_std = hedge_positions.std().item()
+
+                print(
+                    f"Epoch {epoch+1}/{self.config.n_epochs}{extra_info}, "
+                    f"GradNorm={grad_norm:.2f}, Hedge: μ={pos_mean:.3f} σ={pos_std:.3f}"
+                )
 
         return history
 
@@ -325,35 +624,77 @@ class Trainer:
 
         from crypto.strategies import calculate_bs_hedge_pnl
 
-        hedge_positions = model.compute_hedge(option)
-        if hedge_positions.dim() == 3:
-            hedge_positions = hedge_positions.squeeze(1)
+        model.eval()
+        with torch.no_grad():
+            # Compute model hedge
+            hedge_positions = model.compute_hedge(option)
+            if hedge_positions.dim() == 3:
+                hedge_positions = hedge_positions.squeeze(1)
 
-        spots = option.underlier.spot
-        payoffs = option.payoff()
+            spots = option.underlier.spot
+            payoffs = option.payoff()
 
-        pnl = calculate_bs_hedge_pnl(
-            spots=spots,
-            bs_delta=hedge_positions,
-            payoffs=payoffs,
-            cost=self.config.transaction_cost,
-            band_width=self.config.band_width,
-        )
+            # Compute model PnL
+            model_pnl = calculate_bs_hedge_pnl(
+                spots=spots,
+                bs_delta=hedge_positions,
+                payoffs=payoffs,
+                cost=self.config.transaction_cost,
+                band_width=self.config.band_width,
+            )
 
-        final_pnl = pnl[:, -1]
+            # Compute BS baseline hedge
+            bs_delta = option.black_scholes_delta(spots)
+
+            # Compute BS baseline PnL
+            bs_pnl = calculate_bs_hedge_pnl(
+                spots=spots,
+                bs_delta=bs_delta,
+                payoffs=payoffs,
+                cost=self.config.transaction_cost,
+                band_width=self.config.band_width,
+            )
+
+        model_final_pnl = model_pnl[:, -1]
+        bs_final_pnl = bs_pnl[:, -1]
+
+        # Compute hedging effectiveness metrics
+        model_std = model_final_pnl.std().item()
+        bs_std = bs_final_pnl.std().item()
+        variability_ratio = model_std / (bs_std + 1e-8)
+
+        # Compute correlation between model hedge and BS delta
+        # Flatten to (n_paths * n_steps) for correlation
+        hedge_flat = hedge_positions.reshape(-1)
+        bs_delta_flat = bs_delta.reshape(-1)
+
+        hedge_mean = hedge_flat.mean()
+        bs_mean = bs_delta_flat.mean()
+
+        cov = ((hedge_flat - hedge_mean) * (bs_delta_flat - bs_mean)).mean()
+        hedge_std_corr = hedge_flat.std()
+        bs_std_corr = bs_delta_flat.std()
+        correlation = cov / (hedge_std_corr * bs_std_corr + 1e-8)
 
         metrics = {
-            "pnl_mean": final_pnl.mean().item(),
-            "pnl_std": final_pnl.std().item(),
-            "pnl_min": final_pnl.min().item(),
-            "pnl_max": final_pnl.max().item(),
-            "sharpe": final_pnl.mean().item() / (final_pnl.std().item() + 1e-8),
+            "pnl_mean": model_final_pnl.mean().item(),
+            "pnl_std": model_std,
+            "pnl_min": model_final_pnl.min().item(),
+            "pnl_max": model_final_pnl.max().item(),
+            "sharpe": model_final_pnl.mean().item() / (model_std + 1e-8),
+            "variability_ratio": variability_ratio,
+            "bs_correlation": correlation.item(),
+            "bs_pnl_std": bs_std,
         }
 
         if self.verbose:
             print(f"  Mean PnL: {metrics['pnl_mean']:.6f}")
             print(f"  Std PnL: {metrics['pnl_std']:.6f}")
             print(f"  Sharpe: {metrics['sharpe']:.6f}")
+            print(
+                f"  Variability Ratio: {metrics['variability_ratio']:.3f} ({'better' if variability_ratio < 1.0 else 'worse'} than BS)"
+            )
+            print(f"  BS Correlation: {metrics['bs_correlation']:.3f}")
 
         return metrics
 

@@ -48,6 +48,10 @@ class BacktestConfig:
     # Diagnostics configuration
     enable_diagnostics: bool = False
 
+    # Execution parameters
+    seed: Optional[int] = None
+    save_raw_data: bool = False
+
     def validate(self) -> None:
         # Validate dates
         try:

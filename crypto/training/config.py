@@ -62,6 +62,15 @@ class TrainingConfig:
     # Model features
     features: Optional[List[str]] = None  # None = use DEFAULT_FEATURES
 
+    # Advanced training options
+    grad_clip_norm: Optional[float] = None  # Gradient clipping (None = no clipping)
+    bs_warmup_epochs: int = 0  # BS-delta imitation warmup epochs (0 = disabled)
+    curriculum_ramp_epochs: int = 0  # Gradual transition epochs (0 = sharp switch)
+    bs_anchor_weight: float = 0.0  # BS-delta anchor weight after warmup (0 = no anchor)
+    const_position_penalty: float = (
+        0.0  # Penalty for constant positions (0 = no penalty)
+    )
+
     def normalize_risk_measure(self) -> str:
         # Map aliases to canonical names
         alias_map = {

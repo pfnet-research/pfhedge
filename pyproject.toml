@@ -33,7 +33,8 @@ backtest = [
     "pandas>=1.3.0",
     "scipy>=1.7.0",
     "pyyaml>=5.4.0",
-    "requests>=2.25.0"
+    "requests>=2.25.0",
+    "pyarrow>=10.0.0"
 ]
 crypto = [
     "pandas>=1.3.0",

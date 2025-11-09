@@ -27,3 +27,7 @@ underlying_type: "spot"  # "spot" or "perpetual" - MUST match training!
 data_dir: "crypto/data/historical"
 data_file: "btc_spot_8H_2025-01-01_2025-10-28.parquet"
 output_dir: "backtest_results/mlp_realopt_model_a18f3e9d"
+
+# Execution parameters
+seed: 42  # Random seed for reproducibility
+save_raw_data: true  # Set to true to save raw timeseries (positions, PnL, spots)

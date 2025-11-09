@@ -99,6 +99,11 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Enable MLP input/output diagnostics during hedging",
     )
+    parser.add_argument(
+        "--save-raw-data",
+        action="store_true",
+        help="Save raw timeseries data (positions, PnL, spots) to JSON. Warning: can create large files",
+    )
 
     return parser.parse_args()
 
@@ -139,6 +144,11 @@ def create_config_from_args(args: argparse.Namespace) -> BacktestConfig:
             config.output_dir = args.output_dir
         if args.diagnostics is not None:
             config.enable_diagnostics = args.diagnostics
+        if args.seed is not None:
+            config.seed = args.seed
+        # Only override if flag was explicitly provided (action="store_true" defaults to False, not None)
+        if args.save_raw_data:
+            config.save_raw_data = True
 
         return config
 
@@ -244,8 +254,8 @@ def main():
         print(f"Environment:")
         print(f"  Python: {provenance['python_version']}")
         print(f"  Platform: {provenance['platform']}")
-        if args.seed is not None:
-            print(f"  Seed: {args.seed}")
+        if config.seed is not None:
+            print(f"  Seed: {config.seed}")
         if provenance["git_commit"]:
             commit_str = provenance["git_commit"][:8]  # Short hash
             dirty_marker = " (dirty)" if provenance["git_dirty"] else ""
@@ -271,7 +281,7 @@ def main():
 
         # Run backtest
         print("Running backtest...")
-        results = backtester.run(seed=args.seed)
+        results = backtester.run(seed=config.seed)
 
         # Print summary using new BacktestResults methods
         use_emoji = not args.no_emoji
@@ -292,8 +302,15 @@ def main():
         output_dir = Path(config.output_dir)
         output_dir.mkdir(parents=True, exist_ok=True)
         results_json_path = output_dir / "results.json"
-        results.to_json(str(results_json_path), include_raw=False, indent=2)
-        print(f"✓ Results saved to: {results_json_path}")
+        results.to_json(
+            str(results_json_path), include_raw=config.save_raw_data, indent=2
+        )
+        if config.save_raw_data:
+            print(f"✓ Results with raw data saved to: {results_json_path}")
+        else:
+            print(
+                f"✓ Results saved to: {results_json_path} (set save_raw_data: true in config to include positions/PnL timeseries)"
+            )
 
         # Generate report unless disabled
         if not args.no_report:

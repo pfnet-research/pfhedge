@@ -62,6 +62,11 @@ def create_training_config_from_option(
     min_delta: float = 1e-6,
     features: list = None,
     model_type: str = "mlp",
+    grad_clip_norm: float = None,
+    bs_warmup_epochs: int = 0,
+    curriculum_ramp_epochs: int = 0,
+    bs_anchor_weight: float = 0.0,
+    const_position_penalty: float = 0.0,
 ) -> TrainingConfig:
     # Extract option parameters
     strike = option["strike"]
@@ -151,6 +156,11 @@ def create_training_config_from_option(
         test_seed=seed + 1,
         device=device,
         features=features,
+        grad_clip_norm=grad_clip_norm,
+        bs_warmup_epochs=bs_warmup_epochs,
+        curriculum_ramp_epochs=curriculum_ramp_epochs,
+        bs_anchor_weight=bs_anchor_weight,
+        const_position_penalty=const_position_penalty,
     )
 
     return config
@@ -215,6 +225,36 @@ def main():
         type=float,
         default=0.9,
         help="Risk parameter, e.g., CVaR alpha (default: 0.9)",
+    )
+    parser.add_argument(
+        "--grad-clip-norm",
+        type=float,
+        default=None,
+        help="Gradient clipping max norm (None = no clipping, default: None)",
+    )
+    parser.add_argument(
+        "--bs-warmup-epochs",
+        type=int,
+        default=0,
+        help="BS-delta imitation warmup epochs (0 = disabled, default: 0)",
+    )
+    parser.add_argument(
+        "--curriculum-ramp-epochs",
+        type=int,
+        default=0,
+        help="Gradual transition epochs for curriculum (0 = sharp switch, default: 0)",
+    )
+    parser.add_argument(
+        "--bs-anchor-weight",
+        type=float,
+        default=0.0,
+        help="BS-delta anchor weight after warmup (0 = no anchor, default: 0.0)",
+    )
+    parser.add_argument(
+        "--const-position-penalty",
+        type=float,
+        default=0.0,
+        help="Penalty for constant positions to encourage dynamic hedging (0 = no penalty, default: 0.0)",
     )
 
     # Market parameters
@@ -441,6 +481,11 @@ def main():
         min_delta=args.min_delta,
         features=args.features,
         model_type=args.model_type,
+        grad_clip_norm=args.grad_clip_norm,
+        bs_warmup_epochs=args.bs_warmup_epochs,
+        curriculum_ramp_epochs=args.curriculum_ramp_epochs,
+        bs_anchor_weight=args.bs_anchor_weight,
+        const_position_penalty=args.const_position_penalty,
     )
 
     # Validate config

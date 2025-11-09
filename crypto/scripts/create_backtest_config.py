@@ -55,6 +55,8 @@ def create_backtest_config(
         "data_dir": str(data_dir_abs),
         "data_file": template.get("data_file"),
         "output_dir": str(output_dir_abs),
+        "seed": template.get("seed", 42),
+        "save_raw_data": template.get("save_raw_data", False),
     }
 
     with open(output_path, "w") as f:

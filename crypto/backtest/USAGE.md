@@ -78,6 +78,10 @@ band_width: 0.001             # Minimum trade size in BTC (0.001=Binance, 0.01=D
 # Directories (optional - defaults shown)
 data_dir: sample_data         # Where to find historical data
 output_dir: backtest_results  # Where to save results
+
+# Execution parameters (optional - defaults shown)
+seed: 42                      # Random seed for reproducibility
+save_raw_data: false          # Save raw timeseries (positions, PnL, spots)
 ```
 
 ### Python API
@@ -177,14 +181,17 @@ All path types can be mixed and matched as needed!
 # Basic usage
 python -m crypto.backtest.run --config config.yaml
 
-# With random seed for reproducibility
-python -m crypto.backtest.run --config config.yaml --seed 42
+# With seed in config file
+python -m crypto.backtest.run --config config.yaml
 
-# Override config parameters
+# Override config parameters via CLI
 python -m crypto.backtest.run --config config.yaml --n-paths 200 --seed 123
 
 # Skip report generation (faster)
 python -m crypto.backtest.run --config config.yaml --no-report
+
+# Save raw timeseries data (can also set in config: save_raw_data: true)
+python -m crypto.backtest.run --config config.yaml --save-raw-data
 ```
 
 ### Method 2: CLI Without Config File
@@ -260,12 +267,33 @@ Results are saved to `output_dir/`:
 
 ```
 backtest_results/
+├── results.json                 # Summary statistics and config
 ├── backtest_report.md           # Markdown summary report
-├── pnl_comparison.png           # Cumulative PnL plot
-├── pnl_distribution.png         # PnL histogram
-├── positions.png                # Hedge positions over time
-└── comprehensive_analysis.png   # 2x2 grid of all plots
+├── plots/
+│   ├── pnl_comparison.png       # Cumulative PnL plot
+│   ├── pnl_distribution.png     # PnL histogram
+│   ├── positions.png            # Hedge positions over time
+│   └── summary.png              # 2x2 grid of all plots
 ```
+
+**Note:** By default, `results.json` contains only summary statistics. To save raw timeseries data (positions, PnL, spots) for custom analysis, either set `save_raw_data: true` in your config file or use the `--save-raw-data` CLI flag:
+
+```bash
+# Method 1: Set in config file
+save_raw_data: true
+
+# Method 2: Use CLI flag
+python -m crypto.backtest.run --config config.yaml --save-raw-data
+```
+
+When `--save-raw-data` is enabled, `results.json` will include:
+- `deep_pnl`: Deep hedge cumulative PnL over time (shape: `[n_paths, n_steps]`)
+- `bs_pnl`: Black-Scholes cumulative PnL over time
+- `deep_positions`: Deep hedge positions over time
+- `bs_positions`: BS delta positions over time
+- `spots`: Spot prices over time
+
+**Warning:** Files with raw data can be large (e.g., 1000 paths × 100 steps × 5 arrays ≈ 5-10 MB)
 
 ### Metrics Explained
 
@@ -481,7 +509,12 @@ To guarantee identical results across runs:
 # 1. Run with seed, save config
 config.save_yaml("debug_config.yaml")
 results = backtester.run(seed=42)
-results.to_dict()  # Save full results
+
+# Save with raw data for detailed analysis
+results.to_json("results_full.json", include_raw=True)
+
+# Or just summary stats (smaller file)
+results.to_json("results_summary.json", include_raw=False)
 
 # 2. Re-run from saved config
 config2 = BacktestConfig.load_yaml("debug_config.yaml")
@@ -649,6 +682,45 @@ plt.tight_layout()
 plt.savefig('custom_pnl_plot.png', dpi=300)
 ```
 
+### Loading and Analyzing Saved Raw Data
+
+```python
+import json
+import torch
+import numpy as np
+
+# Load saved results with raw data
+with open('results.json') as f:
+    data = json.load(f)
+
+# Convert back to tensors
+deep_pnl = torch.tensor(data['deep_pnl'])        # Shape: [n_paths, n_steps]
+bs_pnl = torch.tensor(data['bs_pnl'])
+deep_positions = torch.tensor(data['deep_positions'])
+bs_positions = torch.tensor(data['bs_positions'])
+spots = torch.tensor(data['spots'])
+
+# Example: Calculate custom metrics
+final_pnl = deep_pnl[:, -1]
+print(f"Mean final PnL: ${final_pnl.mean():.2f}")
+print(f"Median final PnL: ${final_pnl.median():.2f}")
+
+# Example: Analyze worst-case path
+worst_path_idx = final_pnl.argmin()
+print(f"Worst path final PnL: ${final_pnl[worst_path_idx]:.2f}")
+
+# Plot worst path evolution
+import matplotlib.pyplot as plt
+plt.plot(deep_pnl[worst_path_idx].numpy(), label='Deep Hedge (worst)')
+plt.plot(bs_pnl[worst_path_idx].numpy(), label='BS (worst)')
+plt.axhline(0, color='gray', linestyle='--', alpha=0.5)
+plt.xlabel('Time Step')
+plt.ylabel('Cumulative PnL ($)')
+plt.legend()
+plt.title('Worst Path Analysis')
+plt.savefig('worst_path.png')
+```
+
 ---
 
 ## API Reference
@@ -696,7 +768,8 @@ Container for backtest results and analysis.
 
 **Methods:**
 - `summary()`: Calculate comprehensive metrics
-- `to_dict()`: Export to dictionary
+- `to_dict(include_raw=True)`: Export to dictionary (optionally with raw timeseries)
+- `to_json(filepath, include_raw=False)`: Save to JSON file (set `include_raw=True` to save position/PnL data)
 - `generate_report(output_dir)`: Create markdown report with plots
 - `plot_pnl_comparison()`: Plot cumulative PnL
 - `plot_pnl_distribution()`: Plot PnL histogram
