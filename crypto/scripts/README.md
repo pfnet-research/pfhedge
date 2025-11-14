@@ -21,12 +21,11 @@ This includes:
 3. `crypto.backtest.run` - Backtest the strategy
 4. `calculate_seller_pnl.py` - Calculate final expected returns
 
-### Automated Workflow (for batch jobs)
-- `realistic_backtest.py` - End-to-end automation without human review
-
 ### Supporting Scripts
 - `fetch_deribit_data.py` - Download historical data from Deribit
-- `select_option.py` - Programmatic option selection (used internally)
+- `tune_for_option.py` - Hyperparameter tuning for options
+- `verify_tardis.py` - Verify Tardis API connectivity
+- `diagnose_gpu.py` - GPU diagnostics and performance testing
 
 ---
 
