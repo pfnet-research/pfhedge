@@ -41,18 +41,6 @@ def show_test_coverage():
             ],
             "test_count": 10,
         },
-        "HistoricalDataDownloader": {
-            "module": "data.download_historical",
-            "tests": [
-                "✅ Downloader initialization",
-                "✅ Perpetual data downloading",
-                "✅ Options data downloading",
-                "✅ Sample dataset creation",
-                "✅ Error handling during download",
-                "✅ File saving functionality",
-            ],
-            "test_count": 6,
-        },
     }
 
     total_tests = 0
@@ -63,7 +51,7 @@ def show_test_coverage():
             print(f"   {test}")
         total_tests += info["test_count"]
 
-    print(f"\n📊 Total Test Coverage: {total_tests} tests across 3 core components")
+    print(f"\n📊 Total Test Coverage: {total_tests} tests across 2 core components")
     print("\n🎯 What's Tested:")
     print("   • API connectivity and error handling")
     print("   • Data download and storage")

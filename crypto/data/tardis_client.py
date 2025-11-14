@@ -1,7 +1,9 @@
 import asyncio
+import gzip
 import json
 import logging
 from datetime import datetime, timezone, timedelta
+from io import BytesIO
 from typing import Dict, List, Optional
 
 import pandas as pd
@@ -38,6 +40,12 @@ class TardisClient(MarketDataClient):
         self._instruments_cache: Optional[List[Dict]] = None
         self._cache_timestamp: Optional[datetime] = None
         self._cache_ttl = timedelta(hours=1)
+
+    def _get_auth_headers(self) -> Dict[str, str]:
+        headers = {}
+        if self.api_key:
+            headers["Authorization"] = f"Bearer {self.api_key}"
+        return headers
 
     def get_instruments(
         self, currency: str = "BTC", kind: str = "option", **kwargs
@@ -77,9 +85,7 @@ class TardisClient(MarketDataClient):
             )
 
             # Make request with API key (increase timeout for large queries)
-            headers = {}
-            if self.api_key:
-                headers["Authorization"] = f"Bearer {self.api_key}"
+            headers = self._get_auth_headers()
 
             response = requests.get(url, headers=headers, timeout=30)
             response.raise_for_status()
@@ -394,18 +400,44 @@ class TardisClient(MarketDataClient):
             logger.error(f"Error fetching funding rates: {e}")
             return []
 
+    def _build_funding_csv_url(self, instrument_name: str, date) -> str:
+        return (
+            f"https://datasets.tardis.dev/v1/deribit/derivative_ticker/"
+            f"{date.year}/{date.month:02d}/{date.day:02d}/"
+            f"{instrument_name}.csv.gz"
+        )
+
+    def _extract_8hour_funding_samples(self, df: pd.DataFrame) -> pd.DataFrame:
+        df["timestamp"] = pd.to_datetime(df["timestamp"], unit="us", utc=True)
+        df["hour"] = df["timestamp"].dt.hour
+        df["minute"] = df["timestamp"].dt.minute
+
+        funding_times = df[(df["hour"].isin([0, 8, 16])) & (df["minute"] == 0)].copy()
+
+        funding_times["date_hour"] = funding_times["timestamp"].dt.floor("8h")
+        return funding_times.groupby("date_hour").first().reset_index()
+
+    def _convert_to_funding_records(
+        self, df: pd.DataFrame, instrument_name: str
+    ) -> List[Dict]:
+        funding_records = []
+        for _, row in df.iterrows():
+            funding_records.append(
+                {
+                    "timestamp": int(row["timestamp"].timestamp() * 1000),
+                    "instrument_name": instrument_name,
+                    "interest_8h": row["funding_rate"],
+                    "index_price": row["index_price"],
+                }
+            )
+        return funding_records
+
     def _download_funding_csv(
         self,
         instrument_name: str,
         start_timestamp: int,
         end_timestamp: int,
     ) -> List[Dict]:
-        import requests
-        import gzip
-        from io import BytesIO
-        import pandas as pd
-        from datetime import timedelta
-
         start_dt = ms_to_timestamp(start_timestamp)
         end_dt = ms_to_timestamp(end_timestamp)
 
@@ -414,51 +446,20 @@ class TardisClient(MarketDataClient):
         end_date = end_dt.date()
 
         while current_date <= end_date:
-            # Build CSV URL
-            # Format: https://datasets.tardis.dev/v1/deribit/derivative_ticker/YYYY/MM/DD/SYMBOL.csv.gz
-            url = (
-                f"https://datasets.tardis.dev/v1/deribit/derivative_ticker/"
-                f"{current_date.year}/{current_date.month:02d}/{current_date.day:02d}/"
-                f"{instrument_name}.csv.gz"
-            )
-
+            url = self._build_funding_csv_url(instrument_name, current_date)
             logger.debug(f"Downloading CSV for {current_date}")
 
             try:
                 # Download with API key
-                headers = {}
-                if self.api_key:
-                    headers["Authorization"] = f"Bearer {self.api_key}"
+                headers = self._get_auth_headers()
 
                 response = requests.get(url, headers=headers, timeout=60)
 
                 if response.status_code == 200:
-                    # Decompress and read CSV
                     with gzip.GzipFile(fileobj=BytesIO(response.content)) as f:
                         df = pd.read_csv(f)
 
-                    # Convert timestamp (microseconds to datetime)
-                    df["timestamp"] = pd.to_datetime(
-                        df["timestamp"], unit="us", utc=True
-                    )
-
-                    # Sample at 8-hour intervals
-                    df["hour"] = df["timestamp"].dt.hour
-                    df["minute"] = df["timestamp"].dt.minute
-
-                    # Get records at funding times (00:00, 08:00, 16:00, within first minute)
-                    funding_times = df[
-                        (df["hour"].isin([0, 8, 16])) & (df["minute"] == 0)
-                    ].copy()
-
-                    # Take first record at each 8-hour interval
-                    funding_times["date_hour"] = funding_times["timestamp"].dt.floor(
-                        "8h"
-                    )
-                    funding_8h = (
-                        funding_times.groupby("date_hour").first().reset_index()
-                    )
-
+                    funding_8h = self._extract_8hour_funding_samples(df)
                     all_data.append(funding_8h)
                     logger.debug(f"  Got {len(funding_8h)} 8-hour records")
 
@@ -484,21 +485,7 @@ class TardisClient(MarketDataClient):
             (combined["timestamp"] >= start_dt) & (combined["timestamp"] <= end_dt)
         ]
 
-        # Convert to list of dicts (matching Deribit format)
-        funding_records = []
-        for _, row in combined.iterrows():
-            funding_records.append(
-                {
-                    "timestamp": int(
-                        row["timestamp"].timestamp() * 1000
-                    ),  # Back to milliseconds
-                    "instrument_name": instrument_name,
-                    "interest_8h": row["funding_rate"],  # Tardis calls it funding_rate
-                    "index_price": row["index_price"],
-                }
-            )
-
-        return funding_records
+        return self._convert_to_funding_records(combined, instrument_name)
 
     async def _replay_funding(
         self,
@@ -600,3 +587,141 @@ class TardisClient(MarketDataClient):
 
         # Return last N trades
         return trades[-count:] if len(trades) > count else trades
+
+    def download_spot_trades_csv(
+        self,
+        exchange: str,
+        symbol: str,
+        start_timestamp: int,
+        end_timestamp: int,
+    ) -> pd.DataFrame:
+        logger.info(
+            f"Downloading {exchange}/{symbol} spot trades from "
+            f"{ms_to_timestamp(start_timestamp)} to {ms_to_timestamp(end_timestamp)} "
+            f"(using CSV download - fast)"
+        )
+
+        start_dt = ms_to_timestamp(start_timestamp)
+        end_dt = ms_to_timestamp(end_timestamp)
+
+        all_data = []
+        current_date = start_dt.date()
+        end_date = end_dt.date()
+
+        while current_date <= end_date:
+            url = (
+                f"https://datasets.tardis.dev/v1/{exchange}/trades/"
+                f"{current_date.year}/{current_date.month:02d}/{current_date.day:02d}/"
+                f"{symbol}.csv.gz"
+            )
+
+            logger.debug(f"Downloading CSV for {current_date}")
+
+            try:
+                headers = self._get_auth_headers()
+                response = requests.get(url, headers=headers, timeout=120)
+
+                if response.status_code == 200:
+                    with gzip.GzipFile(fileobj=BytesIO(response.content)) as f:
+                        df = pd.read_csv(f)
+
+                    df["timestamp"] = pd.to_datetime(
+                        df["timestamp"], unit="us", utc=True
+                    )
+                    all_data.append(df)
+                    logger.debug(f"  Got {len(df)} trades")
+
+                elif response.status_code == 404:
+                    logger.warning(f"  No data for {current_date} (404)")
+                elif response.status_code in [401, 402]:
+                    logger.warning(
+                        f"  Auth required for {current_date} ({response.status_code}). "
+                        f"First day of month is free, or provide API key."
+                    )
+                else:
+                    logger.error(f"  HTTP {response.status_code} for {current_date}")
+
+            except Exception as e:
+                logger.error(f"  Error downloading {current_date}: {e}")
+
+            current_date += timedelta(days=1)
+
+        if not all_data:
+            logger.warning("No spot trades data downloaded")
+            return pd.DataFrame()
+
+        combined = pd.concat(all_data, ignore_index=True)
+        combined = combined.sort_values("timestamp").reset_index(drop=True)
+
+        combined = combined[
+            (combined["timestamp"] >= start_dt) & (combined["timestamp"] <= end_dt)
+        ]
+
+        logger.info(f"Downloaded {len(combined)} total spot trades")
+        return combined
+
+    def download_index_price_csv(
+        self,
+        index_symbol: str,
+        start_timestamp: int,
+        end_timestamp: int,
+    ) -> pd.DataFrame:
+        logger.info(
+            f"Downloading {index_symbol} index prices from "
+            f"{ms_to_timestamp(start_timestamp)} to {ms_to_timestamp(end_timestamp)} "
+            f"(using CSV download - fast)"
+        )
+
+        start_dt = ms_to_timestamp(start_timestamp)
+        end_dt = ms_to_timestamp(end_timestamp)
+
+        all_data = []
+        current_date = start_dt.date()
+        end_date = end_dt.date()
+
+        while current_date <= end_date:
+            url = (
+                f"https://datasets.tardis.dev/v1/deribit/index_price/"
+                f"{current_date.year}/{current_date.month:02d}/{current_date.day:02d}/"
+                f"{index_symbol}.csv.gz"
+            )
+
+            logger.debug(f"Downloading CSV for {current_date}")
+
+            try:
+                headers = self._get_auth_headers()
+                response = requests.get(url, headers=headers, timeout=60)
+
+                if response.status_code == 200:
+                    with gzip.GzipFile(fileobj=BytesIO(response.content)) as f:
+                        df = pd.read_csv(f)
+
+                    df["timestamp"] = pd.to_datetime(
+                        df["timestamp"], unit="us", utc=True
+                    )
+                    all_data.append(df)
+                    logger.debug(f"  Got {len(df)} index price records")
+
+                elif response.status_code == 404:
+                    logger.warning(f"  No data for {current_date} (404)")
+                else:
+                    logger.error(f"  HTTP {response.status_code} for {current_date}")
+
+            except Exception as e:
+                logger.error(f"  Error downloading {current_date}: {e}")
+
+            current_date += timedelta(days=1)
+
+        if not all_data:
+            logger.warning("No index price data downloaded")
+            return pd.DataFrame()
+
+        combined = pd.concat(all_data, ignore_index=True)
+        combined = combined.sort_values("timestamp").reset_index(drop=True)
+
+        combined = combined[
+            (combined["timestamp"] >= start_dt) & (combined["timestamp"] <= end_dt)
+        ]
+
+        logger.info(f"Downloaded {len(combined)} total index price records")
+        return combined

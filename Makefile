@@ -85,10 +85,6 @@ publish:
 	@gh repo sync simaki/$(PROJECT_NAME)
 	@gh workflow run publish.yml --repo simaki/$(PROJECT_NAME)
 
-.PHONY: download-crypto-data
-download-crypto-data:
-	cd crypto/data && python download_historical.py --sample
-
 .PHONY: clean-crypto
 clean-crypto:
 	find crypto -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
