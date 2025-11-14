@@ -7,8 +7,11 @@
 - `crypto/backtest/` - Backtesting framework (Backtester, StrategyExecutor, configs)
 
 ### Scripts & Tools
-- `crypto/scripts/train_*.py` - Training entry points for models
-- `crypto/scripts/backtest_*.py` - Backtesting entry points
+- `crypto/scripts/` - All executable scripts (see crypto/scripts/README.md for complete reference)
+  - **Core workflow:** explore_options.py, train_for_option.py, calculate_seller_pnl.py, fetch_deribit_data.py
+  - **Hyperparameter tuning:** tune_for_option.py, run_hparam_analysis.py, analyze/compare/visualize/generate_hparam_*.py
+  - **Diagnostics:** verify_tardis.py, diagnose_gpu.py, profile_training.py, debug_pnl.py
+  - **See crypto/scripts/README.md for detailed description of what each script does**
 - `crypto/data/` - Historical data download and processing (TARDIS API integration)
 
 ### Tests & Docs
@@ -24,24 +27,17 @@
 - `crypto/strategies/deep_hedge_utils.py` - Core utilities (PnL calculation, no-trade band)
 - `crypto/training/trainer.py` - Main training loop and model evaluation
 
-## Coding Standards
+## Finding Script Information
 
-* **NEVER write new scripts/files without checking existing code first**: Before creating new scripts, ALWAYS search for existing functionality (`Glob` for `**/download*.py`, `**/fetch*.py`, etc.). Extend existing code instead of duplicating. Only create new files when absolutely necessary.
-* **Minimalist principle**: Only keep code that is actually necessary. Don't write code that won't be used right now.
-* **Follow PFHedge patterns**: When implementing deep hedging, follow established patterns from `examples/snowball_hedge.py`
-* **DON'T Apologize in reply**
-* **NEVER commit before ask**
-* **AVOID excessive comments, unless necessary. Don't add function comments unless being asked**
-* **AVOID using `print` for debugging, use `logging` instead**
-* **NO docstring in code unless being asked**
+**IMPORTANT:** To understand what any script in `crypto/scripts/` does, ALWAYS check `crypto/scripts/README.md` first.
 
-### Refactoring Long Functions
+The README contains comprehensive documentation for all 18 scripts:
+- What each script does
+- Usage examples with command-line flags
+- Expected inputs and outputs
+- When to use each script
 
-When functions become too long (>100 lines), refactor by:
-1. **Extract independent code snippets into helper functions**: Move validation, printing, object creation logic into separate functions
-2. **Use module-level helpers**: Place helpers outside the class if they don't need instance state (e.g., `_validate_cuda_available()`, `_create_optimizer()`)
-3. **Separate concerns**: Split business logic from display logic (e.g., `_print_optimizer_info()`, `_print_training_summary()`)
-4. **Keep methods focused**: Main methods should orchestrate, helpers handle details
+Never guess what a script does - read the README.md reference.
 
 ## Workflow
 * TARDIS_API_KEY=TD.rSzoJCymVt13xucv.f0uh1Crgt0pdOcz.jyqhwMa1PoSjzEo.Xwjrec5DEivk4ON.Sgyf7c169jr4RCu.sXMR
