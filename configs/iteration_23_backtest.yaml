@@ -1,0 +1,33 @@
+# Iteration 23 Backtest Configuration
+# Tests 3-layer model with stronger tail risk focus (course correction from iteration 22)
+
+# Time range - Full historical data
+start_date: "2025-01-01"
+end_date: "2025-09-25"
+
+# Option parameters (MUST match training)
+strike: 110000
+maturity_days: 33
+call: true
+
+# Model path (will be updated with git hash after training)
+model_path: "models/iteration_23/model.pth"
+
+# Backtest parameters (MUST match training)
+n_bootstrap_paths: 1000
+transaction_cost: 0.0004
+dt_hours: 8.0
+underlying_type: "spot"
+band_width: 0.001
+
+# Bootstrap configuration
+bootstrap_mode: "absolute_strike"
+
+# Data paths
+data_dir: "/workspace/pfhedge/crypto/data/historical"
+data_file: "btc_spot_8H_2025-01-01_2025-10-28.parquet"
+
+# Output
+output_dir: "backtest_results/iteration_23"
+seed: 42
+save_raw_data: true

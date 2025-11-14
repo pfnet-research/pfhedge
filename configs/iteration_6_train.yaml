@@ -1,0 +1,86 @@
+option_file: "crypto/data/options_2025-09-28_monthly_atm_110k.json"
+instrument: "BTC-31OCT25-110000-C"
+
+# Architecture - ENHANCED MLP WITH BATCH NORM (CRITICAL FIX)
+model_type: "mlp"  # FALLBACK: enhanced_mlp has severe OOM issues, use standard mlp like 5b
+n_layers: 4
+n_units: [256, 128, 64, 32]  # PYRAMID: Proven architecture from 5b
+
+# Training parameters - INCREASED PATHS AND EPOCHS
+n_epochs: 350  # INCREASE: 300 -> 350 (more optimization time with early stopping)
+n_paths: 750000  # RESTORED: Use 5b value (enhanced_mlp was the OOM culprit)
+learning_rate: 0.00025  # REDUCE: 0.0003 -> 0.00025 (stable with enhanced architecture)
+optimizer: "adamw"
+device: "cuda"  # For remote GPU training
+
+# Features - BASELINE (tail features prepared for future use)
+features:
+  - "log_moneyness"
+  - "expiry_time"
+  - "volatility"
+  - "prev_hedge"
+
+# Risk parameters - SLIGHTLY MORE RISK-AVERSE
+risk_measure: "entropic"  # Continue with entropic (proven winner)
+risk_param: 2.1  # REDUCE: 2.2 -> 2.1 (more risk-averse for better CVaR)
+
+# Hybrid loss parameters - STRENGTHENED TAIL PROTECTION
+tail_penalty_weight: 0.35  # INCREASE: 0.3 -> 0.35 (stronger tail focus)
+tail_penalty_ramp: true  # Ramp over 80 epochs (faster than 5b's 100)
+
+# Learning rate scheduler
+use_lr_scheduler: true  # Cosine annealing (proven effective)
+
+# Market parameters - SAME AS 5B
+transaction_cost: 0.0004  # Proven optimal from 5b
+dt_hours: 8.0
+underlying_type: "perpetual"
+band_width: 0.001  # INCREASE: 0.0005 -> 0.001 (slightly wider band)
+
+# Regularization - ENHANCED FOR ROBUSTNESS
+const_position_penalty: 0.0
+bs_anchor_weight: 0.0
+grad_clip_norm: 3.0  # Same as 5b
+weight_decay: 0.00003  # REDUCE: 0.00005 -> 0.00003 (lighter regularization)
+feature_dropout: 0.15  # INCREASE: 0.1 -> 0.15 (stronger regularization for enhanced model)
+
+# Training tricks - NO CURRICULUM
+bs_warmup_epochs: 0
+curriculum_ramp_epochs: 0
+
+# Early stopping - INCREASED PATIENCE
+early_stopping: true
+patience: 25  # INCREASE: 20 -> 25 (allow more exploration)
+min_delta: 0.000005  # REDUCE: 0.00001 -> 0.000005 (finer convergence)
+
+# Output
+model_path: "models/iteration_6"
+seed: 42
+
+# Documentation
+comments: |
+  Iteration 6: Enhanced Architecture + Stronger Tail Protection
+
+  Building on 5b's success (first to beat BS on both Mean PnL and CVaR):
+
+  Key changes from 5b:
+  1. MODEL FIX: Use enhanced_mlp (batch norm + dropout) - 5b accidentally used basic mlp
+  2. TAIL PROTECTION: Stronger (35% vs 30%) and faster ramping (80 vs 100 epochs)
+  3. RISK PARAM: More risk-averse (2.1 vs 2.2) for better CVaR
+  4. TRAINING DATA: 750k paths (same as 5b, 1M caused OOM)
+  5. REGULARIZATION: Higher feature dropout (15% vs 10%) for robustness
+  6. LEARNING RATE: Lower (0.00025 vs 0.0003) for stable convergence
+  7. PATIENCE: Increased (25 vs 20) for better exploration
+
+  Goals:
+  - Beat iteration 5b on BOTH Mean PnL AND CVaR
+  - Achieve Sharpe > -3.0 (closer to zero)
+  - Stretch: CVaR < -$8,800 (save additional $460+)
+
+  Expected improvements over 5b:
+  - Mean PnL: -$5,650 -> -$5,000 to -$5,500 (improve by $150-650)
+  - CVaR 95%: -$9,260 -> -$8,500 to -$9,000 (improve by $260-760)
+  - Sharpe: -3.176 -> -2.8 to -3.1 (improve by +0.08 to +0.38)
+
+  Risk: LOW (incremental changes on proven approach)
+  Fallback: Revert to 5b config if worse

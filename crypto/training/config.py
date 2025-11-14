@@ -26,6 +26,7 @@ class TrainingConfig:
     # Training parameters
     n_paths: int = 10000
     n_epochs: int = 80
+    gradient_accumulation_steps: int = 1  # Number of micro-batches per gradient update
 
     # Model architecture
     model_type: str = "mlp"  # "mlp", "lstm", or "gru"
@@ -70,6 +71,16 @@ class TrainingConfig:
     const_position_penalty: float = (
         0.0  # Penalty for constant positions (0 = no penalty)
     )
+
+    # Iteration 5: Hybrid tail protection
+    tail_penalty_weight: float = 0.0  # CVaR penalty weight (0-1)
+    tail_penalty_ramp: bool = False  # Gradually increase tail penalty
+    use_lr_scheduler: bool = False  # Enable cosine annealing
+    feature_dropout: float = 0.0  # Dropout for feature robustness
+
+    # Iteration 6: Enhanced feature configuration
+    use_tail_features: bool = False  # Enable tail risk features
+    tail_feature_list: Optional[List[str]] = None  # Specific tail features to use
 
     def normalize_risk_measure(self) -> str:
         # Map aliases to canonical names
@@ -126,9 +137,13 @@ class TrainingConfig:
             raise ValueError(f"n_paths must be positive, got {self.n_paths}")
         if self.n_epochs <= 0:
             raise ValueError(f"n_epochs must be positive, got {self.n_epochs}")
+        if self.gradient_accumulation_steps <= 0:
+            raise ValueError(
+                f"gradient_accumulation_steps must be positive, got {self.gradient_accumulation_steps}"
+            )
 
         # Validate model architecture
-        valid_model_types = ["mlp", "lstm", "gru"]
+        valid_model_types = ["mlp", "lstm", "gru", "enhanced_mlp"]
         if self.model_type.lower() not in valid_model_types:
             raise ValueError(
                 f"model_type must be one of {valid_model_types}, got '{self.model_type}'"
@@ -159,7 +174,12 @@ class TrainingConfig:
         # Normalize and validate risk measure
         # First normalize aliases (cvar -> expected_shortfall, etc.)
         normalized_measure = self.normalize_risk_measure()
-        valid_measures = ["expected_shortfall", "variance", "entropic"]
+        valid_measures = [
+            "expected_shortfall",
+            "variance",
+            "entropic",
+            "quadratic_cvar",
+        ]
         if normalized_measure not in valid_measures:
             raise ValueError(
                 f"risk_measure must be one of {valid_measures} (or aliases: cvar, es), got '{self.risk_measure}'"
@@ -228,6 +248,11 @@ class TrainingConfig:
     @property
     def dt(self) -> float:
         return self.dt_hours / 24 / 365
+
+    @property
+    def effective_paths(self) -> int:
+        """Total number of paths seen during training (n_paths * accumulation_steps)"""
+        return self.n_paths * self.gradient_accumulation_steps
 
     def get_provenance_info(self) -> Dict[str, Any]:
         import subprocess

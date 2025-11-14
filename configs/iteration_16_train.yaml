@@ -1,0 +1,100 @@
+option_file: "crypto/data/options_2025-09-28_monthly_atm_110k.json"
+instrument: "BTC-31OCT25-110000-C"
+
+# Architecture - LARGER CAPACITY (from iteration 5b proven config)
+model_type: "mlp"
+n_layers: 4  # INCREASE: More capacity than iter 15
+n_units: [256, 128, 64, 32]  # PYRAMID: Proven in iteration 5b
+
+# Training parameters
+n_epochs: 300
+n_paths: 750000  # Same as iter 15
+learning_rate: 0.0003
+optimizer: "adamw"
+device: "cuda"
+
+# Features - SAME AS BASELINE (for now, adding new features in iter 17+)
+features:
+  - "log_moneyness"
+  - "expiry_time"
+  - "volatility"
+  - "prev_hedge"
+
+# Risk parameters - BALANCED APPROACH
+risk_measure: "entropic"
+risk_param: 2.2
+tail_penalty_weight: 0.5  # REDUCE: 0.7 → 0.5 (key change from iter 15)
+tail_penalty_ramp: false  # KEEP: No ramp (learned from iter 14/15)
+
+# Learning rate scheduler
+use_lr_scheduler: true
+
+# Market parameters - COST REDUCTION
+transaction_cost: 0.0004  # KEEP: Already reduced from 0.0006
+dt_hours: 8.0
+underlying_type: "perpetual"
+band_width: 0.001  # INCREASE: 0.0005 → 0.001 (match iter 5b, reduce trading)
+
+# Regularization - LIGHTER THAN ITER 15
+grad_clip_norm: 3.0
+weight_decay: 0.00005
+feature_dropout: 0.1  # REDUCE: 0.3 → 0.1 (match iter 5b, less aggressive)
+
+# Training tricks
+bs_warmup_epochs: 0
+curriculum_ramp_epochs: 0
+const_position_penalty: 0.0
+bs_anchor_weight: 0.0
+
+# Early stopping
+early_stopping: true
+patience: 20
+min_delta: 0.00001
+
+# Output
+model_path: "models/iteration_16"
+seed: 42
+
+# Documentation
+comments: |
+  Iteration 16: Fine-tuned balance based on comprehensive analysis
+
+  Purpose: Close 4% gap from iteration 15 while reducing variance
+
+  Key insights from analysis:
+  1. Iteration 15 (tail_penalty=0.7) was too conservative
+  2. High correlation with BS (93%) due to limited features
+  3. Higher variance ($1,977 vs BS $1,301) from aggressive tail penalty
+  4. Training loss improved 72% but converged to BS strategy
+
+  Changes from Iteration 15:
+  1. tail_penalty_weight: 0.7 → 0.5 (KEY: reduce conservatism)
+  2. n_layers: 3 → 4 (match proven iter 5b architecture)
+  3. n_units: [128,64,32] → [256,128,64,32] (more capacity)
+  4. feature_dropout: 0.3 → 0.1 (less aggressive regularization)
+  5. band_width: 0.0005 → 0.001 (match iter 5b, reduce rebalancing)
+
+  Expected Results:
+  - Mean PnL: -$5,700 to -$5,900 (improve from -$6,112)
+  - CVaR: -$9,300 to -$9,500 (close to iter 5b's -$9,260)
+  - Sharpe: -3.0 to -3.2
+  - Position activity: +30% more active than iter 15
+  - BS correlation: 0.84 → 0.75-0.80 (less BS-like)
+  - Variance: Lower than iter 15's $1,977
+
+  Target to beat (iteration 5b benchmark):
+  - Mean PnL: -$5,650
+  - CVaR 95%: -$9,260
+  - Sharpe: -3.176
+  - vs BS: Both better
+
+  Hypothesis:
+  - Lower tail penalty allows model to explore beyond pure BS
+  - Larger architecture provides capacity for sophistication
+  - Lighter regularization prevents over-smoothing
+  - Should match or exceed iteration 5b performance
+
+  Next steps if successful:
+  - Iteration 17+: Add new features (funding_rate, vol_20d, spot_momentum)
+  - Iteration 20+: Implement profit-aware loss function
+  - Path to profitability: Need hedge loss < $4,000

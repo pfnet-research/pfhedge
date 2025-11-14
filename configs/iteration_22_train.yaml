@@ -1,0 +1,189 @@
+option_file: "crypto/data/options_2025-09-28_monthly_atm_110k.json"
+instrument: "BTC-31OCT25-110000-C"
+
+# Architecture - DEEPER Enhanced MLP for better tail risk learning
+model_type: "enhanced_mlp"
+n_layers: 4                         # INCREASED from 3 (more capacity)
+n_units: [256, 128, 64, 32]         # WIDER early layers (was [128, 64, 32])
+
+# Training parameters - Gradient accumulation maintained
+n_epochs: 500                       # INCREASED from 450 (more training time)
+n_paths: 100000                     # Physical batch size (fits in ~17GB)
+gradient_accumulation_steps: 10     # Keep 1M effective paths
+learning_rate: 0.0001               # REDUCED from 0.00015 (slower convergence)
+optimizer: "adamw"
+device: "cuda"
+
+# Features - Proven effective (unchanged)
+features:
+  - "log_moneyness"
+  - "expiry_time"
+  - "volatility"        # 20-period
+  - "prev_hedge"
+  - "volatility_change" # Captures vol dynamics
+  - "moneyness_squared" # Non-linear gamma effects
+
+# Risk parameters - STRONGER tail emphasis
+risk_measure: "entropic"
+risk_param: 1.5                # REDUCED from 1.7 (more tail weight)
+tail_penalty_weight: 0.4       # INCREASED from 0.35 (stronger tail focus)
+tail_penalty_ramp: true        # Gradual tail protection
+
+# Learning rate scheduler
+use_lr_scheduler: true
+
+# Market parameters - Spot underlyer (proven successful)
+transaction_cost: 0.0004
+dt_hours: 8.0
+underlying_type: "spot"
+band_width: 0.001
+
+# Regularization
+grad_clip_norm: 1.5
+weight_decay: 0.0001
+feature_dropout: 0.15          # Keep dropout for deeper network
+
+# Training tricks - BS warmup with light anchor
+bs_warmup_epochs: 20
+curriculum_ramp_epochs: 15
+bs_anchor_weight: 0.08
+const_position_penalty: 0.02   # Volatility-weighted turnover penalty
+
+# Early stopping
+early_stopping: true
+patience: 35                   # INCREASED from 30 (deeper network needs more time)
+min_delta: 0.00005
+
+# Volatility parameters
+volatility: 0.42
+volatility_window: 20
+
+# Mixed precision training
+use_amp: true
+
+# Output
+model_path: "models/iteration_22"
+seed: 42
+
+# Documentation
+comments: |
+  Iteration 22: Deeper Network Architecture for Tail Risk Learning
+
+  Base Model: Iteration 21 (Mean PnL: -$2,236, CVaR: -$9,447, Sharpe: -0.546, Win Rate: 27.9%)
+
+  Analysis of Iteration 21:
+  - ✅ Sharpe target achieved (-0.546 < -0.55)
+  - ✅ Mean PnL improved (+$10 vs iter 20)
+  - ✅ Win rate maintained (27.9%)
+  - ⚠️ CVaR missed target by $167 (-$9,447 vs target -$9,280)
+  - 📊 Gradient accumulation successfully enabled 1M paths, but improvements marginal
+
+  Key Insight:
+  Iteration 20→21 showed only +0.4% CVaR improvement despite 10x more training paths.
+  This suggests the model capacity (3-layer [128,64,32]) may be limiting tail learning.
+  Current architecture works well for mean/Sharpe but lacks capacity for complex tail dynamics.
+
+  Major Changes - Deeper Network for Tail Dynamics:
+
+  1. ✅ n_layers: 3 → 4
+     - Add one more hidden layer for complex pattern learning
+     - Particularly important for tail risk scenarios (rare events)
+     - Proven effective in literature for non-linear option payoffs
+
+  2. ✅ n_units: [128, 64, 32] → [256, 128, 64, 32]
+     - Wider early layers capture more feature interactions
+     - Deeper network needs more units to avoid information bottleneck
+     - Total parameters: ~35K → ~80K (still manageable, no overfitting risk with 1M paths)
+
+  3. ✅ risk_param: 1.7 → 1.5
+     - Entropic risk measure exp(-1.5 * PnL) puts MORE weight on tail losses
+     - Lower α = more emphasis on worst outcomes
+     - Aligned with CVaR optimization goal
+
+  4. ✅ tail_penalty_weight: 0.35 → 0.4
+     - Direct penalty on worst 10% of paths
+     - Synergistic with entropic risk measure
+     - Forces model to prioritize tail protection
+
+  5. ✅ n_epochs: 450 → 500
+     - Deeper networks need more training time
+     - Iteration 21 was still improving at epoch 450
+     - Allow more time for tail pattern discovery
+
+  6. ✅ learning_rate: 0.00015 → 0.0001
+     - Slower learning for more stable convergence
+     - Deeper networks benefit from conservative LR
+     - Reduce risk of overshooting optimal tail hedges
+
+  7. ✅ patience: 30 → 35
+     - Longer patience for deeper network convergence
+     - Tail risk learning may require more exploration
+     - Prevent premature stopping
+
+  Unchanged (Proven Effective):
+  - Gradient accumulation (1M effective paths via 10 × 100K)
+  - All 6 features (especially volatility_change, moneyness_squared)
+  - Spot underlyer (successful since iteration 19b)
+  - BS warmup (20 epochs) + curriculum learning (15 epochs)
+  - Volatility-weighted turnover penalty
+  - Enhanced MLP with dropout (0.15) + layer normalization
+  - All training tricks from iteration 21
+
+  Expected Memory Usage:
+  - Physical batch: 100K paths (same as iteration 21)
+  - Model size: ~80K params × 4 bytes ≈ 320KB (negligible)
+  - Peak GPU: ~20-22GB (safe under 24GB H100 limit)
+  - Deeper network adds minimal memory overhead
+
+  Expected Results:
+  - CVaR 95%: -$8,800 to -$9,200 (target: break -$9,280 barrier)
+  - Sharpe: -0.50 to -0.55 (maintain current level)
+  - Mean PnL: -$2,000 to -$2,200 (maintain or improve)
+  - Win Rate: 27-29% (maintain)
+
+  Rationale:
+  The analysis clearly shows CVaR is the bottleneck. All other metrics are meeting targets.
+  Iteration 21 proved that:
+  1. Training path count (1M) is sufficient
+  2. Feature engineering is effective
+  3. Training tricks are working
+  4. Spot underlyer is correct choice
+
+  The only remaining issue is model capacity for tail learning. A deeper network with:
+  - More layers = more non-linear transformations
+  - Wider layers = more feature interaction capacity
+  - Stronger tail penalties = explicit tail optimization
+
+  Should finally break through the CVaR barrier while maintaining Sharpe/win rate gains.
+
+  Risk Assessment:
+  - Training time: +10-15% due to deeper forward/backward passes
+  - Overfitting: LOW (1M training paths, dropout + weight decay)
+  - Memory: SAFE (tested similar architectures before)
+  - Convergence: May need full 500 epochs (acceptable)
+
+  Success Criteria:
+  MUST HAVE:
+  - Training completes without OOM (GPU < 22GB)
+  - CVaR improves by at least $250 (target: -$9,197 or better)
+  - Sharpe maintains >= -0.55
+  - Win rate maintains >= 27%
+
+  NICE TO HAVE:
+  - CVaR breaks -$9,000 barrier (ideal: -$8,800 to -$9,000)
+  - Sharpe improves to -0.50 or better
+  - Mean PnL improves to -$2,100 or better
+
+  If Successful:
+  This validates that model capacity was the missing piece. Future iterations can
+  explore even deeper architectures (5-6 layers) or attention mechanisms.
+
+  If Unsuccessful:
+  CVaR may be fundamentally limited by feature set. Consider adding:
+  - Higher-order moments (skewness, kurtosis)
+  - Market regime indicators
+  - Time-of-day effects
+
+  Risk: MEDIUM (proven technique, conservative changes)
+  Complexity: MEDIUM (architecture change only, no new training mechanics)
+  Expected Impact: HIGH (directly targets CVaR bottleneck)

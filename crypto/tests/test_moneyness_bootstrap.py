@@ -13,7 +13,7 @@ class MockDataLoader:
 
     def __init__(self, n_records=500):
         # Create synthetic data with varying price levels (simulating different historical periods)
-        dates = pd.date_range("2024-01-01", periods=n_records, freq="8H")
+        dates = pd.date_range("2024-01-01", periods=n_records, freq="8h")
 
         # Different price regimes to test rescaling
         n_low = n_records // 3
@@ -306,7 +306,7 @@ class TestEdgeCases:
     def test_single_window_rescaling(self):
         # Create minimal synthetic data (exactly n_steps long)
         n_steps = 30
-        dates = pd.date_range("2024-01-01", periods=n_steps, freq="8H")
+        dates = pd.date_range("2024-01-01", periods=n_steps, freq="8h")
 
         loader = MockDataLoader.__new__(MockDataLoader)
         loader.perpetual_data = pd.DataFrame(
@@ -316,13 +316,15 @@ class TestEdgeCases:
                 "funding_rate": np.zeros(n_steps),
             }
         )
+        # Add perpetual_data_full attribute expected by simulate_bootstrap
+        loader.perpetual_data_full = loader.perpetual_data.copy()
 
         underlier = BitcoinPerpetualHistorical(
             data_loader=loader,
             dt=8 / 24 / 365,
         )
 
-        # Bootstrap 10 paths (should all be identical, rescaled)
+        # Bootstrap 10 paths - but with only 1 unique window, it will cap to 1
         target_spot = 108000
         underlier.simulate_bootstrap(
             n_paths=10,
@@ -330,22 +332,23 @@ class TestEdgeCases:
             target_initial_spot=target_spot,
         )
 
-        # All paths should have same initial spot
-        initial_spots = underlier.spot[:, 0]
+        # With new auto-capping feature, only 1 path should be generated
+        assert (
+            underlier.spot.shape[0] == 1
+        ), "Should cap to 1 path when only 1 unique window available"
+
+        # That single path should have correct initial spot
+        initial_spot = underlier.spot[0, 0]
         torch.testing.assert_close(
-            initial_spots,
-            torch.full_like(initial_spots, target_spot),
+            initial_spot,
+            torch.tensor(target_spot, dtype=initial_spot.dtype),
             atol=1e-3,
             rtol=1e-6,
         )
 
-        # All paths should be identical (same window, same rescaling)
-        for i in range(1, 10):
-            torch.testing.assert_close(underlier.spot[i], underlier.spot[0])
-
     def test_insufficient_data_error(self):
         # Create very short dataset
-        dates = pd.date_range("2024-01-01", periods=10, freq="8H")
+        dates = pd.date_range("2024-01-01", periods=10, freq="8h")
 
         loader = MockDataLoader.__new__(MockDataLoader)
         loader.perpetual_data = pd.DataFrame(

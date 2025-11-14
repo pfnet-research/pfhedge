@@ -1,0 +1,29 @@
+# Time range - FULL HISTORICAL RANGE
+start_date: "2025-01-01"
+end_date: "2025-09-25"
+
+# Option parameters (MUST match training)
+strike: 110000
+maturity_days: 33
+
+# Model
+model_path: "models/iteration_2/model.pth"
+
+# Backtest parameters (MUST match training)
+n_bootstrap_paths: 1000
+transaction_cost: 0.0006  # MUST match training
+dt_hours: 8.0  # MUST match training
+underlying_type: "perpetual"  # MUST match training
+
+# Bootstrap
+bootstrap_mode: "normalize_spot"
+initial_spot: 109325.75
+
+# Data
+data_dir: "crypto/data/historical"
+data_file: "btc_spot_8H_2025-01-01_2025-10-28.parquet"
+
+# Output
+output_dir: "backtest_results"
+seed: 42
+save_raw_data: true  # CRITICAL for Analysis Agent

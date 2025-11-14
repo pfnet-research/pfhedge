@@ -302,7 +302,7 @@ class TestBootstrapOptionModes:
         from crypto.tests.test_backtesting import TestBacktester
 
         # Create data
-        TestBacktester.create_dummy_parquet_data(temp_dir, n_days=10)
+        TestBacktester.create_dummy_parquet_data(temp_dir)
 
         # Create model
         model_path = os.path.join(temp_dir, "model.pth")
@@ -400,7 +400,7 @@ class TestUnderlyingTypeSelection:
     def create_test_setup(temp_dir: str, underlying_type: str):
         from crypto.tests.test_backtesting import TestBacktester
 
-        TestBacktester.create_dummy_parquet_data(temp_dir, n_days=10)
+        TestBacktester.create_dummy_parquet_data(temp_dir)
         model_path = os.path.join(temp_dir, "model.pth")
         TestBacktester.create_dummy_checkpoint(model_path)
 
@@ -488,7 +488,7 @@ class TestFundingCostIntegration:
         with tempfile.TemporaryDirectory() as temp_dir:
             from crypto.tests.test_backtesting import TestBacktester
 
-            TestBacktester.create_dummy_parquet_data(temp_dir, n_days=10)
+            TestBacktester.create_dummy_parquet_data(temp_dir)
             model_path = os.path.join(temp_dir, "model.pth")
             TestBacktester.create_dummy_checkpoint(model_path)
 
@@ -519,7 +519,7 @@ class TestFundingCostIntegration:
         with tempfile.TemporaryDirectory() as temp_dir:
             from crypto.tests.test_backtesting import TestBacktester
 
-            TestBacktester.create_dummy_parquet_data(temp_dir, n_days=10)
+            TestBacktester.create_dummy_parquet_data(temp_dir)
             model_path = os.path.join(temp_dir, "model.pth")
             TestBacktester.create_dummy_checkpoint(model_path)
 
@@ -552,7 +552,7 @@ class TestFundingCostIntegration:
         with tempfile.TemporaryDirectory() as temp_dir:
             from crypto.tests.test_backtesting import TestBacktester
 
-            TestBacktester.create_dummy_parquet_data(temp_dir, n_days=10)
+            TestBacktester.create_dummy_parquet_data(temp_dir)
             model_path = os.path.join(temp_dir, "model.pth")
             TestBacktester.create_dummy_checkpoint(model_path)
 
@@ -602,7 +602,7 @@ class TestDeviceHandling:
         with tempfile.TemporaryDirectory() as temp_dir:
             from crypto.tests.test_backtesting import TestBacktester
 
-            TestBacktester.create_dummy_parquet_data(temp_dir, n_days=10)
+            TestBacktester.create_dummy_parquet_data(temp_dir)
             model_path = os.path.join(temp_dir, "model.pth")
             TestBacktester.create_dummy_checkpoint(model_path)
 
@@ -636,7 +636,7 @@ class TestOrchestratorDeterminism:
         with tempfile.TemporaryDirectory() as temp_dir:
             from crypto.tests.test_backtesting import TestBacktester
 
-            TestBacktester.create_dummy_parquet_data(temp_dir, n_days=10)
+            TestBacktester.create_dummy_parquet_data(temp_dir)
             model_path = os.path.join(temp_dir, "model.pth")
             TestBacktester.create_dummy_checkpoint(model_path)
 
@@ -676,7 +676,7 @@ class TestOrchestratorDeterminism:
         with tempfile.TemporaryDirectory() as temp_dir:
             from crypto.tests.test_backtesting import TestBacktester
 
-            TestBacktester.create_dummy_parquet_data(temp_dir, n_days=10)
+            TestBacktester.create_dummy_parquet_data(temp_dir)
             model_path = os.path.join(temp_dir, "model.pth")
             TestBacktester.create_dummy_checkpoint(model_path)
 
@@ -729,7 +729,7 @@ class TestErrorHandlingCoverage:
             from crypto.tests.test_backtesting import TestBacktester
 
             # Create data for Jan 2024
-            TestBacktester.create_dummy_parquet_data(temp_dir, n_days=10)
+            TestBacktester.create_dummy_parquet_data(temp_dir)
 
             # Try to load data for Dec 2025 (way out of range)
             config = BacktestConfig(
@@ -897,7 +897,7 @@ class TestDataFileRespected:
         with tempfile.TemporaryDirectory() as temp_dir:
             from crypto.tests.test_backtesting import TestBacktester
 
-            TestBacktester.create_dummy_parquet_data(temp_dir, n_days=10)
+            TestBacktester.create_dummy_parquet_data(temp_dir)
 
             config = BacktestConfig(
                 start_date="2024-01-01",
@@ -921,7 +921,7 @@ class TestDataFileRespected:
         with tempfile.TemporaryDirectory() as temp_dir:
             from crypto.tests.test_backtesting import TestBacktester
 
-            TestBacktester.create_dummy_parquet_data(temp_dir, n_days=10)
+            TestBacktester.create_dummy_parquet_data(temp_dir)
 
             config = BacktestConfig(
                 start_date="2024-01-01",
@@ -991,7 +991,7 @@ class TestBootstrapBehaviorExtended:
         with tempfile.TemporaryDirectory() as temp_dir:
             from crypto.tests.test_backtesting import TestBacktester
 
-            TestBacktester.create_dummy_parquet_data(temp_dir, n_days=10)
+            TestBacktester.create_dummy_parquet_data(temp_dir)
             model_path = os.path.join(temp_dir, "model.pth")
             TestBacktester.create_dummy_checkpoint(model_path)
 
@@ -1026,7 +1026,7 @@ class TestBootstrapBehaviorExtended:
         with tempfile.TemporaryDirectory() as temp_dir:
             from crypto.tests.test_backtesting import TestBacktester
 
-            TestBacktester.create_dummy_parquet_data(temp_dir, n_days=10)
+            TestBacktester.create_dummy_parquet_data(temp_dir)
             model_path = os.path.join(temp_dir, "model.pth")
             TestBacktester.create_dummy_checkpoint(model_path)
 
@@ -1058,7 +1058,7 @@ class TestBootstrapBehaviorExtended:
         with tempfile.TemporaryDirectory() as temp_dir:
             from crypto.tests.test_backtesting import TestBacktester
 
-            TestBacktester.create_dummy_parquet_data(temp_dir, n_days=10)
+            TestBacktester.create_dummy_parquet_data(temp_dir)
             model_path = os.path.join(temp_dir, "model.pth")
             TestBacktester.create_dummy_checkpoint(model_path)
 
@@ -1090,7 +1090,7 @@ class TestBootstrapBehaviorExtended:
         with tempfile.TemporaryDirectory() as temp_dir:
             from crypto.tests.test_backtesting import TestBacktester
 
-            TestBacktester.create_dummy_parquet_data(temp_dir, n_days=10)
+            TestBacktester.create_dummy_parquet_data(temp_dir)
             model_path = os.path.join(temp_dir, "model.pth")
             TestBacktester.create_dummy_checkpoint(model_path)
 
@@ -1123,7 +1123,7 @@ class TestDiagnostics:
         with tempfile.TemporaryDirectory() as temp_dir:
             from crypto.tests.test_backtesting import TestBacktester
 
-            TestBacktester.create_dummy_parquet_data(temp_dir, n_days=10)
+            TestBacktester.create_dummy_parquet_data(temp_dir)
             model_path = os.path.join(temp_dir, "model.pth")
             TestBacktester.create_dummy_checkpoint(model_path)
 
@@ -1158,7 +1158,7 @@ class TestOrchestratorDeterminismExtended:
         with tempfile.TemporaryDirectory() as temp_dir:
             from crypto.tests.test_backtesting import TestBacktester
 
-            TestBacktester.create_dummy_parquet_data(temp_dir, n_days=10)
+            TestBacktester.create_dummy_parquet_data(temp_dir)
             model_path = os.path.join(temp_dir, "model.pth")
             TestBacktester.create_dummy_checkpoint(model_path)
 

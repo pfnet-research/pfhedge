@@ -1,0 +1,154 @@
+option_file: "crypto/data/options_2025-09-28_monthly_atm_110k.json"
+instrument: "BTC-31OCT25-110000-C"
+
+# Architecture - REVERTED to 3-layer (iteration 22's 4-layer degraded performance)
+model_type: "enhanced_mlp"
+n_layers: 3
+n_units: [128, 64, 32]
+
+# Training parameters - Gradient accumulation for 1M effective paths
+n_epochs: 500                        # INCREASED: Allow more time for CVaR convergence
+n_paths: 100000                      # Physical batch size
+gradient_accumulation_steps: 10      # Effective: 1M paths
+learning_rate: 0.0001                # REDUCED from 0.00015: More careful optimization for tail
+optimizer: "adamw"
+device: "cuda"
+
+# Features - Keep proven set from iteration 21
+features:
+  - "log_moneyness"
+  - "expiry_time"
+  - "volatility"
+  - "prev_hedge"
+  - "volatility_change"
+  - "moneyness_squared"
+
+# Risk parameters - STRONGER tail emphasis to improve CVaR
+risk_measure: "entropic"
+risk_param: 1.5                      # REDUCED from 1.7 (MORE weight on tail risk)
+tail_penalty_weight: 0.4             # INCREASED from 0.35 (stronger tail protection)
+tail_penalty_ramp: true
+
+# Learning rate scheduler
+use_lr_scheduler: true
+
+# Market parameters
+transaction_cost: 0.0004
+dt_hours: 8.0
+underlying_type: "spot"
+band_width: 0.001
+
+# Regularization - STRONGER to prevent overfitting
+grad_clip_norm: 1.5
+weight_decay: 0.00015               # INCREASED from 0.0001
+feature_dropout: 0.15
+
+# Training tricks
+bs_warmup_epochs: 20
+curriculum_ramp_epochs: 15
+bs_anchor_weight: 0.08
+const_position_penalty: 0.02
+
+# Early stopping
+early_stopping: true
+patience: 35                         # INCREASED: More epochs, more patience
+min_delta: 0.00005
+
+# Volatility parameters
+volatility: 0.42
+volatility_window: 20
+
+# Mixed precision training
+use_amp: true
+
+# Output
+model_path: "models/iteration_23"
+seed: 42
+
+# Documentation
+comments: |
+  Iteration 23: Course Correction - Revert to 3-Layer with Stronger Tail Focus
+
+  Base Model: Iteration 21 (Mean PnL: -$2,236, CVaR: -$9,447, Sharpe: -0.546, Win Rate: 27.9%)
+  Previous: Iteration 22 (Mean PnL: -$2,487, CVaR: -$9,746, Sharpe: -0.608, Win Rate: 29.1%)
+
+  Critical Finding from Iteration 22:
+  ❌ Model Capacity Hypothesis REJECTED
+     - Added 4th layer [256,128,64,32] to test if CVaR limited by capacity
+     - Result: ALL metrics degraded (Sharpe -0.062, CVaR -$299, Mean -$251)
+     - Training loss improved (71% reduction) but backtest worse → Classic OVERFITTING
+     - Conclusion: 3-layer network is sufficient, problem is NOT capacity
+
+  Root Cause Analysis:
+  1. Simpler 3-layer model generalizes better (Occam's Razor)
+  2. Deeper network overfits training distribution
+  3. Issue is loss function/training, not model architecture
+
+  Strategy: COURSE CORRECTION
+  ✅ Revert to proven 3-layer architecture (iteration 21)
+  ✅ Strengthen tail risk focus through hyperparameters
+  ✅ More careful optimization with reduced learning rate
+
+  Key Changes vs Iteration 21:
+
+  1. ✅ risk_param: 1.7 → 1.5
+     Rationale: More aggressive tail risk weighting in entropic measure
+     Expected: Better CVaR by emphasizing worst-case scenarios more
+
+  2. ✅ tail_penalty_weight: 0.35 → 0.4
+     Rationale: Stronger direct tail penalty during training
+     Expected: Model learns to avoid extreme tail losses
+
+  3. ✅ learning_rate: 0.00015 → 0.0001
+     Rationale: More careful optimization for tail risk
+     Expected: Better convergence in tail regions
+
+  4. ✅ n_epochs: 450 → 500
+     Rationale: More time for CVaR optimization with stricter parameters
+     Expected: Fully leverage tail-focused training
+
+  5. ✅ weight_decay: 0.0001 → 0.00015
+     Rationale: Prevent overfitting (learned from iteration 22)
+     Expected: Better generalization to backtest
+
+  6. ✅ patience: 30 → 35
+     Rationale: More epochs need more patience
+     Expected: Don't stop prematurely with CVaR focus
+
+  Unchanged (Proven Effective):
+  - 3-layer Enhanced MLP [128, 64, 32] with LayerNorm + Dropout
+  - All 6 features (volatility_change, moneyness_squared, etc.)
+  - Gradient accumulation (10 × 100K = 1M effective paths)
+  - BS warmup + curriculum learning
+  - Spot underlyer
+
+  Expected Results:
+  - CVaR 95%: -$8,800 to -$9,200 (target: $250-650 improvement from -$9,447)
+  - Sharpe: -0.50 to -0.55 (maintain or improve from -0.546)
+  - Mean PnL: -$2,000 to -$2,200 (maintain from -$2,236)
+  - Win Rate: 28-30% (maintain from 27.9%)
+
+  Rationale:
+  Iteration 22 proved that model capacity is NOT the bottleneck. The 3-layer network
+  already has sufficient expressiveness. The key to improving CVaR is NOT adding more
+  layers, but rather:
+  1. Stronger emphasis on tail risk during training (risk_param, tail_penalty)
+  2. More careful optimization (lower LR, more epochs)
+  3. Better generalization (higher weight decay)
+
+  This is a classic case where "bigger model" doesn't help - we need better training.
+
+  Success Criteria:
+  MUST HAVE:
+  - CVaR improves by at least $200 vs iteration 21 (target: -$9,245 or better)
+  - Sharpe maintains >= -0.55 (not degraded vs 21)
+  - Win rate maintains >= 27%
+
+  NICE TO HAVE:
+  - CVaR reaches -$9,000 or better
+  - Sharpe improves to -0.50 or better
+  - Beats iteration 21 on ALL metrics
+
+  Risk: LOW (reverting to proven architecture, conservative hyperparameter changes)
+  Complexity: LOW (no code changes, config-only)
+  Expected Impact: MEDIUM (incremental improvement through better training focus)

@@ -1,0 +1,34 @@
+# Iteration 23 Backtest with normalize_spot (2025 only)
+# Testing if normalize_spot issue is specific to extended dataset or fundamental bug
+
+# Time range - 2025 only (same as original)
+start_date: "2025-01-01"
+end_date: "2025-09-25"
+
+# Option parameters (MUST match training)
+strike: 110000
+maturity_days: 33
+call: true
+
+# Model path
+model_path: "../models/iteration_23_93917ed0/model.pth"
+
+# Backtest parameters (MUST match training)
+n_bootstrap_paths: 0  # AUTO MODE - uses max unique paths
+transaction_cost: 0.0004
+dt_hours: 8.0
+underlying_type: "spot"
+band_width: 0.001
+
+# Bootstrap configuration - TEST normalize_spot
+bootstrap_mode: "normalize_spot"
+target_moneyness: 1.0  # ATM options
+
+# Data paths - 2025 only
+data_dir: "../crypto/data/historical"
+data_file: "btc_spot_8H_2025-01-01_2025-10-28.parquet"
+
+# Output
+output_dir: "../backtest_results/iteration_23_2025_normalized"
+seed: 42
+save_raw_data: true

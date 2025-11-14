@@ -1,0 +1,34 @@
+# Iteration 16 Backtest Configuration
+# Tests balanced tail penalty (0.5) with larger architecture
+
+# Time range - Full historical data
+start_date: "2025-01-01"
+end_date: "2025-09-25"
+
+# Option parameters (MUST match training)
+strike: 110000
+maturity_days: 33
+call: true
+
+# Model path (updated with git hash from training)
+model_path: "models/iteration_16_c7f280ef/model.pth"
+
+# Backtest parameters (MUST match training)
+n_bootstrap_paths: 1000
+transaction_cost: 0.0004  # Match training
+dt_hours: 8.0  # Match training
+underlying_type: "perpetual"  # MUST match training
+band_width: 0.001  # Match training (increased from 0.0005)
+
+# Bootstrap configuration - MATCH ITERATION 5B
+bootstrap_mode: "absolute_strike"  # Use absolute strike like iter 5b
+# initial_spot: Not set - let bootstrap determine
+
+# Data paths
+data_dir: "crypto/data/historical"
+data_file: "btc_spot_8H_2025-01-01_2025-10-28.parquet"
+
+# Output
+output_dir: "backtest_results/iteration_16"
+seed: 42
+save_raw_data: true  # For position analysis

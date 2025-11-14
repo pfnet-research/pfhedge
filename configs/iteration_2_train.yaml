@@ -1,0 +1,47 @@
+option_file: "crypto/data/options_2025-09-28_monthly_atm_110k.json"
+instrument: "BTC-31OCT25-110000-C"
+
+# Architecture - KEEP LARGER MODEL (from iteration 1)
+n_layers: 4  # KEEP: Model has capacity
+n_units: 128  # KEEP: Larger model worked in BS warmup phase
+
+# Training parameters - COURSE CORRECTION
+n_epochs: 200  # INCREASE: Give more time to converge without curriculum
+n_paths: 500000  # KEEP: Accept memory constraint (1M causes OOM)
+learning_rate: 0.0005  # KEEP: Lower LR is safer for larger model
+optimizer: "adamw"
+device: "cuda"  # For remote GPU training
+
+# Features - BASELINE FEATURES
+features:
+  - "log_moneyness"
+  - "expiry_time"
+  - "volatility"
+  - "prev_hedge"
+
+# Risk parameters - REVERT TO ENTROPIC
+risk_measure: "entropic"  # REVERT: Baseline worked better than CVaR (-1.179 vs -1.928)
+risk_param: 3.0  # SLIGHTLY INCREASE from baseline 2.0: gentle tail risk focus
+
+# Market parameters
+transaction_cost: 0.0006
+dt_hours: 8.0
+underlying_type: "perpetual"
+
+# Regularization - CONSERVATIVE VALUES
+const_position_penalty: 0.0
+bs_anchor_weight: 0.0  # REVERT: Not needed without curriculum
+grad_clip_norm: 5.0  # KEEP: Worked well, no gradient explosions
+weight_decay: 0.0001  # REVERT: Baseline value, less aggressive
+
+# Training tricks - NO CURRICULUM
+bs_warmup_epochs: 0  # REVERT: Warmup worked but CVaR transition failed
+curriculum_ramp_epochs: 0  # REVERT: Part of failed curriculum strategy
+
+# Early stopping - DISABLED
+early_stopping: false  # REVERT: Let model train full 200 epochs
+patience: 10
+
+# Output
+model_path: "models/iteration_2"
+seed: 42

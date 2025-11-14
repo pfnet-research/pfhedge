@@ -1,0 +1,47 @@
+option_file: "crypto/data/options_2025-09-28_monthly_atm_110k.json"
+instrument: "BTC-31OCT25-110000-C"
+
+# Architecture - INCREASED FOR BETTER EXPRESSIVENESS
+n_layers: 4  # Changed from 2: more depth for complex strategies
+n_units: 128  # Changed from 32: wider layers for pattern capture
+
+# Training parameters
+n_epochs: 150  # Changed from 100: more epochs with early stopping
+n_paths: 1000000  # Changed from 500k: double paths for robust learning
+learning_rate: 0.0005  # Changed from 0.001: lower LR for stability
+optimizer: "adamw"
+device: "cuda"  # For remote GPU training
+
+# Features
+features:
+  - "log_moneyness"
+  - "expiry_time"
+  - "volatility"
+  - "prev_hedge"
+
+# Risk parameters - SWITCHED TO CVAR
+risk_measure: "expected_shortfall"  # Changed from entropic: direct CVaR optimization
+risk_param: 0.95  # Changed from 2.0: focus on worst 5% of outcomes
+
+# Market parameters
+transaction_cost: 0.0006
+dt_hours: 8.0
+underlying_type: "perpetual"
+
+# Regularization - INCREASED FOR LARGER MODEL
+const_position_penalty: 0.0
+bs_anchor_weight: 0.01  # Changed from 0.0: small BS anchor during training
+grad_clip_norm: 5.0  # NEW: gradient clipping for stability
+weight_decay: 0.0005  # Changed from 0.0001: increased regularization
+
+# Training tricks - BS CURRICULUM WARMUP
+bs_warmup_epochs: 50  # NEW: BS imitation warmup
+curriculum_ramp_epochs: 20  # NEW: smooth transition to CVaR
+
+# Early stopping
+early_stopping: true  # Changed from false: prevent overfitting
+patience: 15  # Changed from 10: larger patience for curriculum
+
+# Output
+model_path: "models/iteration_1"
+seed: 42

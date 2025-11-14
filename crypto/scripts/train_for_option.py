@@ -5,6 +5,7 @@ import json
 import sys
 from pathlib import Path
 import logging
+import yaml
 
 # Add parent directory to path
 sys.path.append(str(Path(__file__).parent.parent.parent))
@@ -43,6 +44,7 @@ def create_training_config_from_option(
     output_dir: str,
     epochs: int = 100,
     paths: int = 50000,
+    gradient_accumulation_steps: int = 1,
     layers: int = 4,
     units: "int | list[int]" = 128,  # Can be int or list of ints
     risk_measure: str = "expected_shortfall",
@@ -67,6 +69,10 @@ def create_training_config_from_option(
     curriculum_ramp_epochs: int = 0,
     bs_anchor_weight: float = 0.0,
     const_position_penalty: float = 0.0,
+    tail_penalty_weight: float = 0.0,
+    tail_penalty_ramp: bool = False,
+    use_lr_scheduler: bool = False,
+    feature_dropout: float = 0.0,
 ) -> TrainingConfig:
     # Extract option parameters
     strike = option["strike"]
@@ -139,6 +145,7 @@ def create_training_config_from_option(
         underlying_type=underlying_type,
         n_paths=paths,
         n_epochs=epochs,
+        gradient_accumulation_steps=gradient_accumulation_steps,
         model_type=model_type,
         n_layers=layers,
         n_units=units,
@@ -161,6 +168,10 @@ def create_training_config_from_option(
         curriculum_ramp_epochs=curriculum_ramp_epochs,
         bs_anchor_weight=bs_anchor_weight,
         const_position_penalty=const_position_penalty,
+        tail_penalty_weight=tail_penalty_weight,
+        tail_penalty_ramp=tail_penalty_ramp,
+        use_lr_scheduler=use_lr_scheduler,
+        feature_dropout=feature_dropout,
     )
 
     return config
@@ -171,6 +182,12 @@ def main():
         description="Train deep hedging model for specific option",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=__doc__,
+    )
+
+    # Config file (optional - overrides defaults)
+    parser.add_argument(
+        "--config",
+        help="YAML config file (overrides all other arguments except --option-file and --instrument)",
     )
 
     # Required arguments
@@ -205,6 +222,13 @@ def main():
         help="Number of training paths (default: 50000)",
     )
     parser.add_argument(
+        "--gradient-accumulation-steps",
+        type=int,
+        default=1,
+        help="Number of micro-batches per gradient update for memory efficiency. "
+        "Effective training paths = paths × accumulation_steps. (default: 1 = no accumulation)",
+    )
+    parser.add_argument(
         "--layers", type=int, default=4, help="Number of hidden layers (default: 4)"
     )
     parser.add_argument(
@@ -216,7 +240,13 @@ def main():
     )
     parser.add_argument(
         "--risk-measure",
-        choices=["expected_shortfall", "variance", "cvar", "entropic"],
+        choices=[
+            "expected_shortfall",
+            "variance",
+            "cvar",
+            "entropic",
+            "quadratic_cvar",
+        ],
         default="expected_shortfall",
         help="Risk measure to optimize (default: expected_shortfall)",
     )
@@ -367,7 +397,85 @@ def main():
         help="Minimum change to qualify as improvement for early stopping (default: 1e-6)",
     )
 
+    # Hybrid loss parameters
+    parser.add_argument(
+        "--tail-penalty-weight",
+        type=float,
+        default=0.0,
+        dest="tail_penalty_weight",
+        help="Weight for CVaR tail penalty in hybrid loss (default: 0.0)",
+    )
+    parser.add_argument(
+        "--tail-penalty-ramp",
+        action="store_true",
+        dest="tail_penalty_ramp",
+        help="Gradually ramp up tail penalty weight over epochs",
+    )
+    parser.add_argument(
+        "--use-lr-scheduler",
+        action="store_true",
+        dest="use_lr_scheduler",
+        help="Use cosine annealing learning rate scheduler",
+    )
+    parser.add_argument(
+        "--feature-dropout",
+        type=float,
+        default=0.0,
+        dest="feature_dropout",
+        help="Dropout rate for features (default: 0.0)",
+    )
+
     args = parser.parse_args()
+
+    # Load config file if provided (overrides defaults but not explicit CLI args)
+    if args.config:
+        with open(args.config, "r") as f:
+            config = yaml.safe_load(f)
+
+        # Map config keys to arg names
+        config_to_arg = {
+            "n_epochs": "epochs",
+            "n_paths": "paths",
+            "gradient_accumulation_steps": "gradient_accumulation_steps",
+            "n_layers": "layers",
+            "n_units": "units",
+            "learning_rate": "learning_rate",
+            "weight_decay": "weight_decay",
+            "optimizer": "optimizer",
+            "risk_measure": "risk_measure",
+            "risk_param": "risk_param",
+            "transaction_cost": "cost",
+            "dt_hours": "dt_hours",
+            "underlying_type": "underlying",
+            "grad_clip_norm": "grad_clip_norm",
+            "bs_warmup_epochs": "bs_warmup_epochs",
+            "curriculum_ramp_epochs": "curriculum_ramp_epochs",
+            "bs_anchor_weight": "bs_anchor_weight",
+            "const_position_penalty": "const_position_penalty",
+            "device": "device",
+            "seed": "seed",
+            "features": "features",
+            "model_path": "output",
+            "model_type": "model_type",
+            "early_stopping": "early_stopping",
+            "patience": "patience",
+            "min_delta": "min_delta",
+            "tail_penalty_weight": "tail_penalty_weight",
+            "tail_penalty_ramp": "tail_penalty_ramp",
+            "use_lr_scheduler": "use_lr_scheduler",
+            "feature_dropout": "feature_dropout",
+        }
+
+        # Apply config values (only if arg wasn't explicitly provided)
+        for config_key, arg_name in config_to_arg.items():
+            if config_key in config:
+                # Get default value from parser
+                default_val = parser.get_default(arg_name)
+                current_val = getattr(args, arg_name)
+
+                # Only override if current value equals default (not explicitly set)
+                if current_val == default_val:
+                    setattr(args, arg_name, config[config_key])
 
     # Determine transaction cost based on underlying type if not specified
     if args.cost is None:
@@ -462,6 +570,7 @@ def main():
         output_dir=args.output,
         epochs=args.epochs,
         paths=args.paths,
+        gradient_accumulation_steps=args.gradient_accumulation_steps,
         layers=args.layers,
         units=units,  # Use parsed units (int or list)
         risk_measure=args.risk_measure,
@@ -486,6 +595,10 @@ def main():
         curriculum_ramp_epochs=args.curriculum_ramp_epochs,
         bs_anchor_weight=args.bs_anchor_weight,
         const_position_penalty=args.const_position_penalty,
+        tail_penalty_weight=getattr(args, "tail_penalty_weight", 0.0),
+        tail_penalty_ramp=getattr(args, "tail_penalty_ramp", False),
+        use_lr_scheduler=getattr(args, "use_lr_scheduler", False),
+        feature_dropout=getattr(args, "feature_dropout", 0.0),
     )
 
     # Validate config

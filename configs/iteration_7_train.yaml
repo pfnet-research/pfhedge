@@ -1,0 +1,82 @@
+option_file: "crypto/data/options_2025-09-28_monthly_atm_110k.json"
+instrument: "BTC-31OCT25-110000-C"
+
+# Architecture - ENHANCED MLP WITH LAYER NORM (TEST FIX)
+model_type: "enhanced_mlp"  # CHANGE: Test fixed enhanced_mlp with LayerNorm
+n_layers: 4
+n_units: [256, 128, 64, 32]  # PYRAMID: Better feature extraction
+
+# Training parameters - CONSERVATIVE PATHS FOR MEMORY TEST
+n_epochs: 300  # Same as iteration 5b
+n_paths: 100000  # REDUCE: 500k -> 100k (aggressive memory reduction for enhanced_mlp)
+learning_rate: 0.0003  # Same as iteration 5b
+optimizer: "adamw"
+device: "cuda"
+
+# Features - Same as iteration 5b
+features:
+  - "log_moneyness"
+  - "expiry_time"
+  - "volatility"
+  - "prev_hedge"
+
+# Risk parameters - Same as iteration 5b (proven)
+risk_measure: "entropic"
+risk_param: 2.2
+
+# Hybrid loss parameters - Same as iteration 5b
+tail_penalty_weight: 0.3
+tail_penalty_ramp: true
+
+# Learning rate scheduler
+use_lr_scheduler: true
+
+# Market parameters - Same as iteration 5b
+transaction_cost: 0.0004
+dt_hours: 8.0
+underlying_type: "perpetual"
+band_width: 0.0005
+
+# Regularization - Same as iteration 5b
+const_position_penalty: 0.0
+bs_anchor_weight: 0.0
+grad_clip_norm: 3.0
+weight_decay: 0.00005
+feature_dropout: 0.1
+
+# Training tricks
+bs_warmup_epochs: 0
+curriculum_ramp_epochs: 0
+
+# Early stopping
+early_stopping: true
+patience: 20
+min_delta: 0.00001
+
+# Output
+model_path: "models/iteration_7"
+seed: 42
+
+# Documentation
+comments: |
+  Iteration 7: Enhanced MLP Memory Fix Test
+
+  Purpose: Test enhanced_mlp with LayerNorm fix
+
+  Changes from iteration 5b:
+  1. model_type: mlp -> enhanced_mlp (WITH LAYERNORM FIX!)
+  2. n_paths: 750k -> 500k (conservative memory test)
+
+  Memory fix:
+  - Replaced BatchNorm1d with LayerNorm
+  - BatchNorm with 750k × 33 = 24.75M samples caused OOM (78GB+)
+  - LayerNorm normalizes over features only, no batch statistics
+  - Expected memory: ~15-20GB (similar to standard mlp)
+
+  If successful, iteration 8 can increase to 750k or 1M paths.
+
+  Expected performance vs 5b:
+  - Similar or slightly better due to LayerNorm regularization
+  - Mean PnL: ~-$5,500 to -$5,800
+  - CVaR 95%: ~-$9,000 to -$9,500
+  - Sharpe: ~-3.0 to -3.3

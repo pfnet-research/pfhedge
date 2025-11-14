@@ -1,0 +1,65 @@
+# Local test config for iteration 21 - verify gradient accumulation works
+option_file: "crypto/data/options_2025-09-28_monthly_atm_110k.json"
+instrument: "BTC-31OCT25-110000-C"
+
+# Architecture (same as iteration 21)
+model_type: "enhanced_mlp"
+n_layers: 3
+n_units: [128, 64, 32]
+
+# Training parameters - SMALL for local testing
+n_epochs: 3                         # Just 3 epochs to verify code works
+n_paths: 1000                       # Small batch
+gradient_accumulation_steps: 2      # Test accumulation with 2 steps
+learning_rate: 0.00015
+optimizer: "adamw"
+device: "cpu"                       # CPU for local test
+
+# Features (same as iteration 21)
+features:
+  - "log_moneyness"
+  - "expiry_time"
+  - "volatility"
+  - "prev_hedge"
+  - "volatility_change"
+  - "moneyness_squared"
+
+# Risk parameters
+risk_measure: "entropic"
+risk_param: 1.7
+tail_penalty_weight: 0.35
+tail_penalty_ramp: true
+
+# Learning rate scheduler
+use_lr_scheduler: true
+
+# Market parameters
+transaction_cost: 0.0004
+dt_hours: 8.0
+underlying_type: "spot"
+band_width: 0.001
+
+# Regularization
+grad_clip_norm: 1.5
+weight_decay: 0.0001
+feature_dropout: 0.15
+
+# Training tricks
+bs_warmup_epochs: 1                 # Just 1 for quick test
+curriculum_ramp_epochs: 1
+bs_anchor_weight: 0.08
+const_position_penalty: 0.02
+
+# Early stopping (disabled for test)
+early_stopping: false
+
+# Volatility parameters
+volatility: 0.42
+volatility_window: 20
+
+# Mixed precision (disabled for CPU)
+use_amp: false
+
+# Output
+model_path: "models/iteration_21_test"
+seed: 42

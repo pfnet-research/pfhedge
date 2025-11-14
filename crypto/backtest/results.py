@@ -333,8 +333,9 @@ class BacktestResults:
         self,
         path_indices: Optional[list] = None,
         show_mean: bool = True,
+        show_stats: bool = True,
         time_unit: str = "steps",
-        figsize: tuple = (12, 6),
+        figsize: tuple = (16, 6),
         save_path: Optional[str] = None,
     ):
         import matplotlib.pyplot as plt
@@ -345,63 +346,325 @@ class BacktestResults:
                 f"⚠️  Warning: Plotting {len(path_indices)} paths may be slow. Consider using fewer paths."
             )
 
-        fig, ax = plt.subplots(figsize=figsize)
+        # Create side-by-side subplots if showing stats, otherwise single plot
+        if show_stats:
+            fig, (ax1, ax2) = plt.subplots(1, 2, figsize=figsize)
+        else:
+            fig, ax = plt.subplots(figsize=(12, 6))
 
         # Get time axis
         time_values, time_label = self._get_time_axis(time_unit)
 
-        # Plot individual paths if requested
-        if path_indices is not None:
-            for idx in path_indices:
-                if idx >= self.n_paths:
-                    continue
-                ax.plot(
-                    time_values,
-                    self.deep_pnl[idx].cpu().numpy(),
-                    color="blue",
-                    alpha=0.3,
-                    linewidth=0.5,
-                )
-                ax.plot(
-                    time_values,
-                    self.bs_pnl[idx].cpu().numpy(),
-                    color="orange",
-                    alpha=0.3,
-                    linewidth=0.5,
-                )
+        # Calculate statistics
+        deep_mean = self.deep_pnl.mean(dim=0).cpu().numpy()
+        bs_mean = self.bs_pnl.mean(dim=0).cpu().numpy()
 
-        # Plot mean PnL
-        if show_mean:
-            deep_mean = self.deep_pnl.mean(dim=0).cpu().numpy()
-            bs_mean = self.bs_pnl.mean(dim=0).cpu().numpy()
+        if show_stats:
+            deep_std = self.deep_pnl.std(dim=0).cpu().numpy()
+            bs_std = self.bs_pnl.std(dim=0).cpu().numpy()
+            deep_max = self.deep_pnl.max(dim=0)[0].cpu().numpy()
+            bs_max = self.bs_pnl.max(dim=0)[0].cpu().numpy()
+            deep_min = self.deep_pnl.min(dim=0)[0].cpu().numpy()
+            bs_min = self.bs_pnl.min(dim=0)[0].cpu().numpy()
 
-            ax.plot(
+            # Left subplot: Deep Hedge
+            if path_indices is not None:
+                for idx in path_indices:
+                    if idx >= self.n_paths:
+                        continue
+                    ax1.plot(
+                        time_values,
+                        self.deep_pnl[idx].cpu().numpy(),
+                        color="blue",
+                        alpha=0.2,
+                        linewidth=0.5,
+                    )
+
+            ax1.plot(time_values, deep_mean, color="blue", linewidth=2.5, label="Mean")
+            ax1.plot(
                 time_values,
-                deep_mean,
+                deep_mean + deep_std,
                 color="blue",
-                linewidth=2,
-                label="Deep Hedge (mean)",
+                linewidth=1.5,
+                linestyle="--",
+                alpha=0.8,
+                label="Mean ± σ",
             )
-            ax.plot(
+            ax1.plot(
                 time_values,
-                bs_mean,
-                color="orange",
-                linewidth=2,
-                label="BS Baseline (mean)",
+                deep_mean - deep_std,
+                color="blue",
+                linewidth=1.5,
+                linestyle="--",
+                alpha=0.8,
+            )
+            ax1.plot(
+                time_values,
+                deep_max,
+                color="blue",
+                linewidth=1,
+                linestyle=":",
+                alpha=0.6,
+                label="Max/Min",
+            )
+            ax1.plot(
+                time_values,
+                deep_min,
+                color="blue",
+                linewidth=1,
+                linestyle=":",
+                alpha=0.6,
+            )
+            ax1.fill_between(
+                time_values,
+                deep_mean - deep_std,
+                deep_mean + deep_std,
+                color="blue",
+                alpha=0.1,
             )
 
-        ax.axhline(y=0, color="gray", linestyle="--", linewidth=0.8, alpha=0.5)
-        ax.set_xlabel(time_label)
-        ax.set_ylabel("Cumulative PnL ($)")
-        ax.set_title("Cumulative PnL Comparison: Deep Hedge vs Black-Scholes")
-        ax.legend()
-        ax.grid(True, alpha=0.3)
+            ax1.axhline(y=0, color="gray", linestyle="--", linewidth=0.8, alpha=0.5)
+            ax1.set_xlabel(time_label)
+            ax1.set_ylabel("Cumulative PnL ($)")
+            ax1.set_title("Deep Hedge: PnL Statistics")
+            ax1.legend(loc="best")
+            ax1.grid(True, alpha=0.3)
+
+            # Right subplot: BS Baseline
+            if path_indices is not None:
+                for idx in path_indices:
+                    if idx >= self.n_paths:
+                        continue
+                    ax2.plot(
+                        time_values,
+                        self.bs_pnl[idx].cpu().numpy(),
+                        color="orange",
+                        alpha=0.2,
+                        linewidth=0.5,
+                    )
+
+            ax2.plot(time_values, bs_mean, color="orange", linewidth=2.5, label="Mean")
+            ax2.plot(
+                time_values,
+                bs_mean + bs_std,
+                color="orange",
+                linewidth=1.5,
+                linestyle="--",
+                alpha=0.8,
+                label="Mean ± σ",
+            )
+            ax2.plot(
+                time_values,
+                bs_mean - bs_std,
+                color="orange",
+                linewidth=1.5,
+                linestyle="--",
+                alpha=0.8,
+            )
+            ax2.plot(
+                time_values,
+                bs_max,
+                color="orange",
+                linewidth=1,
+                linestyle=":",
+                alpha=0.6,
+                label="Max/Min",
+            )
+            ax2.plot(
+                time_values,
+                bs_min,
+                color="orange",
+                linewidth=1,
+                linestyle=":",
+                alpha=0.6,
+            )
+            ax2.fill_between(
+                time_values,
+                bs_mean - bs_std,
+                bs_mean + bs_std,
+                color="orange",
+                alpha=0.1,
+            )
+
+            ax2.axhline(y=0, color="gray", linestyle="--", linewidth=0.8, alpha=0.5)
+            ax2.set_xlabel(time_label)
+            ax2.set_ylabel("Cumulative PnL ($)")
+            ax2.set_title("Black-Scholes: PnL Statistics")
+            ax2.legend(loc="best")
+            ax2.grid(True, alpha=0.3)
+
+        else:
+            # Original single plot behavior when stats are disabled
+            if path_indices is not None:
+                for idx in path_indices:
+                    if idx >= self.n_paths:
+                        continue
+                    ax.plot(
+                        time_values,
+                        self.deep_pnl[idx].cpu().numpy(),
+                        color="blue",
+                        alpha=0.3,
+                        linewidth=0.5,
+                    )
+                    ax.plot(
+                        time_values,
+                        self.bs_pnl[idx].cpu().numpy(),
+                        color="orange",
+                        alpha=0.3,
+                        linewidth=0.5,
+                    )
+
+            if show_mean:
+                ax.plot(
+                    time_values,
+                    deep_mean,
+                    color="blue",
+                    linewidth=2,
+                    label="Deep Hedge (mean)",
+                )
+                ax.plot(
+                    time_values,
+                    bs_mean,
+                    color="orange",
+                    linewidth=2,
+                    label="BS Baseline (mean)",
+                )
+
+            ax.axhline(y=0, color="gray", linestyle="--", linewidth=0.8, alpha=0.5)
+            ax.set_xlabel(time_label)
+            ax.set_ylabel("Cumulative PnL ($)")
+            ax.set_title("Cumulative PnL Comparison: Deep Hedge vs Black-Scholes")
+            ax.legend()
+            ax.grid(True, alpha=0.3)
 
         plt.tight_layout()
 
         if save_path:
             fig.savefig(save_path, dpi=150, bbox_inches="tight")
             print(f"✅ Saved PnL comparison plot to: {save_path}")
+
+        return fig
+
+    def plot_pnl_stats_comparison(
+        self,
+        time_unit: str = "steps",
+        figsize: tuple = (16, 10),
+        save_path: Optional[str] = None,
+    ):
+        import matplotlib.pyplot as plt
+
+        fig, axes = plt.subplots(2, 2, figsize=figsize)
+
+        # Get time axis
+        time_values, time_label = self._get_time_axis(time_unit)
+
+        # Calculate statistics
+        deep_mean = self.deep_pnl.mean(dim=0).cpu().numpy()
+        bs_mean = self.bs_pnl.mean(dim=0).cpu().numpy()
+        deep_std = self.deep_pnl.std(dim=0).cpu().numpy()
+        bs_std = self.bs_pnl.std(dim=0).cpu().numpy()
+        deep_max = self.deep_pnl.max(dim=0)[0].cpu().numpy()
+        bs_max = self.bs_pnl.max(dim=0)[0].cpu().numpy()
+        deep_min = self.deep_pnl.min(dim=0)[0].cpu().numpy()
+        bs_min = self.bs_pnl.min(dim=0)[0].cpu().numpy()
+
+        # Top-left: Mean comparison
+        axes[0, 0].plot(
+            time_values, deep_mean, color="blue", linewidth=2, label="Deep Hedge"
+        )
+        axes[0, 0].plot(
+            time_values, bs_mean, color="orange", linewidth=2, label="BS Baseline"
+        )
+        axes[0, 0].axhline(y=0, color="gray", linestyle="--", linewidth=0.8, alpha=0.5)
+        axes[0, 0].set_xlabel(time_label)
+        axes[0, 0].set_ylabel("Cumulative PnL ($)")
+        axes[0, 0].set_title("Mean PnL Comparison")
+        axes[0, 0].legend()
+        axes[0, 0].grid(True, alpha=0.3)
+
+        # Top-right: ±σ comparison (both bounds together)
+        axes[0, 1].plot(
+            time_values,
+            deep_mean + deep_std,
+            color="blue",
+            linewidth=2,
+            linestyle="-",
+            label="Deep Hedge (+σ)",
+        )
+        axes[0, 1].plot(
+            time_values,
+            deep_mean - deep_std,
+            color="blue",
+            linewidth=2,
+            linestyle="--",
+            label="Deep Hedge (-σ)",
+        )
+        axes[0, 1].plot(
+            time_values,
+            bs_mean + bs_std,
+            color="orange",
+            linewidth=2,
+            linestyle="-",
+            label="BS Baseline (+σ)",
+        )
+        axes[0, 1].plot(
+            time_values,
+            bs_mean - bs_std,
+            color="orange",
+            linewidth=2,
+            linestyle="--",
+            label="BS Baseline (-σ)",
+        )
+        axes[0, 1].fill_between(
+            time_values,
+            deep_mean - deep_std,
+            deep_mean + deep_std,
+            color="blue",
+            alpha=0.1,
+        )
+        axes[0, 1].fill_between(
+            time_values, bs_mean - bs_std, bs_mean + bs_std, color="orange", alpha=0.1
+        )
+        axes[0, 1].axhline(y=0, color="gray", linestyle="--", linewidth=0.8, alpha=0.5)
+        axes[0, 1].set_xlabel(time_label)
+        axes[0, 1].set_ylabel("Cumulative PnL ($)")
+        axes[0, 1].set_title("Volatility Bands (Mean ± σ) Comparison")
+        axes[0, 1].legend(loc="best", fontsize=9)
+        axes[0, 1].grid(True, alpha=0.3)
+
+        # Bottom-left: Max comparison
+        axes[1, 0].plot(
+            time_values, deep_max, color="blue", linewidth=2, label="Deep Hedge"
+        )
+        axes[1, 0].plot(
+            time_values, bs_max, color="orange", linewidth=2, label="BS Baseline"
+        )
+        axes[1, 0].axhline(y=0, color="gray", linestyle="--", linewidth=0.8, alpha=0.5)
+        axes[1, 0].set_xlabel(time_label)
+        axes[1, 0].set_ylabel("Cumulative PnL ($)")
+        axes[1, 0].set_title("Maximum PnL Comparison")
+        axes[1, 0].legend()
+        axes[1, 0].grid(True, alpha=0.3)
+
+        # Bottom-right: Min comparison
+        axes[1, 1].plot(
+            time_values, deep_min, color="blue", linewidth=2, label="Deep Hedge"
+        )
+        axes[1, 1].plot(
+            time_values, bs_min, color="orange", linewidth=2, label="BS Baseline"
+        )
+        axes[1, 1].axhline(y=0, color="gray", linestyle="--", linewidth=0.8, alpha=0.5)
+        axes[1, 1].set_xlabel(time_label)
+        axes[1, 1].set_ylabel("Cumulative PnL ($)")
+        axes[1, 1].set_title("Minimum PnL Comparison")
+        axes[1, 1].legend()
+        axes[1, 1].grid(True, alpha=0.3)
+
+        plt.tight_layout()
+
+        if save_path:
+            fig.savefig(save_path, dpi=150, bbox_inches="tight")
+            print(f"✅ Saved PnL stats comparison plot to: {save_path}")
 
         return fig
 
@@ -539,6 +802,7 @@ class BacktestResults:
     def plot_all(
         self,
         path_indices: Optional[list] = None,
+        show_stats: bool = True,
         time_unit: str = "steps",
         figsize: tuple = (16, 12),
         save_path: Optional[str] = None,
@@ -557,8 +821,21 @@ class BacktestResults:
         # Get time axis
         time_values, time_label = self._get_time_axis(time_unit)
 
-        # Top left: PnL comparison
+        # Top left: PnL comparison with detailed stats
         ax1 = fig.add_subplot(gs[0, 0])
+
+        deep_mean = self.deep_pnl.mean(dim=0).cpu().numpy()
+        bs_mean = self.bs_pnl.mean(dim=0).cpu().numpy()
+
+        if show_stats:
+            deep_std = self.deep_pnl.std(dim=0).cpu().numpy()
+            bs_std = self.bs_pnl.std(dim=0).cpu().numpy()
+            deep_max = self.deep_pnl.max(dim=0)[0].cpu().numpy()
+            bs_max = self.bs_pnl.max(dim=0)[0].cpu().numpy()
+            deep_min = self.deep_pnl.min(dim=0)[0].cpu().numpy()
+            bs_min = self.bs_pnl.min(dim=0)[0].cpu().numpy()
+
+        # Plot individual paths if requested (with lower alpha for cleaner look)
         if path_indices is not None:
             for idx in path_indices:
                 if idx >= self.n_paths:
@@ -567,26 +844,129 @@ class BacktestResults:
                     time_values,
                     self.deep_pnl[idx].cpu().numpy(),
                     color="blue",
-                    alpha=0.3,
+                    alpha=0.15,
                     linewidth=0.5,
                 )
                 ax1.plot(
                     time_values,
                     self.bs_pnl[idx].cpu().numpy(),
                     color="orange",
-                    alpha=0.3,
+                    alpha=0.15,
                     linewidth=0.5,
                 )
 
-        deep_mean = self.deep_pnl.mean(dim=0).cpu().numpy()
-        bs_mean = self.bs_pnl.mean(dim=0).cpu().numpy()
-        ax1.plot(time_values, deep_mean, color="blue", linewidth=2, label="Deep Hedge")
-        ax1.plot(time_values, bs_mean, color="orange", linewidth=2, label="BS Baseline")
+        # Plot mean lines (bold)
+        ax1.plot(
+            time_values,
+            deep_mean,
+            color="blue",
+            linewidth=2.5,
+            label="Deep Hedge Mean",
+            zorder=10,
+        )
+        ax1.plot(
+            time_values,
+            bs_mean,
+            color="orange",
+            linewidth=2.5,
+            label="BS Mean",
+            zorder=10,
+        )
+
+        if show_stats:
+            # Add ±σ bands
+            ax1.fill_between(
+                time_values,
+                deep_mean - deep_std,
+                deep_mean + deep_std,
+                color="blue",
+                alpha=0.15,
+                label="Deep ±σ",
+            )
+            ax1.fill_between(
+                time_values,
+                bs_mean - bs_std,
+                bs_mean + bs_std,
+                color="orange",
+                alpha=0.15,
+                label="BS ±σ",
+            )
+
+            # Add dashed lines for ±σ boundaries
+            ax1.plot(
+                time_values,
+                deep_mean + deep_std,
+                color="blue",
+                linewidth=1,
+                linestyle="--",
+                alpha=0.6,
+            )
+            ax1.plot(
+                time_values,
+                deep_mean - deep_std,
+                color="blue",
+                linewidth=1,
+                linestyle="--",
+                alpha=0.6,
+            )
+            ax1.plot(
+                time_values,
+                bs_mean + bs_std,
+                color="orange",
+                linewidth=1,
+                linestyle="--",
+                alpha=0.6,
+            )
+            ax1.plot(
+                time_values,
+                bs_mean - bs_std,
+                color="orange",
+                linewidth=1,
+                linestyle="--",
+                alpha=0.6,
+            )
+
+            # Add dotted lines for max/min
+            ax1.plot(
+                time_values,
+                deep_max,
+                color="blue",
+                linewidth=0.8,
+                linestyle=":",
+                alpha=0.5,
+            )
+            ax1.plot(
+                time_values,
+                deep_min,
+                color="blue",
+                linewidth=0.8,
+                linestyle=":",
+                alpha=0.5,
+            )
+            ax1.plot(
+                time_values,
+                bs_max,
+                color="orange",
+                linewidth=0.8,
+                linestyle=":",
+                alpha=0.5,
+            )
+            ax1.plot(
+                time_values,
+                bs_min,
+                color="orange",
+                linewidth=0.8,
+                linestyle=":",
+                alpha=0.5,
+            )
+
         ax1.axhline(y=0, color="gray", linestyle="--", linewidth=0.8, alpha=0.5)
         ax1.set_xlabel(time_label)
         ax1.set_ylabel("Cumulative PnL ($)")
-        ax1.set_title("Cumulative PnL Comparison")
-        ax1.legend()
+        ax1.set_title(
+            "PnL: Mean, ±σ, Max/Min" if show_stats else "Cumulative PnL Comparison"
+        )
+        ax1.legend(fontsize=8, loc="best")
         ax1.grid(True, alpha=0.3)
 
         # Top right: PnL distribution (overlay)
@@ -799,6 +1179,7 @@ class BacktestResults:
             # Save plots (absolute paths for saving)
             plot_dir_path = Path(plot_dir)
             pnl_plot = str(plot_dir_path / "pnl_comparison.png")
+            stats_plot = str(plot_dir_path / "pnl_stats_comparison.png")
             dist_plot = str(plot_dir_path / "pnl_distribution.png")
             pos_plot = str(plot_dir_path / "positions.png")
             all_plot = str(plot_dir_path / "summary.png")
@@ -808,6 +1189,10 @@ class BacktestResults:
             self.plot_pnl_comparison(save_path=pnl_plot)
             plt.close()
             generated_plots.append(pnl_plot)
+
+            self.plot_pnl_stats_comparison(save_path=stats_plot)
+            plt.close()
+            generated_plots.append(stats_plot)
 
             self.plot_pnl_distribution(save_path=dist_plot)
             plt.close()
@@ -825,12 +1210,14 @@ class BacktestResults:
             # Make paths relative to the report file location
             try:
                 pnl_plot_rel = Path(pnl_plot).relative_to(report_path.parent)
+                stats_plot_rel = Path(stats_plot).relative_to(report_path.parent)
                 dist_plot_rel = Path(dist_plot).relative_to(report_path.parent)
                 pos_plot_rel = Path(pos_plot).relative_to(report_path.parent)
                 all_plot_rel = Path(all_plot).relative_to(report_path.parent)
             except ValueError:
                 # If relative path fails, use absolute paths
                 pnl_plot_rel = pnl_plot
+                stats_plot_rel = stats_plot
                 dist_plot_rel = dist_plot
                 pos_plot_rel = pos_plot
                 all_plot_rel = all_plot
@@ -838,6 +1225,8 @@ class BacktestResults:
             # Embed plots in markdown using relative paths
             lines.append("\n### PnL Comparison\n")
             lines.append(f"![PnL Comparison]({pnl_plot_rel})\n")
+            lines.append("\n### PnL Stats Comparison (Mean, ±σ, Max, Min)\n")
+            lines.append(f"![PnL Stats Comparison]({stats_plot_rel})\n")
             lines.append("\n### PnL Distribution\n")
             lines.append(f"![PnL Distribution]({dist_plot_rel})\n")
             lines.append("\n### Hedge Positions\n")

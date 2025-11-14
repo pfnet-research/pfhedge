@@ -1,0 +1,106 @@
+option_file: "crypto/data/options_2025-09-28_monthly_atm_110k.json"
+instrument: "BTC-31OCT25-110000-C"
+
+# Architecture - Same as iteration 18 (proven)
+model_type: "mlp"
+n_layers: 4
+n_units: [256, 128, 64, 32]
+
+# Training parameters
+n_epochs: 300
+n_paths: 750000
+learning_rate: 0.0003
+optimizer: "adamw"
+device: "cuda"
+
+# Features - Standard 4 features (same as iteration 18 for now)
+# Note: Custom volatility features require pfhedge registration - deferred
+features:
+  - "log_moneyness"
+  - "expiry_time"
+  - "volatility"      # 20-period
+  - "prev_hedge"
+
+# Risk parameters - SAME AS ITERATION 18
+risk_measure: "entropic"
+risk_param: 2.2
+tail_penalty_weight: 0.5   # CRITICAL - maintains hedging
+tail_penalty_ramp: false   # CRITICAL - never enable!
+
+# Learning rate scheduler
+use_lr_scheduler: true
+
+# Market parameters
+transaction_cost: 0.0004
+dt_hours: 8.0
+underlying_type: "perpetual"
+band_width: 0.001
+
+# Regularization
+grad_clip_norm: 3.0
+weight_decay: 0.00005
+feature_dropout: 0.1
+
+# Training tricks - BS WARMUP with REDUCED anchor
+bs_warmup_epochs: 15         # Keep successful warmup
+curriculum_ramp_epochs: 10   # Keep curriculum
+bs_anchor_weight: 0.05       # CHANGED: 0.1 → 0.05 (reduce BS dependency)
+const_position_penalty: 0.0
+
+# Early stopping
+early_stopping: true
+patience: 20
+min_delta: 0.00001
+
+# Output
+model_path: "models/iteration_19"
+seed: 42
+
+# Documentation
+comments: |
+  Iteration 19: Reduced BS Anchor - Build on iteration 18 success
+
+  Base Model: Iteration 18 (Mean PnL: -$3,529, CVaR: -$11,173, Sharpe: -0.979)
+
+  Changes from Iteration 18:
+  1. ✅ Reduced BS Anchor Weight (PRIMARY CHANGE)
+     - bs_anchor_weight: 0.1 → 0.05 (reduce by 50%)
+     - Allow model to learn more unique patterns beyond BS
+     - Iteration 18 had 93.6% BS correlation (too high)
+     - Target: 84-89% BS correlation
+
+  Rationale:
+  - Iteration 18 showed BS warmup works excellently (+10% all metrics)
+  - But 93.6% BS correlation means model is too BS-like
+  - Model not learning much beyond what BS already does
+  - Reducing anchor weight gives more learning freedom
+  - Still maintain warmup initialization benefits
+
+  Keep Successful Settings from Iteration 18:
+  - bs_warmup_epochs: 15 (proven effective)
+  - curriculum_ramp_epochs: 10 (smooth transition)
+  - tail_penalty_weight: 0.5 (maintains hedging)
+  - tail_penalty_ramp: false (never enable!)
+  - Same 4 features (log_moneyness, expiry_time, volatility, prev_hedge)
+  - Architecture: [256, 128, 64, 32]
+  - Learning rate: 0.0003
+  - Paths: 750,000
+
+  Expected Results:
+  - Mean PnL: -$3,300 to -$3,400 (improve by $100-200, ~3-6%)
+  - CVaR 95%: -$10,700 to -$11,000 (improve by $200-500, ~2-4%)
+  - Sharpe: -0.95 to -0.93 (improve by ~3-5%)
+  - BS Correlation: 0.84-0.89 (reduce from 0.936)
+  - Variability Ratio: < 1.0 (improve from 1.088)
+
+  Validation Protocol:
+  1. Check hedge positions FIRST (0.4-0.6 mean, 0.1-0.2 std)
+  2. Verify BS correlation DECREASED from 0.936
+  3. Check all metrics >= iteration 18
+  4. Visual inspection for anomalies
+
+  Risk: LOW (conservative 50% anchor reduction)
+  Complexity: SIMPLE (single config change)
+
+  Note: Multi-window volatility features deferred until pfhedge
+  custom feature registration is implemented.

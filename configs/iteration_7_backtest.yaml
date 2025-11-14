@@ -1,0 +1,34 @@
+# Iteration 7 Backtest Configuration
+# Tests enhanced_mlp with LayerNorm memory fix
+
+# Time range - Full historical data
+start_date: "2025-01-01"
+end_date: "2025-09-25"
+
+# Option parameters (MUST match training)
+strike: 110000
+maturity_days: 33
+call: true
+
+# Model path
+model_path: "/workspace/pfhedge/models/iteration_7_a034c33a/model.pth"
+
+# Backtest parameters (MUST match training)
+n_bootstrap_paths: 1000
+transaction_cost: 0.0004  # Match training
+dt_hours: 8.0  # Match training
+underlying_type: "perpetual"  # MUST match training
+band_width: 0.0005  # Match training
+
+# Bootstrap configuration
+bootstrap_mode: "normalize_spot"
+initial_spot: 109325.75
+
+# Data paths
+data_dir: "/workspace/pfhedge/crypto/data/historical"
+data_file: "btc_spot_8H_2025-01-01_2025-10-28.parquet"
+
+# Output
+output_dir: "backtest_results"
+seed: 42
+save_raw_data: true  # For analysis

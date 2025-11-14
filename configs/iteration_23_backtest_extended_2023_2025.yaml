@@ -1,0 +1,35 @@
+# Iteration 23 Extended Backtest Configuration (2023-2025)
+# Tests iteration 23 model on full 3-year historical dataset with auto-max paths
+# Extended from single-year (2025) to 3-year (2023-2025) dataset
+
+# Time range - Extended 3-year period
+start_date: "2023-01-01"
+end_date: "2025-10-27"  # End of available data
+
+# Option parameters (MUST match training)
+strike: 110000
+maturity_days: 33
+call: true
+
+# Model path - using iteration 23 trained model
+model_path: "../models/iteration_23_93917ed0/model.pth"
+
+# Backtest parameters (MUST match training)
+n_bootstrap_paths: 0  # AUTO MODE - uses max unique paths (~2,985 with extended dataset)
+transaction_cost: 0.0004
+dt_hours: 8.0
+underlying_type: "spot"
+band_width: 0.001
+
+# Bootstrap configuration
+bootstrap_mode: "normalize_spot"  # CRITICAL: Maintains consistent moneyness across all paths
+target_moneyness: 1.0  # ATM options (spot = strike at inception)
+
+# Data paths - using extended 3-year dataset
+data_dir: "../crypto/data/historical"
+data_file: "btc_spot_8H_2023-01-01_2025-10-28.parquet"
+
+# Output - separate directory for extended backtest with normalize_spot
+output_dir: "../backtest_results/iteration_23_extended_2023_2025_normalized"
+seed: 42
+save_raw_data: true

@@ -9,6 +9,12 @@ from pfhedge.nn import (
 )
 from pfhedge.nn.modules.loss import EntropicLoss
 
+# Import custom features to register them with pfhedge
+from crypto.features.custom_features import (
+    VolatilityChange,
+    MoneynessSquared,
+)  # noqa: F401
+
 
 # Default features for deep hedging
 # Note: PFHedge expects "expiry_time" for European options
@@ -17,6 +23,8 @@ DEFAULT_FEATURES = [
     "expiry_time",  # Changed from time_to_maturity to match PFHedge expectations
     "volatility",
     "prev_hedge",
+    "volatility_change",  # Custom feature - captures vol dynamics
+    "moneyness_squared",  # Custom feature - non-linear gamma effects
 ]
 
 
@@ -40,6 +48,21 @@ def _create_mlp(n_layers: int, n_units: "int | list[int]") -> MultiLayerPerceptr
     else:
         units_list = [n_units] * n_layers
     return MultiLayerPerceptron(n_layers=n_layers, n_units=units_list)
+
+
+@_register_model("enhanced_mlp")
+def _create_enhanced_mlp(
+    n_layers: int, n_units: "int | list[int]", dropout: float = 0.15
+):
+    from .enhanced_mlp import EnhancedMLP
+
+    if isinstance(n_units, list):
+        units_list = n_units
+    else:
+        units_list = [n_units] * n_layers
+    return EnhancedMLP(
+        n_layers=n_layers, n_units=units_list, dropout=dropout, use_layer_norm=True
+    )
 
 
 @_register_model("lstm")
@@ -210,6 +233,22 @@ def calculate_bs_hedge_pnl(
             funding_times=funding_times,
         )
         cumulative_pnl = cumulative_pnl - cumulative_funding
+
+    # Calculate hedging efficiency metrics for diagnostics
+    if (
+        hasattr(calculate_bs_hedge_pnl, "enable_diagnostics")
+        and calculate_bs_hedge_pnl.enable_diagnostics
+    ):
+        # Track position turnover
+        position_changes = torch.cat(
+            [bs_delta[:, [0]], torch.abs(bs_delta[:, 1:] - bs_delta[:, :-1])], dim=1
+        )
+        total_turnover = position_changes.sum(dim=1)
+        max_position = torch.abs(bs_delta).max(dim=1)[0]
+
+        # Store as attributes for analysis
+        cumulative_pnl._turnover = total_turnover
+        cumulative_pnl._max_position = max_position
 
     return cumulative_pnl
 

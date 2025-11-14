@@ -1,0 +1,106 @@
+option_file: "crypto/data/options_2025-09-28_monthly_atm_110k.json"
+instrument: "BTC-31OCT25-110000-C"
+
+# Architecture - Same as iteration 19 (proven best)
+model_type: "mlp"
+n_layers: 4
+n_units: [256, 128, 64, 32]
+
+# Training parameters
+n_epochs: 300
+n_paths: 750000
+learning_rate: 0.0003
+optimizer: "adamw"
+device: "cuda"
+
+# Features - Standard 4 features (same as iteration 19)
+features:
+  - "log_moneyness"
+  - "expiry_time"
+  - "volatility"      # 20-period
+  - "prev_hedge"
+
+# Risk parameters - SAME AS ITERATION 19
+risk_measure: "entropic"
+risk_param: 2.2
+tail_penalty_weight: 0.5   # CRITICAL - maintains hedging
+tail_penalty_ramp: false   # CRITICAL - never enable!
+
+# Learning rate scheduler
+use_lr_scheduler: true
+
+# Market parameters - KEY CHANGE: perpetual → spot
+transaction_cost: 0.0004
+dt_hours: 8.0
+underlying_type: "spot"       # CHANGED from "perpetual"
+band_width: 0.001
+
+# Regularization
+grad_clip_norm: 3.0
+weight_decay: 0.00005
+feature_dropout: 0.1
+
+# Training tricks - BS WARMUP with REDUCED anchor
+bs_warmup_epochs: 15         # Keep successful warmup
+curriculum_ramp_epochs: 10   # Keep curriculum
+bs_anchor_weight: 0.05       # Proven optimal in iteration 19
+const_position_penalty: 0.0
+
+# Early stopping
+early_stopping: true
+patience: 20
+min_delta: 0.00001
+
+# Output
+model_path: "models/iteration_19b"
+seed: 42
+
+# Documentation
+comments: |
+  Iteration 19b: Spot Underlyer - Test iteration 19 config with spot instead of perpetual
+
+  Base Model: Iteration 19 (Mean PnL: -$3,523, CVaR: -$11,249, Sharpe: -0.961, Win Rate: 17.7%)
+
+  Changes from Iteration 19:
+  1. ✅ underlying_type: perpetual → spot (PRIMARY CHANGE)
+     - Train on spot price dynamics instead of perpetual
+     - Better alignment with actual spot-settled option hedging
+     - Perpetual may have funding rate effects not in spot
+
+  Rationale:
+  - Iteration 19 used perpetual for training (historical artifact)
+  - BTC options are typically spot-settled
+  - Training on spot should learn more realistic hedge dynamics
+  - Spot price has cleaner dynamics (no funding rate noise)
+  - Expected: Slight improvement in backtest performance
+
+  Keep All Other Settings from Iteration 19:
+  - bs_anchor_weight: 0.05 (proven optimal)
+  - tail_penalty_weight: 0.5 (maintains hedging)
+  - tail_penalty_ramp: false (never enable!)
+  - Same 4 features (log_moneyness, expiry_time, volatility, prev_hedge)
+  - Architecture: [256, 128, 64, 32]
+  - Learning rate: 0.0003
+  - Paths: 750,000
+  - BS warmup: 15 epochs
+  - Curriculum: 10 epochs
+
+  Expected Results:
+  - Mean PnL: -$3,400 to -$3,500 (similar or slight improvement)
+  - CVaR 95%: -$11,000 to -$11,200 (similar or slight improvement)
+  - Sharpe: -0.95 to -0.97 (similar)
+  - Win Rate: 17-19% (similar or slight improvement)
+  - BS Correlation: 0.90-0.93 (similar)
+
+  Hypothesis:
+  If spot improves results, it validates that perpetual-spot mismatch
+  was suboptimal. If no change, perpetual was already close enough to spot.
+
+  Validation Protocol:
+  1. Check hedge positions FIRST (0.4-0.6 mean, 0.1-0.2 std)
+  2. Compare to iteration 19 (perpetual baseline)
+  3. Check all metrics >= iteration 19 or within 5%
+  4. Visual inspection for anomalies
+
+  Risk: VERY LOW (minimal change from proven config)
+  Complexity: TRIVIAL (single parameter change)

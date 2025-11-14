@@ -1,0 +1,47 @@
+option_file: "crypto/data/options_2025-09-28_monthly_atm_110k.json"
+instrument: "BTC-31OCT25-110000-C"
+
+# Architecture
+n_layers: 4
+n_units: 128
+
+# Training parameters - MINIMAL FOR LOCAL TEST
+n_epochs: 5  # Just test it runs
+n_paths: 500  # Very small for quick test
+learning_rate: 0.0005
+optimizer: "adamw"
+device: "cpu"  # Local test on CPU
+
+# Features
+features:
+  - "log_moneyness"
+  - "expiry_time"
+  - "volatility"
+  - "prev_hedge"
+
+# Risk parameters - TEST QUADRATIC CVAR
+risk_measure: "quadratic_cvar"
+risk_param: 2.0
+
+# Market parameters
+transaction_cost: 0.0006
+dt_hours: 8.0
+underlying_type: "perpetual"
+
+# Regularization
+const_position_penalty: 0.0
+bs_anchor_weight: 0.0
+grad_clip_norm: 5.0
+weight_decay: 0.0001
+
+# Training tricks
+bs_warmup_epochs: 0
+curriculum_ramp_epochs: 0
+
+# Early stopping
+early_stopping: false
+patience: 10
+
+# Output
+model_path: "models/iteration_4_test"
+seed: 42

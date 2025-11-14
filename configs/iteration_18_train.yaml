@@ -1,0 +1,100 @@
+option_file: "crypto/data/options_2025-09-28_monthly_atm_110k.json"
+instrument: "BTC-31OCT25-110000-C"
+
+# Architecture - Same as iteration 16 (proven)
+model_type: "mlp"
+n_layers: 4
+n_units: [256, 128, 64, 32]
+
+# Training parameters
+n_epochs: 300
+n_paths: 750000
+learning_rate: 0.0003
+optimizer: "adamw"
+device: "cuda"
+
+# Features - Standard features (4 features total)
+# Note: Multi-window volatility will be added in iteration 19 after proper registration
+features:
+  - "log_moneyness"
+  - "expiry_time"
+  - "volatility"      # 20-period (existing)
+  - "prev_hedge"
+
+# Risk parameters - SAME AS ITERATION 16 (safety first)
+risk_measure: "entropic"
+risk_param: 2.2
+tail_penalty_weight: 0.5   # CRITICAL - maintains hedging
+tail_penalty_ramp: false   # CRITICAL - never enable!
+
+# Learning rate scheduler - Keep enabled
+use_lr_scheduler: true
+
+# Market parameters
+transaction_cost: 0.0004
+dt_hours: 8.0
+underlying_type: "perpetual"
+band_width: 0.001
+
+# Regularization
+grad_clip_norm: 3.0
+weight_decay: 0.00005
+feature_dropout: 0.1
+
+# Training tricks - BS WARMUP (NEW)
+bs_warmup_epochs: 15         # NEW: Imitate BS for first 15 epochs
+curriculum_ramp_epochs: 10   # NEW: Gradually transition to CVaR
+bs_anchor_weight: 0.1        # NEW: Keep 10% BS similarity throughout
+const_position_penalty: 0.0
+
+# Early stopping
+early_stopping: true
+patience: 20
+min_delta: 0.00001
+
+# Output
+model_path: "models/iteration_18"
+seed: 42
+
+# Documentation
+comments: |
+  Iteration 18: BS Warmup Training - Conservative improvements on iteration 16
+
+  Base Model: Iteration 16 (Mean PnL: -$3,957, CVaR: -$12,033)
+
+  Changes from Iteration 16:
+  1. ✅ BS Warmup Training (NEW - PRIMARY CHANGE)
+     - bs_warmup_epochs: 15 (imitate BS delta initially)
+     - curriculum_ramp_epochs: 10 (gradual transition)
+     - bs_anchor_weight: 0.1 (maintain 10% BS similarity)
+     - Better initialization, reduces non-hedging risk
+     - Proven technique in deep hedging literature
+
+  2. ✅ Learning Rate Scheduler (already enabled in iter 16)
+     - use_lr_scheduler: true
+     - Cosine annealing for better convergence
+
+  Safety Measures (UNCHANGED):
+  - tail_penalty_weight: 0.5 (proven to maintain hedging)
+  - tail_penalty_ramp: false (never enable - causes flat hedging)
+  - band_width: 0.001 (working well)
+  - transaction_cost: 0.0004 (realistic)
+  - Same 4 features as iteration 16
+
+  Expected Results:
+  - Mean PnL: -$3,600 to -$3,800 (improve by $150-350, ~5-8%)
+  - CVaR 95%: -$11,200 to -$11,600 (improve by $400-800, ~5%)
+  - Sharpe: -1.05 to -1.00 (improve by ~5%)
+  - Hedging: Maintain 0.4-0.6 range for ATM calls
+  - Training stability: Better convergence, smoother loss curve
+
+  Validation Protocol:
+  1. Check hedge positions FIRST (0.4-0.6 mean, 0.1-0.2 std)
+  2. Then check metrics vs iteration 16
+  3. Visual inspection for anomalies
+
+  Risk: LOW (proven BS warmup technique)
+  Complexity: SIMPLE (config-only change)
+
+  Note: Multi-window volatility features deferred to iteration 19
+  after proper pfhedge feature registration.

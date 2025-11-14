@@ -1,0 +1,87 @@
+option_file: "crypto/data/options_2025-09-28_monthly_atm_110k.json"
+instrument: "BTC-31OCT25-110000-C"
+
+# Architecture - STANDARD MLP (PROVEN)
+model_type: "mlp"  # Back to standard mlp - proven architecture
+n_layers: 4
+n_units: [256, 128, 64, 32]  # Keep pyramid structure from 5b
+
+# Training parameters - INCREASED PATHS
+n_epochs: 300
+n_paths: 750000  # MATCH iteration 5b (proven to work reliably)
+learning_rate: 0.0003
+optimizer: "adamw"
+device: "cuda"
+
+# Features - Same as 5b
+features:
+  - "log_moneyness"
+  - "expiry_time"
+  - "volatility"
+  - "prev_hedge"
+
+# Risk parameters - Back to 5b optimal
+risk_measure: "entropic"
+risk_param: 2.2
+
+# Hybrid loss parameters - TUNING: Increase tail protection
+tail_penalty_weight: 0.4
+tail_penalty_ramp: true
+
+# Learning rate scheduler
+use_lr_scheduler: true
+
+# Market parameters - Same as 5b
+transaction_cost: 0.0004
+dt_hours: 8.0
+underlying_type: "perpetual"
+band_width: 0.0005
+
+# Regularization - Same as 5b
+const_position_penalty: 0.0
+bs_anchor_weight: 0.0
+grad_clip_norm: 3.0
+weight_decay: 0.00005
+feature_dropout: 0.1
+
+# Training tricks
+bs_warmup_epochs: 0
+curriculum_ramp_epochs: 0
+
+# Early stopping
+early_stopping: true
+patience: 20
+min_delta: 0.00001
+
+# Output
+model_path: "models/iteration_10"
+seed: 42
+
+# Documentation
+comments: |
+  Iteration 10: Hyperparameter Tuning - tail_penalty_weight
+
+  Purpose: Beat iteration 5b through hyperparameter optimization
+
+  Changes from iteration 5b:
+  1. tail_penalty_weight: 0.3 -> 0.4 (increase tail protection directly)
+
+  Previous Results:
+  - Iteration 8 (risk_param=2.0): CVaR -$13,261 (43% worse) - FAILED
+  - Iteration 9 (risk_param=2.4): CVaR -$13,176 (42% worse) - FAILED
+  - Conclusion: risk_param=2.2 is optimal
+
+  Rationale:
+  - risk_param tuning showed 2.2 is optimal, reverted to 2.2
+  - tail_penalty_weight directly controls CVaR emphasis in loss function
+  - Increasing weight should directly improve tail risk protection
+  - More direct approach than risk_param for CVaR optimization
+
+  Target to beat (iteration 5b):
+  - Mean PnL: -$5,650
+  - CVaR 95%: -$9,260
+  - Sharpe: -3.14
+
+  Hypothesis:
+  - tail_penalty_weight=0.4 will improve CVaR by 10-20%
+  - Mean PnL may worsen slightly but acceptable if CVaR improves

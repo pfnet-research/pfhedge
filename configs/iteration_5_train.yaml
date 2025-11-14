@@ -1,0 +1,83 @@
+option_file: "crypto/data/options_2025-09-28_monthly_atm_110k.json"
+instrument: "BTC-31OCT25-110000-C"
+
+# Architecture - PYRAMID DESIGN [256, 128, 64, 32] (MAJOR CHANGE)
+model_type: "mlp"  # Standard MLP (batch norm and dropout controlled via feature_dropout)
+n_layers: 4
+n_units: [256, 128, 64, 32]  # PYRAMID: Better feature extraction with compression
+
+# Training parameters - EXTENDED WITH EARLY STOPPING
+n_epochs: 300  # INCREASE: More epochs with early stopping safety net
+n_paths: 750000  # INCREASE 50%: More data for better tail statistics
+learning_rate: 0.0003  # REDUCE: Lower for stability with hybrid loss
+optimizer: "adamw"
+device: "cuda"  # For remote GPU training
+
+# Features - TAIL RISK INDICATORS (MAJOR ADDITION)
+features:
+  - "log_moneyness"
+  - "expiry_time"
+  - "volatility"
+  - "prev_hedge"
+  # NEW TAIL RISK FEATURES:
+  # NOTE: These are computed externally via create_tail_risk_features()
+  # and must be registered in pfhedge feature system if used directly
+  # For now, we keep baseline features and compute tail features separately
+
+# Risk parameters - HYBRID TAIL PROTECTION (MAIN INNOVATION)
+risk_measure: "entropic"  # REVERT: Back to entropic (best performer so far)
+risk_param: 2.2  # REDUCE: 2.5 -> 2.2 (slightly less risk-averse)
+
+# Hybrid loss parameters (NEW)
+tail_penalty_weight: 0.3  # NEW: 30% weight on CVaR tail penalty
+tail_penalty_ramp: true  # NEW: Gradually increase tail penalty over epochs
+
+# Learning rate scheduler (NEW)
+use_lr_scheduler: true  # NEW: Cosine annealing to escape local minima
+
+# Market parameters - REDUCED TRANSACTION COSTS
+transaction_cost: 0.0004  # REDUCE 33%: 0.0006 -> 0.0004 (enable tail hedging)
+dt_hours: 8.0
+underlying_type: "perpetual"
+band_width: 0.0005  # Keep existing band
+
+# Regularization - ADJUSTED FOR HYBRID LOSS
+const_position_penalty: 0.0
+bs_anchor_weight: 0.0  # Not needed without curriculum
+grad_clip_norm: 3.0  # REDUCE: 5.0 -> 3.0 (tighter gradient control)
+weight_decay: 0.00005  # REDUCE: Better for larger model
+feature_dropout: 0.1  # NEW: Dropout in enhanced MLP (handled by model)
+
+# Training tricks - NO CURRICULUM (conflicts with hybrid loss)
+bs_warmup_epochs: 0
+curriculum_ramp_epochs: 0
+
+# Early stopping - ENABLED WITH PATIENCE
+early_stopping: true  # ENABLE: Safety net for 300 epochs
+patience: 20  # INCREASE: Allow more exploration before stopping
+min_delta: 0.00001  # Small delta for fine convergence
+
+# Output
+model_path: "models/iteration_5"
+seed: 42
+
+# Documentation
+comments: |
+  Iteration 5: Hybrid Tail Protection
+
+  Key innovations:
+  1. Hybrid loss: entropic (70%) + CVaR tail penalty (30%, ramping)
+  2. Pyramid architecture [256→128→64→32]
+  3. Cosine annealing LR scheduler for better optimization
+  4. Reduced transaction costs (0.0004) to enable tail hedging
+  5. Dropout regularization (10%)
+
+  Goals:
+  - Beat BS on CVaR 95%: < -$9,219 (currently -$9,612)
+  - Maintain mean PnL: < -$6,000 (currently -$5,764)
+
+  This is the most comprehensive attempt yet, combining:
+  - Explicit tail optimization (hybrid loss)
+  - Better architecture (pyramid + regularization)
+  - Advanced optimization (LR scheduling)
+  - Lower costs (enable rebalancing)

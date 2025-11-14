@@ -1,0 +1,29 @@
+# Time range - MINIMAL FOR TESTING
+start_date: "2025-01-01"
+end_date: "2025-01-10"
+
+# Option parameters
+strike: 110000
+maturity_days: 33
+
+# Model
+model_path: "models/test_iteration/model.pth"
+
+# Backtest parameters - MINIMAL FOR TESTING
+n_bootstrap_paths: 10
+transaction_cost: 0.0006
+dt_hours: 8.0
+underlying_type: "perpetual"
+
+# Bootstrap
+bootstrap_mode: "normalize_spot"
+initial_spot: 109325.75
+
+# Data
+data_dir: "crypto/data/historical"
+data_file: "btc_spot_8H_2025-01-01_2025-10-28.parquet"
+
+# Output
+output_dir: "backtest_results"
+seed: 42
+save_raw_data: true

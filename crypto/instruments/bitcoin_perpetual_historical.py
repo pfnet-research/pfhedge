@@ -329,6 +329,24 @@ class BitcoinPerpetualHistorical(VolatilityMixin, BitcoinPerpetualBase):
                 f"  Suggestion: Reduce maturity_days or fetch more historical data"
             )
 
+        # Calculate max unique paths first
+        max_start = window_size - n_steps
+        max_unique_paths = max_start + 1
+
+        # Auto-optimize path number if not specified or exceeds maximum
+        requested_paths = n_paths
+        if n_paths is None or n_paths <= 0:
+            n_paths = max_unique_paths
+            logger.info(
+                f"ℹ️  No path number specified, using max unique paths: {n_paths:,}"
+            )
+        elif n_paths > max_unique_paths:
+            logger.warning(
+                f"⚠️  Requested {requested_paths:,} paths exceeds maximum unique paths {max_unique_paths:,}. "
+                f"Using {max_unique_paths:,} paths instead."
+            )
+            n_paths = max_unique_paths
+
         # Validate data sufficiency and warn if needed
         is_sufficient, warning_msg, _ = self.validate_bootstrap_data_sufficiency(
             n_paths=n_paths,
@@ -339,8 +357,6 @@ class BitcoinPerpetualHistorical(VolatilityMixin, BitcoinPerpetualBase):
 
         if warning_msg:
             logger.warning(warning_msg)
-
-        max_start = window_size - n_steps
 
         # Initialize lists
         path_list = []

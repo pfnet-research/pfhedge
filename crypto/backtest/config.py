@@ -25,7 +25,7 @@ class BacktestConfig:
 
     # Optional parameters with defaults
     call: bool = True
-    n_bootstrap_paths: int = 100
+    n_bootstrap_paths: int = 100  # 0 = auto-use max unique paths from historical data
     transaction_cost: float = 0.0005
     dt_hours: float = 8.0
     volatility_window: int = (
@@ -78,10 +78,10 @@ class BacktestConfig:
                 f"maturity_days must be positive, got {self.maturity_days}"
             )
 
-        # Validate n_bootstrap_paths
-        if self.n_bootstrap_paths <= 0:
+        # Validate n_bootstrap_paths (0 = auto, uses max unique paths)
+        if self.n_bootstrap_paths < 0:
             raise ValueError(
-                f"n_bootstrap_paths must be positive, got {self.n_bootstrap_paths}"
+                f"n_bootstrap_paths must be non-negative (0 = auto), got {self.n_bootstrap_paths}"
             )
 
         # Validate transaction_cost

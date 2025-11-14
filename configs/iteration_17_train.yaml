@@ -1,0 +1,89 @@
+option_file: "crypto/data/options_2025-09-28_monthly_atm_110k.json"
+instrument: "BTC-31OCT25-110000-C"
+
+# Architecture - KEEP ITERATION 16's PROVEN PYRAMID
+model_type: "mlp"
+n_layers: 4
+n_units: [256, 128, 64, 32]  # Proven in iter 16
+
+# Training parameters
+n_epochs: 300
+n_paths: 750000
+learning_rate: 0.0003
+optimizer: "adamw"
+device: "cuda"
+
+# Features - BASELINE (same as iter 16)
+features:
+  - "log_moneyness"
+  - "expiry_time"
+  - "volatility"
+  - "prev_hedge"
+
+# Risk parameters - CVAR FOCUS (KEY CHANGES)
+risk_measure: "entropic"
+risk_param: 2.2
+tail_penalty_weight: 0.3  # REDUCE: 0.5 → 0.3 (match iter 5b)
+tail_penalty_ramp: true  # ENABLE: Gradual ramp (match iter 5b)
+
+# Learning rate scheduler
+use_lr_scheduler: true
+
+# Market parameters - TIGHTER BANDS FOR TAIL EVENTS
+transaction_cost: 0.0004
+dt_hours: 8.0
+underlying_type: "perpetual"
+band_width: 0.0005  # REDUCE: 0.001 → 0.0005 (match iter 5b, more active hedging)
+
+# Regularization - BALANCE
+grad_clip_norm: 3.0
+weight_decay: 0.00005
+feature_dropout: 0.1
+
+# Training tricks
+bs_warmup_epochs: 0
+curriculum_ramp_epochs: 0
+const_position_penalty: 0.0
+bs_anchor_weight: 0.0
+
+# Early stopping
+early_stopping: true
+patience: 20
+min_delta: 0.00001
+
+# Output
+model_path: "models/iteration_17"
+seed: 42
+
+# Documentation
+comments: |
+  Iteration 17: CVaR Optimization
+
+  Goal: Match or beat iteration 5b's CVaR of -$9,260
+  Current: -$12,033 (need 23% improvement)
+
+  Strategy: Combine iteration 16's architecture with iteration 5b's tail protection
+
+  Key changes from Iteration 16:
+  1. tail_penalty_weight: 0.5 → 0.3 (match iter 5b)
+  2. tail_penalty_ramp: false → true (gradual focus on tail events)
+  3. band_width: 0.001 → 0.0005 (tighter bands, more active rebalancing)
+
+  Why this should work:
+  - Iteration 16 proved the architecture [256,128,64,32] works well
+  - Iteration 16 achieved better Mean PnL (-$3,957)
+  - Iteration 5b had better CVaR due to:
+    * Lower tail penalty (0.3) with ramp
+    * Tighter no-trade bands (0.0005)
+    * More active hedging during tail events
+
+  Expected results:
+  - CVaR: -$9,000 to -$9,500 (match or beat iter 5b)
+  - Mean PnL: -$4,200 to -$4,500 (slight degradation from iter 16 acceptable)
+  - Overall: Better balanced risk profile
+
+  Target metrics:
+  - CVaR < -$9,500 (improvement needed)
+  - Mean PnL < -$4,500 (maintain profitability path)
+  - Both better than BS baseline
+

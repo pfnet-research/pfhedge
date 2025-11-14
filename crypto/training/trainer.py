@@ -1,5 +1,6 @@
 from typing import Optional, TYPE_CHECKING, List, Dict, Any
 import os
+import numpy as np
 import torch
 from torch import Tensor
 
@@ -30,7 +31,18 @@ def _create_optimizer(config: TrainingConfig, model_parameters):
     if config.optimizer == "sgd":
         kwargs["momentum"] = 0.9
 
-    return optimizer_class(model_parameters, **kwargs)
+    optimizer = optimizer_class(model_parameters, **kwargs)
+
+    # Add learning rate scheduler if enabled
+    scheduler = None
+    if config.use_lr_scheduler:
+        from torch.optim.lr_scheduler import CosineAnnealingWarmRestarts
+
+        scheduler = CosineAnnealingWarmRestarts(
+            optimizer, T_0=50, T_mult=2, eta_min=1e-5
+        )
+
+    return optimizer, scheduler
 
 
 def _move_option_to_device(option, target_device, verbose=False):
@@ -100,6 +112,17 @@ class Trainer:
         self.train_option = None
         self.test_option = None
         self.model = None
+
+    def _resample_paths(self, option: "BitcoinEuropeanOption", n_paths: int, seed: int):
+        """Resample underlier paths for gradient accumulation micro-batches."""
+        import torch
+        import numpy as np
+
+        torch.manual_seed(seed)
+        np.random.seed(seed)
+
+        maturity_time = self.config.maturity_days / 365
+        option.underlier.simulate(n_paths=n_paths, time_horizon=maturity_time)
 
     def create_option(self, n_paths: int, seed: int) -> "BitcoinEuropeanOption":
         from crypto.instruments import BitcoinEuropeanOption
@@ -194,18 +217,32 @@ class Trainer:
         return hedger
 
     def _initialize_model_head(self, model):
-        """Initialize MLP output head with Xavier initialization for better gradient flow."""
+        """Initialize MLP with layer-normalized Xavier for better gradient flow in deep networks."""
         import torch.nn as nn
+        from torch.nn.parameter import UninitializedParameter
 
-        last_linear = None
+        # Initialize all linear layers with proper scaling
+        layer_count = 0
         for module in model.modules():
             if isinstance(module, nn.Linear):
-                last_linear = module
+                # Skip lazy/uninitialized layers
+                if isinstance(module.weight, UninitializedParameter):
+                    continue
+                layer_count += 1
 
-        if last_linear is not None:
-            with torch.no_grad():
-                nn.init.xavier_uniform_(last_linear.weight, gain=0.5)
-                last_linear.bias.fill_(0.0)
+        current_layer = 0
+        for module in model.modules():
+            if isinstance(module, nn.Linear):
+                # Skip lazy/uninitialized layers
+                if isinstance(module.weight, UninitializedParameter):
+                    continue
+                current_layer += 1
+                # Use gain that decreases with depth for stability
+                gain = 1.0 / np.sqrt(current_layer) if current_layer > 1 else 1.0
+                with torch.no_grad():
+                    nn.init.xavier_uniform_(module.weight, gain=gain)
+                    if module.bias is not None:
+                        module.bias.data.fill_(0.0)
 
     def train_model(
         self,
@@ -223,6 +260,11 @@ class Trainer:
         if self.verbose:
             print(f"\nTraining model for {self.config.n_epochs} epochs...")
             print(f"  Training paths: {self.config.n_paths:,}")
+            if self.config.gradient_accumulation_steps > 1:
+                print(
+                    f"  Gradient accumulation steps: {self.config.gradient_accumulation_steps}"
+                )
+                print(f"  Effective paths: {self.config.effective_paths:,}")
 
         model_device = next(model.parameters()).device
         model_dtype = next(model.parameters()).dtype
@@ -233,21 +275,34 @@ class Trainer:
         if self.enable_diagnostics:
             self._attach_diagnostics(model)
 
-        optimizer = _create_optimizer(self.config, model.parameters())
+        optimizer, scheduler = _create_optimizer(self.config, model.parameters())
         _print_optimizer_info(self.config, self.verbose)
+
+        # FIX: Route to custom loss path when needed (tail penalty or grad clipping)
+        needs_custom_loss = self.config.tail_penalty_weight > 0 or (
+            self.config.grad_clip_norm is not None and self.config.grad_clip_norm > 0
+        )
 
         # Use curriculum learning if warmup epochs specified
         if self.config.bs_warmup_epochs > 0:
             history = self._train_with_curriculum(
-                model, option, optimizer, model_device
+                model, option, optimizer, model_device, scheduler
+            )
+        elif self.config.early_stopping and needs_custom_loss:
+            # FIX: Use custom early stopping that calls _compute_loss
+            history = self._train_with_early_stopping_custom(
+                model, option, optimizer, model_device, scheduler
             )
         elif self.config.early_stopping:
+            # Standard early stopping (uses model.fit - no custom loss)
             history = self._train_with_early_stopping(
-                model, option, optimizer, model_device
+                model, option, optimizer, model_device, scheduler
             )
         else:
             # Standard training with optional gradient clipping
-            history = self._train_standard(model, option, optimizer, model_device)
+            history = self._train_standard(
+                model, option, optimizer, model_device, scheduler
+            )
 
         if self.enable_diagnostics and self.diagnostics is not None:
             self._print_diagnostics()
@@ -257,12 +312,21 @@ class Trainer:
         return history
 
     def _train_standard(
-        self, model: "Hedger", option: "BitcoinEuropeanOption", optimizer, device
+        self,
+        model: "Hedger",
+        option: "BitcoinEuropeanOption",
+        optimizer,
+        device,
+        scheduler=None,
     ) -> List[float]:
         """Standard training with optional gradient clipping."""
-        if self.config.grad_clip_norm:
-            # Custom training loop with gradient clipping
-            return self._train_with_grad_clipping(model, option, optimizer, device)
+        if (
+            self.config.grad_clip_norm is not None and self.config.grad_clip_norm > 0
+        ) or self.config.tail_penalty_weight > 0:
+            # Custom training loop with gradient clipping or hybrid loss
+            return self._train_with_grad_clipping(
+                model, option, optimizer, device, scheduler
+            )
         else:
             # Use PFHedge's built-in fit method
             return model.fit(
@@ -285,7 +349,11 @@ class Trainer:
         return hedge_positions
 
     def _compute_loss(
-        self, model: "Hedger", option: "BitcoinEuropeanOption", hedge_positions: Tensor
+        self,
+        model: "Hedger",
+        option: "BitcoinEuropeanOption",
+        hedge_positions: Tensor,
+        epoch: int = 0,
     ) -> Tensor:
         """Compute loss including CVaR and optional penalties."""
         from crypto.strategies import calculate_bs_hedge_pnl
@@ -297,21 +365,51 @@ class Trainer:
             bs_delta=hedge_positions,
             payoffs=payoffs,
             cost=self.config.transaction_cost,
+            band_width=self.config.band_width,  # FIX: Add band policy during training
         )
 
         # Normalize PnL by initial spot for stable loss scale
         initial_spot = spots[:, 0].mean()
         normalized_pnl = pnl[:, -1] / initial_spot
 
-        loss = model.criterion(normalized_pnl)
+        # Base loss from risk measure
+        base_loss = model.criterion(normalized_pnl)
 
-        # Add penalty for constant positions
+        # Hybrid loss with explicit CVaR penalty for tail protection
+        if self.config.tail_penalty_weight > 0:
+            # Compute CVaR penalty for worst 10% of paths (increased from 5% for more robust tail risk)
+            sorted_pnl = torch.sort(normalized_pnl, descending=False)[0]
+            worst_10pct = sorted_pnl[: int(0.10 * len(sorted_pnl))]
+            cvar_penalty = -worst_10pct.mean()
+
+            # Hybrid loss with CVaR weight that increases over epochs if ramping enabled
+            if self.config.tail_penalty_ramp:
+                # FIX: Use n_epochs for ramp, not hardcoded value
+                ramp_progress = min(1.0, epoch / max(1, self.config.n_epochs - 1))
+                cvar_weight = self.config.tail_penalty_weight * ramp_progress
+            else:
+                cvar_weight = self.config.tail_penalty_weight
+
+            loss = (1 - cvar_weight) * base_loss + cvar_weight * cvar_penalty
+        else:
+            loss = base_loss
+
+        # FIX: Add turnover penalty (was inverted const penalty that encouraged flat positions)
+        # Enhanced with volatility weighting for spot market dynamics
         if self.config.const_position_penalty > 0:
             time_changes = (
                 (hedge_positions[:, 1:] - hedge_positions[:, :-1]).abs().mean()
             )
-            const_penalty = self.config.const_position_penalty / (time_changes + 1e-6)
-            loss = loss + const_penalty
+            # Volatility-weighted position penalty: scale by current volatility level
+            # Higher volatility -> higher penalty to avoid excessive rebalancing
+            current_vol = (
+                self.config.volatility if hasattr(self.config, "volatility") else 0.42
+            )
+            vol_weight = current_vol / 0.42  # Normalize by baseline volatility
+            turnover_penalty = (
+                self.config.const_position_penalty * time_changes * vol_weight
+            )
+            loss = loss + turnover_penalty
 
         return loss
 
@@ -384,35 +482,110 @@ class Trainer:
             f"Loss={loss.item():.6f}, GradNorm={grad_norm:.2f}, "
             f"Hedge: μ={pos_mean:.3f} σ={pos_std:.3f} range=[{pos_min:.3f}, {pos_max:.3f}]"
         )
+
+        # Add memory info if CUDA is available (every 50 epochs)
+        if torch.cuda.is_available() and (
+            epoch % 50 == 0 or epoch == self.config.n_epochs - 1
+        ):
+            mem_allocated = torch.cuda.memory_allocated() / 1024**3
+            mem_reserved = torch.cuda.memory_reserved() / 1024**3
+            base_msg += (
+                f" | GPU Mem: {mem_allocated:.2f}GB / {mem_reserved:.2f}GB reserved"
+            )
+
         print(base_msg)
 
     def _train_with_grad_clipping(
-        self, model: "Hedger", option: "BitcoinEuropeanOption", optimizer, device
+        self,
+        model: "Hedger",
+        option: "BitcoinEuropeanOption",
+        optimizer,
+        device,
+        scheduler=None,
     ) -> List[float]:
-        """Training loop with gradient clipping."""
+        """Training loop with gradient clipping and optional gradient accumulation."""
         history = []
         use_amp = self.config.use_amp and device.type == "cuda"
         scaler = torch.cuda.amp.GradScaler() if use_amp else None
+        accumulation_steps = self.config.gradient_accumulation_steps
 
         model.train()
 
         for epoch in range(self.config.n_epochs):
             optimizer.zero_grad(set_to_none=True)
 
-            # Forward pass with optional AMP
-            if use_amp:
-                with torch.cuda.amp.autocast():
+            # Gradient accumulation loop
+            epoch_loss = 0.0
+            for accum_step in range(accumulation_steps):
+                # Resample paths for this micro-batch (ensure diversity)
+                if accum_step > 0:
+                    micro_batch_seed = (
+                        self.config.train_seed + epoch * accumulation_steps + accum_step
+                    )
+                    self._resample_paths(option, self.config.n_paths, micro_batch_seed)
+
+                # Forward pass with optional AMP
+                if use_amp:
+                    with torch.cuda.amp.autocast():
+                        hedge_positions = self._compute_hedge(model, option)
+                        loss = self._compute_loss(model, option, hedge_positions, epoch)
+                        # Scale loss for gradient accumulation
+                        loss = loss / accumulation_steps
+                else:
                     hedge_positions = self._compute_hedge(model, option)
-                    loss = self._compute_loss(model, option, hedge_positions)
+                    loss = self._compute_loss(model, option, hedge_positions, epoch)
+                    # Scale loss for gradient accumulation
+                    loss = loss / accumulation_steps
+
+                # Backward pass (accumulate gradients)
+                if scaler:
+                    scaler.scale(loss).backward()
+                else:
+                    loss.backward()
+
+                epoch_loss += loss.item()
+
+            # Step optimizer after all micro-batches (unified gradient update)
+            if scaler:
+                scaler.unscale_(optimizer)
+                if self.config.grad_clip_norm:
+                    grad_norm = torch.nn.utils.clip_grad_norm_(
+                        model.parameters(), max_norm=self.config.grad_clip_norm
+                    )
+                else:
+                    grad_norm = sum(
+                        p.grad.norm().item()
+                        for p in model.parameters()
+                        if p.grad is not None
+                    )
+                scaler.step(optimizer)
+                scaler.update()
             else:
-                hedge_positions = self._compute_hedge(model, option)
-                loss = self._compute_loss(model, option, hedge_positions)
+                if self.config.grad_clip_norm:
+                    grad_norm = torch.nn.utils.clip_grad_norm_(
+                        model.parameters(), max_norm=self.config.grad_clip_norm
+                    )
+                else:
+                    grad_norm = sum(
+                        p.grad.norm().item()
+                        for p in model.parameters()
+                        if p.grad is not None
+                    )
+                optimizer.step()
 
-            # Backward pass (unified)
-            grad_norm = self._backward_and_step(loss, model, optimizer, scaler)
+            # Step learning rate scheduler if enabled
+            if scheduler is not None:
+                scheduler.step()
 
-            history.append(loss.item())
-            self._log_epoch(epoch, loss, grad_norm, hedge_positions)
+            # Convert grad_norm to float if tensor
+            grad_norm_val = (
+                grad_norm.item() if torch.is_tensor(grad_norm) else grad_norm
+            )
+
+            history.append(epoch_loss)
+            self._log_epoch(
+                epoch, torch.tensor(epoch_loss), grad_norm_val, hedge_positions
+            )
 
         return history
 
@@ -442,6 +615,7 @@ class Trainer:
             bs_delta=hedge_positions,
             payoffs=payoffs,
             cost=self.config.transaction_cost,
+            band_width=self.config.band_width,  # FIX: Add band policy during training
         )
 
         initial_spot = spots[:, 0].mean()
@@ -455,26 +629,33 @@ class Trainer:
             # After warmup, optionally keep BS anchor
             loss = cvar_loss + self.config.bs_anchor_weight * mse_loss
 
-        # Add penalty for constant positions
+        # FIX: Add turnover penalty (was inverted const penalty that encouraged flat positions)
         if self.config.const_position_penalty > 0:
             time_changes = (
                 (hedge_positions[:, 1:] - hedge_positions[:, :-1]).abs().mean()
             )
-            const_penalty = self.config.const_position_penalty / (time_changes + 1e-6)
-            loss = loss + const_penalty
+            # Directly penalize excessive trading (not inverse)
+            turnover_penalty = self.config.const_position_penalty * time_changes
+            loss = loss + turnover_penalty
 
         return loss, mse_loss, cvar_loss
 
     def _train_with_curriculum(
-        self, model: "Hedger", option: "BitcoinEuropeanOption", optimizer, device
+        self,
+        model: "Hedger",
+        option: "BitcoinEuropeanOption",
+        optimizer,
+        device,
+        scheduler=None,
     ) -> List[float]:
-        """Training with BS-delta warmup curriculum."""
+        """Training with BS-delta warmup curriculum and optional gradient accumulation."""
         history = []
         warmup = self.config.bs_warmup_epochs
         ramp = self.config.curriculum_ramp_epochs
         total_transition = warmup + ramp
         use_amp = self.config.use_amp and device.type == "cuda"
         scaler = torch.cuda.amp.GradScaler() if use_amp else None
+        accumulation_steps = self.config.gradient_accumulation_steps
 
         model.train()
 
@@ -485,34 +666,108 @@ class Trainer:
                 print(f"  Transition: epochs {warmup+1}-{total_transition}")
             print(f"  Full training: epochs {total_transition+1}+")
 
+        # Initialize adaptive threshold
+        if not hasattr(self, "_curriculum_mse_threshold"):
+            self._curriculum_mse_threshold = 0.01  # Target MSE threshold
+
         for epoch in range(self.config.n_epochs):
             optimizer.zero_grad(set_to_none=True)
 
-            # Curriculum weight: 0 (pure BS) -> 1 (pure CVaR)
+            # Gradient accumulation loop
+            epoch_loss = 0.0
+            epoch_mse = 0.0
+            epoch_cvar = 0.0
+
+            for accum_step in range(accumulation_steps):
+                # Resample paths for this micro-batch (ensure diversity)
+                if accum_step > 0:
+                    micro_batch_seed = (
+                        self.config.train_seed + epoch * accumulation_steps + accum_step
+                    )
+                    self._resample_paths(option, self.config.n_paths, micro_batch_seed)
+
+                # Forward pass with optional AMP (compute loss first to get MSE for adaptive curriculum)
+                if use_amp:
+                    with torch.cuda.amp.autocast():
+                        hedge_positions = self._compute_hedge(model, option)
+                        # Use temporary alpha for loss computation
+                        temp_alpha = 0.0 if epoch < warmup else 1.0
+                        loss, mse_loss, cvar_loss = self._compute_curriculum_loss(
+                            model, option, hedge_positions, temp_alpha
+                        )
+                        # Scale loss for gradient accumulation
+                        loss = loss / accumulation_steps
+                else:
+                    hedge_positions = self._compute_hedge(model, option)
+                    # Use temporary alpha for loss computation
+                    temp_alpha = 0.0 if epoch < warmup else 1.0
+                    loss, mse_loss, cvar_loss = self._compute_curriculum_loss(
+                        model, option, hedge_positions, temp_alpha
+                    )
+                    # Scale loss for gradient accumulation
+                    loss = loss / accumulation_steps
+
+                # Backward pass (accumulate gradients)
+                if scaler:
+                    scaler.scale(loss).backward()
+                else:
+                    loss.backward()
+
+                epoch_loss += loss.item()
+                epoch_mse += mse_loss.item() / accumulation_steps
+                epoch_cvar += cvar_loss.item() / accumulation_steps
+
+            # Adaptive curriculum: only transition when MSE loss is low enough
+            # This ensures model learns BS hedge well before optimizing CVaR
             if epoch < warmup:
                 alpha = 0.0
             elif epoch < total_transition:
-                alpha = (epoch - warmup) / ramp if ramp > 0 else 1.0
+                # Check if MSE loss is below threshold before transitioning
+                if epoch_mse < self._curriculum_mse_threshold:
+                    alpha = (epoch - warmup) / ramp if ramp > 0 else 1.0
+                else:
+                    alpha = 0.0  # Stay in warmup if MSE still high
             else:
                 alpha = 1.0
 
-            # Forward pass with optional AMP
-            if use_amp:
-                with torch.cuda.amp.autocast():
-                    hedge_positions = self._compute_hedge(model, option)
-                    loss, mse_loss, cvar_loss = self._compute_curriculum_loss(
-                        model, option, hedge_positions, alpha
+            # Step optimizer after all micro-batches (unified gradient update)
+            if scaler:
+                scaler.unscale_(optimizer)
+                if self.config.grad_clip_norm:
+                    grad_norm = torch.nn.utils.clip_grad_norm_(
+                        model.parameters(), max_norm=self.config.grad_clip_norm
                     )
+                else:
+                    grad_norm = sum(
+                        p.grad.norm().item()
+                        for p in model.parameters()
+                        if p.grad is not None
+                    )
+                scaler.step(optimizer)
+                scaler.update()
             else:
-                hedge_positions = self._compute_hedge(model, option)
-                loss, mse_loss, cvar_loss = self._compute_curriculum_loss(
-                    model, option, hedge_positions, alpha
-                )
+                if self.config.grad_clip_norm:
+                    grad_norm = torch.nn.utils.clip_grad_norm_(
+                        model.parameters(), max_norm=self.config.grad_clip_norm
+                    )
+                else:
+                    grad_norm = sum(
+                        p.grad.norm().item()
+                        for p in model.parameters()
+                        if p.grad is not None
+                    )
+                optimizer.step()
 
-            # Backward pass (unified)
-            grad_norm = self._backward_and_step(loss, model, optimizer, scaler)
+            # Step learning rate scheduler if enabled
+            if scheduler is not None:
+                scheduler.step()
 
-            history.append(loss.item())
+            # Convert grad_norm to float if tensor
+            grad_norm_val = (
+                grad_norm.item() if torch.is_tensor(grad_norm) else grad_norm
+            )
+
+            history.append(epoch_loss)
 
             # Custom logging for curriculum with phase info
             if self.verbose and (epoch % 10 == 0 or epoch == self.config.n_epochs - 1):
@@ -521,7 +776,7 @@ class Trainer:
                     if epoch < warmup
                     else ("Transition" if epoch < total_transition else "Full")
                 )
-                extra_info = f" [{phase}, α={alpha:.2f}]: Loss={loss.item():.6f} (MSE={mse_loss.item():.6f}, CVaR={cvar_loss.item():.6f})"
+                extra_info = f" [{phase}, α={alpha:.2f}]: Loss={epoch_loss:.6f} (MSE={epoch_mse:.6f}, CVaR={epoch_cvar:.6f})"
 
                 with torch.no_grad():
                     pos_mean = hedge_positions.mean().item()
@@ -529,7 +784,7 @@ class Trainer:
 
                 print(
                     f"Epoch {epoch+1}/{self.config.n_epochs}{extra_info}, "
-                    f"GradNorm={grad_norm:.2f}, Hedge: μ={pos_mean:.3f} σ={pos_std:.3f}"
+                    f"GradNorm={grad_norm_val:.2f}, Hedge: μ={pos_mean:.3f} σ={pos_std:.3f}"
                 )
 
         return history
@@ -550,7 +805,12 @@ class Trainer:
         self.diagnostics.detach()
 
     def _train_with_early_stopping(
-        self, model: "Hedger", option: "BitcoinEuropeanOption", optimizer, device
+        self,
+        model: "Hedger",
+        option: "BitcoinEuropeanOption",
+        optimizer,
+        device,
+        scheduler=None,
     ) -> List[float]:
         history = []
         best_loss = float("inf")
@@ -571,6 +831,10 @@ class Trainer:
             loss = epoch_history[0] if epoch_history else float("inf")
             history.append(loss)
 
+            # Step learning rate scheduler if enabled
+            if scheduler is not None:
+                scheduler.step()
+
             if loss < best_loss - self.config.min_delta:
                 best_loss = loss
                 patience_counter = 0
@@ -586,6 +850,83 @@ class Trainer:
                         f"Epoch {epoch+1}/{self.config.n_epochs}: loss={loss:.6f} (patience: {patience_counter}/{self.config.patience})"
                     )
 
+            if patience_counter >= self.config.patience:
+                if self.verbose:
+                    print(f"\n🛑 Early stopping triggered after {epoch+1} epochs")
+                    print(
+                        f"   Best loss: {best_loss:.6f} (epoch {epoch+1-patience_counter})"
+                    )
+
+                if best_state is not None:
+                    model.load_state_dict(
+                        {k: v.to(device) for k, v in best_state.items()}
+                    )
+                    if self.verbose:
+                        print(f"   Restored best model weights")
+                break
+
+        return history
+
+    def _train_with_early_stopping_custom(
+        self,
+        model: "Hedger",
+        option: "BitcoinEuropeanOption",
+        optimizer,
+        device,
+        scheduler=None,
+    ) -> List[float]:
+        """Training loop with custom loss (tail penalty/grad clipping) and early stopping."""
+        history = []
+        best_loss = float("inf")
+        patience_counter = 0
+        best_state = None
+        use_amp = self.config.use_amp and device.type == "cuda"
+        scaler = torch.cuda.amp.GradScaler() if use_amp else None
+
+        model.train()
+
+        for epoch in range(self.config.n_epochs):
+            optimizer.zero_grad(set_to_none=True)
+
+            # Forward pass with optional AMP
+            if use_amp:
+                with torch.cuda.amp.autocast():
+                    hedge_positions = self._compute_hedge(model, option)
+                    loss = self._compute_loss(model, option, hedge_positions, epoch)
+            else:
+                hedge_positions = self._compute_hedge(model, option)
+                loss = self._compute_loss(model, option, hedge_positions, epoch)
+
+            # Backward pass (unified)
+            grad_norm = self._backward_and_step(loss, model, optimizer, scaler)
+
+            # Step learning rate scheduler if enabled
+            if scheduler is not None:
+                scheduler.step()
+
+            loss_val = loss.item()
+            history.append(loss_val)
+
+            # Early stopping logic
+            if loss_val < best_loss - self.config.min_delta:
+                best_loss = loss_val
+                patience_counter = 0
+                best_state = {k: v.cpu().clone() for k, v in model.state_dict().items()}
+                if self.verbose:
+                    print(
+                        f"Epoch {epoch+1}/{self.config.n_epochs}: loss={loss_val:.6f} ⭐ (new best)"
+                    )
+            else:
+                patience_counter += 1
+                if self.verbose and (
+                    epoch % 10 == 0 or epoch == self.config.n_epochs - 1
+                ):
+                    print(
+                        f"Epoch {epoch+1}/{self.config.n_epochs}: loss={loss_val:.6f} "
+                        f"(patience: {patience_counter}/{self.config.patience})"
+                    )
+
+            # Check if early stopping triggered
             if patience_counter >= self.config.patience:
                 if self.verbose:
                     print(f"\n🛑 Early stopping triggered after {epoch+1} epochs")

@@ -8,6 +8,9 @@ from typing import Optional
 from crypto.backtest.config import BacktestConfig
 from crypto.backtest.backtester import Backtester
 
+# Import custom features to register them
+import crypto.features.custom_features  # noqa
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(

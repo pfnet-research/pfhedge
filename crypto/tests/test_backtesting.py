@@ -136,7 +136,7 @@ class TestBacktestConfig:
             n_bootstrap_paths=-10,  # Invalid
         )
 
-        with pytest.raises(ValueError, match="n_bootstrap_paths must be positive"):
+        with pytest.raises(ValueError, match="n_bootstrap_paths must be non-negative"):
             config.validate()
 
     def test_validate_negative_transaction_cost(self):
@@ -1155,7 +1155,7 @@ class TestBacktester:
                 os.unlink(temp_path)
 
     @staticmethod
-    def create_dummy_parquet_data(data_dir: str, n_days: int = 10):
+    def create_dummy_parquet_data(data_dir: str, n_days: int = 15):
         from datetime import datetime, timedelta
 
         os.makedirs(data_dir, exist_ok=True)
@@ -1183,7 +1183,7 @@ class TestBacktester:
         options_data = {
             "timestamp": timestamps[:n_options],
             "strike": [50000] * n_options,
-            "expiration": [datetime(2024, 1, 15).timestamp() * 1000] * n_options,
+            "expiration": [datetime(2024, 1, 20).timestamp() * 1000] * n_options,
             "option_type": ["call"] * (n_options // 2) + ["put"] * (n_options // 2),
             "last_price": np.random.uniform(100, 5000, n_options),
             "bid_price": np.random.uniform(100, 4900, n_options),

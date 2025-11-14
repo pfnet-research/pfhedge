@@ -1,0 +1,58 @@
+option_file: "crypto/data/options_2025-09-28_monthly_atm_110k.json"
+instrument: "BTC-31OCT25-110000-C"
+
+# Architecture - Same as iteration 17
+model_type: "mlp"
+n_layers: 4
+n_units: [256, 128, 64, 32]
+
+# Training parameters
+n_epochs: 50  # Reduced to focus on early epochs
+n_paths: 750000
+learning_rate: 0.0003
+optimizer: "adamw"
+device: "cuda"
+
+# Features - Same as iteration 17
+features:
+  - "log_moneyness"
+  - "expiry_time"
+  - "volatility"
+  - "prev_hedge"
+
+# Risk parameters - Same as iteration 17
+risk_measure: "entropic"
+risk_param: 2.2
+tail_penalty_weight: 0.3
+tail_penalty_ramp: true
+
+# Learning rate scheduler
+use_lr_scheduler: true
+
+# Market parameters
+transaction_cost: 0.0004
+dt_hours: 8.0
+underlying_type: "perpetual"
+band_width: 0.0005
+
+# Regularization
+grad_clip_norm: 3.0
+weight_decay: 0.00005
+feature_dropout: 0.1
+
+# Training tricks
+bs_warmup_epochs: 0
+curriculum_ramp_epochs: 0
+const_position_penalty: 0.0
+bs_anchor_weight: 0.0
+
+# Early stopping - DISABLED to see full progression
+early_stopping: false
+
+# Output - Will be modified per seed
+model_path: "models/iteration_17_seed_test"
+seed: 42  # Will vary this
+
+comments: |
+  Reproducibility test for iteration 17
+  Testing if epoch 3 phenomenon is consistent across seeds

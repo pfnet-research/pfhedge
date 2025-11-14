@@ -121,6 +121,65 @@ class BitcoinEuropeanOption(EuropeanOption):
             realized_vol = self.realized_volatility([20])
             return realized_vol.squeeze(-1)  # Remove window dimension
 
+    def volatility_10(self) -> torch.Tensor:
+        if not hasattr(self.underlier, "spot"):
+            raise ValueError("Underlier must be simulated first")
+
+        dt = getattr(self.underlier, "dt", 8 / 24 / 365)
+        annualization_factor = np.sqrt(1.0 / dt)
+
+        vol = calculate_realized_volatility(
+            self.underlier.spot,
+            window=10,
+            annualization_factor=annualization_factor,
+        )
+
+        sigma = getattr(self.underlier, "sigma", 0.8)
+        vol = torch.where(torch.isnan(vol), torch.full_like(vol, sigma), vol)
+        return vol
+
+    def volatility_50(self) -> torch.Tensor:
+        if not hasattr(self.underlier, "spot"):
+            raise ValueError("Underlier must be simulated first")
+
+        dt = getattr(self.underlier, "dt", 8 / 24 / 365)
+        annualization_factor = np.sqrt(1.0 / dt)
+
+        vol = calculate_realized_volatility(
+            self.underlier.spot,
+            window=50,
+            annualization_factor=annualization_factor,
+        )
+
+        sigma = getattr(self.underlier, "sigma", 0.8)
+        vol = torch.where(torch.isnan(vol), torch.full_like(vol, sigma), vol)
+        return vol
+
+    def volatility_change(self) -> torch.Tensor:
+        """Compute change in volatility between consecutive time steps."""
+        if not hasattr(self.underlier, "spot"):
+            raise ValueError("Underlier must be simulated first")
+
+        # Get current volatility
+        current_vol = self.volatility()
+
+        # Compute change: current_vol - previous_vol
+        # Pad first step with zeros (no previous volatility)
+        vol_change = torch.cat(
+            [
+                torch.zeros_like(current_vol[:, [0]]),
+                current_vol[:, 1:] - current_vol[:, :-1],
+            ],
+            dim=1,
+        )
+
+        return vol_change
+
+    def moneyness_squared(self) -> torch.Tensor:
+        """Compute squared log-moneyness for capturing non-linear gamma effects."""
+        log_m = self.moneyness(log=True)
+        return log_m**2
+
     def deep_hedging_features(
         self,
         vol_windows: Optional[list] = None,

@@ -303,14 +303,22 @@ class TestModelRegistry:
 class TestModelIntegration:
 
     def test_lstm_hedger_forward_pass(self):
-        hedger = create_deep_hedger(model_type="lstm", n_layers=2, n_units=64)
+        # Use minimal feature set for testing
+        features = ["log_moneyness", "expiry_time", "volatility", "prev_hedge"]
+        hedger = create_deep_hedger(
+            model_type="lstm", n_layers=2, n_units=64, features=features
+        )
         # Simulate option data: (n_paths, n_steps, n_features)
         x = torch.randn(100, 42, 4)
         output = hedger.model(x)
         assert output.shape == (100, 42, 1)
 
     def test_gru_hedger_forward_pass(self):
-        hedger = create_deep_hedger(model_type="gru", n_layers=2, n_units=64)
+        # Use minimal feature set for testing
+        features = ["log_moneyness", "expiry_time", "volatility", "prev_hedge"]
+        hedger = create_deep_hedger(
+            model_type="gru", n_layers=2, n_units=64, features=features
+        )
         x = torch.randn(100, 42, 4)
         output = hedger.model(x)
         assert output.shape == (100, 42, 1)
@@ -328,9 +336,17 @@ class TestModelIntegration:
         torch.manual_seed(42)
         x = torch.randn(50, 20, 4)
 
-        mlp_hedger = create_deep_hedger(model_type="mlp", n_layers=2, n_units=64)
-        lstm_hedger = create_deep_hedger(model_type="lstm", n_layers=2, n_units=64)
-        gru_hedger = create_deep_hedger(model_type="gru", n_layers=2, n_units=64)
+        # Use minimal feature set for testing
+        features = ["log_moneyness", "expiry_time", "volatility", "prev_hedge"]
+        mlp_hedger = create_deep_hedger(
+            model_type="mlp", n_layers=2, n_units=64, features=features
+        )
+        lstm_hedger = create_deep_hedger(
+            model_type="lstm", n_layers=2, n_units=64, features=features
+        )
+        gru_hedger = create_deep_hedger(
+            model_type="gru", n_layers=2, n_units=64, features=features
+        )
 
         with torch.no_grad():
             mlp_out = mlp_hedger.model(x)

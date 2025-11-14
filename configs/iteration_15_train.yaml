@@ -1,0 +1,98 @@
+option_file: "crypto/data/options_2025-09-28_monthly_atm_110k.json"
+instrument: "BTC-31OCT25-110000-C"
+
+# Architecture - SMALLER FOR BETTER GENERALIZATION
+model_type: "mlp"  # Standard MLP (batch norm and dropout controlled via feature_dropout)
+n_layers: 3
+n_units: [128, 64, 32]  # SMALLER: Reduce overfitting for better tail risk generalization
+
+# Training parameters - EXTENDED WITH EARLY STOPPING
+n_epochs: 300  # INCREASE: More epochs with early stopping safety net
+n_paths: 750000  # INCREASE 50%: More data for better tail statistics
+learning_rate: 0.0003  # REDUCE: Lower for stability with hybrid loss
+optimizer: "adamw"
+device: "cuda"  # For remote GPU training
+
+# Features - TAIL RISK INDICATORS (MAJOR ADDITION)
+features:
+  - "log_moneyness"
+  - "expiry_time"
+  - "volatility"
+  - "prev_hedge"
+
+# Risk parameters - HYBRID TAIL PROTECTION (MAIN INNOVATION)
+risk_measure: "entropic"  # REVERT: Back to entropic (best performer so far)
+risk_param: 2.2  # REDUCE: 2.5 -> 2.2 (slightly less risk-averse)
+
+# Hybrid loss parameters - HEAVY TAIL FOCUS (CRITICAL FIX!)
+tail_penalty_weight: 0.7  # TUNING: 70% weight on CVaR tail penalty (prioritize tail risk)
+tail_penalty_ramp: false  # FIX: Disable ramp (incompatible with early stopping!)
+
+# Learning rate scheduler (NEW)
+use_lr_scheduler: true  # NEW: Cosine annealing to escape local minima
+
+# Market parameters - REDUCED TRANSACTION COSTS
+transaction_cost: 0.0004  # REDUCE 33%: 0.0006 -> 0.0004 (enable tail hedging)
+dt_hours: 8.0
+underlying_type: "perpetual"
+band_width: 0.0005  # Keep existing band
+
+# Regularization - HEAVY FOR ROBUSTNESS
+const_position_penalty: 0.0
+bs_anchor_weight: 0.0  # Not needed without curriculum
+grad_clip_norm: 3.0  # REDUCE: 5.0 -> 3.0 (tighter gradient control)
+weight_decay: 0.00005  # REDUCE: Better for larger model
+feature_dropout: 0.3  # HEAVY: Strong dropout for tail risk robustness
+
+# Training tricks - NO CURRICULUM (conflicts with hybrid loss)
+bs_warmup_epochs: 0
+curriculum_ramp_epochs: 0
+
+# Early stopping - ENABLED WITH PATIENCE
+early_stopping: true  # ENABLE: Safety net for 300 epochs
+patience: 20  # INCREASE: Allow more exploration before stopping
+min_delta: 0.00001  # Small delta for fine convergence
+
+# Output
+model_path: "models/iteration_15"
+seed: 42
+
+# Documentation
+comments: |
+  Iteration 15: CRITICAL FIX - Disable tail_penalty_ramp
+
+  Purpose: Fix the catastrophic tail_penalty_ramp + early_stopping incompatibility
+
+  CRITICAL INSIGHT from Iteration 14:
+  - tail_penalty_ramp starts with low weight (0.7 * 0/299 = 0 at epoch 0)
+  - Early stopping triggered at epoch 21 (patience=20)
+  - At epoch 21: tail_penalty_weight = 0.7 * 21/299 = 0.049 (only 7% of target!)
+  - Model learned mean optimization before tail protection kicked in
+  - Result: CVaR -$29,003 (213% worse than target!) - CATASTROPHIC
+
+  Changes from Iteration 14:
+  1. tail_penalty_ramp: true -> false (CRITICAL FIX)
+  2. Now uses full tail_penalty_weight=0.7 from epoch 0
+  3. Model will learn tail protection immediately
+
+  Expected Results:
+  - Training loss will be higher (tail penalty dominant from start)
+  - CVaR should improve dramatically from -$29,003
+  - Target: CVaR around -$9,260 (same as iteration 5b)
+  - May sacrifice some mean PnL (acceptable trade-off)
+
+  Comparison Baseline (Iteration 14 with ramp):
+  - Mean PnL: -$5,191.81 (8% better than target) ✅
+  - CVaR 95%: -$29,003.49 (213% worse than target!) 🚨
+  - Sharpe: -0.658 (79% better than target) ✅
+  - Win Rate: 48.7%
+
+  Target to beat (iteration 5b):
+  - Mean PnL: -$5,650
+  - CVaR 95%: -$9,260 ← CRITICAL to improve
+  - Sharpe: -3.14
+
+  Hypothesis:
+  - Full tail_penalty_weight from start will force tail protection learning
+  - CVaR should improve 3x: -$29,003 -> ~-$9,000
+  - Training may stop earlier due to higher initial loss
