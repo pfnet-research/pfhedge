@@ -8,6 +8,7 @@ from typing import Union
 import torch
 from torch import Tensor
 from torch.nn import Module
+from torch.nn.utils import clip_grad_norm_
 from torch.optim import Adam
 from torch.optim import Optimizer
 
@@ -515,6 +516,7 @@ class Hedger(Module):
         verbose: bool = True,
         validation: bool = True,
         tqdm_kwargs: dict = {},
+        max_grad_norm: Optional[float] = None,
     ) -> Optional[List[float]]:
         """Fit the hedging model to hedge a given derivative.
 
@@ -545,6 +547,10 @@ class Hedger(Module):
                 validation loss and returns ``None``.
             tqdm_kwargs (dict, default={}): Keyword argument passed to ``tqdm.__init__``
                 to customize the progress bar.
+            max_grad_norm (float, optional): If given, clip the total norm of the
+                gradients of the optimized parameters to this value using
+                :func:`torch.nn.utils.clip_grad_norm_` before each optimizer step.
+                If ``None`` (default), gradients are not clipped.
 
         Returns:
             list[float]
@@ -608,6 +614,9 @@ class Hedger(Module):
             optimizer.zero_grad()
             loss = compute_loss()
             loss.backward()
+            if max_grad_norm is not None:
+                params = [p for g in optimizer.param_groups for p in g["params"]]
+                clip_grad_norm_(params, max_grad_norm)
             optimizer.step()
 
             # Compute validation loss
