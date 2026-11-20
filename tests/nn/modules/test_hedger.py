@@ -6,6 +6,7 @@ from torch import Tensor
 from torch.nn import Identity
 from torch.nn import Linear
 from torch.nn import Module
+from torch.optim import SGD
 from torch.testing import assert_close
 
 from pfhedge.instruments import BaseDerivative
@@ -371,6 +372,51 @@ Hedger(
     @pytest.mark.gpu
     def test_compute_loss_gpu(self):
         self.test_compute_loss(device="cuda")
+
+    def test_fit_max_grad_norm(self, device: str = "cpu"):
+        grad_norms = []
+
+        class GradNormRecorder(SGD):
+            def step(self, closure=None):
+                params = [p for g in self.param_groups for p in g["params"]]
+                grad_norm = torch.stack([p.grad.norm() for p in params]).norm()
+                grad_norms.append(grad_norm.item())
+                return super().step(closure)
+
+        def fit(**kwargs) -> Hedger:
+            torch.manual_seed(42)
+            derivative = EuropeanOption(BrownianStock()).to(device)
+            hedger = Hedger(Linear(2, 1), ["moneyness", "time_to_maturity"]).to(device)
+            optimizer = GradNormRecorder(hedger.parameters(), lr=0.1)
+            hedger.fit(
+                derivative,
+                n_epochs=1,
+                n_paths=100,
+                optimizer=optimizer,
+                verbose=False,
+                validation=False,
+                **kwargs
+            )
+            return hedger
+
+        # Gradients are not clipped by default
+        expect = list(fit().parameters())
+        grad_norm = grad_norms[-1]
+
+        # Gradients smaller than max_grad_norm are left as they are
+        result = list(fit(max_grad_norm=2 * grad_norm).parameters())
+        assert_close(grad_norms[-1], grad_norm)
+        assert_close(result, expect)
+
+        # Gradients larger than max_grad_norm are clipped
+        # (clip_grad_norm_ adds 1e-6 to the norm, hence the tolerance)
+        result = list(fit(max_grad_norm=grad_norm / 2).parameters())
+        assert_close(grad_norms[-1], grad_norm / 2, rtol=1e-3, atol=0.0)
+        assert not torch.allclose(result[0], expect[0])
+
+    @pytest.mark.gpu
+    def test_fit_max_grad_norm_gpu(self):
+        self.test_fit_max_grad_norm(device="cuda")
 
     def test_hedging_with_identical_derivative(self, device: str = "cpu"):
         torch.manual_seed(42)
